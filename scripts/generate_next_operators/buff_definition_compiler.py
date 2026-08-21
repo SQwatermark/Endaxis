@@ -171,16 +171,24 @@ def _skill_replacements_are_manual_slot_presentation(source: BuffDefinitionSourc
 
 
 def is_strictly_presentation_only_buff(source: BuffDefinitionSource) -> bool:
-    """判断一个 Buff 是否只有已识别的表现型 stack effect，因而可从模拟中剔除。"""
+    """判断一个 Buff 是否只有已识别的表现动作，因而可从模拟中剔除。"""
     lifecycle = source.lifecycle
     if not source.sourceAvailable or lifecycle is None:
         return False
-    if (
-        not lifecycle.hasStackEffects
-        or not lifecycle.stackEffectActionTypes
-        or not set(lifecycle.stackEffectActionTypes)
+    stack_effects_are_presentation_only = (
+        lifecycle.hasStackEffects
+        and bool(lifecycle.stackEffectActionTypes)
+        and set(lifecycle.stackEffectActionTypes)
         <= PRESENTATION_STACK_EFFECT_ACTION_TYPES
-    ):
+    )
+    events_are_presentation_only = bool(source.eventActions) and _event_actions_are_presentation_only(
+        source
+    )
+    if lifecycle.hasStackEffects and not stack_effects_are_presentation_only:
+        return False
+    if source.eventActions and not events_are_presentation_only:
+        return False
+    if not stack_effects_are_presentation_only and not events_are_presentation_only:
         return False
     return not any(
         (
@@ -196,7 +204,6 @@ def is_strictly_presentation_only_buff(source: BuffDefinitionSource) -> bool:
             source.blackboardMutations,
             source.buffBlackboardReads,
             source.buffFinishes,
-            source.eventActions,
             getattr(source, "igniteEventActions", ()),
             source.sourceDeathFinish,
             source.resourceGains,

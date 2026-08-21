@@ -41,6 +41,9 @@ Aura 对目标的进入、离开和整体结束是实例生命周期，而不是
 `<slug>.operator.generated.ts`。技能 Buff 解析若抛出严格 `ValueError`，审计报告会把错误写入
 `buffDefinitionResolutionIssues`、保持 `complete: false` 并继续保存其余来源事实；
 `outputStage: complete` 遇到同一错误必须原样失败，不能借用审计降级路径。
+审计阶段虽然不会把普通 Buff 定义内联进技能，但会自动解析当前技能实际引用、且只有已识别
+表现事件或 stack effect 的 Buff，并在编译视图中省略它们；这类省略不需要逐干员
+`ignoreBuffIds`。任何属性、伤害、标签、黑板、资源或未解析载荷都会阻止该分类。
 
 完整定义包含基础信息、六个里程碑等级的面板基线、技能组、天赋和潜能。生成器会反向核对 `CharGrowthTable.skillGroupMap`，并验证天赋、潜能修改的技能 ID、黑板键和数据形状。
 

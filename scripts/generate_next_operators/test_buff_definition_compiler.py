@@ -77,6 +77,30 @@ class BuffDefinitionCompilerTests(unittest.TestCase):
         self.assertIn("stackingType:", compiled)
         self.assertTrue(is_strictly_presentation_only_buff(source))
 
+    def test_ignores_strictly_presentation_only_events_without_stack_effects(self) -> None:
+        lifecycle = vars(definition().lifecycle) | {"stackEffectActionTypes": ()}
+        source = definition(
+            lifecycle=SimpleNamespace(**lifecycle),
+            eventActions=(
+                SimpleNamespace(
+                    orderedActionTypes=("TogglableAction",),
+                    sequences=(SimpleNamespace(actions=()),),
+                    combatActions=(),
+                    damageUnits=(),
+                    buffApplications=(),
+                    createdBuffIds=(),
+                    forEachActions=(),
+                    targetGroupWrites=(),
+                    runtimeTargetGroupWrites=(),
+                    obtainAtbFilters=(),
+                    contextBuffTagQueries=(),
+                    consumeBuffLayerChecks=(),
+                ),
+            ),
+        )
+
+        self.assertTrue(is_strictly_presentation_only_buff(source))
+
     def test_rejects_non_presentation_stack_effects(self) -> None:
         lifecycle = vars(definition().lifecycle) | {
             "hasStackEffects": True,

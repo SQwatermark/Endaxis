@@ -67,6 +67,7 @@ export const zhuangFangyiBasicAttack2: SkillDefinition = withSkillBlackboard(
                 value: { kind: 'constant', value: 14 },
               }),
             ),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -195,6 +196,7 @@ export const zhuangFangyiBasicAttack3: SkillDefinition = withSkillBlackboard(
                 value: { kind: 'constant', value: 14 },
               }),
             ),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -683,6 +685,8 @@ export const zhuangFangyiComboSkill: SkillDefinition = withSkillBlackboard(
                     value: { kind: 'constant', value: 1 },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -698,6 +702,8 @@ export const zhuangFangyiComboSkill: SkillDefinition = withSkillBlackboard(
                     value: { kind: 'constant', value: 4 },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               step('applyBuff', {
                 buffId: 'buff_common_pulse_pulse_conduct_triggered',
@@ -708,6 +714,8 @@ export const zhuangFangyiComboSkill: SkillDefinition = withSkillBlackboard(
                 },
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -747,6 +755,8 @@ export const zhuangFangyiComboSkill: SkillDefinition = withSkillBlackboard(
                 recipient: 'caster',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -834,6 +844,8 @@ export const zhuangFangyiEnhancedComboSkill: SkillDefinition = withSkillBlackboa
                     value: { kind: 'constant', value: 1 },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -849,6 +861,8 @@ export const zhuangFangyiEnhancedComboSkill: SkillDefinition = withSkillBlackboa
                     value: { kind: 'constant', value: 4 },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               step('applyBuff', {
                 buffId: 'buff_common_pulse_pulse_conduct_triggered',
@@ -859,6 +873,8 @@ export const zhuangFangyiEnhancedComboSkill: SkillDefinition = withSkillBlackboa
                 },
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),

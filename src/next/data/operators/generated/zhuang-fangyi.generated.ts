@@ -101,9 +101,14 @@ export const zhuangFangyiGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_dash_hide",
@@ -235,9 +240,14 @@ export const zhuangFangyiGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword",
@@ -524,9 +534,16 @@ export const zhuangFangyiGeneratedSource = {
                           "excludeDeadEntity": false,
                           "storeKey": ""
                         },
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
-                        "deckAttributeCompare": null
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
                       }
                     ],
                     "succeedActions": [
@@ -551,7 +568,8 @@ export const zhuangFangyiGeneratedSource = {
                         "buffIgnite": null
                       }
                     ],
-                    "failActions": []
+                    "failActions": [],
+                    "alwaysNext": true
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -892,9 +910,16 @@ export const zhuangFangyiGeneratedSource = {
                           "levelValues": null
                         },
                         "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
-                        "deckAttributeCompare": null
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
                       }
                     ],
                     "succeedActions": [
@@ -1009,7 +1034,8 @@ export const zhuangFangyiGeneratedSource = {
                         "buffIgnite": null
                       }
                     ],
-                    "failActions": []
+                    "failActions": [],
+                    "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -1149,9 +1175,14 @@ export const zhuangFangyiGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar",
@@ -1464,9 +1495,16 @@ export const zhuangFangyiGeneratedSource = {
                           "excludeDeadEntity": true,
                           "storeKey": ""
                         },
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
-                        "deckAttributeCompare": null
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
                       }
                     ],
                     "succeedActions": [
@@ -1564,7 +1602,8 @@ export const zhuangFangyiGeneratedSource = {
                           "dieOnEnd": false
                         }
                       }
-                    ]
+                    ],
+                    "alwaysNext": true
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -1638,9 +1677,14 @@ export const zhuangFangyiGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_potential5_vfx",
@@ -1732,9 +1776,14 @@ export const zhuangFangyiGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_sword_triggerd",
@@ -1914,7 +1963,8 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": false
         },
         {
           "startFrame": 3,
@@ -1944,9 +1994,16 @@ export const zhuangFangyiGeneratedSource = {
                 "levelValues": null
               },
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -2031,9 +2088,16 @@ export const zhuangFangyiGeneratedSource = {
                       ]
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -2080,7 +2144,8 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -2169,9 +2234,16 @@ export const zhuangFangyiGeneratedSource = {
                       ]
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -2218,13 +2290,15 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 6,
@@ -2256,9 +2330,16 @@ export const zhuangFangyiGeneratedSource = {
                 ]
               },
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -2302,7 +2383,8 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "blackboardCalculations": [
@@ -2603,9 +2685,14 @@ export const zhuangFangyiGeneratedSource = {
           "intervalSeconds": null
         }
       ],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_talent1",
@@ -2668,9 +2755,14 @@ export const zhuangFangyiGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_talent1_mark",
@@ -2733,9 +2825,14 @@ export const zhuangFangyiGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_base",
@@ -2857,7 +2954,6 @@ export const zhuangFangyiGeneratedSource = {
             "CreateBuffAction",
             "CharWeaponVisibleAction",
             "TogglableAction",
-            "SetSuperArmorAction",
             "OverrideMultiDashLimit",
             "RefrainObtainUsp"
           ],
@@ -2903,7 +2999,6 @@ export const zhuangFangyiGeneratedSource = {
                 "CreateBuffAction",
                 "CharWeaponVisibleAction",
                 "TogglableAction",
-                "SetSuperArmorAction",
                 "OverrideMultiDashLimit",
                 "RefrainObtainUsp"
               ],
@@ -3429,9 +3524,43 @@ export const zhuangFangyiGeneratedSource = {
           "revertedSkillId": ""
         }
       ],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [
+        {
+          "target": {
+            "targetSource": "Source",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "superArmor": {
+            "value": 35.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "impactResistance": {
+            "value": 100.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_body_vfx",
@@ -3631,6 +3760,9 @@ export const zhuangFangyiGeneratedSource = {
                         "left": null,
                         "right": null,
                         "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": {
                           "checkType": "Id",
@@ -3639,7 +3771,11 @@ export const zhuangFangyiGeneratedSource = {
                           ],
                           "queryType": "HasAny"
                         },
-                        "deckAttributeCompare": null
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
                       }
                     ],
                     "succeedActions": [
@@ -3677,13 +3813,20 @@ export const zhuangFangyiGeneratedSource = {
                               "left": null,
                               "right": null,
                               "skillTypes": [],
+                              "poise": null,
                               "mainOperator": {
                                 "targetSource": "Source",
                                 "targetGroupKey": ""
                               },
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
                               "damageDecorateMask": null,
                               "contextBuffId": null,
-                              "deckAttributeCompare": null
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
                             }
                           ],
                           "succeedActions": [
@@ -3724,14 +3867,16 @@ export const zhuangFangyiGeneratedSource = {
                               }
                             }
                           ],
-                          "failActions": []
+                          "failActions": [],
+                          "alwaysNext": false
                         },
                         "legacyBuffFinish": null,
                         "skillCooldownAdjustment": null,
                         "buffIgnite": null
                       }
                     ],
-                    "failActions": []
+                    "failActions": [],
+                    "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -3754,9 +3899,14 @@ export const zhuangFangyiGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_env_vfx",
@@ -3850,9 +4000,14 @@ export const zhuangFangyiGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_hide_model",
@@ -3944,9 +4099,14 @@ export const zhuangFangyiGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_hide_model_holder",
@@ -4127,9 +4287,14 @@ export const zhuangFangyiGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_skill_free",
@@ -4203,9 +4368,14 @@ export const zhuangFangyiGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -4280,9 +4450,14 @@ export const zhuangFangyiGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -4347,36 +4522,7 @@ export const zhuangFangyiGeneratedSource = {
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
-      "eventActions": [
-        {
-          "eventSource": "buff",
-          "event": "DuringBuffEnable",
-          "orderedActionTypes": [
-            "SetSuperArmorAction"
-          ],
-          "combatActions": [],
-          "damageUnits": [],
-          "buffApplications": [],
-          "createdBuffIds": [],
-          "forEachActions": [],
-          "targetGroupWrites": [],
-          "sequences": [
-            {
-              "onlyMainOperator": false,
-              "onlyGuard": false,
-              "orderedActionTypes": [
-                "SetSuperArmorAction"
-              ],
-              "combatActions": [],
-              "buffApplications": [],
-              "actions": [],
-              "priority": 0
-            }
-          ],
-          "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
-        }
-      ],
+      "eventActions": [],
       "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
@@ -4386,9 +4532,43 @@ export const zhuangFangyiGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [
+        {
+          "target": {
+            "targetSource": "Owner",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "superArmor": {
+            "value": 50.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "impactResistance": {
+            "value": 100.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -4496,9 +4676,14 @@ export const zhuangFangyiGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -4567,9 +4752,14 @@ export const zhuangFangyiGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_common_pulse_pulse_conduct_triggered",
@@ -4848,9 +5038,16 @@ export const zhuangFangyiGeneratedSource = {
                           "levelValues": null
                         },
                         "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
-                        "deckAttributeCompare": null
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
                       }
                     ],
                     "succeedActions": [
@@ -4886,7 +5083,8 @@ export const zhuangFangyiGeneratedSource = {
                         "buffIgnite": null
                       }
                     ],
-                    "failActions": []
+                    "failActions": [],
+                    "alwaysNext": true
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -4981,9 +5179,14 @@ export const zhuangFangyiGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_common_pulse_pulse_conduct_triggered_do",
@@ -5583,9 +5786,14 @@ export const zhuangFangyiGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_common_pulse_triggered_fx",
@@ -5685,9 +5893,14 @@ export const zhuangFangyiGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_common_pulse_triggered_start",
@@ -5779,9 +5992,14 @@ export const zhuangFangyiGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     }
   ],
   "skills": [
@@ -6527,9 +6745,16 @@ export const zhuangFangyiGeneratedSource = {
                 "levelValues": null
               },
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -6587,7 +6812,8 @@ export const zhuangFangyiGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 15,
@@ -6607,6 +6833,9 @@ export const zhuangFangyiGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "distance": {
                 "source": {
                   "targetSource": "Owner",
@@ -6647,7 +6876,11 @@ export const zhuangFangyiGeneratedSource = {
               },
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -6829,14 +7062,25 @@ export const zhuangFangyiGeneratedSource = {
                       "conditions": [
                         {
                           "sourceType": "Probablity",
-                          "supported": false,
+                          "supported": true,
                           "comparison": null,
                           "left": null,
                           "right": null,
                           "skillTypes": [],
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": {
+                            "value": 0.5,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -6999,6 +7243,7 @@ export const zhuangFangyiGeneratedSource = {
                           "buffIgnite": null
                         }
                       ],
+                      "alwaysNext": true,
                       "executionFrames": [
                         9,
                         11,
@@ -7217,14 +7462,25 @@ export const zhuangFangyiGeneratedSource = {
                       "conditions": [
                         {
                           "sourceType": "Probablity",
-                          "supported": false,
+                          "supported": true,
                           "comparison": null,
                           "left": null,
                           "right": null,
                           "skillTypes": [],
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": {
+                            "value": 0.5,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -7387,6 +7643,7 @@ export const zhuangFangyiGeneratedSource = {
                           "buffIgnite": null
                         }
                       ],
+                      "alwaysNext": true,
                       "executionFrames": [
                         9,
                         11,
@@ -7426,6 +7683,7 @@ export const zhuangFangyiGeneratedSource = {
               ]
             }
           ],
+          "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
             {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
@@ -7825,14 +8083,25 @@ export const zhuangFangyiGeneratedSource = {
               "conditions": [
                 {
                   "sourceType": "Probablity",
-                  "supported": false,
+                  "supported": true,
                   "comparison": null,
                   "left": null,
                   "right": null,
                   "skillTypes": [],
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": {
+                    "value": 0.5,
+                    "blackboardKey": null,
+                    "levelValues": null
+                  },
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 }
               ],
               "succeedActions": [
@@ -7995,6 +8264,7 @@ export const zhuangFangyiGeneratedSource = {
                   "buffIgnite": null
                 }
               ],
+              "alwaysNext": true,
               "executionFrames": [
                 9,
                 11,
@@ -8371,9 +8641,16 @@ export const zhuangFangyiGeneratedSource = {
                 "levelValues": null
               },
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -8465,7 +8742,8 @@ export const zhuangFangyiGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 15,
@@ -8485,6 +8763,9 @@ export const zhuangFangyiGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "distance": {
                 "source": {
                   "targetSource": "Owner",
@@ -8525,7 +8806,11 @@ export const zhuangFangyiGeneratedSource = {
               },
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -8659,7 +8944,8 @@ export const zhuangFangyiGeneratedSource = {
                 "dieOnEnd": false
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -8895,9 +9181,16 @@ export const zhuangFangyiGeneratedSource = {
                 "levelValues": null
               },
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -8955,7 +9248,8 @@ export const zhuangFangyiGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -9642,9 +9936,16 @@ export const zhuangFangyiGeneratedSource = {
                 "levelValues": null
               },
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -9736,7 +10037,8 @@ export const zhuangFangyiGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -9922,6 +10224,9 @@ export const zhuangFangyiGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "distance": {
                 "source": {
                   "targetSource": "Owner",
@@ -9962,7 +10267,11 @@ export const zhuangFangyiGeneratedSource = {
               },
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -10144,14 +10453,25 @@ export const zhuangFangyiGeneratedSource = {
                       "conditions": [
                         {
                           "sourceType": "Probablity",
-                          "supported": false,
+                          "supported": true,
                           "comparison": null,
                           "left": null,
                           "right": null,
                           "skillTypes": [],
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": {
+                            "value": 0.5,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -10314,6 +10634,7 @@ export const zhuangFangyiGeneratedSource = {
                           "buffIgnite": null
                         }
                       ],
+                      "alwaysNext": true,
                       "executionFrames": [
                         9,
                         11,
@@ -10532,14 +10853,25 @@ export const zhuangFangyiGeneratedSource = {
                       "conditions": [
                         {
                           "sourceType": "Probablity",
-                          "supported": false,
+                          "supported": true,
                           "comparison": null,
                           "left": null,
                           "right": null,
                           "skillTypes": [],
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": {
+                            "value": 0.5,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -10702,6 +11034,7 @@ export const zhuangFangyiGeneratedSource = {
                           "buffIgnite": null
                         }
                       ],
+                      "alwaysNext": true,
                       "executionFrames": [
                         9,
                         11,
@@ -10741,6 +11074,7 @@ export const zhuangFangyiGeneratedSource = {
               ]
             }
           ],
+          "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
             {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
@@ -10916,14 +11250,25 @@ export const zhuangFangyiGeneratedSource = {
               "conditions": [
                 {
                   "sourceType": "Probablity",
-                  "supported": false,
+                  "supported": true,
                   "comparison": null,
                   "left": null,
                   "right": null,
                   "skillTypes": [],
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": {
+                    "value": 0.5,
+                    "blackboardKey": null,
+                    "levelValues": null
+                  },
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 }
               ],
               "succeedActions": [
@@ -11086,6 +11431,7 @@ export const zhuangFangyiGeneratedSource = {
                   "buffIgnite": null
                 }
               ],
+              "alwaysNext": true,
               "executionFrames": [
                 9,
                 11,
@@ -11361,6 +11707,9 @@ export const zhuangFangyiGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "distance": {
                 "source": {
                   "targetSource": "Owner",
@@ -11401,7 +11750,11 @@ export const zhuangFangyiGeneratedSource = {
               },
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -11535,7 +11888,8 @@ export const zhuangFangyiGeneratedSource = {
                 "dieOnEnd": false
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -11765,9 +12119,16 @@ export const zhuangFangyiGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -11805,6 +12166,9 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "distance": {
                       "source": {
                         "targetSource": "Owner",
@@ -11845,7 +12209,11 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -11889,6 +12257,9 @@ export const zhuangFangyiGeneratedSource = {
                           "left": null,
                           "right": null,
                           "skillTypes": [],
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "distance": {
                             "source": {
                               "targetSource": "Owner",
@@ -11929,7 +12300,11 @@ export const zhuangFangyiGeneratedSource = {
                           },
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -12766,6 +13141,7 @@ export const zhuangFangyiGeneratedSource = {
                           ]
                         }
                       ],
+                      "alwaysNext": true,
                       "projectedAbilityEntitySpawns": [
                         {
                           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
@@ -13214,6 +13590,7 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
@@ -13657,6 +14034,7 @@ export const zhuangFangyiGeneratedSource = {
               ]
             }
           ],
+          "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
             {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
@@ -14464,9 +14842,16 @@ export const zhuangFangyiGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -14504,6 +14889,9 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "distance": {
                       "source": {
                         "targetSource": "Owner",
@@ -14544,7 +14932,11 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -14588,6 +14980,9 @@ export const zhuangFangyiGeneratedSource = {
                           "left": null,
                           "right": null,
                           "skillTypes": [],
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "distance": {
                             "source": {
                               "targetSource": "Owner",
@@ -14628,7 +15023,11 @@ export const zhuangFangyiGeneratedSource = {
                           },
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -14828,7 +15227,8 @@ export const zhuangFangyiGeneratedSource = {
                             "dieOnEnd": false
                           }
                         }
-                      ]
+                      ],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -14924,7 +15324,8 @@ export const zhuangFangyiGeneratedSource = {
                       "dieOnEnd": false
                     }
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -15011,7 +15412,8 @@ export const zhuangFangyiGeneratedSource = {
                 "dieOnEnd": false
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -15264,9 +15666,16 @@ export const zhuangFangyiGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -15304,6 +15713,9 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "distance": {
                       "source": {
                         "targetSource": "Owner",
@@ -15344,7 +15756,11 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -15824,6 +16240,7 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -15904,13 +16321,20 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -16390,6 +16814,7 @@ export const zhuangFangyiGeneratedSource = {
                     "buffIgnite": null
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -16435,6 +16860,7 @@ export const zhuangFangyiGeneratedSource = {
               "buffIgnite": null
             }
           ],
+          "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
             {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -16502,9 +16928,16 @@ export const zhuangFangyiGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -16550,9 +16983,16 @@ export const zhuangFangyiGeneratedSource = {
                       "levelValues": null
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -17003,6 +17443,7 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -17083,13 +17524,20 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -17540,6 +17988,7 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -17585,6 +18034,7 @@ export const zhuangFangyiGeneratedSource = {
               "buffIgnite": null
             }
           ],
+          "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
             {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -17652,9 +18102,16 @@ export const zhuangFangyiGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -17700,9 +18157,16 @@ export const zhuangFangyiGeneratedSource = {
                       "levelValues": null
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -18153,6 +18617,7 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -18233,13 +18698,20 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -18690,6 +19162,7 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -18735,6 +19208,7 @@ export const zhuangFangyiGeneratedSource = {
               "buffIgnite": null
             }
           ],
+          "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
             {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -18802,9 +19276,16 @@ export const zhuangFangyiGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -18850,9 +19331,16 @@ export const zhuangFangyiGeneratedSource = {
                       "levelValues": null
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -19303,6 +19791,7 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -19383,13 +19872,20 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -19840,6 +20336,7 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -19885,6 +20382,7 @@ export const zhuangFangyiGeneratedSource = {
               "buffIgnite": null
             }
           ],
+          "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
             {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -20813,9 +21311,16 @@ export const zhuangFangyiGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -20853,6 +21358,9 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "distance": {
                       "source": {
                         "targetSource": "Owner",
@@ -20893,7 +21401,11 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -21042,7 +21554,8 @@ export const zhuangFangyiGeneratedSource = {
                       "dieOnEnd": false
                     }
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -21084,13 +21597,20 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -21239,13 +21759,15 @@ export const zhuangFangyiGeneratedSource = {
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 13,
@@ -21274,9 +21796,16 @@ export const zhuangFangyiGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -21322,9 +21851,16 @@ export const zhuangFangyiGeneratedSource = {
                       "levelValues": null
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -21444,7 +21980,8 @@ export const zhuangFangyiGeneratedSource = {
                       "dieOnEnd": false
                     }
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -21486,13 +22023,20 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -21612,13 +22156,15 @@ export const zhuangFangyiGeneratedSource = {
                       "dieOnEnd": false
                     }
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 14,
@@ -21647,9 +22193,16 @@ export const zhuangFangyiGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -21695,9 +22248,16 @@ export const zhuangFangyiGeneratedSource = {
                       "levelValues": null
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -21817,7 +22377,8 @@ export const zhuangFangyiGeneratedSource = {
                       "dieOnEnd": false
                     }
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -21859,13 +22420,20 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -21985,13 +22553,15 @@ export const zhuangFangyiGeneratedSource = {
                       "dieOnEnd": false
                     }
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 15,
@@ -22020,9 +22590,16 @@ export const zhuangFangyiGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -22068,9 +22645,16 @@ export const zhuangFangyiGeneratedSource = {
                       "levelValues": null
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -22190,7 +22774,8 @@ export const zhuangFangyiGeneratedSource = {
                       "dieOnEnd": false
                     }
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -22232,13 +22817,20 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -22358,13 +22950,15 @@ export const zhuangFangyiGeneratedSource = {
                       "dieOnEnd": false
                     }
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -22617,9 +23211,16 @@ export const zhuangFangyiGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -22657,6 +23258,9 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "distance": {
                       "source": {
                         "targetSource": "Owner",
@@ -22697,7 +23301,11 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -23177,6 +23785,7 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -23257,13 +23866,20 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -23743,6 +24359,7 @@ export const zhuangFangyiGeneratedSource = {
                     "buffIgnite": null
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -23788,6 +24405,7 @@ export const zhuangFangyiGeneratedSource = {
               "buffIgnite": null
             }
           ],
+          "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
             {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -23855,9 +24473,16 @@ export const zhuangFangyiGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -23903,9 +24528,16 @@ export const zhuangFangyiGeneratedSource = {
                       "levelValues": null
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -24356,6 +24988,7 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -24436,13 +25069,20 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -24893,6 +25533,7 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -24938,6 +25579,7 @@ export const zhuangFangyiGeneratedSource = {
               "buffIgnite": null
             }
           ],
+          "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
             {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -25005,9 +25647,16 @@ export const zhuangFangyiGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -25053,9 +25702,16 @@ export const zhuangFangyiGeneratedSource = {
                       "levelValues": null
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -25506,6 +26162,7 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -25586,13 +26243,20 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -26043,6 +26707,7 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -26088,6 +26753,7 @@ export const zhuangFangyiGeneratedSource = {
               "buffIgnite": null
             }
           ],
+          "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
             {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -26155,9 +26821,16 @@ export const zhuangFangyiGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -26203,9 +26876,16 @@ export const zhuangFangyiGeneratedSource = {
                       "levelValues": null
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -26656,6 +27336,7 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -26736,13 +27417,20 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -27193,6 +27881,7 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -27238,6 +27927,7 @@ export const zhuangFangyiGeneratedSource = {
               "buffIgnite": null
             }
           ],
+          "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
             {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -28152,9 +28842,16 @@ export const zhuangFangyiGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -28192,6 +28889,9 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "distance": {
                       "source": {
                         "targetSource": "Owner",
@@ -28232,7 +28932,11 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -28381,7 +29085,8 @@ export const zhuangFangyiGeneratedSource = {
                       "dieOnEnd": false
                     }
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -28423,13 +29128,20 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -28578,13 +29290,15 @@ export const zhuangFangyiGeneratedSource = {
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 11,
@@ -28613,9 +29327,16 @@ export const zhuangFangyiGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -28661,9 +29382,16 @@ export const zhuangFangyiGeneratedSource = {
                       "levelValues": null
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -28783,7 +29511,8 @@ export const zhuangFangyiGeneratedSource = {
                       "dieOnEnd": false
                     }
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -28825,13 +29554,20 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -28951,13 +29687,15 @@ export const zhuangFangyiGeneratedSource = {
                       "dieOnEnd": false
                     }
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 12,
@@ -28986,9 +29724,16 @@ export const zhuangFangyiGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -29034,9 +29779,16 @@ export const zhuangFangyiGeneratedSource = {
                       "levelValues": null
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -29156,7 +29908,8 @@ export const zhuangFangyiGeneratedSource = {
                       "dieOnEnd": false
                     }
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -29198,13 +29951,20 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -29324,13 +30084,15 @@ export const zhuangFangyiGeneratedSource = {
                       "dieOnEnd": false
                     }
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 13,
@@ -29359,9 +30121,16 @@ export const zhuangFangyiGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -29407,9 +30176,16 @@ export const zhuangFangyiGeneratedSource = {
                       "levelValues": null
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -29529,7 +30305,8 @@ export const zhuangFangyiGeneratedSource = {
                       "dieOnEnd": false
                     }
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -29571,13 +30348,20 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -29697,13 +30481,15 @@ export const zhuangFangyiGeneratedSource = {
                       "dieOnEnd": false
                     }
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -29909,9 +30695,16 @@ export const zhuangFangyiGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -29949,6 +30742,9 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "distance": {
                       "source": {
                         "targetSource": "Owner",
@@ -29989,7 +30785,11 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -30490,6 +31290,7 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
@@ -30561,13 +31362,20 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -31068,6 +31876,7 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
@@ -31104,6 +31913,7 @@ export const zhuangFangyiGeneratedSource = {
               "buffIgnite": null
             }
           ],
+          "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
             {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
@@ -31580,9 +32390,16 @@ export const zhuangFangyiGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -31620,6 +32437,9 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "distance": {
                       "source": {
                         "targetSource": "Owner",
@@ -31660,7 +32480,11 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -31762,7 +32586,8 @@ export const zhuangFangyiGeneratedSource = {
                       "dieOnEnd": false
                     }
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -31804,13 +32629,20 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -31912,13 +32744,15 @@ export const zhuangFangyiGeneratedSource = {
                       "dieOnEnd": false
                     }
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -32811,9 +33645,16 @@ export const zhuangFangyiGeneratedSource = {
                 },
                 "limitSkillCastId": false
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [],
@@ -32835,7 +33676,8 @@ export const zhuangFangyiGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -33233,6 +34075,9 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "abilityEntityDuration": {
@@ -33261,7 +34106,11 @@ export const zhuangFangyiGeneratedSource = {
                       "saveCurrentDuration": false,
                       "outputKey": ""
                     },
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -33295,7 +34144,8 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": false
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -33303,6 +34153,7 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "failActions": [],
+          "alwaysNext": false,
           "contextKey": "swordsForExtend"
         },
         {
@@ -33341,9 +34192,16 @@ export const zhuangFangyiGeneratedSource = {
                 },
                 "limitSkillCastId": false
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -33380,7 +34238,8 @@ export const zhuangFangyiGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 6,
@@ -33409,9 +34268,16 @@ export const zhuangFangyiGeneratedSource = {
                 "excludeDeadEntity": true,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -33503,9 +34369,16 @@ export const zhuangFangyiGeneratedSource = {
                       },
                       "limitSkillCastId": false
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -33695,9 +34568,16 @@ export const zhuangFangyiGeneratedSource = {
                             ]
                           },
                           "skillTypes": [],
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [],
@@ -33747,7 +34627,8 @@ export const zhuangFangyiGeneratedSource = {
                           "skillCooldownAdjustment": null,
                           "buffIgnite": null
                         }
-                      ]
+                      ],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -33864,9 +34745,16 @@ export const zhuangFangyiGeneratedSource = {
                             },
                             "limitSkillCastId": false
                           },
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -33903,7 +34791,8 @@ export const zhuangFangyiGeneratedSource = {
                           "buffIgnite": null
                         }
                       ],
-                      "failActions": []
+                      "failActions": [],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -33937,7 +34826,23 @@ export const zhuangFangyiGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "swordPos",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     },
                     "projectileTriggeredSkills": [
                       {
@@ -33998,9 +34903,16 @@ export const zhuangFangyiGeneratedSource = {
                                   ]
                                 },
                                 "skillTypes": [],
+                                "poise": null,
+                                "superArmor": null,
+                                "twoDirectionAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
-                                "deckAttributeCompare": null
+                                "objectTypeMatch": null,
+                                "deckAttributeCompare": null,
+                                "probability": null,
+                                "anyConditionGroups": [],
+                                "anyConditionNegated": []
                               }
                             ],
                             "succeedActions": [
@@ -34056,9 +34968,16 @@ export const zhuangFangyiGeneratedSource = {
                                         },
                                         "limitSkillCastId": false
                                       },
+                                      "poise": null,
+                                      "superArmor": null,
+                                      "twoDirectionAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
-                                      "deckAttributeCompare": null
+                                      "objectTypeMatch": null,
+                                      "deckAttributeCompare": null,
+                                      "probability": null,
+                                      "anyConditionGroups": [],
+                                      "anyConditionNegated": []
                                     }
                                   ],
                                   "succeedActions": [
@@ -34379,6 +35298,7 @@ export const zhuangFangyiGeneratedSource = {
                                       ]
                                     }
                                   ],
+                                  "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
                                     {
                                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -34470,9 +35390,16 @@ export const zhuangFangyiGeneratedSource = {
                                         },
                                         "limitSkillCastId": false
                                       },
+                                      "poise": null,
+                                      "superArmor": null,
+                                      "twoDirectionAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
-                                      "deckAttributeCompare": null
+                                      "objectTypeMatch": null,
+                                      "deckAttributeCompare": null,
+                                      "probability": null,
+                                      "anyConditionGroups": [],
+                                      "anyConditionNegated": []
                                     }
                                   ],
                                   "succeedActions": [
@@ -34793,6 +35720,7 @@ export const zhuangFangyiGeneratedSource = {
                                       ]
                                     }
                                   ],
+                                  "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
                                     {
                                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -34831,6 +35759,7 @@ export const zhuangFangyiGeneratedSource = {
                                 "buffIgnite": null
                               }
                             ],
+                            "alwaysNext": true,
                             "projectedAbilityEntitySpawns": [
                               {
                                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -35084,9 +36013,16 @@ export const zhuangFangyiGeneratedSource = {
                             ]
                           },
                           "skillTypes": [],
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -35123,7 +36059,8 @@ export const zhuangFangyiGeneratedSource = {
                           "buffIgnite": null
                         }
                       ],
-                      "failActions": []
+                      "failActions": [],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -35187,9 +36124,16 @@ export const zhuangFangyiGeneratedSource = {
                             },
                             "limitSkillCastId": false
                           },
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -35226,7 +36170,8 @@ export const zhuangFangyiGeneratedSource = {
                           "buffIgnite": null
                         }
                       ],
-                      "failActions": []
+                      "failActions": [],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -35260,7 +36205,23 @@ export const zhuangFangyiGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "swordPos",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     },
                     "projectileTriggeredSkills": [
                       {
@@ -35321,9 +36282,16 @@ export const zhuangFangyiGeneratedSource = {
                                   ]
                                 },
                                 "skillTypes": [],
+                                "poise": null,
+                                "superArmor": null,
+                                "twoDirectionAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
-                                "deckAttributeCompare": null
+                                "objectTypeMatch": null,
+                                "deckAttributeCompare": null,
+                                "probability": null,
+                                "anyConditionGroups": [],
+                                "anyConditionNegated": []
                               }
                             ],
                             "succeedActions": [
@@ -35379,9 +36347,16 @@ export const zhuangFangyiGeneratedSource = {
                                         },
                                         "limitSkillCastId": false
                                       },
+                                      "poise": null,
+                                      "superArmor": null,
+                                      "twoDirectionAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
-                                      "deckAttributeCompare": null
+                                      "objectTypeMatch": null,
+                                      "deckAttributeCompare": null,
+                                      "probability": null,
+                                      "anyConditionGroups": [],
+                                      "anyConditionNegated": []
                                     }
                                   ],
                                   "succeedActions": [
@@ -35702,6 +36677,7 @@ export const zhuangFangyiGeneratedSource = {
                                       ]
                                     }
                                   ],
+                                  "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
                                     {
                                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -35793,9 +36769,16 @@ export const zhuangFangyiGeneratedSource = {
                                         },
                                         "limitSkillCastId": false
                                       },
+                                      "poise": null,
+                                      "superArmor": null,
+                                      "twoDirectionAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
-                                      "deckAttributeCompare": null
+                                      "objectTypeMatch": null,
+                                      "deckAttributeCompare": null,
+                                      "probability": null,
+                                      "anyConditionGroups": [],
+                                      "anyConditionNegated": []
                                     }
                                   ],
                                   "succeedActions": [
@@ -36116,6 +37099,7 @@ export const zhuangFangyiGeneratedSource = {
                                       ]
                                     }
                                   ],
+                                  "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
                                     {
                                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -36154,6 +37138,7 @@ export const zhuangFangyiGeneratedSource = {
                                 "buffIgnite": null
                               }
                             ],
+                            "alwaysNext": true,
                             "projectedAbilityEntitySpawns": [
                               {
                                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -36344,7 +37329,8 @@ export const zhuangFangyiGeneratedSource = {
                       "inheritSourceSkillCastInfo": true
                     }
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -36382,7 +37368,8 @@ export const zhuangFangyiGeneratedSource = {
                 "dieOnEnd": false
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 13,
@@ -36410,9 +37397,16 @@ export const zhuangFangyiGeneratedSource = {
                 "levelValues": null
               },
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -36707,7 +37701,8 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 6,
@@ -36727,9 +37722,16 @@ export const zhuangFangyiGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -36814,9 +37816,16 @@ export const zhuangFangyiGeneratedSource = {
                       "excludeDeadEntity": false,
                       "storeKey": ""
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -36860,13 +37869,15 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -37409,7 +38420,8 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator"
         },
         {
           "startFrame": 0,
@@ -37517,13 +38529,20 @@ export const zhuangFangyiGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Source",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [],
@@ -37571,9 +38590,16 @@ export const zhuangFangyiGeneratedSource = {
                       "excludeDeadEntity": false,
                       "storeKey": ""
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [],
@@ -37598,13 +38624,15 @@ export const zhuangFangyiGeneratedSource = {
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -37652,6 +38680,9 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "abilityEntityDuration": {
@@ -37680,7 +38711,11 @@ export const zhuangFangyiGeneratedSource = {
                       "saveCurrentDuration": false,
                       "outputKey": ""
                     },
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -37714,7 +38749,8 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": false
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -37722,6 +38758,7 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "failActions": [],
+          "alwaysNext": false,
           "contextKey": "swordsForExtend"
         },
         {
@@ -37760,9 +38797,16 @@ export const zhuangFangyiGeneratedSource = {
                 },
                 "limitSkillCastId": false
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -37799,7 +38843,8 @@ export const zhuangFangyiGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 6,
@@ -37828,9 +38873,16 @@ export const zhuangFangyiGeneratedSource = {
                 "excludeDeadEntity": true,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -37922,9 +38974,16 @@ export const zhuangFangyiGeneratedSource = {
                       },
                       "limitSkillCastId": false
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -38114,9 +39173,16 @@ export const zhuangFangyiGeneratedSource = {
                             ]
                           },
                           "skillTypes": [],
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [],
@@ -38166,7 +39232,8 @@ export const zhuangFangyiGeneratedSource = {
                           "skillCooldownAdjustment": null,
                           "buffIgnite": null
                         }
-                      ]
+                      ],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -38283,9 +39350,16 @@ export const zhuangFangyiGeneratedSource = {
                             },
                             "limitSkillCastId": false
                           },
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -38322,7 +39396,8 @@ export const zhuangFangyiGeneratedSource = {
                           "buffIgnite": null
                         }
                       ],
-                      "failActions": []
+                      "failActions": [],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -38376,7 +39451,23 @@ export const zhuangFangyiGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "swordPos",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     }
                   },
                   {
@@ -38481,9 +39572,16 @@ export const zhuangFangyiGeneratedSource = {
                             ]
                           },
                           "skillTypes": [],
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -38520,7 +39618,8 @@ export const zhuangFangyiGeneratedSource = {
                           "buffIgnite": null
                         }
                       ],
-                      "failActions": []
+                      "failActions": [],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -38584,9 +39683,16 @@ export const zhuangFangyiGeneratedSource = {
                             },
                             "limitSkillCastId": false
                           },
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -38623,7 +39729,8 @@ export const zhuangFangyiGeneratedSource = {
                           "buffIgnite": null
                         }
                       ],
-                      "failActions": []
+                      "failActions": [],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -38677,7 +39784,23 @@ export const zhuangFangyiGeneratedSource = {
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "swordPos",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     }
                   },
                   {
@@ -38719,7 +39842,8 @@ export const zhuangFangyiGeneratedSource = {
                       "inheritSourceSkillCastInfo": true
                     }
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -38757,7 +39881,8 @@ export const zhuangFangyiGeneratedSource = {
                 "dieOnEnd": false
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 13,
@@ -38785,9 +39910,16 @@ export const zhuangFangyiGeneratedSource = {
                 "levelValues": null
               },
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -39082,7 +40214,8 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 6,
@@ -39102,9 +40235,16 @@ export const zhuangFangyiGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -39189,9 +40329,16 @@ export const zhuangFangyiGeneratedSource = {
                       "excludeDeadEntity": false,
                       "storeKey": ""
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -39235,13 +40382,15 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -39275,6 +40424,9 @@ export const zhuangFangyiGeneratedSource = {
                 "left": null,
                 "right": null,
                 "skillTypes": [],
+                "poise": null,
+                "superArmor": null,
+                "twoDirectionAngle": null,
                 "timedMarker": {
                   "targetSource": "Owner",
                   "targetGroupKey": "",
@@ -39285,7 +40437,11 @@ export const zhuangFangyiGeneratedSource = {
                 },
                 "damageDecorateMask": null,
                 "contextBuffId": null,
-                "deckAttributeCompare": null
+                "objectTypeMatch": null,
+                "deckAttributeCompare": null,
+                "probability": null,
+                "anyConditionGroups": [],
+                "anyConditionNegated": []
               }
             ],
             [
@@ -39304,9 +40460,16 @@ export const zhuangFangyiGeneratedSource = {
                   "levelValues": null
                 },
                 "skillTypes": [],
+                "poise": null,
+                "superArmor": null,
+                "twoDirectionAngle": null,
                 "damageDecorateMask": null,
                 "contextBuffId": null,
-                "deckAttributeCompare": null
+                "objectTypeMatch": null,
+                "deckAttributeCompare": null,
+                "probability": null,
+                "anyConditionGroups": [],
+                "anyConditionNegated": []
               }
             ]
           ],
@@ -39635,6 +40798,9 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "abilityEntityDuration": {
@@ -39663,7 +40829,11 @@ export const zhuangFangyiGeneratedSource = {
                       "saveCurrentDuration": false,
                       "outputKey": ""
                     },
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -39697,7 +40867,8 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": false
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -39705,6 +40876,7 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "failActions": [],
+          "alwaysNext": false,
           "contextKey": "swordsForExtend"
         },
         {
@@ -39734,9 +40906,16 @@ export const zhuangFangyiGeneratedSource = {
                 "excludeDeadEntity": true,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -39828,9 +41007,16 @@ export const zhuangFangyiGeneratedSource = {
                       },
                       "limitSkillCastId": false
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -39892,9 +41078,16 @@ export const zhuangFangyiGeneratedSource = {
                             },
                             "limitSkillCastId": false
                           },
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -39929,7 +41122,23 @@ export const zhuangFangyiGeneratedSource = {
                               }
                             ],
                             "assignBlackboard": true,
-                            "entityBlackboardAssignments": []
+                            "entityBlackboardAssignments": [],
+                            "target": {
+                              "targetSource": "Context",
+                              "targetGroupKey": "swordPos",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            }
                           },
                           "projectileTriggeredSkills": [
                             {
@@ -39992,9 +41201,16 @@ export const zhuangFangyiGeneratedSource = {
                                         ]
                                       },
                                       "skillTypes": [],
+                                      "poise": null,
+                                      "superArmor": null,
+                                      "twoDirectionAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
-                                      "deckAttributeCompare": null
+                                      "objectTypeMatch": null,
+                                      "deckAttributeCompare": null,
+                                      "probability": null,
+                                      "anyConditionGroups": [],
+                                      "anyConditionNegated": []
                                     }
                                   ],
                                   "succeedActions": [
@@ -40050,9 +41266,16 @@ export const zhuangFangyiGeneratedSource = {
                                               },
                                               "limitSkillCastId": false
                                             },
+                                            "poise": null,
+                                            "superArmor": null,
+                                            "twoDirectionAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
-                                            "deckAttributeCompare": null
+                                            "objectTypeMatch": null,
+                                            "deckAttributeCompare": null,
+                                            "probability": null,
+                                            "anyConditionGroups": [],
+                                            "anyConditionNegated": []
                                           }
                                         ],
                                         "succeedActions": [
@@ -40377,6 +41600,7 @@ export const zhuangFangyiGeneratedSource = {
                                             ]
                                           }
                                         ],
+                                        "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
                                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -40468,9 +41692,16 @@ export const zhuangFangyiGeneratedSource = {
                                               },
                                               "limitSkillCastId": false
                                             },
+                                            "poise": null,
+                                            "superArmor": null,
+                                            "twoDirectionAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
-                                            "deckAttributeCompare": null
+                                            "objectTypeMatch": null,
+                                            "deckAttributeCompare": null,
+                                            "probability": null,
+                                            "anyConditionGroups": [],
+                                            "anyConditionNegated": []
                                           }
                                         ],
                                         "succeedActions": [
@@ -40795,6 +42026,7 @@ export const zhuangFangyiGeneratedSource = {
                                             ]
                                           }
                                         ],
+                                        "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
                                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -40833,6 +42065,7 @@ export const zhuangFangyiGeneratedSource = {
                                       "buffIgnite": null
                                     }
                                   ],
+                                  "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
                                     {
                                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -41057,7 +42290,23 @@ export const zhuangFangyiGeneratedSource = {
                               }
                             ],
                             "assignBlackboard": true,
-                            "entityBlackboardAssignments": []
+                            "entityBlackboardAssignments": [],
+                            "target": {
+                              "targetSource": "Context",
+                              "targetGroupKey": "swordPos",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            }
                           },
                           "projectileTriggeredSkills": [
                             {
@@ -41120,9 +42369,16 @@ export const zhuangFangyiGeneratedSource = {
                                         ]
                                       },
                                       "skillTypes": [],
+                                      "poise": null,
+                                      "superArmor": null,
+                                      "twoDirectionAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
-                                      "deckAttributeCompare": null
+                                      "objectTypeMatch": null,
+                                      "deckAttributeCompare": null,
+                                      "probability": null,
+                                      "anyConditionGroups": [],
+                                      "anyConditionNegated": []
                                     }
                                   ],
                                   "succeedActions": [
@@ -41178,9 +42434,16 @@ export const zhuangFangyiGeneratedSource = {
                                               },
                                               "limitSkillCastId": false
                                             },
+                                            "poise": null,
+                                            "superArmor": null,
+                                            "twoDirectionAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
-                                            "deckAttributeCompare": null
+                                            "objectTypeMatch": null,
+                                            "deckAttributeCompare": null,
+                                            "probability": null,
+                                            "anyConditionGroups": [],
+                                            "anyConditionNegated": []
                                           }
                                         ],
                                         "succeedActions": [
@@ -41505,6 +42768,7 @@ export const zhuangFangyiGeneratedSource = {
                                             ]
                                           }
                                         ],
+                                        "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
                                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -41596,9 +42860,16 @@ export const zhuangFangyiGeneratedSource = {
                                               },
                                               "limitSkillCastId": false
                                             },
+                                            "poise": null,
+                                            "superArmor": null,
+                                            "twoDirectionAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
-                                            "deckAttributeCompare": null
+                                            "objectTypeMatch": null,
+                                            "deckAttributeCompare": null,
+                                            "probability": null,
+                                            "anyConditionGroups": [],
+                                            "anyConditionNegated": []
                                           }
                                         ],
                                         "succeedActions": [
@@ -41923,6 +43194,7 @@ export const zhuangFangyiGeneratedSource = {
                                             ]
                                           }
                                         ],
+                                        "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
                                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -41961,6 +43233,7 @@ export const zhuangFangyiGeneratedSource = {
                                       "buffIgnite": null
                                     }
                                   ],
+                                  "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
                                     {
                                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -42152,7 +43425,8 @@ export const zhuangFangyiGeneratedSource = {
                           "skillCooldownAdjustment": null,
                           "buffIgnite": null
                         }
-                      ]
+                      ],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -42218,9 +43492,16 @@ export const zhuangFangyiGeneratedSource = {
                             },
                             "limitSkillCastId": false
                           },
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -42428,9 +43709,16 @@ export const zhuangFangyiGeneratedSource = {
                                   ]
                                 },
                                 "skillTypes": [],
+                                "poise": null,
+                                "superArmor": null,
+                                "twoDirectionAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
-                                "deckAttributeCompare": null
+                                "objectTypeMatch": null,
+                                "deckAttributeCompare": null,
+                                "probability": null,
+                                "anyConditionGroups": [],
+                                "anyConditionNegated": []
                               }
                             ],
                             "succeedActions": [],
@@ -42483,7 +43771,8 @@ export const zhuangFangyiGeneratedSource = {
                                 "skillCooldownAdjustment": null,
                                 "buffIgnite": null
                               }
-                            ]
+                            ],
+                            "alwaysNext": true
                           },
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
@@ -42609,9 +43898,16 @@ export const zhuangFangyiGeneratedSource = {
                                   },
                                   "limitSkillCastId": false
                                 },
+                                "poise": null,
+                                "superArmor": null,
+                                "twoDirectionAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
-                                "deckAttributeCompare": null
+                                "objectTypeMatch": null,
+                                "deckAttributeCompare": null,
+                                "probability": null,
+                                "anyConditionGroups": [],
+                                "anyConditionNegated": []
                               }
                             ],
                             "succeedActions": [
@@ -42651,7 +43947,8 @@ export const zhuangFangyiGeneratedSource = {
                                 "buffIgnite": null
                               }
                             ],
-                            "failActions": []
+                            "failActions": [],
+                            "alwaysNext": true
                           },
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
@@ -42688,7 +43985,23 @@ export const zhuangFangyiGeneratedSource = {
                               }
                             ],
                             "assignBlackboard": true,
-                            "entityBlackboardAssignments": []
+                            "entityBlackboardAssignments": [],
+                            "target": {
+                              "targetSource": "Context",
+                              "targetGroupKey": "swordPos",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            }
                           },
                           "projectileTriggeredSkills": [
                             {
@@ -42751,9 +44064,16 @@ export const zhuangFangyiGeneratedSource = {
                                         ]
                                       },
                                       "skillTypes": [],
+                                      "poise": null,
+                                      "superArmor": null,
+                                      "twoDirectionAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
-                                      "deckAttributeCompare": null
+                                      "objectTypeMatch": null,
+                                      "deckAttributeCompare": null,
+                                      "probability": null,
+                                      "anyConditionGroups": [],
+                                      "anyConditionNegated": []
                                     }
                                   ],
                                   "succeedActions": [
@@ -42809,9 +44129,16 @@ export const zhuangFangyiGeneratedSource = {
                                               },
                                               "limitSkillCastId": false
                                             },
+                                            "poise": null,
+                                            "superArmor": null,
+                                            "twoDirectionAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
-                                            "deckAttributeCompare": null
+                                            "objectTypeMatch": null,
+                                            "deckAttributeCompare": null,
+                                            "probability": null,
+                                            "anyConditionGroups": [],
+                                            "anyConditionNegated": []
                                           }
                                         ],
                                         "succeedActions": [
@@ -43136,6 +44463,7 @@ export const zhuangFangyiGeneratedSource = {
                                             ]
                                           }
                                         ],
+                                        "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
                                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -43227,9 +44555,16 @@ export const zhuangFangyiGeneratedSource = {
                                               },
                                               "limitSkillCastId": false
                                             },
+                                            "poise": null,
+                                            "superArmor": null,
+                                            "twoDirectionAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
-                                            "deckAttributeCompare": null
+                                            "objectTypeMatch": null,
+                                            "deckAttributeCompare": null,
+                                            "probability": null,
+                                            "anyConditionGroups": [],
+                                            "anyConditionNegated": []
                                           }
                                         ],
                                         "succeedActions": [
@@ -43554,6 +44889,7 @@ export const zhuangFangyiGeneratedSource = {
                                             ]
                                           }
                                         ],
+                                        "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
                                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -43592,6 +44928,7 @@ export const zhuangFangyiGeneratedSource = {
                                       "buffIgnite": null
                                     }
                                   ],
+                                  "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
                                     {
                                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -43856,9 +45193,16 @@ export const zhuangFangyiGeneratedSource = {
                                   ]
                                 },
                                 "skillTypes": [],
+                                "poise": null,
+                                "superArmor": null,
+                                "twoDirectionAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
-                                "deckAttributeCompare": null
+                                "objectTypeMatch": null,
+                                "deckAttributeCompare": null,
+                                "probability": null,
+                                "anyConditionGroups": [],
+                                "anyConditionNegated": []
                               }
                             ],
                             "succeedActions": [
@@ -43898,7 +45242,8 @@ export const zhuangFangyiGeneratedSource = {
                                 "buffIgnite": null
                               }
                             ],
-                            "failActions": []
+                            "failActions": [],
+                            "alwaysNext": true
                           },
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
@@ -43968,9 +45313,16 @@ export const zhuangFangyiGeneratedSource = {
                                   },
                                   "limitSkillCastId": false
                                 },
+                                "poise": null,
+                                "superArmor": null,
+                                "twoDirectionAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
-                                "deckAttributeCompare": null
+                                "objectTypeMatch": null,
+                                "deckAttributeCompare": null,
+                                "probability": null,
+                                "anyConditionGroups": [],
+                                "anyConditionNegated": []
                               }
                             ],
                             "succeedActions": [
@@ -44010,7 +45362,8 @@ export const zhuangFangyiGeneratedSource = {
                                 "buffIgnite": null
                               }
                             ],
-                            "failActions": []
+                            "failActions": [],
+                            "alwaysNext": true
                           },
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
@@ -44047,7 +45400,23 @@ export const zhuangFangyiGeneratedSource = {
                               }
                             ],
                             "assignBlackboard": true,
-                            "entityBlackboardAssignments": []
+                            "entityBlackboardAssignments": [],
+                            "target": {
+                              "targetSource": "Context",
+                              "targetGroupKey": "swordPos",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            }
                           },
                           "projectileTriggeredSkills": [
                             {
@@ -44110,9 +45479,16 @@ export const zhuangFangyiGeneratedSource = {
                                         ]
                                       },
                                       "skillTypes": [],
+                                      "poise": null,
+                                      "superArmor": null,
+                                      "twoDirectionAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
-                                      "deckAttributeCompare": null
+                                      "objectTypeMatch": null,
+                                      "deckAttributeCompare": null,
+                                      "probability": null,
+                                      "anyConditionGroups": [],
+                                      "anyConditionNegated": []
                                     }
                                   ],
                                   "succeedActions": [
@@ -44168,9 +45544,16 @@ export const zhuangFangyiGeneratedSource = {
                                               },
                                               "limitSkillCastId": false
                                             },
+                                            "poise": null,
+                                            "superArmor": null,
+                                            "twoDirectionAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
-                                            "deckAttributeCompare": null
+                                            "objectTypeMatch": null,
+                                            "deckAttributeCompare": null,
+                                            "probability": null,
+                                            "anyConditionGroups": [],
+                                            "anyConditionNegated": []
                                           }
                                         ],
                                         "succeedActions": [
@@ -44495,6 +45878,7 @@ export const zhuangFangyiGeneratedSource = {
                                             ]
                                           }
                                         ],
+                                        "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
                                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -44586,9 +45970,16 @@ export const zhuangFangyiGeneratedSource = {
                                               },
                                               "limitSkillCastId": false
                                             },
+                                            "poise": null,
+                                            "superArmor": null,
+                                            "twoDirectionAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
-                                            "deckAttributeCompare": null
+                                            "objectTypeMatch": null,
+                                            "deckAttributeCompare": null,
+                                            "probability": null,
+                                            "anyConditionGroups": [],
+                                            "anyConditionNegated": []
                                           }
                                         ],
                                         "succeedActions": [
@@ -44913,6 +46304,7 @@ export const zhuangFangyiGeneratedSource = {
                                             ]
                                           }
                                         ],
+                                        "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
                                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -44951,6 +46343,7 @@ export const zhuangFangyiGeneratedSource = {
                                       "buffIgnite": null
                                     }
                                   ],
+                                  "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
                                     {
                                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -45146,13 +46539,15 @@ export const zhuangFangyiGeneratedSource = {
                             "inheritSourceSkillCastInfo": true
                           }
                         }
-                      ]
+                      ],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -45190,7 +46585,8 @@ export const zhuangFangyiGeneratedSource = {
                 "dieOnEnd": false
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 5,
@@ -45210,9 +46606,16 @@ export const zhuangFangyiGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -45297,9 +46700,16 @@ export const zhuangFangyiGeneratedSource = {
                       "excludeDeadEntity": false,
                       "storeKey": ""
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -45343,13 +46753,15 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -45604,9 +47016,16 @@ export const zhuangFangyiGeneratedSource = {
                     "levelValues": null
                   },
                   "skillTypes": [],
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 }
               ],
               "succeedActions": [
@@ -45755,9 +47174,16 @@ export const zhuangFangyiGeneratedSource = {
                           "levelValues": null
                         },
                         "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
-                        "deckAttributeCompare": null
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
                       }
                     ],
                     "succeedActions": [
@@ -45846,6 +47272,7 @@ export const zhuangFangyiGeneratedSource = {
                         ]
                       }
                     ],
+                    "alwaysNext": true,
                     "executionFrames": [
                       12,
                       17,
@@ -45893,6 +47320,7 @@ export const zhuangFangyiGeneratedSource = {
                 }
               ],
               "failActions": [],
+              "alwaysNext": true,
               "executionFrames": [
                 12,
                 17,
@@ -45936,9 +47364,16 @@ export const zhuangFangyiGeneratedSource = {
                     "levelValues": null
                   },
                   "skillTypes": [],
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 }
               ],
               "succeedActions": [
@@ -45973,6 +47408,7 @@ export const zhuangFangyiGeneratedSource = {
                 }
               ],
               "failActions": [],
+              "alwaysNext": true,
               "executionFrames": [
                 12,
                 17,
@@ -46024,7 +47460,8 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "alwaysNext": false
             }
           ],
           "inflictions": [
@@ -46704,7 +48141,8 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator"
         },
         {
           "startFrame": 0,
@@ -46899,13 +48337,20 @@ export const zhuangFangyiGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Source",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [],
@@ -46953,9 +48398,16 @@ export const zhuangFangyiGeneratedSource = {
                       "excludeDeadEntity": false,
                       "storeKey": ""
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [],
@@ -46980,13 +48432,15 @@ export const zhuangFangyiGeneratedSource = {
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -47034,6 +48488,9 @@ export const zhuangFangyiGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "abilityEntityDuration": {
@@ -47062,7 +48519,11 @@ export const zhuangFangyiGeneratedSource = {
                       "saveCurrentDuration": false,
                       "outputKey": ""
                     },
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -47096,7 +48557,8 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": false
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -47104,6 +48566,7 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "failActions": [],
+          "alwaysNext": false,
           "contextKey": "swordsForExtend"
         },
         {
@@ -47133,9 +48596,16 @@ export const zhuangFangyiGeneratedSource = {
                 "excludeDeadEntity": true,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -47227,9 +48697,16 @@ export const zhuangFangyiGeneratedSource = {
                       },
                       "limitSkillCastId": false
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -47291,9 +48768,16 @@ export const zhuangFangyiGeneratedSource = {
                             },
                             "limitSkillCastId": false
                           },
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -47351,7 +48835,23 @@ export const zhuangFangyiGeneratedSource = {
                               }
                             ],
                             "assignBlackboard": true,
-                            "entityBlackboardAssignments": []
+                            "entityBlackboardAssignments": [],
+                            "target": {
+                              "targetSource": "Context",
+                              "targetGroupKey": "swordPos",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            }
                           }
                         },
                         {
@@ -47448,7 +48948,23 @@ export const zhuangFangyiGeneratedSource = {
                               }
                             ],
                             "assignBlackboard": true,
-                            "entityBlackboardAssignments": []
+                            "entityBlackboardAssignments": [],
+                            "target": {
+                              "targetSource": "Context",
+                              "targetGroupKey": "swordPos",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            }
                           }
                         },
                         {
@@ -47489,7 +49005,8 @@ export const zhuangFangyiGeneratedSource = {
                           "skillCooldownAdjustment": null,
                           "buffIgnite": null
                         }
-                      ]
+                      ],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -47555,9 +49072,16 @@ export const zhuangFangyiGeneratedSource = {
                             },
                             "limitSkillCastId": false
                           },
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -47765,9 +49289,16 @@ export const zhuangFangyiGeneratedSource = {
                                   ]
                                 },
                                 "skillTypes": [],
+                                "poise": null,
+                                "superArmor": null,
+                                "twoDirectionAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
-                                "deckAttributeCompare": null
+                                "objectTypeMatch": null,
+                                "deckAttributeCompare": null,
+                                "probability": null,
+                                "anyConditionGroups": [],
+                                "anyConditionNegated": []
                               }
                             ],
                             "succeedActions": [],
@@ -47820,7 +49351,8 @@ export const zhuangFangyiGeneratedSource = {
                                 "skillCooldownAdjustment": null,
                                 "buffIgnite": null
                               }
-                            ]
+                            ],
+                            "alwaysNext": true
                           },
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
@@ -47946,9 +49478,16 @@ export const zhuangFangyiGeneratedSource = {
                                   },
                                   "limitSkillCastId": false
                                 },
+                                "poise": null,
+                                "superArmor": null,
+                                "twoDirectionAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
-                                "deckAttributeCompare": null
+                                "objectTypeMatch": null,
+                                "deckAttributeCompare": null,
+                                "probability": null,
+                                "anyConditionGroups": [],
+                                "anyConditionNegated": []
                               }
                             ],
                             "succeedActions": [
@@ -47988,7 +49527,8 @@ export const zhuangFangyiGeneratedSource = {
                                 "buffIgnite": null
                               }
                             ],
-                            "failActions": []
+                            "failActions": [],
+                            "alwaysNext": true
                           },
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
@@ -48048,7 +49588,23 @@ export const zhuangFangyiGeneratedSource = {
                               }
                             ],
                             "assignBlackboard": true,
-                            "entityBlackboardAssignments": []
+                            "entityBlackboardAssignments": [],
+                            "target": {
+                              "targetSource": "Context",
+                              "targetGroupKey": "swordPos",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            }
                           }
                         },
                         {
@@ -48162,9 +49718,16 @@ export const zhuangFangyiGeneratedSource = {
                                   ]
                                 },
                                 "skillTypes": [],
+                                "poise": null,
+                                "superArmor": null,
+                                "twoDirectionAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
-                                "deckAttributeCompare": null
+                                "objectTypeMatch": null,
+                                "deckAttributeCompare": null,
+                                "probability": null,
+                                "anyConditionGroups": [],
+                                "anyConditionNegated": []
                               }
                             ],
                             "succeedActions": [
@@ -48204,7 +49767,8 @@ export const zhuangFangyiGeneratedSource = {
                                 "buffIgnite": null
                               }
                             ],
-                            "failActions": []
+                            "failActions": [],
+                            "alwaysNext": true
                           },
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
@@ -48274,9 +49838,16 @@ export const zhuangFangyiGeneratedSource = {
                                   },
                                   "limitSkillCastId": false
                                 },
+                                "poise": null,
+                                "superArmor": null,
+                                "twoDirectionAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
-                                "deckAttributeCompare": null
+                                "objectTypeMatch": null,
+                                "deckAttributeCompare": null,
+                                "probability": null,
+                                "anyConditionGroups": [],
+                                "anyConditionNegated": []
                               }
                             ],
                             "succeedActions": [
@@ -48316,7 +49887,8 @@ export const zhuangFangyiGeneratedSource = {
                                 "buffIgnite": null
                               }
                             ],
-                            "failActions": []
+                            "failActions": [],
+                            "alwaysNext": true
                           },
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
@@ -48376,7 +49948,23 @@ export const zhuangFangyiGeneratedSource = {
                               }
                             ],
                             "assignBlackboard": true,
-                            "entityBlackboardAssignments": []
+                            "entityBlackboardAssignments": [],
+                            "target": {
+                              "targetSource": "Context",
+                              "targetGroupKey": "swordPos",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            }
                           }
                         },
                         {
@@ -48421,13 +50009,15 @@ export const zhuangFangyiGeneratedSource = {
                             "inheritSourceSkillCastInfo": true
                           }
                         }
-                      ]
+                      ],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -48465,7 +50055,8 @@ export const zhuangFangyiGeneratedSource = {
                 "dieOnEnd": false
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 5,
@@ -48485,9 +50076,16 @@ export const zhuangFangyiGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -48572,9 +50170,16 @@ export const zhuangFangyiGeneratedSource = {
                       "excludeDeadEntity": false,
                       "storeKey": ""
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -48618,13 +50223,15 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -48658,6 +50265,9 @@ export const zhuangFangyiGeneratedSource = {
                 "left": null,
                 "right": null,
                 "skillTypes": [],
+                "poise": null,
+                "superArmor": null,
+                "twoDirectionAngle": null,
                 "timedMarker": {
                   "targetSource": "Owner",
                   "targetGroupKey": "",
@@ -48668,7 +50278,11 @@ export const zhuangFangyiGeneratedSource = {
                 },
                 "damageDecorateMask": null,
                 "contextBuffId": null,
-                "deckAttributeCompare": null
+                "objectTypeMatch": null,
+                "deckAttributeCompare": null,
+                "probability": null,
+                "anyConditionGroups": [],
+                "anyConditionNegated": []
               }
             ],
             [
@@ -48687,9 +50301,16 @@ export const zhuangFangyiGeneratedSource = {
                   "levelValues": null
                 },
                 "skillTypes": [],
+                "poise": null,
+                "superArmor": null,
+                "twoDirectionAngle": null,
                 "damageDecorateMask": null,
                 "contextBuffId": null,
-                "deckAttributeCompare": null
+                "objectTypeMatch": null,
+                "deckAttributeCompare": null,
+                "probability": null,
+                "anyConditionGroups": [],
+                "anyConditionNegated": []
               }
             ]
           ],
@@ -49061,9 +50682,16 @@ export const zhuangFangyiGeneratedSource = {
                 },
                 "limitSkillCastId": false
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -49175,9 +50803,16 @@ export const zhuangFangyiGeneratedSource = {
                       },
                       "limitSkillCastId": false
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -49211,7 +50846,8 @@ export const zhuangFangyiGeneratedSource = {
                     "buffIgnite": null
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -49259,9 +50895,16 @@ export const zhuangFangyiGeneratedSource = {
                       "levelValues": null
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -49295,7 +50938,8 @@ export const zhuangFangyiGeneratedSource = {
                     "buffIgnite": null
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -49344,7 +50988,8 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 24,
@@ -49373,9 +51018,16 @@ export const zhuangFangyiGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -49525,7 +51177,8 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -49871,7 +51524,8 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator"
         }
       ],
       "targetGroupControlFlowActions": [
@@ -49893,13 +51547,20 @@ export const zhuangFangyiGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [],
@@ -49921,7 +51582,8 @@ export const zhuangFangyiGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 24,
@@ -49959,9 +51621,16 @@ export const zhuangFangyiGeneratedSource = {
                 },
                 "limitSkillCastId": false
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -50073,9 +51742,16 @@ export const zhuangFangyiGeneratedSource = {
                       },
                       "limitSkillCastId": false
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -50109,7 +51785,8 @@ export const zhuangFangyiGeneratedSource = {
                     "buffIgnite": null
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -50157,9 +51834,16 @@ export const zhuangFangyiGeneratedSource = {
                       "levelValues": null
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -50193,7 +51877,8 @@ export const zhuangFangyiGeneratedSource = {
                     "buffIgnite": null
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -50242,7 +51927,8 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 24,
@@ -50271,9 +51957,16 @@ export const zhuangFangyiGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -50423,7 +52116,8 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -50856,9 +52550,16 @@ export const zhuangFangyiGeneratedSource = {
                 },
                 "limitSkillCastId": false
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -50970,9 +52671,16 @@ export const zhuangFangyiGeneratedSource = {
                       },
                       "limitSkillCastId": false
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -51006,7 +52714,8 @@ export const zhuangFangyiGeneratedSource = {
                     "buffIgnite": null
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -51054,9 +52763,16 @@ export const zhuangFangyiGeneratedSource = {
                       "levelValues": null
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -51090,7 +52806,8 @@ export const zhuangFangyiGeneratedSource = {
                     "buffIgnite": null
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -51139,7 +52856,8 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -51481,7 +53199,8 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator"
         }
       ],
       "targetGroupControlFlowActions": [
@@ -51503,13 +53222,20 @@ export const zhuangFangyiGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [],
@@ -51531,7 +53257,8 @@ export const zhuangFangyiGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 24,
@@ -51569,9 +53296,16 @@ export const zhuangFangyiGeneratedSource = {
                 },
                 "limitSkillCastId": false
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -51683,9 +53417,16 @@ export const zhuangFangyiGeneratedSource = {
                       },
                       "limitSkillCastId": false
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -51719,7 +53460,8 @@ export const zhuangFangyiGeneratedSource = {
                     "buffIgnite": null
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -51767,9 +53509,16 @@ export const zhuangFangyiGeneratedSource = {
                       "levelValues": null
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -51803,7 +53552,8 @@ export const zhuangFangyiGeneratedSource = {
                     "buffIgnite": null
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -51852,7 +53602,8 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -52279,9 +54030,16 @@ export const zhuangFangyiGeneratedSource = {
                 },
                 "limitSkillCastId": false
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -52322,7 +54080,8 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -52700,9 +54459,16 @@ export const zhuangFangyiGeneratedSource = {
                 },
                 "limitSkillCastId": false
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -52743,7 +54509,8 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],

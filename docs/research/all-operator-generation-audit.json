@@ -7,13 +7,12 @@
   },
   "summary": {
     "parsedCount": 320,
-    "compiledCount": 314,
-    "completeOperatorCount": 24,
+    "compiledCount": 315,
+    "completeOperatorCount": 25,
     "blockerKinds": {
       "root-action-coverage": 2,
       "condition-other": 2,
-      "other": 1,
-      "buff-source-or-target": 1
+      "other": 1
     },
     "unresolvedActionPresence": {
       "LaunchProjectile": 79,
@@ -1146,11 +1145,9 @@
       "operatorName": "Zhuang Fangyi",
       "skillCount": 15,
       "parsedCount": 15,
-      "compiledCount": 14,
-      "complete": false,
-      "blockerKinds": {
-        "buff-source-or-target": 1
-      }
+      "compiledCount": 15,
+      "complete": true,
+      "blockerKinds": {}
     },
     {
       "characterId": "chr_0031_mifu",
@@ -7059,9 +7056,9 @@
       "operatorName": "Zhuang Fangyi",
       "skillId": "chr_0030_zhuangfy_ultimate_skill",
       "skillType": "ultimate",
-      "stage": "dsl-blocked",
-      "blockerKind": "buff-source-or-target",
-      "blocker": "ultimate_skill.schedule[0].conditionalAction.succeedActions[0].buffs[0]: unsupported Buff target 'Context'/'ult_postmodel_mirror'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "IfElseAction", "SpawnAbilityEntity"],
       "conditionCount": 1,
       "referencedBuffCount": 3,

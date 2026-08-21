@@ -1515,6 +1515,7 @@ def _make_generation_pipeline_services() -> GenerationPipelineServices:
         remove_obsolete_generated_file=remove_obsolete_generated_file,
         render_compiled_skills=render_compiled_skills,
         render_operator_definition=render_operator_definition,
+        is_strictly_presentation_only_buff=is_strictly_presentation_only_buff,
         render_report=render_report,
         render_shared_buff_definitions_module=render_shared_buff_definitions_module,
         render_shared_ability_entity_definitions_module=render_shared_ability_entity_definitions_module,

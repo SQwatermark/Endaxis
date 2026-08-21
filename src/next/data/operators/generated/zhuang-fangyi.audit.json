@@ -98,9 +98,14 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_dash_hide",
@@ -232,9 +237,14 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword",
@@ -521,9 +531,16 @@
                           "excludeDeadEntity": false,
                           "storeKey": ""
                         },
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
-                        "deckAttributeCompare": null
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
                       }
                     ],
                     "succeedActions": [
@@ -548,7 +565,8 @@
                         "buffIgnite": null
                       }
                     ],
-                    "failActions": []
+                    "failActions": [],
+                    "alwaysNext": true
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -889,9 +907,16 @@
                           "levelValues": null
                         },
                         "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
-                        "deckAttributeCompare": null
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
                       }
                     ],
                     "succeedActions": [
@@ -1006,7 +1031,8 @@
                         "buffIgnite": null
                       }
                     ],
-                    "failActions": []
+                    "failActions": [],
+                    "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -1146,9 +1172,14 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar",
@@ -1461,9 +1492,16 @@
                           "excludeDeadEntity": true,
                           "storeKey": ""
                         },
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
-                        "deckAttributeCompare": null
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
                       }
                     ],
                     "succeedActions": [
@@ -1561,7 +1599,8 @@
                           "dieOnEnd": false
                         }
                       }
-                    ]
+                    ],
+                    "alwaysNext": true
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -1635,9 +1674,14 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_potential5_vfx",
@@ -1729,9 +1773,14 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_sword_triggerd",
@@ -1911,7 +1960,8 @@
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": false
         },
         {
           "startFrame": 3,
@@ -1941,9 +1991,16 @@
                 "levelValues": null
               },
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -2028,9 +2085,16 @@
                       ]
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -2077,7 +2141,8 @@
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -2166,9 +2231,16 @@
                       ]
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -2215,13 +2287,15 @@
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 6,
@@ -2253,9 +2327,16 @@
                 ]
               },
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -2299,7 +2380,8 @@
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "blackboardCalculations": [
@@ -2600,9 +2682,14 @@
           "intervalSeconds": null
         }
       ],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_talent1",
@@ -2665,9 +2752,14 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_talent1_mark",
@@ -2730,9 +2822,14 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_base",
@@ -2854,7 +2951,6 @@
             "CreateBuffAction",
             "CharWeaponVisibleAction",
             "TogglableAction",
-            "SetSuperArmorAction",
             "OverrideMultiDashLimit",
             "RefrainObtainUsp"
           ],
@@ -2900,7 +2996,6 @@
                 "CreateBuffAction",
                 "CharWeaponVisibleAction",
                 "TogglableAction",
-                "SetSuperArmorAction",
                 "OverrideMultiDashLimit",
                 "RefrainObtainUsp"
               ],
@@ -3426,9 +3521,43 @@
           "revertedSkillId": ""
         }
       ],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [
+        {
+          "target": {
+            "targetSource": "Source",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "superArmor": {
+            "value": 35.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "impactResistance": {
+            "value": 100.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_body_vfx",
@@ -3628,6 +3757,9 @@
                         "left": null,
                         "right": null,
                         "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": {
                           "checkType": "Id",
@@ -3636,7 +3768,11 @@
                           ],
                           "queryType": "HasAny"
                         },
-                        "deckAttributeCompare": null
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
                       }
                     ],
                     "succeedActions": [
@@ -3674,13 +3810,20 @@
                               "left": null,
                               "right": null,
                               "skillTypes": [],
+                              "poise": null,
                               "mainOperator": {
                                 "targetSource": "Source",
                                 "targetGroupKey": ""
                               },
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
                               "damageDecorateMask": null,
                               "contextBuffId": null,
-                              "deckAttributeCompare": null
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
                             }
                           ],
                           "succeedActions": [
@@ -3721,14 +3864,16 @@
                               }
                             }
                           ],
-                          "failActions": []
+                          "failActions": [],
+                          "alwaysNext": false
                         },
                         "legacyBuffFinish": null,
                         "skillCooldownAdjustment": null,
                         "buffIgnite": null
                       }
                     ],
-                    "failActions": []
+                    "failActions": [],
+                    "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -3751,9 +3896,14 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_env_vfx",
@@ -3847,9 +3997,14 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_hide_model",
@@ -3941,9 +4096,14 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_hide_model_holder",
@@ -4124,9 +4284,14 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_skill_free",
@@ -4200,9 +4365,14 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -4277,9 +4447,14 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -4344,36 +4519,7 @@
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
-      "eventActions": [
-        {
-          "eventSource": "buff",
-          "event": "DuringBuffEnable",
-          "orderedActionTypes": [
-            "SetSuperArmorAction"
-          ],
-          "combatActions": [],
-          "damageUnits": [],
-          "buffApplications": [],
-          "createdBuffIds": [],
-          "forEachActions": [],
-          "targetGroupWrites": [],
-          "sequences": [
-            {
-              "onlyMainOperator": false,
-              "onlyGuard": false,
-              "orderedActionTypes": [
-                "SetSuperArmorAction"
-              ],
-              "combatActions": [],
-              "buffApplications": [],
-              "actions": [],
-              "priority": 0
-            }
-          ],
-          "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
-        }
-      ],
+      "eventActions": [],
       "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
@@ -4383,9 +4529,43 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [
+        {
+          "target": {
+            "targetSource": "Owner",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "superArmor": {
+            "value": 50.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "impactResistance": {
+            "value": 100.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -4493,9 +4673,14 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -4564,9 +4749,14 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_common_pulse_pulse_conduct_triggered",
@@ -4845,9 +5035,16 @@
                           "levelValues": null
                         },
                         "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
-                        "deckAttributeCompare": null
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
                       }
                     ],
                     "succeedActions": [
@@ -4883,7 +5080,8 @@
                         "buffIgnite": null
                       }
                     ],
-                    "failActions": []
+                    "failActions": [],
+                    "alwaysNext": true
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -4978,9 +5176,14 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_common_pulse_pulse_conduct_triggered_do",
@@ -5580,9 +5783,14 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_common_pulse_triggered_fx",
@@ -5682,9 +5890,14 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     },
     {
       "buffId": "buff_common_pulse_triggered_start",
@@ -5776,9 +5989,14 @@
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": []
     }
   ],
   "passiveSkills": [
@@ -6268,9 +6486,16 @@
                 "levelValues": null
               },
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -6328,7 +6553,8 @@
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 15,
@@ -6348,6 +6574,9 @@
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "distance": {
                 "source": {
                   "targetSource": "Owner",
@@ -6388,7 +6617,11 @@
               },
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -6570,14 +6803,25 @@
                       "conditions": [
                         {
                           "sourceType": "Probablity",
-                          "supported": false,
+                          "supported": true,
                           "comparison": null,
                           "left": null,
                           "right": null,
                           "skillTypes": [],
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": {
+                            "value": 0.5,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -6740,6 +6984,7 @@
                           "buffIgnite": null
                         }
                       ],
+                      "alwaysNext": true,
                       "executionFrames": [
                         9,
                         11,
@@ -6958,14 +7203,25 @@
                       "conditions": [
                         {
                           "sourceType": "Probablity",
-                          "supported": false,
+                          "supported": true,
                           "comparison": null,
                           "left": null,
                           "right": null,
                           "skillTypes": [],
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": {
+                            "value": 0.5,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -7128,6 +7384,7 @@
                           "buffIgnite": null
                         }
                       ],
+                      "alwaysNext": true,
                       "executionFrames": [
                         9,
                         11,
@@ -7167,6 +7424,7 @@
               ]
             }
           ],
+          "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
             {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
@@ -7566,14 +7824,25 @@
               "conditions": [
                 {
                   "sourceType": "Probablity",
-                  "supported": false,
+                  "supported": true,
                   "comparison": null,
                   "left": null,
                   "right": null,
                   "skillTypes": [],
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": {
+                    "value": 0.5,
+                    "blackboardKey": null,
+                    "levelValues": null
+                  },
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 }
               ],
               "succeedActions": [
@@ -7736,6 +8005,7 @@
                   "buffIgnite": null
                 }
               ],
+              "alwaysNext": true,
               "executionFrames": [
                 9,
                 11,
@@ -8449,9 +8719,16 @@
                 "levelValues": null
               },
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -8509,7 +8786,8 @@
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "auxiliaryActions": [],
@@ -9359,6 +9637,9 @@
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "distance": {
                 "source": {
                   "targetSource": "Owner",
@@ -9399,7 +9680,11 @@
               },
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -9581,14 +9866,25 @@
                       "conditions": [
                         {
                           "sourceType": "Probablity",
-                          "supported": false,
+                          "supported": true,
                           "comparison": null,
                           "left": null,
                           "right": null,
                           "skillTypes": [],
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": {
+                            "value": 0.5,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -9751,6 +10047,7 @@
                           "buffIgnite": null
                         }
                       ],
+                      "alwaysNext": true,
                       "executionFrames": [
                         9,
                         11,
@@ -9969,14 +10266,25 @@
                       "conditions": [
                         {
                           "sourceType": "Probablity",
-                          "supported": false,
+                          "supported": true,
                           "comparison": null,
                           "left": null,
                           "right": null,
                           "skillTypes": [],
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": {
+                            "value": 0.5,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -10139,6 +10447,7 @@
                           "buffIgnite": null
                         }
                       ],
+                      "alwaysNext": true,
                       "executionFrames": [
                         9,
                         11,
@@ -10178,6 +10487,7 @@
               ]
             }
           ],
+          "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
             {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack2",
@@ -10353,14 +10663,25 @@
               "conditions": [
                 {
                   "sourceType": "Probablity",
-                  "supported": false,
+                  "supported": true,
                   "comparison": null,
                   "left": null,
                   "right": null,
                   "skillTypes": [],
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": {
+                    "value": 0.5,
+                    "blackboardKey": null,
+                    "levelValues": null
+                  },
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 }
               ],
               "succeedActions": [
@@ -10523,6 +10844,7 @@
                   "buffIgnite": null
                 }
               ],
+              "alwaysNext": true,
               "executionFrames": [
                 9,
                 11,
@@ -11030,9 +11352,16 @@
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -11070,6 +11399,9 @@
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "distance": {
                       "source": {
                         "targetSource": "Owner",
@@ -11110,7 +11442,11 @@
                     },
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -11154,6 +11490,9 @@
                           "left": null,
                           "right": null,
                           "skillTypes": [],
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "distance": {
                             "source": {
                               "targetSource": "Owner",
@@ -11194,7 +11533,11 @@
                           },
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -12031,6 +12374,7 @@
                           ]
                         }
                       ],
+                      "alwaysNext": true,
                       "projectedAbilityEntitySpawns": [
                         {
                           "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
@@ -12479,6 +12823,7 @@
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
@@ -12922,6 +13267,7 @@
               ]
             }
           ],
+          "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
             {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack5",
@@ -13829,9 +14175,16 @@
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -13869,6 +14222,9 @@
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "distance": {
                       "source": {
                         "targetSource": "Owner",
@@ -13909,7 +14265,11 @@
                     },
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -14389,6 +14749,7 @@
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -14469,13 +14830,20 @@
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -14955,6 +15323,7 @@
                     "buffIgnite": null
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -15000,6 +15369,7 @@
               "buffIgnite": null
             }
           ],
+          "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
             {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -15067,9 +15437,16 @@
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -15115,9 +15492,16 @@
                       "levelValues": null
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -15568,6 +15952,7 @@
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -15648,13 +16033,20 @@
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -16105,6 +16497,7 @@
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -16150,6 +16543,7 @@
               "buffIgnite": null
             }
           ],
+          "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
             {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -16217,9 +16611,16 @@
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -16265,9 +16666,16 @@
                       "levelValues": null
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -16718,6 +17126,7 @@
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -16798,13 +17207,20 @@
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -17255,6 +17671,7 @@
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -17300,6 +17717,7 @@
               "buffIgnite": null
             }
           ],
+          "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
             {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -17367,9 +17785,16 @@
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -17415,9 +17840,16 @@
                       "levelValues": null
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -17868,6 +18300,7 @@
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -17948,13 +18381,20 @@
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -18405,6 +18845,7 @@
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -18450,6 +18891,7 @@
               "buffIgnite": null
             }
           ],
+          "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
             {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -19449,9 +19891,16 @@
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -19489,6 +19938,9 @@
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "distance": {
                       "source": {
                         "targetSource": "Owner",
@@ -19529,7 +19981,11 @@
                     },
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -20009,6 +20465,7 @@
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -20089,13 +20546,20 @@
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -20575,6 +21039,7 @@
                     "buffIgnite": null
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -20620,6 +21085,7 @@
               "buffIgnite": null
             }
           ],
+          "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
             {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -20687,9 +21153,16 @@
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -20735,9 +21208,16 @@
                       "levelValues": null
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -21188,6 +21668,7 @@
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -21268,13 +21749,20 @@
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -21725,6 +22213,7 @@
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -21770,6 +22259,7 @@
               "buffIgnite": null
             }
           ],
+          "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
             {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -21837,9 +22327,16 @@
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -21885,9 +22382,16 @@
                       "levelValues": null
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -22338,6 +22842,7 @@
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -22418,13 +22923,20 @@
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -22875,6 +23387,7 @@
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -22920,6 +23433,7 @@
               "buffIgnite": null
             }
           ],
+          "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
             {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -22987,9 +23501,16 @@
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -23035,9 +23556,16 @@
                       "levelValues": null
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -23488,6 +24016,7 @@
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -23568,13 +24097,20 @@
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -24025,6 +24561,7 @@
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -24070,6 +24607,7 @@
               "buffIgnite": null
             }
           ],
+          "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
             {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack_ult",
@@ -25051,9 +25589,16 @@
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -25091,6 +25636,9 @@
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "distance": {
                       "source": {
                         "targetSource": "Owner",
@@ -25131,7 +25679,11 @@
                     },
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -25632,6 +26184,7 @@
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
@@ -25703,13 +26256,20 @@
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
                     "mainOperator": {
                       "targetSource": "Source",
                       "targetGroupKey": ""
                     },
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -26210,6 +26770,7 @@
                     ]
                   }
                 ],
+                "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
                     "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
@@ -26246,6 +26807,7 @@
               "buffIgnite": null
             }
           ],
+          "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
             {
               "abilityEntityId": "abilityentity_chr_0030_zhuangfy_attack3_ult",
@@ -27348,8 +27910,11 @@
                 "entityCount": null,
                 "buffStack": null,
                 "health": null,
+                "poise": null,
                 "mainOperator": null,
                 "enemyRank": null,
+                "superArmor": null,
+                "twoDirectionAngle": null,
                 "targetIdentity": null,
                 "distance": null,
                 "entityTag": null,
@@ -27366,7 +27931,11 @@
                 "damageDecorateMask": null,
                 "contextBuffId": null,
                 "abilityEntityDuration": null,
-                "deckAttributeCompare": null
+                "objectTypeMatch": null,
+                "deckAttributeCompare": null,
+                "probability": null,
+                "anyConditionGroups": [],
+                "anyConditionNegated": []
               }
             ],
             [
@@ -27388,8 +27957,11 @@
                 "entityCount": null,
                 "buffStack": null,
                 "health": null,
+                "poise": null,
                 "mainOperator": null,
                 "enemyRank": null,
+                "superArmor": null,
+                "twoDirectionAngle": null,
                 "targetIdentity": null,
                 "distance": null,
                 "entityTag": null,
@@ -27399,7 +27971,11 @@
                 "damageDecorateMask": null,
                 "contextBuffId": null,
                 "abilityEntityDuration": null,
-                "deckAttributeCompare": null
+                "objectTypeMatch": null,
+                "deckAttributeCompare": null,
+                "probability": null,
+                "anyConditionGroups": [],
+                "anyConditionNegated": []
               }
             ]
           ],
@@ -27467,6 +28043,9 @@
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "abilityEntityDuration": {
@@ -27495,7 +28074,11 @@
                       "saveCurrentDuration": false,
                       "outputKey": ""
                     },
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -27529,7 +28112,8 @@
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": false
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -27537,6 +28121,7 @@
             }
           ],
           "failActions": [],
+          "alwaysNext": false,
           "contextKey": "swordsForExtend"
         },
         {
@@ -27575,9 +28160,16 @@
                 },
                 "limitSkillCastId": false
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -27614,7 +28206,8 @@
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 6,
@@ -27643,9 +28236,16 @@
                 "excludeDeadEntity": true,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -27737,9 +28337,16 @@
                       },
                       "limitSkillCastId": false
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -27929,9 +28536,16 @@
                             ]
                           },
                           "skillTypes": [],
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [],
@@ -27981,7 +28595,8 @@
                           "skillCooldownAdjustment": null,
                           "buffIgnite": null
                         }
-                      ]
+                      ],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -28098,9 +28713,16 @@
                             },
                             "limitSkillCastId": false
                           },
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -28137,7 +28759,8 @@
                           "buffIgnite": null
                         }
                       ],
-                      "failActions": []
+                      "failActions": [],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -28171,7 +28794,23 @@
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "swordPos",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     },
                     "projectileTriggeredSkills": [
                       {
@@ -28232,9 +28871,16 @@
                                   ]
                                 },
                                 "skillTypes": [],
+                                "poise": null,
+                                "superArmor": null,
+                                "twoDirectionAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
-                                "deckAttributeCompare": null
+                                "objectTypeMatch": null,
+                                "deckAttributeCompare": null,
+                                "probability": null,
+                                "anyConditionGroups": [],
+                                "anyConditionNegated": []
                               }
                             ],
                             "succeedActions": [
@@ -28290,9 +28936,16 @@
                                         },
                                         "limitSkillCastId": false
                                       },
+                                      "poise": null,
+                                      "superArmor": null,
+                                      "twoDirectionAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
-                                      "deckAttributeCompare": null
+                                      "objectTypeMatch": null,
+                                      "deckAttributeCompare": null,
+                                      "probability": null,
+                                      "anyConditionGroups": [],
+                                      "anyConditionNegated": []
                                     }
                                   ],
                                   "succeedActions": [
@@ -28613,6 +29266,7 @@
                                       ]
                                     }
                                   ],
+                                  "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
                                     {
                                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -28704,9 +29358,16 @@
                                         },
                                         "limitSkillCastId": false
                                       },
+                                      "poise": null,
+                                      "superArmor": null,
+                                      "twoDirectionAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
-                                      "deckAttributeCompare": null
+                                      "objectTypeMatch": null,
+                                      "deckAttributeCompare": null,
+                                      "probability": null,
+                                      "anyConditionGroups": [],
+                                      "anyConditionNegated": []
                                     }
                                   ],
                                   "succeedActions": [
@@ -29027,6 +29688,7 @@
                                       ]
                                     }
                                   ],
+                                  "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
                                     {
                                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -29065,6 +29727,7 @@
                                 "buffIgnite": null
                               }
                             ],
+                            "alwaysNext": true,
                             "projectedAbilityEntitySpawns": [
                               {
                                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -29318,9 +29981,16 @@
                             ]
                           },
                           "skillTypes": [],
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -29357,7 +30027,8 @@
                           "buffIgnite": null
                         }
                       ],
-                      "failActions": []
+                      "failActions": [],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -29421,9 +30092,16 @@
                             },
                             "limitSkillCastId": false
                           },
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -29460,7 +30138,8 @@
                           "buffIgnite": null
                         }
                       ],
-                      "failActions": []
+                      "failActions": [],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -29494,7 +30173,23 @@
                         }
                       ],
                       "assignBlackboard": true,
-                      "entityBlackboardAssignments": []
+                      "entityBlackboardAssignments": [],
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "swordPos",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      }
                     },
                     "projectileTriggeredSkills": [
                       {
@@ -29555,9 +30250,16 @@
                                   ]
                                 },
                                 "skillTypes": [],
+                                "poise": null,
+                                "superArmor": null,
+                                "twoDirectionAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
-                                "deckAttributeCompare": null
+                                "objectTypeMatch": null,
+                                "deckAttributeCompare": null,
+                                "probability": null,
+                                "anyConditionGroups": [],
+                                "anyConditionNegated": []
                               }
                             ],
                             "succeedActions": [
@@ -29613,9 +30315,16 @@
                                         },
                                         "limitSkillCastId": false
                                       },
+                                      "poise": null,
+                                      "superArmor": null,
+                                      "twoDirectionAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
-                                      "deckAttributeCompare": null
+                                      "objectTypeMatch": null,
+                                      "deckAttributeCompare": null,
+                                      "probability": null,
+                                      "anyConditionGroups": [],
+                                      "anyConditionNegated": []
                                     }
                                   ],
                                   "succeedActions": [
@@ -29936,6 +30645,7 @@
                                       ]
                                     }
                                   ],
+                                  "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
                                     {
                                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -30027,9 +30737,16 @@
                                         },
                                         "limitSkillCastId": false
                                       },
+                                      "poise": null,
+                                      "superArmor": null,
+                                      "twoDirectionAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
-                                      "deckAttributeCompare": null
+                                      "objectTypeMatch": null,
+                                      "deckAttributeCompare": null,
+                                      "probability": null,
+                                      "anyConditionGroups": [],
+                                      "anyConditionNegated": []
                                     }
                                   ],
                                   "succeedActions": [
@@ -30350,6 +31067,7 @@
                                       ]
                                     }
                                   ],
+                                  "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
                                     {
                                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -30388,6 +31106,7 @@
                                 "buffIgnite": null
                               }
                             ],
+                            "alwaysNext": true,
                             "projectedAbilityEntitySpawns": [
                               {
                                 "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -30578,7 +31297,8 @@
                       "inheritSourceSkillCastInfo": true
                     }
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -30616,7 +31336,8 @@
                 "dieOnEnd": false
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 13,
@@ -30644,9 +31365,16 @@
                 "levelValues": null
               },
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -30941,7 +31669,8 @@
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 6,
@@ -30961,9 +31690,16 @@
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -31048,9 +31784,16 @@
                       "excludeDeadEntity": false,
                       "storeKey": ""
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -31094,13 +31837,15 @@
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "auxiliaryActions": [],
@@ -31428,7 +32173,8 @@
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator"
         },
         {
           "startFrame": 0,
@@ -31565,8 +32311,11 @@
                 "entityCount": null,
                 "buffStack": null,
                 "health": null,
+                "poise": null,
                 "mainOperator": null,
                 "enemyRank": null,
+                "superArmor": null,
+                "twoDirectionAngle": null,
                 "targetIdentity": null,
                 "distance": null,
                 "entityTag": null,
@@ -31583,7 +32332,11 @@
                 "damageDecorateMask": null,
                 "contextBuffId": null,
                 "abilityEntityDuration": null,
-                "deckAttributeCompare": null
+                "objectTypeMatch": null,
+                "deckAttributeCompare": null,
+                "probability": null,
+                "anyConditionGroups": [],
+                "anyConditionNegated": []
               }
             ],
             [
@@ -31605,8 +32358,11 @@
                 "entityCount": null,
                 "buffStack": null,
                 "health": null,
+                "poise": null,
                 "mainOperator": null,
                 "enemyRank": null,
+                "superArmor": null,
+                "twoDirectionAngle": null,
                 "targetIdentity": null,
                 "distance": null,
                 "entityTag": null,
@@ -31616,7 +32372,11 @@
                 "damageDecorateMask": null,
                 "contextBuffId": null,
                 "abilityEntityDuration": null,
-                "deckAttributeCompare": null
+                "objectTypeMatch": null,
+                "deckAttributeCompare": null,
+                "probability": null,
+                "anyConditionGroups": [],
+                "anyConditionNegated": []
               }
             ]
           ],
@@ -31684,6 +32444,9 @@
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "abilityEntityDuration": {
@@ -31712,7 +32475,11 @@
                       "saveCurrentDuration": false,
                       "outputKey": ""
                     },
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -31746,7 +32513,8 @@
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": false
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -31754,6 +32522,7 @@
             }
           ],
           "failActions": [],
+          "alwaysNext": false,
           "contextKey": "swordsForExtend"
         },
         {
@@ -31783,9 +32552,16 @@
                 "excludeDeadEntity": true,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -31877,9 +32653,16 @@
                       },
                       "limitSkillCastId": false
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -31941,9 +32724,16 @@
                             },
                             "limitSkillCastId": false
                           },
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -31978,7 +32768,23 @@
                               }
                             ],
                             "assignBlackboard": true,
-                            "entityBlackboardAssignments": []
+                            "entityBlackboardAssignments": [],
+                            "target": {
+                              "targetSource": "Context",
+                              "targetGroupKey": "swordPos",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            }
                           },
                           "projectileTriggeredSkills": [
                             {
@@ -32041,9 +32847,16 @@
                                         ]
                                       },
                                       "skillTypes": [],
+                                      "poise": null,
+                                      "superArmor": null,
+                                      "twoDirectionAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
-                                      "deckAttributeCompare": null
+                                      "objectTypeMatch": null,
+                                      "deckAttributeCompare": null,
+                                      "probability": null,
+                                      "anyConditionGroups": [],
+                                      "anyConditionNegated": []
                                     }
                                   ],
                                   "succeedActions": [
@@ -32099,9 +32912,16 @@
                                               },
                                               "limitSkillCastId": false
                                             },
+                                            "poise": null,
+                                            "superArmor": null,
+                                            "twoDirectionAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
-                                            "deckAttributeCompare": null
+                                            "objectTypeMatch": null,
+                                            "deckAttributeCompare": null,
+                                            "probability": null,
+                                            "anyConditionGroups": [],
+                                            "anyConditionNegated": []
                                           }
                                         ],
                                         "succeedActions": [
@@ -32426,6 +33246,7 @@
                                             ]
                                           }
                                         ],
+                                        "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
                                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -32517,9 +33338,16 @@
                                               },
                                               "limitSkillCastId": false
                                             },
+                                            "poise": null,
+                                            "superArmor": null,
+                                            "twoDirectionAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
-                                            "deckAttributeCompare": null
+                                            "objectTypeMatch": null,
+                                            "deckAttributeCompare": null,
+                                            "probability": null,
+                                            "anyConditionGroups": [],
+                                            "anyConditionNegated": []
                                           }
                                         ],
                                         "succeedActions": [
@@ -32844,6 +33672,7 @@
                                             ]
                                           }
                                         ],
+                                        "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
                                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -32882,6 +33711,7 @@
                                       "buffIgnite": null
                                     }
                                   ],
+                                  "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
                                     {
                                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -33106,7 +33936,23 @@
                               }
                             ],
                             "assignBlackboard": true,
-                            "entityBlackboardAssignments": []
+                            "entityBlackboardAssignments": [],
+                            "target": {
+                              "targetSource": "Context",
+                              "targetGroupKey": "swordPos",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            }
                           },
                           "projectileTriggeredSkills": [
                             {
@@ -33169,9 +34015,16 @@
                                         ]
                                       },
                                       "skillTypes": [],
+                                      "poise": null,
+                                      "superArmor": null,
+                                      "twoDirectionAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
-                                      "deckAttributeCompare": null
+                                      "objectTypeMatch": null,
+                                      "deckAttributeCompare": null,
+                                      "probability": null,
+                                      "anyConditionGroups": [],
+                                      "anyConditionNegated": []
                                     }
                                   ],
                                   "succeedActions": [
@@ -33227,9 +34080,16 @@
                                               },
                                               "limitSkillCastId": false
                                             },
+                                            "poise": null,
+                                            "superArmor": null,
+                                            "twoDirectionAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
-                                            "deckAttributeCompare": null
+                                            "objectTypeMatch": null,
+                                            "deckAttributeCompare": null,
+                                            "probability": null,
+                                            "anyConditionGroups": [],
+                                            "anyConditionNegated": []
                                           }
                                         ],
                                         "succeedActions": [
@@ -33554,6 +34414,7 @@
                                             ]
                                           }
                                         ],
+                                        "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
                                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -33645,9 +34506,16 @@
                                               },
                                               "limitSkillCastId": false
                                             },
+                                            "poise": null,
+                                            "superArmor": null,
+                                            "twoDirectionAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
-                                            "deckAttributeCompare": null
+                                            "objectTypeMatch": null,
+                                            "deckAttributeCompare": null,
+                                            "probability": null,
+                                            "anyConditionGroups": [],
+                                            "anyConditionNegated": []
                                           }
                                         ],
                                         "succeedActions": [
@@ -33972,6 +34840,7 @@
                                             ]
                                           }
                                         ],
+                                        "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
                                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -34010,6 +34879,7 @@
                                       "buffIgnite": null
                                     }
                                   ],
+                                  "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
                                     {
                                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -34201,7 +35071,8 @@
                           "skillCooldownAdjustment": null,
                           "buffIgnite": null
                         }
-                      ]
+                      ],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -34267,9 +35138,16 @@
                             },
                             "limitSkillCastId": false
                           },
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -34477,9 +35355,16 @@
                                   ]
                                 },
                                 "skillTypes": [],
+                                "poise": null,
+                                "superArmor": null,
+                                "twoDirectionAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
-                                "deckAttributeCompare": null
+                                "objectTypeMatch": null,
+                                "deckAttributeCompare": null,
+                                "probability": null,
+                                "anyConditionGroups": [],
+                                "anyConditionNegated": []
                               }
                             ],
                             "succeedActions": [],
@@ -34532,7 +35417,8 @@
                                 "skillCooldownAdjustment": null,
                                 "buffIgnite": null
                               }
-                            ]
+                            ],
+                            "alwaysNext": true
                           },
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
@@ -34658,9 +35544,16 @@
                                   },
                                   "limitSkillCastId": false
                                 },
+                                "poise": null,
+                                "superArmor": null,
+                                "twoDirectionAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
-                                "deckAttributeCompare": null
+                                "objectTypeMatch": null,
+                                "deckAttributeCompare": null,
+                                "probability": null,
+                                "anyConditionGroups": [],
+                                "anyConditionNegated": []
                               }
                             ],
                             "succeedActions": [
@@ -34700,7 +35593,8 @@
                                 "buffIgnite": null
                               }
                             ],
-                            "failActions": []
+                            "failActions": [],
+                            "alwaysNext": true
                           },
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
@@ -34737,7 +35631,23 @@
                               }
                             ],
                             "assignBlackboard": true,
-                            "entityBlackboardAssignments": []
+                            "entityBlackboardAssignments": [],
+                            "target": {
+                              "targetSource": "Context",
+                              "targetGroupKey": "swordPos",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            }
                           },
                           "projectileTriggeredSkills": [
                             {
@@ -34800,9 +35710,16 @@
                                         ]
                                       },
                                       "skillTypes": [],
+                                      "poise": null,
+                                      "superArmor": null,
+                                      "twoDirectionAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
-                                      "deckAttributeCompare": null
+                                      "objectTypeMatch": null,
+                                      "deckAttributeCompare": null,
+                                      "probability": null,
+                                      "anyConditionGroups": [],
+                                      "anyConditionNegated": []
                                     }
                                   ],
                                   "succeedActions": [
@@ -34858,9 +35775,16 @@
                                               },
                                               "limitSkillCastId": false
                                             },
+                                            "poise": null,
+                                            "superArmor": null,
+                                            "twoDirectionAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
-                                            "deckAttributeCompare": null
+                                            "objectTypeMatch": null,
+                                            "deckAttributeCompare": null,
+                                            "probability": null,
+                                            "anyConditionGroups": [],
+                                            "anyConditionNegated": []
                                           }
                                         ],
                                         "succeedActions": [
@@ -35185,6 +36109,7 @@
                                             ]
                                           }
                                         ],
+                                        "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
                                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -35276,9 +36201,16 @@
                                               },
                                               "limitSkillCastId": false
                                             },
+                                            "poise": null,
+                                            "superArmor": null,
+                                            "twoDirectionAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
-                                            "deckAttributeCompare": null
+                                            "objectTypeMatch": null,
+                                            "deckAttributeCompare": null,
+                                            "probability": null,
+                                            "anyConditionGroups": [],
+                                            "anyConditionNegated": []
                                           }
                                         ],
                                         "succeedActions": [
@@ -35603,6 +36535,7 @@
                                             ]
                                           }
                                         ],
+                                        "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
                                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -35641,6 +36574,7 @@
                                       "buffIgnite": null
                                     }
                                   ],
+                                  "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
                                     {
                                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -35905,9 +36839,16 @@
                                   ]
                                 },
                                 "skillTypes": [],
+                                "poise": null,
+                                "superArmor": null,
+                                "twoDirectionAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
-                                "deckAttributeCompare": null
+                                "objectTypeMatch": null,
+                                "deckAttributeCompare": null,
+                                "probability": null,
+                                "anyConditionGroups": [],
+                                "anyConditionNegated": []
                               }
                             ],
                             "succeedActions": [
@@ -35947,7 +36888,8 @@
                                 "buffIgnite": null
                               }
                             ],
-                            "failActions": []
+                            "failActions": [],
+                            "alwaysNext": true
                           },
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
@@ -36017,9 +36959,16 @@
                                   },
                                   "limitSkillCastId": false
                                 },
+                                "poise": null,
+                                "superArmor": null,
+                                "twoDirectionAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
-                                "deckAttributeCompare": null
+                                "objectTypeMatch": null,
+                                "deckAttributeCompare": null,
+                                "probability": null,
+                                "anyConditionGroups": [],
+                                "anyConditionNegated": []
                               }
                             ],
                             "succeedActions": [
@@ -36059,7 +37008,8 @@
                                 "buffIgnite": null
                               }
                             ],
-                            "failActions": []
+                            "failActions": [],
+                            "alwaysNext": true
                           },
                           "legacyBuffFinish": null,
                           "skillCooldownAdjustment": null,
@@ -36096,7 +37046,23 @@
                               }
                             ],
                             "assignBlackboard": true,
-                            "entityBlackboardAssignments": []
+                            "entityBlackboardAssignments": [],
+                            "target": {
+                              "targetSource": "Context",
+                              "targetGroupKey": "swordPos",
+                              "selectorOwner": "ActionOwner",
+                              "ownerContextKey": "",
+                              "centerType": "ActionSource",
+                              "centerContextKey": "",
+                              "centerToGround": false,
+                              "target": "ActionSource",
+                              "targetContextKey": "",
+                              "enableAdvancedDirection": false,
+                              "selectorDirection": "SourceForward",
+                              "finderType": null,
+                              "validatorTypes": [],
+                              "postProcessorTypes": []
+                            }
                           },
                           "projectileTriggeredSkills": [
                             {
@@ -36159,9 +37125,16 @@
                                         ]
                                       },
                                       "skillTypes": [],
+                                      "poise": null,
+                                      "superArmor": null,
+                                      "twoDirectionAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
-                                      "deckAttributeCompare": null
+                                      "objectTypeMatch": null,
+                                      "deckAttributeCompare": null,
+                                      "probability": null,
+                                      "anyConditionGroups": [],
+                                      "anyConditionNegated": []
                                     }
                                   ],
                                   "succeedActions": [
@@ -36217,9 +37190,16 @@
                                               },
                                               "limitSkillCastId": false
                                             },
+                                            "poise": null,
+                                            "superArmor": null,
+                                            "twoDirectionAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
-                                            "deckAttributeCompare": null
+                                            "objectTypeMatch": null,
+                                            "deckAttributeCompare": null,
+                                            "probability": null,
+                                            "anyConditionGroups": [],
+                                            "anyConditionNegated": []
                                           }
                                         ],
                                         "succeedActions": [
@@ -36544,6 +37524,7 @@
                                             ]
                                           }
                                         ],
+                                        "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
                                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -36635,9 +37616,16 @@
                                               },
                                               "limitSkillCastId": false
                                             },
+                                            "poise": null,
+                                            "superArmor": null,
+                                            "twoDirectionAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
-                                            "deckAttributeCompare": null
+                                            "objectTypeMatch": null,
+                                            "deckAttributeCompare": null,
+                                            "probability": null,
+                                            "anyConditionGroups": [],
+                                            "anyConditionNegated": []
                                           }
                                         ],
                                         "succeedActions": [
@@ -36962,6 +37950,7 @@
                                             ]
                                           }
                                         ],
+                                        "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
                                             "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -37000,6 +37989,7 @@
                                       "buffIgnite": null
                                     }
                                   ],
+                                  "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
                                     {
                                       "abilityEntityId": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
@@ -37195,13 +38185,15 @@
                             "inheritSourceSkillCastInfo": true
                           }
                         }
-                      ]
+                      ],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
-                ]
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -37239,7 +38231,8 @@
                 "dieOnEnd": false
               }
             }
-          ]
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 5,
@@ -37259,9 +38252,16 @@
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -37346,9 +38346,16 @@
                       "excludeDeadEntity": false,
                       "storeKey": ""
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -37392,13 +38399,15 @@
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "alwaysNext": true
         }
       ],
       "auxiliaryActions": [
@@ -37668,9 +38677,16 @@
                     "levelValues": null
                   },
                   "skillTypes": [],
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 }
               ],
               "succeedActions": [
@@ -37819,9 +38835,16 @@
                           "levelValues": null
                         },
                         "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
-                        "deckAttributeCompare": null
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
                       }
                     ],
                     "succeedActions": [
@@ -37910,6 +38933,7 @@
                         ]
                       }
                     ],
+                    "alwaysNext": true,
                     "executionFrames": [
                       12,
                       17,
@@ -37957,6 +38981,7 @@
                 }
               ],
               "failActions": [],
+              "alwaysNext": true,
               "executionFrames": [
                 12,
                 17,
@@ -38000,9 +39025,16 @@
                     "levelValues": null
                   },
                   "skillTypes": [],
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 }
               ],
               "succeedActions": [
@@ -38037,6 +39069,7 @@
                 }
               ],
               "failActions": [],
+              "alwaysNext": true,
               "executionFrames": [
                 12,
                 17,
@@ -38088,7 +39121,8 @@
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "alwaysNext": false
             }
           ],
           "inflictions": [
@@ -39098,7 +40132,8 @@
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator"
         },
         {
           "startFrame": 0,
@@ -39401,9 +40436,16 @@
                 },
                 "limitSkillCastId": false
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -39515,9 +40557,16 @@
                       },
                       "limitSkillCastId": false
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -39551,7 +40600,8 @@
                     "buffIgnite": null
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -39599,9 +40649,16 @@
                       "levelValues": null
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -39635,7 +40692,8 @@
                     "buffIgnite": null
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -39684,7 +40742,8 @@
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         },
         {
           "startFrame": 24,
@@ -39713,9 +40772,16 @@
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -39865,7 +40931,8 @@
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "auxiliaryActions": [],
@@ -40189,7 +41256,8 @@
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator"
         }
       ],
       "timeDilations": [
@@ -40365,9 +41433,16 @@
                 },
                 "limitSkillCastId": false
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -40479,9 +41554,16 @@
                       },
                       "limitSkillCastId": false
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -40515,7 +41597,8 @@
                     "buffIgnite": null
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -40563,9 +41646,16 @@
                       "levelValues": null
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -40599,7 +41689,8 @@
                     "buffIgnite": null
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -40648,7 +41739,8 @@
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "auxiliaryActions": [],
@@ -41003,7 +42095,8 @@
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator"
         }
       ],
       "timeDilations": [
@@ -41111,9 +42204,16 @@
                 },
                 "limitSkillCastId": false
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -41154,7 +42254,8 @@
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "alwaysNext": true
         }
       ],
       "auxiliaryActions": [

@@ -24,6 +24,7 @@ class GenerationPipelineServices:
     remove_obsolete_generated_file: Callable[..., Any]
     render_compiled_skills: Callable[..., Any]
     render_operator_definition: Callable[..., Any]
+    is_strictly_presentation_only_buff: Callable[..., Any]
     render_report: Callable[..., Any]
     render_shared_buff_definitions_module: Callable[..., Any]
     render_shared_ability_entity_definitions_module: Callable[..., Any]
@@ -45,6 +46,7 @@ def run_generation(*, services: GenerationPipelineServices) -> None:
     remove_obsolete_generated_file = services.remove_obsolete_generated_file
     render_compiled_skills = services.render_compiled_skills
     render_operator_definition = services.render_operator_definition
+    is_strictly_presentation_only_buff = services.is_strictly_presentation_only_buff
     render_report = services.render_report
     render_shared_buff_definitions_module = services.render_shared_buff_definitions_module
     render_shared_ability_entity_definitions_module = services.render_shared_ability_entity_definitions_module
@@ -258,11 +260,51 @@ def run_generation(*, services: GenerationPipelineServices) -> None:
             args.check,
         )
         if output_stage == "audit":
+            presentation_only_buff_ids = {
+                definition.buffId
+                for definition in audited_buff_definitions
+                if is_strictly_presentation_only_buff(definition)
+            }
+            audit_compile_operator = {
+                **operator,
+                "skills": [
+                    {
+                        **raw_skill,
+                        "compile": (
+                            {
+                                **raw_skill["compile"],
+                                "ignoreBuffIds": list(
+                                    dict.fromkeys(
+                                        [
+                                            *require_list(
+                                                raw_skill["compile"].get(
+                                                    "ignoreBuffIds", []
+                                                ),
+                                                f"{slug}.skills[{skill_index}].compile.ignoreBuffIds",
+                                            ),
+                                            *sorted(
+                                                presentation_only_buff_ids.intersection(
+                                                    skills[skill_index].referencedBuffIds
+                                                )
+                                            ),
+                                        ]
+                                    )
+                                ),
+                            }
+                            if isinstance(raw_skill.get("compile"), dict)
+                            else raw_skill.get("compile")
+                        ),
+                    }
+                    for skill_index, raw_skill in enumerate(
+                        require_list(operator["skills"], f"{slug}.skills")
+                    )
+                ],
+            }
             write_or_check(
                 args.output / f"{slug}.skills.audit.generated.ts",
                 # 审计产物允许保留尚未闭环的 Buff 身份；完整事实仍在同名 audit.json 中。
                 render_compiled_skills(
-                    operator,
+                    audit_compile_operator,
                     skills,
                     entity_blackboard_initializers=entity_blackboard_initializers,
                     skill_slot_replacement_relations=derive_skill_slot_replacement_relations(

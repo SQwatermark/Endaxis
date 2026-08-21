@@ -970,7 +970,6 @@
           "compile": {
             "kind": "resolvedSequence",
             "ignoreAuxiliaryClassifications": ["incomingDamageProtection"],
-            "ignoreBuffIds": ["buff_chr_0030_zhuangfy_potential5_vfx"],
             "usePatchCooldown": true,
             "costResource": "ultimateEnergy"
           }

@@ -347,10 +347,34 @@ def audit_skill(
         stage = "dsl-compiled"
         blocker_kind = None
         blocker = None
-    except Exception as error:
-        stage = "dsl-blocked"
-        blocker = sanitize_error(str(error), source)
-        blocker_kind = classify_blocker(blocker)
+    except Exception as first_error:
+        # 横向技能动作审计不要求所有引用 Buff 已完整进入运行时；但严格证明为
+        # 纯表现的 Buff 应与正式生成走同一自动投影，而不依赖逐角色 ignore 清单。
+        # 仅在首次阻塞后解析当前技能的 Buff，避免改变既有技能动作覆盖口径。
+        definitions, _ = generator.resolve_operator_buff_definitions_for_stage(
+            (skill,),
+            source.parent / "BuffData",
+            "audit",
+            source,
+        )
+        presentation_only_buff_ids = sorted(
+            definition.buffId
+            for definition in definitions
+            if generator.is_strictly_presentation_only_buff(definition)
+        )
+        if presentation_only_buff_ids:
+            config["ignoreBuffIds"] = presentation_only_buff_ids
+        try:
+            if not presentation_only_buff_ids:
+                raise first_error
+            generator.compile_skill_entries(operator, [skill])
+            stage = "dsl-compiled"
+            blocker_kind = None
+            blocker = None
+        except Exception as error:
+            stage = "dsl-blocked"
+            blocker = sanitize_error(str(error), source)
+            blocker_kind = classify_blocker(blocker)
 
     return SkillAudit(
         character_id,
