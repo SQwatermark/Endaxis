@@ -3,7 +3,11 @@ import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { CombatOperationExecutor } from './skillRuntime';
 
 export interface SkillSlotOperationExecutorOptions {
-  readonly changeSkillSlot: (skillGroupKey: string, targetSkillKey: string) => void;
+  readonly changeSkillSlot: (
+    skillGroupKey: string,
+    targetSkillKey: string,
+    inheritOriginSkillCooldownProgress: boolean,
+  ) => void;
   readonly delegate: CombatOperationExecutor;
 }
 
@@ -19,7 +23,11 @@ export class SkillSlotOperationExecutor implements CombatOperationExecutor {
         ? this.options.delegate.execute(step)
         : this.options.delegate.execute(step, context);
     }
-    this.options.changeSkillSlot(step.parameters.skillGroupKey, step.parameters.targetSkillKey);
+    this.options.changeSkillSlot(
+      step.parameters.skillGroupKey,
+      step.parameters.targetSkillKey,
+      step.parameters.inheritOriginSkillCooldownProgress ?? false,
+    );
     return true;
   }
 

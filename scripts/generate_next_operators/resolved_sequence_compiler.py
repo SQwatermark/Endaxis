@@ -291,8 +291,9 @@ def compile_resolved_sequence(
         for action in getattr(skill, "auxiliaryActions", [])
         if action.actionType == "CreateBuffAction"
     ]
-    if any(not launch.skillTriggers for launch in skill.projectileLaunches):
-        raise ValueError(f"{skill.key}: projectile without triggered SkillData remains unresolved")
+    # 原生 LaunchProjectile 只在对应 castSkillOn* 开关开启时注册子技能。
+    # 没有任何已启用技能回调的投射物只保留空间/表现行为；在 Next 的零距离、
+    # 无投射物空间模拟模型中不会产生战斗步骤，不能因关闭分支残留的字符串而误报。
     unmodeled_projectile_actions: list[str] = []
 
     def collect_unmodeled_projectile_actions(hit: ProjectileTriggeredSkillSource) -> None:
@@ -374,10 +375,6 @@ def compile_resolved_sequence(
                     f"{skill.key}: missing lifecycle replacement Buff "
                     f"{relation['activatedByBuffId']!r}"
                 )
-            if relation["inheritOriginSkillCooldownProgress"]:
-                raise ValueError(
-                    f"{skill.key}: skill cooldown progress inheritance is not implemented"
-                )
             projected_definitions[relation["activatedByBuffId"]] = replace(
                 definition,
                 skillReplacements=(),
@@ -386,7 +383,9 @@ def compile_resolved_sequence(
                         "skillGroupKey": relation.get("skillGroupKey", relation["baseSkillKey"]),
                         "targetSkillKey": relation["replacementSkillKey"],
                         "revertedSkillKey": relation["baseSkillKey"],
-                        "inheritOriginSkillCooldownProgress": False,
+                        "inheritOriginSkillCooldownProgress": relation[
+                            "inheritOriginSkillCooldownProgress"
+                        ],
                     },
                 ),
             )

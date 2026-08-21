@@ -16,7 +16,26 @@ describe('SkillSlotOperationExecutor', () => {
     };
 
     expect(executor.execute(step)).toBe(true);
-    expect(changeSkillSlot).toHaveBeenCalledWith('ultimate', 'arcana');
+    expect(changeSkillSlot).toHaveBeenCalledWith('ultimate', 'arcana', false);
     expect(delegate.execute).not.toHaveBeenCalled();
+  });
+
+  it('forwards native cooldown-progress inheritance', () => {
+    const changeSkillSlot = vi.fn();
+    const executor = new SkillSlotOperationExecutor({
+      changeSkillSlot,
+      delegate: { execute: () => false, evaluate: () => false },
+    });
+
+    executor.execute({
+      kind: 'changeSkillSlot',
+      parameters: {
+        skillGroupKey: 'battleSkill',
+        targetSkillKey: 'battleSkillEnd',
+        inheritOriginSkillCooldownProgress: true,
+      },
+    });
+
+    expect(changeSkillSlot).toHaveBeenCalledWith('battleSkill', 'battleSkillEnd', true);
   });
 });

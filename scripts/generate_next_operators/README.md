@@ -12,7 +12,11 @@
 
 `SetSkillCdAtOnce` 的技能选择遵循复刻库与 1.4.4 反编译证据：`useSkillType=true` 时只按 `SkillTypeMask` 遍历，配置中的 `skillId` 即使非空也不参与选择；为 `false` 时才按精确 ID 查找。Set/Reduce 与绝对值/周期比例继续保留为正交字段。证据见相邻 `combat-spec/docs/set-skill-cooldown.md`。
 
-`ChangeSkillAction` 的 `FinishByAction` 形态内联在承载它的 Buff 定义中：Buff 每次启用时换入目标技能，停用或结束导致 DuringBuffEnable 动作 End 时还原指定技能。生成器必须从原生目标/还原 ID 和技能组证明关系，并由 `runtimeReplacementSkillKeys` 明确选择不可直接放置的替换形态。运行时 `skillGroupKey` 必须取 manifest 技能组键，目标与还原继续使用稳定技能键；两种身份即使历史样本恰好同名也不得合并。`inheritOriginSkillCdProgress=true` 尚未接入时严格失败。证据见 `combat-spec/docs/change-skill-action.md`。动态最大 Buff 层数从首实例黑板键解析；`isNeedStackEffect=true` 但效果数组为空是反编译确认的表现层 no-op，见 `combat-spec/docs/buff-stack-presentation.md`。
+`ChangeSkillAction` 的 `FinishByAction` 形态内联在承载它的 Buff 定义中：Buff 每次启用时换入目标技能，停用或结束导致 DuringBuffEnable 动作 End 时还原指定技能。生成器必须从原生目标/还原 ID 和技能组证明关系，并由 `runtimeReplacementSkillKeys` 明确选择不可直接放置的替换形态。运行时 `skillGroupKey` 必须取 manifest 技能组键，目标与还原继续使用稳定技能键；两种身份即使历史样本恰好同名也不得合并。`inheritOriginSkillCdProgress=true` 会在换入与还原前把当前形态的归一化冷却进度传给目标形态。证据见 `combat-spec/docs/change-skill-action.md`。动态最大 Buff 层数从首实例黑板键解析；`isNeedStackEffect=true` 但效果数组为空是反编译确认的表现层 no-op，见 `combat-spec/docs/buff-stack-presentation.md`。
+
+`HealAction.contextKey` 只按治疗者 `ActionTargetType` 解释：`ActionSource` 直接使用动作来源，即使键非空也不查询目标组；只有 `ContextTarget` 才消费该键。当前生成器只接受已接入的 `healer=ActionSource` 子集，因此会验证字符串形状但不会把它错误编译为目标引用。证据见 `combat-spec/docs/heal-action.md`。
+
+`LaunchProjectile` 只从开启的 `castSkillOnHit/Block/Reach/Finish` 槽位读取子技能 ID；关闭槽位残留的非空字符串没有运行时回调语义。完全没有已启用子技能回调的投射物只剩空间与表现行为，在 Next 的零距离模型中不生成战斗步骤；开启槽位仍必须解析并闭合对应 SkillData。证据见 `combat-spec/docs/launch-projectile-skill-routing.md`。
 
 `BuffData.shieldConfigs` 只按复刻库已经恢复的原生字段进入正式定义：有限/无限容量、按伤害类型的吸收比例与容量换算、有限/无限次数、耗尽一击处理、耗尽结束 Buff、消费优先级和受击特效选择位。空 `damageAbsorptions` 使用原生默认 `(ratio=1, scale=1)`，不能解释为不吸收。`SetSuperArmorAction` 的启用期句柄另投影为 Buff 持续霸体与冲击抗性，停用或结束时注销；表现特效不进入后端。证据与当前边界见 `combat-spec/docs/shield.md` 和 `combat-spec/docs/set-super-armor-action.md`。
 

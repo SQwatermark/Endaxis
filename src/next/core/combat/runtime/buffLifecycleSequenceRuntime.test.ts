@@ -9,10 +9,15 @@ import { EventContextConditionExecutor } from './eventContextConditionExecutor';
 
 describe('attachBuffLifecycleSequences', () => {
   it('把技能槽替换绑定到 Buff 启用边界并在结束时还原', () => {
-    const changes: string[] = [];
+    const changes: Array<{ targetSkillKey: string; inherit: boolean | undefined }> = [];
     const operations: CombatOperationExecutor = {
       execute: step => {
-        if (step.kind === 'changeSkillSlot') changes.push(step.parameters.targetSkillKey);
+        if (step.kind === 'changeSkillSlot') {
+          changes.push({
+            targetSkillKey: step.parameters.targetSkillKey,
+            inherit: step.parameters.inheritOriginSkillCooldownProgress,
+          });
+        }
         return true;
       },
       evaluate: () => true,
@@ -32,16 +37,19 @@ describe('attachBuffLifecycleSequences', () => {
           skillGroupKey: 'battleSkill',
           targetSkillKey: 'battleSkillDuringUltimate',
           revertedSkillKey: 'battleSkill',
-          inheritOriginSkillCooldownProgress: false,
+          inheritOriginSkillCooldownProgress: true,
         },
       ],
     );
 
     const buff = container.add(definition, 'operator')!;
-    expect(changes).toEqual(['battleSkillDuringUltimate']);
+    expect(changes).toEqual([{ targetSkillKey: 'battleSkillDuringUltimate', inherit: true }]);
 
     buff.finish('lifetime');
-    expect(changes).toEqual(['battleSkillDuringUltimate', 'battleSkill']);
+    expect(changes).toEqual([
+      { targetSkillKey: 'battleSkillDuringUltimate', inherit: true },
+      { targetSkillKey: 'battleSkill', inherit: true },
+    ]);
   });
 
   it('为每个 Buff 实例隔离黑板和 once 状态', () => {

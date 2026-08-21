@@ -95,4 +95,18 @@ describe('SkillCooldown', () => {
     expect(cooldown.setRemainingFrames(0)).toBe(true);
     expect(cooldown.snapshot.ready).toBe(true);
   });
+
+  it('sets normalized native timer progress across different base durations', () => {
+    const source = new SkillCooldown(100, 0);
+    const target = new SkillCooldown(40, 0);
+    source.tryReserve();
+    source.advance(25);
+
+    expect(target.setProgress(source.snapshot.progress)).toBe(true);
+    expect(target.snapshot.progress).toBe(0.25);
+    expect(target.snapshot.remainingFrames).toBe(30);
+    expect(() => target.setProgress(1.1)).toThrow(
+      'skill cooldown progress must be a finite number between 0 and 1',
+    );
+  });
 });

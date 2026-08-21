@@ -145,7 +145,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
   }
 
   /** 只改变后续释放的槽位解析；已经进入 casting 的实例保持原引用。 */
-  changeSkillSlot(skillGroupKey: string, targetSkillKey: string): void {
+  changeSkillSlot(skillGroupKey: string, targetSkillKey: string): string {
     const group = this.#skillSlotGroups.get(skillGroupKey);
     if (group === undefined) {
       throw new Error(`unknown ability skill slot group '${skillGroupKey}'`);
@@ -155,7 +155,9 @@ export class AbilitySystemRuntime implements FrameRuntime {
         `skill '${targetSkillKey}' is not a variant of ability skill slot group '${skillGroupKey}'`,
       );
     }
+    const previousSkillKey = group.currentSkillKey;
     group.currentSkillKey = targetSkillKey;
+    return previousSkillKey;
   }
 
   canStartSkill(skillId: string, castId?: string): boolean {

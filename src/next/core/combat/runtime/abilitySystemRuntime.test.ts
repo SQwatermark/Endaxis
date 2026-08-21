@@ -153,14 +153,14 @@ describe('AbilitySystemRuntime', () => {
     });
 
     expect(ability.tryStartSkill('ultimate')).toBe(true);
-    ability.changeSkillSlot('ultimate', 'arcana');
+    expect(ability.changeSkillSlot('ultimate', 'arcana')).toBe('ultimate');
     expect(ability.currentSkillId).toBe('ultimate');
 
     base.state = 'ended';
     expect(ability.tryStartSkill('ultimate')).toBe(true);
     expect(ability.currentSkillId).toBe('arcana');
 
-    ability.changeSkillSlot('ultimate', 'ultimate');
+    expect(ability.changeSkillSlot('ultimate', 'ultimate')).toBe('arcana');
     expect(ability.currentSkillId).toBe('arcana');
     replacement.state = 'ended';
     expect(ability.tryStartSkill('ultimate')).toBe(true);

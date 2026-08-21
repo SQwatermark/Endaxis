@@ -1166,11 +1166,11 @@ function validateCombatStep(
                   requireString(replacement, 'skillGroupKey', replacementPath, out);
                   requireString(replacement, 'targetSkillKey', replacementPath, out);
                   requireString(replacement, 'revertedSkillKey', replacementPath, out);
-                  if (replacement.inheritOriginSkillCooldownProgress !== false) {
+                  if (typeof replacement.inheritOriginSkillCooldownProgress !== 'boolean') {
                     push(
                       out,
                       `${replacementPath}.inheritOriginSkillCooldownProgress`,
-                      'cooldown progress inheritance is not supported yet',
+                      'expected a boolean',
                     );
                   }
                 }
@@ -1592,6 +1592,12 @@ function validateCombatStep(
     case 'changeSkillSlot':
       requireString(parameters, 'skillGroupKey', `${path}.parameters`, out);
       requireString(parameters, 'targetSkillKey', `${path}.parameters`, out);
+      if (
+        parameters.inheritOriginSkillCooldownProgress !== undefined &&
+        typeof parameters.inheritOriginSkillCooldownProgress !== 'boolean'
+      ) {
+        push(out, `${path}.parameters.inheritOriginSkillCooldownProgress`, 'expected a boolean');
+      }
       break;
     case 'listenForCombatEvents':
       if (!Array.isArray(parameters.responses) || parameters.responses.length === 0) {

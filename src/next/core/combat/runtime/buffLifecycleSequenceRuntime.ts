@@ -112,16 +112,12 @@ class BuffSkillSlotReplacementAction<Key extends string> implements BuffDuringEn
     let applied = 0;
     try {
       for (const replacement of this.replacements) {
-        if (replacement.inheritOriginSkillCooldownProgress) {
-          throw new Error(
-            `buff '${buff.definition.id}' requires unsupported skill cooldown progress inheritance`,
-          );
-        }
         operations.execute({
           kind: 'changeSkillSlot',
           parameters: {
             skillGroupKey: replacement.skillGroupKey,
             targetSkillKey: replacement.targetSkillKey,
+            inheritOriginSkillCooldownProgress: replacement.inheritOriginSkillCooldownProgress,
           },
         });
         applied += 1;
@@ -135,6 +131,7 @@ class BuffSkillSlotReplacementAction<Key extends string> implements BuffDuringEn
           parameters: {
             skillGroupKey: replacement.skillGroupKey,
             targetSkillKey: replacement.revertedSkillKey,
+            inheritOriginSkillCooldownProgress: replacement.inheritOriginSkillCooldownProgress,
           },
         });
       }
@@ -153,6 +150,7 @@ class BuffSkillSlotReplacementAction<Key extends string> implements BuffDuringEn
         parameters: {
           skillGroupKey: replacement.skillGroupKey,
           targetSkillKey: replacement.revertedSkillKey,
+          inheritOriginSkillCooldownProgress: replacement.inheritOriginSkillCooldownProgress,
         },
       });
     }

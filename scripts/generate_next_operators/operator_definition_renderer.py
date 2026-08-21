@@ -104,10 +104,6 @@ def render_operator_definition(
     for relation in skill_slot_replacement_relations:
         if relation.get("revertMode") != "buffActionEnd":
             continue
-        if relation["inheritOriginSkillCooldownProgress"]:
-            raise ValueError(
-                f"{operator['slug']}: skill cooldown progress inheritance is not implemented"
-            )
         buff_id = relation["activatedByBuffId"]
         definition = definitions_by_id.get(buff_id)
         if definition is None:
@@ -123,7 +119,9 @@ def render_operator_definition(
                     "skillGroupKey": relation.get("skillGroupKey", relation["baseSkillKey"]),
                     "targetSkillKey": relation["replacementSkillKey"],
                     "revertedSkillKey": relation["baseSkillKey"],
-                    "inheritOriginSkillCooldownProgress": False,
+                    "inheritOriginSkillCooldownProgress": relation[
+                        "inheritOriginSkillCooldownProgress"
+                    ],
                 },
             ),
         )

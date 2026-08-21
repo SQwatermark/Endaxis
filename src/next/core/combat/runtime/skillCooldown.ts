@@ -111,6 +111,14 @@ export class SkillCooldown {
     return true;
   }
 
+  /** 原生 SetFirstTimerProgress：0 表示刚进入冷却，1 表示已经可用。 */
+  setProgress(progress: number): boolean {
+    if (!Number.isFinite(progress) || progress < 0 || progress > 1) {
+      throw new RangeError('skill cooldown progress must be a finite number between 0 and 1');
+    }
+    return this.setByBaseDurationRatio(1 - progress);
+  }
+
   /** 把剩余冷却直接设置为配置帧数。 */
   setRemainingFrames(frames: number): boolean {
     if (!Number.isFinite(frames) || frames < 0) {

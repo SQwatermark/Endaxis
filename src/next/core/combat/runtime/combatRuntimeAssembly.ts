@@ -844,6 +844,47 @@ export class CombatRuntimeAssembly {
     return { cooldown, advancesCooldown: true };
   }
 
+  #changeSkillSlot(
+    operatorId: string,
+    skillGroupKey: string,
+    targetSkillKey: string,
+    inheritOriginSkillCooldownProgress: boolean,
+  ): void {
+    const abilitySystem = this.#requireAbilitySystem(operatorId);
+    const previousSkillKey = abilitySystem.changeSkillSlot(skillGroupKey, targetSkillKey);
+    let inheritedCooldownProgress: number | undefined;
+    try {
+      if (inheritOriginSkillCooldownProgress && previousSkillKey !== targetSkillKey) {
+        const source = this.#skillCooldowns.get(`${operatorId}\u0000${previousSkillKey}`);
+        const target = this.#skillCooldowns.get(`${operatorId}\u0000${targetSkillKey}`);
+        if (source === undefined || target === undefined) {
+          throw new Error(
+            `ability skill slot '${skillGroupKey}' cannot inherit cooldown from ` +
+              `'${previousSkillKey}' to '${targetSkillKey}' before both skills are assembled`,
+          );
+        }
+        inheritedCooldownProgress = source.cooldown.snapshot.progress;
+        target.cooldown.setProgress(inheritedCooldownProgress);
+      }
+    } catch (error) {
+      abilitySystem.changeSkillSlot(skillGroupKey, previousSkillKey);
+      throw error;
+    }
+    this.receipt.record({
+      frame: this.clock.frame,
+      time: this.clock.time,
+      event: 'SkillSlotChanged',
+      sourceId: operatorId,
+      data: {
+        skillGroupKey,
+        targetSkillKey,
+        previousSkillKey,
+        inheritOriginSkillCooldownProgress,
+        ...(inheritedCooldownProgress === undefined ? {} : { inheritedCooldownProgress }),
+      },
+    });
+  }
+
   #reduceSkillCooldownsByBaseDurationRatio(
     operatorId: string,
     skill: import('../../game-data/operatorDefinition').CombatStepParameters['adjustSkillCooldown']['skill'],
@@ -1026,16 +1067,8 @@ export class CombatRuntimeAssembly {
       delegate: semanticOutputDelegate,
     });
     const baseDelegate = new SkillSlotOperationExecutor({
-      changeSkillSlot: (skillGroupKey, targetSkillKey) => {
-        this.#requireAbilitySystem(operatorId).changeSkillSlot(skillGroupKey, targetSkillKey);
-        this.receipt.record({
-          frame: this.clock.frame,
-          time: this.clock.time,
-          event: 'SkillSlotChanged',
-          sourceId: operatorId,
-          data: { skillGroupKey, targetSkillKey },
-        });
-      },
+      changeSkillSlot: (skillGroupKey, targetSkillKey, inheritCooldownProgress) =>
+        this.#changeSkillSlot(operatorId, skillGroupKey, targetSkillKey, inheritCooldownProgress),
       delegate: cooldownDelegate,
     });
     let rootOperations: CombatOperationExecutor | undefined;
@@ -1188,16 +1221,8 @@ export class CombatRuntimeAssembly {
       delegate: terminal,
     });
     const slotOperations = new SkillSlotOperationExecutor({
-      changeSkillSlot: (skillGroupKey, targetSkillKey) => {
-        this.#requireAbilitySystem(operatorId).changeSkillSlot(skillGroupKey, targetSkillKey);
-        this.receipt.record({
-          frame: this.clock.frame,
-          time: this.clock.time,
-          event: 'SkillSlotChanged',
-          sourceId: operatorId,
-          data: { skillGroupKey, targetSkillKey },
-        });
-      },
+      changeSkillSlot: (skillGroupKey, targetSkillKey, inheritCooldownProgress) =>
+        this.#changeSkillSlot(operatorId, skillGroupKey, targetSkillKey, inheritCooldownProgress),
       delegate: semanticOutputOperations,
     });
     const timeDilationOperations = this.#wrapTimeDilationOperations(

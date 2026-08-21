@@ -837,6 +837,8 @@ export interface CombatStepParameters {
   changeSkillSlot: {
     skillGroupKey: string;
     targetSkillKey: string;
+    /** 原生 ChangeSkillAction 在切换前把当前形态的归一化冷却进度传给目标形态。 */
+    inheritOriginSkillCooldownProgress?: boolean;
   };
   /**
    * 在所在调度项的有效区间内监听战斗事件。

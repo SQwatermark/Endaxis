@@ -787,6 +787,79 @@ describe('CombatRuntimeAssembly', () => {
     );
   });
 
+  it('inherits normalized cooldown progress when changing a skill slot', () => {
+    const base = skill({
+      castId: 'battle-cast',
+      skillId: 'battleSkill',
+      cooldownFrames: 10,
+      costs: [],
+      costFrame: 0,
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'changeSkillSlot',
+                parameters: {
+                  skillGroupKey: 'battleSkill',
+                  targetSkillKey: 'battleSkillEnd',
+                  inheritOriginSkillCooldownProgress: true,
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const end = skill({
+      castId: 'battle-cast',
+      skillId: 'battleSkillEnd',
+      cooldownFrames: 20,
+      costs: [],
+      costFrame: 0,
+    });
+    const assembly = createAssembly(
+      [base, end],
+      undefined,
+      undefined,
+      emptyEnemyBuffRuntime,
+      undefined,
+      testEnemy,
+      undefined,
+      undefined,
+      undefined,
+      [
+        {
+          skillGroupKey: 'battleSkill',
+          baseSkillKey: 'battleSkill',
+          replacementSkillKeys: ['battleSkillEnd'],
+        },
+      ],
+    );
+
+    expect(assembly.tryStartSkill('operator', 'battleSkill', 'battle-cast')).toBe(true);
+    assembly.advanceFrames(2);
+    expect(
+      assembly.receipt.entries.find(entry => entry.event === 'SkillSlotChanged')?.data,
+    ).toEqual(
+      expect.objectContaining({
+        previousSkillKey: 'battleSkill',
+        targetSkillKey: 'battleSkillEnd',
+        inheritOriginSkillCooldownProgress: true,
+        inheritedCooldownProgress: 0,
+      }),
+    );
+
+    expect(assembly.tryStartSkill('operator', 'battleSkill', 'battle-cast')).toBe(true);
+    expect(assembly.receipt.entries).toContainEqual(
+      expect.objectContaining({
+        event: 'SkillCooldownUnavailableAtStart',
+        data: expect.objectContaining({ skillId: 'battleSkillEnd' }),
+      }),
+    );
+  });
+
   it('rejects conflicting cooldown definitions for placed casts of the same skill', () => {
     expect(() =>
       createAssembly([

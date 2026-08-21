@@ -437,8 +437,12 @@ def parse_heal_payload(
     always_next = require_bool(action.get("alwaysNext"), f"{path}.alwaysNext")
     if action.get("healType") != "Normal" or action.get("healer") != "ActionSource":
         raise ValueError(f"{path}: unsupported healing type or healer identity")
-    if action.get("contextKey") != "":
-        raise ValueError(f"{path}.contextKey: expected empty string")
+    # HealAction.ExecuteInternal 把该键传给 GetActionTarget；已确认的 ActionSource
+    # 分支直接返回动作来源，只有 ContextTarget 分支才读取目标组。因此当前受支持
+    # 的 healer=ActionSource 允许保留任意序列化字符串，但不把它编译成目标引用。
+    context_key = action.get("contextKey")
+    if not isinstance(context_key, str):
+        raise ValueError(f"{path}.contextKey: expected string")
     calculation = require_dict(action.get("healCalculation"), f"{path}.healCalculation")
     calculation_type = action_name(str(calculation.get("$type", "")))
     if calculation_type == "MultiplyAttributeCalculation":

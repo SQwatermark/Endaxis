@@ -1421,7 +1421,8 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             },
             "selectorDirection": "SourceForward",
             "target": "ActionSource",
-            "contextKey": "",
+            # 原生 ActionSource 路由不消费非空 contextKey。
+            "contextKey": "seraph",
             "useAdvancedDirectionSetting": False,
             "advancedSelectorDirection": {},
         }
