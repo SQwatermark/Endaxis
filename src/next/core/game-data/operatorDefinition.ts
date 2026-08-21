@@ -153,6 +153,7 @@ export const BUFF_APPLICATION_TARGETS = [
   'casterAndControlledOperator',
   'casterAndLowestHealthRatioOperatorExceptCaster',
   'currentAbilityEntity',
+  'eventTarget',
 ] as const;
 /** Buff 施加允许面向单体、能力实体，以及由原生队伍选择器严格证明的集合。 */
 export type BuffApplicationTarget = (typeof BUFF_APPLICATION_TARGETS)[number];
@@ -358,6 +359,8 @@ export type CombatCondition =
     }
   /** Buff 宿主的承伤事件来源是否等于创建该 Buff 的实体。 */
   | { kind: 'eventSourceMatchesBuffSource' }
+  /** 当前 Buff 的创建来源实体是否也是其宿主。 */
+  | { kind: 'buffSourceMatchesOwner' }
   | {
       kind: 'elementalInflictionPresent';
       elements: DamageElement | readonly DamageElement[];
@@ -406,6 +409,7 @@ export const COMBAT_CONDITION_KINDS = [
   'eventBuffIdMatch',
   'eventBuffTagsMatch',
   'eventSourceMatchesBuffSource',
+  'buffSourceMatchesOwner',
   'elementalInflictionPresent',
   'elementalReactionActive',
   'not',
@@ -786,6 +790,16 @@ export interface CombatStepParameters {
     left: ActionValueOperand;
     right: ActionValueOperand;
   };
+  /** 按原生 StoreAttributeValue 语义读取动作来源实体的动态非转化属性。 */
+  storeSourceAttributeValue: {
+    attribute: { kind: 'specific'; key: string } | { kind: 'main' | 'secondary' | 'all' };
+    stage: 'armedNonConverted' | 'finalNonConverted';
+    useFloor: boolean;
+    divisor: ActionValueOperand;
+    multiplier: ActionValueOperand;
+    base: ActionValueOperand;
+    targetKey: string;
+  };
   changeResource: {
     resource: CombatResource;
     amount: LevelValues;
@@ -906,6 +920,7 @@ export const COMBAT_STEP_KINDS = [
   'storeCurrentTimelineFrame',
   'modifyActionValue',
   'calculateActionValue',
+  'storeSourceAttributeValue',
   'changeResource',
   'changeResourceByActionValue',
   'gainSquadUltimateEnergyFromSkillCost',
@@ -1067,6 +1082,7 @@ export interface SkillBuffAbilityEventResponse {
     | 'outputDamage'
     | 'beforeCastSkill'
     | 'skillEnd'
+    | 'beforeOutputBuff'
     | 'addedBuff'
     | 'finishedBuff'
     | 'afterKillEntity';

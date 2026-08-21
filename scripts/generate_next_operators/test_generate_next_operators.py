@@ -4628,6 +4628,30 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             ("buff.entity-aura",),
         )
 
+    def test_operator_nested_buff_definitions_keep_recursive_dependencies(self) -> None:
+        application = SimpleNamespace(
+            actionType="CreateBuffAction",
+            sourceId="buff.parent",
+            targetSource="Owner",
+        )
+        skill = SimpleNamespace(
+            referencedBuffIds=(),
+            abilityEntityHits=(SimpleNamespace(auxiliaryActions=(application,)),),
+        )
+        parent = SimpleNamespace(buffId="buff.parent")
+        child = SimpleNamespace(buffId="buff.child")
+
+        with patch(
+            "generate_next_operators.resolve_buff_definitions",
+            side_effect=((), (child, parent)),
+        ):
+            definitions = resolve_operator_buff_definitions((skill,), Path("unused"))
+
+        self.assertEqual(
+            tuple(definition.buffId for definition in definitions),
+            ("buff.child", "buff.parent"),
+        )
+
     def test_operator_buff_definitions_include_promoted_projectile_source_buffs_only(self) -> None:
         application = SimpleNamespace(
             actionType="CreateBuffAction",
@@ -11519,6 +11543,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         event = SimpleNamespace(
             eventSource="buff",
             event="OnBuffTrigger",
+            sequences=(),
             forEachActions=(
                 SimpleNamespace(
                     target=parse_target_reference(context_target, "loop"),
@@ -14459,8 +14484,26 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             ),
             "{ kind: 'eventSourceMatchesBuffSource' }",
         )
-        with self.assertRaisesRegex(ValueError, "unsupported condition type"):
+        with self.assertRaisesRegex(ValueError, "unsupported target identity pair"):
             compile_combat_condition(condition, "fixture.identity")
+
+    def test_buff_source_owner_identity_compiles_exactly(self) -> None:
+        condition = SimpleNamespace(
+            sourceType="CheckTargetsEqual",
+            targetIdentity=SimpleNamespace(
+                first=parse_target_reference(target_settings_fixture("Source"), "first"),
+                second=parse_target_reference(target_settings_fixture("Owner"), "second"),
+            ),
+        )
+
+        self.assertEqual(
+            compile_combat_condition(
+                condition,
+                "fixture.identity",
+                current_buff_environment=True,
+            ),
+            "{ kind: 'buffSourceMatchesOwner' }",
+        )
 
     def test_context_ability_entity_duration_guard_and_assignment_compile(self) -> None:
         target = target_settings_fixture("Context", target_group_key="swordsForExtend")

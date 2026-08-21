@@ -90,6 +90,7 @@ function inspectCondition(
     case 'cameraToTargetAngleCompare':
     case 'poiseCompare':
     case 'eventSourceMatchesBuffSource':
+    case 'buffSourceMatchesOwner':
     case 'eventDamageTagsMatch':
     case 'eventDamageFeaturesMatch':
     case 'eventSkillTypeIn':

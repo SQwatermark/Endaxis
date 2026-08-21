@@ -442,6 +442,7 @@ function validateCombatCondition(
     case 'singleEnemyPresent':
     case 'casterControlled':
     case 'eventSourceMatchesBuffSource':
+    case 'buffSourceMatchesOwner':
       break;
     case 'enemyRankIn':
       if (!Array.isArray(record.ranks)) {
@@ -1106,6 +1107,7 @@ function validateCombatStep(
                     response.event !== 'outputDamage' &&
                     response.event !== 'beforeCastSkill' &&
                     response.event !== 'skillEnd' &&
+                    response.event !== 'beforeOutputBuff' &&
                     response.event !== 'addedBuff' &&
                     response.event !== 'finishedBuff' &&
                     response.event !== 'afterKillEntity'
@@ -1527,6 +1529,31 @@ function validateCombatStep(
       validateActionValueOperand(parameters.left, `${path}.parameters.left`, out);
       validateActionValueOperand(parameters.right, `${path}.parameters.right`, out);
       break;
+    case 'storeSourceAttributeValue': {
+      const parameterPath = `${path}.parameters`;
+      const attribute = asRecord(parameters.attribute, `${parameterPath}.attribute`, out);
+      if (attribute !== null) {
+        const attributeKind = requireString(attribute, 'kind', `${parameterPath}.attribute`, out);
+        if (attributeKind === 'specific') {
+          requireString(attribute, 'key', `${parameterPath}.attribute`, out);
+        } else if (!['main', 'secondary', 'all'].includes(attributeKind ?? '')) {
+          push(out, `${parameterPath}.attribute.kind`, 'unknown attribute selection kind');
+        }
+      }
+      requireEnum(
+        parameters,
+        'stage',
+        new Set(['armedNonConverted', 'finalNonConverted']),
+        parameterPath,
+        out,
+      );
+      requireBoolean(parameters, 'useFloor', parameterPath, out);
+      validateActionValueOperand(parameters.divisor, `${parameterPath}.divisor`, out);
+      validateActionValueOperand(parameters.multiplier, `${parameterPath}.multiplier`, out);
+      validateActionValueOperand(parameters.base, `${parameterPath}.base`, out);
+      requireString(parameters, 'targetKey', parameterPath, out);
+      break;
+    }
     case 'changeResource':
       validateLevelValues(parameters.amount, `${path}.parameters.amount`, out);
       if (parameters.coefficient !== undefined) {

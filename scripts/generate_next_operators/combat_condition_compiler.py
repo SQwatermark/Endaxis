@@ -78,6 +78,7 @@ def compile_combat_condition(
     buff_ability_damage_event: bool = False,
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
     *,
+    current_buff_environment: bool = False,
     services: CombatConditionServices,
 ) -> str:
     """只编译已由 Next 运行时闭环的原生条件，其他条件必须显式失败。"""
@@ -97,6 +98,7 @@ def compile_combat_condition(
             buff_owner_target,
             any_groups=source.anyConditionGroups,
             any_group_negated=source.anyConditionNegated,
+            current_buff_environment=current_buff_environment,
             services=services,
         )
     comparison_operator_map = services.comparison_operator_map
@@ -154,7 +156,7 @@ def compile_combat_condition(
                 ]
             )
         raise ValueError(f"{path}: unsupported event Buff identity query")
-    if source.sourceType == "CheckTargetsEqual" and buff_ability_damage_event:
+    if source.sourceType == "CheckTargetsEqual":
         identity = source.targetIdentity
         if identity is None:
             raise ValueError(f"{path}: missing target identity payload")
@@ -164,9 +166,10 @@ def compile_combat_condition(
         ):
             raise ValueError(f"{path}: event target identity uses a selector")
         pair = {(first.targetSource, first.targetGroupKey), (second.targetSource, second.targetGroupKey)}
-        if pair == {("Target", ""), ("Source", "")}:
+        if buff_ability_damage_event and pair == {("Target", ""), ("Source", "")}:
             return "{ kind: 'eventSourceMatchesBuffSource' }"
-        raise ValueError(f"{path}: unsupported Buff ability-event target identity")
+        if current_buff_environment and pair == {("Source", ""), ("Owner", "")}:
+            return "{ kind: 'buffSourceMatchesOwner' }"
     if source.sourceType == "CheckSkillType" and buff_ability_damage_event:
         skill_types = tuple(
             {
@@ -181,6 +184,11 @@ def compile_combat_condition(
         source, action=action, target_group_writes=target_group_writes
     ):
         return "{ kind: 'singleEnemyPresent' }"
+    if source.sourceType == "CheckTargetsEqual":
+        raise ValueError(
+            f"{path}: unsupported target identity pair {sorted(pair)!r} "
+            f"(current_buff_environment={current_buff_environment})"
+        )
     entity_count = getattr(source, "entityCount", None)
     if (
         source.sourceType == "CheckEntityNum"
@@ -881,6 +889,7 @@ def compile_combat_condition_group(
     any_groups: tuple[tuple[ConditionSource, ...], ...] = (),
     any_group_negated: tuple[tuple[bool, ...], ...] = (),
     *,
+    current_buff_environment: bool = False,
     services: CombatConditionServices,
 ) -> str:
     """保持原生条件组的全满足语义，并生成可直接嵌入 DSL 的条件树。"""
@@ -906,6 +915,7 @@ def compile_combat_condition_group(
                     if any_group_negated
                     else ()
                 ),
+                current_buff_environment=current_buff_environment,
                 services=services,
             )
             for index, group in enumerate(any_groups)
@@ -933,6 +943,7 @@ def compile_combat_condition_group(
             ability_entity_current_target,
             buff_ability_damage_event,
             buff_owner_target,
+            current_buff_environment=current_buff_environment,
             services=services,
         )
         for index, condition in enumerate(conditions)

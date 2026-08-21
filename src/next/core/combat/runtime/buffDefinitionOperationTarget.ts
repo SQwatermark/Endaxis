@@ -51,6 +51,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
     readonly currentTarget?: RuntimeTargetRef,
     readonly registerAbilityEventAction?: RegisterBuffAbilityEventAction,
     readonly onBuffApplied?: (event: BuffAppliedEvent) => void,
+    readonly onBeforeBuffApplied?: (event: BuffAppliedEvent) => void,
   ) {}
 
   get ownerId(): string {
@@ -76,18 +77,20 @@ export class BuffDefinitionOperationTarget<Key extends string>
         ? this.definitions.get(request.buffId)
         : this.#compileInlineDefinition(request.buffId, request.definition);
     if (definition === undefined) throw new Error(`unknown combat buff '${request.buffId}'`);
+    const event: BuffAppliedEvent = {
+      targetId: this.ownerId,
+      buffId: request.buffId,
+      sourceId: request.sourceId,
+      buffTagIds: definition.applyTags?.map(Number) ?? [],
+    };
+    // 原生 OnBeforeOutputBuff 在来源 AbilitySystem 上同步发布，且早于目标 Buff 实例创建。
+    this.onBeforeBuffApplied?.(event);
     const applied = this.container.add(definition, request.sourceId, {
       blackboardValues: request.blackboardValues,
       sourceActionId: request.sourceActionId ?? request.buffId,
       ...(request.skillCastInfo === undefined ? {} : { skillCastInfo: request.skillCastInfo }),
     });
     if (applied !== null) {
-      const event: BuffAppliedEvent = {
-        targetId: this.ownerId,
-        buffId: request.buffId,
-        sourceId: request.sourceId,
-        buffTagIds: definition.applyTags?.map(Number) ?? [],
-      };
       this.onBuffApplied?.(event);
       this.#buffAppliedObserver?.(event);
     }

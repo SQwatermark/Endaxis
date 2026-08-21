@@ -251,6 +251,49 @@ describe('BuffDefinitionOperationTarget', () => {
     });
   });
 
+  it('publishes before-output identity before attempting to create the Buff instance', () => {
+    const container = new CombatBuffContainer('enemy', new CombatAttributeSet());
+    const countsBeforeAttempt: number[] = [];
+    const before = vi.fn(event => {
+      countsBeforeAttempt.push(container.buffs.length);
+      expect(event).toEqual({
+        targetId: 'enemy',
+        buffId: 'frozen',
+        sourceId: 'yvonne',
+        buffTagIds: [1535684437],
+      });
+    });
+    const after = vi.fn();
+    const target = new BuffDefinitionOperationTarget(
+      container,
+      {
+        get: () => undefined,
+        compile: entry => ({
+          id: entry.id,
+          stackingType: entry.stackingType,
+          applyTags: entry.applyTagIds?.map(String),
+        }),
+      },
+      undefined,
+      undefined,
+      after,
+      before,
+    );
+    const request = {
+      buffId: 'frozen',
+      sourceId: 'yvonne',
+      blackboardValues: {},
+      definition: { stackingType: 'unique' as const, applyTagIds: [1535684437] },
+    };
+
+    expect(target.apply(request)).toBe(true);
+    expect(target.apply(request)).toBe(false);
+
+    expect(before).toHaveBeenCalledTimes(2);
+    expect(after).toHaveBeenCalledOnce();
+    expect(countsBeforeAttempt).toEqual([0, 1]);
+  });
+
   it('publishes the exact successful Buff application to the scene observer', () => {
     const observer = vi.fn();
     const target = new BuffDefinitionOperationTarget(

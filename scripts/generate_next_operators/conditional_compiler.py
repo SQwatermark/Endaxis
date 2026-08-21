@@ -76,7 +76,8 @@ ActionPredicate = Callable[
     [ConditionalActionSource, ConditionalCompileContext], bool
 ]
 ValidateForEach = Callable[
-    [ForEachContextActionSource, str, ConditionalCompileContext], None
+    [ForEachContextActionSource, str, ConditionalCompileContext],
+    Literal["abilityEntity", "singleEnemy"],
 ]
 
 
@@ -173,6 +174,7 @@ class ConditionalCompiler:
         context: ConditionalCompileContext,
         *,
         ability_entity_current_target: bool | None = None,
+        input_target: Literal["enemy"] | None = None,
     ) -> ConditionalCompileContext:
         return replace(
             context,
@@ -188,6 +190,7 @@ class ConditionalCompiler:
                 if ability_entity_current_target is None
                 else ability_entity_current_target
             ),
+            input_target=context.input_target if input_target is None else input_target,
         )
 
     def compile_action(
@@ -207,7 +210,18 @@ class ConditionalCompiler:
                 ),
             )
         if isinstance(action, ForEachContextActionSource):
-            self.services.validate_for_each(action, path, context)
+            target_kind = self.services.validate_for_each(action, path, context)
+            if target_kind == "singleEnemy":
+                return self.compile_branch(
+                    action.succeedActions,
+                    f"{path}.succeedActions",
+                    self._branch_context(
+                        action,
+                        context,
+                        ability_entity_current_target=False,
+                        input_target="enemy",
+                    ),
+                )
             return for_each_context_target(
                 ts_inline_literal(action.contextKey),
                 self.compile_branch(

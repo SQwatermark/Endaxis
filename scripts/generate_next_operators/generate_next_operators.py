@@ -384,6 +384,7 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "onceScopeKey",
         "onceActions",
         "blackboardCalculation",
+        "storeAttributeValue",
         "blackboardMutation",
         "buffBlackboardRead",
         "buffFinish",
@@ -2278,8 +2279,7 @@ def resolve_operator_buff_definitions(
         skill_source_dir,
         excluded_buff_ids,
     ):
-        if definition.buffId in nested_ids:
-            definitions[definition.buffId] = definition
+        definitions.setdefault(definition.buffId, definition)
     return tuple(definitions[buff_id] for buff_id in sorted(definitions))
 
 
@@ -3953,6 +3953,7 @@ def compile_combat_condition(
     ability_entity_current_target: bool = False,
     buff_ability_damage_event: bool = False,
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
+    current_buff_environment: bool = False,
 ) -> str:
     """兼容既有调用方的单个战斗条件编译入口。"""
 
@@ -3967,6 +3968,7 @@ def compile_combat_condition(
         ability_entity_current_target,
         buff_ability_damage_event,
         buff_owner_target,
+        current_buff_environment=current_buff_environment,
         services=_make_combat_condition_services(),
     )
 
@@ -3985,6 +3987,7 @@ def compile_combat_condition_group(
     negated: tuple[bool, ...] = (),
     any_groups: tuple[tuple[ConditionSource, ...], ...] = (),
     any_group_negated: tuple[tuple[bool, ...], ...] = (),
+    current_buff_environment: bool = False,
 ) -> str:
     """兼容既有调用方的条件组编译入口。"""
 
@@ -4002,6 +4005,7 @@ def compile_combat_condition_group(
         negated,
         any_groups,
         any_group_negated,
+        current_buff_environment=current_buff_environment,
         services=_make_combat_condition_services(),
     )
 
@@ -4512,12 +4516,14 @@ def compile_buff_application_values(
     path: str,
     context_application_target: Literal[
         "enemy", "party", "partyExceptCaster", "casterAndControlledOperator",
-        "casterAndLowestHealthRatioOperatorExceptCaster", "currentAbilityEntity"
+        "casterAndLowestHealthRatioOperatorExceptCaster", "currentAbilityEntity", "eventTarget"
     ] | None = None,
     input_target: Literal["caster", "enemy"] | None = None,
     allow_dynamic_count: bool = False,
     current_ability_entity_owner: bool = False,
     current_ability_entity_target: bool = False,
+    current_event_target: bool = False,
+    damage_tags: tuple[str, ...] = (),
     target_finder_type: str | None = None,
     target_validator_types: tuple[str, ...] = (),
     target_post_processor_types: tuple[str, ...] = (),
@@ -4544,6 +4550,7 @@ def compile_buff_application_values(
         allow_dynamic_count=allow_dynamic_count,
         current_ability_entity_owner=current_ability_entity_owner,
         current_ability_entity_target=current_ability_entity_target,
+        current_event_target=current_event_target,
         target_finder_type=target_finder_type,
         target_validator_types=target_validator_types,
         target_post_processor_types=target_post_processor_types,
@@ -4554,6 +4561,7 @@ def compile_buff_application_values(
         current_buff_environment=current_buff_environment,
         finish_by_action=finish_by_action,
         services=_make_buff_application_compiler_services(),
+        damage_tags=damage_tags,
     )
 
 
@@ -4564,7 +4572,7 @@ def compile_buff_application(
     root_skill_context: bool = True,
     context_application_target: Literal[
         "enemy", "party", "partyExceptCaster", "casterAndControlledOperator",
-        "casterAndLowestHealthRatioOperatorExceptCaster", "currentAbilityEntity"
+        "casterAndLowestHealthRatioOperatorExceptCaster", "currentAbilityEntity", "eventTarget"
     ] | None = None,
     input_target: Literal["caster", "enemy"] | None = None,
     current_ability_entity_owner: bool = False,
@@ -4573,6 +4581,7 @@ def compile_buff_application(
     ignored_buff_ids: frozenset[str] = frozenset(),
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
     current_buff_environment: bool = False,
+    damage_tags: tuple[str, ...] = (),
 ) -> str:
     return compile_buff_application_backend(
         action,
@@ -4587,6 +4596,7 @@ def compile_buff_application(
         buff_owner_target=buff_owner_target,
         current_buff_environment=current_buff_environment,
         services=_make_buff_application_compiler_services(),
+        damage_tags=damage_tags,
     )
 
 
@@ -4797,6 +4807,8 @@ def compile_conditional_buff_application(
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
     current_buff_environment: bool = False,
     current_ability_entity_target: bool = False,
+    current_event_target: bool = False,
+    damage_tags: tuple[str, ...] = (),
 ) -> str:
     """保持原生 Buff 数组顺序编译条件分支内的一次创建动作。"""
     has_dynamic_count = payload.count.blackboardKey is not None or payload.count.value != 1
@@ -4841,6 +4853,8 @@ def compile_conditional_buff_application(
             buff_owner_target=buff_owner_target,
             current_buff_environment=current_buff_environment,
             current_ability_entity_target=current_ability_entity_target,
+            current_event_target=current_event_target,
+            damage_tags=damage_tags,
         )
 
     compiled = [
@@ -5382,6 +5396,8 @@ def _compile_conditional_condition_with_context(
         context.ability_entity_current_target,
         context.buff_ability_damage_event,
         context.buff_owner_target,
+        getattr(action, "conditionNegated", ()),
+        current_buff_environment=context.current_buff_environment,
     )
 
 
@@ -5391,6 +5407,7 @@ def _conditional_is_guaranteed_success(
 ) -> bool:
     return (
         len(action.conditions) == 1
+        and not any(getattr(action, "conditionNegated", ()))
         and is_guaranteed_non_empty_target_group_condition(
             action.conditions[0],
             action=action,
@@ -5410,25 +5427,25 @@ def _validate_conditional_for_each(
     action: ForEachContextActionSource,
     path: str,
     context: ConditionalCompileContext,
-) -> None:
+) -> Literal["abilityEntity", "singleEnemy"]:
     write = resolve_latest_target_group_write(
         action,
         action.contextKey,
         context.target_group_writes,
     )
-    requires_ability_entity_provenance = any(
-        condition.sourceType == "CheckDistanceCondition"
-        for current in iter_conditional_actions((action,))
-        for condition in current.conditions
-    )
-    if requires_ability_entity_provenance and (
+    if write is not None and target_group_write_guarantees_single_enemy(
+        write, context.target_group_writes
+    ):
+        return "singleEnemy"
+    if (
         write is None
         or target_group_write_ability_entity_collection_identity(write) is None
     ):
         raise ValueError(
-            f"{path}: Context ForEach target group does not have proven "
-            "owner-spawned AbilityEntity provenance"
+            f"{path}: Context ForEach target group is neither a proven unique enemy "
+            "nor an owner-spawned AbilityEntity collection"
         )
+    return "abilityEntity"
 
 
 def _make_conditional_compiler() -> ConditionalCompiler:
@@ -5595,6 +5612,7 @@ def compile_inline_buff_event_responses(
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"],
     buff_definitions: dict[str, BuffDefinitionSource],
     ignored_buff_ids: frozenset[str] = frozenset(),
+    damage_tags: tuple[str, ...] = (),
 ) -> str:
     """兼容既有调用方的 Buff 事件响应编译入口。"""
 
@@ -5604,6 +5622,7 @@ def compile_inline_buff_event_responses(
         buff_owner_target=buff_owner_target,
         buff_definitions=buff_definitions,
         ignored_buff_ids=ignored_buff_ids,
+        damage_tags=damage_tags,
         services=_make_inline_buff_services(),
     )
 
@@ -5616,6 +5635,7 @@ def compile_inline_buff_behaviors(
     buff_definitions: dict[str, BuffDefinitionSource],
     invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
     ignored_buff_ids: frozenset[str] = frozenset(),
+    damage_tags: tuple[str, ...] = (),
 ) -> str:
     """兼容既有调用方的 Buff 生命周期编译入口。"""
 
@@ -5626,6 +5646,7 @@ def compile_inline_buff_behaviors(
         buff_definitions=buff_definitions,
         invoked_child_context=invoked_child_context,
         ignored_buff_ids=ignored_buff_ids,
+        damage_tags=damage_tags,
         services=_make_inline_buff_services(),
     )
 

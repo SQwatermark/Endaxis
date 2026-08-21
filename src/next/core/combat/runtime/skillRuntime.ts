@@ -63,6 +63,8 @@ export interface CombatOperationContext {
   readonly event?: CombatSemanticEvent | CombatAbilityDamageEvent | CombatAbilitySkillEvent;
   /** 仅由 Buff 实例响应提供；用于保留原生 ActionSource 身份。 */
   readonly buffSourceId?: string;
+  /** 仅由 Buff 实例响应提供；用于保留原生 ActionOwner 身份。 */
+  readonly buffOwnerId?: string;
   /** 仅由 Buff 生命周期与事件响应提供；Environment 查询精确指向当前实例。 */
   readonly finishCurrentBuff?: (reason: BuffFinishReason) => boolean;
   /** 仅由 Buff 生命周期与事件响应提供；暂停只作用于当前实例。 */

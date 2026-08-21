@@ -177,6 +177,14 @@ export interface CombatRuntimeAssemblyOptions {
   readonly resources: CombatResourceSnapshot;
   /** RandomUtil.Dice 使用的独立样本源；只有实际执行概率条件时才要求存在。 */
   readonly probabilitySamples?: ProbabilitySampleSource;
+  /** StoreAttributeValue 的动态来源属性读取端口；只有技能实际使用时才要求提供。 */
+  readonly readSourceAttributeValue?: (
+    sourceId: string,
+    request: Extract<
+      import('../../game-data/operatorDefinition').CombatStep,
+      { kind: 'storeSourceAttributeValue' }
+    >['parameters'],
+  ) => number;
   /** 由场景敌人实例编译得到，操作执行器不得另行读取定义默认值。 */
   readonly enemy: CombatEnemyProgram;
   /** 当前单敌人模型中的目标 Buff 查询端口。 */
@@ -1119,6 +1127,7 @@ export class CombatRuntimeAssembly {
         ),
       resolveCurrentAbilityEntityTarget: target =>
         this.#resolveAbilityEntityBuffTarget(target, this.#options),
+      resolveEventTarget: targetId => this.#resolveBuffTargetById(targetId),
       resolveBuffDefinition: buffId => operator.buffDefinitions?.[buffId],
       delegate: timeDilationOperations,
     });
@@ -1183,6 +1192,12 @@ export class CombatRuntimeAssembly {
     const delegate = new ActionBlackboardOperationExecutor(
       eventConditions,
       this.#options.probabilitySamples,
+      this.#options.readSourceAttributeValue === undefined
+        ? undefined
+        : {
+            sourceId: operator.operatorId,
+            read: this.#options.readSourceAttributeValue,
+          },
     );
     rootOperations = new SkillResourceOperationExecutor({
       sourceOperatorId: operatorId,
@@ -1260,6 +1275,7 @@ export class CombatRuntimeAssembly {
         ),
       resolveCurrentAbilityEntityTarget: target =>
         this.#resolveAbilityEntityBuffTarget(target, options),
+      resolveEventTarget: targetId => this.#resolveBuffTargetById(targetId),
       resolveBuffDefinition: buffId => operator.buffDefinitions?.[buffId],
       delegate: timeDilationOperations,
     });
@@ -1315,6 +1331,12 @@ export class CombatRuntimeAssembly {
     const blackboardOperations = new ActionBlackboardOperationExecutor(
       eventConditions,
       options.probabilitySamples,
+      options.readSourceAttributeValue === undefined
+        ? undefined
+        : {
+            sourceId: operatorId,
+            read: options.readSourceAttributeValue,
+          },
     );
     const operations = new SkillResourceOperationExecutor({
       sourceOperatorId: operatorId,
@@ -1441,6 +1463,15 @@ export class CombatRuntimeAssembly {
     return casterBuffs;
   }
 
+  #resolveBuffTargetById(targetId: string): BuffOperationTarget {
+    if (targetId === 'enemy') return this.#enemyBuffRuntime;
+    const target = this.#operatorBuffs.get(targetId);
+    if (target === undefined) {
+      throw new Error(`combat entity '${targetId}' has no Buff operation target`);
+    }
+    return target;
+  }
+
   #resolveAbilityEntityBuffTarget(
     target: RuntimeTargetRef,
     options: CombatRuntimeAssemblyOptions,
@@ -1508,6 +1539,9 @@ export class CombatRuntimeAssembly {
     isOperatorControlled: CombatRuntimeAssemblyOptions['isOperatorControlled'],
     resolveOperatorVitals: CombatRuntimeAssemblyOptions['resolveOperatorVitals'],
   ): readonly BuffOperationTarget[] {
+    if (target === 'eventTarget') {
+      throw new Error('eventTarget must be resolved from the active operation context');
+    }
     if (target === 'party' || target === 'partyExceptCaster') {
       return this.#requirePartyBuffTargets(target === 'partyExceptCaster' ? casterId : undefined);
     }

@@ -468,6 +468,8 @@ function resolveStep(
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'calculateActionValue':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'storeSourceAttributeValue':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'changeResourceByActionValue': {
       const { coefficient, ultimateRecoveryTagId, ...parameters } = step.parameters;
       return {

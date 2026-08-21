@@ -70,6 +70,7 @@ type EnvironmentOptions = Pick<
   | 'resolveVitals'
   | 'resolveOperatorVitals'
   | 'probabilitySamples'
+  | 'readSourceAttributeValue'
 >;
 
 export type StandardPlayerDamageEvent =
@@ -94,6 +95,7 @@ export type StandardPlayerDamageEvent =
   | 'poiseRecovered'
   | 'beforeCastSkill'
   | 'skillEnd'
+  | 'beforeOutputBuff'
   | 'addedBuff'
   | 'finishedBuff';
 
@@ -169,6 +171,7 @@ export class StandardPlayerDamageEnvironment {
       undefined,
       this.#buffAbilityEventRegistrar('enemy'),
       event => this.#emit('enemy', 'addedBuff', event),
+      event => this.#emit(event.sourceId, 'beforeOutputBuff', event),
     );
     // 敌人生命账本由场景装配层创建并注入，环境只持有引用，不在首次绑定时另行构造。
     this.#enemyVitals = options.enemyVitals;
@@ -203,8 +206,11 @@ export class StandardPlayerDamageEnvironment {
           target,
           this.#buffAbilityEventRegistrar(entityId),
           event => this.#emit(entityId, 'addedBuff', event),
+          event => this.#emit(event.sourceId, 'beforeOutputBuff', event),
         ),
       createOperationExecutor: context => this.#createOperationExecutor(context),
+      readSourceAttributeValue: (sourceId, request) =>
+        this.#readSourceAttributeValue(sourceId, request),
       emitAbilityEvent: (entityId, event, payload) => this.#emit(entityId, event, payload),
       // 配装事件的通用操作由装配根处理；未闭环的末端操作必须严格失败。
       createEquipmentEventOperationExecutor: () => strictTerminal,
@@ -556,6 +562,7 @@ export class StandardPlayerDamageEnvironment {
         undefined,
         this.#buffAbilityEventRegistrar(operatorId),
         event => this.#emit(operatorId, 'addedBuff', event),
+        event => this.#emit(event.sourceId, 'beforeOutputBuff', event),
       );
       this.#operatorBuffRuntimes.set(operatorId, runtime);
     }
@@ -570,6 +577,7 @@ export class StandardPlayerDamageEnvironment {
         | 'outputDamage'
         | 'beforeCastSkill'
         | 'skillEnd'
+        | 'beforeOutputBuff'
         | 'addedBuff'
         | 'finishedBuff',
       priority: number,
@@ -591,6 +599,7 @@ export class StandardPlayerDamageEnvironment {
       emitElementalInflictionStarted: payload =>
         this.#emit('enemy', 'elementalInflictionStarted', payload),
       onSpellBurstTriggered: payload => this.#onSpellBurstTriggered(payload),
+      readAttribute: (request, buff) => this.#readSourceAttributeValue(buff.sourceId, request),
     });
     return definitions.get(entry.id)!;
   }
@@ -619,8 +628,44 @@ export class StandardPlayerDamageEnvironment {
       emitElementalInflictionStarted: payload =>
         this.#emit('enemy', 'elementalInflictionStarted', payload),
       onSpellBurstTriggered: payload => this.#onSpellBurstTriggered(payload),
+      readAttribute: (request, buff) => this.#readSourceAttributeValue(buff.sourceId, request),
     });
     return this.#elementalDefinitions;
+  }
+
+  #readSourceAttributeValue(
+    sourceId: string,
+    request: {
+      readonly attribute:
+        | { readonly kind: 'specific'; readonly key: string }
+        | { readonly kind: 'main' | 'secondary' | 'all' };
+      readonly stage: 'armedNonConverted' | 'finalNonConverted';
+    },
+  ): number {
+    const panel = this.#operatorPanels.get(sourceId);
+    if (panel === undefined) {
+      throw new Error(`combat attribute source operator '${sourceId}' has no resolved panel`);
+    }
+    const attributes = this.#operatorBuffRuntime(sourceId, panel).container.attributes;
+    const keys =
+      request.attribute.kind === 'specific'
+        ? [request.attribute.key]
+        : request.attribute.kind === 'main'
+          ? [panel.mainAttribute]
+          : request.attribute.kind === 'secondary'
+            ? [panel.secondaryAttribute]
+            : (['strength', 'agility', 'intellect', 'will'] as const);
+    return keys.reduce((total, key) => {
+      if (!attributes.has(key)) {
+        throw new Error(`combat attribute source '${sourceId}' has no attribute '${key}'`);
+      }
+      return (
+        total +
+        (request.stage === 'armedNonConverted'
+          ? attributes.getArmed(key, ATTRIBUTE_MODIFIER_SOURCES.nonConverted)
+          : attributes.get(key, ATTRIBUTE_MODIFIER_SOURCES.nonConverted))
+      );
+    }, 0);
   }
 
   /** 爆发 Buff 触发时执行爆发伤害；数据缺失处明确报错，不假装打出伤害。 */

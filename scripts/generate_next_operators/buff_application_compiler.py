@@ -46,6 +46,7 @@ def compile_buff_application_values(
         "casterAndControlledOperator",
         "casterAndLowestHealthRatioOperatorExceptCaster",
         "currentAbilityEntity",
+        "eventTarget",
     ] | None = None,
     input_target: Literal["caster", "enemy"] | None = None,
     allow_dynamic_count: bool = False,
@@ -59,8 +60,10 @@ def compile_buff_application_values(
     ignored_buff_ids: frozenset[str] = frozenset(),
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
     current_buff_environment: bool = False,
+    current_event_target: bool = False,
     finish_by_action: bool = False,
     services: BuffApplicationCompilerServices,
+    damage_tags: tuple[str, ...] = (),
 ) -> str:
     """编译已闭环的单个 Buff 施加；动作级公共字段由根动作和条件分支共同提供。"""
     compile_condition_operand = services.compile_condition_operand
@@ -117,6 +120,13 @@ def compile_buff_application_values(
         and not target_group_key
     ):
         target = buff_owner_target
+    elif (
+        current_buff_environment
+        and current_event_target
+        and target_source == "Target"
+        and not target_group_key
+    ):
+        target = "eventTarget"
     elif target_source == "Owner" and current_ability_entity_owner:
         target = "currentAbilityEntity"
     elif (
@@ -186,6 +196,7 @@ def compile_buff_application_values(
                 buff_definitions=buff_definitions,
                 invoked_child_context=invoked_child_context,
                 ignored_buff_ids=ignored_buff_ids,
+                damage_tags=damage_tags,
             )
 
         definition_lines = compile_inline_buff_definition(
@@ -265,6 +276,7 @@ def compile_buff_application(
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
     current_buff_environment: bool = False,
     services: BuffApplicationCompilerServices,
+    damage_tags: tuple[str, ...] = (),
 ) -> str:
     """编译根时间轴上已拆分为单 Buff 的 CreateBuffAction。"""
     if action.actionType != "CreateBuffAction" or action.count is None:
@@ -297,6 +309,7 @@ def compile_buff_application(
         finish_by_action=root_skill_context and action.autoFinishByAction is True,
         path=path,
         services=services,
+        damage_tags=damage_tags,
     )
 
 

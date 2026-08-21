@@ -1087,6 +1087,20 @@ class BlackboardCalculationPayload:
 
 
 @dataclass(frozen=True)
+class StoreAttributeValuePayload:
+    targetSource: str
+    targetGroupKey: str
+    attributeKind: str
+    attributeKey: str | None
+    stage: str
+    useFloor: bool
+    divisor: ScalarSource
+    multiplier: ScalarSource
+    base: ScalarSource
+    outputKey: str
+
+
+@dataclass(frozen=True)
 class BlackboardMutationPayload:
     key: str
     operation: str
@@ -1409,6 +1423,7 @@ class ConditionalBranchActionSource:
     onceScopeKey: str | None = None
     onceActions: tuple[ConditionalBranchActionSource, ...] | None = None
     blackboardCalculation: BlackboardCalculationPayload | None = None
+    storeAttributeValue: StoreAttributeValuePayload | None = None
     blackboardMutation: BlackboardMutationPayload | None = None
     buffBlackboardRead: BuffBlackboardReadPayload | None = None
     buffFinish: BuffFinishPayload | None = None
@@ -1463,6 +1478,8 @@ class ConditionalActionSource:
     conditions: tuple[ConditionSource, ...]
     succeedActions: tuple[ConditionalBranchActionSource, ...]
     failActions: tuple[ConditionalBranchActionSource, ...]
+    # 与 conditions 一一对应；原生 NotNextCheckAction 只反转紧随其后的条件。
+    conditionNegated: tuple[bool, ...] = ()
     # 原生 IfElseAction/SwitchAction 的返回值覆盖；为真时外层序列继续。
     alwaysNext: bool = False
     executionFrames: tuple[int, ...] = ()

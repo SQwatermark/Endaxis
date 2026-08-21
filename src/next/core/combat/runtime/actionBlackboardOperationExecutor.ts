@@ -18,6 +18,16 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
   constructor(
     readonly delegate: CombatOperationExecutor,
     readonly probabilitySamples?: ProbabilitySampleSource,
+    readonly sourceAttributes?: {
+      readonly sourceId: string;
+      readonly read: (
+        sourceId: string,
+        request: Extract<
+          Parameters<CombatOperationExecutor['execute']>[0],
+          { kind: 'storeSourceAttributeValue' }
+        >['parameters'],
+      ) => number;
+    },
   ) {}
 
   execute(
@@ -62,6 +72,26 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
       );
       return true;
     }
+    if (step.kind === 'storeSourceAttributeValue') {
+      if (context === undefined) {
+        throw new Error('storeSourceAttributeValue requires a combat operation context');
+      }
+      if (this.sourceAttributes === undefined) {
+        throw new Error('storeSourceAttributeValue requires a source attribute reader');
+      }
+      const sourceId = context.buffSourceId ?? this.sourceAttributes.sourceId;
+      const attributeValue = this.sourceAttributes.read(sourceId, step.parameters);
+      const scaledAttribute = step.parameters.useFloor
+        ? Math.floor(
+            attributeValue / resolveActionValueOperand(step.parameters.divisor, context.blackboard),
+          )
+        : attributeValue;
+      const result =
+        resolveActionValueOperand(step.parameters.base, context.blackboard) +
+        scaledAttribute * resolveActionValueOperand(step.parameters.multiplier, context.blackboard);
+      context.blackboard.assignDynamic(step.parameters.targetKey, result);
+      return true;
+    }
     return context === undefined
       ? this.delegate.execute(step)
       : this.delegate.execute(step, context);
@@ -77,6 +107,12 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
   evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
     if (condition.kind === 'combatActive') return true;
     if (condition.kind === 'singleEnemyPresent') return true;
+    if (condition.kind === 'buffSourceMatchesOwner') {
+      if (context?.buffSourceId === undefined || context.buffOwnerId === undefined) {
+        throw new Error('buffSourceMatchesOwner requires Buff source and owner identities');
+      }
+      return context.buffSourceId === context.buffOwnerId;
+    }
     if (condition.kind === 'not') return !this.evaluate(condition.condition, context);
     if (condition.kind === 'all') {
       return condition.conditions.every(child => this.evaluate(child, context));

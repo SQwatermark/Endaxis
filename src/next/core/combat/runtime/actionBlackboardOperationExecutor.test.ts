@@ -41,6 +41,84 @@ describe('ActionBlackboardOperationExecutor', () => {
     },
   );
 
+  it('compares the current Buff source and owner identities', () => {
+    const executor = new ActionBlackboardOperationExecutor(delegate);
+    const blackboard = new ActionBlackboard();
+
+    expect(
+      executor.evaluate(
+        { kind: 'buffSourceMatchesOwner' },
+        { blackboard, buffSourceId: 'operator', buffOwnerId: 'operator' },
+      ),
+    ).toBe(true);
+    expect(
+      executor.evaluate(
+        { kind: 'buffSourceMatchesOwner' },
+        { blackboard, buffSourceId: 'operator', buffOwnerId: 'abilityEntity:1' },
+      ),
+    ).toBe(false);
+  });
+
+  it('stores a non-converted Buff-source attribute with the native scaling order', () => {
+    const reads: unknown[] = [];
+    const blackboard = new ActionBlackboard({ multiplier: 2, base: 3 });
+    const executor = new ActionBlackboardOperationExecutor(delegate, undefined, {
+      sourceId: 'fallback',
+      read: (sourceId, request) => {
+        reads.push([sourceId, request.attribute, request.stage]);
+        return 7.75;
+      },
+    });
+
+    expect(
+      executor.execute(
+        {
+          kind: 'storeSourceAttributeValue',
+          parameters: {
+            attribute: { kind: 'specific', key: 'cryoAbnormalDamageIncrease' },
+            stage: 'finalNonConverted',
+            useFloor: true,
+            divisor: { kind: 'constant', value: 2 },
+            multiplier: { kind: 'blackboard', key: 'multiplier' },
+            base: { kind: 'blackboard', key: 'base' },
+            targetKey: 'result',
+          },
+        },
+        { blackboard, buffSourceId: 'yvonne' },
+      ),
+    ).toBe(true);
+    expect(blackboard.getNumber('result')).toBe(9);
+    expect(reads).toEqual([
+      ['yvonne', { kind: 'specific', key: 'cryoAbnormalDamageIncrease' }, 'finalNonConverted'],
+    ]);
+  });
+
+  it('does not read the divisor when StoreAttributeValue floor mode is disabled', () => {
+    const blackboard = new ActionBlackboard();
+    const executor = new ActionBlackboardOperationExecutor(delegate, undefined, {
+      sourceId: 'source',
+      read: () => 7.75,
+    });
+
+    executor.execute(
+      {
+        kind: 'storeSourceAttributeValue',
+        parameters: {
+          attribute: { kind: 'specific', key: 'cryoAbnormalDamageIncrease' },
+          stage: 'finalNonConverted',
+          useFloor: false,
+          divisor: { kind: 'blackboard', key: 'missing' },
+          multiplier: { kind: 'constant', value: 2 },
+          base: { kind: 'constant', value: 3 },
+          targetKey: 'result',
+        },
+      },
+      { blackboard },
+    );
+
+    expect(blackboard.getNumber('result')).toBe(18.5);
+  });
+
   it.each([
     ['assign', 9, 3, 3],
     ['add', 9, 3, 12],

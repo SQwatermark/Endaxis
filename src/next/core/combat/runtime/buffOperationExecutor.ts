@@ -108,6 +108,8 @@ export interface BuffOperationDependencies {
   ) => readonly BuffOperationTarget[];
   /** 当前子时间线/Context 句柄只在显式能力实体目标的施加路径使用。 */
   readonly resolveCurrentAbilityEntityTarget?: (target: RuntimeTargetRef) => BuffOperationTarget;
+  /** Ability 事件响应中把原生 Target 解析为事件载荷的真实 targetId。 */
+  readonly resolveEventTarget?: (targetId: string) => BuffOperationTarget;
   /** 从当前动作所属干员、原始技能等级对应的附属对象表解析定义。 */
   readonly resolveBuffDefinition?: (buffId: string) => ResolvedSkillBuffDefinition | undefined;
   readonly delegate: CombatOperationExecutor;
@@ -356,6 +358,16 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     target: BuffApplicationTarget,
     context?: Parameters<CombatOperationExecutor['execute']>[1],
   ): readonly BuffOperationTarget[] {
+    if (target === 'eventTarget') {
+      if (context?.event === undefined) {
+        throw new Error('eventTarget Buff application requires an event context');
+      }
+      const resolve = this.dependencies.resolveEventTarget;
+      if (resolve === undefined) {
+        throw new Error('eventTarget Buff application is not configured');
+      }
+      return [resolve(context.event.targetId)];
+    }
     if (target === 'currentAbilityEntity') {
       if (context?.currentTarget === undefined) {
         throw new Error('currentAbilityEntity Buff application requires a current target');

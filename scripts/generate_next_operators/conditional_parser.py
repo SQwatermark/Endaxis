@@ -68,6 +68,7 @@ from source_models import (
     SkillHasHitConditionSource,
     StoreCurrentTimelineFramePayload,
     StoreCurrentTimelineFrameActionSource,
+    StoreAttributeValuePayload,
     SuperArmorConditionSource,
     SwitchActionSource,
     TargetIdentityConditionSource,
@@ -1092,18 +1093,30 @@ def parse_conditional_actions(
         condition_group = require_dict(
             value.get("conditionAction"), f"{source_path}.conditionAction"
         )
-        conditions = tuple(
-            parse_condition(
-                raw_condition,
-                f"{source_path}.conditionAction.actionData[{index}]",
+        conditions_list: list[ConditionSource] = []
+        condition_negated: list[bool] = []
+        negate_next = False
+        for index, raw_condition in enumerate(
+            require_list(
+                condition_group.get("actionData"),
+                f"{source_path}.conditionAction.actionData",
             )
-            for index, raw_condition in enumerate(
-                require_list(
-                    condition_group.get("actionData"),
-                    f"{source_path}.conditionAction.actionData",
-                )
-            )
-        )
+        ):
+            condition_path = f"{source_path}.conditionAction.actionData[{index}]"
+            condition_data = require_dict(raw_condition, condition_path)
+            if condition_data.get("isEnable") is False:
+                continue
+            if action_name(str(condition_data.get("$type", ""))) == "NotNextCheckAction":
+                if negate_next:
+                    raise ValueError(f"{condition_path}: consecutive NotNextCheckAction is unsupported")
+                negate_next = True
+                continue
+            conditions_list.append(parse_condition(condition_data, condition_path))
+            condition_negated.append(negate_next)
+            negate_next = False
+        if negate_next:
+            raise ValueError(f"{source_path}.conditionAction: dangling NotNextCheckAction")
+        conditions = tuple(conditions_list)
         succeed = parse_branch(
             value.get("succeedActions"),
             start_frame,
@@ -1128,6 +1141,7 @@ def parse_conditional_actions(
             ),
             actionPath=path,
             conditions=conditions,
+            conditionNegated=tuple(condition_negated),
             succeedActions=succeed,
             failActions=fail,
             alwaysNext=require_bool(
@@ -1430,6 +1444,7 @@ def parse_conditional_actions(
             ):
                 source_path = f"{source_name}.{'.'.join(action_path)}"
                 calculation = None
+                store_attribute_value = None
                 mutation = None
                 buff_read = None
                 buff_finish = None
@@ -1473,9 +1488,12 @@ def parse_conditional_actions(
                             f"{source_path}: unexpected StoreAttributeValue fields {sorted(action)}"
                         )
                     target = parse_target_reference(action.get("targetSettings"), source_path)
-                    attribute_key = {"Str": "strength", "Agi": "agility", "Wisd": "intellect", "Will": "will", "Level": "level", "MaxHp": "maxHealth"}.get(
-                        action.get("attributeType")
-                    )
+                    raw_attribute = action.get("attributeType")
+                    attribute_key = {
+                        "Str": "strength", "Agi": "agility", "Wisd": "intellect",
+                        "Will": "will", "Level": "level", "MaxHp": "maxHealth",
+                        "CrystAbnormalDamageIncrease": "cryoAbnormalDamageIncrease",
+                    }.get(raw_attribute)
                     divisor = parse_scalar(action.get("divisorValue"), source_path, inherited_blackboard)
                     base = parse_scalar(action.get("baseValue"), source_path, inherited_blackboard)
                     output_key = action.get("key")
@@ -1499,18 +1517,22 @@ def parse_conditional_actions(
                         and output_key
                     )
                     if supported_store_shape:
-                        calculation = BlackboardCalculationPayload(
-                            key=output_key,
-                            operation="Multiply",
-                            left=ScalarSource(0, attribute_key, None),
-                            right=parse_scalar(
+                        store_attribute_value = StoreAttributeValuePayload(
+                            targetSource=target.targetSource,
+                            targetGroupKey=target.targetGroupKey,
+                            attributeKind="specific",
+                            attributeKey=attribute_key,
+                            stage={
+                                "BaseNonConverted": "armedNonConverted",
+                                "FinalNonConverted": "finalNonConverted",
+                            }[action.get("storeAttributeType")],
+                            useFloor=action.get("useFloor"),
+                            divisor=divisor,
+                            multiplier=parse_scalar(
                                 action.get("multiplierValue"), source_path, inherited_blackboard
                             ),
-                            addend=(
-                                None
-                                if base.blackboardKey is None and base.value == 0
-                                else base
-                            ),
+                            base=base,
+                            outputKey=output_key,
                         )
                 elif action_type == "GetTargetBuffBBAdvanced":
                     buff_read = parse_buff_blackboard_read_payload(action, source_path)
@@ -1690,6 +1712,7 @@ def parse_conditional_actions(
                         action, source_path
                     ),
                     "blackboardCalculation": calculation,
+                    "storeAttributeValue": store_attribute_value,
                     "blackboardMutation": mutation,
                     "buffBlackboardRead": buff_read,
                     "buffFinish": buff_finish,

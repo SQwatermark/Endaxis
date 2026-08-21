@@ -43,6 +43,7 @@ class ConditionalCompilerTest(unittest.TestCase):
         semantic_source=lambda source: source,
         compiled_conditions: list[str] | None = None,
         validated_contexts: list[str] | None = None,
+        for_each_target_kind: str = "abilityEntity",
     ) -> ConditionalCompiler:
         def compile_condition(
             _action: ConditionalActionSource,
@@ -57,9 +58,10 @@ class ConditionalCompilerTest(unittest.TestCase):
             current: ForEachContextActionSource,
             _path: str,
             _context: ConditionalCompileContext,
-        ) -> None:
+        ) -> str:
             if validated_contexts is not None:
                 validated_contexts.append(current.contextKey)
+            return for_each_target_kind
 
         return ConditionalCompiler(
             ConditionalCompilerServices(
@@ -173,6 +175,27 @@ class ConditionalCompilerTest(unittest.TestCase):
             ")",
         )
         self.assertEqual(validated_contexts, ["targets"])
+
+    def test_single_enemy_for_each_flattens_to_one_execution(self) -> None:
+        compiler = self.make_compiler(for_each_target_kind="singleEnemy")
+        for_each = ForEachContextActionSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=0,
+            actionPath=(),
+            conditions=(),
+            succeedActions=(leaf("hit"),),
+            failActions=(),
+            contextKey="targets",
+        )
+
+        compiled = compiler.compile_action(
+            for_each,
+            "root",
+            ConditionalCompileContext(),
+        )
+
+        self.assertEqual(render(compiled), "sequence(\n  hit(),\n)")
 
 
 if __name__ == "__main__":

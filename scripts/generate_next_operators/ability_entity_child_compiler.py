@@ -202,6 +202,9 @@ def compile_ability_entity_child_skill(
                 buff_definitions=buff_definitions,
                 invoked_child_context=(skill, config),
                 ignored_buff_ids=ignored_buff_ids | unmodeled_buff_ids,
+                damage_tags=tuple(
+                    require_list(config.get("tags", []), f"{skill.key}.compile.tags")
+                ),
             )
         compiled.append(
             (

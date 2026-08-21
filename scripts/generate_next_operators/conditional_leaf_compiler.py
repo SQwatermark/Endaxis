@@ -700,6 +700,8 @@ def compile_conditional_branch_action(
             buff_owner_target=buff_owner_target,
             current_buff_environment=current_buff_environment,
             current_ability_entity_target=ability_entity_current_target,
+            current_event_target=buff_ability_damage_event,
+            damage_tags=damage_tags,
         )
         if ability_entity_collection_key is None or compiled_buff == "sequence()":
             return compiled_buff
@@ -767,6 +769,28 @@ def compile_conditional_branch_action(
         return compile_blackboard_mutation(action.blackboardMutation, path)
     if getattr(action, "blackboardCalculation", None) is not None:
         return compile_blackboard_calculation(action.blackboardCalculation, path)
+    store_attribute_value = getattr(action, "storeAttributeValue", None)
+    if store_attribute_value is not None:
+        if (
+            store_attribute_value.targetSource not in {"Source", "Owner"}
+            or store_attribute_value.targetGroupKey
+            or store_attribute_value.attributeKind != "specific"
+            or store_attribute_value.attributeKey is None
+        ):
+            raise ValueError(f"{path}: unsupported StoreAttributeValue target or selector")
+        return "\n".join(
+            [
+                "step('storeSourceAttributeValue', {",
+                f"  attribute: {{ kind: 'specific', key: {ts_inline_literal(store_attribute_value.attributeKey)} }},",
+                f"  stage: {ts_inline_literal(store_attribute_value.stage)},",
+                f"  useFloor: {ts_inline_literal(store_attribute_value.useFloor)},",
+                f"  divisor: {compile_condition_operand(store_attribute_value.divisor, f'{path}.divisor')},",
+                f"  multiplier: {compile_condition_operand(store_attribute_value.multiplier, f'{path}.multiplier')},",
+                f"  base: {compile_condition_operand(store_attribute_value.base, f'{path}.base')},",
+                f"  targetKey: {ts_inline_literal(store_attribute_value.outputKey)},",
+                "})",
+            ]
+        )
     if getattr(action, "resourceGain", None) is not None:
         return compile_resource_gain(action.resourceGain, path)
     infliction = getattr(action, "infliction", None)

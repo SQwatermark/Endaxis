@@ -222,6 +222,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
       ...(currentTarget === undefined ? {} : { currentTarget }),
       ...(buff.skillCastInfo === null ? {} : { skillCastInfo: buff.skillCastInfo }),
       buffSourceId: buff.sourceId,
+      buffOwnerId: buff.owner.ownerId,
       finishCurrentBuff: reason => buff.finish(reason),
       setCurrentBuffTimePaused: paused => buff.setTimePaused(paused),
     };
@@ -479,7 +480,7 @@ function normalizeBuffAbilityEvent(
   if (typeof source.sourceId !== 'string' || typeof source.targetId !== 'string') {
     throw new TypeError(`Buff ability event '${event}' payload has invalid entity identities`);
   }
-  if (event === 'addedBuff') {
+  if (event === 'beforeOutputBuff' || event === 'addedBuff') {
     if (
       typeof source.buffId !== 'string' ||
       !Array.isArray(source.buffTagIds) ||

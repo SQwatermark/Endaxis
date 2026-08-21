@@ -106,6 +106,7 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
     case 'eventBuffTagsMatch':
       return { kind, match: 'hasAny', buffTagIds: [0] };
     case 'eventSourceMatchesBuffSource':
+    case 'buffSourceMatchesOwner':
       return { kind };
     case 'elementalInflictionPresent':
       return { kind, elements: 'heat' };

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from types import SimpleNamespace
 from typing import Any, Callable, Literal
 
@@ -53,6 +53,7 @@ def compile_inline_buff_event_responses(
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"],
     buff_definitions: dict[str, BuffDefinitionSource],
     ignored_buff_ids: frozenset[str] = frozenset(),
+    damage_tags: tuple[str, ...] = (),
     services: InlineBuffServices,
 ) -> str:
     """编译证据已闭环的 Buff 启动序列与 Ability 承伤事件响应。"""
@@ -64,15 +65,15 @@ def compile_inline_buff_event_responses(
         response_count = 0
         for event_index, event in enumerate(source.igniteEventActions):
             event_path = f"{path}[{event_index}]"
-            damage_tags: list[str] = []
+            event_damage_tags: list[str] = []
             for damage_index, damage in enumerate(event.damageUnits):
                 tags, _ = decode_damage_decorate_mask(
                     damage.damageDecorateMask,
                     f"{event_path}.damageUnits[{damage_index}].damageDecorateMask",
                 )
                 for tag in tags:
-                    if tag not in damage_tags:
-                        damage_tags.append(tag)
+                    if tag not in event_damage_tags:
+                        event_damage_tags.append(tag)
             compiled_sequences: list[CompiledNode] = []
             for sequence_index, event_sequence in enumerate(event.sequences):
                 sequence_path = f"{event_path}.sequences[{sequence_index}]"
@@ -82,8 +83,15 @@ def compile_inline_buff_event_responses(
                     event_sequence.actions,
                     f"{sequence_path}.actions",
                     ignored_buff_ids=ignored_buff_ids,
-                    damage_tags=tuple(damage_tags),
-                    target_group_writes=getattr(event, "runtimeTargetGroupWrites", ()),
+                    damage_tags=tuple(dict.fromkeys((*damage_tags, *event_damage_tags))),
+                    target_group_writes=tuple(
+                        dict.fromkeys(
+                            (
+                                *getattr(event, "runtimeTargetGroupWrites", ()),
+                                *getattr(source, "targetGroupWrites", ()),
+                            )
+                        )
+                    ),
                     input_target="enemy",
                     runtime_blackboard_keys=runtime_blackboard_keys,
                     step_key_prefix=f"{source.buffId}:ignite:{event.event}:{sequence_index}",
@@ -224,6 +232,15 @@ def compile_inline_buff_event_responses(
             ]
         )
         ability_response_count += 1
+    # Buff StartActions and later event responses share the same native action
+    # environment Context. Model start writes as lifecycle-preceding writes so
+    # trigger conditions can prove the identity of a saved target group.
+    persistent_start_writes = tuple(
+        replace(write, startFrame=-1, actionPath=())
+        for start_event in source.eventActions
+        if start_event.eventSource == "buff" and start_event.event == "OnBuffStart"
+        for write in getattr(start_event, "runtimeTargetGroupWrites", ())
+    )
     for event_index, event in enumerate(source.eventActions):
         if not event.sequences:
             continue
@@ -244,15 +261,15 @@ def compile_inline_buff_event_responses(
             # 标准木桩模拟没有离战或清空候选连携事件；保留审计事实但不伪造触发点。
             continue
         event_path = f"{path}[{event_index}]"
-        damage_tags: list[str] = []
+        event_damage_tags: list[str] = []
         for damage_index, damage in enumerate(event.damageUnits):
             tags, _ = decode_damage_decorate_mask(
                 damage.damageDecorateMask,
                 f"{event_path}.damageUnits[{damage_index}].damageDecorateMask",
             )
             for tag in tags:
-                if tag not in damage_tags:
-                    damage_tags.append(tag)
+                if tag not in event_damage_tags:
+                    event_damage_tags.append(tag)
         for sequence_index, event_sequence in enumerate(event.sequences):
             sequence_path = f"{event_path}.sequences[{sequence_index}]"
             if event_sequence.onlyMainOperator or event_sequence.onlyGuard:
@@ -318,6 +335,9 @@ def compile_inline_buff_event_responses(
             is_added_buff = (
                 event.eventSource == "ability" and event.event == "OnAddedBuff"
             )
+            is_before_output_buff = (
+                event.eventSource == "ability" and event.event == "OnBeforeOutputBuff"
+            )
             is_after_kill_entity = (
                 event.eventSource == "ability" and event.event == "OnAfterKillEntity"
             )
@@ -355,9 +375,17 @@ def compile_inline_buff_event_responses(
                 event_sequence.actions,
                 f"{sequence_path}.actions",
                 ignored_buff_ids=ignored_buff_ids,
-                damage_tags=tuple(damage_tags),
+                damage_tags=tuple(dict.fromkeys((*damage_tags, *event_damage_tags))),
                 runtime_blackboard_keys=runtime_blackboard_keys,
-                target_group_writes=getattr(event, "runtimeTargetGroupWrites", ()),
+                target_group_writes=tuple(
+                    dict.fromkeys(
+                        (
+                                *getattr(event, "runtimeTargetGroupWrites", ()),
+                                *persistent_start_writes,
+                                *getattr(source, "targetGroupWrites", ()),
+                        )
+                    )
+                ),
                 input_target=(
                     "enemy"
                     if event.eventSource == "buff" and buff_owner_target == "enemy"
@@ -370,6 +398,8 @@ def compile_inline_buff_event_responses(
                     or is_take_critical_damage
                     or is_output_damage
                     or is_before_cast_skill
+                    or is_added_buff
+                    or is_before_output_buff
                 ),
                 buff_owner_target=buff_owner_target,
                 current_buff_environment=True,
@@ -414,6 +444,7 @@ def compile_inline_buff_event_responses(
                 or is_before_cast_skill
                 or is_skill_end
                 or is_added_buff
+                or is_before_output_buff
                 or is_after_kill_entity
                 or is_finished_buff
             ):
@@ -434,6 +465,8 @@ def compile_inline_buff_event_responses(
                 if is_skill_end
                 else "addedBuff"
                 if is_added_buff
+                else "beforeOutputBuff"
+                if is_before_output_buff
                 else "afterKillEntity"
                 if is_after_kill_entity
                 else "finishedBuff"
@@ -502,6 +535,7 @@ def compile_inline_buff_behaviors(
     buff_definitions: dict[str, BuffDefinitionSource],
     invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
     ignored_buff_ids: frozenset[str] = frozenset(),
+    damage_tags: tuple[str, ...] = (),
     services: InlineBuffServices,
 ) -> str:
     """编译 Buff 的已闭环事件行为；隐藏实体技能只允许由周期触发同步启动。"""
@@ -517,12 +551,12 @@ def compile_inline_buff_behaviors(
         for event in source.eventActions
         if event.eventSource == "buff" and event.event == "OnBuffEnhanceChanged"
     )
-    trigger_events = tuple(
+    invoked_child_trigger_events = tuple(
         event
         for event in source.eventActions
         if event.eventSource == "buff"
         and event.event == "OnBuffTrigger"
-        and event.forEachActions
+        and any(loop.skillCasts for loop in event.forEachActions)
     )
     enhance_has_other_events = any(
         event not in enhance_events and any(sequence.actions for sequence in event.sequences)
@@ -554,6 +588,7 @@ def compile_inline_buff_behaviors(
                 buff_owner_target=buff_owner_target,
                 current_buff_environment=True,
                 invoked_child_context=invoked_child_context,
+                damage_tags=damage_tags,
             )
             if compiled != COMPILED_EMPTY_SEQUENCE:
                 compiled_sequences.append(compiled)
@@ -567,13 +602,14 @@ def compile_inline_buff_behaviors(
                 lines.extend(compiled_lines)
         lines.extend(["  ),", "},"])
         return "\n".join(lines)
-    if not trigger_events:
+    if not invoked_child_trigger_events:
         return compile_inline_buff_event_responses(
             source,
             path,
             buff_owner_target=buff_owner_target,
             buff_definitions=buff_definitions,
             ignored_buff_ids=ignored_buff_ids,
+            damage_tags=damage_tags,
             services=services,
         )
     if invoked_child_context is None:
@@ -582,9 +618,9 @@ def compile_inline_buff_behaviors(
         raise ValueError(
             f"{path}: invoked AbilityEntity child target cannot be the host AbilityEntity"
         )
-    if len(trigger_events) != 1:
+    if len(invoked_child_trigger_events) != 1:
         raise ValueError(f"{path}: expected one AbilityEntity trigger event")
-    event = trigger_events[0]
+    event = invoked_child_trigger_events[0]
     if len(event.targetGroupWrites) != 1 or len(event.forEachActions) != 1:
         raise ValueError(f"{path}: expected one target-group producer and one foreach loop")
     write = event.targetGroupWrites[0]
@@ -663,6 +699,7 @@ def compile_inline_buff_behaviors(
                 buff_owner_target=buff_owner_target,
                 current_buff_environment=True,
                 invoked_child_context=invoked_child_context,
+                damage_tags=damage_tags,
             )
             if compiled_enable != COMPILED_EMPTY_SEQUENCE:
                 enable_sequences.append(compiled_enable)
