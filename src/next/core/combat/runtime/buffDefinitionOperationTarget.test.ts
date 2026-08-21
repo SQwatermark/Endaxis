@@ -3,6 +3,7 @@ import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer, type CombatBuffDefinition } from '../buffs/combatBuffs';
 import type { CombatBuffDefinitionEntry } from '../buffs/combatBuffDefinitions';
 import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
+import { gameplayTagId } from '../tags/gameplayTags';
 
 type Attribute = 'cost';
 
@@ -272,7 +273,7 @@ describe('BuffDefinitionOperationTarget', () => {
         compile: entry => ({
           id: entry.id,
           stackingType: entry.stackingType,
-          applyTags: entry.applyTagIds?.map(String),
+          applyTags: entry.applyTagIds?.map(gameplayTagId),
         }),
       },
       undefined,

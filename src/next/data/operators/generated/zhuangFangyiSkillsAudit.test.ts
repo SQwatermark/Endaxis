@@ -6,8 +6,22 @@ import {
   zhuangFangyiBasicAttack2,
   zhuangFangyiBasicAttack5,
   zhuangFangyiComboSkill,
+  zhuangFangyiEnhancedBattleSkill,
   zhuangFangyiEnhancedComboSkill,
-} from './zhuang-fangyi.skills.audit.generated';
+  zhuangFangyiGeneratedOperator,
+} from './zhuang-fangyi.operator.generated';
+
+function spawnedChildSkill(
+  spawn: Extract<
+    (typeof zhuangFangyiBasicAttack2.scheduledSequences)[number]['sequence']['steps'][number],
+    { kind: 'spawnAbilityEntity' }
+  >,
+) {
+  return (
+    spawn.parameters.definition ??
+    zhuangFangyiGeneratedOperator.abilityEntityDefinitions?.[spawn.parameters.abilityEntityId]
+  )?.childSkill;
+}
 
 describe('zhuangFangyi generated skill audit', () => {
   it('moves projected interval hits into the AbilityEntity local timeline', () => {
@@ -16,10 +30,11 @@ describe('zhuangFangyi generated skill audit', () => {
       .find(step => step.kind === 'spawnAbilityEntity');
     if (spawn?.kind !== 'spawnAbilityEntity') throw new Error('expected AbilityEntity spawn');
 
-    expect(spawn.parameters.definition!.childSkill?.scheduledSequences.map(item => item.startFrame)).toEqual([
+    const child = spawnedChildSkill(spawn);
+    expect(child?.scheduledSequences.map(item => item.startFrame)).toEqual([
       0, 9, 11, 14, 897,
     ]);
-    expect(spawn.parameters.definition!.childSkill?.scheduledSequences.at(-1)?.sequence.steps).toEqual([
+    expect(child?.scheduledSequences.at(-1)?.sequence.steps).toEqual([
       { kind: 'finishCurrentAbilityEntity', parameters: {} },
     ]);
     expect(zhuangFangyiBasicAttack2.scheduledSequences.map(item => item.startFrame)).not.toEqual(
@@ -33,7 +48,7 @@ describe('zhuangFangyi generated skill audit', () => {
       .find(step => step.kind === 'spawnAbilityEntity');
     if (spawn?.kind !== 'spawnAbilityEntity') throw new Error('expected AbilityEntity spawn');
 
-    const child = spawn.parameters.definition!.childSkill;
+    const child = spawnedChildSkill(spawn);
     expect(child?.scheduledSequences.map(item => item.startFrame)).toEqual([0, 0, 4, 8, 897]);
     expect(zhuangFangyiBasicAttack5.scheduledSequences.map(item => item.startFrame)).toEqual([20]);
     expect(child?.scheduledSequences[1]?.sequence.steps.map(step => step.kind)).toEqual([
@@ -108,6 +123,43 @@ describe('zhuangFangyi generated skill audit', () => {
         damageType: 'electric',
         attackScale: [2.4, 2.64, 2.88, 3.12, 3.36, 3.6, 3.84, 4.08, 4.32, 4.62, 4.98, 5.4],
         stagger: 10,
+      },
+    });
+  });
+
+  it('keeps the enhanced battle entity calculations and fail-branch timeline jump local', () => {
+    const spawn = zhuangFangyiEnhancedBattleSkill.scheduledSequences
+      .flatMap(sequence => sequence.sequence.steps)
+      .find(step => step.kind === 'spawnAbilityEntity');
+    if (spawn?.kind !== 'spawnAbilityEntity') throw new Error('expected enhanced battle entity');
+
+    const child = spawnedChildSkill(spawn);
+    expect(child?.scheduledSequences[0]?.sequence.steps[0]).toMatchObject({
+      kind: 'calculateActionValue',
+      parameters: { key: 'atk_scale_final', operation: 'add' },
+    });
+    expect(child?.scheduledSequences[1]).toMatchObject({
+      startFrame: 12,
+      sequence: {
+        steps: [
+          {
+            kind: 'conditional',
+            parameters: {
+              condition: {
+                kind: 'not',
+                condition: {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'tick_index' },
+                  operator: 'less',
+                  right: { kind: 'blackboard', key: 'EntityBB_SwordNum' },
+                },
+              },
+            },
+            whenTrue: {
+              steps: [{ kind: 'jumpTimeline', parameters: { destinationFrame: 64 } }],
+            },
+          },
+        ],
       },
     });
   });

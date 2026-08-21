@@ -32,7 +32,7 @@ export type RuntimeSkillInterruptReason = 'castNextSkill';
 /** Ability 承伤事件进入通用条件执行器前的只读归一化负载。 */
 export interface CombatAbilityDamageEvent {
   readonly kind: 'abilityDamage';
-  readonly event: 'beforeTakeDamage' | 'takeCriticalDamage' | 'outputDamage';
+  readonly event: 'beforeTakeDamage' | 'takeDamage' | 'takeCriticalDamage' | 'outputDamage';
   readonly sourceId: string;
   readonly targetId: string;
   readonly tags: readonly DamageTag[];
@@ -49,6 +49,14 @@ export interface CombatAbilitySkillEvent {
   readonly skillId: string;
 }
 
+/** 本场固定战斗在装配完成后向已注册 Buff 发布的一次实体入战事件。 */
+export interface CombatAbilityLifecycleEvent {
+  readonly kind: 'abilityLifecycle';
+  readonly event: 'enterFight' | 'ownerHpZero';
+  readonly sourceId: string;
+  readonly targetId: string;
+}
+
 /** 技能运行时把普通操作和条件判断委托给战斗装配层的端口。 */
 export interface CombatOperationContext {
   /** 一次技能运行实例独占的动作黑板；步骤不得把它缓存到实例生命周期之外。 */
@@ -60,7 +68,11 @@ export interface CombatOperationContext {
   /** 执行到当前步骤时的施法信息；扣费前后的未返还技力可能不同。 */
   readonly skillCastInfo?: CombatSkillCastInfo;
   /** 仅在同步事件响应期间存在；普通技能步骤不得假设它可用。 */
-  readonly event?: CombatSemanticEvent | CombatAbilityDamageEvent | CombatAbilitySkillEvent;
+  readonly event?:
+    | CombatSemanticEvent
+    | CombatAbilityDamageEvent
+    | CombatAbilitySkillEvent
+    | CombatAbilityLifecycleEvent;
   /** 仅由 Buff 实例响应提供；用于保留原生 ActionSource 身份。 */
   readonly buffSourceId?: string;
   /** 仅由 Buff 实例响应提供；用于保留原生 ActionOwner 身份。 */

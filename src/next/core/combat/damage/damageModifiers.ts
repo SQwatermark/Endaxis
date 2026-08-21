@@ -37,6 +37,13 @@ export type DamageModifierExternalCondition =
     }
   | { readonly kind: 'casterControlled' }
   | {
+      readonly kind: 'buffIdCountCompare';
+      readonly target: 'caster' | 'enemy';
+      readonly buffIds: readonly string[];
+      readonly operator: ComparisonOperator;
+      readonly value: DamageModifierNumber;
+    }
+  | {
       readonly kind: 'eventDamageTagsMatch';
       readonly match: 'exact' | 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
       readonly tags: readonly DamageTag[];

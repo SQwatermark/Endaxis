@@ -363,7 +363,16 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       if (resolve === undefined) {
         throw new Error('eventTarget Buff application is not configured');
       }
-      return [resolve(context.event.targetId)];
+      const eventTargetId =
+        'targetId' in context.event
+          ? context.event.targetId
+          : context.event.kind === 'operatorHit'
+            ? context.event.targetOperatorId
+            : undefined;
+      if (eventTargetId === undefined) {
+        throw new Error(`event '${context.event.kind}' does not expose a Buff target`);
+      }
+      return [resolve(eventTargetId)];
     }
     if (target === 'currentAbilityEntity') {
       if (context?.currentTarget === undefined) {
@@ -471,9 +480,28 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
   }
 
   #resolveSingleTarget(
-    target: CombatTarget | 'currentAbilityEntity',
+    target: CombatTarget | 'currentAbilityEntity' | 'eventTarget',
     context: Parameters<CombatOperationExecutor['execute']>[1],
   ): BuffOperationTarget {
+    if (target === 'eventTarget') {
+      if (context?.event === undefined) {
+        throw new Error('eventTarget Buff operation requires an event context');
+      }
+      const resolve = this.dependencies.resolveEventTarget;
+      if (resolve === undefined) {
+        throw new Error('eventTarget Buff operation is not configured');
+      }
+      const eventTargetId =
+        'targetId' in context.event
+          ? context.event.targetId
+          : context.event.kind === 'operatorHit'
+            ? context.event.targetOperatorId
+            : undefined;
+      if (eventTargetId === undefined) {
+        throw new Error(`event '${context.event.kind}' does not expose a Buff target`);
+      }
+      return resolve(eventTargetId);
+    }
     if (target !== 'currentAbilityEntity') return this.dependencies.resolveTarget(target);
     if (context?.currentTarget?.kind !== 'abilityEntity') {
       throw new Error(

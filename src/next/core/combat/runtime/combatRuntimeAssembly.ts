@@ -15,6 +15,7 @@ import type { CompiledEquipmentContribution } from '../../compiler/compileEquipm
 import type { ResolvedOperatorPanel } from '../../compiler/resolveOperatorPanel';
 import type {
   BuffApplicationTarget,
+  CombatStepParameters,
   CombatTarget,
   SkillType,
 } from '../../game-data/operatorDefinition';
@@ -180,10 +181,7 @@ export interface CombatRuntimeAssemblyOptions {
   /** StoreAttributeValue 的动态来源属性读取端口；只有技能实际使用时才要求提供。 */
   readonly readSourceAttributeValue?: (
     sourceId: string,
-    request: Extract<
-      import('../../game-data/operatorDefinition').CombatStep,
-      { kind: 'storeSourceAttributeValue' }
-    >['parameters'],
+    request: CombatStepParameters['storeSourceAttributeValue'],
   ) => number;
   /** 由场景敌人实例编译得到，操作执行器不得另行读取定义默认值。 */
   readonly enemy: CombatEnemyProgram;
@@ -245,17 +243,24 @@ export interface CombatRuntimeAssemblyOptions {
   readonly createOperationExecutor: (
     context: CombatOperationExecutorContext,
   ) => CombatOperationExecutor;
-  /** 技能施放边界向所有者 AbilitySystem 发出的同步事件。 */
+  /** 已闭环的 AbilitySystem 同步事件。 */
   readonly emitAbilityEvent?: (
     entityId: string,
-    event: 'beforeCastSkill' | 'skillEnd',
-    payload: {
-      readonly sourceId: string;
-      readonly targetId: string;
-      readonly skillType: SkillType;
-      readonly skillId: string;
-    },
+    event: 'beforeCastSkill' | 'skillEnd' | 'ownerHpZero',
+    payload:
+      | {
+          readonly sourceId: string;
+          readonly targetId: string;
+          readonly skillType: SkillType;
+          readonly skillId: string;
+        }
+      | {
+          readonly sourceId: string;
+          readonly targetId: string;
+        },
   ) => void;
+  /** 所有开局附着 Buff 注册完成后，为每名干员发布一次本场入战事实。 */
+  readonly emitOperatorEnterFight?: (operatorId: string) => void;
   /** 外部受击标记只向 Ability 监听器陈述事实，不执行敌方行为或生命变化。 */
   readonly emitExternalOperatorHit?: (
     operatorId: string,
@@ -380,6 +385,13 @@ export class CombatRuntimeAssembly {
             data: { abilityEntityId: entity.abilityEntityId, childSkillId },
           }),
         finished: (entity, reason) => {
+          if (reason === 'durationExpired' || reason === 'explicit') {
+            const entityId = logicalAbilityEntityRuntimeId(entity.instanceId);
+            this.#options.emitAbilityEvent?.(entityId, 'ownerHpZero', {
+              sourceId: entityId,
+              targetId: entityId,
+            });
+          }
           const buffRuntime = this.#abilityEntityBuffs.get(entity.instanceId);
           if (buffRuntime !== undefined) {
             buffRuntime.finishAll('other');
@@ -653,6 +665,11 @@ export class CombatRuntimeAssembly {
           data: { passiveKey: passive.key },
         });
       }
+    }
+
+    // 原生 OnEnterFight 晚于开局常驻 Buff 的创建与事件注册；本模型一场模拟只入战一次。
+    for (const operator of options.operators) {
+      options.emitOperatorEnterFight?.(operator.operatorId);
     }
 
     if (this.timeDilation !== null) this.simulation.add(this.timeDilation);

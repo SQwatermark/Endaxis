@@ -127,7 +127,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_dash_hide",
@@ -266,7 +267,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword",
@@ -640,7 +642,9 @@
               "validatorTypes": [],
               "postProcessorTypes": [],
               "inputTargets": [],
-              "intervalSeconds": null
+              "intervalSeconds": null,
+              "pickIndexValue": null,
+              "pickIndexBlackboardKey": null
             },
             {
               "startFrame": 0,
@@ -675,7 +679,9 @@
                     -1913169726
                   ]
                 ]
-              ]
+              ],
+              "pickIndexValue": null,
+              "pickIndexBlackboardKey": null
             },
             {
               "startFrame": 0,
@@ -709,7 +715,9 @@
                     -13979809
                   ]
                 ]
-              ]
+              ],
+              "pickIndexValue": null,
+              "pickIndexBlackboardKey": null
             }
           ]
         },
@@ -1071,7 +1079,42 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 8,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[2]"
+              ],
+              "targetGroupKey": "swordInst",
+              "producerType": "PickTargetAction",
+              "finderType": null,
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [],
+              "postProcessorTypes": [],
+              "inputTargets": [
+                {
+                  "targetSource": "Context",
+                  "targetGroupKey": "sword",
+                  "finderType": null,
+                  "finderFactionTarget": null,
+                  "finderTargetObjectType": null,
+                  "finderCheckAlive": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                }
+              ],
+              "intervalSeconds": null,
+              "pickIndexValue": 0.0,
+              "pickIndexBlackboardKey": "swordIndex"
+            }
+          ]
         },
         {
           "eventSource": "buff",
@@ -1186,7 +1229,9 @@
               "validatorTypes": [],
               "postProcessorTypes": [],
               "inputTargets": [],
-              "intervalSeconds": null
+              "intervalSeconds": null,
+              "pickIndexValue": null,
+              "pickIndexBlackboardKey": null
             }
           ]
         }
@@ -1207,7 +1252,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar",
@@ -1406,7 +1452,9 @@
               "validatorTypes": [],
               "postProcessorTypes": [],
               "inputTargets": [],
-              "intervalSeconds": null
+              "intervalSeconds": null,
+              "pickIndexValue": null,
+              "pickIndexBlackboardKey": null
             }
           ]
         },
@@ -1668,7 +1716,9 @@
                 "PriorityFilter"
               ],
               "inputTargets": [],
-              "intervalSeconds": null
+              "intervalSeconds": null,
+              "pickIndexValue": null,
+              "pickIndexBlackboardKey": null
             },
             {
               "startFrame": 0,
@@ -1692,7 +1742,9 @@
               "validatorTypes": [],
               "postProcessorTypes": [],
               "inputTargets": [],
-              "intervalSeconds": null
+              "intervalSeconds": null,
+              "pickIndexValue": null,
+              "pickIndexBlackboardKey": null
             }
           ]
         }
@@ -1713,7 +1765,516 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
+      "buffId": "buff_chr_0030_zhuangfy_potential1",
+      "sourceFile": "buff_chr_0030_zhuangfy_potential1.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 1.5,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "NormalSkillCtrl",
+        "priority": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "ability",
+          "event": "OnEnterFight",
+          "orderedActionTypes": [
+            "CreateBuffAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 0,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0030_zhuangfy_potential1_more_sword",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_chr_0030_zhuangfy_potential1_more_sword"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 0,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0030_zhuangfy_potential1_more_sword",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0030_zhuangfy_potential1_more_sword",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
+      "buffId": "buff_chr_0030_zhuangfy_potential1_more_sword",
+      "sourceFile": "buff_chr_0030_zhuangfy_potential1_more_sword.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 0.05,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "NormalSkillCtrl",
+        "priority": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 9.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "ability",
+          "event": "OnTrulyExitFight",
+          "orderedActionTypes": [
+            "FinishBuffAdvanced"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "FinishBuffAdvanced"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "FinishBuffAdvanced",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "buffFinish": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Id",
+                    "buffIds": [
+                      "buff_chr_0030_zhuangfy_potential1_more_sword"
+                    ],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": [],
+                    "finishAll": true,
+                    "limitSource": false,
+                    "isFinishedEarly": false,
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        },
+        {
+          "eventSource": "ability",
+          "event": "OnSkillEnd",
+          "orderedActionTypes": [
+            "CheckSkillType",
+            "FinishBuffAdvanced"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckSkillType",
+                "FinishBuffAdvanced"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "FinishBuffAdvanced",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 2,
+                  "buffFinish": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Id",
+                    "buffIds": [
+                      "buff_chr_0030_zhuangfy_potential1_more_sword"
+                    ],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": [],
+                    "finishAll": true,
+                    "limitSource": false,
+                    "isFinishedEarly": false,
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
+      "buffId": "buff_chr_0030_zhuangfy_potential5",
+      "sourceFile": "buff_chr_0030_zhuangfy_potential5.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "ignore_pulse_resist",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [
+        {
+          "enabledSide": "Attacker",
+          "targetSource": "",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [],
+          "processors": [
+            {
+              "targetSide": "Defender",
+              "attributeType": "PulseResistance",
+              "slot": "BaseAddition",
+              "value": {
+                "value": 0.0,
+                "blackboardKey": "ignore_pulse_resist",
+                "levelValues": [
+                  0.0
+                ]
+              }
+            }
+          ],
+          "tagConditions": [],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "damageTypes": [],
+          "numberComparisons": [],
+          "healthComparisons": [],
+          "buffCountComparisons": [
+            {
+              "targetSource": "Source",
+              "targetGroupKey": "",
+              "buffIds": [
+                "buff_chr_0030_zhuangfy_ult_base"
+              ],
+              "comparison": "GE",
+              "value": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              }
+            }
+          ]
+        }
+      ],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_potential5_vfx",
@@ -1812,7 +2373,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_sword_triggerd",
@@ -2579,7 +3141,9 @@
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -2614,7 +3178,9 @@
                 -1913169726
               ]
             ]
-          ]
+          ],
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -2638,7 +3204,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -2662,7 +3230,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -2686,7 +3256,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 3,
@@ -2707,7 +3279,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 6,
@@ -2728,7 +3302,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "runtimeSkillSlotReplacements": [],
@@ -2738,7 +3314,11 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": [
+        48,
+        54
+      ]
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_talent1",
@@ -2808,7 +3388,126 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
+      "buffId": "buff_chr_0030_zhuangfy_talent1_base",
+      "sourceFile": "buff_chr_0030_zhuangfy_talent1_base.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 0.1,
+          "blackboardKey": "duration",
+          "levelValues": [
+            0.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Stack",
+        "stackingKey": "NormalSkillCtrl",
+        "priority": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "base_rate",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "duration",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "enhance_rate",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "EnhancedAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "EnhancedAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_talent1_mark",
@@ -2878,7 +3577,178 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
+      "buffId": "buff_chr_0030_zhuangfy_talent2_heal",
+      "sourceFile": "buff_chr_0030_zhuangfy_talent2_heal.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 1.0,
+          "blackboardKey": "duration",
+          "levelValues": [
+            0.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "NormalSkillCtrl",
+        "priority": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "duration",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "heal",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "HealAction"
+          ],
+          "combatActions": [
+            "HealAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "HealAction"
+              ],
+              "combatActions": [
+                "HealAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "HealAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "heal": {
+                    "healType": "Normal",
+                    "healer": "ActionSource",
+                    "alwaysNext": true,
+                    "target": {
+                      "targetSource": "Source",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "attribute": "MaxHp",
+                    "multiplier": {
+                      "value": 1.0,
+                      "blackboardKey": "heal",
+                      "levelValues": [
+                        0.0
+                      ]
+                    },
+                    "addition": {
+                      "value": 0.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "tagIds": []
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_base",
@@ -3606,7 +4476,8 @@
         }
       ],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_body_vfx",
@@ -3956,7 +4827,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_env_vfx",
@@ -4057,7 +4929,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_hide_model",
@@ -4156,7 +5029,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_hide_model_holder",
@@ -4344,7 +5218,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_skill_free",
@@ -4425,7 +5300,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -4507,7 +5383,149 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
+      "buffId": "buff_common_damage_immune_talent",
+      "sourceFile": "buff_common_damage_immune_talent.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 2.0,
+          "blackboardKey": "duration",
+          "levelValues": [
+            9999.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "duration",
+          "value": 9999.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [
+        782082172,
+        -104052028,
+        -1128398902
+      ],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "ImmuneTextAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "ImmuneTextAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [
+        {
+          "target": {
+            "targetSource": "Owner",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "superArmor": {
+            "value": 35.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "impactResistance": {
+            "value": 100.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -4618,7 +5636,8 @@
         }
       ],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -4733,7 +5752,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -4809,7 +5829,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_pulse_pulse_conduct_triggered",
@@ -5240,7 +6261,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_pulse_pulse_conduct_triggered_do",
@@ -5345,7 +6367,8 @@
             "heat"
           ],
           "numberComparisons": [],
-          "healthComparisons": []
+          "healthComparisons": [],
+          "buffCountComparisons": []
         },
         {
           "enabledSide": "Defender",
@@ -5376,7 +6399,8 @@
             "electric"
           ],
           "numberComparisons": [],
-          "healthComparisons": []
+          "healthComparisons": [],
+          "buffCountComparisons": []
         },
         {
           "enabledSide": "Defender",
@@ -5407,7 +6431,8 @@
             "cryo"
           ],
           "numberComparisons": [],
-          "healthComparisons": []
+          "healthComparisons": [],
+          "buffCountComparisons": []
         },
         {
           "enabledSide": "Defender",
@@ -5438,7 +6463,8 @@
             "nature"
           ],
           "numberComparisons": [],
-          "healthComparisons": []
+          "healthComparisons": [],
+          "buffCountComparisons": []
         }
       ],
       "directDamageHits": [],
@@ -5879,7 +6905,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_pulse_triggered_fx",
@@ -5986,7 +7013,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_pulse_triggered_start",
@@ -6085,7 +7113,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     }
   ],
   "passiveSkills": [
@@ -6102,9 +7131,204 @@
       "unsupported_reasons": [
         "passive has no startup Buff"
       ],
-      "generationIssues": [
-        "passive has no startup Buff"
-      ]
+      "event_listeners": [
+        {
+          "startFrame": 0,
+          "endFrame": 2147483647,
+          "actionIndex": 0,
+          "priorityLevel": "Default",
+          "priorityOffset": 0,
+          "event": "OnAddedBuff",
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckBuffIdInContext",
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 1,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0030_zhuangfy_talent1_base",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "base_rate": {
+                            "value": 0.0,
+                            "blackboardKey": "base_rate",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "enhance_rate": {
+                            "value": 0.0,
+                            "blackboardKey": "enhance_rate",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CheckBuffIdInContext",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckBuffIdInContext",
+                        "supported": false,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "damageDecorateMask": null,
+                        "contextBuffId": {
+                          "checkType": "Id",
+                          "buffIds": [
+                            "buff_chr_0030_zhuangfy_talent1"
+                          ],
+                          "queryType": "HasAny"
+                        },
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CreateBuffAction",
+                        "actionIndex": 1,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[1]"
+                        ],
+                        "serverActionIndex": 1,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
+                        "buffApplication": {
+                          "buffs": [
+                            {
+                              "buffId": "buff_chr_0030_zhuangfy_talent1_base",
+                              "classification": null,
+                              "blackboardAssignments": {
+                                "duration": {
+                                  "value": 0.0,
+                                  "blackboardKey": "duration",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                },
+                                "base_rate": {
+                                  "value": 0.0,
+                                  "blackboardKey": "base_rate",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                },
+                                "enhance_rate": {
+                                  "value": 0.0,
+                                  "blackboardKey": "enhance_rate",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                }
+                              }
+                            }
+                          ],
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "count": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "buffSource": "ActionSource",
+                          "buffSourceContextKey": "",
+                          "inheritSourceSkillCastInfo": true
+                        }
+                      }
+                    ],
+                    "failActions": [],
+                    "conditionNegated": [],
+                    "alwaysNext": false
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "sequenceIndex": 0
+        }
+      ],
+      "event_buff_ids": [
+        "buff_chr_0030_zhuangfy_talent1_base"
+      ],
+      "generationIssues": []
     },
     {
       "skill_id": "chr_0030_zhuangfy_talent2",
@@ -6123,9 +7347,298 @@
       "unsupported_reasons": [
         "passive has no startup Buff"
       ],
-      "generationIssues": [
-        "passive has no startup Buff"
-      ]
+      "event_listeners": [
+        {
+          "startFrame": 0,
+          "endFrame": 2147483647,
+          "actionIndex": 0,
+          "priorityLevel": "Default",
+          "priorityOffset": 0,
+          "event": "OnBeforeTakeDamage",
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckTagMatch",
+                "NotNextCheckAction",
+                "CheckDamageTypeMask",
+                "FindTargetAction",
+                "CheckEntityNum",
+                "SimpleCalcBBAction",
+                "SimpleCalcBBAction",
+                "Probablity",
+                "CreateBuffAction",
+                "EffectAction",
+                "CreateBuffAction",
+                "PlaySoundAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction",
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 8,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_damage_immune_talent",
+                        "classification": "incomingDamageProtection",
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 0.01,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                },
+                {
+                  "actionIndex": 10,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0030_zhuangfy_talent2_heal",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "heal": {
+                            "value": 0.0,
+                            "blackboardKey": "heal",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "FindTargetAction",
+                  "actionIndex": 3,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[3]"
+                  ],
+                  "serverActionIndex": 3,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "SimpleCalcBBAction",
+                  "actionIndex": 5,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[5]"
+                  ],
+                  "serverActionIndex": 5,
+                  "blackboardCalculation": {
+                    "key": "swordRateFinal",
+                    "operation": "Multiply",
+                    "left": {
+                      "value": 0.0,
+                      "blackboardKey": "sword_rate",
+                      "levelValues": [
+                        0.0
+                      ]
+                    },
+                    "right": {
+                      "value": 0.0,
+                      "blackboardKey": "swordsNum",
+                      "levelValues": [
+                        0.0
+                      ]
+                    },
+                    "addend": null
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "SimpleCalcBBAction",
+                  "actionIndex": 6,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[6]"
+                  ],
+                  "serverActionIndex": 6,
+                  "blackboardCalculation": {
+                    "key": "probability",
+                    "operation": "Add",
+                    "left": {
+                      "value": 0.0,
+                      "blackboardKey": "base_rate",
+                      "levelValues": [
+                        0.0
+                      ]
+                    },
+                    "right": {
+                      "value": 0.0,
+                      "blackboardKey": "swordRateFinal",
+                      "levelValues": [
+                        0.0
+                      ]
+                    },
+                    "addend": null
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 8,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[8]"
+                  ],
+                  "serverActionIndex": 8,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_damage_immune_talent",
+                        "classification": "incomingDamageProtection",
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 0.01,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                },
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 10,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[10]"
+                  ],
+                  "serverActionIndex": 10,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0030_zhuangfy_talent2_heal",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "heal": {
+                            "value": 0.0,
+                            "blackboardKey": "heal",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "sequenceIndex": 0
+        }
+      ],
+      "event_buff_ids": [
+        "buff_chr_0030_zhuangfy_talent2_heal",
+        "buff_common_damage_immune_talent"
+      ],
+      "generationIssues": []
     }
   ],
   "skills": [
@@ -7117,7 +8630,8 @@
                   "blackboardMutations": [],
                   "buffBlackboardReads": [],
                   "buffFinishes": [],
-                  "auraActions": []
+                  "auraActions": [],
+                  "presentationOnlySwitchActionIndexes": []
                 }
               ]
             }
@@ -7521,7 +9035,8 @@
                   "blackboardMutations": [],
                   "buffBlackboardReads": [],
                   "buffFinishes": [],
-                  "auraActions": []
+                  "auraActions": [],
+                  "presentationOnlySwitchActionIndexes": []
                 }
               ]
             }
@@ -8149,7 +9664,8 @@
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         }
       ],
       "referencedBuffIds": [],
@@ -8661,7 +10177,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 2,
@@ -8685,7 +10203,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 15,
@@ -8709,7 +10229,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 15,
@@ -8733,7 +10255,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 15,
@@ -8757,7 +10281,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 15,
@@ -8781,7 +10307,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [],
@@ -9688,7 +11216,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 14,
@@ -9712,7 +11242,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [],
@@ -10200,7 +11732,8 @@
                   "blackboardMutations": [],
                   "buffBlackboardReads": [],
                   "buffFinishes": [],
-                  "auraActions": []
+                  "auraActions": [],
+                  "presentationOnlySwitchActionIndexes": []
                 }
               ]
             }
@@ -10604,7 +12137,8 @@
                   "blackboardMutations": [],
                   "buffBlackboardReads": [],
                   "buffFinishes": [],
-                  "auraActions": []
+                  "auraActions": [],
+                  "presentationOnlySwitchActionIndexes": []
                 }
               ]
             }
@@ -11008,7 +12542,8 @@
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         }
       ],
       "referencedBuffIds": [],
@@ -11362,7 +12897,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 11,
@@ -11386,7 +12923,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 11,
@@ -11410,7 +12949,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 11,
@@ -11434,7 +12975,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [],
@@ -12084,7 +13627,8 @@
                               ],
                               "buffBlackboardReads": [],
                               "buffFinishes": [],
-                              "auraActions": []
+                              "auraActions": [],
+                              "presentationOnlySwitchActionIndexes": []
                             }
                           ]
                         }
@@ -12501,7 +14045,8 @@
                               ],
                               "buffBlackboardReads": [],
                               "buffFinishes": [],
-                              "auraActions": []
+                              "auraActions": [],
+                              "presentationOnlySwitchActionIndexes": []
                             }
                           ]
                         }
@@ -12953,7 +14498,8 @@
                         ],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -13400,7 +14946,8 @@
                   ],
                   "buffBlackboardReads": [],
                   "buffFinishes": [],
-                  "auraActions": []
+                  "auraActions": [],
+                  "presentationOnlySwitchActionIndexes": []
                 }
               ]
             }
@@ -13807,7 +15354,8 @@
           ],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         }
       ],
       "referencedBuffIds": [],
@@ -14068,7 +15616,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 20,
@@ -14098,7 +15648,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 20,
@@ -14128,7 +15680,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 20,
@@ -14158,7 +15712,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 20,
@@ -14185,7 +15741,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 20,
@@ -14212,7 +15770,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 20,
@@ -14236,7 +15796,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 20,
@@ -14260,7 +15822,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [],
@@ -14634,7 +16198,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   },
@@ -14887,7 +16452,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -15212,7 +16778,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -15436,7 +17003,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   },
@@ -15878,7 +17446,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -16102,7 +17671,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -16427,7 +17997,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -16651,7 +18222,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -17064,7 +18636,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -17288,7 +18861,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -17613,7 +19187,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -17837,7 +19412,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -18250,7 +19826,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -18474,7 +20051,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -18799,7 +20377,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -19023,7 +20602,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -19306,7 +20886,8 @@
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         },
         {
           "spawnFrame": 13,
@@ -19467,7 +21048,8 @@
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         },
         {
           "spawnFrame": 14,
@@ -19628,7 +21210,8 @@
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         },
         {
           "spawnFrame": 15,
@@ -19789,7 +21372,8 @@
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         }
       ],
       "referencedBuffIds": [],
@@ -20000,7 +21584,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 12,
@@ -20023,7 +21609,9 @@
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [],
@@ -20398,7 +21986,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   },
@@ -20651,7 +22240,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -20976,7 +22566,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -21200,7 +22791,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   },
@@ -21642,7 +23234,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -21866,7 +23459,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -22191,7 +23785,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -22415,7 +24010,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -22828,7 +24424,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -23052,7 +24649,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -23377,7 +24975,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -23601,7 +25200,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -24014,7 +25614,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -24238,7 +25839,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -24563,7 +26165,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -24787,7 +26390,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -25070,7 +26674,8 @@
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         },
         {
           "spawnFrame": 11,
@@ -25231,7 +26836,8 @@
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         },
         {
           "spawnFrame": 12,
@@ -25392,7 +26998,8 @@
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         },
         {
           "spawnFrame": 13,
@@ -25553,7 +27160,8 @@
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         }
       ],
       "referencedBuffIds": [],
@@ -25755,7 +27363,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 10,
@@ -25778,7 +27388,9 @@
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [],
@@ -26169,7 +27781,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -26418,7 +28031,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -26759,7 +28373,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -27008,7 +28623,8 @@
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -27330,7 +28946,8 @@
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         }
       ],
       "referencedBuffIds": [
@@ -28078,7 +29695,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -28113,7 +29732,9 @@
                 -251943717
               ]
             ]
-          ]
+          ],
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [],
@@ -29372,7 +30993,8 @@
                                           "blackboardMutations": [],
                                           "buffBlackboardReads": [],
                                           "buffFinishes": [],
-                                          "auraActions": []
+                                          "auraActions": [],
+                                          "presentationOnlySwitchActionIndexes": []
                                         }
                                       ]
                                     }
@@ -29531,7 +31153,8 @@
                                           "blackboardMutations": [],
                                           "buffBlackboardReads": [],
                                           "buffFinishes": [],
-                                          "auraActions": []
+                                          "auraActions": [],
+                                          "presentationOnlySwitchActionIndexes": []
                                         }
                                       ]
                                     }
@@ -29798,7 +31421,8 @@
                                           "blackboardMutations": [],
                                           "buffBlackboardReads": [],
                                           "buffFinishes": [],
-                                          "auraActions": []
+                                          "auraActions": [],
+                                          "presentationOnlySwitchActionIndexes": []
                                         }
                                       ]
                                     }
@@ -29957,7 +31581,8 @@
                                           "blackboardMutations": [],
                                           "buffBlackboardReads": [],
                                           "buffFinishes": [],
-                                          "auraActions": []
+                                          "auraActions": [],
+                                          "presentationOnlySwitchActionIndexes": []
                                         }
                                       ]
                                     }
@@ -30152,7 +31777,8 @@
                             "blackboardMutations": [],
                             "buffBlackboardReads": [],
                             "buffFinishes": [],
-                            "auraActions": []
+                            "auraActions": [],
+                            "presentationOnlySwitchActionIndexes": []
                           }
                         ],
                         "auraActions": []
@@ -30771,7 +32397,8 @@
                                           "blackboardMutations": [],
                                           "buffBlackboardReads": [],
                                           "buffFinishes": [],
-                                          "auraActions": []
+                                          "auraActions": [],
+                                          "presentationOnlySwitchActionIndexes": []
                                         }
                                       ]
                                     }
@@ -30930,7 +32557,8 @@
                                           "blackboardMutations": [],
                                           "buffBlackboardReads": [],
                                           "buffFinishes": [],
-                                          "auraActions": []
+                                          "auraActions": [],
+                                          "presentationOnlySwitchActionIndexes": []
                                         }
                                       ]
                                     }
@@ -31197,7 +32825,8 @@
                                           "blackboardMutations": [],
                                           "buffBlackboardReads": [],
                                           "buffFinishes": [],
-                                          "auraActions": []
+                                          "auraActions": [],
+                                          "presentationOnlySwitchActionIndexes": []
                                         }
                                       ]
                                     }
@@ -31356,7 +32985,8 @@
                                           "blackboardMutations": [],
                                           "buffBlackboardReads": [],
                                           "buffFinishes": [],
-                                          "auraActions": []
+                                          "auraActions": [],
+                                          "presentationOnlySwitchActionIndexes": []
                                         }
                                       ]
                                     }
@@ -31551,7 +33181,8 @@
                             "blackboardMutations": [],
                             "buffBlackboardReads": [],
                             "buffFinishes": [],
-                            "auraActions": []
+                            "auraActions": [],
+                            "presentationOnlySwitchActionIndexes": []
                           }
                         ],
                         "auraActions": []
@@ -32492,7 +34123,9 @@
           "postProcessorTypes": [],
           "inputTargets": [],
           "intervalSeconds": null,
-          "characterTeamSelectionRole": "controlledOperator"
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -32524,7 +34157,9 @@
                 -13979809
               ]
             ]
-          ]
+          ],
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 6,
@@ -32551,7 +34186,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 6,
@@ -32578,7 +34215,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [],
@@ -33408,7 +35047,8 @@
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -33569,7 +35209,8 @@
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -33838,7 +35479,8 @@
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -33999,7 +35641,8 @@
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -34196,7 +35839,8 @@
                                   "blackboardMutations": [],
                                   "buffBlackboardReads": [],
                                   "buffFinishes": [],
-                                  "auraActions": []
+                                  "auraActions": [],
+                                  "presentationOnlySwitchActionIndexes": []
                                 }
                               ],
                               "auraActions": []
@@ -34588,7 +36232,8 @@
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -34749,7 +36394,8 @@
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -35018,7 +36664,8 @@
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -35179,7 +36826,8 @@
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -35376,7 +37024,8 @@
                                   "blackboardMutations": [],
                                   "buffBlackboardReads": [],
                                   "buffFinishes": [],
-                                  "auraActions": []
+                                  "auraActions": [],
+                                  "presentationOnlySwitchActionIndexes": []
                                 }
                               ],
                               "auraActions": []
@@ -36307,7 +37956,8 @@
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -36468,7 +38118,8 @@
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -36737,7 +38388,8 @@
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -36898,7 +38550,8 @@
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -37095,7 +38748,8 @@
                                   "blackboardMutations": [],
                                   "buffBlackboardReads": [],
                                   "buffFinishes": [],
-                                  "auraActions": []
+                                  "auraActions": [],
+                                  "presentationOnlySwitchActionIndexes": []
                                 }
                               ],
                               "auraActions": []
@@ -37742,7 +39396,8 @@
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -37903,7 +39558,8 @@
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -38172,7 +39828,8 @@
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -38333,7 +39990,8 @@
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -38530,7 +40188,8 @@
                                   "blackboardMutations": [],
                                   "buffBlackboardReads": [],
                                   "buffFinishes": [],
-                                  "auraActions": []
+                                  "auraActions": [],
+                                  "presentationOnlySwitchActionIndexes": []
                                 }
                               ],
                               "auraActions": []
@@ -39592,8 +41251,7 @@
             "CreateTimedMarker",
             "DamageAction",
             "IfElseAction",
-            "SpellInfliction",
-            "SwitchAction"
+            "SpellInfliction"
           ],
           "cycleTruncated": false,
           "inheritsSourceBlackboard": true,
@@ -39717,7 +41375,11 @@
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": [
+            41,
+            50
+          ]
         }
       ],
       "referencedBuffIds": [
@@ -40557,7 +42219,9 @@
           "postProcessorTypes": [],
           "inputTargets": [],
           "intervalSeconds": null,
-          "characterTeamSelectionRole": "controlledOperator"
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -40589,7 +42253,9 @@
                 -13979809
               ]
             ]
-          ]
+          ],
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 5,
@@ -40619,7 +42285,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 5,
@@ -40649,7 +42317,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 5,
@@ -40679,7 +42349,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 5,
@@ -40709,7 +42381,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 15,
@@ -40730,7 +42404,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [],
@@ -41670,7 +43346,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -41697,7 +43375,9 @@
           "postProcessorTypes": [],
           "inputTargets": [],
           "intervalSeconds": null,
-          "characterTeamSelectionRole": "controlledOperator"
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [
@@ -42521,7 +44201,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -42548,7 +44230,9 @@
           "postProcessorTypes": [],
           "inputTargets": [],
           "intervalSeconds": null,
-          "characterTeamSelectionRole": "controlledOperator"
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [
@@ -42979,7 +44663,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -43000,7 +44686,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [

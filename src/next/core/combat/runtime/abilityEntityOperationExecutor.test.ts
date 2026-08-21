@@ -128,6 +128,38 @@ describe('AbilityEntityOperationExecutor', () => {
     ).toBe(true);
   });
 
+  it('picks one stable Context handle by a blackboard index and overwrites the output group', () => {
+    const executor = new AbilityEntityOperationExecutor(
+      'zhuang-fangyi',
+      new LogicalAbilityEntityRuntime({}),
+      { execute: () => false, evaluate: () => false },
+    );
+    const targetContext = new RuntimeTargetContext();
+    targetContext.set('swords', [
+      { kind: 'abilityEntity', instanceId: 4 },
+      { kind: 'abilityEntity', instanceId: 7 },
+    ]);
+    targetContext.setSingle('swordInst', { kind: 'enemy' });
+
+    expect(
+      executor.execute(
+        {
+          kind: 'pickContextTarget',
+          parameters: {
+            sourceContextKey: 'swords',
+            saveToContextKey: 'swordInst',
+            index: { kind: 'blackboard', key: 'swordIndex' },
+          },
+        },
+        {
+          blackboard: new ActionBlackboard({ swordIndex: 1 }),
+          targetContext,
+        },
+      ),
+    ).toBe(true);
+    expect(targetContext.get('swordInst')).toEqual([{ kind: 'abilityEntity', instanceId: 7 }]);
+  });
+
   it('applies SkillCastIdValidator semantics to owner-spawned queries', () => {
     const entities = new LogicalAbilityEntityRuntime({});
     for (const sourceSkillCastId of [21, 22]) {

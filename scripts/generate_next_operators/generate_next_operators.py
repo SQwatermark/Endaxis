@@ -436,6 +436,10 @@ TARGET_GROUP_WRITE_INTERNAL_KEYS = frozenset(
         "selectorOwner",
         "selectorOwnerContextKey",
         "excludesCurrentTarget",
+        "excludesOwner",
+        "smartTargetFallsBackToMainTarget",
+        "distanceValidatorsPassAtZero",
+        "priorityFilterMaxTargets",
     }
 )
 
@@ -1470,10 +1474,29 @@ def _make_operator_definition_renderer_services() -> OperatorDefinitionRendererS
         parse_conversion_support=parse_conversion_support,
         render_named_skills=render_named_skills,
         compile_progression_buff_definition=compile_progression_buff_definition,
+        compile_passive_event_listener=compile_passive_event_listener,
         weapon_type_map=WEAPON_TYPE_MAP,
         element_type_map=ELEMENT_TYPE_MAP,
         profession_map=PROFESSION_MAP,
         attribute_type_map=ATTRIBUTE_TYPE_MAP,
+    )
+
+
+def compile_passive_event_listener(
+    listener: SkillEventListenerSource,
+    path: str,
+    runtime_blackboard_keys: frozenset[str],
+    step_key_prefix: str,
+    buff_definitions: dict[str, BuffDefinitionSource],
+) -> str | None:
+    """把隐藏被动的常驻 Ability 事件转换为整场语义事件监听步骤。"""
+    return compile_skill_event_listener(
+        listener,
+        path,
+        runtime_blackboard_keys=runtime_blackboard_keys,
+        step_key_prefix=step_key_prefix,
+        buff_definitions=buff_definitions,
+        phase="dataAction",
     )
 
 
@@ -2489,10 +2512,61 @@ def collect_operator_passive_skills(
             skill_id = attach.get("skillId")
             if skill_id:
                 skill_ids.add(str(skill_id))
-    return {
-        skill_id: parse_passive_skill(skill_id, source_dir)
-        for skill_id in sorted(skill_ids)
-    }
+    result: dict[str, PassiveSkillSource] = {}
+    for skill_id in sorted(skill_ids):
+        passive = parse_passive_skill(skill_id, source_dir)
+        passive_root = require_dict(
+            json.loads((source_dir / f"{skill_id}.json").read_text(encoding="utf-8")),
+            f"{skill_id}.json",
+        )
+        passive_group = require_dict(
+            passive_root.get("actionGroupData"), f"{skill_id}.json.actionGroupData"
+        )
+        passive_events = require_list(
+            passive_group.get("passiveEventActions", []),
+            f"{skill_id}.json.actionGroupData.passiveEventActions",
+        )
+        passive_blackboard = {
+            str(item["key"]): (float(item.get("valueDouble", 0)),)
+            for item in require_list(passive_root.get("blackboard"), f"{skill_id}.json.blackboard")
+            if isinstance(item, dict) and isinstance(item.get("key"), str)
+        }
+        parsed_passive_events = parse_buff_event_actions(
+            {
+                **passive_root,
+                "buffEventAction": [],
+                "abilityEventAction": passive_events,
+            },
+            f"{skill_id}.json.actionGroupData.passiveEventActions",
+            passive_blackboard,
+        )
+        passive_listeners = tuple(
+            SkillEventListenerSource(
+                startFrame=0,
+                endFrame=2_147_483_647,
+                actionIndex=index,
+                priorityLevel="Default",
+                priorityOffset=0,
+                event=event.event,
+                sequences=event.sequences,
+                sequenceIndex=index,
+            )
+            for index, event in enumerate(parsed_passive_events)
+        )
+        result[skill_id] = replace(
+            passive,
+            event_listeners=passive_listeners,
+            event_buff_ids=tuple(
+                sorted(
+                    {
+                        buff_id
+                        for event in parsed_passive_events
+                        for buff_id in event.createdBuffIds
+                    }
+                )
+            ),
+        )
+    return result
 
 
 def parse_base_passive_skill_ids(operator: dict[str, Any]) -> tuple[str, ...]:
@@ -2519,6 +2593,8 @@ def audit_passive_skill_generation(
     issues: dict[str, tuple[str, ...]] = {}
     for skill_id, passive in passive_skills.items():
         reasons = list(passive.unsupported_reasons)
+        if passive.event_listeners and reasons == ["passive has no startup Buff"]:
+            reasons.clear()
         if passive.can_generate_add_buff:
             for buff_id in passive.referenced_buff_ids:
                 if buff_id in buff_resolution_issues:
@@ -5101,6 +5177,13 @@ def _make_conditional_leaf_services() -> ConditionalLeafServices:
         compile_global_cooldown_application=compile_global_cooldown_application,
         compile_immediate_projectile_children=compile_immediate_projectile_children,
         compile_keyword_action=compile_keyword_action,
+        compile_logical_ability_entity_spawn=lambda payload, path: (
+            compile_logical_ability_entity_spawn(
+                payload,
+                path,
+                load_ability_entity_template_evidence(),
+            )
+        ),
         compile_physical_infliction=compile_physical_infliction,
         compile_resource_gain=compile_resource_gain,
         compile_time_dilation=compile_time_dilation,
@@ -5824,6 +5907,32 @@ def target_group_write_guarantees_single_enemy(
     if identity in _seen:
         return False
     seen = _seen | {identity}
+    if (
+        write.producerType == "FindTargetAction"
+        and write.finderType == "SmartTargetFinder"
+        and write.smartTargetFallsBackToMainTarget
+        and not write.validatorTypes
+        and not write.postProcessorTypes
+        and write.selectorOwner == "ActionOwner"
+        and not write.selectorOwnerContextKey
+    ):
+        return True
+    if (
+        write.producerType == "FindTargetAction"
+        and write.finderType == "SmartTargetFinder"
+        and write.smartTargetFallsBackToMainTarget
+        and write.validatorTypes == ("DistanceValidator",)
+        and write.distanceValidatorsPassAtZero
+        and write.postProcessorTypes == ("ExcludeTarget", "PriorityFilter")
+        and write.excludesOwner
+        and write.priorityFilterMaxTargets == 1
+        and write.selectorOwner == "ActionSource"
+        and not write.selectorOwnerContextKey
+    ):
+        # SelectByTag 的评分候选与无距离限制的 mainTarget 回退都只能落到
+        # 项目唯一敌人；零距离通过 validator，排除 owner 不会排除敌人，
+        # PriorityFilter 最终只保留该稳定单体。
+        return True
     if write.validatorTypes or any(
         processor != "PriorityFilter" for processor in write.postProcessorTypes
     ):
@@ -5989,6 +6098,7 @@ def compile_inline_buff_scheduled_sequences(
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"],
     buff_definitions: dict[str, BuffDefinitionSource],
     invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
+    damage_tags: tuple[str, ...] = (),
 ) -> str:
     """兼容既有调用方的 Buff 实例本地时间线编译入口。"""
 
@@ -5998,6 +6108,7 @@ def compile_inline_buff_scheduled_sequences(
         buff_owner_target=buff_owner_target,
         buff_definitions=buff_definitions,
         invoked_child_context=invoked_child_context,
+        damage_tags=damage_tags,
         services=_make_inline_buff_services(),
     )
 
@@ -6032,8 +6143,31 @@ def is_guaranteed_non_empty_target_group_condition(
 
 def target_group_write_ability_entity_collection_identity(
     write: TargetGroupWriteSource,
+    writes: tuple[TargetGroupWriteSource, ...] = (),
 ) -> tuple[tuple[str, tuple[int, ...]], ...] | None:
     """识别带完整标签证据的 owner-spawned AbilityEntity 集合，不推断实例状态。"""
+    if (
+        write.producerType == "PickTargetAction"
+        and len(write.inputTargets) == 1
+        and (source := write.inputTargets[0]).targetSource == "Context"
+        and source.targetGroupKey
+        and source.finderType is None
+        and not source.validatorTypes
+        and not source.postProcessorTypes
+    ):
+        prior = resolve_latest_target_group_write_at(
+            read_frame=write.startFrame,
+            read_action_index=write.actionIndex,
+            read_action_path=write.actionPath,
+            target_group_key=source.targetGroupKey,
+            writes=writes,
+        )
+        # 调用方若需要沿 PickTarget 回溯，必须传入完整 writes；旧签名不能安全猜测。
+        return (
+            None
+            if prior is None
+            else target_group_write_ability_entity_collection_identity(prior, writes)
+        )
     if (
         write.producerType not in {"FindTargetAction", "ContinuousFindTargetAction"}
         or write.finderType != "OwnerSpawnedEntityFinder"
@@ -6488,8 +6622,8 @@ def ability_entity_child_finishes_are_terminal(hit: AbilityEntityHitSource) -> b
 def timeline_jump_outer_condition(
     hit: AbilityEntityHitSource,
     jump: TimedTimelineJumpSource,
-) -> ConditionalActionSource | None:
-    """关联唯一根 IfElse 成功分支中的一次性空条件跳转。"""
+) -> tuple[ConditionalActionSource, bool] | None:
+    """关联唯一根 IfElse 分支中的一次性空条件跳转，并保留所选分支。"""
     if not (
         jump.isOnlyBranchAction
         and jump.isRootContainerOnlySequenceAction
@@ -6499,13 +6633,20 @@ def timeline_jump_outer_condition(
     ):
         return None
     for condition in getattr(hit, "conditionalActions", ()):
-        if (
-            jump.actionPath
-            == (*condition.actionPath, "succeedActions", "actionData", "[0]")
-            and not condition.succeedActions
-            and condition.conditions
+        for branch_name, jump_when_true in (
+            ("succeedActions", True),
+            ("failActions", False),
         ):
-            return condition
+            branch_actions = (
+                condition.succeedActions if jump_when_true else condition.failActions
+            )
+            if (
+                jump.actionPath
+                == (*condition.actionPath, branch_name, "actionData", "[0]")
+                and not branch_actions
+                and condition.conditions
+            ):
+                return condition, jump_when_true
     return None
 
 
@@ -6551,8 +6692,9 @@ def timeline_jump_can_compile(
         except ValueError:
             return False
         return True
-    if hit is None or (outer := timeline_jump_outer_condition(hit, jump)) is None:
+    if hit is None or (outer_match := timeline_jump_outer_condition(hit, jump)) is None:
         return False
+    outer, _ = outer_match
     try:
         compile_combat_condition_group(
             outer.conditions,
@@ -6561,6 +6703,7 @@ def timeline_jump_can_compile(
             root_skill_context=False,
             input_target=input_target,
             ability_entity_current_target=True,
+            negated=getattr(outer, "conditionNegated", ()),
         )
     except ValueError:
         return False
@@ -6644,7 +6787,6 @@ def ability_entity_child_timeline_can_compile(
             for projectile in getattr(hit, "projectileTriggeredSkills", ())
         )
         and not getattr(hit, "nestedAbilityEntityHits", ())
-        and not getattr(hit, "blackboardCalculations", ())
         and not getattr(hit, "buffBlackboardReads", ())
         and all(
             finish.targetSource in {"Source", "Owner", "Target"}
@@ -6767,6 +6909,7 @@ def _make_ability_entity_child_services() -> AbilityEntityChildServices:
         ability_entity_child_timeline_can_compile=ability_entity_child_timeline_can_compile,
         compile_aura_action=compile_aura_action,
         compile_aura_exit_action=compile_aura_exit_action,
+        compile_blackboard_calculation=compile_blackboard_calculation,
         compile_blackboard_mutation=compile_blackboard_mutation,
         compile_buff_application=compile_buff_application,
         compile_buff_finish=compile_buff_finish,
@@ -7331,6 +7474,8 @@ def compile_resolved_damage_steps(
     index: int,
     is_last_damage: bool,
     runtime_blackboard_keys: frozenset[str] = frozenset(),
+    *,
+    step_key_prefix: str | None = None,
 ) -> list[str]:
     return compile_resolved_damage_steps_backend(
         skill,
@@ -7339,6 +7484,7 @@ def compile_resolved_damage_steps(
         index,
         is_last_damage,
         runtime_blackboard_keys,
+        step_key_prefix=step_key_prefix,
         services=_make_damage_step_compiler_services(),
     )
 
@@ -7373,6 +7519,7 @@ def compile_skill_event_listener(
     step_key_prefix: str,
     buff_definitions: dict[str, BuffDefinitionSource] | None = None,
     ignored_buff_ids: frozenset[str] = frozenset(),
+    phase: str = "skill",
 ) -> str | None:
     """把已闭环的原生技能临时监听器编译为通用事件监听步骤。"""
     if event_listener_is_proven_noop(listener):
@@ -7424,12 +7571,21 @@ def compile_skill_event_listener(
             raise ValueError(f"{response_path}: event response compiles to an empty sequence")
         sequence_lines = indent_source(f"sequence: {sequence_source}", 8)
         sequence_lines[-1] += ","
+        phase_lines = (
+            [
+                f"        phase: {ts_inline_literal('dataAction')},",
+                f"        priority: {response.priority},",
+            ]
+            if phase == "dataAction"
+            else []
+        )
         responses.extend(
             [
                 "      {",
                 "        key: "
                 f"{ts_inline_literal(f'native-event-{listener.actionIndex}-{index}')},",
                 f"        event: {ts_inline_literal(event)},",
+                *phase_lines,
                 *sequence_lines,
                 "      },",
             ]
@@ -7819,6 +7975,8 @@ def collect_definition_helpers(
         helpers.add("forEachContextTarget")
     if any("repeatEachTick(" in source for _, source in compiled):
         helpers.add("repeatEachTick")
+    if any("not(" in source for _, source in compiled):
+        helpers.add("not")
     return ", ".join(sorted(helpers))
 
 

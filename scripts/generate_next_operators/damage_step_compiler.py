@@ -591,12 +591,13 @@ def compile_resolved_damage_steps(
     is_last_damage: bool,
     runtime_blackboard_keys: frozenset[str] = frozenset(),
     *,
+    step_key_prefix: str | None = None,
     services: DamageStepCompilerServices,
 ) -> list[str]:
     """把一个已解析命中编译成同步步骤；收尾效果紧跟最后一次伤害。"""
     tags = tuple(require_list(config.get("tags"), f"{skill.key}.compile.tags"))
     step_key = encode_damage_step_key(
-        skill.key,
+        step_key_prefix or skill.key,
         hit.sourceKind,
         hit.sourcePath,
         hit.actionOrder,

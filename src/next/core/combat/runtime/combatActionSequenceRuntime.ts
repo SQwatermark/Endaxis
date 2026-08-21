@@ -11,7 +11,10 @@ import type {
 } from '../../compiler/combatProgram';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
-import type { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
+import type {
+  CombatSemanticEventContext,
+  CombatSemanticEventRuntime,
+} from './combatSemanticEventRuntime';
 
 export interface CombatActionSequenceRuntimeHooks {
   readonly stepReached?: (step: ResolvedCombatStep) => void;
@@ -246,26 +249,30 @@ class CombatEventListenerStep extends CombatStep {
       throw new Error('combat event listener requires a semantic event runtime and owner');
     }
     for (const response of this.step.parameters.responses) {
-      this.#registrations.push(
-        semanticEvents.register({
-          ownerOperatorId,
-          trigger: response.event,
-          phase: 'skill',
-          ...(response.condition === undefined ? {} : { condition: response.condition }),
-          createOperations: () => this.runtime.operations,
-          createOperationContext: eventContext => ({
-            ...this.operationContext,
-            event: eventContext.event,
-          }),
-          handle: eventContext => {
-            this.runtime
-              .createSequence(response.sequence, {
-                ...this.runtime.context,
-                event: eventContext.event,
-              })
-              .executeInstant({});
-          },
+      const registration = {
+        ownerOperatorId,
+        trigger: response.event,
+        ...(response.condition === undefined ? {} : { condition: response.condition }),
+        createOperations: () => this.runtime.operations,
+        createOperationContext: (eventContext: CombatSemanticEventContext) => ({
+          ...this.operationContext,
+          event: eventContext.event,
         }),
+        handle: (eventContext: CombatSemanticEventContext) => {
+          this.runtime
+            .createSequence(response.sequence, {
+              ...this.runtime.context,
+              event: eventContext.event,
+            })
+            .executeInstant({});
+        },
+      };
+      this.#registrations.push(
+        semanticEvents.register(
+          response.phase === 'dataAction'
+            ? { ...registration, phase: 'dataAction', priority: response.priority }
+            : { ...registration, phase: 'skill' },
+        ),
       );
     }
   }

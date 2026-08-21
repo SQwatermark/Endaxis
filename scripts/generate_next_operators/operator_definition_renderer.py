@@ -39,6 +39,7 @@ class OperatorDefinitionRendererServices:
     parse_conversion_support: Callable[..., Any]
     render_named_skills: Callable[..., Any]
     compile_progression_buff_definition: Callable[..., Any]
+    compile_passive_event_listener: Callable[..., Any]
     weapon_type_map: dict[Any, str]
     element_type_map: dict[Any, str]
     profession_map: dict[Any, str]
@@ -75,6 +76,7 @@ def render_operator_definition(
     parse_conversion_support = services.parse_conversion_support
     render_named_skills = services.render_named_skills
     compile_progression_buff_definition = services.compile_progression_buff_definition
+    compile_passive_event_listener = services.compile_passive_event_listener
     WEAPON_TYPE_MAP = services.weapon_type_map
     ELEMENT_TYPE_MAP = services.element_type_map
     PROFESSION_MAP = services.profession_map
@@ -148,6 +150,7 @@ def render_operator_definition(
         passive_skills,
         definitions_by_id,
         compile_progression_buff_definition,
+        compile_passive_event_listener,
     )
     potentials = render_potentials(
         operator,

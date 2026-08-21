@@ -394,6 +394,12 @@ def compile_resolved_sequence(
                 definition,
                 skillReplacements=(),
                 runtimeSkillSlotReplacements=(
+                    *(
+                        replacement
+                        for replacement in definition.runtimeSkillSlotReplacements
+                        if replacement["targetSkillKey"]
+                        != relation["replacementSkillKey"]
+                    ),
                     {
                         "skillGroupKey": relation.get("skillGroupKey", relation["baseSkillKey"]),
                         "targetSkillKey": relation["replacementSkillKey"],

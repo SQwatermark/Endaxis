@@ -9,6 +9,7 @@ from source_schema import (
     TARGET_GROUP_FIND_ACTION_FIELDS,
     TARGET_GROUP_MERGE_ACTION_FIELDS,
     TARGET_GROUP_MERGE_INPUT_FIELDS,
+    TARGET_GROUP_PICK_ACTION_FIELDS,
 )
 from source_utils import (
     action_name,
@@ -52,6 +53,86 @@ def selector_excludes_plain_current_target(value: Any, path: str) -> bool:
         ):
             return True
     return False
+
+
+def selector_excludes_plain_owner(value: Any, path: str) -> bool:
+    """识别 ExcludeTarget 明确排除当前动作 owner 的形状。"""
+    selector = require_dict(value, path)
+    for index, raw_processor in enumerate(
+        require_list(selector.get("postProcessorData"), f"{path}.postProcessorData")
+    ):
+        processor_path = f"{path}.postProcessorData[{index}]"
+        processor = require_dict(raw_processor, processor_path)
+        if selector_component_name(processor, processor_path) != "ExcludeTarget":
+            continue
+        excluded = parse_target_reference(
+            processor.get("excludedTargetSettings"),
+            f"{processor_path}.excludedTargetSettings",
+        )
+        if (
+            excluded.targetSource == "Owner"
+            and not excluded.targetGroupKey
+            and excluded.finderType is None
+            and not excluded.validatorTypes
+            and not excluded.postProcessorTypes
+        ):
+            return True
+    return False
+
+
+def smart_target_falls_back_to_main_target(value: Any, path: str) -> bool:
+    """保存 SelectByTag finder 在无评分候选时无距离限制回退主目标的证据。"""
+    selector = require_dict(value, path)
+    finder = require_dict(selector.get("finderData"), f"{path}.finderData")
+    if selector_component_name(finder, f"{path}.finderData") != "SmartTargetFinder":
+        return False
+    setting = require_dict(finder.get("selectSetting"), f"{path}.finderData.selectSetting")
+    return (
+        setting.get("smartTargetSelectStrategy") == "SelectByTag"
+        and finder.get("limitFallbackRange") is False
+    )
+
+
+def distance_validators_pass_at_zero(value: Any, path: str) -> bool:
+    """确认所有 DistanceValidator 在项目的零距离投影下均通过。"""
+    selector = require_dict(value, path)
+    validators = require_list(selector.get("validatorData"), f"{path}.validatorData")
+    if not validators:
+        return False
+    for index, raw_validator in enumerate(validators):
+        validator_path = f"{path}.validatorData[{index}]"
+        validator = require_dict(raw_validator, validator_path)
+        if selector_component_name(validator, validator_path) != "DistanceValidator":
+            return False
+        scalar = require_dict(validator.get("value"), f"{validator_path}.value")
+        if scalar.get("useBlackboardKey") is not False:
+            return False
+        threshold = scalar.get("value")
+        comparison = validator.get("compareType")
+        if not isinstance(threshold, (int, float)) or isinstance(threshold, bool):
+            return False
+        if comparison not in ({"LT", "LE"} if threshold > 0 else {"LE"} if threshold == 0 else set()):
+            return False
+    return True
+
+
+def priority_filter_max_targets(value: Any, path: str) -> int | None:
+    """读取唯一 PriorityFilter 的显式最大保留数量。"""
+    selector = require_dict(value, path)
+    filters = []
+    for index, raw_processor in enumerate(
+        require_list(selector.get("postProcessorData"), f"{path}.postProcessorData")
+    ):
+        processor_path = f"{path}.postProcessorData[{index}]"
+        processor = require_dict(raw_processor, processor_path)
+        if selector_component_name(processor, processor_path) == "PriorityFilter":
+            filters.append((processor, processor_path))
+    if len(filters) != 1:
+        return None
+    processor, processor_path = filters[0]
+    if processor.get("limitMaxNum") is not True:
+        return None
+    return require_non_negative_int(processor.get("maxNum"), f"{processor_path}.maxNum")
 
 
 def parse_target_group_writes(
@@ -152,6 +233,22 @@ def parse_target_group_writes(
                         value.get("selectorData"),
                         f"{source_name}.{'.'.join(path)}.selectorData",
                     ),
+                    excludesOwner=selector_excludes_plain_owner(
+                        value.get("selectorData"),
+                        f"{source_name}.{'.'.join(path)}.selectorData",
+                    ),
+                    smartTargetFallsBackToMainTarget=smart_target_falls_back_to_main_target(
+                        value.get("selectorData"),
+                        f"{source_name}.{'.'.join(path)}.selectorData",
+                    ),
+                    distanceValidatorsPassAtZero=distance_validators_pass_at_zero(
+                        value.get("selectorData"),
+                        f"{source_name}.{'.'.join(path)}.selectorData",
+                    ),
+                    priorityFilterMaxTargets=priority_filter_max_targets(
+                        value.get("selectorData"),
+                        f"{source_name}.{'.'.join(path)}.selectorData",
+                    ),
                     inputTargets=(),
                     intervalSeconds=interval,
                     finderSpawnedObjectType=spawned_object_type,
@@ -240,6 +337,70 @@ def parse_target_group_writes(
                     characterTeamSelectionRole=None,
                     inputTargets=tuple(input_targets),
                     intervalSeconds=None,
+                )
+            )
+        elif producer_type == "PickTargetAction":
+            if set(value) != TARGET_GROUP_PICK_ACTION_FIELDS:
+                raise ValueError(
+                    f"{source_name}.{'.'.join(path)}: unexpected fields {sorted(value)}"
+                )
+            context_key = value.get("contextKey")
+            if not isinstance(context_key, str) or not context_key:
+                raise ValueError(
+                    f"{source_name}.{'.'.join(path)}.contextKey: expected non-empty string"
+                )
+            target = parse_target_reference(
+                value.get("target"), f"{source_name}.{'.'.join(path)}.target"
+            )
+            index_data = require_dict(
+                value.get("index"), f"{source_name}.{'.'.join(path)}.index"
+            )
+            if set(index_data) != {"useBlackboardKey", "value", "blackboardKey"}:
+                raise ValueError(
+                    f"{source_name}.{'.'.join(path)}.index: unexpected fields "
+                    f"{sorted(index_data)}"
+                )
+            use_key = require_bool(
+                index_data.get("useBlackboardKey"),
+                f"{source_name}.{'.'.join(path)}.index.useBlackboardKey",
+            )
+            raw_index = index_data.get("value")
+            index_key = index_data.get("blackboardKey")
+            if not isinstance(raw_index, (int, float)) or isinstance(raw_index, bool):
+                raise ValueError(f"{source_name}.{'.'.join(path)}.index.value: expected number")
+            if not isinstance(index_key, str) or (use_key and not index_key):
+                raise ValueError(f"{source_name}.{'.'.join(path)}.index.blackboardKey: invalid key")
+            result.append(
+                TargetGroupWriteSource(
+                    startFrame=start_frame,
+                    endFrame=end_frame,
+                    actionIndex=require_server_action_index(
+                        value, f"{source_name}.{'.'.join(path)}"
+                    ),
+                    actionPath=path,
+                    targetGroupKey=context_key,
+                    producerType=producer_type,
+                    finderType=None,
+                    finderFactionTarget=None,
+                    finderTargetObjectType=None,
+                    finderCheckAlive=None,
+                    validatorTypes=(),
+                    postProcessorTypes=(),
+                    inputTargets=(
+                        TargetGroupInputSource(
+                            targetSource=target.targetSource,
+                            targetGroupKey=target.targetGroupKey,
+                            finderType=target.finderType,
+                            finderFactionTarget=None,
+                            finderTargetObjectType=None,
+                            finderCheckAlive=None,
+                            validatorTypes=target.validatorTypes,
+                            postProcessorTypes=target.postProcessorTypes,
+                        ),
+                    ),
+                    intervalSeconds=None,
+                    pickIndexValue=float(raw_index),
+                    pickIndexBlackboardKey=index_key if use_key else None,
                 )
             )
 

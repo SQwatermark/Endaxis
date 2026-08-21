@@ -72,6 +72,19 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       }
       return true;
     }
+    if (step.kind === 'pickContextTarget') {
+      if (context?.targetContext === undefined) {
+        throw new Error('Context target selection requires a combat target context');
+      }
+      const index = resolveActionValueOperand(step.parameters.index, context.blackboard);
+      if (!Number.isInteger(index) || index < 0) {
+        throw new RangeError('Context target index must be a non-negative integer');
+      }
+      const target = context.targetContext.get(step.parameters.sourceContextKey)[index];
+      if (target === undefined) return false;
+      context.targetContext.setSingle(step.parameters.saveToContextKey, target);
+      return true;
+    }
     if (step.kind === 'readAbilityEntityRemainingDuration') {
       if (context?.currentTarget === undefined) {
         throw new Error('AbilityEntity duration read requires a current Context target');

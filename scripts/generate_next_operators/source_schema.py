@@ -8,6 +8,7 @@ __all__ = [
     "TARGET_GROUP_FIND_ACTION_FIELDS",
     "TARGET_GROUP_MERGE_ACTION_FIELDS",
     "TARGET_GROUP_MERGE_INPUT_FIELDS",
+    "TARGET_GROUP_PICK_ACTION_FIELDS",
     "AURA_ACTION_FIELDS",
     "AURA_SHAPE_FIELDS",
     "AURA_TARGET_FILTER_FIELDS",
@@ -123,6 +124,16 @@ AURA_SEQUENCE_FIELDS = {
     "actionData",
     "onlyExecuteWhenSourceIsMainChar",
     "onlyExecuteWhenSourceIsGuard",
+}
+TARGET_GROUP_PICK_ACTION_FIELDS = {
+    "$type",
+    "isEnable",
+    "priorityLevel",
+    "priorityOffset",
+    "serverActionIndex",
+    "target",
+    "index",
+    "contextKey",
 }
 AIRBORNE_ACTION_FIELDS = {
     "$type",

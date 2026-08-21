@@ -249,8 +249,9 @@ def compile_inline_buff_event_responses(
             and (
                 (
                     event.event == "OnTrulyExitFight"
-                    and event.orderedActionTypes
-                    == ("ModifyDynamicBlackboard", "FinishBuffAdvanced")
+                    and bool(event.orderedActionTypes)
+                    and set(event.orderedActionTypes)
+                    <= {"ModifyDynamicBlackboard", "FinishBuffAdvanced"}
                 )
                 or (
                     event.event == "OnRemoveAllPendingComboSkill"
@@ -320,6 +321,12 @@ def compile_inline_buff_event_responses(
             is_before_take_damage = (
                 event.eventSource == "ability" and event.event == "OnBeforeTakeDamage"
             )
+            is_enter_fight = (
+                event.eventSource == "ability" and event.event == "OnEnterFight"
+            )
+            is_owner_hp_zero = (
+                event.eventSource == "ability" and event.event == "OnOwnerHpZero"
+            )
             is_take_damage = (
                 event.eventSource == "ability" and event.event == "OnTakeDamage"
             )
@@ -367,6 +374,10 @@ def compile_inline_buff_event_responses(
                 if is_after_enhance
                 else "enhanceChanged"
                 if is_enhance_changed
+                else "enterFight"
+                if is_enter_fight
+                else "ownerHpZero"
+                if is_owner_hp_zero
                 else "beforeTakeDamage"
                 if is_before_take_damage
                 else "takeDamage"
@@ -450,7 +461,9 @@ def compile_inline_buff_event_responses(
                 enhance_changed_sequences.append(compiled)
                 continue
             if not (
-                is_before_take_damage
+                is_enter_fight
+                or is_owner_hp_zero
+                or is_before_take_damage
                 or is_take_damage
                 or is_take_critical_damage
                 or is_output_damage
@@ -467,7 +480,11 @@ def compile_inline_buff_event_responses(
                     f"{event.eventSource!r}/{event.event!r}"
                 )
             event_name = (
-                "beforeTakeDamage"
+                "enterFight"
+                if is_enter_fight
+                else "ownerHpZero"
+                if is_owner_hp_zero
+                else "beforeTakeDamage"
                 if is_before_take_damage
                 else "takeDamage"
                 if is_take_damage
@@ -751,6 +768,7 @@ def compile_inline_buff_scheduled_sequences(
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"],
     buff_definitions: dict[str, BuffDefinitionSource],
     invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
+    damage_tags: tuple[str, ...] = (),
     services: InlineBuffServices,
 ) -> str:
     """编译 Buff 实例本地帧时间线；Context/trigger 只由调用目标证据注入。"""
@@ -769,15 +787,22 @@ def compile_inline_buff_scheduled_sequences(
     resource_gain_can_change_value = services.resource_gain_can_change_value
     target_group_write_buff_application_target = services.target_group_write_buff_application_target
     runtime_blackboard_keys = frozenset(item.key for item in source.blackboard)
-    damage_tags = (
-        tuple(
-            require_list(
-                invoked_child_context[1].get("tags", []),
-                f"{path}.invokedChildContext.tags",
+    damage_tags = tuple(
+        dict.fromkeys(
+            (
+                *damage_tags,
+                *(
+                    tuple(
+                        require_list(
+                            invoked_child_context[1].get("tags", []),
+                            f"{path}.invokedChildContext.tags",
+                        )
+                    )
+                    if invoked_child_context is not None
+                    else ()
+                ),
             )
         )
-        if invoked_child_context is not None
-        else ()
     )
     trigger_write = TargetGroupWriteSource(
         startFrame=-1,
@@ -1038,6 +1063,8 @@ def compile_inline_buff_scheduled_sequences(
     covered_actions = collect_compilable_conditional_action_types(
         source.conditionalActions
     )
+    if source.presentationOnlySwitchActionIndexes:
+        covered_actions.add("SwitchAction")
     if source.auxiliaryActions:
         covered_actions.add("CreateBuffAction")
     if any(

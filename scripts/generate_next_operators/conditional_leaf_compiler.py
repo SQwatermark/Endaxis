@@ -38,6 +38,7 @@ class ConditionalLeafServices:
     compile_global_cooldown_application: Callable[..., Any]
     compile_immediate_projectile_children: Callable[..., Any]
     compile_keyword_action: Callable[..., Any]
+    compile_logical_ability_entity_spawn: Callable[..., Any]
     compile_physical_infliction: Callable[..., Any]
     compile_resource_gain: Callable[..., Any]
     compile_time_dilation: Callable[..., Any]
@@ -66,6 +67,34 @@ def target_reference_party_target(
     if target.validatorTypes == ("ExcludeOwnerValidator",):
         return "partyExceptCaster"
     return None
+
+
+def guarded_context_group_is_unique_enemy(
+    action: ConditionalBranchActionSource,
+    context_action: ConditionalActionSource | None,
+    target_group_key: str,
+    write: TargetGroupWriteSource | None,
+) -> bool:
+    """在唯一敌人模型中，SmartTarget 结果若已被同一条件的非空守卫证明，
+    则其成功分支内的单体只能是该敌人。失败分支和其他 finder 不做此归约。"""
+    if (
+        context_action is None
+        or write is None
+        or write.finderType != "SmartTargetFinder"
+        or write.producerType != "FindTargetAction"
+    ):
+        return False
+    suffix = action.actionPath[len(context_action.actionPath) :]
+    if "succeedActions" not in suffix:
+        return False
+    return any(
+        condition.entityCount is not None
+        and condition.entityCount.targetSource == "Context"
+        and condition.entityCount.targetGroupKey == target_group_key
+        and condition.entityCount.minimumCount >= 1
+        and condition.entityCount.comparison in {"GE", "GT", "EQ"}
+        for condition in context_action.conditions
+    )
 
 
 def compile_conditional_branch_action(
@@ -113,6 +142,7 @@ def compile_conditional_branch_action(
     compile_global_cooldown_application = services.compile_global_cooldown_application
     compile_immediate_projectile_children = services.compile_immediate_projectile_children
     compile_keyword_action = services.compile_keyword_action
+    compile_logical_ability_entity_spawn = services.compile_logical_ability_entity_spawn
     compile_physical_infliction = services.compile_physical_infliction
     compile_resource_gain = services.compile_resource_gain
     compile_time_dilation = services.compile_time_dilation
@@ -149,6 +179,45 @@ def compile_conditional_branch_action(
             invoked_child_context=invoked_child_context,
             buff_owner_target=buff_owner_target,
             current_buff_environment=current_buff_environment,
+        )
+    if action.actionType == "PickTargetAction":
+        matches = tuple(
+            write
+            for write in target_group_writes
+            if write.producerType == "PickTargetAction"
+            and (
+                write.actionPath == action.actionPath
+                or (
+                    current_buff_environment
+                    and write.actionIndex == action.serverActionIndex
+                )
+            )
+        )
+        if len(matches) != 1:
+            raise ValueError(f"{path}: PickTargetAction requires one exact target-group write")
+        write = matches[0]
+        if len(write.inputTargets) != 1:
+            raise ValueError(f"{path}: PickTargetAction has no unique input group")
+        source = write.inputTargets[0]
+        if (
+            source.targetSource != "Context"
+            or not source.targetGroupKey
+            or source.finderType is not None
+            or source.validatorTypes
+            or source.postProcessorTypes
+        ):
+            raise ValueError(f"{path}: unsupported PickTargetAction input")
+        index = (
+            "{ kind: 'blackboard', key: "
+            f"{ts_inline_literal(write.pickIndexBlackboardKey)} }}"
+            if write.pickIndexBlackboardKey is not None
+            else "{ kind: 'constant', value: "
+            f"{write.pickIndexValue} }}"
+        )
+        return (
+            "step('pickContextTarget', { sourceContextKey: "
+            f"{ts_inline_literal(source.targetGroupKey)}, saveToContextKey: "
+            f"{ts_inline_literal(write.targetGroupKey)}, index: {index} }})"
         )
     if action.actionType in {
         "ContinuousFindTargetAction",
@@ -227,6 +296,15 @@ def compile_conditional_branch_action(
             return "sequence()"
         if len(matches) == 1:
             return matches[0]
+        # Buff/Ability 事件内的纯逻辑实例不在根技能调用图中；
+        # 仍复用同一零空间形状校验和模板生命周期，不按 ID 特判。
+        try:
+            return compile_logical_ability_entity_spawn(
+                ability_entity_spawn,
+                path,
+            )
+        except ValueError:
+            pass
         raise ValueError(f"{path}: unsupported conditional leaf {action.actionType!r}")
     duration_assignment = getattr(action, "abilityEntityDurationAssignment", None)
     if duration_assignment is not None:
@@ -366,8 +444,27 @@ def compile_conditional_branch_action(
             current_buff_environment=current_buff_environment,
         )
     if getattr(action, "buffFinish", None) is not None:
+        finish = action.buffFinish
+        context_finish_target = None
+        if finish.targetSource == "Context" and finish.targetGroupKey:
+            write = resolve_latest_target_group_write_at(
+                read_frame=context_action.startFrame if context_action is not None else 0,
+                read_action_index=(
+                    getattr(action, "serverActionIndex", None)
+                    if getattr(action, "serverActionIndex", None) is not None
+                    else context_action.actionIndex if context_action is not None else action.actionIndex
+                ),
+                read_action_path=(
+                    getattr(action, "actionPath", ())
+                    or (context_action.actionPath if context_action is not None else ())
+                ),
+                target_group_key=finish.targetGroupKey,
+                writes=target_group_writes,
+            )
+            if write is not None and target_group_write_guarantees_single_enemy(write):
+                context_finish_target = "enemy"
         return compile_buff_finish(
-            action.buffFinish,
+            finish,
             path,
             action=context_action,
             target_group_writes=target_group_writes,
@@ -375,6 +472,7 @@ def compile_conditional_branch_action(
             input_target=input_target,
             buff_owner_target=buff_owner_target,
             current_buff_environment=current_buff_environment,
+            context_finish_target=context_finish_target,
         )
     if getattr(action, "buffStackRead", None) is not None:
         return compile_buff_stack_read(
@@ -563,6 +661,7 @@ def compile_conditional_branch_action(
                 "Agi": "agility",
                 "Wisd": "intellect",
                 "Will": "will",
+                "MaxHp": "maxHealth",
             }[heal.attribute]
             calculation_lines = [
                 f"  attribute: {ts_inline_literal(attribute)},",
@@ -676,12 +775,24 @@ def compile_conditional_branch_action(
             )
             if (
                 context_application_target is None
+                and guarded_context_group_is_unique_enemy(
+                    action,
+                    context_action,
+                    buff_application.targetGroupKey,
+                    write,
+                )
+            ):
+                context_application_target = "enemy"
+            if (
+                context_application_target is None
                 and (
                     buff_application.targetGroupKey
                     in singleton_ability_entity_context_keys
                     or (
                         write is not None
-                        and target_group_write_ability_entity_collection_identity(write)
+                        and target_group_write_ability_entity_collection_identity(
+                            write, target_group_writes
+                        )
                         is not None
                     )
                 )

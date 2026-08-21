@@ -330,15 +330,27 @@ def resolve_ability_entity_payload(
                 services=services,
             ),
         )
-    combat_actions = tuple(
-        sorted(
-            {
-                action_name(item["$type"])
-                for item in walk_actions(child.get("actionGroupData"))
-                if action_name(item["$type"]) in AUDITED_COMBAT_ACTION_NAMES
-            }
+    child_actions = tuple(walk_actions(child.get("actionGroupData")))
+    switch_actions = tuple(
+        item for item in child_actions if action_name(item["$type"]) == "SwitchAction"
+    )
+    presentation_only_switches = tuple(
+        item
+        for item in switch_actions
+        if not any(
+            action_name(descendant["$type"])
+            in AUDITED_COMBAT_ACTION_NAMES - {"SwitchAction"}
+            for descendant in walk_actions(item)
         )
     )
+    combat_action_names = {
+        action_name(item["$type"])
+        for item in child_actions
+        if action_name(item["$type"]) in AUDITED_COMBAT_ACTION_NAMES
+    }
+    if switch_actions and len(presentation_only_switches) == len(switch_actions):
+        combat_action_names.discard("SwitchAction")
+    combat_actions = tuple(sorted(combat_action_names))
     return AbilityEntityHitSource(
         spawnFrame=spawn_frame,
         actionOrder=action_order,
@@ -381,6 +393,10 @@ def resolve_ability_entity_payload(
             child, child_name, child_blackboard
         ),
         localTargetGroupWrites=parse_target_group_writes(child, child_name),
+        presentationOnlySwitchActionIndexes=tuple(
+            require_server_action_index(item, f"{child_name}.SwitchAction")
+            for item in presentation_only_switches
+        ),
     )
 
 

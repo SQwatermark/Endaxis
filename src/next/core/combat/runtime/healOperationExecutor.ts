@@ -1,6 +1,6 @@
 /** 把普通治疗步骤写入干员生命账本；目标选择和面板来源由场景环境提供。 */
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
-import type { HealTarget, OperatorAttribute } from '../../game-data/operatorDefinition';
+import type { HealCalculationAttribute, HealTarget } from '../../game-data/operatorDefinition';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import { resolveActionValueOperand } from './actionBlackboard';
 import type { CombatClock } from './combatClock';
@@ -18,7 +18,7 @@ export interface HealOperationDependencies {
   readonly sourceOperatorId: string;
   readonly clock: CombatClock;
   readonly receipt: CombatReceiptSink;
-  readonly resolveSourceAttribute: (attribute: OperatorAttribute) => number;
+  readonly resolveSourceAttribute: (attribute: HealCalculationAttribute) => number;
   readonly resolveTarget: (target: HealTarget, buffSourceId?: string) => ResolvedHealTarget;
   readonly delegate: CombatOperationExecutor;
 }

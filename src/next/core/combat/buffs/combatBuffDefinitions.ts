@@ -607,6 +607,26 @@ function parseDamageModifierCondition(input: unknown, path: string): DamageModif
     case 'casterControlled':
       requireOnlyKeys(condition, path, ['kind']);
       return { kind: 'casterControlled' };
+    case 'buffIdCountCompare':
+      requireOnlyKeys(condition, path, ['kind', 'target', 'buffIds', 'operator', 'value']);
+      if (
+        !Array.isArray(condition.buffIds) ||
+        condition.buffIds.length === 0 ||
+        !condition.buffIds.every(value => typeof value === 'string' && value.length > 0)
+      ) {
+        throw new Error(`${path}.buffIds: expected non-empty Buff ID array`);
+      }
+      return {
+        kind: 'buffIdCountCompare',
+        target: requireEnum(condition.target, ['caster', 'enemy'] as const, `${path}.target`),
+        buffIds: condition.buffIds as string[],
+        operator: requireEnum(
+          condition.operator,
+          ['equal', 'notEqual', 'less', 'lessOrEqual', 'greater', 'greaterOrEqual'] as const,
+          `${path}.operator`,
+        ),
+        value: parseDefinitionNumberOperand(condition.value, `${path}.value`),
+      };
     case 'eventDamageTagsMatch':
       requireOnlyKeys(condition, path, ['kind', 'match', 'tags']);
       return {

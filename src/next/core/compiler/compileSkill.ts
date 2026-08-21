@@ -113,6 +113,8 @@ function resolveStep(
   switch (step.kind) {
     case 'findOwnerSpawnedAbilityEntities':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'pickContextTarget':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'readAbilityEntityRemainingDuration':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'setAbilityEntityRemainingDuration':
@@ -565,6 +567,8 @@ function resolveStep(
           responses: step.parameters.responses.map((response, index) => ({
             key: response.key,
             event: response.event,
+            ...(response.phase === undefined ? {} : { phase: response.phase }),
+            ...(response.priority === undefined ? {} : { priority: response.priority }),
             ...(response.condition === undefined ? {} : { condition: response.condition }),
             sequence: compileActionSequence(
               response.sequence,

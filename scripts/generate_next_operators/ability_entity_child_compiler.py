@@ -26,6 +26,7 @@ class AbilityEntityChildServices:
     ability_entity_child_timeline_can_compile: Callable[..., Any]
     compile_aura_action: Callable[..., Any]
     compile_aura_exit_action: Callable[..., Any]
+    compile_blackboard_calculation: Callable[..., Any]
     compile_blackboard_mutation: Callable[..., Any]
     compile_buff_application: Callable[..., Any]
     compile_buff_finish: Callable[..., Any]
@@ -67,6 +68,7 @@ def compile_ability_entity_child_skill(
     ability_entity_child_timeline_can_compile = services.ability_entity_child_timeline_can_compile
     compile_aura_action = services.compile_aura_action
     compile_aura_exit_action = services.compile_aura_exit_action
+    compile_blackboard_calculation = services.compile_blackboard_calculation
     compile_blackboard_mutation = services.compile_blackboard_mutation
     compile_buff_application = services.compile_buff_application
     compile_buff_finish = services.compile_buff_finish
@@ -87,6 +89,11 @@ def compile_ability_entity_child_skill(
         services.target_group_write_ability_entity_collection_identity
     )
     timeline_jump_outer_condition = services.timeline_jump_outer_condition
+    child_step_key_prefix = f"{hit.abilityEntityId}:{hit.skillId}"
+    if getattr(hit, "inheritsSourceBlackboard", False):
+        runtime_blackboard_keys = frozenset(
+            (*runtime_blackboard_keys, *(item.key for item in hit.declaredBlackboard))
+        )
     if not ability_entity_child_timeline_can_compile(
         hit,
         input_target=input_target,
@@ -119,10 +126,16 @@ def compile_ability_entity_child_skill(
                 compile_resolved_damage_steps(
                     skill,
                     config,
-                    replace(damage, frame=local_frame),
+                    replace(
+                        damage,
+                        frame=local_frame,
+                        sourcePath=damage.sourcePath[damage.sourcePath.index(hit.skillId) :],
+                        actionOrder=damage.actionOrder[len(hit.actionOrder) :],
+                    ),
                     index,
                     index == len(all_damage_hits) - 1,
                     runtime_blackboard_keys,
+                    step_key_prefix=child_step_key_prefix,
                 ),
             )
         )
@@ -134,6 +147,19 @@ def compile_ability_entity_child_skill(
                 native_sequence_order(infliction, hit.actionOrder, hit.skillId),
                 (*hit.actionOrder, infliction.actionIndex),
                 compile_infliction(infliction).splitlines(),
+            )
+        )
+
+    for calculation in hit.blackboardCalculations:
+        compiled.append(
+            (
+                calculation.startFrame,
+                native_sequence_order(calculation, hit.actionOrder, hit.skillId),
+                (*hit.actionOrder, calculation.actionIndex),
+                compile_blackboard_calculation(
+                    calculation,
+                    f"{skill.key}.{hit.skillId}.blackboardCalculation",
+                ).splitlines(),
             )
         )
 
@@ -367,7 +393,7 @@ def compile_ability_entity_child_skill(
                 skill_has_output_damage=any(
                     damage_frame < frame for damage_frame in child_damage_frames
                 ),
-                step_key_prefix=skill.key,
+                step_key_prefix=child_step_key_prefix,
                 compiled_ability_entity_spawns=compiled_ability_entity_spawns,
                 compiled_projectile_launches=compiled_projectile_launches,
                 aura_actions=hit.auraActions,
@@ -422,8 +448,8 @@ def compile_ability_entity_child_skill(
         tuple[int, tuple[int, ...], int | None, list[tuple[tuple[int, ...], list[str]]]]
     ] = []
     for jump in getattr(hit, "timelineJumps", ()):
-        outer_condition = timeline_jump_outer_condition(hit, jump)
-        if outer_condition is None:
+        outer_match = timeline_jump_outer_condition(hit, jump)
+        if outer_match is None:
             condition = compile_combat_condition_group(
                 jump.directConditions,
                 f"{skill.key}.{hit.skillId}.timelineJump.condition",
@@ -446,6 +472,7 @@ def compile_ability_entity_child_skill(
             ]
             end_frame: int | None = jump.endFrame
         else:
+            outer_condition, jump_when_true = outer_match
             condition = compile_combat_condition_group(
                 outer_condition.conditions,
                 f"{skill.key}.{hit.skillId}.timelineJump.outerCondition",
@@ -453,8 +480,16 @@ def compile_ability_entity_child_skill(
                 root_skill_context=False,
                 input_target=input_target,
                 ability_entity_current_target=True,
+                negated=getattr(outer_condition, "conditionNegated", ()),
             )
-            condition_lines = [f"  {line}" for line in condition.splitlines()]
+            if jump_when_true:
+                condition_lines = [f"  {line}" for line in condition.splitlines()]
+            else:
+                condition_lines = [
+                    "  not(",
+                    *[f"    {line}" for line in condition.splitlines()],
+                    "  )",
+                ]
             condition_lines[-1] += ","
             step_lines = [
                 "branch(",

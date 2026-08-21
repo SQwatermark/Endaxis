@@ -56,6 +56,7 @@ import { resolveStaticPlayerDamageSnapshots } from './staticPlayerDamageSnapshot
 import { gameplayTagId, type GameplayTagRegistry } from '../tags/gameplayTags';
 import { HealOperationExecutor, type ResolvedHealTarget } from './healOperationExecutor';
 import { compareCombatNumbers } from './numericComparison';
+import type { RegisterBuffAbilityEventAction } from './buffLifecycleSequenceRuntime';
 
 type DamageStep = Extract<ResolvedCombatStep, { kind: 'dealDamage' | 'dealFixedDamage' }>;
 type EnvironmentOptions = Pick<
@@ -71,9 +72,13 @@ type EnvironmentOptions = Pick<
   | 'resolveOperatorVitals'
   | 'probabilitySamples'
   | 'readSourceAttributeValue'
+  | 'emitOperatorEnterFight'
+  | 'emitExternalOperatorHit'
 >;
 
 export type StandardPlayerDamageEvent =
+  | 'enterFight'
+  | 'ownerHpZero'
   | 'beforeDamageAction'
   | 'beforeCalculateDamage'
   | 'beforeTakeDamage'
@@ -215,6 +220,11 @@ export class StandardPlayerDamageEnvironment {
       readSourceAttributeValue: (sourceId, request) =>
         this.#readSourceAttributeValue(sourceId, request),
       emitAbilityEvent: (entityId, event, payload) => this.#emit(entityId, event, payload),
+      emitOperatorEnterFight: operatorId =>
+        this.#emit(operatorId, 'enterFight', {
+          sourceId: operatorId,
+          targetId: operatorId,
+        }),
       emitExternalOperatorHit: (operatorId, payload) =>
         this.#emit(operatorId, 'takeDamage', payload),
       // 配装事件的通用操作由装配根处理；未闭环的末端操作必须严格失败。
@@ -344,6 +354,9 @@ export class StandardPlayerDamageEnvironment {
       clock: context.clock,
       receipt: context.receipt,
       resolveSourceAttribute: attribute => {
+        if (attribute === 'maxHealth') {
+          return this.#requireOperatorVitals(context.program.operatorId).maxHealth;
+        }
         if (context.panel === undefined) {
           throw new Error(
             `operator '${context.program.operatorId}' requires a resolved panel for healing`,
@@ -401,6 +414,14 @@ export class StandardPlayerDamageEnvironment {
           );
         }
         return this.options.isOperatorControlled(operatorBuffs.ownerId, this.#clock.frame);
+      case 'buffIdCountCompare': {
+        const target = condition.target === 'caster' ? operatorBuffs : this.#enemyBuffs;
+        return compareCombatNumbers(
+          target.getCountByIds(condition.buffIds),
+          resolveNumber(condition.value),
+          condition.operator,
+        );
+      }
       case 'eventDamageTagsMatch':
         return matchDamageProperties(damageContext.tags, condition.tags, condition.match);
       case 'eventDamageFeaturesMatch':
@@ -575,18 +596,9 @@ export class StandardPlayerDamageEnvironment {
     return runtime;
   }
 
-  #buffAbilityEventRegistrar(entityId: string) {
+  #buffAbilityEventRegistrar(entityId: string): RegisterBuffAbilityEventAction {
     return (
-      event:
-        | 'beforeTakeDamage'
-        | 'takeCriticalDamage'
-        | 'outputDamage'
-        | 'beforeCastSkill'
-        | 'skillEnd'
-        | 'beforeOutputBuff'
-        | 'outputBuff'
-        | 'addedBuff'
-        | 'finishedBuff',
+      event,
       priority: number,
       handle: (payload: unknown) => void,
       samePriorityKey?: string,

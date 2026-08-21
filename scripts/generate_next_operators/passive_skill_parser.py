@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from source_utils import require_bool, require_dict, require_list
+from source_models import SkillEventListenerSource
 
 
 @dataclass(frozen=True)
@@ -30,10 +31,26 @@ class PassiveSkillSource:
     declared_blackboard_keys: tuple[str, ...]
     buffs: tuple[PassiveBuffApplicationSource, ...]
     unsupported_reasons: tuple[str, ...]
+    event_listeners: tuple[SkillEventListenerSource, ...] = ()
+    event_buff_ids: tuple[str, ...] = ()
 
     @property
     def referenced_buff_ids(self) -> tuple[str, ...]:
-        return tuple(sorted({item.buff_id for item in self.buffs}))
+        return tuple(
+            sorted(
+                {
+                    *(item.buff_id for item in self.buffs),
+                    *self.event_buff_ids,
+                    *(
+                        buff.buffId
+                        for listener in self.event_listeners
+                        for sequence in listener.sequences
+                        for application in sequence.buffApplications
+                        for buff in application.payload.buffs
+                    ),
+                }
+            )
+        )
 
     @property
     def can_generate_add_buff(self) -> bool:

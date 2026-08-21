@@ -61,6 +61,7 @@ const BUFF_APPLICATION_SOURCES_SET = new Set<string>(BUFF_APPLICATION_SOURCES);
 const RESOURCE_RECIPIENTS_SET = new Set<string>(RESOURCE_RECIPIENTS);
 const COMPARISON_OPERATORS_SET = new Set<string>(COMPARISON_OPERATORS);
 const OPERATOR_ATTRIBUTES_SET = new Set<string>(OPERATOR_ATTRIBUTES);
+const HEAL_CALCULATION_ATTRIBUTES_SET = new Set<string>([...OPERATOR_ATTRIBUTES, 'maxHealth']);
 const DAMAGE_CALCULATIONS_SET = new Set<string>(DAMAGE_CALCULATIONS);
 const SP_GAIN_KINDS_SET = new Set<string>(SP_GAIN_KINDS);
 const SP_GAIN_SOURCES_SET = new Set<string>(SP_GAIN_SOURCES);
@@ -813,6 +814,11 @@ function validateCombatStep(
       }
       break;
     }
+    case 'pickContextTarget':
+      requireString(parameters, 'sourceContextKey', `${path}.parameters`, out);
+      requireString(parameters, 'saveToContextKey', `${path}.parameters`, out);
+      validateActionValueOperand(parameters.index, `${path}.parameters.index`, out);
+      break;
     case 'forEachContextTarget':
       requireString(parameters, 'contextKey', `${path}.parameters`, out);
       break;
@@ -977,7 +983,13 @@ function validateCombatStep(
         requireBoolean(parameters, 'alwaysNext', `${path}.parameters`, out);
       }
       if (parameters.amount === undefined) {
-        requireEnum(parameters, 'attribute', OPERATOR_ATTRIBUTES_SET, `${path}.parameters`, out);
+        requireEnum(
+          parameters,
+          'attribute',
+          HEAL_CALCULATION_ATTRIBUTES_SET,
+          `${path}.parameters`,
+          out,
+        );
         validateLevelValuesOrActionValueOperand(
           parameters.multiplier,
           `${path}.parameters.multiplier`,
@@ -1102,6 +1114,8 @@ function validateCombatStep(
                     }
                   }
                   if (
+                    response.event !== 'enterFight' &&
+                    response.event !== 'ownerHpZero' &&
                     response.event !== 'beforeTakeDamage' &&
                     response.event !== 'takeCriticalDamage' &&
                     response.event !== 'outputDamage' &&
@@ -1675,6 +1689,20 @@ function validateCombatStep(
             keys.add(key);
           }
           validateEventTrigger(record.event, `${responsePath}.event`, out);
+          if (
+            record.phase !== undefined &&
+            record.phase !== 'dataAction' &&
+            record.phase !== 'skill'
+          ) {
+            push(out, `${responsePath}.phase`, "expected 'dataAction' or 'skill'");
+          }
+          if (record.priority !== undefined) {
+            if (typeof record.priority !== 'number' || !Number.isInteger(record.priority)) {
+              push(out, `${responsePath}.priority`, 'expected an integer');
+            } else if (record.phase !== 'dataAction') {
+              push(out, `${responsePath}.priority`, 'requires dataAction phase');
+            }
+          }
           if (record.condition !== undefined) {
             validateCombatCondition(
               record.condition,

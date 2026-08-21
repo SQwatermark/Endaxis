@@ -24,7 +24,11 @@ import type { CombatOperationContext, CombatOperationExecutor } from './skillRun
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
-import type { CombatAbilityDamageEvent, CombatAbilitySkillEvent } from './skillRuntime';
+import type {
+  CombatAbilityDamageEvent,
+  CombatAbilityLifecycleEvent,
+  CombatAbilitySkillEvent,
+} from './skillRuntime';
 import type { CombatSemanticEvent } from './combatSemanticEventRuntime';
 import type { SkillBuffSlotReplacement } from '../../game-data/operatorDefinition';
 
@@ -472,13 +476,25 @@ function isCommutativeCurrentBuffTimeResponse(
 function normalizeBuffAbilityEvent(
   event: Exclude<ResolvedSkillBuffAbilityEventResponse['event'], 'afterKillEntity'>,
   payload: unknown,
-): CombatSemanticEvent | CombatAbilityDamageEvent | CombatAbilitySkillEvent {
+):
+  | CombatSemanticEvent
+  | CombatAbilityDamageEvent
+  | CombatAbilitySkillEvent
+  | CombatAbilityLifecycleEvent {
   if (typeof payload !== 'object' || payload === null) {
     throw new TypeError(`Buff ability event '${event}' payload must be an object`);
   }
   const source = payload as Record<string, unknown>;
   if (typeof source.sourceId !== 'string' || typeof source.targetId !== 'string') {
     throw new TypeError(`Buff ability event '${event}' payload has invalid entity identities`);
+  }
+  if (event === 'enterFight' || event === 'ownerHpZero') {
+    return {
+      kind: 'abilityLifecycle',
+      event,
+      sourceId: source.sourceId,
+      targetId: source.targetId,
+    };
   }
   if (event === 'beforeOutputBuff' || event === 'outputBuff' || event === 'addedBuff') {
     if (

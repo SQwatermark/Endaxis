@@ -453,7 +453,7 @@ def parse_heal_payload(
         if calculation.get("valueSource") != "AttackerOrHealer":
             raise ValueError(f"{path}.healCalculation.valueSource: unsupported value")
         attribute = calculation.get("attributeType")
-        if attribute not in {"Str", "Agi", "Wisd", "Will"}:
+        if attribute not in {"Str", "Agi", "Wisd", "Will", "MaxHp"}:
             raise ValueError(
                 f"{path}.healCalculation.attributeType: unsupported value {attribute!r}"
             )

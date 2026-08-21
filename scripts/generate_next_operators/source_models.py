@@ -455,6 +455,7 @@ class AbilityEntityHitSource:
     auraActions: tuple["AuraActionSource", ...] = ()
     keywordActions: tuple[TimedKeywordActionSource, ...] = ()
     localTargetGroupWrites: tuple["TargetGroupWriteSource", ...] = ()
+    presentationOnlySwitchActionIndexes: tuple[int, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -583,6 +584,7 @@ class BuffDefinitionSource:
     sustainedProtections: tuple["BuffSustainedProtectionSource", ...] = ()
     animationEndBuffApplications: tuple["BuffAnimationEndApplicationSource", ...] = ()
     projectileLaunches: tuple[ProjectileLaunchSource, ...] = ()
+    presentationOnlySwitchActionIndexes: tuple[int, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -730,6 +732,15 @@ class BuffDamageTagConditionSource:
 
 
 @dataclass(frozen=True)
+class BuffDamageBuffCountConditionSource:
+    targetSource: str
+    targetGroupKey: str
+    buffIds: tuple[str, ...]
+    comparison: str
+    value: ScalarSource
+
+
+@dataclass(frozen=True)
 class BuffDamageModifierSource:
     enabledSide: str
     targetSource: str
@@ -748,6 +759,7 @@ class BuffDamageModifierSource:
     damageTypes: tuple[str, ...] = ()
     numberComparisons: tuple[BuffDamageNumberComparisonSource, ...] = ()
     healthComparisons: tuple["HealthConditionSource", ...] = ()
+    buffCountComparisons: tuple[BuffDamageBuffCountConditionSource, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -1653,6 +1665,12 @@ class TargetGroupWriteSource:
     selectorOwnerContextKey: str = ""
     characterTeamSelectionRole: str | None = None
     excludesCurrentTarget: bool = False
+    excludesOwner: bool = False
+    smartTargetFallsBackToMainTarget: bool = False
+    distanceValidatorsPassAtZero: bool = False
+    priorityFilterMaxTargets: int | None = None
+    pickIndexValue: float | None = None
+    pickIndexBlackboardKey: str | None = None
 
 
 @dataclass(frozen=True)

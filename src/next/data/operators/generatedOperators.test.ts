@@ -27,6 +27,7 @@ import {
   rossi,
   tangtang,
   yvonne,
+  zhuangFangyi,
 } from './index';
 
 const generatedOperators: readonly [OperatorDefinition, number][] = [
@@ -46,6 +47,7 @@ const generatedOperators: readonly [OperatorDefinition, number][] = [
   [laevatain, 14],
   [mifu, 9],
   [yvonne, 16],
+  [zhuangFangyi, 13],
 ];
 
 function hasUpgradeBehavior(

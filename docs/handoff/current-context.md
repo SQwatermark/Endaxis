@@ -450,3 +450,12 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - `inheritSourceSkillCastInfo` 已修正为可选继承：上下文存在施法信息时完整复制，不存在时保持为空。外部受击事实没有敌方技能实例，因此不得伪造技能 ID 或施法序号；这一行为已由 Buff 执行器测试和 Ember 默认仓库生产回归锁定。
 - 庄方宜正式化试跑没有越过证据边界：15 个技能、潜能及终结技换槽可以进入统一链，但两项 `AddBuff` 天赋的 SkillData 实际没有 startup Buff，效果位于被动技能自身的时间轴条件程序；现有 `attachedPassive` 只覆盖启动 Buff 型被动。因此清单已恢复 `outputStage: audit`，没有生成或注册伪完整定义。下一真实能力是通用“被动技能时间轴程序”编译，而不是给庄方宜写特例。
 - 试跑补齐了两个有独立复刻证据的通用事实：`PulseAbnormalDamageIncrease` 映射为电磁异常增伤动态属性，可由 `StoreAttributeValue(FinalNonConverted)` 写入 Buff 黑板；`ChangeSkillAction(specificRevertedSkillId=false)` 按原生快照替换前槽位，在同技能类型只有唯一基础候选时可严格派生 `revertMode: buffActionEnd`。候选不唯一仍拒绝。庄方宜审计现能明确列出战技与连携强化形态的两条槽位关系。
+
+### 2026-08-22：庄方宜正式生成与能力实体控制流闭环
+
+- 庄方宜两项无 startup Buff 的天赋已通过通用被动 SkillData 常驻程序进入正式定义；本轮继续补齐 `ownerHpZero` 能力事件、Context 目标稳定取项、能力实体黑板继承、Buff 来源事件语义和嵌套伤害标签传递。`SmartTargetFinder -> CheckEntityNum -> PickTargetAction` 的归约依赖完整 Finder/Validator/PostProcessor 结构与固定单敌人、零距离模型，不使用干员或 Context 名称特判。
+- 强化战技能生成的能力实体不再把局部动作投影到父技能时间轴。子技能内两次黑板计算保留在实体局部时钟；位于外层 `IfElse.failActions` 的 `JumpToAction` 以分支极性证据编译为 `not(外层条件)` 后的一次性局部跳转。子图中的两个 `SwitchAction` 已证明后代只有表现动作，记录动作下标后从战斗缺口中剔除；任何含战斗后代的 Switch 仍失败关闭。
+- `buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar` 的有限寿命宿主到期会在清理宿主 Buff 前发布 `ownerHpZero`，使真实事件链能够生成剑目标触发 Buff。`combat-spec` 已先以提交 `12ffc54` 固定“HP 归零后、实体死亡前”派发顺序；Endaxis 将有限寿命/显式结束映射到该宿主生命周期边界，但没有把所有任意 Finish 泛化为 HP 归零。
+- 同一终结技 Buff 同时替换普通战技与连携技时，运行时换槽投影改为按目标技能幂等合并，不再由后一条覆盖前一条。`buff_chr_0030_zhuangfy_ult_base` 现同时包含 `battleSkill -> enhancedBattleSkill` 和 `comboSkill -> enhancedComboSkill`，分别保留冷却不继承/继承的原生差异。
+- 庄方宜 manifest 已提升为 `outputStage: complete`，15 个来源技能全部生成；稳定入口已从旧手写定义切到 `zhuang-fangyi.operator.generated.ts`，旧 audit-only 技能文件删除。`conversionSupport` 为 `complete`，2 项天赋、5 项潜能与 12 个等级的全技能编译矩阵均通过；生成产物与 `--check`、`npm run type-check:next`、相关 Next Vitest 9 文件 204/204 通过。完整 Python 聚合仍有既有陈旧夹具，不能宣称全绿；`tmp/` 继续不得提交。
+- 下一步先为庄方宜补默认仓库生产场景回归，至少覆盖终结技换槽和普通/强化战技能力实体伤害链；随后继续正式化其他 29 名横向审计完整干员。梨诺缺失能力实体模板继续失败关闭，不猜寿命和组件。

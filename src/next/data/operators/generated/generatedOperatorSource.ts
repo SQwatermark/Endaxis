@@ -299,6 +299,8 @@ export interface GeneratedAbilityEntityHitSource {
   readonly buffFinishes: readonly GeneratedBuffFinishSource[];
   readonly auraActions: readonly GeneratedAuraActionSource[];
   readonly keywordActions?: readonly GeneratedTimedKeywordActionSource[];
+  /** 子技能中已审计为纯表现、不会改变战斗状态的 Switch 动作下标。 */
+  readonly presentationOnlySwitchActionIndexes?: readonly number[];
 }
 
 /** BuffData 自身的计时与叠加事实。 */
@@ -400,6 +402,8 @@ export interface GeneratedBuffDefinitionSource {
     readonly revertedSkillKey: string;
     readonly inheritOriginSkillCooldownProgress: boolean;
   }[];
+  /** 已审计为纯表现分支、不会改变战斗状态的 Switch 动作下标。 */
+  readonly presentationOnlySwitchActionIndexes?: readonly number[];
 }
 
 export interface GeneratedBuffShieldSource {
@@ -523,6 +527,12 @@ export interface GeneratedBuffDamageModifierSource {
     | GeneratedBuffDamageScaleProcessorSource
     | GeneratedBuffInstantAttributeProcessorSource
   )[];
+  readonly tagConditions?: readonly {
+    readonly targetSource: string;
+    readonly targetGroupKey: string;
+    readonly queryType: string;
+    readonly tagIds: readonly number[];
+  }[];
   readonly ownerControlled: boolean;
   readonly damageTagMatch: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll' | null;
   readonly damageTags: readonly string[];
@@ -541,6 +551,13 @@ export interface GeneratedBuffDamageModifierSource {
     readonly isRatio: boolean;
     readonly value: GeneratedScalarSource;
     readonly characterTeamSelectionRole?: string | null;
+  }[];
+  readonly buffCountComparisons?: readonly {
+    readonly targetSource: string;
+    readonly targetGroupKey: string;
+    readonly buffIds: readonly string[];
+    readonly comparison: string;
+    readonly value: GeneratedScalarSource;
   }[];
 }
 
@@ -806,6 +823,12 @@ export interface GeneratedConditionSource {
   readonly enemyRank?: GeneratedEnemyRankConditionSource;
   readonly superArmor?: GeneratedSuperArmorConditionSource | null;
   readonly twoDirectionAngle?: GeneratedTwoDirectionAngleConditionSource | null;
+  readonly targetAngle?: {
+    readonly origin: GeneratedTargetReferenceSource;
+    readonly target: GeneratedTargetReferenceSource;
+    readonly angleType: string;
+    readonly angle: GeneratedScalarSource;
+  } | null;
   readonly targetIdentity?: GeneratedTargetIdentityConditionSource;
   readonly distance?: GeneratedDistanceConditionSource;
   readonly entityTag?: GeneratedEntityTagConditionSource;
@@ -845,6 +868,8 @@ export interface GeneratedConditionalActionSource {
   readonly conditions: readonly GeneratedConditionSource[];
   readonly succeedActions: readonly GeneratedConditionalBranchActionSource[];
   readonly failActions: readonly GeneratedConditionalBranchActionSource[];
+  /** 与 conditions 同序；原生 NotNextCheckAction 反转紧随其后的条件。 */
+  readonly conditionNegated?: readonly boolean[];
   /** 原生条件动作无论所选分支返回值如何都允许外层序列继续。 */
   readonly alwaysNext?: boolean;
   /** DoOnce 条件根在一次技能执行内共享的稳定作用域。 */
@@ -865,6 +890,19 @@ export interface GeneratedBlackboardCalculationPayload {
   readonly left: GeneratedScalarSource;
   readonly right: GeneratedScalarSource;
   readonly addend?: GeneratedScalarSource | null;
+}
+
+export interface GeneratedStoreAttributeValuePayload {
+  readonly targetSource: string;
+  readonly targetGroupKey: string;
+  readonly attributeKind: string;
+  readonly attributeKey: string | null;
+  readonly stage: string;
+  readonly useFloor: boolean;
+  readonly divisor: GeneratedScalarSource;
+  readonly multiplier: GeneratedScalarSource;
+  readonly base: GeneratedScalarSource;
+  readonly outputKey: string;
 }
 
 export interface GeneratedBlackboardMutationPayload {
@@ -1048,6 +1086,7 @@ export interface GeneratedConditionalBranchActionSource {
   readonly onceScopeKey?: string;
   readonly onceActions?: readonly GeneratedConditionalBranchActionSource[];
   readonly blackboardCalculation?: GeneratedBlackboardCalculationPayload;
+  readonly storeAttributeValue?: GeneratedStoreAttributeValuePayload;
   readonly blackboardMutation?: GeneratedBlackboardMutationPayload;
   readonly buffBlackboardRead?: GeneratedBuffBlackboardReadPayload;
   readonly buffFinish?: GeneratedBuffFinishPayload;
@@ -1176,7 +1215,11 @@ export interface GeneratedTargetGroupWriteSource {
   readonly actionIndex: number;
   readonly actionPath: readonly string[];
   readonly targetGroupKey: string;
-  readonly producerType: 'FindTargetAction' | 'ContinuousFindTargetAction' | 'MergeTargetAction';
+  readonly producerType:
+    | 'FindTargetAction'
+    | 'ContinuousFindTargetAction'
+    | 'MergeTargetAction'
+    | 'PickTargetAction';
   readonly finderType: string | null;
   readonly finderFactionTarget: string | null;
   readonly finderTargetObjectType: string | null;
@@ -1191,6 +1234,18 @@ export interface GeneratedTargetGroupWriteSource {
     | 'controlledOperator'
     | 'lowestHealthRatioOperator'
     | 'lowestHealthRatioOperatorExceptControlled';
+  readonly finderFixedPointSnapToNavmesh?: boolean | null;
+  readonly center?: string | null;
+  readonly centerContextKey?: string;
+  readonly selectorOwner?: string | null;
+  readonly selectorOwnerContextKey?: string;
+  readonly excludesCurrentTarget?: boolean;
+  readonly excludesOwner?: boolean;
+  readonly smartTargetFallsBackToMainTarget?: boolean;
+  readonly distanceValidatorsPassAtZero?: boolean;
+  readonly priorityFilterMaxTargets?: number | null;
+  readonly pickIndexValue?: number | null;
+  readonly pickIndexBlackboardKey?: string | null;
 }
 
 export interface GeneratedBuffEventActionSource {

@@ -516,6 +516,12 @@ describe('CombatRuntimeAssembly', () => {
 
   it('lets an AbilityEntity Buff lifecycle finish its owning entity through the shared chain', () => {
     let entityBuffs: CombatBuffContainer<string> | undefined;
+    const ownerHpZeroCleanupStates: boolean[] = [];
+    const emitAbilityEvent = vi.fn((_entityId, event) => {
+      if (event === 'ownerHpZero') {
+        ownerHpZeroCleanupStates.push(entityBuffs?.buffs[0]?.isFinished ?? true);
+      }
+    });
     const createAbilityEntityBuffRuntime = vi.fn(
       (entityId: string, blackboard: ActionBlackboard, target: RuntimeTargetRef) => {
         entityBuffs = new CombatBuffContainer(
@@ -608,6 +614,9 @@ describe('CombatRuntimeAssembly', () => {
       testEnemy,
       undefined,
       createAbilityEntityBuffRuntime,
+      undefined,
+      undefined,
+      emitAbilityEvent,
     );
 
     expect(assembly.tryStartSkill('operator', 'skill', 'entity-buff-cast')).toBe(true);
@@ -617,6 +626,7 @@ describe('CombatRuntimeAssembly', () => {
     assembly.advanceFrames(1);
     expect(assembly.abilityEntities.activeCount).toBe(0);
     expect(entityBuffs?.buffs[0]?.isFinished).toBe(true);
+    expect(ownerHpZeroCleanupStates).toEqual([false]);
     expect(assembly.receipt.entries).toContainEqual(
       expect.objectContaining({
         event: 'AbilityEntityFinished',

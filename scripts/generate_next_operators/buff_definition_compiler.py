@@ -485,6 +485,29 @@ def compile_inline_buff_definition(
                     f"  value: {_compile_scalar(comparison.value)},",
                     "}",
                 ])
+            for comparison in getattr(modifier, "buffCountComparisons", ()):
+                operator = COMPARISON_OPERATORS.get(comparison.comparison)
+                if operator is None:
+                    raise ValueError(
+                        f"{path}: Buff {source.buffId!r} uses unsupported Buff-count comparison "
+                        f"{comparison.comparison!r}"
+                    )
+                target = {"Source": "caster", "Target": "enemy"}.get(
+                    comparison.targetSource
+                )
+                if target is None or comparison.targetGroupKey:
+                    raise ValueError(
+                        f"{path}: Buff {source.buffId!r} uses unsupported Buff-count target"
+                    )
+                conditions.append([
+                    "{",
+                    "  kind: 'buffIdCountCompare',",
+                    f"  target: {ts_inline_literal(target)},",
+                    f"  buffIds: {ts_inline_literal(comparison.buffIds)},",
+                    f"  operator: {ts_inline_literal(operator)},",
+                    f"  value: {_compile_scalar(comparison.value)},",
+                    "}",
+                ])
             if len(conditions) == 1:
                 condition = conditions[0]
                 fields.append(f"    condition: {condition[0]}")

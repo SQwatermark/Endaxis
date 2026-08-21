@@ -191,6 +191,9 @@ def _render_attached_passive_skills(
     compile_buff_definition: Callable[
         [BuffDefinitionSource, str, dict[str, BuffDefinitionSource]], str
     ] = _compile_plain_buff_definition,
+    compile_event_listener: Callable[
+        [object, str, frozenset[str], str, dict[str, BuffDefinitionSource]], str | None
+    ] | None = None,
 ) -> str | None:
     """将各等级同一 attachSkill 合并为一个按等级取值的常驻被动。"""
     if not effect_entries:
@@ -237,7 +240,15 @@ def _render_attached_passive_skills(
 
     assert skill_id is not None
     source = passive_skills.get(skill_id)
-    if source is None or not source.can_generate_add_buff:
+    if source is None:
+        return None
+    event_only = (
+        not source.buffs
+        and bool(source.event_listeners)
+        and source.unsupported_reasons == ("passive has no startup Buff",)
+        and compile_event_listener is not None
+    )
+    if not source.can_generate_add_buff and not event_only:
         return None
     unknown_keys = set(values_by_key).difference(source.declared_blackboard_keys)
     if unknown_keys:
@@ -287,7 +298,24 @@ def _render_attached_passive_skills(
                 )
             lines.append("          },")
         lines.append("        }),")
-    lines.extend(["      ),", "    },", "  ],"])
+    if source.event_listeners:
+        if compile_event_listener is None:
+            raise ValueError(f"passive {skill_id!r}: event listener compiler is unavailable")
+        for index, listener in enumerate(source.event_listeners):
+            compiled_listener = compile_event_listener(
+                listener,
+                f"passive {skill_id!r}.eventListeners[{index}]",
+                frozenset(source.declared_blackboard_keys),
+                skill_id,
+                buff_definitions,
+            )
+            if compiled_listener is None:
+                continue
+            listener_lines = compiled_listener.splitlines()
+            listener_lines[-1] += ","
+            lines.extend(f"        {line}" for line in listener_lines)
+    lines.append("      ),")
+    lines.extend(["    },", "  ],"])
     return "\n".join(lines)
 
 
@@ -1094,6 +1122,9 @@ def render_talents(
     compile_buff_definition: Callable[
         [BuffDefinitionSource, str, dict[str, BuffDefinitionSource]], str
     ] = _compile_plain_buff_definition,
+    compile_event_listener: Callable[
+        [object, str, frozenset[str], str, dict[str, BuffDefinitionSource]], str | None
+    ] | None = None,
 ) -> list[str]:
     passive_skills = passive_skills or {}
     buff_definitions = buff_definitions or {}
@@ -1137,6 +1168,7 @@ def render_talents(
             passive_skills,
             buff_definitions,
             compile_buff_definition,
+            compile_event_listener,
         )
         if isinstance(kind, str) and kind.startswith("unmodeled") and kind != "unmodeledMultiTarget":
             # 显式未建模天赋：保留稳定身份和等级数，不生成无证据的 modifiers；
@@ -1156,7 +1188,25 @@ def render_talents(
             continue
         if kind == "attachedPassive":
             if passive_body is None:
-                raise ValueError(f"talent {key}: attached passive did not produce a complete program")
+                attached_ids = sorted(
+                    {
+                        str(require_dict(entry.get("attachSkill"), "attachSkill").get("skillId"))
+                        for _, entries_for_level in attach_entries
+                        for entry in entries_for_level
+                    }
+                )
+                facts = {
+                    passive_id: (
+                        passive_skills[passive_id].unsupported_reasons,
+                        bool(passive_skills[passive_id].event_listeners),
+                    )
+                    for passive_id in attached_ids
+                    if passive_id in passive_skills
+                }
+                raise ValueError(
+                    f"talent {key}: attached passive did not produce a complete program; "
+                    f"facts={facts!r}"
+                )
             result.append(
                 "\n".join(
                     [

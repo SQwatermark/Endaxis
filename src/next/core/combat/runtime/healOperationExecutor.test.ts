@@ -94,6 +94,40 @@ describe('HealOperationExecutor', () => {
     });
   });
 
+  it('uses the source maximum health for native MaxHp healing formulas', () => {
+    const target = vitals(700);
+    const receipt = new CombatReceiptCollector();
+    const executor = new HealOperationExecutor({
+      sourceOperatorId: 'operator:healer',
+      clock: new CombatClock(),
+      receipt,
+      resolveSourceAttribute: attribute => (attribute === 'maxHealth' ? 1800 : 0),
+      resolveTarget: () => ({ operatorId: 'operator:target', vitals: target }),
+      delegate: terminal,
+    });
+
+    executor.execute(
+      {
+        kind: 'heal',
+        parameters: {
+          target: 'caster',
+          attribute: 'maxHealth',
+          multiplier: { kind: 'blackboard', key: 'heal' },
+          addition: 0,
+          tagIds: [],
+        },
+      },
+      { blackboard: new ActionBlackboard({ heal: 0.12 }) },
+    );
+
+    expect(receipt.entries[0]?.data).toMatchObject({
+      attribute: 'maxHealth',
+      attributeValue: 1800,
+      requestedHealing: 216,
+      actualHealing: 216,
+    });
+  });
+
   it('passes the current Buff source identity to a buffSource heal target', () => {
     const target = vitals(800);
     const reached: Array<[string, string | undefined]> = [];

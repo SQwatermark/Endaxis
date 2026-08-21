@@ -36,8 +36,10 @@ export class AbilityEntityChildSkillRuntime implements LogicalAbilityEntityChild
       readonly inheritedSkillCastInfo?: CombatSkillCastInfo;
     },
   ) {
+    // 原生实体技能先有自身 SkillData 默认值，再由 SpawnAbilityEntity.assignBlackboard
+    // 的来源快照覆盖同名 direct key；实体黑板仍作为 EntityBB_ 的后备所有者。
     const blackboard = new ActionBlackboard(
-      program.initialBlackboard,
+      { ...program.initialBlackboard, ...dependencies.entityBlackboard.snapshot() },
       dependencies.entityBlackboard,
     );
     const runtime = this;

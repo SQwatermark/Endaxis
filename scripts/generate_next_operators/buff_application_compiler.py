@@ -160,6 +160,10 @@ def compile_buff_application_values(
         "step('applyBuff', {",
         f"  buffId: {ts_inline_literal(buff_id)},",
     ]
+    # 值 None 是编译期递归回边哨兵：完整定义已在外层，
+    # 此处只保留 ID，避免自引用 Buff 无限内联。
+    if buff_definitions is not None and buff_definitions.get(buff_id, False) is None:
+        buff_definitions = None
     if buff_definitions is not None:
         definition = buff_definitions.get(buff_id)
         if definition is None:
@@ -184,6 +188,7 @@ def compile_buff_application_values(
                 "combatActions",
             )
         )
+        nested_buff_definitions = {**buff_definitions, definition.buffId: None}
         def compile_event_behaviors(
             event_source: BuffDefinitionSource, event_path: str
         ) -> str:
@@ -202,7 +207,7 @@ def compile_buff_application_values(
                     Literal["caster", "enemy", "currentAbilityEntity"],
                     lifecycle_owner_target,
                 ),
-                buff_definitions=buff_definitions,
+                buff_definitions=nested_buff_definitions,
                 invoked_child_context=invoked_child_context,
                 ignored_buff_ids=ignored_buff_ids,
                 damage_tags=damage_tags,
@@ -232,8 +237,9 @@ def compile_buff_application_values(
                         }
                         else target,
                     ),
-                    buff_definitions=buff_definitions,
+                    buff_definitions=nested_buff_definitions,
                     invoked_child_context=invoked_child_context,
+                    damage_tags=damage_tags,
                 )
                 if has_scheduled_sequences
                 else None

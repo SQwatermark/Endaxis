@@ -24,6 +24,7 @@ from source_models import (
     BuffAnimationEndApplicationSource,
     BuffComboQteSource,
     BuffDamageModifierSource,
+    BuffDamageBuffCountConditionSource,
     BuffDamageNumberComparisonSource,
     BuffDamageScaleProcessorSource,
     BuffDamageTagConditionSource,
@@ -543,6 +544,7 @@ def parse_buff_damage_modifiers(
         damage_types: tuple[str, ...] = ()
         number_comparisons: tuple[BuffDamageNumberComparisonSource, ...] = ()
         health_comparisons: tuple[HealthConditionSource, ...] = ()
+        buff_count_comparisons: tuple[BuffDamageBuffCountConditionSource, ...] = ()
         tag_conditions: tuple[BuffDamageTagConditionSource, ...] = ()
         if not condition_types:
             pass
@@ -703,6 +705,65 @@ def parse_buff_damage_modifiers(
                     f"{damage_type_path}.damageType: unsupported value {native_damage_type!r}"
                 )
             damage_types = (mapped_damage_type,)
+        elif condition_types == ("CheckBuffStackNumAdvanced",):
+            count_path = f"{path}.condition.actionData[0]"
+            count_condition = require_dict(condition_actions[0], count_path)
+            if set(count_condition) != {
+                "$type", "isEnable", "priorityLevel", "priorityOffset",
+                "serverActionIndex", "checkTarget", "buffSettings",
+                "buffStackNumType", "compareType", "value", "limitSkillCastId",
+            } or count_condition.get("isEnable") is not True:
+                raise ValueError(f"{count_path}: unsupported Buff-count condition shape")
+            count_target = parse_target_reference(
+                count_condition.get("checkTarget"), f"{count_path}.checkTarget"
+            )
+            if (
+                count_target.targetSource not in {"Source", "Target"}
+                or count_target.targetGroupKey
+                or not services.target_reference_is_plain(count_target)
+            ):
+                raise ValueError(f"{count_path}.checkTarget: expected plain Source or Target")
+            settings = require_dict(
+                count_condition.get("buffSettings"), f"{count_path}.buffSettings"
+            )
+            if set(settings) != {"checkType", "buffIdList", "tagQuery"}:
+                raise ValueError(f"{count_path}.buffSettings: unexpected fields {sorted(settings)}")
+            if settings.get("checkType") != "Id":
+                raise ValueError(f"{count_path}.buffSettings.checkType: expected 'Id'")
+            buff_ids = tuple(
+                str(value)
+                for value in require_list(
+                    settings.get("buffIdList"), f"{count_path}.buffSettings.buffIdList"
+                )
+                if isinstance(value, str) and value
+            )
+            if len(buff_ids) != len(settings.get("buffIdList", ())) or not buff_ids:
+                raise ValueError(f"{count_path}.buffSettings.buffIdList: expected Buff IDs")
+            tag_query = require_dict(settings.get("tagQuery"), f"{count_path}.buffSettings.tagQuery")
+            if set(tag_query) != {"queryType", "tags"} or require_list(
+                tag_query.get("tags"), f"{count_path}.buffSettings.tagQuery.tags"
+            ):
+                raise ValueError(f"{count_path}.buffSettings.tagQuery: expected empty tag query")
+            if count_condition.get("buffStackNumType") != "BuffCount":
+                raise ValueError(f"{count_path}.buffStackNumType: expected 'BuffCount'")
+            comparison = count_condition.get("compareType")
+            if comparison not in COMPARISON_OPERATOR_MAP:
+                raise ValueError(f"{count_path}.compareType: unsupported value {comparison!r}")
+            if require_bool(
+                count_condition.get("limitSkillCastId"), f"{count_path}.limitSkillCastId"
+            ):
+                raise ValueError(f"{count_path}.limitSkillCastId: expected false")
+            buff_count_comparisons = (
+                BuffDamageBuffCountConditionSource(
+                    targetSource=count_target.targetSource,
+                    targetGroupKey=count_target.targetGroupKey,
+                    buffIds=buff_ids,
+                    comparison=str(comparison),
+                    value=parse_scalar(
+                        count_condition.get("value"), f"{count_path}.value", blackboard
+                    ),
+                ),
+            )
         else:
             unsupported_count += 1
             continue
@@ -811,6 +872,7 @@ def parse_buff_damage_modifiers(
                 damageTypes=damage_types,
                 numberComparisons=number_comparisons,
                 healthComparisons=health_comparisons,
+                buffCountComparisons=buff_count_comparisons,
             )
         )
     return tuple(result), unsupported_count
@@ -1382,6 +1444,16 @@ def resolve_buff_definitions(
                         for item in walk_actions(adapted_root.get("actionGroupData"))
                         if action_name(item["$type"]) in AUDITED_COMBAT_ACTION_NAMES
                     }
+                )
+            ),
+            presentationOnlySwitchActionIndexes=tuple(
+                require_server_action_index(item, f"{source_file}.SwitchAction")
+                for item in walk_actions(adapted_root.get("actionGroupData"))
+                if action_name(item["$type"]) == "SwitchAction"
+                and not any(
+                    action_name(descendant["$type"])
+                    in AUDITED_COMBAT_ACTION_NAMES - {"SwitchAction"}
+                    for descendant in walk_actions(item)
                 )
             ),
             unparsedPayloads=collect_unparsed_buff_payloads(

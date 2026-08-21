@@ -1,346 +1,101 @@
 import { describe, expect, it } from 'vitest';
-import {
-  zhuangFangyiBasicAttack2 as generatedBasicAttack2,
-  zhuangFangyiBasicAttack4 as generatedBasicAttack4,
-  zhuangFangyiBasicAttack5 as generatedBasicAttack5,
-} from './generated/zhuang-fangyi.skills.audit.generated';
-import { collectSteps, getGroupSkills, getSkill as findSkill } from './testUtils';
+import { compileOperatorDefinitionSkills } from '../../core/compiler/compileScenarioTimeline';
+import type { OperatorInstanceDocument } from '../../core/project/schema';
+import { zhuangFangyiGeneratedOperator } from './generated/zhuang-fangyi.operator.generated';
 import { zhuangFangyi } from './zhuang-fangyi';
 
-const getSkill = (key: string) => findSkill(zhuangFangyi, key);
-
-function withoutStepKey<T extends { readonly key?: string }>(step: T | undefined) {
-  if (step === undefined) return undefined;
-  const { key: _key, ...semanticStep } = step;
-  return semanticStep;
-}
-
-function collectGeneratedDamageSchedule(skill: typeof generatedBasicAttack2) {
-  return skill.scheduledSequences.flatMap(item => {
-    const rootDamage = collectSteps(item.sequence)
-      .filter(step => step.kind === 'dealDamage')
-      .map(step => ({ startFrame: item.startFrame, step }));
-    const childDamage = collectSteps(item.sequence).flatMap(step => {
-      if (
-        step.kind !== 'spawnAbilityEntity' ||
-        step.parameters.definition?.childSkill === undefined
-      )
-        return [];
-      return step.parameters.definition.childSkill.scheduledSequences.flatMap(childItem =>
-        collectSteps(childItem.sequence)
-          .filter(childStep => childStep.kind === 'dealDamage')
-          .map(childStep => ({
-            startFrame: item.startFrame + childItem.startFrame,
-            step: childStep,
-          })),
-      );
-    });
-    return [...rootDamage, ...childDamage];
-  });
+function buildAtLevel(skillLevel: number): OperatorInstanceDocument {
+  return {
+    operatorSlug: zhuangFangyi.slug,
+    level: 90,
+    promoted: true,
+    potential: 0,
+    trustLevel: 4,
+    skillLevels: {
+      basicAttack: skillLevel,
+      battleSkill: skillLevel,
+      comboSkill: skillLevel,
+      ultimate: skillLevel,
+    },
+    talentStates: {},
+  };
 }
 
 describe('next Zhuang Fangyi definition', () => {
-  it('uses per-hit second-attack scales instead of the separate display total', () => {
-    const damageSchedule = collectGeneratedDamageSchedule(generatedBasicAttack2);
-    const damageSteps = damageSchedule.map(item => item.step);
-    expect(damageSchedule.map(item => item.startFrame)).toEqual([2, 2, 15, 24, 26, 29]);
+  it('uses the complete generated definition through the stable operator entry', () => {
+    expect(zhuangFangyi).toBe(zhuangFangyiGeneratedOperator);
+    expect(zhuangFangyi.conversionSupport).toEqual({
+      completeness: 'complete',
+      missingCapabilities: [],
+    });
+  });
 
-    const currentDamage = collectSteps(
-      getSkill('basicAttack2').scheduledSequences[0]!.sequence,
-    ).find(step => step.kind === 'dealDamage');
-    if (!currentDamage || currentDamage.kind !== 'dealDamage') {
-      throw new Error('missing current basic attack damage');
-    }
-    const expected = currentDamage.parameters.attackScale;
-    if (!Array.isArray(expected)) throw new Error('expected per-level current attack scale');
-    const actual = expected.map((_, level) =>
-      Number(
-        damageSteps
-          .reduce((sum, step) => {
-            if (step.kind !== 'dealDamage') return sum;
-            const scale = step.parameters.attackScale;
-            if (!Array.isArray(scale)) {
-              throw new Error('expected per-level generated attack scale');
-            }
-            return sum + scale[level]!;
-          }, 0)
-          .toFixed(10),
-      ),
+  it('keeps all fifteen native skills and both runtime-only replacements', () => {
+    expect(zhuangFangyi.skillGroups.map(group => group.key)).toEqual([
+      'basicAttack',
+      'finisher',
+      'plungingAttack',
+      'battleSkill',
+      'comboSkill',
+      'ultimate',
+      'enhancedBasicAttack',
+    ]);
+    const battle = zhuangFangyi.skillGroups.find(group => group.key === 'battleSkill');
+    const combo = zhuangFangyi.skillGroups.find(group => group.key === 'comboSkill');
+    expect(battle?.replacementSkills?.map(skill => skill.key)).toEqual(['enhancedBattleSkill']);
+    expect(combo?.replacementSkills?.map(skill => skill.key)).toEqual(['enhancedComboSkill']);
+
+    const skills = zhuangFangyi.skillGroups.flatMap(group => [
+      ...(Array.isArray(group.skills) ? group.skills : [group.skills]),
+      ...(group.replacementSkills ?? []),
+    ]);
+    expect(skills).toHaveLength(15);
+    expect(new Set(skills.map(skill => skill.key)).size).toBe(15);
+    expect(skills.every(skill => skill.scheduledSequences.length > 0)).toBe(true);
+  });
+
+  it('preserves both talent slots and all five potential slots', () => {
+    expect(zhuangFangyi.talents.map(talent => talent.key)).toEqual(['talent1', 'talent2']);
+    expect(zhuangFangyi.talents.every(talent => (talent.passiveSkills?.length ?? 0) > 0)).toBe(
+      true,
     );
-    expect(actual).toEqual([0.26, 0.28, 0.28, 0.34, 0.34, 0.36, 0.4, 0.42, 0.42, 0.48, 0.48, 0.54]);
-    expect(expected).toEqual([
-      0.24, 0.26, 0.29, 0.31, 0.34, 0.36, 0.38, 0.41, 0.43, 0.46, 0.5, 0.54,
+    expect(zhuangFangyi.potentials.map(potential => potential.key)).toEqual([
+      'potential1',
+      'potential2',
+      'potential3',
+      'potential4',
+      'potential5',
     ]);
   });
 
-  it('keeps all four fourth-attack hits and restores their interval timing', () => {
-    const current = getSkill(generatedBasicAttack4.key);
-    expect(generatedBasicAttack4.timelineBlockFrames).toBe(current.timelineBlockFrames);
-    const damageSchedule = collectGeneratedDamageSchedule(generatedBasicAttack4);
-    expect(damageSchedule.map(item => item.startFrame)).toEqual([11, 20, 22, 25]);
-    expect(current.scheduledSequences.map(item => item.startFrame)).toEqual([11, 11, 11, 11]);
-    const generatedDamage = damageSchedule.map(item => item.step);
-    expect(generatedDamage.map(withoutStepKey)).toEqual(
-      generatedDamage.map(() => withoutStepKey(generatedDamage[0])),
-    );
-    expect(generatedDamage.map(step => step?.key).filter(Boolean)).toHaveLength(4);
-    expect(new Set(generatedDamage.map(step => step?.key))).toHaveProperty('size', 4);
-    expect(withoutStepKey(generatedDamage[0])).toEqual(
-      withoutStepKey(
-        collectSteps(current.scheduledSequences[0]!.sequence).find(
-          step => step.kind === 'dealDamage',
+  it('switches both enhanced skill slots for the lifetime of the ultimate Buff', () => {
+    const ultimateBuff = zhuangFangyi.buffDefinitions?.buff_chr_0030_zhuangfy_ult_base;
+    expect(ultimateBuff?.skillSlotReplacements).toEqual([
+      {
+        skillGroupKey: 'battleSkill',
+        targetSkillKey: 'enhancedBattleSkill',
+        revertedSkillKey: 'battleSkill',
+        inheritOriginSkillCooldownProgress: false,
+      },
+      {
+        skillGroupKey: 'comboSkill',
+        targetSkillKey: 'enhancedComboSkill',
+        revertedSkillKey: 'comboSkill',
+        inheritOriginSkillCooldownProgress: true,
+      },
+    ]);
+  });
+
+  it.each(Array.from({ length: 12 }, (_, index) => index + 1))(
+    'compiles every skill at level %i',
+    skillLevel => {
+      expect(() =>
+        compileOperatorDefinitionSkills(
+          'zhuang-fangyi-instance',
+          buildAtLevel(skillLevel),
+          zhuangFangyi,
         ),
-      ),
-    );
-  });
-
-  it('keeps the generated fifth normal attack equivalent to the current definition', () => {
-    const current = getSkill(generatedBasicAttack5.key);
-    expect(generatedBasicAttack5.timelineBlockFrames).toBe(current.timelineBlockFrames);
-    const generatedRootSteps = generatedBasicAttack5.scheduledSequences.flatMap(item =>
-      collectSteps(item.sequence),
-    );
-    const currentSteps = current.scheduledSequences.flatMap(item => collectSteps(item.sequence));
-    expect(generatedRootSteps).toContainEqual(
-      expect.objectContaining({
-        kind: 'spawnAbilityEntity',
-        parameters: expect.objectContaining({
-          abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack5',
-          definition: expect.objectContaining({
-            childSkill: expect.objectContaining({
-              skillId: 'chr_0030_zhuangfy_attack5_abilityrange',
-            }),
-          }),
-        }),
-      }),
-    );
-    const spawn = generatedRootSteps.find(step => step.kind === 'spawnAbilityEntity');
-    if (
-      spawn?.kind !== 'spawnAbilityEntity' ||
-      spawn.parameters.definition?.childSkill === undefined
-    ) {
-      throw new Error('missing generated AbilityEntity child timeline');
-    }
-    const generatedChildSteps = spawn.parameters.definition.childSkill.scheduledSequences.flatMap(
-      item => collectSteps(item.sequence),
-    );
-    const generatedDamage = generatedChildSteps.find(step => step.kind === 'dealDamage');
-    const currentDamage = currentSteps.find(step => step.kind === 'dealDamage');
-    expect(withoutStepKey(generatedDamage)).toEqual(withoutStepKey(currentDamage));
-    expect(
-      generatedChildSteps.find(step => step.kind === 'changeResourceByActionValue'),
-    ).toMatchObject({
-      kind: 'changeResourceByActionValue',
-      parameters: {
-        resource: 'sp',
-        amount: { kind: 'blackboard', key: 'atb' },
-        recipient: 'team',
-        spGainSource: 'normalAttack',
-      },
-    });
-    expect(generatedBasicAttack5.blackboard?.atb).toBe(18);
-    expect(currentSteps.find(step => step.kind === 'changeResource')).toMatchObject({
-      kind: 'changeResource',
-      parameters: { resource: 'sp', amount: 18, recipient: 'team' },
-    });
-  });
-
-  it('keeps normal and enhanced attack chains as separate cast identities', () => {
-    const normal = zhuangFangyi.skillGroups.find(group => group.key === 'basicAttack');
-    const enhanced = zhuangFangyi.skillGroups.find(group => group.key === 'enhancedBasicAttack');
-    if (!normal || !enhanced) throw new Error('missing basic attack group');
-
-    expect(getGroupSkills(normal).map(skill => skill.key)).toEqual([
-      'basicAttack1',
-      'basicAttack2',
-      'basicAttack3',
-      'basicAttack4',
-      'basicAttack5',
-    ]);
-    expect(getGroupSkills(enhanced).map(skill => skill.key)).toEqual([
-      'enhancedBasicAttack1',
-      'enhancedBasicAttack2',
-      'enhancedBasicAttack3',
-    ]);
-    expect(getSkill('basicAttack1').availability).toEqual({
-      kind: 'not',
-      condition: {
-        kind: 'statusActive',
-        statusKey: 'ultimateEnhancement',
-        target: 'caster',
-      },
-    });
-    expect(getSkill('enhancedBasicAttack1').availability).toEqual({
-      kind: 'statusActive',
-      statusKey: 'ultimateEnhancement',
-      target: 'caster',
-    });
-  });
-
-  it('marks the last hit of both attack chains as a final normal attack', () => {
-    for (const key of ['basicAttack5', 'enhancedBasicAttack3']) {
-      const damage = collectSteps(getSkill(key).scheduledSequences[0]!.sequence).find(
-        step => step.kind === 'dealDamage',
-      );
-      expect(damage).toMatchObject({
-        kind: 'dealDamage',
-        parameters: { tags: ['normalAttack', 'normalAttackLastCombo'], stagger: 18 },
-      });
-    }
-  });
-
-  it('creates the enhancement and one-use free battle state in source order', () => {
-    const ultimate = getSkill('ultimate');
-    const steps = ultimate.scheduledSequences[0]!.sequence.steps;
-
-    expect(ultimate).toMatchObject({
-      cooldownFrames: 450,
-      costs: [{ resource: 'ultimateEnergy', value: 240 }],
-    });
-    expect(steps).toEqual([
-      {
-        kind: 'applyStatus',
-        parameters: {
-          statusKey: 'ultimateEnhancement',
-          target: 'caster',
-          durationFrames: 750,
-          modifiers: [
-            {
-              kind: 'skillCooldownMultiplier',
-              skillGroupKey: 'enhancedComboSkill',
-              value: 0.25,
-            },
-          ],
-        },
-      },
-      {
-        kind: 'applyStatus',
-        parameters: {
-          statusKey: 'freeEnhancedBattle',
-          target: 'caster',
-          durationFrames: 750,
-          modifiers: [{ kind: 'resourceCostMultiplier', resource: 'sp', value: 0 }],
-        },
-      },
-    ]);
-  });
-
-  it('uses the free enhanced battle before considering reaction consumption', () => {
-    const setup = getSkill('enhancedBattleSkill').scheduledSequences[0]!.sequence;
-    const steps = collectSteps(setup);
-    const freeStateConsumption = steps.findIndex(
-      step => step.kind === 'consumeStatus' && step.parameters.statusKey === 'freeEnhancedBattle',
-    );
-    const reactionConsumption = steps.findIndex(step => step.kind === 'consumeElementalReaction');
-
-    expect(setup.steps[1]).toMatchObject({
-      kind: 'conditional',
-      parameters: {
-        condition: {
-          kind: 'statusActive',
-          statusKey: 'freeEnhancedBattle',
-          target: 'caster',
-        },
-      },
-    });
-    expect(steps).toContainEqual({
-      kind: 'applyStatus',
-      parameters: {
-        statusKey: 'sunderblade',
-        target: 'caster',
-        durationFrames: 1080,
-        stacks: 3,
-        maxStacks: 9,
-      },
-    });
-    expect(freeStateConsumption).toBeGreaterThan(-1);
-    expect(reactionConsumption).toBeGreaterThan(freeStateConsumption);
-  });
-
-  it('records consumed reaction level before consuming the reaction', () => {
-    const steps = collectSteps(getSkill('battleSkill').scheduledSequences[0]!.sequence);
-    const levelFourStatus = steps.findIndex(
-      step =>
-        step.kind === 'applyStatus' &&
-        step.parameters.statusKey === 'consumedElectrificationLevel' &&
-        step.parameters.stacks === 4,
-    );
-    const reactionConsumption = steps.findIndex(step => step.kind === 'consumeElementalReaction');
-
-    expect(levelFourStatus).toBeGreaterThan(-1);
-    expect(reactionConsumption).toBeGreaterThan(levelFourStatus);
-  });
-
-  it('models nine conditional sword strikes and one final branch per sword count', () => {
-    const sequences = getSkill('battleSkill').scheduledSequences;
-
-    expect(sequences.slice(1, 10).map(item => item.startFrame)).toEqual([
-      30, 37, 44, 51, 58, 65, 72, 79, 86,
-    ]);
-    expect(sequences.slice(10).map(item => item.startFrame)).toEqual([
-      48, 55, 62, 69, 76, 83, 90, 97, 104,
-    ]);
-  });
-
-  it('applies electric infliction before enhanced final-thunder damage', () => {
-    const finalThunder = getSkill('enhancedBattleSkill').scheduledSequences[10]!;
-    const steps = collectSteps(finalThunder.sequence);
-    const infliction = steps.findIndex(step => step.kind === 'applyElementalInfliction');
-    const damage = steps.findIndex(step => step.kind === 'dealDamage');
-
-    expect(infliction).toBeGreaterThan(-1);
-    expect(damage).toBeGreaterThan(infliction);
-  });
-
-  it('caps a nine-sword cast at nine six-point energy gains', () => {
-    const sequences = getSkill('battleSkill').scheduledSequences;
-    const ordinaryGains = sequences
-      .slice(1, 10)
-      .flatMap(item => collectSteps(item.sequence))
-      .filter(step => step.kind === 'changeResource');
-    const nineSwordFinalGains = collectSteps(sequences[18]!.sequence).filter(
-      step => step.kind === 'changeResource',
-    );
-
-    expect(ordinaryGains).toHaveLength(9);
-    expect(nineSwordFinalGains).toHaveLength(0);
-  });
-
-  it('requires electric infliction for both combo variants', () => {
-    for (const key of ['comboSkill', 'enhancedComboSkill']) {
-      const registration = zhuangFangyi.comboSkillRegistrations?.find(
-        item => item.skillKey === key,
-      );
-      if (registration === undefined) throw new Error('expected combo activation rules');
-      const rules = registration.rules;
-
-      expect(registration.priority).toBe('default');
-      expect(rules).toHaveLength(2);
-      expect(rules.map(rule => rule.condition)).toEqual([
-        {
-          kind: 'elementalInflictionPresent',
-          elements: 'electric',
-          minimumStacks: 1,
-        },
-        {
-          kind: 'elementalInflictionPresent',
-          elements: 'electric',
-          minimumStacks: 1,
-        },
-      ]);
-    }
-  });
-
-  it('preserves all talent and potential slots without source identifiers', () => {
-    expect(zhuangFangyi.talents.map(talent => talent.key)).toEqual([
-      'progressiveElectricAmplification',
-      'fatalDamageProtection',
-    ]);
-    expect(zhuangFangyi.potentials).toHaveLength(5);
-
-    const serialized = JSON.stringify(zhuangFangyi);
-    expect(serialized).not.toContain('chr_0030_zhuangfy');
-    expect(serialized).not.toContain('buff_chr_');
-    expect(serialized).not.toContain('blackboard');
-  });
+      ).not.toThrow();
+    },
+  );
 });

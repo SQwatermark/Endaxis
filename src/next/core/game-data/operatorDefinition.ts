@@ -5,6 +5,8 @@
 export const OPERATOR_ATTRIBUTES = ['strength', 'agility', 'intellect', 'will'] as const;
 /** 干员养成、面板和条件判断共同使用的四维属性身份。 */
 export type OperatorAttribute = (typeof OPERATOR_ATTRIBUTES)[number];
+/** HealAction 的 MultiplyAttributeCalculation 可读取的已支持来源属性。 */
+export type HealCalculationAttribute = OperatorAttribute | 'maxHealth';
 
 export const OPERATOR_RARITIES = [4, 5, 6] as const;
 /** 干员定义允许的星级；数据适配器不得传入定义外的数值。 */
@@ -546,6 +548,12 @@ export interface CombatStepParameters {
     /** 可选地把同一查询结果数量写入动作黑板，后续复用 actionValueCompare。 */
     saveCountToBlackboardKey?: string;
   };
+  /** 从既有 Context 目标组按运行时索引选出一个稳定句柄，覆盖写入新组。 */
+  pickContextTarget: {
+    sourceContextKey: string;
+    saveToContextKey: string;
+    index: ActionValueOperand;
+  };
   /** 对本次释放 Context 中已经固定的目标句柄逐一同步执行同一序列。 */
   forEachContextTarget: {
     contextKey: string;
@@ -609,7 +617,7 @@ export interface CombatStepParameters {
   dealFixedDamage: DealFixedDamageParameters;
   /** 不伴随生命伤害的独立失衡单元；数值仍会经过来源与目标的失衡倍率。 */
   dealStagger: { value: LevelValues | ActionValueOperand };
-  /** 按施法者四维属性计算，并写入干员生命账本的普通治疗。 */
+  /** 按施法者属性计算，并写入干员生命账本的普通治疗。 */
   heal: {
     target: HealTarget;
     /** 原生 AbilityAction.alwaysNext；false 时保留治疗应用失败的序列短路。 */
@@ -619,7 +627,7 @@ export interface CombatStepParameters {
   } & (
     | {
         /** 按施法者属性乘区与固定加区计算。 */
-        attribute: OperatorAttribute;
+        attribute: HealCalculationAttribute;
         multiplier: LevelValues | ActionValueOperand;
         addition: LevelValues | ActionValueOperand;
         amount?: never;
@@ -887,6 +895,7 @@ export interface CombatStepParameters {
 
 export const COMBAT_STEP_KINDS = [
   'findOwnerSpawnedAbilityEntities',
+  'pickContextTarget',
   'forEachContextTarget',
   'readAbilityEntityRemainingDuration',
   'setAbilityEntityRemainingDuration',
@@ -977,6 +986,10 @@ export interface ScheduledSequenceDefinition {
 export interface CombatEventResponseDefinition {
   key: string;
   event: CombatEventTrigger;
+  /** 常驻数据动作显式使用 dataAction；技能区间监听器缺省为 skill。 */
+  phase?: 'dataAction' | 'skill';
+  /** 仅 dataAction 相位使用，数值越大越先执行。 */
+  priority?: number;
   condition?: CombatCondition;
   sequence: ActionSequenceDefinition;
 }
@@ -1077,6 +1090,8 @@ export interface SkillBuffLifecycleSequences {
 export interface SkillBuffAbilityEventResponse {
   /** 已接入实体 AbilitySystem 事件中心的同步事件。 */
   event:
+    | 'enterFight'
+    | 'ownerHpZero'
     | 'beforeTakeDamage'
     | 'takeDamage'
     | 'takeCriticalDamage'

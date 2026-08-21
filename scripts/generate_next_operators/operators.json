@@ -889,7 +889,76 @@
       "slug": "zhuang-fangyi",
       "exportName": "zhuangFangyiGeneratedSource",
       "charId": "chr_0030_zhuangfy",
-      "outputStage": "audit",
+      "outputStage": "complete",
+      "runtimeReplacementSkillKeys": ["enhancedBattleSkill", "enhancedComboSkill"],
+      "talents": [
+        { "index": 0, "key": "talent1", "compile": "attachedPassive" },
+        { "index": 1, "key": "talent2", "compile": "attachedPassive" }
+      ],
+      "potentials": [
+        { "key": "potential1", "compile": "skillBlackboardPatchAndAttachedBuff" },
+        { "key": "potential2", "compile": "staticAttributes" },
+        { "key": "potential3", "compile": "skillBlackboardPatch" },
+        { "key": "potential4", "compile": "multiplyUltimateCost" },
+        { "key": "potential5", "compile": "attachedBuff" }
+      ],
+      "skillGroups": [
+        {
+          "key": "basicAttack",
+          "skillType": "basicAttack",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": [
+            "basicAttack1",
+            "basicAttack2",
+            "basicAttack3",
+            "basicAttack4",
+            "basicAttack5"
+          ]
+        },
+        {
+          "key": "finisher",
+          "skillType": "finisher",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["finisher"]
+        },
+        {
+          "key": "plungingAttack",
+          "skillType": "plungingAttack",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["plungingAttack"]
+        },
+        {
+          "key": "battleSkill",
+          "skillType": "battleSkill",
+          "levelSource": "battleSkill",
+          "nativeGroupType": 1,
+          "skillKeys": ["battleSkill", "enhancedBattleSkill"]
+        },
+        {
+          "key": "comboSkill",
+          "skillType": "comboSkill",
+          "levelSource": "comboSkill",
+          "nativeGroupType": 3,
+          "skillKeys": ["comboSkill", "enhancedComboSkill"]
+        },
+        {
+          "key": "ultimate",
+          "skillType": "ultimate",
+          "levelSource": "ultimate",
+          "nativeGroupType": 2,
+          "skillKeys": ["ultimate"]
+        },
+        {
+          "key": "enhancedBasicAttack",
+          "skillType": "basicAttack",
+          "levelSource": "ultimate",
+          "nativeGroupType": 2,
+          "skillKeys": ["enhancedBasicAttack1", "enhancedBasicAttack2", "enhancedBasicAttack3"]
+        }
+      ],
       "skills": [
         {
           "key": "basicAttack1",
@@ -991,12 +1060,14 @@
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
-          "source": "chr_0030_zhuangfy_normal_skill.json"
+          "source": "chr_0030_zhuangfy_normal_skill.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalSkill"] }
         },
         {
           "key": "enhancedBattleSkill",
           "skillType": "battleSkill",
-          "source": "chr_0030_zhuangfy_normal_skill_ult.json"
+          "source": "chr_0030_zhuangfy_normal_skill_ult.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalSkill"] }
         },
         {
           "key": "comboSkill",

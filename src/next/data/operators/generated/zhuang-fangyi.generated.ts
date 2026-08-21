@@ -108,7 +108,8 @@ export const zhuangFangyiGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_dash_hide",
@@ -247,7 +248,8 @@ export const zhuangFangyiGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword",
@@ -621,7 +623,9 @@ export const zhuangFangyiGeneratedSource = {
               "validatorTypes": [],
               "postProcessorTypes": [],
               "inputTargets": [],
-              "intervalSeconds": null
+              "intervalSeconds": null,
+              "pickIndexValue": null,
+              "pickIndexBlackboardKey": null
             },
             {
               "startFrame": 0,
@@ -656,7 +660,9 @@ export const zhuangFangyiGeneratedSource = {
                     -1913169726
                   ]
                 ]
-              ]
+              ],
+              "pickIndexValue": null,
+              "pickIndexBlackboardKey": null
             },
             {
               "startFrame": 0,
@@ -690,7 +696,9 @@ export const zhuangFangyiGeneratedSource = {
                     -13979809
                   ]
                 ]
-              ]
+              ],
+              "pickIndexValue": null,
+              "pickIndexBlackboardKey": null
             }
           ]
         },
@@ -1052,7 +1060,42 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 8,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[2]"
+              ],
+              "targetGroupKey": "swordInst",
+              "producerType": "PickTargetAction",
+              "finderType": null,
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [],
+              "postProcessorTypes": [],
+              "inputTargets": [
+                {
+                  "targetSource": "Context",
+                  "targetGroupKey": "sword",
+                  "finderType": null,
+                  "finderFactionTarget": null,
+                  "finderTargetObjectType": null,
+                  "finderCheckAlive": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                }
+              ],
+              "intervalSeconds": null,
+              "pickIndexValue": 0.0,
+              "pickIndexBlackboardKey": "swordIndex"
+            }
+          ]
         },
         {
           "eventSource": "buff",
@@ -1167,7 +1210,9 @@ export const zhuangFangyiGeneratedSource = {
               "validatorTypes": [],
               "postProcessorTypes": [],
               "inputTargets": [],
-              "intervalSeconds": null
+              "intervalSeconds": null,
+              "pickIndexValue": null,
+              "pickIndexBlackboardKey": null
             }
           ]
         }
@@ -1188,7 +1233,8 @@ export const zhuangFangyiGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar",
@@ -1387,7 +1433,9 @@ export const zhuangFangyiGeneratedSource = {
               "validatorTypes": [],
               "postProcessorTypes": [],
               "inputTargets": [],
-              "intervalSeconds": null
+              "intervalSeconds": null,
+              "pickIndexValue": null,
+              "pickIndexBlackboardKey": null
             }
           ]
         },
@@ -1649,7 +1697,9 @@ export const zhuangFangyiGeneratedSource = {
                 "PriorityFilter"
               ],
               "inputTargets": [],
-              "intervalSeconds": null
+              "intervalSeconds": null,
+              "pickIndexValue": null,
+              "pickIndexBlackboardKey": null
             },
             {
               "startFrame": 0,
@@ -1673,7 +1723,9 @@ export const zhuangFangyiGeneratedSource = {
               "validatorTypes": [],
               "postProcessorTypes": [],
               "inputTargets": [],
-              "intervalSeconds": null
+              "intervalSeconds": null,
+              "pickIndexValue": null,
+              "pickIndexBlackboardKey": null
             }
           ]
         }
@@ -1694,7 +1746,516 @@ export const zhuangFangyiGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
+      "buffId": "buff_chr_0030_zhuangfy_potential1",
+      "sourceFile": "buff_chr_0030_zhuangfy_potential1.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 1.5,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "NormalSkillCtrl",
+        "priority": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "ability",
+          "event": "OnEnterFight",
+          "orderedActionTypes": [
+            "CreateBuffAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 0,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0030_zhuangfy_potential1_more_sword",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_chr_0030_zhuangfy_potential1_more_sword"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 0,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0030_zhuangfy_potential1_more_sword",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0030_zhuangfy_potential1_more_sword",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
+      "buffId": "buff_chr_0030_zhuangfy_potential1_more_sword",
+      "sourceFile": "buff_chr_0030_zhuangfy_potential1_more_sword.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 0.05,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "NormalSkillCtrl",
+        "priority": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 9.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "ability",
+          "event": "OnTrulyExitFight",
+          "orderedActionTypes": [
+            "FinishBuffAdvanced"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "FinishBuffAdvanced"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "FinishBuffAdvanced",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "buffFinish": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Id",
+                    "buffIds": [
+                      "buff_chr_0030_zhuangfy_potential1_more_sword"
+                    ],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": [],
+                    "finishAll": true,
+                    "limitSource": false,
+                    "isFinishedEarly": false,
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        },
+        {
+          "eventSource": "ability",
+          "event": "OnSkillEnd",
+          "orderedActionTypes": [
+            "CheckSkillType",
+            "FinishBuffAdvanced"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckSkillType",
+                "FinishBuffAdvanced"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "FinishBuffAdvanced",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 2,
+                  "buffFinish": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Id",
+                    "buffIds": [
+                      "buff_chr_0030_zhuangfy_potential1_more_sword"
+                    ],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": [],
+                    "finishAll": true,
+                    "limitSource": false,
+                    "isFinishedEarly": false,
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
+      "buffId": "buff_chr_0030_zhuangfy_potential5",
+      "sourceFile": "buff_chr_0030_zhuangfy_potential5.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "ignore_pulse_resist",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [
+        {
+          "enabledSide": "Attacker",
+          "targetSource": "",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [],
+          "processors": [
+            {
+              "targetSide": "Defender",
+              "attributeType": "PulseResistance",
+              "slot": "BaseAddition",
+              "value": {
+                "value": 0.0,
+                "blackboardKey": "ignore_pulse_resist",
+                "levelValues": [
+                  0.0
+                ]
+              }
+            }
+          ],
+          "tagConditions": [],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "damageTypes": [],
+          "numberComparisons": [],
+          "healthComparisons": [],
+          "buffCountComparisons": [
+            {
+              "targetSource": "Source",
+              "targetGroupKey": "",
+              "buffIds": [
+                "buff_chr_0030_zhuangfy_ult_base"
+              ],
+              "comparison": "GE",
+              "value": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              }
+            }
+          ]
+        }
+      ],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_potential5_vfx",
@@ -1793,7 +2354,8 @@ export const zhuangFangyiGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_sword_triggerd",
@@ -2560,7 +3122,9 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -2595,7 +3159,9 @@ export const zhuangFangyiGeneratedSource = {
                 -1913169726
               ]
             ]
-          ]
+          ],
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -2619,7 +3185,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -2643,7 +3211,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -2667,7 +3237,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 3,
@@ -2688,7 +3260,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 6,
@@ -2709,7 +3283,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "runtimeSkillSlotReplacements": [],
@@ -2719,7 +3295,11 @@ export const zhuangFangyiGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": [
+        48,
+        54
+      ]
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_talent1",
@@ -2789,7 +3369,126 @@ export const zhuangFangyiGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
+      "buffId": "buff_chr_0030_zhuangfy_talent1_base",
+      "sourceFile": "buff_chr_0030_zhuangfy_talent1_base.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 0.1,
+          "blackboardKey": "duration",
+          "levelValues": [
+            0.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Stack",
+        "stackingKey": "NormalSkillCtrl",
+        "priority": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "base_rate",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "duration",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "enhance_rate",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "EnhancedAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "EnhancedAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_talent1_mark",
@@ -2859,7 +3558,178 @@ export const zhuangFangyiGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
+      "buffId": "buff_chr_0030_zhuangfy_talent2_heal",
+      "sourceFile": "buff_chr_0030_zhuangfy_talent2_heal.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 1.0,
+          "blackboardKey": "duration",
+          "levelValues": [
+            0.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "NormalSkillCtrl",
+        "priority": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "duration",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "heal",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "HealAction"
+          ],
+          "combatActions": [
+            "HealAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "HealAction"
+              ],
+              "combatActions": [
+                "HealAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "HealAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "heal": {
+                    "healType": "Normal",
+                    "healer": "ActionSource",
+                    "alwaysNext": true,
+                    "target": {
+                      "targetSource": "Source",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "attribute": "MaxHp",
+                    "multiplier": {
+                      "value": 1.0,
+                      "blackboardKey": "heal",
+                      "levelValues": [
+                        0.0
+                      ]
+                    },
+                    "addition": {
+                      "value": 0.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "tagIds": []
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_base",
@@ -3587,7 +4457,8 @@ export const zhuangFangyiGeneratedSource = {
         }
       ],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_body_vfx",
@@ -3937,7 +4808,8 @@ export const zhuangFangyiGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_env_vfx",
@@ -4038,7 +4910,8 @@ export const zhuangFangyiGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_hide_model",
@@ -4137,7 +5010,8 @@ export const zhuangFangyiGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_hide_model_holder",
@@ -4325,7 +5199,8 @@ export const zhuangFangyiGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_ult_skill_free",
@@ -4406,7 +5281,8 @@ export const zhuangFangyiGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -4488,7 +5364,149 @@ export const zhuangFangyiGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
+      "buffId": "buff_common_damage_immune_talent",
+      "sourceFile": "buff_common_damage_immune_talent.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 2.0,
+          "blackboardKey": "duration",
+          "levelValues": [
+            9999.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "duration",
+          "value": 9999.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [
+        782082172,
+        -104052028,
+        -1128398902
+      ],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "ImmuneTextAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "ImmuneTextAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": []
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [
+        {
+          "target": {
+            "targetSource": "Owner",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "superArmor": {
+            "value": 35.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "impactResistance": {
+            "value": 100.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -4599,7 +5617,8 @@ export const zhuangFangyiGeneratedSource = {
         }
       ],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -4714,7 +5733,8 @@ export const zhuangFangyiGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -4790,7 +5810,8 @@ export const zhuangFangyiGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_pulse_pulse_conduct_triggered",
@@ -5221,7 +6242,8 @@ export const zhuangFangyiGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_pulse_pulse_conduct_triggered_do",
@@ -5326,7 +6348,8 @@ export const zhuangFangyiGeneratedSource = {
             "heat"
           ],
           "numberComparisons": [],
-          "healthComparisons": []
+          "healthComparisons": [],
+          "buffCountComparisons": []
         },
         {
           "enabledSide": "Defender",
@@ -5357,7 +6380,8 @@ export const zhuangFangyiGeneratedSource = {
             "electric"
           ],
           "numberComparisons": [],
-          "healthComparisons": []
+          "healthComparisons": [],
+          "buffCountComparisons": []
         },
         {
           "enabledSide": "Defender",
@@ -5388,7 +6412,8 @@ export const zhuangFangyiGeneratedSource = {
             "cryo"
           ],
           "numberComparisons": [],
-          "healthComparisons": []
+          "healthComparisons": [],
+          "buffCountComparisons": []
         },
         {
           "enabledSide": "Defender",
@@ -5419,7 +6444,8 @@ export const zhuangFangyiGeneratedSource = {
             "nature"
           ],
           "numberComparisons": [],
-          "healthComparisons": []
+          "healthComparisons": [],
+          "buffCountComparisons": []
         }
       ],
       "directDamageHits": [],
@@ -5860,7 +6886,8 @@ export const zhuangFangyiGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_pulse_triggered_fx",
@@ -5967,7 +6994,8 @@ export const zhuangFangyiGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_pulse_triggered_start",
@@ -6066,7 +7094,8 @@ export const zhuangFangyiGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     }
   ],
   "skills": [
@@ -7354,7 +8383,8 @@ export const zhuangFangyiGeneratedSource = {
                   "blackboardMutations": [],
                   "buffBlackboardReads": [],
                   "buffFinishes": [],
-                  "auraActions": []
+                  "auraActions": [],
+                  "presentationOnlySwitchActionIndexes": []
                 }
               ]
             }
@@ -7758,7 +8788,8 @@ export const zhuangFangyiGeneratedSource = {
                   "blackboardMutations": [],
                   "buffBlackboardReads": [],
                   "buffFinishes": [],
-                  "auraActions": []
+                  "auraActions": [],
+                  "presentationOnlySwitchActionIndexes": []
                 }
               ]
             }
@@ -8386,7 +9417,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         }
       ],
       "referencedBuffIds": [],
@@ -8578,7 +9610,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 2,
@@ -8602,7 +9636,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 15,
@@ -8626,7 +9662,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 15,
@@ -8650,7 +9688,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 15,
@@ -8674,7 +9714,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 15,
@@ -8698,7 +9740,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -9981,7 +11025,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 14,
@@ -10005,7 +11051,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -10777,7 +11825,8 @@ export const zhuangFangyiGeneratedSource = {
                   "blackboardMutations": [],
                   "buffBlackboardReads": [],
                   "buffFinishes": [],
-                  "auraActions": []
+                  "auraActions": [],
+                  "presentationOnlySwitchActionIndexes": []
                 }
               ]
             }
@@ -11181,7 +12230,8 @@ export const zhuangFangyiGeneratedSource = {
                   "blackboardMutations": [],
                   "buffBlackboardReads": [],
                   "buffFinishes": [],
-                  "auraActions": []
+                  "auraActions": [],
+                  "presentationOnlySwitchActionIndexes": []
                 }
               ]
             }
@@ -11585,7 +12635,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         }
       ],
       "referencedBuffIds": [],
@@ -11732,7 +12783,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 11,
@@ -11756,7 +12809,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 11,
@@ -11780,7 +12835,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 11,
@@ -11804,7 +12861,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -12845,7 +13904,8 @@ export const zhuangFangyiGeneratedSource = {
                               ],
                               "buffBlackboardReads": [],
                               "buffFinishes": [],
-                              "auraActions": []
+                              "auraActions": [],
+                              "presentationOnlySwitchActionIndexes": []
                             }
                           ]
                         }
@@ -13262,7 +14322,8 @@ export const zhuangFangyiGeneratedSource = {
                               ],
                               "buffBlackboardReads": [],
                               "buffFinishes": [],
-                              "auraActions": []
+                              "auraActions": [],
+                              "presentationOnlySwitchActionIndexes": []
                             }
                           ]
                         }
@@ -13714,7 +14775,8 @@ export const zhuangFangyiGeneratedSource = {
                         ],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -14161,7 +15223,8 @@ export const zhuangFangyiGeneratedSource = {
                   ],
                   "buffBlackboardReads": [],
                   "buffFinishes": [],
-                  "auraActions": []
+                  "auraActions": [],
+                  "presentationOnlySwitchActionIndexes": []
                 }
               ]
             }
@@ -14568,7 +15631,8 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         }
       ],
       "referencedBuffIds": [],
@@ -14754,7 +15818,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 20,
@@ -14784,7 +15850,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 20,
@@ -14814,7 +15882,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 20,
@@ -14844,7 +15914,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 20,
@@ -14871,7 +15943,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 20,
@@ -14898,7 +15972,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 20,
@@ -14922,7 +15998,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 20,
@@ -14946,7 +16024,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -16131,7 +17211,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   },
@@ -16384,7 +17465,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -16709,7 +17791,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -16933,7 +18016,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   },
@@ -17375,7 +18459,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -17599,7 +18684,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -17924,7 +19010,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -18148,7 +19235,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -18561,7 +19649,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -18785,7 +19874,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -19110,7 +20200,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -19334,7 +20425,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -19747,7 +20839,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -19971,7 +21064,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -20296,7 +21390,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -20520,7 +21615,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -20788,7 +21884,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         },
         {
           "spawnFrame": 13,
@@ -20949,7 +22046,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         },
         {
           "spawnFrame": 14,
@@ -21110,7 +22208,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         },
         {
           "spawnFrame": 15,
@@ -21271,7 +22370,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         }
       ],
       "referencedBuffIds": [],
@@ -21452,7 +22552,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 12,
@@ -21475,7 +22577,9 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -23772,7 +24876,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   },
@@ -24025,7 +25130,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -24350,7 +25456,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -24574,7 +25681,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   },
@@ -25016,7 +26124,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -25240,7 +26349,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -25565,7 +26675,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -25789,7 +26900,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -26202,7 +27314,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -26426,7 +27539,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -26751,7 +27865,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -26975,7 +28090,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -27388,7 +28504,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -27612,7 +28729,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -27937,7 +29055,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -28161,7 +29280,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -28429,7 +29549,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         },
         {
           "spawnFrame": 11,
@@ -28590,7 +29711,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         },
         {
           "spawnFrame": 12,
@@ -28751,7 +29873,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         },
         {
           "spawnFrame": 13,
@@ -28912,7 +30035,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         }
       ],
       "referencedBuffIds": [],
@@ -29079,7 +30203,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 10,
@@ -29102,7 +30228,9 @@ export const zhuangFangyiGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -31377,7 +32505,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -31626,7 +32755,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -31967,7 +33097,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -32216,7 +33347,8 @@ export const zhuangFangyiGeneratedSource = {
                         "blackboardMutations": [],
                         "buffBlackboardReads": [],
                         "buffFinishes": [],
-                        "auraActions": []
+                        "auraActions": [],
+                        "presentationOnlySwitchActionIndexes": []
                       }
                     ]
                   }
@@ -32523,7 +33655,8 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         }
       ],
       "referencedBuffIds": [
@@ -33933,7 +35066,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -33968,7 +35103,9 @@ export const zhuangFangyiGeneratedSource = {
                 -251943717
               ]
             ]
-          ]
+          ],
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -35520,7 +36657,8 @@ export const zhuangFangyiGeneratedSource = {
                                           "blackboardMutations": [],
                                           "buffBlackboardReads": [],
                                           "buffFinishes": [],
-                                          "auraActions": []
+                                          "auraActions": [],
+                                          "presentationOnlySwitchActionIndexes": []
                                         }
                                       ]
                                     }
@@ -35679,7 +36817,8 @@ export const zhuangFangyiGeneratedSource = {
                                           "blackboardMutations": [],
                                           "buffBlackboardReads": [],
                                           "buffFinishes": [],
-                                          "auraActions": []
+                                          "auraActions": [],
+                                          "presentationOnlySwitchActionIndexes": []
                                         }
                                       ]
                                     }
@@ -35946,7 +37085,8 @@ export const zhuangFangyiGeneratedSource = {
                                           "blackboardMutations": [],
                                           "buffBlackboardReads": [],
                                           "buffFinishes": [],
-                                          "auraActions": []
+                                          "auraActions": [],
+                                          "presentationOnlySwitchActionIndexes": []
                                         }
                                       ]
                                     }
@@ -36105,7 +37245,8 @@ export const zhuangFangyiGeneratedSource = {
                                           "blackboardMutations": [],
                                           "buffBlackboardReads": [],
                                           "buffFinishes": [],
-                                          "auraActions": []
+                                          "auraActions": [],
+                                          "presentationOnlySwitchActionIndexes": []
                                         }
                                       ]
                                     }
@@ -36300,7 +37441,8 @@ export const zhuangFangyiGeneratedSource = {
                             "blackboardMutations": [],
                             "buffBlackboardReads": [],
                             "buffFinishes": [],
-                            "auraActions": []
+                            "auraActions": [],
+                            "presentationOnlySwitchActionIndexes": []
                           }
                         ],
                         "auraActions": []
@@ -36919,7 +38061,8 @@ export const zhuangFangyiGeneratedSource = {
                                           "blackboardMutations": [],
                                           "buffBlackboardReads": [],
                                           "buffFinishes": [],
-                                          "auraActions": []
+                                          "auraActions": [],
+                                          "presentationOnlySwitchActionIndexes": []
                                         }
                                       ]
                                     }
@@ -37078,7 +38221,8 @@ export const zhuangFangyiGeneratedSource = {
                                           "blackboardMutations": [],
                                           "buffBlackboardReads": [],
                                           "buffFinishes": [],
-                                          "auraActions": []
+                                          "auraActions": [],
+                                          "presentationOnlySwitchActionIndexes": []
                                         }
                                       ]
                                     }
@@ -37345,7 +38489,8 @@ export const zhuangFangyiGeneratedSource = {
                                           "blackboardMutations": [],
                                           "buffBlackboardReads": [],
                                           "buffFinishes": [],
-                                          "auraActions": []
+                                          "auraActions": [],
+                                          "presentationOnlySwitchActionIndexes": []
                                         }
                                       ]
                                     }
@@ -37504,7 +38649,8 @@ export const zhuangFangyiGeneratedSource = {
                                           "blackboardMutations": [],
                                           "buffBlackboardReads": [],
                                           "buffFinishes": [],
-                                          "auraActions": []
+                                          "auraActions": [],
+                                          "presentationOnlySwitchActionIndexes": []
                                         }
                                       ]
                                     }
@@ -37699,7 +38845,8 @@ export const zhuangFangyiGeneratedSource = {
                             "blackboardMutations": [],
                             "buffBlackboardReads": [],
                             "buffFinishes": [],
-                            "auraActions": []
+                            "auraActions": [],
+                            "presentationOnlySwitchActionIndexes": []
                           }
                         ],
                         "auraActions": []
@@ -38855,7 +40002,9 @@ export const zhuangFangyiGeneratedSource = {
           "postProcessorTypes": [],
           "inputTargets": [],
           "intervalSeconds": null,
-          "characterTeamSelectionRole": "controlledOperator"
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -38887,7 +40036,9 @@ export const zhuangFangyiGeneratedSource = {
                 -13979809
               ]
             ]
-          ]
+          ],
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 6,
@@ -38914,7 +40065,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 6,
@@ -38941,7 +40094,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -41929,7 +43084,8 @@ export const zhuangFangyiGeneratedSource = {
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -42090,7 +43246,8 @@ export const zhuangFangyiGeneratedSource = {
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -42359,7 +43516,8 @@ export const zhuangFangyiGeneratedSource = {
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -42520,7 +43678,8 @@ export const zhuangFangyiGeneratedSource = {
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -42717,7 +43876,8 @@ export const zhuangFangyiGeneratedSource = {
                                   "blackboardMutations": [],
                                   "buffBlackboardReads": [],
                                   "buffFinishes": [],
-                                  "auraActions": []
+                                  "auraActions": [],
+                                  "presentationOnlySwitchActionIndexes": []
                                 }
                               ],
                               "auraActions": []
@@ -43109,7 +44269,8 @@ export const zhuangFangyiGeneratedSource = {
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -43270,7 +44431,8 @@ export const zhuangFangyiGeneratedSource = {
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -43539,7 +44701,8 @@ export const zhuangFangyiGeneratedSource = {
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -43700,7 +44863,8 @@ export const zhuangFangyiGeneratedSource = {
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -43897,7 +45061,8 @@ export const zhuangFangyiGeneratedSource = {
                                   "blackboardMutations": [],
                                   "buffBlackboardReads": [],
                                   "buffFinishes": [],
-                                  "auraActions": []
+                                  "auraActions": [],
+                                  "presentationOnlySwitchActionIndexes": []
                                 }
                               ],
                               "auraActions": []
@@ -44828,7 +45993,8 @@ export const zhuangFangyiGeneratedSource = {
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -44989,7 +46155,8 @@ export const zhuangFangyiGeneratedSource = {
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -45258,7 +46425,8 @@ export const zhuangFangyiGeneratedSource = {
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -45419,7 +46587,8 @@ export const zhuangFangyiGeneratedSource = {
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -45616,7 +46785,8 @@ export const zhuangFangyiGeneratedSource = {
                                   "blackboardMutations": [],
                                   "buffBlackboardReads": [],
                                   "buffFinishes": [],
-                                  "auraActions": []
+                                  "auraActions": [],
+                                  "presentationOnlySwitchActionIndexes": []
                                 }
                               ],
                               "auraActions": []
@@ -46263,7 +47433,8 @@ export const zhuangFangyiGeneratedSource = {
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -46424,7 +47595,8 @@ export const zhuangFangyiGeneratedSource = {
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -46693,7 +47865,8 @@ export const zhuangFangyiGeneratedSource = {
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -46854,7 +48027,8 @@ export const zhuangFangyiGeneratedSource = {
                                                 "blackboardMutations": [],
                                                 "buffBlackboardReads": [],
                                                 "buffFinishes": [],
-                                                "auraActions": []
+                                                "auraActions": [],
+                                                "presentationOnlySwitchActionIndexes": []
                                               }
                                             ]
                                           }
@@ -47051,7 +48225,8 @@ export const zhuangFangyiGeneratedSource = {
                                   "blackboardMutations": [],
                                   "buffBlackboardReads": [],
                                   "buffFinishes": [],
-                                  "auraActions": []
+                                  "auraActions": [],
+                                  "presentationOnlySwitchActionIndexes": []
                                 }
                               ],
                               "auraActions": []
@@ -48098,8 +49273,7 @@ export const zhuangFangyiGeneratedSource = {
             "CreateTimedMarker",
             "DamageAction",
             "IfElseAction",
-            "SpellInfliction",
-            "SwitchAction"
+            "SpellInfliction"
           ],
           "cycleTruncated": false,
           "inheritsSourceBlackboard": true,
@@ -48223,7 +49397,11 @@ export const zhuangFangyiGeneratedSource = {
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": [
+            41,
+            50
+          ]
         }
       ],
       "referencedBuffIds": [
@@ -48733,7 +49911,9 @@ export const zhuangFangyiGeneratedSource = {
           "postProcessorTypes": [],
           "inputTargets": [],
           "intervalSeconds": null,
-          "characterTeamSelectionRole": "controlledOperator"
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -48765,7 +49945,9 @@ export const zhuangFangyiGeneratedSource = {
                 -13979809
               ]
             ]
-          ]
+          ],
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 5,
@@ -48795,7 +49977,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 5,
@@ -48825,7 +50009,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 5,
@@ -48855,7 +50041,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 5,
@@ -48885,7 +50073,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 15,
@@ -48906,7 +50096,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -52158,7 +53350,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -52185,7 +53379,9 @@ export const zhuangFangyiGeneratedSource = {
           "postProcessorTypes": [],
           "inputTargets": [],
           "intervalSeconds": null,
-          "characterTeamSelectionRole": "controlledOperator"
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -53865,7 +55061,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -53892,7 +55090,9 @@ export const zhuangFangyiGeneratedSource = {
           "postProcessorTypes": [],
           "inputTargets": [],
           "intervalSeconds": null,
-          "characterTeamSelectionRole": "controlledOperator"
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -55110,7 +56310,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -55131,7 +56333,9 @@ export const zhuangFangyiGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [

@@ -12147,7 +12147,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertTrue(timeline_jump_can_compile(jump, hit))
         self.assertFalse(timeline_jump_can_compile(replace(jump, isOnlyBranchAction=False), hit))
-        self.assertFalse(
+        self.assertTrue(
             timeline_jump_can_compile(
                 replace(jump, actionPath=(*condition_path, "failActions", "actionData", "[0]")),
                 hit,

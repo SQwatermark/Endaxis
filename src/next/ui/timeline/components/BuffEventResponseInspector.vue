@@ -5,6 +5,8 @@ import type {
 } from '../../../core/game-data/operatorDefinition';
 
 const ABILITY_EVENTS = [
+  'enterFight',
+  'ownerHpZero',
   'beforeTakeDamage',
   'takeCriticalDamage',
   'outputDamage',

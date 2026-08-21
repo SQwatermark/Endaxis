@@ -16,6 +16,7 @@ import type {
   DamageTag,
   DamageType,
   ElementalReaction,
+  HealCalculationAttribute,
   OperatorAttribute,
   ResourceRecipient,
   SkillBuffDefinition,
@@ -90,6 +91,7 @@ export interface ResolvedAbilityEntityDefinition {
 
 export interface ResolvedCombatStepParameters {
   findOwnerSpawnedAbilityEntities: CombatStepParameters['findOwnerSpawnedAbilityEntities'];
+  pickContextTarget: CombatStepParameters['pickContextTarget'];
   forEachContextTarget: CombatStepParameters['forEachContextTarget'];
   readAbilityEntityRemainingDuration: CombatStepParameters['readAbilityEntityRemainingDuration'];
   setAbilityEntityRemainingDuration: CombatStepParameters['setAbilityEntityRemainingDuration'];
@@ -140,7 +142,7 @@ export interface ResolvedCombatStepParameters {
     tagIds: readonly number[];
   } & (
     | {
-        attribute: OperatorAttribute;
+        attribute: HealCalculationAttribute;
         multiplier: number | ActionValueOperand;
         addition: number | ActionValueOperand;
         amount?: never;
@@ -171,6 +173,7 @@ export interface ResolvedCombatStepParameters {
   storeCurrentTimelineFrame: CombatStepParameters['storeCurrentTimelineFrame'];
   modifyActionValue: CombatStepParameters['modifyActionValue'];
   calculateActionValue: CombatStepParameters['calculateActionValue'];
+  storeSourceAttributeValue: CombatStepParameters['storeSourceAttributeValue'];
   changeResource: {
     resource: CombatResource;
     amount: number;
@@ -212,6 +215,8 @@ export interface ResolvedCombatStepParameters {
     responses: readonly {
       readonly key: string;
       readonly event: CombatEventTrigger;
+      readonly phase?: 'dataAction' | 'skill';
+      readonly priority?: number;
       readonly condition?: CombatCondition;
       readonly sequence: ResolvedActionSequence;
     }[];
