@@ -42,6 +42,7 @@ import type { PlayerDamageDefenderSnapshot } from '../damage/playerActiveDamageI
 import { CombatVitalsConditionExecutor } from './combatVitalsConditionExecutor';
 import { EnemyRankConditionExecutor } from './enemyRankConditionExecutor';
 import { EnemySuperArmorConditionExecutor } from './enemySuperArmorConditionExecutor';
+import { CameraTargetAngleConditionExecutor } from './cameraTargetAngleConditionExecutor';
 import { TimedMarkerContainer } from './timedMarkers';
 import { TimedMarkerOperationExecutor } from './timedMarkerOperationExecutor';
 import { ComboWindowRuntime } from './comboWindowRuntime';
@@ -1083,9 +1084,13 @@ export class CombatRuntimeAssembly {
       globalClock: this.clock,
       delegate: statusOperations,
     });
+    const angleConditions = new CameraTargetAngleConditionExecutor(
+      program.simulationInputs?.cameraToTargetSignedAngleDegrees,
+      timedMarkerOperations,
+    );
     const superArmorConditions = new EnemySuperArmorConditionExecutor(
       enemy.superArmor,
-      timedMarkerOperations,
+      angleConditions,
     );
     const rankConditions = new EnemyRankConditionExecutor(enemy.rank, superArmorConditions);
     const vitalsConditions = new CombatVitalsConditionExecutor({
@@ -1224,9 +1229,10 @@ export class CombatRuntimeAssembly {
       globalClock: this.clock,
       delegate: statusOperations,
     });
+    const angleConditions = new CameraTargetAngleConditionExecutor(undefined, markerOperations);
     const superArmorConditions = new EnemySuperArmorConditionExecutor(
       options.enemy.superArmor,
-      markerOperations,
+      angleConditions,
     );
     const rankConditions = new EnemyRankConditionExecutor(options.enemy.rank, superArmorConditions);
     const vitalsConditions = new CombatVitalsConditionExecutor({

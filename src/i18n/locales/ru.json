@@ -1409,9 +1409,11 @@
         "singleEnemyPresent": "Один враг",
         "casterControlled": "Исполнитель управляем",
         "enemySuperArmorCompare": "Сравнение суперброни врага",
+        "cameraToTargetAngleCompare": "Сравнение угла камеры и цели",
         "skillBranchEnabled": "Ветка навыка включена",
         "targetStaggered": "Цель оглушена",
         "healthCompare": "Сравнение здоровья",
+        "poiseCompare": "Сравнение шкалы равновесия",
         "contextFlagEquals": "Флаг контекста равен",
         "actionValueCompare": "Сравнение значений действия",
         "probability": "Проверка вероятности",
@@ -1433,8 +1435,10 @@
       "conditionNoParameters": "У этого условия нет дополнительных параметров.",
       "probability": "Вероятность",
       "superArmor": "Суперброня",
+      "cameraTargetAngle": "Знаковый угол (градусы)",
       "branchKey": "Ключ ветки навыка",
       "healthValueType": "Тип здоровья",
+      "returnValueIfPoiseMissing": "Истина, если у цели нет шкалы равновесия",
       "healthValueTypes": { "current": "Текущее здоровье", "ratio": "Доля здоровья" },
       "comparisonOperator": "Сравнение",
       "comparisonOperators": {
@@ -1639,6 +1643,7 @@
         "branchKey": "Стабильный ключ ветки навыка, включаемой формой, талантом или сборкой.",
         "conditionTarget": "Боевая сущность, чьё состояние проверяется: исполнитель или один враг.",
         "healthValueType": "Текущее здоровье — абсолютное число, доля здоровья находится от 0 до 1.",
+        "returnValueIfPoiseMissing": "Сохраняет нативный returnValueIfDontHavePoise: при отсутствии шкалы используется этот результат.",
         "comparisonOperator": "Отношение между левым и правым значением.",
         "conditionOperand": "Константа или значение из таблицы текущего применения навыка.",
         "minimumStacks": "Без параметра проверяется наличие; с параметром требуется указанное число слоёв.",
@@ -1789,15 +1794,22 @@
       }
     },
     "inspector": {
-      "sections": { "basic": "Основные свойства", "presentation": "Отображение" },
+      "sections": {
+        "basic": "Основные свойства",
+        "simulation": "Входы симуляции",
+        "presentation": "Отображение"
+      },
       "labels": {
         "actionId": "ID действия",
         "sourceKind": "Тип источника",
         "startFrame": "Начальный кадр",
         "locked": "Заблокировано",
         "disabled": "Отключено",
-        "color": "Цвет"
-      }
+        "color": "Цвет",
+        "cameraTargetAngle": "Знаковый угол камера–цель (градусы)",
+        "unset": "Не задано"
+      },
+      "cameraTargetAngleHelp": "Диапазон: от -180° до 180°. Требуется только навыкам с этим пространственным условием; пустое значение не предполагает направление и вызывает ошибку в месте чтения."
     },
     "emptyTrack": "Оператор не выбран",
     "cursorFrame": "Курсор: кадр {frame}",

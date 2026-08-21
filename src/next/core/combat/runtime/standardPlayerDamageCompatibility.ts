@@ -87,6 +87,8 @@ function inspectCondition(
     case 'casterControlled':
     case 'enemyRankIn':
     case 'enemySuperArmorCompare':
+    case 'cameraToTargetAngleCompare':
+    case 'poiseCompare':
     case 'eventSourceMatchesBuffSource':
     case 'eventDamageTagsMatch':
     case 'eventDamageFeaturesMatch':

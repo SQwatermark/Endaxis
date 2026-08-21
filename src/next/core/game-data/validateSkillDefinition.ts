@@ -460,6 +460,10 @@ function validateCombatCondition(
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
       validateActionValueOperand(record.value, `${path}.value`, out);
       break;
+    case 'cameraToTargetAngleCompare':
+      requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
+      validateActionValueOperand(record.value, `${path}.value`, out);
+      break;
     case 'skillBranchEnabled':
       requireString(record, 'branchKey', path, out);
       break;
@@ -469,6 +473,12 @@ function validateCombatCondition(
     case 'healthCompare':
       requireEnum(record, 'target', HEALTH_TARGETS_SET, path, out);
       requireEnum(record, 'valueType', HEALTH_VALUE_TYPES_SET, path, out);
+      requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
+      validateActionValueOperand(record.value, `${path}.value`, out);
+      break;
+    case 'poiseCompare':
+      requireEnum(record, 'target', COMBAT_TARGETS_SET, path, out);
+      requireBoolean(record, 'returnValueIfMissing', path, out);
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
       validateActionValueOperand(record.value, `${path}.value`, out);
       break;

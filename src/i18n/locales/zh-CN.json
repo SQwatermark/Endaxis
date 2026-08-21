@@ -1526,9 +1526,11 @@
         "singleEnemyPresent": "存在单个敌人",
         "casterControlled": "施法者为主控",
         "enemySuperArmorCompare": "敌人霸体值比较",
+        "cameraToTargetAngleCompare": "镜头到目标方向夹角比较",
         "skillBranchEnabled": "技能分支已启用",
         "targetStaggered": "目标已失衡",
         "healthCompare": "生命值比较",
+        "poiseCompare": "失衡值比较",
         "contextFlagEquals": "上下文标记相等",
         "actionValueCompare": "动作黑板值比较",
         "probability": "概率判定",
@@ -1550,8 +1552,10 @@
       "conditionNoParameters": "该条件不需要额外参数。",
       "probability": "触发概率",
       "superArmor": "霸体值",
+      "cameraTargetAngle": "有符号夹角（度）",
       "branchKey": "技能分支键",
       "healthValueType": "生命值类型",
+      "returnValueIfPoiseMissing": "目标没有失衡系统时返回真",
       "healthValueTypes": { "current": "当前生命值", "ratio": "当前生命比例" },
       "comparisonOperator": "比较运算",
       "comparisonOperators": {
@@ -1744,6 +1748,7 @@
         "branchKey": "干员定义中稳定的技能分支身份，通常由形态、天赋或其他构筑条件启用。",
         "conditionTarget": "条件读取其战斗状态的实体。Endaxis 当前只建模施法者与单个敌人。",
         "healthValueType": "当前生命值使用实际数值；当前生命比例使用 0 到 1 的比例。",
+        "returnValueIfPoiseMissing": "对应原生 returnValueIfDontHavePoise；目标没有失衡系统时直接采用该结果。",
         "comparisonOperator": "左值与右值之间采用的比较关系。",
         "conditionOperand": "条件比较值可以是常量，也可以在执行时读取当前技能的动作黑板。",
         "minimumStacks": "不启用时只检查状态是否存在；启用后还要求层数达到该值。",
@@ -1894,15 +1899,18 @@
       }
     },
     "inspector": {
-      "sections": { "basic": "基础属性", "presentation": "显示设置" },
+      "sections": { "basic": "基础属性", "simulation": "模拟输入", "presentation": "显示设置" },
       "labels": {
         "actionId": "动作 ID",
         "sourceKind": "来源类型",
         "startFrame": "开始帧",
         "locked": "锁定",
         "disabled": "禁用",
-        "color": "颜色"
-      }
+        "color": "颜色",
+        "cameraTargetAngle": "镜头到目标的有符号夹角（度）",
+        "unset": "未设置"
+      },
+      "cameraTargetAngleHelp": "范围 -180° 到 180°。仅在技能读取该空间条件时需要；留空不会假定方向，并会在实际读取处报错。"
     },
     "emptyTrack": "未设置干员",
     "cursorFrame": "光标：第 {frame} 帧",

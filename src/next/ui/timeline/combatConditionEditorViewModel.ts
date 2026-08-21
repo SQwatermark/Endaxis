@@ -23,6 +23,12 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
         operator: 'greaterOrEqual',
         value: { kind: 'constant', value: 30 },
       };
+    case 'cameraToTargetAngleCompare':
+      return {
+        kind,
+        operator: 'less',
+        value: { kind: 'constant', value: 0 },
+      };
     case 'skillBranchEnabled':
       return { kind, branchKey: 'custom-branch' };
     case 'targetStaggered':
@@ -34,6 +40,14 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
         valueType: 'ratio',
         operator: 'lessOrEqual',
         value: { kind: 'constant', value: 0.5 },
+      };
+    case 'poiseCompare':
+      return {
+        kind,
+        target: 'enemy',
+        returnValueIfMissing: false,
+        operator: 'equal',
+        value: { kind: 'constant', value: 0 },
       };
     case 'contextFlagEquals':
       return { kind, flag: 'custom-flag', value: true };

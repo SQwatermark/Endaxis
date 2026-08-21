@@ -223,6 +223,12 @@ export type CombatCondition =
       operator: ComparisonOperator;
       value: ActionValueOperand;
     }
+  | {
+      /** 比较镜头前向到施法者→目标方向、绕世界上轴的有符号角度。 */
+      kind: 'cameraToTargetAngleCompare';
+      operator: ComparisonOperator;
+      value: ActionValueOperand;
+    }
   | { kind: 'skillBranchEnabled'; branchKey: string }
   | { kind: 'targetStaggered'; target: CombatTarget }
   | {
@@ -230,6 +236,14 @@ export type CombatCondition =
       kind: 'healthCompare';
       target: CombatTarget | HealTarget;
       valueType: 'current' | 'ratio';
+      operator: ComparisonOperator;
+      value: ActionValueOperand;
+    }
+  | {
+      /** 比较目标当前失衡值；目标没有失衡系统时返回原生配置值。 */
+      kind: 'poiseCompare';
+      target: CombatTarget;
+      returnValueIfMissing: boolean;
       operator: ComparisonOperator;
       value: ActionValueOperand;
     }
@@ -358,9 +372,11 @@ export const COMBAT_CONDITION_KINDS = [
   'casterControlled',
   'enemyRankIn',
   'enemySuperArmorCompare',
+  'cameraToTargetAngleCompare',
   'skillBranchEnabled',
   'targetStaggered',
   'healthCompare',
+  'poiseCompare',
   'contextFlagEquals',
   'actionValueCompare',
   'probability',

@@ -6939,6 +6939,141 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("operator: 'greaterOrEqual'", compiled)
         self.assertIn("value: { kind: 'constant', value: 30 }", compiled)
 
+    def test_two_direction_angle_condition_preserves_signed_camera_comparison(self) -> None:
+        condition = {
+            "$type": "Example.CheckTwoDirectionAngle+Data, Example",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 47,
+            "dir1Source": target_settings_fixture("Source"),
+            "dir1Target": target_settings_fixture("Target"),
+            "dir1DirectionType": "CameraForward",
+            "dir2Source": target_settings_fixture("Source"),
+            "dir2Target": target_settings_fixture("Target"),
+            "dir2DirectionType": "SourceToTarget",
+            "compareType": "LT",
+            "value": {
+                "useBlackboardKey": False,
+                "value": 0.0,
+                "blackboardKey": "",
+            },
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 2,
+                        "_endFrame": 2,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 1,
+                                    "conditionAction": {"actionData": [condition]},
+                                    "succeedActions": {
+                                        "actionData": [
+                                            {"$type": "Example.DamageAction+Data, Example"}
+                                        ]
+                                    },
+                                    "failActions": {"actionData": []},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        parsed = parse_conditional_actions(root, "fixture.json", {})[0].conditions[0]
+
+        self.assertEqual(parsed.twoDirectionAngle.dir1DirectionType, "CameraForward")
+        self.assertEqual(parsed.twoDirectionAngle.dir2DirectionType, "SourceToTarget")
+        self.assertEqual(parsed.twoDirectionAngle.comparison, "LT")
+        compiled = compile_combat_condition_group(
+            (parsed,),
+            "fixture.conditions",
+            root_skill_context=True,
+            input_target="enemy",
+        )
+        self.assertIn("kind: 'cameraToTargetAngleCompare'", compiled)
+        self.assertIn("operator: 'less'", compiled)
+        self.assertIn("value: { kind: 'constant', value: 0 }", compiled)
+
+    def test_or_condition_preserves_all_within_groups_and_any_between_groups(self) -> None:
+        def compare(index: int, key: str, value: float) -> dict:
+            return {
+                "$type": "Example.CompareFloat+Data, Example",
+                "isEnable": True,
+                "priorityLevel": "Default",
+                "priorityOffset": 0,
+                "serverActionIndex": index,
+                "valueA": {
+                    "useBlackboardKey": True,
+                    "value": 0.0,
+                    "blackboardKey": key,
+                },
+                "compare": "GE",
+                "valueB": {
+                    "useBlackboardKey": False,
+                    "value": value,
+                    "blackboardKey": "",
+                },
+            }
+
+        condition = {
+            "$type": "Example.OrConditionAction+Data, Example",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 50,
+            "conditionList": [
+                {
+                    "actionData": [compare(51, "first", 1), compare(52, "second", 2)],
+                    "onlyExecuteWhenSourceIsMainChar": False,
+                    "onlyExecuteWhenSourceIsGuard": False,
+                },
+                {
+                    "actionData": [compare(53, "fallback", 3)],
+                    "onlyExecuteWhenSourceIsMainChar": False,
+                    "onlyExecuteWhenSourceIsGuard": False,
+                },
+            ],
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 0,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 1,
+                                    "conditionAction": {"actionData": [condition]},
+                                    "succeedActions": {
+                                        "actionData": [
+                                            {"$type": "Example.DamageAction+Data, Example"}
+                                        ]
+                                    },
+                                    "failActions": {"actionData": []},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        parsed = parse_conditional_actions(root, "fixture.json", {})[0].conditions[0]
+        compiled = compile_combat_condition_group((parsed,), "fixture.conditions")
+
+        self.assertEqual([len(group) for group in parsed.anyConditionGroups], [2, 1])
+        self.assertIn("kind: 'any'", compiled)
+        self.assertIn("kind: 'all'", compiled)
+        self.assertIn("key: 'fallback'", compiled)
+
     def test_target_equality_between_input_and_main_target_is_guaranteed(self) -> None:
         condition = {
             "$type": "Example.CheckTargetsEqual+Data, Example",
@@ -8388,6 +8523,60 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertIn("step('applyBuff'", result)
         self.assertIn("target: 'enemy'", result)
+
+    def test_tag_filtered_single_enemy_count_compiles_to_runtime_entity_tag_query(self) -> None:
+        condition = ConditionSource(
+            sourceType="CheckEntityNum",
+            supported=False,
+            comparison=None,
+            left=None,
+            right=None,
+            skillTypes=(),
+            entityCount=EntityCountConditionSource(
+                targetSource="Context",
+                targetGroupKey="tar",
+                minimumCount=1,
+                comparison="GE",
+                containsHittableTarget=False,
+                excludeDeadEntity=True,
+                storeKey="",
+            ),
+        )
+        action = SimpleNamespace(
+            startFrame=5,
+            actionIndex=38,
+            actionPath=("timelineActions[0]", "_sequenceActionData", "actionData", "[37]"),
+            conditions=(condition,),
+        )
+        write = TargetGroupWriteSource(
+            startFrame=5,
+            endFrame=8,
+            actionIndex=36,
+            actionPath=("timelineActions[0]", "_sequenceActionData", "actionData", "[36]"),
+            targetGroupKey="tar",
+            producerType="FindTargetAction",
+            finderType="HitBoxFinder",
+            finderFactionTarget="Anti",
+            finderTargetObjectType="Normal",
+            finderCheckAlive=True,
+            validatorTypes=("TagValidator",),
+            postProcessorTypes=("PriorityFilter",),
+            inputTargets=(),
+            intervalSeconds=None,
+            validatorTagQueries=(("HasAny", (-1110095722, -421286163)),),
+        )
+
+        compiled = compile_combat_condition_group(
+            (condition,),
+            "fixture.conditions",
+            action=action,
+            target_group_writes=(write,),
+        )
+
+        self.assertIn("kind: 'entityTagMatch'", compiled)
+        self.assertIn("target: 'enemy'", compiled)
+        self.assertIn("tagQueryType: 'hasAny'", compiled)
+        self.assertIn("tagIds: [-1110095722, -421286163]", compiled)
 
     def test_conditional_buff_context_compiles_unfiltered_team_target_as_party(self) -> None:
         condition = SimpleNamespace(

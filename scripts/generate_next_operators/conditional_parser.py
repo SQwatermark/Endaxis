@@ -58,6 +58,7 @@ from source_models import (
     ForEachContextActionSource,
     GlobalCooldownConditionSource,
     HealthConditionSource,
+    PoiseConditionSource,
     LegacyBuffFinishPayload,
     MainOperatorConditionSource,
     SequenceGuardActionSource,
@@ -69,6 +70,7 @@ from source_models import (
     SwitchActionSource,
     TargetIdentityConditionSource,
     TimedMarkerConditionSource,
+    TwoDirectionAngleConditionSource,
     TimelineJumpBranchActionSource,
     UnconditionalActionSource,
 )
@@ -412,6 +414,67 @@ def parse_conditional_actions(
     def parse_condition(raw_condition: Any, path: str) -> ConditionSource:
         condition = require_dict(raw_condition, path)
         condition_type = action_name(str(condition.get("$type", "")))
+        if condition_type == "OrConditionAction":
+            expected_fields = {
+                "$type", "isEnable", "priorityLevel", "priorityOffset",
+                "serverActionIndex", "conditionList",
+            }
+            if set(condition) != expected_fields:
+                raise ValueError(f"{path}: unexpected fields {sorted(condition)}")
+            raw_groups = require_list(condition.get("conditionList"), f"{path}.conditionList")
+            groups: list[tuple[ConditionSource, ...]] = []
+            group_negations: list[tuple[bool, ...]] = []
+            for group_index, raw_group in enumerate(raw_groups):
+                group_path = f"{path}.conditionList[{group_index}]"
+                group = require_dict(raw_group, group_path)
+                expected_group_fields = {
+                    "actionData", "onlyExecuteWhenSourceIsMainChar",
+                    "onlyExecuteWhenSourceIsGuard",
+                }
+                if set(group) != expected_group_fields:
+                    raise ValueError(f"{group_path}: unexpected fields {sorted(group)}")
+                if group.get("onlyExecuteWhenSourceIsMainChar") is not False:
+                    raise ValueError(f"{group_path}: main-character-only OR groups are unsupported")
+                if group.get("onlyExecuteWhenSourceIsGuard") is not False:
+                    raise ValueError(f"{group_path}: guard-only OR groups are unsupported")
+
+                parsed: list[ConditionSource] = []
+                negated: list[bool] = []
+                negate_next = False
+                for item_index, item in enumerate(
+                    require_list(group.get("actionData"), f"{group_path}.actionData")
+                ):
+                    item_path = f"{group_path}.actionData[{item_index}]"
+                    raw_item = require_dict(item, item_path)
+                    if raw_item.get("isEnable") is False:
+                        continue
+                    item_type = action_name(str(raw_item.get("$type", "")))
+                    if item_type == "NotNextCheckAction":
+                        if negate_next:
+                            raise ValueError(f"{item_path}: consecutive NotNextCheckAction is unsupported")
+                        negate_next = True
+                        continue
+                    parsed.append(parse_condition(raw_item, item_path))
+                    negated.append(negate_next)
+                    negate_next = False
+                if negate_next:
+                    raise ValueError(f"{group_path}: dangling NotNextCheckAction")
+                # OnCreate 会忽略空 SequenceAction；在生成器中同样不把空组当作 true。
+                if parsed:
+                    groups.append(tuple(parsed))
+                    group_negations.append(tuple(negated))
+            if not groups:
+                raise ValueError(f"{path}: OrConditionAction has no non-empty condition groups")
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=True,
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                anyConditionGroups=tuple(groups),
+                anyConditionNegated=tuple(group_negations),
+            )
         if condition_type == "Probablity":
             expected_fields = {
                 "$type", "isEnable", "priorityLevel", "priorityOffset",
@@ -824,6 +887,85 @@ def parse_conditional_actions(
                     target=parse_target_reference(
                         condition.get("checkTarget"), f"{path}.checkTarget"
                     ),
+                    comparison=comparison,
+                    value=parse_scalar(
+                        condition.get("value"), f"{path}.value", inherited_blackboard
+                    ),
+                ),
+            )
+        if condition_type == "CheckTwoDirectionAngle":
+            expected_fields = {
+                "$type", "isEnable", "priorityLevel", "priorityOffset",
+                "serverActionIndex", "dir1Source", "dir1Target",
+                "dir1DirectionType", "dir2Source", "dir2Target",
+                "dir2DirectionType", "compareType", "value",
+            }
+            if set(condition) != expected_fields:
+                raise ValueError(f"{path}: unexpected fields {sorted(condition)}")
+            direction1 = condition.get("dir1DirectionType")
+            direction2 = condition.get("dir2DirectionType")
+            comparison = condition.get("compareType")
+            for field, value in (
+                ("dir1DirectionType", direction1),
+                ("dir2DirectionType", direction2),
+                ("compareType", comparison),
+            ):
+                if not isinstance(value, str) or not value:
+                    raise ValueError(f"{path}.{field}: expected non-empty string")
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=False,
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                twoDirectionAngle=TwoDirectionAngleConditionSource(
+                    dir1Source=parse_target_reference(
+                        condition.get("dir1Source"), f"{path}.dir1Source"
+                    ),
+                    dir1Target=parse_target_reference(
+                        condition.get("dir1Target"), f"{path}.dir1Target"
+                    ),
+                    dir1DirectionType=direction1,
+                    dir2Source=parse_target_reference(
+                        condition.get("dir2Source"), f"{path}.dir2Source"
+                    ),
+                    dir2Target=parse_target_reference(
+                        condition.get("dir2Target"), f"{path}.dir2Target"
+                    ),
+                    dir2DirectionType=direction2,
+                    comparison=comparison,
+                    value=parse_scalar(
+                        condition.get("value"), f"{path}.value", inherited_blackboard
+                    ),
+                ),
+            )
+        if condition_type == "CheckPoiseValue":
+            expected_fields = {
+                "$type", "isEnable", "priorityLevel", "priorityOffset",
+                "serverActionIndex", "poiseOwner", "returnValueIfDontHavePoise",
+                "compare", "value",
+            }
+            if set(condition) != expected_fields:
+                raise ValueError(f"{path}: unexpected fields {sorted(condition)}")
+            comparison = condition.get("compare")
+            if not isinstance(comparison, str) or not comparison:
+                raise ValueError(f"{path}.compare: expected non-empty string")
+            return_if_missing = condition.get("returnValueIfDontHavePoise")
+            if not isinstance(return_if_missing, bool):
+                raise ValueError(f"{path}.returnValueIfDontHavePoise: expected boolean")
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=False,
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                poise=PoiseConditionSource(
+                    target=parse_target_reference(
+                        condition.get("poiseOwner"), f"{path}.poiseOwner"
+                    ),
+                    returnValueIfMissing=return_if_missing,
                     comparison=comparison,
                     value=parse_scalar(
                         condition.get("value"), f"{path}.value", inherited_blackboard

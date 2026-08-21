@@ -70,6 +70,9 @@ function setTarget(event: Event): void {
     case 'healthCompare':
       emit('update', { ...condition, target });
       break;
+    case 'poiseCompare':
+      emit('update', { ...condition, target });
+      break;
     case 'statusActive':
       emit('update', { ...condition, target });
       break;
@@ -109,7 +112,13 @@ function setComparison(event: Event): void {
     case 'healthCompare':
       emit('update', { ...condition, operator });
       break;
+    case 'poiseCompare':
+      emit('update', { ...condition, operator });
+      break;
     case 'enemySuperArmorCompare':
+      emit('update', { ...condition, operator });
+      break;
+    case 'cameraToTargetAngleCompare':
       emit('update', { ...condition, operator });
       break;
     case 'actionValueCompare':
@@ -137,7 +146,11 @@ function setOperand(
   const condition = props.condition;
   if (condition.kind === 'healthCompare' && field === 'value')
     emit('update', { ...condition, value });
+  else if (condition.kind === 'poiseCompare' && field === 'value')
+    emit('update', { ...condition, value });
   else if (condition.kind === 'enemySuperArmorCompare' && field === 'value')
+    emit('update', { ...condition, value });
+  else if (condition.kind === 'cameraToTargetAngleCompare' && field === 'value')
     emit('update', { ...condition, value });
   else if (condition.kind === 'buffStackCompare' && field === 'value')
     emit('update', { ...condition, value });
@@ -383,6 +396,7 @@ function removeChild(index: number): void {
         [
           'targetStaggered',
           'healthCompare',
+          'poiseCompare',
           'statusActive',
           'buffStackCompare',
           'entityTagMatch',
@@ -443,6 +457,45 @@ function removeChild(index: number): void {
       /></label>
     </template>
 
+    <template v-if="condition.kind === 'poiseCompare'">
+      <label class="condition-editor__field"
+        ><EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.comparisonOperator')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.comparisonOperator')"
+        /><select :value="condition.operator" @change="setComparison">
+          <option v-for="operator in COMPARISON_OPERATORS" :key="operator" :value="operator">
+            {{ t(`nextTimeline.skillEditing.comparisonOperators.${operator}`) }}
+          </option>
+        </select></label
+      >
+      <label class="condition-editor__operand"
+        ><EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.compareValue')"
+          :help="
+            t('nextTimeline.skillEditing.fieldHelp.conditionOperand')
+          " /><ActionValueOperandEditor
+          :value="condition.value"
+          :labels="operandLabels()"
+          @update="setOperand('value', $event)"
+      /></label>
+      <label class="condition-editor__check">
+        <input
+          type="checkbox"
+          :checked="condition.returnValueIfMissing"
+          @change="
+            emit('update', {
+              ...condition,
+              returnValueIfMissing: ($event.target as HTMLInputElement).checked,
+            })
+          "
+        />
+        <EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.returnValueIfPoiseMissing')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.returnValueIfPoiseMissing')"
+        />
+      </label>
+    </template>
+
     <fieldset v-if="condition.kind === 'enemyRankIn'" class="condition-editor__elements">
       <legend>Enemy rank</legend>
       <label v-for="rank in ENEMY_RANKS" :key="rank"
@@ -468,6 +521,29 @@ function removeChild(index: number): void {
       <label class="condition-editor__operand"
         ><EditorFieldLabel
           :label="t('nextTimeline.skillEditing.superArmor')"
+          :help="
+            t('nextTimeline.skillEditing.fieldHelp.conditionOperand')
+          " /><ActionValueOperandEditor
+          :value="condition.value"
+          :labels="operandLabels()"
+          @update="setOperand('value', $event)"
+      /></label>
+    </template>
+
+    <template v-if="condition.kind === 'cameraToTargetAngleCompare'">
+      <label class="condition-editor__field"
+        ><EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.comparisonOperator')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.comparisonOperator')"
+        /><select :value="condition.operator" @change="setComparison">
+          <option v-for="operator in COMPARISON_OPERATORS" :key="operator" :value="operator">
+            {{ t(`nextTimeline.skillEditing.comparisonOperators.${operator}`) }}
+          </option>
+        </select></label
+      >
+      <label class="condition-editor__operand"
+        ><EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.cameraTargetAngle')"
           :help="
             t('nextTimeline.skillEditing.fieldHelp.conditionOperand')
           " /><ActionValueOperandEditor

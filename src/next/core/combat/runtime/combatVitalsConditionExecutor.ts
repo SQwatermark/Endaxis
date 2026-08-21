@@ -10,13 +10,13 @@ import { compareCombatNumbers } from './numericComparison';
 
 export interface CombatVitalsConditionDependencies {
   readonly resolveTarget: (
-    target: Extract<CombatCondition, { kind: 'healthCompare' }>['target'],
+    target: Extract<CombatCondition, { kind: 'healthCompare' | 'poiseCompare' }>['target'],
     buffSourceId?: string,
   ) => CombatVitals;
   readonly delegate: CombatOperationExecutor;
 }
 
-/** 只处理生命比较；失衡等其他实体条件由各自状态所有者负责。 */
+/** 处理由同一实体生命账本持有的生命与失衡比较。 */
 export class CombatVitalsConditionExecutor implements CombatOperationExecutor {
   constructor(readonly dependencies: CombatVitalsConditionDependencies) {}
 
@@ -37,13 +37,22 @@ export class CombatVitalsConditionExecutor implements CombatOperationExecutor {
   }
 
   evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
-    if (condition.kind !== 'healthCompare') {
+    if (condition.kind !== 'healthCompare' && condition.kind !== 'poiseCompare') {
       return context === undefined
         ? this.dependencies.delegate.evaluate(condition)
         : this.dependencies.delegate.evaluate(condition, context);
     }
-    if (context === undefined) throw new Error('healthCompare requires a combat operation context');
+    if (context === undefined)
+      throw new Error(`${condition.kind} requires a combat operation context`);
     const vitals = this.dependencies.resolveTarget(condition.target, context.buffSourceId);
+    if (condition.kind === 'poiseCompare') {
+      if (!vitals.hasPoise) return condition.returnValueIfMissing;
+      return compareCombatNumbers(
+        vitals.poise,
+        resolveActionValueOperand(condition.value, context.blackboard),
+        condition.operator,
+      );
+    }
     const current =
       condition.valueType === 'ratio' ? vitals.health / vitals.maxHealth : vitals.health;
     return compareCombatNumbers(

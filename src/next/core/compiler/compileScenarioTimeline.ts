@@ -229,14 +229,19 @@ function compileCastSkillPrograms(
   const definitions = [definition, ...(resolved.group.replacementSkills ?? [])];
   return definitions.map(skill =>
     bindProgramHitIds(
-      compileSkill({
-        operatorId: trackId,
-        skillGroupKey: resolved.group.key,
-        skillType: resolved.group.skillType,
-        skillLevel: level,
-        skill,
-        abilityEntityDefinitions,
-      }),
+      {
+        ...compileSkill({
+          operatorId: trackId,
+          skillGroupKey: resolved.group.key,
+          skillType: resolved.group.skillType,
+          skillLevel: level,
+          skill,
+          abilityEntityDefinitions,
+        }),
+        ...(cast.simulationInputs === undefined
+          ? {}
+          : { simulationInputs: { ...cast.simulationInputs } }),
+      },
       cast.id,
     ),
   );

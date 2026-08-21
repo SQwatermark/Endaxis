@@ -78,4 +78,49 @@ describe('CombatVitalsConditionExecutor', () => {
     ).toBe(true);
     expect(resolveTarget).toHaveBeenCalledWith('buffSource', 'operator:source');
   });
+
+  it('compares current poise and preserves the native missing-poise fallback', () => {
+    const withPoise = new CombatVitals({
+      health: 1000,
+      maxHealth: 1000,
+      maxPoise: 100,
+      poise: 0,
+      poiseRecoveryTime: 1,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    const withoutPoise = new CombatVitals({
+      health: 1000,
+      maxHealth: 1000,
+      maxPoise: 0,
+      poise: 0,
+      poiseRecoveryTime: 0,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    let current = withPoise;
+    const executor = new CombatVitalsConditionExecutor({
+      resolveTarget: () => current,
+      delegate: { execute: vi.fn(() => false), evaluate: vi.fn(() => false) },
+    });
+    const condition = {
+      kind: 'poiseCompare' as const,
+      target: 'enemy' as const,
+      returnValueIfMissing: false,
+      operator: 'equal' as const,
+      value: { kind: 'constant' as const, value: 0 },
+    };
+
+    expect(executor.evaluate(condition, { blackboard: new ActionBlackboard() })).toBe(true);
+    current = withoutPoise;
+    expect(executor.evaluate(condition, { blackboard: new ActionBlackboard() })).toBe(false);
+    expect(
+      executor.evaluate(
+        { ...condition, returnValueIfMissing: true },
+        { blackboard: new ActionBlackboard() },
+      ),
+    ).toBe(true);
+  });
 });

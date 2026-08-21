@@ -14,12 +14,25 @@ const props = defineProps<{
   currentDefinition: SkillDefinition | null;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   editDefinition: [];
   resetDefinition: [];
+  setCameraTargetAngle: [angleDegrees: number | null];
 }>();
 
 const { t } = useI18n({ useScope: 'global' });
+
+function commitCameraTargetAngle(event: Event): void {
+  const raw = (event.target as HTMLInputElement).value.trim();
+  if (raw.length === 0) {
+    emit('setCameraTargetAngle', null);
+    return;
+  }
+  const angle = Number(raw);
+  if (Number.isFinite(angle) && angle >= -180 && angle <= 180) {
+    emit('setCameraTargetAngle', angle);
+  }
+}
 </script>
 
 <template>
@@ -45,6 +58,28 @@ const { t } = useI18n({ useScope: 'global' });
             <span>{{ t('nextTimeline.inspector.labels.startFrame') }}</span>
             <div class="readonly-field">{{ cast.placement.startFrame }}</div>
           </div>
+        </div>
+      </section>
+
+      <section class="section-container">
+        <div class="panel-tag-mini">{{ t('nextTimeline.inspector.sections.simulation') }}</div>
+        <div class="attribute-grid">
+          <label class="form-group attribute-grid__wide">
+            <span>{{ t('nextTimeline.inspector.labels.cameraTargetAngle') }}</span>
+            <input
+              class="number-field"
+              type="number"
+              min="-180"
+              max="180"
+              step="any"
+              :value="cast.simulationInputs?.cameraToTargetSignedAngleDegrees ?? ''"
+              :placeholder="t('nextTimeline.inspector.labels.unset')"
+              @change="commitCameraTargetAngle"
+            />
+            <small class="field-help">{{
+              t('nextTimeline.inspector.cameraTargetAngleHelp')
+            }}</small>
+          </label>
         </div>
       </section>
 
@@ -178,6 +213,21 @@ const { t } = useI18n({ useScope: 'global' });
   border: 1px solid var(--ea-border-soft);
   border-left: 2px solid var(--ea-border-strong);
   background: var(--ea-fill-soft);
+}
+
+.number-field {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 7px 8px;
+  border: 1px solid var(--ea-border-strong);
+  background: var(--ea-workbench-panel);
+  color: var(--ea-fg);
+}
+
+.field-help {
+  color: var(--ea-fg-muted);
+  font-size: 11px;
+  line-height: 1.45;
 }
 
 .panel-tag-mini {

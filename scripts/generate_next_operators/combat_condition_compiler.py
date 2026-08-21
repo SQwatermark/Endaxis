@@ -81,6 +81,24 @@ def compile_combat_condition(
     services: CombatConditionServices,
 ) -> str:
     """只编译已由 Next 运行时闭环的原生条件，其他条件必须显式失败。"""
+    if source.sourceType == "OrConditionAction":
+        if not source.anyConditionGroups:
+            raise ValueError(f"{path}: missing OR condition groups")
+        return compile_combat_condition_group(
+            (),
+            path,
+            action,
+            target_group_writes,
+            root_skill_context,
+            input_target,
+            skill_has_output_damage,
+            ability_entity_current_target,
+            buff_ability_damage_event,
+            buff_owner_target,
+            any_groups=source.anyConditionGroups,
+            any_group_negated=source.anyConditionNegated,
+            services=services,
+        )
     comparison_operator_map = services.comparison_operator_map
     compile_condition_operand = services.compile_condition_operand
     decode_damage_decorate_mask = services.decode_damage_decorate_mask
@@ -194,6 +212,77 @@ def compile_combat_condition(
             if result
             else "{ kind: 'not', condition: { kind: 'singleEnemyPresent' } }"
         )
+    if (
+        source.sourceType == "CheckEntityNum"
+        and entity_count is not None
+        and entity_count.targetSource == "Context"
+        and entity_count.targetGroupKey
+        and not entity_count.containsHittableTarget
+        and not entity_count.storeKey
+        and (
+            entity_write := resolve_latest_target_group_write(
+                action, entity_count.targetGroupKey, target_group_writes
+            )
+        )
+        is not None
+        and entity_write.producerType in {"FindTargetAction", "ContinuousFindTargetAction"}
+        and entity_write.finderType == "HitBoxFinder"
+        and entity_write.finderFactionTarget == "Anti"
+        and entity_write.finderTargetObjectType == "Normal"
+        and entity_write.finderCheckAlive is True
+        and entity_write.validatorTypes == ("TagValidator",)
+        and len(entity_write.validatorTagQueries) == 1
+        and all(
+            processor == "PriorityFilter" for processor in entity_write.postProcessorTypes
+        )
+    ):
+        # 固定单敌人、零距离模型下，空间搜索结果只剩“唯一敌人是否通过标签校验”。
+        # 因此目标数严格为 0 或 1，而不是把带标签过滤的搜索误判为恒命中。
+        query_type, tag_ids = entity_write.validatorTagQueries[0]
+        compiled_query_type = {
+            "HasAny": "hasAny",
+            "HasAll": "hasAll",
+            "ExceptAny": "exceptAny",
+            "ExceptAll": "exceptAll",
+        }.get(query_type)
+        if compiled_query_type is None:
+            raise ValueError(f"{path}: unsupported target-search tag query {query_type!r}")
+
+        def compare_count(count: int) -> bool:
+            result = {
+                "LT": count < entity_count.minimumCount,
+                "LE": count <= entity_count.minimumCount,
+                "GT": count > entity_count.minimumCount,
+                "GE": count >= entity_count.minimumCount,
+                "Equals": count == entity_count.minimumCount,
+                "NotEquals": count != entity_count.minimumCount,
+            }.get(entity_count.comparison)
+            if result is None:
+                raise ValueError(f"{path}: unsupported entity-count comparison")
+            return result
+
+        when_missing = compare_count(0)
+        when_matched = compare_count(1)
+        if when_missing == when_matched:
+            return (
+                "{ kind: 'combatActive' }"
+                if when_matched
+                else "{ kind: 'not', condition: { kind: 'combatActive' } }"
+            )
+        tag_condition = "\n".join(
+            [
+                "{",
+                "  kind: 'entityTagMatch',",
+                "  target: 'enemy',",
+                f"  tagQueryType: {ts_inline_literal(compiled_query_type)},",
+                f"  tagIds: {ts_inline_literal(tag_ids)},",
+                "}",
+            ]
+        )
+        if when_matched:
+            return tag_condition
+        lines = tag_condition.splitlines()
+        return "\n".join(["{", "  kind: 'not',", "  condition: " + lines[0], *["  " + line for line in lines[1:]], "}"])
     if (
         source.sourceType == "CheckEntityNum"
         and entity_count is not None
@@ -386,6 +475,82 @@ def compile_combat_condition(
                 "  kind: 'enemySuperArmorCompare',",
                 f"  operator: {ts_inline_literal(operator)},",
                 f"  value: {compile_condition_operand(super_armor.value, f'{path}.value')},",
+                "}",
+            ]
+        )
+    if source.sourceType == "CheckTwoDirectionAngle":
+        angle = source.twoDirectionAngle
+        if angle is None:
+            raise ValueError(f"{path}: missing two-direction angle payload")
+        references = (
+            angle.dir1Source,
+            angle.dir1Target,
+            angle.dir2Source,
+            angle.dir2Target,
+        )
+        if any(not target_reference_has_plain_selector(reference) for reference in references):
+            raise ValueError(f"{path}: direction target selector changes identity")
+
+        def resolve_direction_target(reference: Any) -> str | None:
+            return resolve_fixed_combat_target(
+                reference.targetSource,
+                reference.targetGroupKey,
+                action=action,
+                target_group_writes=target_group_writes,
+                root_skill_context=root_skill_context,
+                input_target=input_target,
+            )
+
+        identities = tuple(resolve_direction_target(reference) for reference in references)
+        if identities != ("caster", "enemy", "caster", "enemy"):
+            raise ValueError(f"{path}: unsupported two-direction target identities {identities}")
+        if (
+            angle.dir1DirectionType != "CameraForward"
+            or angle.dir2DirectionType != "SourceToTarget"
+        ):
+            raise ValueError(
+                f"{path}: unsupported direction pair "
+                f"{angle.dir1DirectionType!r}/{angle.dir2DirectionType!r}"
+            )
+        operator = comparison_operator_map.get(angle.comparison)
+        if operator is None:
+            raise ValueError(f"{path}: unsupported comparison {angle.comparison!r}")
+        return "\n".join(
+            [
+                "{",
+                "  kind: 'cameraToTargetAngleCompare',",
+                f"  operator: {ts_inline_literal(operator)},",
+                f"  value: {compile_condition_operand(angle.value, f'{path}.value')},",
+                "}",
+            ]
+        )
+    if source.sourceType == "CheckPoiseValue":
+        poise = source.poise
+        if poise is None:
+            raise ValueError(f"{path}: missing poise condition payload")
+        if not target_reference_has_plain_selector(poise.target):
+            raise ValueError(f"{path}: CheckPoiseValue target selector changes identity")
+        target = resolve_fixed_combat_target(
+            poise.target.targetSource,
+            poise.target.targetGroupKey,
+            action=action,
+            target_group_writes=target_group_writes,
+            root_skill_context=root_skill_context,
+            input_target=input_target,
+        )
+        if target not in {"caster", "enemy"}:
+            raise ValueError(f"{path}: unsupported poise target {target!r}")
+        operator = comparison_operator_map.get(poise.comparison)
+        if operator is None:
+            raise ValueError(f"{path}: unsupported comparison {poise.comparison!r}")
+        return "\n".join(
+            [
+                "{",
+                "  kind: 'poiseCompare',",
+                f"  target: {ts_inline_literal(target)},",
+                f"  returnValueIfMissing: {ts_inline_literal(poise.returnValueIfMissing)},",
+                f"  operator: {ts_inline_literal(operator)},",
+                f"  value: {compile_condition_operand(poise.value, f'{path}.value')},",
                 "}",
             ]
         )

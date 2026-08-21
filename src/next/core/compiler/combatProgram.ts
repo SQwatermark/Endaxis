@@ -299,6 +299,9 @@ export interface CompiledSkillProgram {
   readonly operatorId: string;
   /** 文档中对应的技能释放身份；缺失时表示不是从场景时间轴编译的单元测试程序。 */
   readonly castId?: string;
+  readonly simulationInputs?: {
+    readonly cameraToTargetSignedAngleDegrees?: number;
+  };
   readonly skillGroupKey: string;
   readonly skillId: string;
   readonly sourceSkillId?: string;

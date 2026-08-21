@@ -10,6 +10,7 @@ import {
   removeSkillCasts,
   resetSkillCastToTemplate,
   setSkillCastColor,
+  setSkillCastCameraTargetAngle,
   setSkillCastDisabled,
   setSkillCastLocked,
   setSkillCastCustomDefinition,
@@ -309,6 +310,30 @@ describe('moveSkillCast', () => {
     expect(colored.tracks[0]!.skillCasts[0]!.presentation?.color).toBe('#ff4d4f');
     expect(reset.tracks[0]!.skillCasts[0]!.presentation?.color).toBeNull();
     expect(original.tracks[0]!.skillCasts[0]!.presentation).toBeUndefined();
+  });
+
+  it('sets and clears a cast-specific signed camera angle', () => {
+    const original = scenario();
+    const configured = setSkillCastCameraTargetAngle(original, 0, 'cast:1', -37.5);
+
+    expect(
+      configured.tracks[0]!.skillCasts[0]!.simulationInputs?.cameraToTargetSignedAngleDegrees,
+    ).toBe(-37.5);
+    expect(original.tracks[0]!.skillCasts[0]!.simulationInputs).toBeUndefined();
+    expect(setSkillCastCameraTargetAngle(configured, 0, 'cast:1', -37.5)).toBe(configured);
+
+    const cleared = setSkillCastCameraTargetAngle(configured, 0, 'cast:1', null);
+    expect(cleared.tracks[0]!.skillCasts[0]!.simulationInputs).toBeUndefined();
+  });
+
+  it('rejects an invalid cast-specific signed camera angle', () => {
+    const original = scenario();
+    expect(() => setSkillCastCameraTargetAngle(original, 0, 'cast:1', 181)).toThrow(
+      'between -180 and 180 degrees',
+    );
+    expect(() => setSkillCastCameraTargetAngle(original, 0, 'cast:1', Number.NaN)).toThrow(
+      'between -180 and 180 degrees',
+    );
   });
 
   it('stores an independent complete custom definition and can return to the template', () => {

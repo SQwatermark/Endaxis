@@ -1532,9 +1532,11 @@
         "singleEnemyPresent": "Single enemy present",
         "casterControlled": "Caster controlled",
         "enemySuperArmorCompare": "Enemy super armor comparison",
+        "cameraToTargetAngleCompare": "Camera-to-target angle comparison",
         "skillBranchEnabled": "Skill branch enabled",
         "targetStaggered": "Target staggered",
         "healthCompare": "Health comparison",
+        "poiseCompare": "Poise comparison",
         "contextFlagEquals": "Context flag equals",
         "actionValueCompare": "Action value comparison",
         "probability": "Probability roll",
@@ -1556,8 +1558,10 @@
       "conditionNoParameters": "This condition has no additional parameters.",
       "probability": "Probability",
       "superArmor": "Super armor",
+      "cameraTargetAngle": "Signed angle (degrees)",
       "branchKey": "Skill branch key",
       "healthValueType": "Health value type",
+      "returnValueIfPoiseMissing": "Return true when the target has no poise system",
       "healthValueTypes": { "current": "Current health", "ratio": "Current health ratio" },
       "comparisonOperator": "Comparison",
       "comparisonOperators": {
@@ -1755,6 +1759,7 @@
         "branchKey": "Stable skill branch identity enabled by forms, talents, or other build conditions.",
         "conditionTarget": "Combat entity whose state is inspected. Endaxis currently models the caster and one enemy.",
         "healthValueType": "Current health is an absolute value; current health ratio ranges from 0 to 1.",
+        "returnValueIfPoiseMissing": "Preserves native returnValueIfDontHavePoise: use this result directly when the target has no poise system.",
         "comparisonOperator": "Relationship used to compare the left and right values.",
         "conditionOperand": "A constant or a value resolved from this cast's action blackboard at runtime.",
         "minimumStacks": "Disabled only checks presence; enabled also requires at least this many stacks.",
@@ -1905,15 +1910,22 @@
       }
     },
     "inspector": {
-      "sections": { "basic": "Basic properties", "presentation": "Presentation" },
+      "sections": {
+        "basic": "Basic properties",
+        "simulation": "Simulation inputs",
+        "presentation": "Presentation"
+      },
       "labels": {
         "actionId": "Action ID",
         "sourceKind": "Source type",
         "startFrame": "Start frame",
         "locked": "Locked",
         "disabled": "Disabled",
-        "color": "Color"
-      }
+        "color": "Color",
+        "cameraTargetAngle": "Signed camera-to-target angle (degrees)",
+        "unset": "Not set"
+      },
+      "cameraTargetAngleHelp": "Range: -180° to 180°. Only required by skills that read this spatial condition; leaving it blank makes no directional assumption and fails where it is read."
     },
     "emptyTrack": "No operator",
     "cursorFrame": "Cursor: frame {frame}",

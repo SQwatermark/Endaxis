@@ -45,6 +45,7 @@ __all__ = [
     "EntityCountConditionSource",
     "BuffStackConditionSource",
     "HealthConditionSource",
+    "PoiseConditionSource",
     "MainOperatorConditionSource",
     "EnemyRankConditionSource",
     "TargetReferenceSource",
@@ -834,6 +835,14 @@ class HealthConditionSource:
 
 
 @dataclass(frozen=True)
+class PoiseConditionSource:
+    target: "TargetReferenceSource"
+    returnValueIfMissing: bool
+    comparison: str
+    value: ScalarSource
+
+
+@dataclass(frozen=True)
 class MainOperatorConditionSource:
     targetSource: str
     targetGroupKey: str
@@ -851,6 +860,18 @@ class SuperArmorConditionSource:
     """原生 CheckSuperArmor：比较首目标当前整数霸体值。"""
 
     target: "TargetReferenceSource"
+    comparison: str
+    value: ScalarSource
+
+
+@dataclass(frozen=True)
+class TwoDirectionAngleConditionSource:
+    dir1Source: "TargetReferenceSource"
+    dir1Target: "TargetReferenceSource"
+    dir1DirectionType: str
+    dir2Source: "TargetReferenceSource"
+    dir2Target: "TargetReferenceSource"
+    dir2DirectionType: str
     comparison: str
     value: ScalarSource
 
@@ -955,9 +976,11 @@ class ConditionSource:
     entityCount: EntityCountConditionSource | None = None
     buffStack: BuffStackConditionSource | None = None
     health: HealthConditionSource | None = None
+    poise: "PoiseConditionSource | None" = None
     mainOperator: MainOperatorConditionSource | None = None
     enemyRank: "EnemyRankConditionSource | None" = None
     superArmor: "SuperArmorConditionSource | None" = None
+    twoDirectionAngle: "TwoDirectionAngleConditionSource | None" = None
     targetIdentity: TargetIdentityConditionSource | None = None
     distance: DistanceConditionSource | None = None
     entityTag: "EntityTagConditionSource | None" = None
@@ -969,6 +992,9 @@ class ConditionSource:
     abilityEntityDuration: "AbilityEntityDurationConditionSource | None" = None
     deckAttributeCompare: "DeckAttributeCompareConditionSource | None" = None
     probability: ScalarSource | None = None
+    # 原生 OrConditionAction：各 SequenceAction 内部全满足，组间任一满足。
+    anyConditionGroups: tuple[tuple["ConditionSource", ...], ...] = ()
+    anyConditionNegated: tuple[tuple[bool, ...], ...] = ()
 
 
 @dataclass(frozen=True)

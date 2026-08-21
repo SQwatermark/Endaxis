@@ -149,6 +149,11 @@ export interface SkillCastDocument {
     color?: string | null;
     customBars?: EditableBarDocument[];
   };
+  /** 无法由零距离单敌人模型推导、但由玩家在本次释放时决定的最小模拟输入。 */
+  simulationInputs?: {
+    /** 镜头前向到施法者→目标方向、绕世界上轴的有符号角度（度）。 */
+    cameraToTargetSignedAngleDegrees?: number;
+  };
   /** 完整的自定义技能定义。存在时显示铅笔角标，模拟时使用它替代技能模板。 */
   customDefinition?: SkillDefinition;
 }

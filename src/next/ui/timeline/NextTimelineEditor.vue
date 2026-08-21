@@ -117,6 +117,7 @@ import {
   setSkillCastLocked,
   setSkillCastDisabled,
   setSkillCastColor,
+  setSkillCastCameraTargetAngle,
   setSkillCastCustomDefinition,
   resetSkillCastToTemplate,
   updateBattleResourceRule,
@@ -1997,6 +1998,14 @@ function setContextCastColor(color: string | null): void {
   contextMenuTarget.value = null;
 }
 
+function setSelectedCastCameraTargetAngle(angleDegrees: number | null): void {
+  const selected = selectedCastModel.value;
+  if (selected === null) return;
+  commitScenario('setSkillCastCameraTargetAngle', current =>
+    setSkillCastCameraTargetAngle(current, selected.trackIndex, selected.cast.id, angleDegrees),
+  );
+}
+
 function resetSelectedCastDefinition(): void {
   const selected = selectedCastModel.value;
   if (selected === null || !selected.edited) return;
@@ -2469,6 +2478,7 @@ function setPanelDialogVisible(visible: boolean): void {
         :current-definition="selectedCastModel?.currentDefinition ?? null"
         @edit-definition="showSkillDefinitionEditor = true"
         @reset-definition="resetSelectedCastDefinition"
+        @set-camera-target-angle="setSelectedCastCameraTargetAngle"
       />
       <div v-else class="empty-panel">{{ tool }}</div>
     </template>

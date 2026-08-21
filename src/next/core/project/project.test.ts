@@ -567,6 +567,34 @@ describe('V2 project document', () => {
     }
   });
 
+  it('validates cast-specific camera direction input without inventing a default', () => {
+    const project = createEmptyProject({ createdWith: 'test', gameDataRevision: 'fixture' });
+    const track = createTrack();
+    track.skillCasts.push({
+      id: 'cast:angle',
+      source: {
+        kind: 'operatorSkill',
+        skillGroupKey: 'battleSkill',
+        skillKey: 'battleSkill',
+      },
+      placement: { startFrame: 0 },
+      simulationInputs: { cameraToTargetSignedAngleDegrees: -45 },
+    });
+    project.scenarios[0]!.tracks[0] = track;
+
+    expect(validateProjectDocument(project).ok).toBe(true);
+
+    track.skillCasts[0]!.simulationInputs = { cameraToTargetSignedAngleDegrees: 181 };
+    const invalid = validateProjectDocument(project);
+    expect(invalid.ok).toBe(false);
+    if (!invalid.ok) {
+      expect(invalid.issues).toContainEqual({
+        path: '$.scenarios[0].tracks[0].skillCasts[0].simulationInputs.cameraToTargetSignedAngleDegrees',
+        message: 'expected a finite angle in [-180, 180]',
+      });
+    }
+  });
+
   it('accepts partial presentation fields and validates custom display bars', () => {
     const project = createEmptyProject({
       createdWith: 'test',
