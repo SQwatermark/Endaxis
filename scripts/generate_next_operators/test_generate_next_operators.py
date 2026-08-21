@@ -2912,11 +2912,26 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             root,
             "liino-projectile-hit.json",
             {"heal_value": (0.2,), "heal_rate": (200,)},
-        )[0].succeedActions[0].blackboardCalculation
+        )[0].succeedActions[0].storeAttributeValue
 
-        self.assertEqual(parsed.left.blackboardKey, "agility")
-        self.assertEqual(parsed.right.blackboardKey, "heal_value")
-        self.assertEqual(parsed.addend.blackboardKey, "heal_rate")
+        self.assertEqual(parsed.attributeKey, "agility")
+        self.assertEqual(parsed.multiplier.blackboardKey, "heal_value")
+        self.assertEqual(parsed.base.blackboardKey, "heal_rate")
+
+        pulse_root = json.loads(json.dumps(root))
+        pulse_store = pulse_root["actionGroupData"]["timelineActions"][0][
+            "_sequenceActionData"
+        ]["actionData"][0]["succeedActions"]["actionData"][0]
+        pulse_store["attributeType"] = "PulseAbnormalDamageIncrease"
+        pulse_store["key"] = "final_spell_resistance_decrease"
+        pulse = parse_conditional_actions(
+            pulse_root,
+            "pulse-triggered.json",
+            {"heal_value": (0.2,), "heal_rate": (0.2,)},
+        )[0].succeedActions[0].storeAttributeValue
+
+        self.assertEqual(pulse.attributeKey, "electricAbnormalDamageIncrease")
+        self.assertEqual(pulse.stage, "finalNonConverted")
 
     def test_conditional_aura_ability_entity_resolution_stays_attached_to_its_branch(self) -> None:
         spawn = AbilityEntitySpawnPayload("ability_fixture", "fixture_child")
@@ -12896,6 +12911,39 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(
             len(derive_skill_slot_replacement_relations([base, stage2], (owner_definition,))),
             1,
+        )
+
+        implicit_replacement = SimpleNamespace(
+            **(
+                vars(replacement)
+                | {
+                    "specificRevertedSkillId": False,
+                    "revertedSkillId": "",
+                }
+            )
+        )
+        implicit_definition = SimpleNamespace(
+            buffId="replacement_buff",
+            skillReplacements=(implicit_replacement,),
+        )
+        implicit_stage2 = SimpleNamespace(**(vars(stage2) | {"skillReplacements": ()}))
+        self.assertEqual(
+            derive_skill_slot_replacement_relations(
+                [base, implicit_stage2],
+                (implicit_definition,),
+            ),
+            [
+                {
+                    "skillSlot": "UltimateSkill",
+                    "baseSkillKey": "ultimate",
+                    "replacementSkillKey": "arcana",
+                    "activatedByBuffId": "replacement_buff",
+                    "activationEvent": "DuringBuffEnable",
+                    "activationActionIndex": 6,
+                    "revertMode": "buffActionEnd",
+                    "inheritOriginSkillCooldownProgress": False,
+                }
+            ],
         )
 
     def test_proven_skill_replacement_renders_runtime_steps_and_group_shape(self) -> None:

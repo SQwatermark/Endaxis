@@ -1493,6 +1493,7 @@ def parse_conditional_actions(
                         "Str": "strength", "Agi": "agility", "Wisd": "intellect",
                         "Will": "will", "Level": "level", "MaxHp": "maxHealth",
                         "CrystAbnormalDamageIncrease": "cryoAbnormalDamageIncrease",
+                        "PulseAbnormalDamageIncrease": "electricAbnormalDamageIncrease",
                     }.get(raw_attribute)
                     divisor = parse_scalar(action.get("divisorValue"), source_path, inherited_blackboard)
                     base = parse_scalar(action.get("baseValue"), source_path, inherited_blackboard)

@@ -537,6 +537,7 @@ export const zhuangFangyiGeneratedSource = {
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
                         "objectTypeMatch": null,
@@ -569,6 +570,9 @@ export const zhuangFangyiGeneratedSource = {
                       }
                     ],
                     "failActions": [],
+                    "conditionNegated": [
+                      false
+                    ],
                     "alwaysNext": true
                   },
                   "legacyBuffFinish": null,
@@ -913,6 +917,7 @@ export const zhuangFangyiGeneratedSource = {
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
                         "objectTypeMatch": null,
@@ -1035,6 +1040,7 @@ export const zhuangFangyiGeneratedSource = {
                       }
                     ],
                     "failActions": [],
+                    "conditionNegated": [],
                     "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
@@ -1498,6 +1504,7 @@ export const zhuangFangyiGeneratedSource = {
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
                         "objectTypeMatch": null,
@@ -1602,6 +1609,9 @@ export const zhuangFangyiGeneratedSource = {
                           "dieOnEnd": false
                         }
                       }
+                    ],
+                    "conditionNegated": [
+                      false
                     ],
                     "alwaysNext": true
                   },
@@ -1964,6 +1974,7 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [],
           "alwaysNext": false
         },
         {
@@ -1997,6 +2008,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -2091,6 +2103,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -2145,6 +2158,9 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -2237,6 +2253,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -2291,12 +2308,18 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         },
@@ -2333,6 +2356,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -2384,6 +2408,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -3763,6 +3790,7 @@ export const zhuangFangyiGeneratedSource = {
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": {
                           "checkType": "Id",
@@ -3820,6 +3848,7 @@ export const zhuangFangyiGeneratedSource = {
                               },
                               "superArmor": null,
                               "twoDirectionAngle": null,
+                              "targetAngle": null,
                               "damageDecorateMask": null,
                               "contextBuffId": null,
                               "objectTypeMatch": null,
@@ -3868,6 +3897,7 @@ export const zhuangFangyiGeneratedSource = {
                             }
                           ],
                           "failActions": [],
+                          "conditionNegated": [],
                           "alwaysNext": false
                         },
                         "legacyBuffFinish": null,
@@ -3876,6 +3906,7 @@ export const zhuangFangyiGeneratedSource = {
                       }
                     ],
                     "failActions": [],
+                    "conditionNegated": [],
                     "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
@@ -5041,6 +5072,7 @@ export const zhuangFangyiGeneratedSource = {
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
                         "objectTypeMatch": null,
@@ -5084,6 +5116,9 @@ export const zhuangFangyiGeneratedSource = {
                       }
                     ],
                     "failActions": [],
+                    "conditionNegated": [
+                      false
+                    ],
                     "alwaysNext": true
                   },
                   "legacyBuffFinish": null,
@@ -5281,6 +5316,7 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
+          "tagConditions": [],
           "ownerControlled": false,
           "damageTagMatch": null,
           "damageTags": [],
@@ -5311,6 +5347,7 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
+          "tagConditions": [],
           "ownerControlled": false,
           "damageTagMatch": null,
           "damageTags": [],
@@ -5341,6 +5378,7 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
+          "tagConditions": [],
           "ownerControlled": false,
           "damageTagMatch": null,
           "damageTags": [],
@@ -5371,6 +5409,7 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
+          "tagConditions": [],
           "ownerControlled": false,
           "damageTagMatch": null,
           "damageTags": [],
@@ -5645,6 +5684,34 @@ export const zhuangFangyiGeneratedSource = {
                     "[1]"
                   ],
                   "serverActionIndex": 10,
+                  "storeAttributeValue": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "attributeKind": "specific",
+                    "attributeKey": "electricAbnormalDamageIncrease",
+                    "stage": "finalNonConverted",
+                    "useFloor": false,
+                    "divisor": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "multiplier": {
+                      "value": 1.0,
+                      "blackboardKey": "spell_resistance_decrease",
+                      "levelValues": [
+                        0.2
+                      ]
+                    },
+                    "base": {
+                      "value": 1.0,
+                      "blackboardKey": "spell_resistance_decrease",
+                      "levelValues": [
+                        0.2
+                      ]
+                    },
+                    "outputKey": "final_spell_resistance_decrease"
+                  },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
                   "buffIgnite": null
@@ -6748,6 +6815,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -6813,6 +6881,9 @@ export const zhuangFangyiGeneratedSource = {
               "buffIgnite": null
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -6836,6 +6907,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "distance": {
                 "source": {
                   "targetSource": "Owner",
@@ -7070,6 +7142,7 @@ export const zhuangFangyiGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
                           "objectTypeMatch": null,
@@ -7242,6 +7315,9 @@ export const zhuangFangyiGeneratedSource = {
                           "skillCooldownAdjustment": null,
                           "buffIgnite": null
                         }
+                      ],
+                      "conditionNegated": [
+                        false
                       ],
                       "alwaysNext": true,
                       "executionFrames": [
@@ -7470,6 +7546,7 @@ export const zhuangFangyiGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
                           "objectTypeMatch": null,
@@ -7643,6 +7720,9 @@ export const zhuangFangyiGeneratedSource = {
                           "buffIgnite": null
                         }
                       ],
+                      "conditionNegated": [
+                        false
+                      ],
                       "alwaysNext": true,
                       "executionFrames": [
                         9,
@@ -7682,6 +7762,9 @@ export const zhuangFangyiGeneratedSource = {
                 }
               ]
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
@@ -8091,6 +8174,7 @@ export const zhuangFangyiGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -8263,6 +8347,9 @@ export const zhuangFangyiGeneratedSource = {
                   "skillCooldownAdjustment": null,
                   "buffIgnite": null
                 }
+              ],
+              "conditionNegated": [
+                false
               ],
               "alwaysNext": true,
               "executionFrames": [
@@ -8644,6 +8731,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -8743,6 +8831,9 @@ export const zhuangFangyiGeneratedSource = {
               "buffIgnite": null
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -8766,6 +8857,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "distance": {
                 "source": {
                   "targetSource": "Owner",
@@ -8944,6 +9036,9 @@ export const zhuangFangyiGeneratedSource = {
                 "dieOnEnd": false
               }
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -9184,6 +9279,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -9248,6 +9344,9 @@ export const zhuangFangyiGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -9939,6 +10038,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -10037,6 +10137,9 @@ export const zhuangFangyiGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -10227,6 +10330,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "distance": {
                 "source": {
                   "targetSource": "Owner",
@@ -10461,6 +10565,7 @@ export const zhuangFangyiGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
                           "objectTypeMatch": null,
@@ -10633,6 +10738,9 @@ export const zhuangFangyiGeneratedSource = {
                           "skillCooldownAdjustment": null,
                           "buffIgnite": null
                         }
+                      ],
+                      "conditionNegated": [
+                        false
                       ],
                       "alwaysNext": true,
                       "executionFrames": [
@@ -10861,6 +10969,7 @@ export const zhuangFangyiGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
                           "objectTypeMatch": null,
@@ -11034,6 +11143,9 @@ export const zhuangFangyiGeneratedSource = {
                           "buffIgnite": null
                         }
                       ],
+                      "conditionNegated": [
+                        false
+                      ],
                       "alwaysNext": true,
                       "executionFrames": [
                         9,
@@ -11073,6 +11185,9 @@ export const zhuangFangyiGeneratedSource = {
                 }
               ]
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
@@ -11258,6 +11373,7 @@ export const zhuangFangyiGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -11430,6 +11546,9 @@ export const zhuangFangyiGeneratedSource = {
                   "skillCooldownAdjustment": null,
                   "buffIgnite": null
                 }
+              ],
+              "conditionNegated": [
+                false
               ],
               "alwaysNext": true,
               "executionFrames": [
@@ -11710,6 +11829,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "distance": {
                 "source": {
                   "targetSource": "Owner",
@@ -11888,6 +12008,9 @@ export const zhuangFangyiGeneratedSource = {
                 "dieOnEnd": false
               }
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -12122,6 +12245,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -12169,6 +12293,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "distance": {
                       "source": {
                         "targetSource": "Owner",
@@ -12260,6 +12385,7 @@ export const zhuangFangyiGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "distance": {
                             "source": {
                               "targetSource": "Owner",
@@ -13141,6 +13267,9 @@ export const zhuangFangyiGeneratedSource = {
                           ]
                         }
                       ],
+                      "conditionNegated": [
+                        false
+                      ],
                       "alwaysNext": true,
                       "projectedAbilityEntitySpawns": [
                         {
@@ -13590,6 +13719,9 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -14033,6 +14165,9 @@ export const zhuangFangyiGeneratedSource = {
                 }
               ]
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
@@ -14845,6 +14980,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -14892,6 +15028,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "distance": {
                       "source": {
                         "targetSource": "Owner",
@@ -14983,6 +15120,7 @@ export const zhuangFangyiGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "distance": {
                             "source": {
                               "targetSource": "Owner",
@@ -15228,6 +15366,9 @@ export const zhuangFangyiGeneratedSource = {
                           }
                         }
                       ],
+                      "conditionNegated": [
+                        false
+                      ],
                       "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
@@ -15325,6 +15466,9 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -15412,6 +15556,9 @@ export const zhuangFangyiGeneratedSource = {
                 "dieOnEnd": false
               }
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -15669,6 +15816,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -15716,6 +15864,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "distance": {
                       "source": {
                         "targetSource": "Owner",
@@ -16240,6 +16389,9 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -16328,6 +16480,7 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -16814,6 +16967,9 @@ export const zhuangFangyiGeneratedSource = {
                     "buffIgnite": null
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -16859,6 +17015,9 @@ export const zhuangFangyiGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
@@ -16931,6 +17090,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -16986,6 +17146,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -17443,6 +17604,9 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -17531,6 +17695,7 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -17988,6 +18153,9 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -18033,6 +18201,9 @@ export const zhuangFangyiGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
@@ -18105,6 +18276,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -18160,6 +18332,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -18617,6 +18790,9 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -18705,6 +18881,7 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -19162,6 +19339,9 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -19207,6 +19387,9 @@ export const zhuangFangyiGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
@@ -19279,6 +19462,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -19334,6 +19518,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -19791,6 +19976,9 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -19879,6 +20067,7 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -20336,6 +20525,9 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -20381,6 +20573,9 @@ export const zhuangFangyiGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
@@ -21314,6 +21509,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -21361,6 +21557,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "distance": {
                       "source": {
                         "targetSource": "Owner",
@@ -21555,6 +21752,9 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -21604,6 +21804,7 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -21760,12 +21961,18 @@ export const zhuangFangyiGeneratedSource = {
                     "buffIgnite": null
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         },
@@ -21799,6 +22006,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -21854,6 +22062,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -21981,6 +22190,9 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -22030,6 +22242,7 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -22157,12 +22370,18 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         },
@@ -22196,6 +22415,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -22251,6 +22471,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -22378,6 +22599,9 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -22427,6 +22651,7 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -22554,12 +22779,18 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         },
@@ -22593,6 +22824,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -22648,6 +22880,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -22775,6 +23008,9 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -22824,6 +23060,7 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -22951,12 +23188,18 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -23214,6 +23457,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -23261,6 +23505,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "distance": {
                       "source": {
                         "targetSource": "Owner",
@@ -23785,6 +24030,9 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -23873,6 +24121,7 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -24359,6 +24608,9 @@ export const zhuangFangyiGeneratedSource = {
                     "buffIgnite": null
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -24404,6 +24656,9 @@ export const zhuangFangyiGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
@@ -24476,6 +24731,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -24531,6 +24787,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -24988,6 +25245,9 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -25076,6 +25336,7 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -25533,6 +25794,9 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -25578,6 +25842,9 @@ export const zhuangFangyiGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
@@ -25650,6 +25917,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -25705,6 +25973,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -26162,6 +26431,9 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -26250,6 +26522,7 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -26707,6 +26980,9 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -26752,6 +27028,9 @@ export const zhuangFangyiGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
@@ -26824,6 +27103,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -26879,6 +27159,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -27336,6 +27617,9 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -27424,6 +27708,7 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -27881,6 +28166,9 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -27926,6 +28214,9 @@ export const zhuangFangyiGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
@@ -28845,6 +29136,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -28892,6 +29184,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "distance": {
                       "source": {
                         "targetSource": "Owner",
@@ -29086,6 +29379,9 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -29135,6 +29431,7 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -29291,12 +29588,18 @@ export const zhuangFangyiGeneratedSource = {
                     "buffIgnite": null
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         },
@@ -29330,6 +29633,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -29385,6 +29689,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -29512,6 +29817,9 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -29561,6 +29869,7 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -29688,12 +29997,18 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         },
@@ -29727,6 +30042,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -29782,6 +30098,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -29909,6 +30226,9 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -29958,6 +30278,7 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -30085,12 +30406,18 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         },
@@ -30124,6 +30451,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -30179,6 +30507,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -30306,6 +30635,9 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -30355,6 +30687,7 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -30482,12 +30815,18 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -30698,6 +31037,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -30745,6 +31085,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "distance": {
                       "source": {
                         "targetSource": "Owner",
@@ -31290,6 +31631,9 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -31369,6 +31713,7 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -31876,6 +32221,9 @@ export const zhuangFangyiGeneratedSource = {
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -31912,6 +32260,9 @@ export const zhuangFangyiGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
@@ -32393,6 +32744,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -32440,6 +32792,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "distance": {
                       "source": {
                         "targetSource": "Owner",
@@ -32587,6 +32940,9 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -32636,6 +32992,7 @@ export const zhuangFangyiGeneratedSource = {
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -32745,12 +33102,18 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -33648,6 +34011,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -33676,6 +34040,9 @@ export const zhuangFangyiGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -34078,6 +34445,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "abilityEntityDuration": {
@@ -34145,6 +34513,7 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [],
                 "alwaysNext": false
               },
               "legacyBuffFinish": null,
@@ -34153,6 +34522,7 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [],
           "alwaysNext": false,
           "contextKey": "swordsForExtend"
         },
@@ -34195,6 +34565,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -34239,6 +34610,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -34271,6 +34645,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -34372,6 +34747,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -34571,6 +34947,7 @@ export const zhuangFangyiGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
                           "objectTypeMatch": null,
@@ -34627,6 +35004,9 @@ export const zhuangFangyiGeneratedSource = {
                           "skillCooldownAdjustment": null,
                           "buffIgnite": null
                         }
+                      ],
+                      "conditionNegated": [
+                        false
                       ],
                       "alwaysNext": true
                     },
@@ -34748,6 +35128,7 @@ export const zhuangFangyiGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
                           "objectTypeMatch": null,
@@ -34792,6 +35173,9 @@ export const zhuangFangyiGeneratedSource = {
                         }
                       ],
                       "failActions": [],
+                      "conditionNegated": [
+                        false
+                      ],
                       "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
@@ -34906,6 +35290,7 @@ export const zhuangFangyiGeneratedSource = {
                                 "poise": null,
                                 "superArmor": null,
                                 "twoDirectionAngle": null,
+                                "targetAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
                                 "objectTypeMatch": null,
@@ -34971,6 +35356,7 @@ export const zhuangFangyiGeneratedSource = {
                                       "poise": null,
                                       "superArmor": null,
                                       "twoDirectionAngle": null,
+                                      "targetAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
                                       "objectTypeMatch": null,
@@ -35298,6 +35684,9 @@ export const zhuangFangyiGeneratedSource = {
                                       ]
                                     }
                                   ],
+                                  "conditionNegated": [
+                                    false
+                                  ],
                                   "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
                                     {
@@ -35393,6 +35782,7 @@ export const zhuangFangyiGeneratedSource = {
                                       "poise": null,
                                       "superArmor": null,
                                       "twoDirectionAngle": null,
+                                      "targetAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
                                       "objectTypeMatch": null,
@@ -35720,6 +36110,9 @@ export const zhuangFangyiGeneratedSource = {
                                       ]
                                     }
                                   ],
+                                  "conditionNegated": [
+                                    false
+                                  ],
                                   "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
                                     {
@@ -35758,6 +36151,9 @@ export const zhuangFangyiGeneratedSource = {
                                 "skillCooldownAdjustment": null,
                                 "buffIgnite": null
                               }
+                            ],
+                            "conditionNegated": [
+                              false
                             ],
                             "alwaysNext": true,
                             "projectedAbilityEntitySpawns": [
@@ -36016,6 +36412,7 @@ export const zhuangFangyiGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
                           "objectTypeMatch": null,
@@ -36060,6 +36457,9 @@ export const zhuangFangyiGeneratedSource = {
                         }
                       ],
                       "failActions": [],
+                      "conditionNegated": [
+                        false
+                      ],
                       "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
@@ -36127,6 +36527,7 @@ export const zhuangFangyiGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
                           "objectTypeMatch": null,
@@ -36171,6 +36572,9 @@ export const zhuangFangyiGeneratedSource = {
                         }
                       ],
                       "failActions": [],
+                      "conditionNegated": [
+                        false
+                      ],
                       "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
@@ -36285,6 +36689,7 @@ export const zhuangFangyiGeneratedSource = {
                                 "poise": null,
                                 "superArmor": null,
                                 "twoDirectionAngle": null,
+                                "targetAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
                                 "objectTypeMatch": null,
@@ -36350,6 +36755,7 @@ export const zhuangFangyiGeneratedSource = {
                                       "poise": null,
                                       "superArmor": null,
                                       "twoDirectionAngle": null,
+                                      "targetAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
                                       "objectTypeMatch": null,
@@ -36677,6 +37083,9 @@ export const zhuangFangyiGeneratedSource = {
                                       ]
                                     }
                                   ],
+                                  "conditionNegated": [
+                                    false
+                                  ],
                                   "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
                                     {
@@ -36772,6 +37181,7 @@ export const zhuangFangyiGeneratedSource = {
                                       "poise": null,
                                       "superArmor": null,
                                       "twoDirectionAngle": null,
+                                      "targetAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
                                       "objectTypeMatch": null,
@@ -37099,6 +37509,9 @@ export const zhuangFangyiGeneratedSource = {
                                       ]
                                     }
                                   ],
+                                  "conditionNegated": [
+                                    false
+                                  ],
                                   "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
                                     {
@@ -37137,6 +37550,9 @@ export const zhuangFangyiGeneratedSource = {
                                 "skillCooldownAdjustment": null,
                                 "buffIgnite": null
                               }
+                            ],
+                            "conditionNegated": [
+                              false
                             ],
                             "alwaysNext": true,
                             "projectedAbilityEntitySpawns": [
@@ -37330,6 +37746,9 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -37369,6 +37788,9 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -37400,6 +37822,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -37702,6 +38125,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -37725,6 +38151,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -37819,6 +38246,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -37870,12 +38298,18 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -38536,6 +38970,7 @@ export const zhuangFangyiGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -38593,6 +39028,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -38625,12 +39061,18 @@ export const zhuangFangyiGeneratedSource = {
                     "buffIgnite": null
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         },
@@ -38683,6 +39125,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "abilityEntityDuration": {
@@ -38750,6 +39193,7 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [],
                 "alwaysNext": false
               },
               "legacyBuffFinish": null,
@@ -38758,6 +39202,7 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [],
           "alwaysNext": false,
           "contextKey": "swordsForExtend"
         },
@@ -38800,6 +39245,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -38844,6 +39290,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -38876,6 +39325,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -38977,6 +39427,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -39176,6 +39627,7 @@ export const zhuangFangyiGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
                           "objectTypeMatch": null,
@@ -39232,6 +39684,9 @@ export const zhuangFangyiGeneratedSource = {
                           "skillCooldownAdjustment": null,
                           "buffIgnite": null
                         }
+                      ],
+                      "conditionNegated": [
+                        false
                       ],
                       "alwaysNext": true
                     },
@@ -39353,6 +39808,7 @@ export const zhuangFangyiGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
                           "objectTypeMatch": null,
@@ -39397,6 +39853,9 @@ export const zhuangFangyiGeneratedSource = {
                         }
                       ],
                       "failActions": [],
+                      "conditionNegated": [
+                        false
+                      ],
                       "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
@@ -39575,6 +40034,7 @@ export const zhuangFangyiGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
                           "objectTypeMatch": null,
@@ -39619,6 +40079,9 @@ export const zhuangFangyiGeneratedSource = {
                         }
                       ],
                       "failActions": [],
+                      "conditionNegated": [
+                        false
+                      ],
                       "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
@@ -39686,6 +40149,7 @@ export const zhuangFangyiGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
                           "objectTypeMatch": null,
@@ -39730,6 +40194,9 @@ export const zhuangFangyiGeneratedSource = {
                         }
                       ],
                       "failActions": [],
+                      "conditionNegated": [
+                        false
+                      ],
                       "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
@@ -39843,6 +40310,9 @@ export const zhuangFangyiGeneratedSource = {
                     }
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -39882,6 +40352,9 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -39913,6 +40386,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -40215,6 +40689,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -40238,6 +40715,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -40332,6 +40810,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -40383,12 +40862,18 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -40427,6 +40912,7 @@ export const zhuangFangyiGeneratedSource = {
                 "poise": null,
                 "superArmor": null,
                 "twoDirectionAngle": null,
+                "targetAngle": null,
                 "timedMarker": {
                   "targetSource": "Owner",
                   "targetGroupKey": "",
@@ -40463,6 +40949,7 @@ export const zhuangFangyiGeneratedSource = {
                 "poise": null,
                 "superArmor": null,
                 "twoDirectionAngle": null,
+                "targetAngle": null,
                 "damageDecorateMask": null,
                 "contextBuffId": null,
                 "objectTypeMatch": null,
@@ -40801,6 +41288,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "abilityEntityDuration": {
@@ -40868,6 +41356,7 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [],
                 "alwaysNext": false
               },
               "legacyBuffFinish": null,
@@ -40876,6 +41365,7 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [],
           "alwaysNext": false,
           "contextKey": "swordsForExtend"
         },
@@ -40909,6 +41399,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -41010,6 +41501,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -41081,6 +41573,7 @@ export const zhuangFangyiGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
                           "objectTypeMatch": null,
@@ -41204,6 +41697,7 @@ export const zhuangFangyiGeneratedSource = {
                                       "poise": null,
                                       "superArmor": null,
                                       "twoDirectionAngle": null,
+                                      "targetAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
                                       "objectTypeMatch": null,
@@ -41269,6 +41763,7 @@ export const zhuangFangyiGeneratedSource = {
                                             "poise": null,
                                             "superArmor": null,
                                             "twoDirectionAngle": null,
+                                            "targetAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
                                             "objectTypeMatch": null,
@@ -41600,6 +42095,9 @@ export const zhuangFangyiGeneratedSource = {
                                             ]
                                           }
                                         ],
+                                        "conditionNegated": [
+                                          false
+                                        ],
                                         "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
@@ -41695,6 +42193,7 @@ export const zhuangFangyiGeneratedSource = {
                                             "poise": null,
                                             "superArmor": null,
                                             "twoDirectionAngle": null,
+                                            "targetAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
                                             "objectTypeMatch": null,
@@ -42026,6 +42525,9 @@ export const zhuangFangyiGeneratedSource = {
                                             ]
                                           }
                                         ],
+                                        "conditionNegated": [
+                                          false
+                                        ],
                                         "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
@@ -42064,6 +42566,9 @@ export const zhuangFangyiGeneratedSource = {
                                       "skillCooldownAdjustment": null,
                                       "buffIgnite": null
                                     }
+                                  ],
+                                  "conditionNegated": [
+                                    false
                                   ],
                                   "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
@@ -42372,6 +42877,7 @@ export const zhuangFangyiGeneratedSource = {
                                       "poise": null,
                                       "superArmor": null,
                                       "twoDirectionAngle": null,
+                                      "targetAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
                                       "objectTypeMatch": null,
@@ -42437,6 +42943,7 @@ export const zhuangFangyiGeneratedSource = {
                                             "poise": null,
                                             "superArmor": null,
                                             "twoDirectionAngle": null,
+                                            "targetAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
                                             "objectTypeMatch": null,
@@ -42768,6 +43275,9 @@ export const zhuangFangyiGeneratedSource = {
                                             ]
                                           }
                                         ],
+                                        "conditionNegated": [
+                                          false
+                                        ],
                                         "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
@@ -42863,6 +43373,7 @@ export const zhuangFangyiGeneratedSource = {
                                             "poise": null,
                                             "superArmor": null,
                                             "twoDirectionAngle": null,
+                                            "targetAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
                                             "objectTypeMatch": null,
@@ -43194,6 +43705,9 @@ export const zhuangFangyiGeneratedSource = {
                                             ]
                                           }
                                         ],
+                                        "conditionNegated": [
+                                          false
+                                        ],
                                         "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
@@ -43232,6 +43746,9 @@ export const zhuangFangyiGeneratedSource = {
                                       "skillCooldownAdjustment": null,
                                       "buffIgnite": null
                                     }
+                                  ],
+                                  "conditionNegated": [
+                                    false
                                   ],
                                   "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
@@ -43426,6 +43943,9 @@ export const zhuangFangyiGeneratedSource = {
                           "buffIgnite": null
                         }
                       ],
+                      "conditionNegated": [
+                        false
+                      ],
                       "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
@@ -43495,6 +44015,7 @@ export const zhuangFangyiGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
                           "objectTypeMatch": null,
@@ -43712,6 +44233,7 @@ export const zhuangFangyiGeneratedSource = {
                                 "poise": null,
                                 "superArmor": null,
                                 "twoDirectionAngle": null,
+                                "targetAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
                                 "objectTypeMatch": null,
@@ -43771,6 +44293,9 @@ export const zhuangFangyiGeneratedSource = {
                                 "skillCooldownAdjustment": null,
                                 "buffIgnite": null
                               }
+                            ],
+                            "conditionNegated": [
+                              false
                             ],
                             "alwaysNext": true
                           },
@@ -43901,6 +44426,7 @@ export const zhuangFangyiGeneratedSource = {
                                 "poise": null,
                                 "superArmor": null,
                                 "twoDirectionAngle": null,
+                                "targetAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
                                 "objectTypeMatch": null,
@@ -43948,6 +44474,9 @@ export const zhuangFangyiGeneratedSource = {
                               }
                             ],
                             "failActions": [],
+                            "conditionNegated": [
+                              false
+                            ],
                             "alwaysNext": true
                           },
                           "legacyBuffFinish": null,
@@ -44067,6 +44596,7 @@ export const zhuangFangyiGeneratedSource = {
                                       "poise": null,
                                       "superArmor": null,
                                       "twoDirectionAngle": null,
+                                      "targetAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
                                       "objectTypeMatch": null,
@@ -44132,6 +44662,7 @@ export const zhuangFangyiGeneratedSource = {
                                             "poise": null,
                                             "superArmor": null,
                                             "twoDirectionAngle": null,
+                                            "targetAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
                                             "objectTypeMatch": null,
@@ -44463,6 +44994,9 @@ export const zhuangFangyiGeneratedSource = {
                                             ]
                                           }
                                         ],
+                                        "conditionNegated": [
+                                          false
+                                        ],
                                         "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
@@ -44558,6 +45092,7 @@ export const zhuangFangyiGeneratedSource = {
                                             "poise": null,
                                             "superArmor": null,
                                             "twoDirectionAngle": null,
+                                            "targetAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
                                             "objectTypeMatch": null,
@@ -44889,6 +45424,9 @@ export const zhuangFangyiGeneratedSource = {
                                             ]
                                           }
                                         ],
+                                        "conditionNegated": [
+                                          false
+                                        ],
                                         "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
@@ -44927,6 +45465,9 @@ export const zhuangFangyiGeneratedSource = {
                                       "skillCooldownAdjustment": null,
                                       "buffIgnite": null
                                     }
+                                  ],
+                                  "conditionNegated": [
+                                    false
                                   ],
                                   "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
@@ -45196,6 +45737,7 @@ export const zhuangFangyiGeneratedSource = {
                                 "poise": null,
                                 "superArmor": null,
                                 "twoDirectionAngle": null,
+                                "targetAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
                                 "objectTypeMatch": null,
@@ -45243,6 +45785,9 @@ export const zhuangFangyiGeneratedSource = {
                               }
                             ],
                             "failActions": [],
+                            "conditionNegated": [
+                              false
+                            ],
                             "alwaysNext": true
                           },
                           "legacyBuffFinish": null,
@@ -45316,6 +45861,7 @@ export const zhuangFangyiGeneratedSource = {
                                 "poise": null,
                                 "superArmor": null,
                                 "twoDirectionAngle": null,
+                                "targetAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
                                 "objectTypeMatch": null,
@@ -45363,6 +45909,9 @@ export const zhuangFangyiGeneratedSource = {
                               }
                             ],
                             "failActions": [],
+                            "conditionNegated": [
+                              false
+                            ],
                             "alwaysNext": true
                           },
                           "legacyBuffFinish": null,
@@ -45482,6 +46031,7 @@ export const zhuangFangyiGeneratedSource = {
                                       "poise": null,
                                       "superArmor": null,
                                       "twoDirectionAngle": null,
+                                      "targetAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
                                       "objectTypeMatch": null,
@@ -45547,6 +46097,7 @@ export const zhuangFangyiGeneratedSource = {
                                             "poise": null,
                                             "superArmor": null,
                                             "twoDirectionAngle": null,
+                                            "targetAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
                                             "objectTypeMatch": null,
@@ -45878,6 +46429,9 @@ export const zhuangFangyiGeneratedSource = {
                                             ]
                                           }
                                         ],
+                                        "conditionNegated": [
+                                          false
+                                        ],
                                         "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
@@ -45973,6 +46527,7 @@ export const zhuangFangyiGeneratedSource = {
                                             "poise": null,
                                             "superArmor": null,
                                             "twoDirectionAngle": null,
+                                            "targetAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
                                             "objectTypeMatch": null,
@@ -46304,6 +46859,9 @@ export const zhuangFangyiGeneratedSource = {
                                             ]
                                           }
                                         ],
+                                        "conditionNegated": [
+                                          false
+                                        ],
                                         "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
@@ -46342,6 +46900,9 @@ export const zhuangFangyiGeneratedSource = {
                                       "skillCooldownAdjustment": null,
                                       "buffIgnite": null
                                     }
+                                  ],
+                                  "conditionNegated": [
+                                    false
                                   ],
                                   "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
@@ -46540,12 +47101,18 @@ export const zhuangFangyiGeneratedSource = {
                           }
                         }
                       ],
+                      "conditionNegated": [
+                        false
+                      ],
                       "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
+                ],
+                "conditionNegated": [
+                  false
                 ],
                 "alwaysNext": true
               },
@@ -46586,6 +47153,9 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -46609,6 +47179,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -46703,6 +47274,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -46754,12 +47326,18 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -47019,6 +47597,7 @@ export const zhuangFangyiGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -47177,6 +47756,7 @@ export const zhuangFangyiGeneratedSource = {
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
                         "objectTypeMatch": null,
@@ -47272,6 +47852,9 @@ export const zhuangFangyiGeneratedSource = {
                         ]
                       }
                     ],
+                    "conditionNegated": [
+                      false
+                    ],
                     "alwaysNext": true,
                     "executionFrames": [
                       12,
@@ -47320,6 +47903,9 @@ export const zhuangFangyiGeneratedSource = {
                 }
               ],
               "failActions": [],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true,
               "executionFrames": [
                 12,
@@ -47367,6 +47953,7 @@ export const zhuangFangyiGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -47408,6 +47995,9 @@ export const zhuangFangyiGeneratedSource = {
                 }
               ],
               "failActions": [],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true,
               "executionFrames": [
                 12,
@@ -47461,6 +48051,7 @@ export const zhuangFangyiGeneratedSource = {
                 }
               ],
               "failActions": [],
+              "conditionNegated": [],
               "alwaysNext": false
             }
           ],
@@ -48344,6 +48935,7 @@ export const zhuangFangyiGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -48401,6 +48993,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -48433,12 +49026,18 @@ export const zhuangFangyiGeneratedSource = {
                     "buffIgnite": null
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         },
@@ -48491,6 +49090,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "abilityEntityDuration": {
@@ -48558,6 +49158,7 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [],
                 "alwaysNext": false
               },
               "legacyBuffFinish": null,
@@ -48566,6 +49167,7 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [],
           "alwaysNext": false,
           "contextKey": "swordsForExtend"
         },
@@ -48599,6 +49201,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -48700,6 +49303,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -48771,6 +49375,7 @@ export const zhuangFangyiGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
                           "objectTypeMatch": null,
@@ -49006,6 +49611,9 @@ export const zhuangFangyiGeneratedSource = {
                           "buffIgnite": null
                         }
                       ],
+                      "conditionNegated": [
+                        false
+                      ],
                       "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
@@ -49075,6 +49683,7 @@ export const zhuangFangyiGeneratedSource = {
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
                           "objectTypeMatch": null,
@@ -49292,6 +49901,7 @@ export const zhuangFangyiGeneratedSource = {
                                 "poise": null,
                                 "superArmor": null,
                                 "twoDirectionAngle": null,
+                                "targetAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
                                 "objectTypeMatch": null,
@@ -49351,6 +49961,9 @@ export const zhuangFangyiGeneratedSource = {
                                 "skillCooldownAdjustment": null,
                                 "buffIgnite": null
                               }
+                            ],
+                            "conditionNegated": [
+                              false
                             ],
                             "alwaysNext": true
                           },
@@ -49481,6 +50094,7 @@ export const zhuangFangyiGeneratedSource = {
                                 "poise": null,
                                 "superArmor": null,
                                 "twoDirectionAngle": null,
+                                "targetAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
                                 "objectTypeMatch": null,
@@ -49528,6 +50142,9 @@ export const zhuangFangyiGeneratedSource = {
                               }
                             ],
                             "failActions": [],
+                            "conditionNegated": [
+                              false
+                            ],
                             "alwaysNext": true
                           },
                           "legacyBuffFinish": null,
@@ -49721,6 +50338,7 @@ export const zhuangFangyiGeneratedSource = {
                                 "poise": null,
                                 "superArmor": null,
                                 "twoDirectionAngle": null,
+                                "targetAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
                                 "objectTypeMatch": null,
@@ -49768,6 +50386,9 @@ export const zhuangFangyiGeneratedSource = {
                               }
                             ],
                             "failActions": [],
+                            "conditionNegated": [
+                              false
+                            ],
                             "alwaysNext": true
                           },
                           "legacyBuffFinish": null,
@@ -49841,6 +50462,7 @@ export const zhuangFangyiGeneratedSource = {
                                 "poise": null,
                                 "superArmor": null,
                                 "twoDirectionAngle": null,
+                                "targetAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
                                 "objectTypeMatch": null,
@@ -49888,6 +50510,9 @@ export const zhuangFangyiGeneratedSource = {
                               }
                             ],
                             "failActions": [],
+                            "conditionNegated": [
+                              false
+                            ],
                             "alwaysNext": true
                           },
                           "legacyBuffFinish": null,
@@ -50010,12 +50635,18 @@ export const zhuangFangyiGeneratedSource = {
                           }
                         }
                       ],
+                      "conditionNegated": [
+                        false
+                      ],
                       "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
+                ],
+                "conditionNegated": [
+                  false
                 ],
                 "alwaysNext": true
               },
@@ -50056,6 +50687,9 @@ export const zhuangFangyiGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -50079,6 +50713,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -50173,6 +50808,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -50224,12 +50860,18 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -50268,6 +50910,7 @@ export const zhuangFangyiGeneratedSource = {
                 "poise": null,
                 "superArmor": null,
                 "twoDirectionAngle": null,
+                "targetAngle": null,
                 "timedMarker": {
                   "targetSource": "Owner",
                   "targetGroupKey": "",
@@ -50304,6 +50947,7 @@ export const zhuangFangyiGeneratedSource = {
                 "poise": null,
                 "superArmor": null,
                 "twoDirectionAngle": null,
+                "targetAngle": null,
                 "damageDecorateMask": null,
                 "contextBuffId": null,
                 "objectTypeMatch": null,
@@ -50685,6 +51329,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -50806,6 +51451,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -50847,6 +51493,9 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -50898,6 +51547,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -50939,6 +51589,9 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -50989,6 +51642,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -51021,6 +51677,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -51178,6 +51835,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -51554,6 +52214,7 @@ export const zhuangFangyiGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -51582,6 +52243,9 @@ export const zhuangFangyiGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         },
@@ -51624,6 +52288,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -51745,6 +52410,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -51786,6 +52452,9 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -51837,6 +52506,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -51878,6 +52548,9 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -51928,6 +52601,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -51960,6 +52636,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -52117,6 +52794,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -52553,6 +53233,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -52674,6 +53355,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -52715,6 +53397,9 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -52766,6 +53451,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -52807,6 +53493,9 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -52857,6 +53546,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -53229,6 +53921,7 @@ export const zhuangFangyiGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -53257,6 +53950,9 @@ export const zhuangFangyiGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         },
@@ -53299,6 +53995,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -53420,6 +54117,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -53461,6 +54159,9 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -53512,6 +54213,7 @@ export const zhuangFangyiGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -53553,6 +54255,9 @@ export const zhuangFangyiGeneratedSource = {
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -53603,6 +54308,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -54033,6 +54741,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -54081,6 +54790,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -54462,6 +55174,7 @@ export const zhuangFangyiGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -54510,6 +55223,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],

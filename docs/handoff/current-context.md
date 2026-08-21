@@ -448,3 +448,5 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - Ember 终结技护盾 Buff 的 `OnBuffStart` 中 plain `Target` 已依据 Buff 原生执行上下文归约为当前 Buff 宿主；Ability 事件里的 plain `Target` 仍是事件目标，两者有专门测试隔离，不能泛化合并。
 - 外部 `operatorHit` 标记现在除语义监听器外，还向目标干员的 Buff Ability 事件中心派发受击后的 `takeDamage` 事实。它只携带 `sourceId=enemy`、目标、标签和 damage features，不执行敌方技能、伤害计算或生命扣减。Ember 天赋 2 因而可由时间轴受击标记触发攻击 Buff；原生 `OnTakeDamage` 没有被偷换成 `OnBeforeTakeDamage`。
 - `inheritSourceSkillCastInfo` 已修正为可选继承：上下文存在施法信息时完整复制，不存在时保持为空。外部受击事实没有敌方技能实例，因此不得伪造技能 ID 或施法序号；这一行为已由 Buff 执行器测试和 Ember 默认仓库生产回归锁定。
+- 庄方宜正式化试跑没有越过证据边界：15 个技能、潜能及终结技换槽可以进入统一链，但两项 `AddBuff` 天赋的 SkillData 实际没有 startup Buff，效果位于被动技能自身的时间轴条件程序；现有 `attachedPassive` 只覆盖启动 Buff 型被动。因此清单已恢复 `outputStage: audit`，没有生成或注册伪完整定义。下一真实能力是通用“被动技能时间轴程序”编译，而不是给庄方宜写特例。
+- 试跑补齐了两个有独立复刻证据的通用事实：`PulseAbnormalDamageIncrease` 映射为电磁异常增伤动态属性，可由 `StoreAttributeValue(FinalNonConverted)` 写入 Buff 黑板；`ChangeSkillAction(specificRevertedSkillId=false)` 按原生快照替换前槽位，在同技能类型只有唯一基础候选时可严格派生 `revertMode: buffActionEnd`。候选不唯一仍拒绝。庄方宜审计现能明确列出战技与连携强化形态的两条槽位关系。

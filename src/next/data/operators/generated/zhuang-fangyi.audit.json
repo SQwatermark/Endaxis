@@ -1,5 +1,27 @@
 {
   "operator": "zhuang-fangyi",
+  "skillSlotReplacementRelations": [
+    {
+      "skillSlot": "NormalSkill",
+      "baseSkillKey": "battleSkill",
+      "replacementSkillKey": "enhancedBattleSkill",
+      "activatedByBuffId": "buff_chr_0030_zhuangfy_ult_base",
+      "activationEvent": "DuringBuffEnable",
+      "activationActionIndex": 13,
+      "inheritOriginSkillCooldownProgress": false,
+      "revertMode": "buffActionEnd"
+    },
+    {
+      "skillSlot": "ComboSkill",
+      "baseSkillKey": "comboSkill",
+      "replacementSkillKey": "enhancedComboSkill",
+      "activatedByBuffId": "buff_chr_0030_zhuangfy_ult_base",
+      "activationEvent": "DuringBuffEnable",
+      "activationActionIndex": 14,
+      "inheritOriginSkillCooldownProgress": true,
+      "revertMode": "buffActionEnd"
+    }
+  ],
   "complete": false,
   "buffDefinitions": [
     {
@@ -534,6 +556,7 @@
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
                         "objectTypeMatch": null,
@@ -566,6 +589,9 @@
                       }
                     ],
                     "failActions": [],
+                    "conditionNegated": [
+                      false
+                    ],
                     "alwaysNext": true
                   },
                   "legacyBuffFinish": null,
@@ -910,6 +936,7 @@
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
                         "objectTypeMatch": null,
@@ -1032,6 +1059,7 @@
                       }
                     ],
                     "failActions": [],
+                    "conditionNegated": [],
                     "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
@@ -1495,6 +1523,7 @@
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
                         "objectTypeMatch": null,
@@ -1599,6 +1628,9 @@
                           "dieOnEnd": false
                         }
                       }
+                    ],
+                    "conditionNegated": [
+                      false
                     ],
                     "alwaysNext": true
                   },
@@ -1961,6 +1993,7 @@
             }
           ],
           "failActions": [],
+          "conditionNegated": [],
           "alwaysNext": false
         },
         {
@@ -1994,6 +2027,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -2088,6 +2122,7 @@
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -2142,6 +2177,9 @@
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -2234,6 +2272,7 @@
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -2288,12 +2327,18 @@
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         },
@@ -2330,6 +2375,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -2381,6 +2427,9 @@
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -3760,6 +3809,7 @@
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": {
                           "checkType": "Id",
@@ -3817,6 +3867,7 @@
                               },
                               "superArmor": null,
                               "twoDirectionAngle": null,
+                              "targetAngle": null,
                               "damageDecorateMask": null,
                               "contextBuffId": null,
                               "objectTypeMatch": null,
@@ -3865,6 +3916,7 @@
                             }
                           ],
                           "failActions": [],
+                          "conditionNegated": [],
                           "alwaysNext": false
                         },
                         "legacyBuffFinish": null,
@@ -3873,6 +3925,7 @@
                       }
                     ],
                     "failActions": [],
+                    "conditionNegated": [],
                     "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
@@ -5038,6 +5091,7 @@
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
                         "objectTypeMatch": null,
@@ -5081,6 +5135,9 @@
                       }
                     ],
                     "failActions": [],
+                    "conditionNegated": [
+                      false
+                    ],
                     "alwaysNext": true
                   },
                   "legacyBuffFinish": null,
@@ -5278,6 +5335,7 @@
               }
             }
           ],
+          "tagConditions": [],
           "ownerControlled": false,
           "damageTagMatch": null,
           "damageTags": [],
@@ -5308,6 +5366,7 @@
               }
             }
           ],
+          "tagConditions": [],
           "ownerControlled": false,
           "damageTagMatch": null,
           "damageTags": [],
@@ -5338,6 +5397,7 @@
               }
             }
           ],
+          "tagConditions": [],
           "ownerControlled": false,
           "damageTagMatch": null,
           "damageTags": [],
@@ -5368,6 +5428,7 @@
               }
             }
           ],
+          "tagConditions": [],
           "ownerControlled": false,
           "damageTagMatch": null,
           "damageTags": [],
@@ -5642,6 +5703,34 @@
                     "[1]"
                   ],
                   "serverActionIndex": 10,
+                  "storeAttributeValue": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "attributeKind": "specific",
+                    "attributeKey": "electricAbnormalDamageIncrease",
+                    "stage": "finalNonConverted",
+                    "useFloor": false,
+                    "divisor": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "multiplier": {
+                      "value": 1.0,
+                      "blackboardKey": "spell_resistance_decrease",
+                      "levelValues": [
+                        0.2
+                      ]
+                    },
+                    "base": {
+                      "value": 1.0,
+                      "blackboardKey": "spell_resistance_decrease",
+                      "levelValues": [
+                        0.2
+                      ]
+                    },
+                    "outputKey": "final_spell_resistance_decrease"
+                  },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
                   "buffIgnite": null
@@ -6489,6 +6578,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -6554,6 +6644,9 @@
               "buffIgnite": null
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -6577,6 +6670,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "distance": {
                 "source": {
                   "targetSource": "Owner",
@@ -6811,6 +6905,7 @@
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
                           "objectTypeMatch": null,
@@ -6983,6 +7078,9 @@
                           "skillCooldownAdjustment": null,
                           "buffIgnite": null
                         }
+                      ],
+                      "conditionNegated": [
+                        false
                       ],
                       "alwaysNext": true,
                       "executionFrames": [
@@ -7211,6 +7309,7 @@
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
                           "objectTypeMatch": null,
@@ -7384,6 +7483,9 @@
                           "buffIgnite": null
                         }
                       ],
+                      "conditionNegated": [
+                        false
+                      ],
                       "alwaysNext": true,
                       "executionFrames": [
                         9,
@@ -7423,6 +7525,9 @@
                 }
               ]
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
@@ -7832,6 +7937,7 @@
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -8004,6 +8110,9 @@
                   "skillCooldownAdjustment": null,
                   "buffIgnite": null
                 }
+              ],
+              "conditionNegated": [
+                false
               ],
               "alwaysNext": true,
               "executionFrames": [
@@ -8722,6 +8831,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -8786,6 +8896,9 @@
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -9640,6 +9753,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "distance": {
                 "source": {
                   "targetSource": "Owner",
@@ -9874,6 +9988,7 @@
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
                           "objectTypeMatch": null,
@@ -10046,6 +10161,9 @@
                           "skillCooldownAdjustment": null,
                           "buffIgnite": null
                         }
+                      ],
+                      "conditionNegated": [
+                        false
                       ],
                       "alwaysNext": true,
                       "executionFrames": [
@@ -10274,6 +10392,7 @@
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
                           "objectTypeMatch": null,
@@ -10447,6 +10566,9 @@
                           "buffIgnite": null
                         }
                       ],
+                      "conditionNegated": [
+                        false
+                      ],
                       "alwaysNext": true,
                       "executionFrames": [
                         9,
@@ -10486,6 +10608,9 @@
                 }
               ]
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
@@ -10671,6 +10796,7 @@
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -10843,6 +10969,9 @@
                   "skillCooldownAdjustment": null,
                   "buffIgnite": null
                 }
+              ],
+              "conditionNegated": [
+                false
               ],
               "alwaysNext": true,
               "executionFrames": [
@@ -11355,6 +11484,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -11402,6 +11532,7 @@
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "distance": {
                       "source": {
                         "targetSource": "Owner",
@@ -11493,6 +11624,7 @@
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "distance": {
                             "source": {
                               "targetSource": "Owner",
@@ -12374,6 +12506,9 @@
                           ]
                         }
                       ],
+                      "conditionNegated": [
+                        false
+                      ],
                       "alwaysNext": true,
                       "projectedAbilityEntitySpawns": [
                         {
@@ -12823,6 +12958,9 @@
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -13266,6 +13404,9 @@
                 }
               ]
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
@@ -14178,6 +14319,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -14225,6 +14367,7 @@
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "distance": {
                       "source": {
                         "targetSource": "Owner",
@@ -14749,6 +14892,9 @@
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -14837,6 +14983,7 @@
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -15323,6 +15470,9 @@
                     "buffIgnite": null
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -15368,6 +15518,9 @@
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
@@ -15440,6 +15593,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -15495,6 +15649,7 @@
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -15952,6 +16107,9 @@
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -16040,6 +16198,7 @@
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -16497,6 +16656,9 @@
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -16542,6 +16704,9 @@
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
@@ -16614,6 +16779,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -16669,6 +16835,7 @@
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -17126,6 +17293,9 @@
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -17214,6 +17384,7 @@
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -17671,6 +17842,9 @@
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -17716,6 +17890,9 @@
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
@@ -17788,6 +17965,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -17843,6 +18021,7 @@
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -18300,6 +18479,9 @@
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -18388,6 +18570,7 @@
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -18845,6 +19028,9 @@
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -18890,6 +19076,9 @@
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
@@ -19894,6 +20083,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -19941,6 +20131,7 @@
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "distance": {
                       "source": {
                         "targetSource": "Owner",
@@ -20465,6 +20656,9 @@
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -20553,6 +20747,7 @@
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -21039,6 +21234,9 @@
                     "buffIgnite": null
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -21084,6 +21282,9 @@
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
@@ -21156,6 +21357,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -21211,6 +21413,7 @@
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -21668,6 +21871,9 @@
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -21756,6 +21962,7 @@
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -22213,6 +22420,9 @@
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -22258,6 +22468,9 @@
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
@@ -22330,6 +22543,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -22385,6 +22599,7 @@
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -22842,6 +23057,9 @@
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -22930,6 +23148,7 @@
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -23387,6 +23606,9 @@
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -23432,6 +23654,9 @@
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
@@ -23504,6 +23729,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -23559,6 +23785,7 @@
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -24016,6 +24243,9 @@
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -24104,6 +24334,7 @@
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -24561,6 +24792,9 @@
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -24606,6 +24840,9 @@
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
@@ -25592,6 +25829,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -25639,6 +25877,7 @@
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "distance": {
                       "source": {
                         "targetSource": "Owner",
@@ -26184,6 +26423,9 @@
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -26263,6 +26505,7 @@
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -26770,6 +27013,9 @@
                     ]
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true,
                 "projectedAbilityEntitySpawns": [
                   {
@@ -26806,6 +27052,9 @@
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true,
           "projectedAbilityEntitySpawns": [
@@ -27915,6 +28164,7 @@
                 "enemyRank": null,
                 "superArmor": null,
                 "twoDirectionAngle": null,
+                "targetAngle": null,
                 "targetIdentity": null,
                 "distance": null,
                 "entityTag": null,
@@ -27962,6 +28212,7 @@
                 "enemyRank": null,
                 "superArmor": null,
                 "twoDirectionAngle": null,
+                "targetAngle": null,
                 "targetIdentity": null,
                 "distance": null,
                 "entityTag": null,
@@ -28046,6 +28297,7 @@
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "abilityEntityDuration": {
@@ -28113,6 +28365,7 @@
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [],
                 "alwaysNext": false
               },
               "legacyBuffFinish": null,
@@ -28121,6 +28374,7 @@
             }
           ],
           "failActions": [],
+          "conditionNegated": [],
           "alwaysNext": false,
           "contextKey": "swordsForExtend"
         },
@@ -28163,6 +28417,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -28207,6 +28462,9 @@
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -28239,6 +28497,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -28340,6 +28599,7 @@
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -28539,6 +28799,7 @@
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
                           "objectTypeMatch": null,
@@ -28595,6 +28856,9 @@
                           "skillCooldownAdjustment": null,
                           "buffIgnite": null
                         }
+                      ],
+                      "conditionNegated": [
+                        false
                       ],
                       "alwaysNext": true
                     },
@@ -28716,6 +28980,7 @@
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
                           "objectTypeMatch": null,
@@ -28760,6 +29025,9 @@
                         }
                       ],
                       "failActions": [],
+                      "conditionNegated": [
+                        false
+                      ],
                       "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
@@ -28874,6 +29142,7 @@
                                 "poise": null,
                                 "superArmor": null,
                                 "twoDirectionAngle": null,
+                                "targetAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
                                 "objectTypeMatch": null,
@@ -28939,6 +29208,7 @@
                                       "poise": null,
                                       "superArmor": null,
                                       "twoDirectionAngle": null,
+                                      "targetAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
                                       "objectTypeMatch": null,
@@ -29266,6 +29536,9 @@
                                       ]
                                     }
                                   ],
+                                  "conditionNegated": [
+                                    false
+                                  ],
                                   "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
                                     {
@@ -29361,6 +29634,7 @@
                                       "poise": null,
                                       "superArmor": null,
                                       "twoDirectionAngle": null,
+                                      "targetAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
                                       "objectTypeMatch": null,
@@ -29688,6 +29962,9 @@
                                       ]
                                     }
                                   ],
+                                  "conditionNegated": [
+                                    false
+                                  ],
                                   "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
                                     {
@@ -29726,6 +30003,9 @@
                                 "skillCooldownAdjustment": null,
                                 "buffIgnite": null
                               }
+                            ],
+                            "conditionNegated": [
+                              false
                             ],
                             "alwaysNext": true,
                             "projectedAbilityEntitySpawns": [
@@ -29984,6 +30264,7 @@
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
                           "objectTypeMatch": null,
@@ -30028,6 +30309,9 @@
                         }
                       ],
                       "failActions": [],
+                      "conditionNegated": [
+                        false
+                      ],
                       "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
@@ -30095,6 +30379,7 @@
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
                           "objectTypeMatch": null,
@@ -30139,6 +30424,9 @@
                         }
                       ],
                       "failActions": [],
+                      "conditionNegated": [
+                        false
+                      ],
                       "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
@@ -30253,6 +30541,7 @@
                                 "poise": null,
                                 "superArmor": null,
                                 "twoDirectionAngle": null,
+                                "targetAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
                                 "objectTypeMatch": null,
@@ -30318,6 +30607,7 @@
                                       "poise": null,
                                       "superArmor": null,
                                       "twoDirectionAngle": null,
+                                      "targetAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
                                       "objectTypeMatch": null,
@@ -30645,6 +30935,9 @@
                                       ]
                                     }
                                   ],
+                                  "conditionNegated": [
+                                    false
+                                  ],
                                   "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
                                     {
@@ -30740,6 +31033,7 @@
                                       "poise": null,
                                       "superArmor": null,
                                       "twoDirectionAngle": null,
+                                      "targetAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
                                       "objectTypeMatch": null,
@@ -31067,6 +31361,9 @@
                                       ]
                                     }
                                   ],
+                                  "conditionNegated": [
+                                    false
+                                  ],
                                   "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
                                     {
@@ -31105,6 +31402,9 @@
                                 "skillCooldownAdjustment": null,
                                 "buffIgnite": null
                               }
+                            ],
+                            "conditionNegated": [
+                              false
                             ],
                             "alwaysNext": true,
                             "projectedAbilityEntitySpawns": [
@@ -31298,6 +31598,9 @@
                     }
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -31337,6 +31640,9 @@
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -31368,6 +31674,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -31670,6 +31977,9 @@
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -31693,6 +32003,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -31787,6 +32098,7 @@
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -31838,12 +32150,18 @@
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -32316,6 +32634,7 @@
                 "enemyRank": null,
                 "superArmor": null,
                 "twoDirectionAngle": null,
+                "targetAngle": null,
                 "targetIdentity": null,
                 "distance": null,
                 "entityTag": null,
@@ -32363,6 +32682,7 @@
                 "enemyRank": null,
                 "superArmor": null,
                 "twoDirectionAngle": null,
+                "targetAngle": null,
                 "targetIdentity": null,
                 "distance": null,
                 "entityTag": null,
@@ -32447,6 +32767,7 @@
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "abilityEntityDuration": {
@@ -32514,6 +32835,7 @@
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [],
                 "alwaysNext": false
               },
               "legacyBuffFinish": null,
@@ -32522,6 +32844,7 @@
             }
           ],
           "failActions": [],
+          "conditionNegated": [],
           "alwaysNext": false,
           "contextKey": "swordsForExtend"
         },
@@ -32555,6 +32878,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -32656,6 +32980,7 @@
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -32727,6 +33052,7 @@
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
                           "objectTypeMatch": null,
@@ -32850,6 +33176,7 @@
                                       "poise": null,
                                       "superArmor": null,
                                       "twoDirectionAngle": null,
+                                      "targetAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
                                       "objectTypeMatch": null,
@@ -32915,6 +33242,7 @@
                                             "poise": null,
                                             "superArmor": null,
                                             "twoDirectionAngle": null,
+                                            "targetAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
                                             "objectTypeMatch": null,
@@ -33246,6 +33574,9 @@
                                             ]
                                           }
                                         ],
+                                        "conditionNegated": [
+                                          false
+                                        ],
                                         "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
@@ -33341,6 +33672,7 @@
                                             "poise": null,
                                             "superArmor": null,
                                             "twoDirectionAngle": null,
+                                            "targetAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
                                             "objectTypeMatch": null,
@@ -33672,6 +34004,9 @@
                                             ]
                                           }
                                         ],
+                                        "conditionNegated": [
+                                          false
+                                        ],
                                         "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
@@ -33710,6 +34045,9 @@
                                       "skillCooldownAdjustment": null,
                                       "buffIgnite": null
                                     }
+                                  ],
+                                  "conditionNegated": [
+                                    false
                                   ],
                                   "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
@@ -34018,6 +34356,7 @@
                                       "poise": null,
                                       "superArmor": null,
                                       "twoDirectionAngle": null,
+                                      "targetAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
                                       "objectTypeMatch": null,
@@ -34083,6 +34422,7 @@
                                             "poise": null,
                                             "superArmor": null,
                                             "twoDirectionAngle": null,
+                                            "targetAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
                                             "objectTypeMatch": null,
@@ -34414,6 +34754,9 @@
                                             ]
                                           }
                                         ],
+                                        "conditionNegated": [
+                                          false
+                                        ],
                                         "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
@@ -34509,6 +34852,7 @@
                                             "poise": null,
                                             "superArmor": null,
                                             "twoDirectionAngle": null,
+                                            "targetAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
                                             "objectTypeMatch": null,
@@ -34840,6 +35184,9 @@
                                             ]
                                           }
                                         ],
+                                        "conditionNegated": [
+                                          false
+                                        ],
                                         "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
@@ -34878,6 +35225,9 @@
                                       "skillCooldownAdjustment": null,
                                       "buffIgnite": null
                                     }
+                                  ],
+                                  "conditionNegated": [
+                                    false
                                   ],
                                   "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
@@ -35072,6 +35422,9 @@
                           "buffIgnite": null
                         }
                       ],
+                      "conditionNegated": [
+                        false
+                      ],
                       "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
@@ -35141,6 +35494,7 @@
                           "poise": null,
                           "superArmor": null,
                           "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
                           "objectTypeMatch": null,
@@ -35358,6 +35712,7 @@
                                 "poise": null,
                                 "superArmor": null,
                                 "twoDirectionAngle": null,
+                                "targetAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
                                 "objectTypeMatch": null,
@@ -35417,6 +35772,9 @@
                                 "skillCooldownAdjustment": null,
                                 "buffIgnite": null
                               }
+                            ],
+                            "conditionNegated": [
+                              false
                             ],
                             "alwaysNext": true
                           },
@@ -35547,6 +35905,7 @@
                                 "poise": null,
                                 "superArmor": null,
                                 "twoDirectionAngle": null,
+                                "targetAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
                                 "objectTypeMatch": null,
@@ -35594,6 +35953,9 @@
                               }
                             ],
                             "failActions": [],
+                            "conditionNegated": [
+                              false
+                            ],
                             "alwaysNext": true
                           },
                           "legacyBuffFinish": null,
@@ -35713,6 +36075,7 @@
                                       "poise": null,
                                       "superArmor": null,
                                       "twoDirectionAngle": null,
+                                      "targetAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
                                       "objectTypeMatch": null,
@@ -35778,6 +36141,7 @@
                                             "poise": null,
                                             "superArmor": null,
                                             "twoDirectionAngle": null,
+                                            "targetAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
                                             "objectTypeMatch": null,
@@ -36109,6 +36473,9 @@
                                             ]
                                           }
                                         ],
+                                        "conditionNegated": [
+                                          false
+                                        ],
                                         "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
@@ -36204,6 +36571,7 @@
                                             "poise": null,
                                             "superArmor": null,
                                             "twoDirectionAngle": null,
+                                            "targetAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
                                             "objectTypeMatch": null,
@@ -36535,6 +36903,9 @@
                                             ]
                                           }
                                         ],
+                                        "conditionNegated": [
+                                          false
+                                        ],
                                         "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
@@ -36573,6 +36944,9 @@
                                       "skillCooldownAdjustment": null,
                                       "buffIgnite": null
                                     }
+                                  ],
+                                  "conditionNegated": [
+                                    false
                                   ],
                                   "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
@@ -36842,6 +37216,7 @@
                                 "poise": null,
                                 "superArmor": null,
                                 "twoDirectionAngle": null,
+                                "targetAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
                                 "objectTypeMatch": null,
@@ -36889,6 +37264,9 @@
                               }
                             ],
                             "failActions": [],
+                            "conditionNegated": [
+                              false
+                            ],
                             "alwaysNext": true
                           },
                           "legacyBuffFinish": null,
@@ -36962,6 +37340,7 @@
                                 "poise": null,
                                 "superArmor": null,
                                 "twoDirectionAngle": null,
+                                "targetAngle": null,
                                 "damageDecorateMask": null,
                                 "contextBuffId": null,
                                 "objectTypeMatch": null,
@@ -37009,6 +37388,9 @@
                               }
                             ],
                             "failActions": [],
+                            "conditionNegated": [
+                              false
+                            ],
                             "alwaysNext": true
                           },
                           "legacyBuffFinish": null,
@@ -37128,6 +37510,7 @@
                                       "poise": null,
                                       "superArmor": null,
                                       "twoDirectionAngle": null,
+                                      "targetAngle": null,
                                       "damageDecorateMask": null,
                                       "contextBuffId": null,
                                       "objectTypeMatch": null,
@@ -37193,6 +37576,7 @@
                                             "poise": null,
                                             "superArmor": null,
                                             "twoDirectionAngle": null,
+                                            "targetAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
                                             "objectTypeMatch": null,
@@ -37524,6 +37908,9 @@
                                             ]
                                           }
                                         ],
+                                        "conditionNegated": [
+                                          false
+                                        ],
                                         "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
@@ -37619,6 +38006,7 @@
                                             "poise": null,
                                             "superArmor": null,
                                             "twoDirectionAngle": null,
+                                            "targetAngle": null,
                                             "damageDecorateMask": null,
                                             "contextBuffId": null,
                                             "objectTypeMatch": null,
@@ -37950,6 +38338,9 @@
                                             ]
                                           }
                                         ],
+                                        "conditionNegated": [
+                                          false
+                                        ],
                                         "alwaysNext": true,
                                         "projectedAbilityEntitySpawns": [
                                           {
@@ -37988,6 +38379,9 @@
                                       "skillCooldownAdjustment": null,
                                       "buffIgnite": null
                                     }
+                                  ],
+                                  "conditionNegated": [
+                                    false
                                   ],
                                   "alwaysNext": true,
                                   "projectedAbilityEntitySpawns": [
@@ -38186,12 +38580,18 @@
                           }
                         }
                       ],
+                      "conditionNegated": [
+                        false
+                      ],
                       "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
+                ],
+                "conditionNegated": [
+                  false
                 ],
                 "alwaysNext": true
               },
@@ -38232,6 +38632,9 @@
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -38255,6 +38658,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -38349,6 +38753,7 @@
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -38400,12 +38805,18 @@
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -38680,6 +39091,7 @@
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -38838,6 +39250,7 @@
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
                         "objectTypeMatch": null,
@@ -38933,6 +39346,9 @@
                         ]
                       }
                     ],
+                    "conditionNegated": [
+                      false
+                    ],
                     "alwaysNext": true,
                     "executionFrames": [
                       12,
@@ -38981,6 +39397,9 @@
                 }
               ],
               "failActions": [],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true,
               "executionFrames": [
                 12,
@@ -39028,6 +39447,7 @@
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -39069,6 +39489,9 @@
                 }
               ],
               "failActions": [],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true,
               "executionFrames": [
                 12,
@@ -39122,6 +39545,7 @@
                 }
               ],
               "failActions": [],
+              "conditionNegated": [],
               "alwaysNext": false
             }
           ],
@@ -40439,6 +40863,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -40560,6 +40985,7 @@
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -40601,6 +41027,9 @@
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -40652,6 +41081,7 @@
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -40693,6 +41123,9 @@
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -40743,6 +41176,9 @@
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -40775,6 +41211,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -40932,6 +41369,9 @@
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -41436,6 +41876,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -41557,6 +41998,7 @@
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -41598,6 +42040,9 @@
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -41649,6 +42094,7 @@
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -41690,6 +42136,9 @@
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -41740,6 +42189,9 @@
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -42207,6 +42659,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -42255,6 +42708,9 @@
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],

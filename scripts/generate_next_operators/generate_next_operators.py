@@ -8356,6 +8356,22 @@ def derive_skill_slot_replacement_relations(
         for replacement in definition.skillReplacements:
                 replacement_skill = skill_by_id.get(replacement.targetSkillId)
                 base = skill_by_id.get(replacement.revertedSkillId)
+                if (
+                    base is None
+                    and not replacement.specificRevertedSkillId
+                    and not replacement.revertedSkillId
+                    and replacement_skill is not None
+                ):
+                    # 原生在未指定 revertedSkillId 时快照替换前的当前槽位。
+                    # 只有同技能类型恰有一个其他候选时，生成期才能反推出初始槽位身份。
+                    candidates = [
+                        skill
+                        for skill in skills
+                        if skill.skillType == replacement_skill.skillType
+                        and skill.skillId != replacement_skill.skillId
+                    ]
+                    if len(candidates) == 1:
+                        base = candidates[0]
                 if replacement_skill is None or base is None:
                     continue
                 if (
@@ -8363,8 +8379,10 @@ def derive_skill_slot_replacement_relations(
                     or replacement.event != "DuringBuffEnable"
                     or replacement.skillSource.targetSource not in {"Owner", "Source"}
                     or replacement.skillSource.targetGroupKey
-                    or replacement.revertedSkillId != base.skillId
-                    or not replacement.specificRevertedSkillId
+                    or (
+                        replacement.specificRevertedSkillId
+                        and replacement.revertedSkillId != base.skillId
+                    )
                     or replacement.lifeTimeType != "FinishByAction"
                     or replacement_skill.skillType != base.skillType
                 ):
