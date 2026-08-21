@@ -8,6 +8,42 @@ import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
 import { EventContextConditionExecutor } from './eventContextConditionExecutor';
 
 describe('attachBuffLifecycleSequences', () => {
+  it('把技能槽替换绑定到 Buff 启用边界并在结束时还原', () => {
+    const changes: string[] = [];
+    const operations: CombatOperationExecutor = {
+      execute: step => {
+        if (step.kind === 'changeSkillSlot') changes.push(step.parameters.targetSkillKey);
+        return true;
+      },
+      evaluate: () => true,
+    };
+    const container = new CombatBuffContainer<never>('operator', new CombatAttributeSet<never>());
+    const definition = attachBuffLifecycleSequences<never>(
+      { id: 'ultimate-form', stackingType: 'unique' },
+      {},
+      () => operations,
+      undefined,
+      [],
+      undefined,
+      [],
+      [],
+      [
+        {
+          skillGroupKey: 'battleSkill',
+          targetSkillKey: 'battleSkillDuringUltimate',
+          revertedSkillKey: 'battleSkill',
+          inheritOriginSkillCooldownProgress: false,
+        },
+      ],
+    );
+
+    const buff = container.add(definition, 'operator')!;
+    expect(changes).toEqual(['battleSkillDuringUltimate']);
+
+    buff.finish('lifetime');
+    expect(changes).toEqual(['battleSkillDuringUltimate', 'battleSkill']);
+  });
+
   it('为每个 Buff 实例隔离黑板和 once 状态', () => {
     const reached: number[] = [];
     const operations: CombatOperationExecutor = {
@@ -322,6 +358,67 @@ describe('attachBuffLifecycleSequences', () => {
     dispatch(['normalSkill']);
 
     expect(reached).toEqual(['abilityDamage', 'abilityDamage']);
+  });
+
+  it('只在 Buff 启用期间订阅击杀语义事件', () => {
+    const reached: string[] = [];
+    let handler:
+      | ((event: {
+          readonly kind: 'enemyDefeated';
+          readonly sourceOperatorId: string;
+          readonly tags: readonly ['normalSkill'];
+        }) => void)
+      | undefined;
+    const definition = attachBuffLifecycleSequences<never>(
+      { id: 'kill-listener', stackingType: 'unique' },
+      {},
+      () => ({
+        execute: (_step, context) => {
+          reached.push(context!.event!.kind);
+          return true;
+        },
+        evaluate: () => true,
+      }),
+      undefined,
+      [
+        {
+          event: 'afterKillEntity',
+          priority: 3,
+          sequence: {
+            steps: [
+              {
+                kind: 'setContextFlag',
+                parameters: { flag: 'extended', value: true, target: 'caster' },
+              },
+            ],
+          },
+        },
+      ],
+      undefined,
+      [],
+      [],
+      [],
+      (_event, _priority, callback) => {
+        handler = callback as typeof handler;
+        return { dispose: () => (handler = undefined) };
+      },
+    );
+    const container = new CombatBuffContainer<never>('operator', new CombatAttributeSet<never>());
+    const buff = container.add(definition, 'operator')!;
+    const event = {
+      kind: 'enemyDefeated',
+      sourceOperatorId: 'operator',
+      tags: ['normalSkill'],
+    } as const;
+
+    handler!(event);
+    buff.disable();
+    expect(handler).toBeUndefined();
+    buff.enable();
+    handler!(event);
+    buff.finish();
+    expect(handler).toBeUndefined();
+    expect(reached).toEqual(['enemyDefeated', 'enemyDefeated']);
   });
 
   it('事件响应可以结束正在执行响应的 Buff 并立即注销自身订阅', () => {

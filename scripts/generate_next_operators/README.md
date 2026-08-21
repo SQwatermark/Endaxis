@@ -10,6 +10,10 @@
 
 `operators.json` 不保存可从数据源取得的倍率、冷却、持续时间、属性成长或潜能数值。它只声明稳定 DSL key、原生技能到 Endaxis 技能的映射，以及单敌人模型取舍等无法由原始字段唯一推导的语义。首段连携入口写在干员级 `comboSkillRegistrations`，不能放进单个技能的 `compile` 配置；多段连携的后续窗口由对应技能序列生成 `openComboWindow` 步骤。
 
+`SetSkillCdAtOnce` 的技能选择遵循复刻库与 1.4.4 反编译证据：`useSkillType=true` 时只按 `SkillTypeMask` 遍历，配置中的 `skillId` 即使非空也不参与选择；为 `false` 时才按精确 ID 查找。Set/Reduce 与绝对值/周期比例继续保留为正交字段。证据见相邻 `combat-spec/docs/set-skill-cooldown.md`。
+
+`ChangeSkillAction` 的 `FinishByAction` 形态内联在承载它的 Buff 定义中：Buff 每次启用时换入目标技能，停用或结束导致 DuringBuffEnable 动作 End 时还原指定技能。生成器必须从原生目标/还原 ID 和技能组证明关系，并由 `runtimeReplacementSkillKeys` 明确选择不可直接放置的替换形态。`inheritOriginSkillCdProgress=true` 尚未接入时严格失败。证据见 `combat-spec/docs/change-skill-action.md`。动态最大 Buff 层数从首实例黑板键解析；`isNeedStackEffect=true` 但效果数组为空是反编译确认的表现层 no-op，见 `combat-spec/docs/buff-stack-presentation.md`。
+
 干员的稳定 slug、原始数据名称与本地化展示名必须分开：例如技术身份 `arcane` 的中文展示名是“诀”。展示名的权威对照本是 `src/i18n/game-locales/<locale>/operators.json`，由 `getOperatorGameName` 读取；本目录的 `operators.json` 不重复保存名称。生成审计中的原始英文 `operatorName` 可保留来源事实，UI 和面向用户的中文文档不得把它当作中文展示名。
 
 时间膨胀按原生动作直接转换：命名曲线保留公共键，内联曲线保留完整 Unity 关键帧；原生优先级 GameplayTag 在生成正式 DSL 时通过当前版本 `TimeDilationConfig.priorityMap` 降为可直接比较的数值，未知标签立即报错。普通动作生成 `startTimeDilation`，终结技专用动作生成 `startUltimateTimeDilation`。根技能中的 `Source` 与 `Owner` 都归约为施法者；能力实体目标只有在固定单敌人模型下可安全省略时才记入审计。嵌套时间动作、未知字段和无法归约的实体目标会立即报错。

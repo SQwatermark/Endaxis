@@ -16,6 +16,12 @@ function attributes(
 }
 
 describe('injectDamageScaleAttributes', () => {
+  it('classifies native burst and abnormal damage tags', () => {
+    expect(
+      classifyDamageTags(['fireBurst', 'electricBurst', 'cryoAbnormal', 'natureAbnormal']),
+    ).toEqual(['fireBurst', 'electricBurst', 'cryoAbnormal', 'natureAbnormal']);
+  });
+
   it('accumulates typed, skill, and staggered-target increases in the normal zone', () => {
     const scales = new DamageScaleAccumulator();
     injectDamageScaleAttributes(scales, {
@@ -74,12 +80,7 @@ describe('injectDamageScaleAttributes', () => {
 
   it('maps all active normal-attack variants to the shared native damage set', () => {
     expect(
-      classifyDamageTags([
-        'normalAttackLastCombo',
-        'powerAttack',
-        'plungingAttack',
-        'dashAttack',
-      ]),
+      classifyDamageTags(['normalAttackLastCombo', 'powerAttack', 'plungingAttack', 'dashAttack']),
     ).toEqual(['normalAttack']);
   });
 });

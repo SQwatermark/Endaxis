@@ -557,6 +557,20 @@ export class CombatRuntimeAssembly {
       target.configureBuffAppliedObserver?.(event =>
         this.semanticEvents.emit({ kind: 'buffApplied', ...event }),
       );
+      target.configureSemanticEventAction?.((_event, priority, handle) =>
+        this.semanticEvents.register({
+          ownerOperatorId: target.ownerId,
+          trigger: { kind: 'enemyDefeated', scope: 'operator' },
+          phase: 'dataAction',
+          priority,
+          handle: context => {
+            if (context.event.kind !== 'enemyDefeated') {
+              throw new Error('enemy-defeated Buff listener received an invalid event');
+            }
+            handle(context.event);
+          },
+        }),
+      );
     };
     configureBuffLifecycle(this.#enemyBuffRuntime);
     for (const target of this.#operatorBuffs.values()) configureBuffLifecycle(target);
@@ -1411,6 +1425,20 @@ export class CombatRuntimeAssembly {
     );
     runtime.configureBuffAppliedObserver?.(event =>
       this.semanticEvents.emit({ kind: 'buffApplied', ...event }),
+    );
+    runtime.configureSemanticEventAction?.((_event, priority, handle) =>
+      this.semanticEvents.register({
+        ownerOperatorId: runtime!.ownerId,
+        trigger: { kind: 'enemyDefeated', scope: 'operator' },
+        phase: 'dataAction',
+        priority,
+        handle: context => {
+          if (context.event.kind !== 'enemyDefeated') {
+            throw new Error('enemy-defeated Buff listener received an invalid event');
+          }
+          handle(context.event);
+        },
+      }),
     );
     this.#abilityEntityBuffs.set(target.instanceId, runtime);
     return runtime;

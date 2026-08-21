@@ -92,6 +92,7 @@ export const yvonneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -423,6 +424,7 @@ export const yvonneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -777,6 +779,7 @@ export const yvonneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -1078,6 +1081,7 @@ export const yvonneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -1172,6 +1176,7 @@ export const yvonneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -1273,6 +1278,7 @@ export const yvonneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -2300,6 +2306,7 @@ export const yvonneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -2839,6 +2846,7 @@ export const yvonneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -3087,6 +3095,7 @@ export const yvonneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -4349,6 +4358,7 @@ export const yvonneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -4445,6 +4455,7 @@ export const yvonneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -4525,6 +4536,7 @@ export const yvonneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -4700,6 +4712,7 @@ export const yvonneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -4791,6 +4804,7 @@ export const yvonneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -5033,6 +5047,7 @@ export const yvonneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -5129,6 +5144,7 @@ export const yvonneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -5217,6 +5233,7 @@ export const yvonneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -5347,6 +5364,7 @@ export const yvonneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -5477,6 +5495,7 @@ export const yvonneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -5607,6 +5626,7 @@ export const yvonneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -5701,6 +5721,7 @@ export const yvonneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -5795,6 +5816,7 @@ export const yvonneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -5872,6 +5894,7 @@ export const yvonneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -5978,6 +6001,7 @@ export const yvonneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -6049,6 +6073,7 @@ export const yvonneGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -19857,7 +19882,7 @@ export const yvonneGeneratedSource = {
     {
       "key": "ultimateAttack1",
       "skillId": "chr_0017_yvonne_ult_attack1_1",
-      "skillType": "basicAttack",
+      "skillType": "ultimate",
       "sourceFile": "chr_0017_yvonne_ult_attack1_1.json",
       "timelineBlockFrames": 0,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
@@ -21163,7 +21188,7 @@ export const yvonneGeneratedSource = {
     {
       "key": "ultimateAttack2A",
       "skillId": "chr_0017_yvonne_ult_attack2_1",
-      "skillType": "basicAttack",
+      "skillType": "ultimate",
       "sourceFile": "chr_0017_yvonne_ult_attack2_1.json",
       "timelineBlockFrames": 0,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
@@ -28733,7 +28758,7 @@ export const yvonneGeneratedSource = {
     {
       "key": "ultimateAttack2B",
       "skillId": "chr_0017_yvonne_ult_attack2_2",
-      "skillType": "basicAttack",
+      "skillType": "ultimate",
       "sourceFile": "chr_0017_yvonne_ult_attack2_2.json",
       "timelineBlockFrames": 0,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
@@ -35127,7 +35152,7 @@ export const yvonneGeneratedSource = {
     {
       "key": "ultimateAttack3A",
       "skillId": "chr_0017_yvonne_ult_attack3_1",
-      "skillType": "basicAttack",
+      "skillType": "ultimate",
       "sourceFile": "chr_0017_yvonne_ult_attack3_1.json",
       "timelineBlockFrames": 0,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
@@ -40276,7 +40301,7 @@ export const yvonneGeneratedSource = {
     {
       "key": "ultimateAttack3B",
       "skillId": "chr_0017_yvonne_ult_attack3_2",
-      "skillType": "basicAttack",
+      "skillType": "ultimate",
       "sourceFile": "chr_0017_yvonne_ult_attack3_2.json",
       "timelineBlockFrames": 0,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
@@ -45410,7 +45435,7 @@ export const yvonneGeneratedSource = {
     {
       "key": "ultimateAttackEnd",
       "skillId": "chr_0017_yvonne_ult_attack_end",
-      "skillType": "basicAttack",
+      "skillType": "ultimate",
       "sourceFile": "chr_0017_yvonne_ult_attack_end.json",
       "timelineBlockFrames": 61,
       "blockBoundarySource": "exclusiveFrame+1",

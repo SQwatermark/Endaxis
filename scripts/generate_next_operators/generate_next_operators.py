@@ -2243,20 +2243,20 @@ def resolve_operator_buff_definitions(
             excluded_buff_ids,
         )
     }
-    owner_ids = tuple(
+    nested_ids = tuple(
         sorted(
             buff_id
-            for buff_id, targets in nested_targets.items()
-            if "Owner" in targets and buff_id not in definitions
+            for buff_id in nested_targets
+            if buff_id not in definitions
         )
     )
     for definition in resolve_buff_definitions(
-        owner_ids,
+        nested_ids,
         source_dirs,
         skill_source_dir,
         excluded_buff_ids,
     ):
-        if definition.buffId in owner_ids and definition.sourceDeathFinish is not None:
+        if definition.buffId in nested_ids:
             definitions[definition.buffId] = definition
     return tuple(definitions[buff_id] for buff_id in sorted(definitions))
 
@@ -3782,6 +3782,9 @@ def resolve_fixed_combat_target(
 
 
 NATIVE_DAMAGE_TAG_BITS = {
+    8: "fireAbnormal",
+    16: "electricAbnormal",
+    32: "cryoAbnormal",
     4: "powerAttack",
     128: "normalAttack",
     256: "normalSkill",
@@ -3790,6 +3793,13 @@ NATIVE_DAMAGE_TAG_BITS = {
     8192: "comboSkill",
     131072: "dashAttack",
     2097152: "normalAttackLastCombo",
+    1048576: "natureAbnormal",
+    4194304: "fireBurst",
+    8388608: "cryoBurst",
+    16777216: "electricBurst",
+    33554432: "natureBurst",
+    67108864: "fireAbnormal",
+    134217728: "cryoAbnormal",
 }
 
 NATIVE_DAMAGE_FEATURE_BITS = {
@@ -3815,13 +3825,13 @@ def decode_damage_decorate_mask(mask: int, path: str) -> tuple[tuple[str, ...], 
     tags: list[str] = []
     features: list[str] = []
     for bit, tag in NATIVE_DAMAGE_TAG_BITS.items():
-        if remaining & bit:
+        if mask & bit and tag not in tags:
             tags.append(tag)
-            remaining &= ~bit
     for bit, feature in NATIVE_DAMAGE_FEATURE_BITS.items():
-        if remaining & bit:
+        if mask & bit and feature not in features:
             features.append(feature)
-            remaining &= ~bit
+    for bit in NATIVE_DAMAGE_TAG_BITS.keys() | NATIVE_DAMAGE_FEATURE_BITS.keys():
+        remaining &= ~bit
     if remaining != 0:
         raise ValueError(f"{path}: damage decorate mask {mask} contains unmapped bits")
     return tuple(tags), tuple(features)
@@ -7938,19 +7948,15 @@ def derive_skill_slot_replacement_relations(
     skills: list[SkillSource],
     buff_definitions: Iterable[BuffDefinitionSource],
 ) -> list[dict[str, Any]]:
-    """从首段直接 Buff 与替换技能第 0 帧还原动作证明稳定技能槽闭环。"""
+    """证明技能槽替换，并区分替换技能主动还原与 Buff 动作结束还原。"""
     skill_by_id = {skill.skillId: skill for skill in skills}
     definitions = {definition.buffId: definition for definition in buff_definitions}
     result: list[dict[str, Any]] = []
-    seen_base_ids: set[str] = set()
-    for base in skills:
-        for buff_id in base.referencedBuffIds:
-            definition = definitions.get(buff_id)
-            if definition is None:
-                continue
-            for replacement in definition.skillReplacements:
+    for buff_id, definition in definitions.items():
+        for replacement in definition.skillReplacements:
                 replacement_skill = skill_by_id.get(replacement.targetSkillId)
-                if replacement_skill is None:
+                base = skill_by_id.get(replacement.revertedSkillId)
+                if replacement_skill is None or base is None:
                     continue
                 if (
                     replacement.eventSource != "buff"
@@ -7977,29 +7983,37 @@ def derive_skill_slot_replacement_relations(
                         and not action.revertedSkillId
                     )
                 ]
-                if len(reverts) != 1:
+                if len(reverts) > 1:
                     continue
-                if base.skillId in seen_base_ids:
-                    raise ValueError(
-                        f"skill {base.skillId!r} has multiple proven slot replacement relations"
-                    )
-                seen_base_ids.add(base.skillId)
-                revert = reverts[0]
-                result.append(
-                    {
+                activators = [
+                    skill for skill in skills if buff_id in skill.referencedBuffIds
+                ]
+                if reverts and len(activators) != 1:
+                    continue
+                relation = {
                         "skillSlot": replacement.skillSlot,
                         "baseSkillKey": base.key,
                         "replacementSkillKey": replacement_skill.key,
                         "activatedByBuffId": buff_id,
                         "activationEvent": replacement.event,
                         "activationActionIndex": replacement.actionIndex,
-                        "revertOnReplacementCastFrame": revert.startFrame,
-                        "revertActionIndex": revert.actionIndex,
                         "inheritOriginSkillCooldownProgress": (
                             replacement.inheritOriginSkillCooldownProgress
                         ),
                     }
-                )
+                if reverts:
+                    activator = activators[0]
+                    if activator.key != base.key:
+                        relation["activationSkillKey"] = activator.key
+                    relation.update(
+                        {
+                            "revertOnReplacementCastFrame": reverts[0].startFrame,
+                            "revertActionIndex": reverts[0].actionIndex,
+                        }
+                    )
+                else:
+                    relation["revertMode"] = "buffActionEnd"
+                result.append(relation)
     return result
 
 

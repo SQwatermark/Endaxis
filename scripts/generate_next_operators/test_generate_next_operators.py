@@ -2482,6 +2482,28 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("operation: 'reduce'", compiled)
         self.assertIn("basis: 'baseDurationRatio'", compiled)
 
+    def test_type_selected_skill_cooldown_ignores_redundant_skill_id(self) -> None:
+        target = parse_target_reference(target_settings_fixture("Owner"), "fixture.target")
+        payload = SimpleNamespace(
+            target=target,
+            useSkillType=True,
+            skillTypeMask="UltimateSkill",
+            skillId="chr_0016_laevat_ultimate_skill",
+            functionType="Set",
+            isPercentage=False,
+            value=ScalarSource(10, None, None),
+        )
+        compiled = compile_conditional_branch_action(
+            ConditionalBranchActionSource(
+                "SetSkillCdAtOnce", 0, skillCooldownAdjustment=payload
+            ),
+            "fixture.cooldown",
+        )
+
+        self.assertIn("skillType: 'ultimate'", compiled)
+        self.assertNotIn("chr_0016_laevat_ultimate_skill", compiled)
+        self.assertIn("operation: 'set'", compiled)
+
     def test_conditional_skill_cooldown_reduce_supports_absolute_seconds(self) -> None:
         target = parse_target_reference(target_settings_fixture("Owner"), "fixture.target")
         payload = SimpleNamespace(
@@ -13862,6 +13884,18 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertEqual(tags, ())
         self.assertEqual(features, ("dot", "talentDamage"))
+
+    def test_damage_mask_preserves_burning_as_fire_abnormal_dot(self) -> None:
+        tags, features = decode_damage_decorate_mask(335544320, "fixture.burning")
+
+        self.assertEqual(tags, ("fireAbnormal",))
+        self.assertEqual(features, ("dot",))
+
+    def test_damage_mask_preserves_shatter_filter_and_cryo_abnormal_classification(self) -> None:
+        tags, features = decode_damage_decorate_mask(134217728, "fixture.shatter")
+
+        self.assertEqual(tags, ("cryoAbnormal",))
+        self.assertEqual(features, ("shatter",))
 
     def test_damage_mask_condition_preserves_dot_area_exclusion(self) -> None:
         condition = SimpleNamespace(

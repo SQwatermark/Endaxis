@@ -568,6 +568,8 @@ class BuffDefinitionSource:
     auxiliaryActions: tuple[AuxiliaryActionSource, ...] = ()
     targetGroupWrites: tuple[TargetGroupWriteSource, ...] = ()
     skillReplacements: tuple["BuffSkillReplacementSource", ...] = ()
+    # 仅由已证明并由 manifest 选择的运行时关系注入；不属于原始审计载荷。
+    runtimeSkillSlotReplacements: tuple[dict[str, object], ...] = ()
     attributeModifiersConverted: bool = False
     # Buff.OnTick(deltaTime, allScaledDeltaTime, selfScaledDeltaTime) 的原始判别字段。
     useTimeDilationDt: bool = False

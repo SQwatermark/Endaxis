@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import textwrap
 from collections import OrderedDict
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any, Callable
 
 from passive_skill_parser import PassiveSkillSource
@@ -99,6 +99,35 @@ def render_operator_definition(
         skills,
         derive_skill_slot_replacement_relations(skills, buff_definitions),
     )
+    # Project action-scoped replacements once at the operator boundary so the
+    # exact same inline Buff definition is used by skills, talents and potentials.
+    for relation in skill_slot_replacement_relations:
+        if relation.get("revertMode") != "buffActionEnd":
+            continue
+        if relation["inheritOriginSkillCooldownProgress"]:
+            raise ValueError(
+                f"{operator['slug']}: skill cooldown progress inheritance is not implemented"
+            )
+        buff_id = relation["activatedByBuffId"]
+        definition = definitions_by_id.get(buff_id)
+        if definition is None:
+            raise ValueError(
+                f"{operator['slug']}: missing lifecycle replacement Buff {buff_id!r}"
+            )
+        definitions_by_id[buff_id] = replace(
+            definition,
+            skillReplacements=(),
+            runtimeSkillSlotReplacements=(
+                *definition.runtimeSkillSlotReplacements,
+                {
+                    "skillGroupKey": relation["baseSkillKey"],
+                    "targetSkillKey": relation["replacementSkillKey"],
+                    "revertedSkillKey": relation["baseSkillKey"],
+                    "inheritOriginSkillCooldownProgress": False,
+                },
+            ),
+        )
+    buff_definitions = tuple(definitions_by_id.values())
     skill_entries, damage_type_factories = compile_skill_entries(
         operator,
         skills,

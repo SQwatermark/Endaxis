@@ -114,13 +114,29 @@ def _event_actions_are_presentation_only(source: BuffDefinitionSource) -> bool:
         return True
     return all(
         hasattr(event, "orderedActionTypes")
-        and set(event.orderedActionTypes) <= PRESENTATION_EVENT_ACTION_TYPES
+        and (
+            set(event.orderedActionTypes) <= PRESENTATION_EVENT_ACTION_TYPES
+            # The event parser retains guards around presentation actions in the
+            # audit, but deliberately projects no simulation action for them.
+            # Treat that proven empty projection as presentation-only as well.
+            or (
+                bool(getattr(event, "sequences", ()))
+                and all(
+                    not sequence.actions
+                    for sequence in getattr(event, "sequences", ())
+                )
+            )
+        )
         and not getattr(event, "combatActions", ())
         and not getattr(event, "damageUnits", ())
         and not getattr(event, "buffApplications", ())
         and not getattr(event, "createdBuffIds", ())
         and not getattr(event, "forEachActions", ())
         and not getattr(event, "targetGroupWrites", ())
+        and not getattr(event, "runtimeTargetGroupWrites", ())
+        and not getattr(event, "obtainAtbFilters", ())
+        and not getattr(event, "contextBuffTagQueries", ())
+        and not getattr(event, "consumeBuffLayerChecks", ())
         for event in source.eventActions
     )
 
@@ -234,9 +250,10 @@ def compile_inline_buff_definition(
             + ", ".join(unsupported)
         )
     lifecycle = source.lifecycle
-    if lifecycle.hasStackEffects and (
-        not lifecycle.stackEffectActionTypes
-        or not set(lifecycle.stackEffectActionTypes) <= PRESENTATION_STACK_EFFECT_ACTION_TYPES
+    if (
+        lifecycle.hasStackEffects
+        and lifecycle.stackEffectActionTypes
+        and not set(lifecycle.stackEffectActionTypes) <= PRESENTATION_STACK_EFFECT_ACTION_TYPES
     ):
         raise ValueError(f"{path}: Buff {source.buffId!r} uses unsupported stack effects")
 
@@ -278,6 +295,21 @@ def compile_inline_buff_definition(
             for item in source.blackboard
         )
         fields.append("},")
+    if getattr(source, "runtimeSkillSlotReplacements", ()):
+        fields.append("skillSlotReplacements: [")
+        for replacement in source.runtimeSkillSlotReplacements:
+            fields.extend(
+                [
+                    "  {",
+                    f"    skillGroupKey: {ts_inline_literal(replacement['skillGroupKey'])},",
+                    f"    targetSkillKey: {ts_inline_literal(replacement['targetSkillKey'])},",
+                    f"    revertedSkillKey: {ts_inline_literal(replacement['revertedSkillKey'])},",
+                    "    inheritOriginSkillCooldownProgress: "
+                    f"{ts_inline_literal(replacement['inheritOriginSkillCooldownProgress'])},",
+                    "  },",
+                ]
+            )
+        fields.append("],")
     if source.attributeModifiers:
         fields.append("attributeModifiers: [")
         for modifier in source.attributeModifiers:

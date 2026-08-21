@@ -1021,6 +1021,7 @@ function validateCombatStep(
               lifecycleSequences,
               abilityEventResponses,
               igniteEventResponses,
+              skillSlotReplacements,
               actions,
               maxStackCount,
               ...runtimeDefinition
@@ -1105,7 +1106,8 @@ function validateCombatStep(
                     response.event !== 'outputDamage' &&
                     response.event !== 'beforeCastSkill' &&
                     response.event !== 'addedBuff' &&
-                    response.event !== 'finishedBuff'
+                    response.event !== 'finishedBuff' &&
+                    response.event !== 'afterKillEntity'
                   ) {
                     push(out, `${responsePath}.event`, 'unsupported Buff ability event');
                   }
@@ -1136,6 +1138,44 @@ function validateCombatStep(
                 }
               }
             }
+            if (skillSlotReplacements !== undefined) {
+              const replacementsPath = `${path}.parameters.definition.skillSlotReplacements`;
+              if (!Array.isArray(skillSlotReplacements)) {
+                push(out, replacementsPath, 'expected an array');
+              } else {
+                for (const [index, value] of skillSlotReplacements.entries()) {
+                  const replacementPath = `${replacementsPath}[${index}]`;
+                  const replacement = asRecord(value, replacementPath, out);
+                  if (replacement === null) continue;
+                  for (const key of Object.keys(replacement)) {
+                    if (
+                      ![
+                        'skillGroupKey',
+                        'targetSkillKey',
+                        'revertedSkillKey',
+                        'inheritOriginSkillCooldownProgress',
+                      ].includes(key)
+                    ) {
+                      push(
+                        out,
+                        `${replacementPath}.${key}`,
+                        'unknown skill slot replacement field',
+                      );
+                    }
+                  }
+                  requireString(replacement, 'skillGroupKey', replacementPath, out);
+                  requireString(replacement, 'targetSkillKey', replacementPath, out);
+                  requireString(replacement, 'revertedSkillKey', replacementPath, out);
+                  if (replacement.inheritOriginSkillCooldownProgress !== false) {
+                    push(
+                      out,
+                      `${replacementPath}.inheritOriginSkillCooldownProgress`,
+                      'cooldown progress inheritance is not supported yet',
+                    );
+                  }
+                }
+              }
+            }
             if (
               ((Array.isArray(scheduledSequences) && scheduledSequences.length > 0) ||
                 (lifecycleSequences !== undefined &&
@@ -1143,7 +1183,8 @@ function validateCombatStep(
                   lifecycleSequences !== null &&
                   Object.keys(lifecycleSequences).length > 0) ||
                 (Array.isArray(abilityEventResponses) && abilityEventResponses.length > 0) ||
-                (Array.isArray(igniteEventResponses) && igniteEventResponses.length > 0)) &&
+                (Array.isArray(igniteEventResponses) && igniteEventResponses.length > 0) ||
+                (Array.isArray(skillSlotReplacements) && skillSlotReplacements.length > 0)) &&
               parameters.inheritSourceSkillCastInfo !== true
             ) {
               push(

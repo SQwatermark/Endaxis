@@ -184,6 +184,14 @@ export function classifyDamageTags(
   if (tags.includes('normalSkill')) classifications.push('normalSkill');
   if (tags.includes('comboSkill')) classifications.push('comboSkill');
   if (tags.includes('ultimateSkill')) classifications.push('ultimateSkill');
+  if (tags.includes('fireBurst')) classifications.push('fireBurst');
+  if (tags.includes('electricBurst')) classifications.push('electricBurst');
+  if (tags.includes('cryoBurst')) classifications.push('cryoBurst');
+  if (tags.includes('natureBurst')) classifications.push('natureBurst');
+  if (tags.includes('fireAbnormal')) classifications.push('fireAbnormal');
+  if (tags.includes('electricAbnormal')) classifications.push('electricAbnormal');
+  if (tags.includes('cryoAbnormal')) classifications.push('cryoAbnormal');
+  if (tags.includes('natureAbnormal')) classifications.push('natureAbnormal');
   return classifications;
 }
 

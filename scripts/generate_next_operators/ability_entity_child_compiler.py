@@ -200,6 +200,7 @@ def compile_ability_entity_child_skill(
                 current_ability_entity_owner=True,
                 input_target=input_target,
                 buff_definitions=buff_definitions,
+                invoked_child_context=(skill, config),
                 ignored_buff_ids=ignored_buff_ids | unmodeled_buff_ids,
             )
         compiled.append(

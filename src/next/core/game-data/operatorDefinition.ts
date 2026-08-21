@@ -66,6 +66,14 @@ export const DAMAGE_TAGS = [
   'ultimateSkill',
   'plungingAttack',
   'dashAttack',
+  'fireBurst',
+  'electricBurst',
+  'cryoBurst',
+  'natureBurst',
+  'fireAbnormal',
+  'electricAbnormal',
+  'cryoAbnormal',
+  'natureAbnormal',
 ] as const;
 /** 单次伤害携带的可叠加语义分类，供公式、事件和机制筛选。 */
 export type DamageTag = (typeof DAMAGE_TAGS)[number];
@@ -1030,7 +1038,8 @@ export interface SkillBuffAbilityEventResponse {
     | 'outputDamage'
     | 'beforeCastSkill'
     | 'addedBuff'
-    | 'finishedBuff';
+    | 'finishedBuff'
+    | 'afterKillEntity';
   /** 原生数据动作优先级；同一事件同优先级的顺序未证明时运行时会拒绝注册。 */
   priority: number;
   sequence: ActionSequenceDefinition;
@@ -1041,6 +1050,15 @@ export interface SkillBuffIgniteEventResponse {
   igniteType: string;
   finishAfterIgnited: boolean;
   sequence: ActionSequenceDefinition;
+}
+
+/** 原生 ChangeSkillAction 随 DuringBuffEnable 动作结束而撤销的技能槽替换。 */
+export interface SkillBuffSlotReplacement {
+  readonly skillGroupKey: string;
+  readonly targetSkillKey: string;
+  readonly revertedSkillKey: string;
+  /** 已保留证据位；运行时尚未接入 true 的双向冷却进度复制。 */
+  readonly inheritOriginSkillCooldownProgress: boolean;
 }
 
 export type SkillBuffDefinition = Omit<
@@ -1057,6 +1075,8 @@ export type SkillBuffDefinition = Omit<
   abilityEventResponses?: readonly SkillBuffAbilityEventResponse[];
   /** 每个实例独立持有的点燃响应；处理后是否结束由来源数据显式决定。 */
   igniteEventResponses?: readonly SkillBuffIgniteEventResponse[];
+  /** 每次启用时换入、停用或结束时还原；生命周期归当前 Buff 实例所有。 */
+  skillSlotReplacements?: readonly SkillBuffSlotReplacement[];
   /** 不参与战斗计算的显示信息。 */
   presentation?: SkillBuffPresentation;
 };

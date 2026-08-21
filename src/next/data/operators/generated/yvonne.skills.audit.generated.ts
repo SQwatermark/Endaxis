@@ -49,11 +49,6 @@ export const yvonneComboSkill: SkillDefinition = withSkillBlackboard(
                 scheduled(
                   19,
                   sequence(
-                    step('applyBuff', {
-                      buffId: 'buff_chr_0017_yvonne_combo_skill_tutorial_marker',
-                      target: 'caster',
-                      inheritSourceSkillCastInfo: true,
-                    }),
                     step('changeResourceByActionValue', {
                       resource: 'ultimateEnergy',
                       amount: { kind: 'blackboard', key: 'usp' },

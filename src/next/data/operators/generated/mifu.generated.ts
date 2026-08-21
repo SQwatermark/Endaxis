@@ -82,6 +82,7 @@ export const mifuGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -147,6 +148,7 @@ export const mifuGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -441,6 +443,7 @@ export const mifuGeneratedSource = {
           "revertedSkillId": "chr_0031_mifu_normalskill_1"
         }
       ],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false,
@@ -746,6 +749,7 @@ export const mifuGeneratedSource = {
           "revertedSkillId": "chr_0031_mifu_normalskill_1"
         }
       ],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false,
@@ -966,6 +970,7 @@ export const mifuGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -1099,6 +1104,7 @@ export const mifuGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -1241,6 +1247,7 @@ export const mifuGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -1318,6 +1325,7 @@ export const mifuGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -1424,6 +1432,7 @@ export const mifuGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -1534,6 +1543,7 @@ export const mifuGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -1605,6 +1615,7 @@ export const mifuGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -1672,6 +1683,7 @@ export const mifuGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false

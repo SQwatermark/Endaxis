@@ -376,12 +376,17 @@ def compile_conditional_branch_action(
             if cooldown_adjustment.isPercentage
             else "absoluteSeconds"
         )
-        if (
-            cooldown_adjustment.useSkillType
-            and cooldown_adjustment.skillTypeMask == "ComboSkill"
-            and not cooldown_adjustment.skillId
-        ):
-            skill_selector = "{ kind: 'type', skillType: 'comboSkill' }"
+        native_skill_type = {
+            "ComboSkill": "comboSkill",
+            "UltimateSkill": "ultimate",
+        }.get(cooldown_adjustment.skillTypeMask)
+        if cooldown_adjustment.useSkillType and native_skill_type is not None:
+            # 原生 useSkillType 分支只读取类型掩码并遍历全部匹配技能；配置里即使
+            # 同时保存 skillId（莱万汀样本），该字段也不会参与筛选。
+            skill_selector = (
+                "{ kind: 'type', skillType: "
+                f"{ts_inline_literal(native_skill_type)} }}"
+            )
         elif (
             not cooldown_adjustment.useSkillType
             and cooldown_adjustment.skillTypeMask == "None"

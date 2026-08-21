@@ -363,15 +363,45 @@ def compile_resolved_sequence(
         raise ValueError(f"{skill.key}: resolved damage compiler found no damage hits")
     resolved_schedule = collect_resolved_schedule(skill)
     replacement_relations = tuple(skill_slot_replacement_relations)
+    if buff_definitions is not None:
+        projected_definitions = dict(buff_definitions)
+        for relation in replacement_relations:
+            if relation.get("revertMode") != "buffActionEnd":
+                continue
+            definition = projected_definitions.get(relation["activatedByBuffId"])
+            if definition is None:
+                raise ValueError(
+                    f"{skill.key}: missing lifecycle replacement Buff "
+                    f"{relation['activatedByBuffId']!r}"
+                )
+            if relation["inheritOriginSkillCooldownProgress"]:
+                raise ValueError(
+                    f"{skill.key}: skill cooldown progress inheritance is not implemented"
+                )
+            projected_definitions[relation["activatedByBuffId"]] = replace(
+                definition,
+                skillReplacements=(),
+                runtimeSkillSlotReplacements=(
+                    {
+                        "skillGroupKey": relation["baseSkillKey"],
+                        "targetSkillKey": relation["replacementSkillKey"],
+                        "revertedSkillKey": relation["baseSkillKey"],
+                        "inheritOriginSkillCooldownProgress": False,
+                    },
+                ),
+            )
+        buff_definitions = projected_definitions
     activation_relations = tuple(
         relation
         for relation in replacement_relations
-        if relation["baseSkillKey"] == skill.key
+        if relation.get("revertMode", "replacementCast") == "replacementCast"
+        if relation.get("activationSkillKey", relation["baseSkillKey"]) == skill.key
     )
     revert_relations = tuple(
         relation
         for relation in replacement_relations
         if relation["replacementSkillKey"] == skill.key
+        and relation.get("revertMode", "replacementCast") == "replacementCast"
     )
     if len({relation["activatedByBuffId"] for relation in activation_relations}) != len(
         activation_relations
@@ -1106,13 +1136,35 @@ def compile_resolved_sequence(
                     "step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 })"
                 ]
             else:
+                relation = next(
+                    (
+                        candidate
+                        for candidate in activation_relations
+                        if candidate["activatedByBuffId"] == payload.sourceId
+                    ),
+                    None,
+                )
+                projected_buff_definitions = buff_definitions
+                if relation is not None and buff_definitions is not None:
+                    definition = buff_definitions.get(payload.sourceId)
+                    if definition is None:
+                        raise ValueError(
+                            f"{skill.key}.schedule[{schedule_index}]: missing replacement Buff definition"
+                        )
+                    projected_buff_definitions = {
+                        **buff_definitions,
+                        payload.sourceId: replace(
+                            definition,
+                            skillReplacements=(),
+                        ),
+                    }
                 step_lines = compile_buff_application(
                     payload,
                     f"{skill.key}.schedule[{schedule_index}].buffApplication",
                     root_skill_context=item.sourcePath == (skill.skillId,),
                     context_application_target=context_application_target,
                     input_target=item.inputTarget,
-                    buff_definitions=buff_definitions,
+                    buff_definitions=projected_buff_definitions,
                     invoked_child_context=(skill, config),
                     ignored_buff_ids=ignored_buff_ids,
                 ).splitlines()
@@ -1127,15 +1179,10 @@ def compile_resolved_sequence(
                         "  ),",
                         ")",
                     ]
-                relation = next(
-                    (
-                        candidate
-                        for candidate in activation_relations
-                        if candidate["activatedByBuffId"] == payload.sourceId
-                    ),
-                    None,
-                )
-                if relation is not None:
+                if (
+                    relation is not None
+                    and relation.get("revertMode", "replacementCast") == "replacementCast"
+                ):
                     step_lines.extend(
                         [
                             "step('changeSkillSlot', {",

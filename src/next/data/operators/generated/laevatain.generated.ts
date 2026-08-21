@@ -170,6 +170,7 @@ export const laevatainGeneratedSource = {
         }
       ],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -275,6 +276,7 @@ export const laevatainGeneratedSource = {
         }
       ],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -355,6 +357,7 @@ export const laevatainGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -601,6 +604,7 @@ export const laevatainGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -1203,6 +1207,7 @@ export const laevatainGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -1677,6 +1682,7 @@ export const laevatainGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -1947,6 +1953,7 @@ export const laevatainGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -2018,6 +2025,7 @@ export const laevatainGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -2264,6 +2272,7 @@ export const laevatainGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -2415,6 +2424,7 @@ export const laevatainGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -2480,6 +2490,7 @@ export const laevatainGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -2960,6 +2971,7 @@ export const laevatainGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -3290,6 +3302,7 @@ export const laevatainGeneratedSource = {
           "revertedSkillId": "chr_0016_laevat_normal_skill"
         }
       ],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -3682,6 +3695,7 @@ export const laevatainGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false,
@@ -3968,6 +3982,7 @@ export const laevatainGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false,
@@ -4073,6 +4088,7 @@ export const laevatainGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -4167,6 +4183,7 @@ export const laevatainGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -4329,6 +4346,7 @@ export const laevatainGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -4435,6 +4453,7 @@ export const laevatainGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -5005,6 +5024,7 @@ export const laevatainGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -5107,6 +5127,7 @@ export const laevatainGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -5201,6 +5222,7 @@ export const laevatainGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -5314,6 +5336,7 @@ export const laevatainGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -5424,6 +5447,7 @@ export const laevatainGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -5495,6 +5519,7 @@ export const laevatainGeneratedSource = {
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false
@@ -20319,7 +20344,7 @@ export const laevatainGeneratedSource = {
     {
       "key": "ultimateAttack1",
       "skillId": "chr_0016_laevat_ult_attack1",
-      "skillType": "basicAttack",
+      "skillType": "ultimate",
       "sourceFile": "chr_0016_laevat_ult_attack1.json",
       "timelineBlockFrames": 17,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
@@ -21274,7 +21299,7 @@ export const laevatainGeneratedSource = {
     {
       "key": "ultimateAttack2",
       "skillId": "chr_0016_laevat_ult_attack2",
-      "skillType": "basicAttack",
+      "skillType": "ultimate",
       "sourceFile": "chr_0016_laevat_ult_attack2.json",
       "timelineBlockFrames": 27,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
@@ -22974,7 +22999,7 @@ export const laevatainGeneratedSource = {
     {
       "key": "ultimateAttack3",
       "skillId": "chr_0016_laevat_ult_attack3",
-      "skillType": "basicAttack",
+      "skillType": "ultimate",
       "sourceFile": "chr_0016_laevat_ult_attack3.json",
       "timelineBlockFrames": 14,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
@@ -23925,7 +23950,7 @@ export const laevatainGeneratedSource = {
     {
       "key": "ultimateAttack4",
       "skillId": "chr_0016_laevat_ult_attack4",
-      "skillType": "basicAttack",
+      "skillType": "ultimate",
       "sourceFile": "chr_0016_laevat_ult_attack4.json",
       "timelineBlockFrames": 35,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",

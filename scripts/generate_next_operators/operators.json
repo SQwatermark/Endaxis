@@ -2607,7 +2607,7 @@
       "slug": "laevatain",
       "exportName": "laevatainGeneratedSource",
       "charId": "chr_0016_laevat",
-      "outputStage": "audit",
+      "runtimeReplacementSkillKeys": ["battleSkillDuringUltimate"],
       "talents": [
         { "index": 0, "key": "talent1", "compile": "unmodeledTalent" },
         { "index": 1, "key": "talent2", "compile": "unmodeledTalent" }
@@ -2618,6 +2618,62 @@
         { "key": "potential3", "compile": "skillBlackboardPatch" },
         { "key": "potential4" },
         { "key": "potential5", "compile": "skillBlackboardPatchAndAttachedBuff" }
+      ],
+      "skillGroups": [
+        {
+          "key": "basicAttack",
+          "skillType": "basicAttack",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": [
+            "basicAttack1",
+            "basicAttack2",
+            "basicAttack3",
+            "basicAttack4",
+            "basicAttack5"
+          ]
+        },
+        {
+          "key": "finisher",
+          "skillType": "finisher",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["finisher"]
+        },
+        {
+          "key": "plungingAttack",
+          "skillType": "plungingAttack",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["plungingAttack"]
+        },
+        {
+          "key": "battleSkill",
+          "skillType": "battleSkill",
+          "levelSource": "battleSkill",
+          "nativeGroupType": 1,
+          "skillKeys": ["battleSkill", "battleSkillDuringUltimate"]
+        },
+        {
+          "key": "ultimate",
+          "skillType": "ultimate",
+          "levelSource": "ultimate",
+          "nativeGroupType": 2,
+          "skillKeys": [
+            "ultimate",
+            "ultimateAttack1",
+            "ultimateAttack2",
+            "ultimateAttack3",
+            "ultimateAttack4"
+          ]
+        },
+        {
+          "key": "comboSkill",
+          "skillType": "comboSkill",
+          "levelSource": "comboSkill",
+          "nativeGroupType": 3,
+          "skillKeys": ["comboSkill"]
+        }
       ],
       "skills": [
         {
@@ -2691,25 +2747,25 @@
         },
         {
           "key": "ultimateAttack1",
-          "skillType": "basicAttack",
+          "skillType": "ultimate",
           "source": "chr_0016_laevat_ult_attack1.json",
           "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
         },
         {
           "key": "ultimateAttack2",
-          "skillType": "basicAttack",
+          "skillType": "ultimate",
           "source": "chr_0016_laevat_ult_attack2.json",
           "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
         },
         {
           "key": "ultimateAttack3",
-          "skillType": "basicAttack",
+          "skillType": "ultimate",
           "source": "chr_0016_laevat_ult_attack3.json",
           "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
         },
         {
           "key": "ultimateAttack4",
-          "skillType": "basicAttack",
+          "skillType": "ultimate",
           "source": "chr_0016_laevat_ult_attack4.json",
           "compile": {
             "kind": "resolvedSequence",
@@ -2734,12 +2790,74 @@
         { "key": "potential4", "compile": "skillBlackboardPatch" },
         { "key": "potential5", "compile": "skillBlackboardPatch" }
       ],
+      "skillGroups": [
+        {
+          "key": "basicAttack",
+          "skillType": "basicAttack",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": [
+            "basicAttack1",
+            "basicAttack2",
+            "basicAttack3",
+            "basicAttack4",
+            "basicAttack5"
+          ]
+        },
+        {
+          "key": "finisher",
+          "skillType": "finisher",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["finisher"]
+        },
+        {
+          "key": "plungingAttack",
+          "skillType": "plungingAttack",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["plungingAttack"]
+        },
+        {
+          "key": "battleSkill",
+          "skillType": "battleSkill",
+          "levelSource": "battleSkill",
+          "nativeGroupType": 1,
+          "skillKeys": ["battleSkill"]
+        },
+        {
+          "key": "ultimate",
+          "skillType": "ultimate",
+          "levelSource": "ultimate",
+          "nativeGroupType": 2,
+          "skillKeys": [
+            "ultimate",
+            "ultimateAttack1",
+            "ultimateAttack2A",
+            "ultimateAttack2B",
+            "ultimateAttack3A",
+            "ultimateAttack3B",
+            "ultimateAttackEnd"
+          ]
+        },
+        {
+          "key": "comboSkill",
+          "skillType": "comboSkill",
+          "levelSource": "comboSkill",
+          "nativeGroupType": 3,
+          "skillKeys": ["comboSkill"]
+        }
+      ],
       "skills": [
         {
           "key": "comboSkill",
           "skillType": "comboSkill",
           "source": "chr_0017_yvonne_combo_skill.json",
-          "compile": { "kind": "resolvedSequence", "tags": ["comboSkill"] }
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["comboSkill"],
+            "ignoreAuxiliaryClassifications": ["tutorialMarker"]
+          }
         },
         {
           "key": "basicAttack1",
@@ -2800,37 +2918,37 @@
         },
         {
           "key": "ultimateAttack1",
-          "skillType": "basicAttack",
+          "skillType": "ultimate",
           "source": "chr_0017_yvonne_ult_attack1_1.json",
           "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
         },
         {
           "key": "ultimateAttack2A",
-          "skillType": "basicAttack",
+          "skillType": "ultimate",
           "source": "chr_0017_yvonne_ult_attack2_1.json",
           "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
         },
         {
           "key": "ultimateAttack2B",
-          "skillType": "basicAttack",
+          "skillType": "ultimate",
           "source": "chr_0017_yvonne_ult_attack2_2.json",
           "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
         },
         {
           "key": "ultimateAttack3A",
-          "skillType": "basicAttack",
+          "skillType": "ultimate",
           "source": "chr_0017_yvonne_ult_attack3_1.json",
           "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
         },
         {
           "key": "ultimateAttack3B",
-          "skillType": "basicAttack",
+          "skillType": "ultimate",
           "source": "chr_0017_yvonne_ult_attack3_2.json",
           "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
         },
         {
           "key": "ultimateAttackEnd",
-          "skillType": "basicAttack",
+          "skillType": "ultimate",
           "source": "chr_0017_yvonne_ult_attack_end.json",
           "compile": {
             "kind": "resolvedSequence",
@@ -2854,6 +2972,50 @@
         { "key": "potential3", "compile": "skillBlackboardPatch" },
         { "key": "potential4" },
         { "key": "potential5", "compile": "skillBlackboardPatch" }
+      ],
+      "skillGroups": [
+        {
+          "key": "basicAttack",
+          "skillType": "basicAttack",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["basicAttack1", "basicAttack2", "basicAttack3", "basicAttack4"]
+        },
+        {
+          "key": "plungingAttack",
+          "skillType": "plungingAttack",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["plungingAttack"]
+        },
+        {
+          "key": "finisher",
+          "skillType": "finisher",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["finisher"]
+        },
+        {
+          "key": "battleSkill",
+          "skillType": "battleSkill",
+          "levelSource": "battleSkill",
+          "nativeGroupType": 1,
+          "skillKeys": ["battleSkill1", "battleSkill2", "battleSkill3"]
+        },
+        {
+          "key": "ultimate",
+          "skillType": "ultimate",
+          "levelSource": "ultimate",
+          "nativeGroupType": 2,
+          "skillKeys": ["ultimate"]
+        },
+        {
+          "key": "comboSkill",
+          "skillType": "comboSkill",
+          "levelSource": "comboSkill",
+          "nativeGroupType": 3,
+          "skillKeys": ["comboSkill"]
+        }
       ],
       "skills": [
         {

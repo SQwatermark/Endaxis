@@ -23,6 +23,7 @@ import type { FrameRuntime } from './combatSimulation';
 import {
   attachBuffLifecycleSequences,
   type RegisterBuffAbilityEventAction,
+  type RegisterBuffSemanticEventAction,
 } from './buffLifecycleSequenceRuntime';
 import type { CombatOperationExecutor } from './skillRuntime';
 import type { AbilityTickDeltas } from './timeDilationRuntime';
@@ -43,6 +44,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
   #resolveLifecycleOperations:
     ((source: BuffLifecycleOperationSource) => CombatOperationExecutor) | null = null;
   #buffAppliedObserver: ((event: BuffAppliedEvent) => void) | null = null;
+  #registerSemanticEventAction: RegisterBuffSemanticEventAction | null = null;
   constructor(
     readonly container: CombatBuffContainer<Key>,
     readonly definitions: CombatBuffDefinitionResolver<Key>,
@@ -99,6 +101,13 @@ export class BuffDefinitionOperationTarget<Key extends string>
     this.#buffAppliedObserver = observer;
   }
 
+  configureSemanticEventAction(register: RegisterBuffSemanticEventAction): void {
+    if (this.#registerSemanticEventAction !== null) {
+      throw new Error(`combat Buff runtime '${this.ownerId}' semantic events are configured`);
+    }
+    this.#registerSemanticEventAction = register;
+  }
+
   /**
    * 场景装配完成后绑定生命周期步骤使用的完整操作链。
    * 同一运行时只能配置一次，避免定义缓存跨装配规则混用。
@@ -125,13 +134,15 @@ export class BuffDefinitionOperationTarget<Key extends string>
       lifecycleSequences,
       abilityEventResponses,
       igniteEventResponses,
+      skillSlotReplacements,
       ...runtimeDefinition
     } = source;
     if (
       (scheduledSequences !== undefined ||
         lifecycleSequences !== undefined ||
         abilityEventResponses !== undefined ||
-        igniteEventResponses !== undefined) &&
+        igniteEventResponses !== undefined ||
+        skillSlotReplacements !== undefined) &&
       this.#resolveLifecycleOperations === null
     ) {
       throw new Error(
@@ -143,6 +154,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
       lifecycleSequences === undefined &&
       abilityEventResponses === undefined &&
       igniteEventResponses === undefined &&
+      skillSlotReplacements === undefined &&
       this.definitions.compile === undefined
     ) {
       throw new Error(
@@ -169,7 +181,8 @@ export class BuffDefinitionOperationTarget<Key extends string>
       scheduledSequences === undefined &&
       lifecycleSequences === undefined &&
       abilityEventResponses === undefined &&
-      igniteEventResponses === undefined
+      igniteEventResponses === undefined &&
+      skillSlotReplacements === undefined
         ? baseDefinition
         : attachBuffLifecycleSequences(
             baseDefinition,
@@ -186,6 +199,8 @@ export class BuffDefinitionOperationTarget<Key extends string>
             this.registerAbilityEventAction,
             scheduledSequences,
             igniteEventResponses,
+            skillSlotReplacements,
+            this.#registerSemanticEventAction ?? undefined,
           );
     this.#inlineDefinitions.set(source, definition);
     return definition;

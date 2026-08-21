@@ -12,6 +12,7 @@ import type { CombatOperationExecutor } from './skillRuntime';
 import { compareCombatNumbers } from './numericComparison';
 import type { CombatSkillCastInfo } from './skillCastInfo';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
+import type { RegisterBuffSemanticEventAction } from './buffLifecycleSequenceRuntime';
 
 type RuntimeOperation = ResolvedCombatOperationStep;
 
@@ -40,6 +41,8 @@ export interface BuffOperationTarget {
   ): void;
   /** 场景装配根把成功施加事实接入全场语义事件中心。 */
   configureBuffAppliedObserver?(observer: (event: BuffAppliedEvent) => void): void;
+  /** 场景装配根把 Buff 存续期内的全场语义事件监听接入唯一事件中心。 */
+  configureSemanticEventAction?(register: RegisterBuffSemanticEventAction): void;
   apply?(request: BuffApplicationRequest): boolean;
   applyScoped?(request: BuffApplicationRequest): BuffApplicationHandle | null;
   getCountByIds(ids: readonly string[], skillCastId?: number): number;

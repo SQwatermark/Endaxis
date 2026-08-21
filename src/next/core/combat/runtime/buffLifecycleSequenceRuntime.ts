@@ -26,6 +26,7 @@ import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
 import type { CombatAbilityDamageEvent, CombatAbilitySkillEvent } from './skillRuntime';
 import type { CombatSemanticEvent } from './combatSemanticEventRuntime';
+import type { SkillBuffSlotReplacement } from '../../game-data/operatorDefinition';
 
 /** 由 Buff 所有者环境提供的事件注册端口，避免生命周期层依赖具体伤害环境。 */
 export type RegisterBuffAbilityEventAction = (
@@ -33,6 +34,12 @@ export type RegisterBuffAbilityEventAction = (
   priority: number,
   handle: (payload: unknown) => void,
   samePriorityKey?: string,
+) => AbilityEventRegistration;
+
+export type RegisterBuffSemanticEventAction = (
+  event: Extract<ResolvedSkillBuffAbilityEventResponse['event'], 'afterKillEntity'>,
+  priority: number,
+  handle: (event: Extract<CombatSemanticEvent, { readonly kind: 'enemyDefeated' }>) => void,
 ) => AbilityEventRegistration;
 
 class BuffScheduledSequenceAction<Key extends string> implements BuffDuringEnableAction<Key> {
@@ -86,6 +93,106 @@ class BuffScheduledSequenceAction<Key extends string> implements BuffDuringEnabl
   }
 }
 
+class BuffSkillSlotReplacementAction<Key extends string> implements BuffDuringEnableAction<Key> {
+  #active = false;
+
+  constructor(
+    readonly replacements: readonly SkillBuffSlotReplacement[],
+    readonly resolveOperations: (buff: CombatBuff<Key>) => CombatOperationExecutor,
+  ) {}
+
+  createRuntimeInstance(): BuffDuringEnableAction<Key> {
+    return new BuffSkillSlotReplacementAction(this.replacements, this.resolveOperations);
+  }
+
+  tryExecute(buff: CombatBuff<Key>): boolean {
+    if (this.#active)
+      throw new Error(`buff '${buff.definition.id}' skill slots are already replaced`);
+    const operations = this.resolveOperations(buff);
+    let applied = 0;
+    try {
+      for (const replacement of this.replacements) {
+        if (replacement.inheritOriginSkillCooldownProgress) {
+          throw new Error(
+            `buff '${buff.definition.id}' requires unsupported skill cooldown progress inheritance`,
+          );
+        }
+        operations.execute({
+          kind: 'changeSkillSlot',
+          parameters: {
+            skillGroupKey: replacement.skillGroupKey,
+            targetSkillKey: replacement.targetSkillKey,
+          },
+        });
+        applied += 1;
+      }
+      this.#active = true;
+      return true;
+    } catch (error) {
+      for (const replacement of this.replacements.slice(0, applied).reverse()) {
+        operations.execute({
+          kind: 'changeSkillSlot',
+          parameters: {
+            skillGroupKey: replacement.skillGroupKey,
+            targetSkillKey: replacement.revertedSkillKey,
+          },
+        });
+      }
+      throw error;
+    }
+  }
+
+  tick(): void {}
+
+  end(buff: CombatBuff<Key>): void {
+    if (!this.#active) return;
+    const operations = this.resolveOperations(buff);
+    for (const replacement of [...this.replacements].reverse()) {
+      operations.execute({
+        kind: 'changeSkillSlot',
+        parameters: {
+          skillGroupKey: replacement.skillGroupKey,
+          targetSkillKey: replacement.revertedSkillKey,
+        },
+      });
+    }
+    this.#active = false;
+  }
+
+  reset(): void {
+    this.#active = false;
+  }
+}
+
+class CompositeBuffDuringEnableAction<Key extends string> implements BuffDuringEnableAction<Key> {
+  constructor(readonly actions: readonly BuffDuringEnableAction<Key>[]) {}
+
+  createRuntimeInstance(): BuffDuringEnableAction<Key> {
+    return new CompositeBuffDuringEnableAction(
+      this.actions.map(action => action.createRuntimeInstance()),
+    );
+  }
+
+  tryExecute(buff: CombatBuff<Key>): boolean {
+    for (const action of this.actions) {
+      if (!action.tryExecute(buff)) return false;
+    }
+    return true;
+  }
+
+  tick(deltaTime: number, buff: CombatBuff<Key>): void {
+    for (const action of this.actions) action.tick(deltaTime, buff);
+  }
+
+  end(buff: CombatBuff<Key>): void {
+    for (const action of [...this.actions].reverse()) action.end(buff);
+  }
+
+  reset(buff: CombatBuff<Key>): void {
+    for (const action of this.actions) action.reset(buff);
+  }
+}
+
 /** 为一份已编译 Buff 定义安装同步生命周期序列。 */
 export function attachBuffLifecycleSequences<Key extends string>(
   definition: CombatBuffDefinition<Key>,
@@ -96,6 +203,8 @@ export function attachBuffLifecycleSequences<Key extends string>(
   registerAbilityEventAction?: RegisterBuffAbilityEventAction,
   scheduledSequences: readonly CompiledTimelineAction[] = [],
   igniteEventResponses: readonly ResolvedSkillBuffIgniteEventResponse[] = [],
+  skillSlotReplacements: readonly SkillBuffSlotReplacement[] = [],
+  registerSemanticEventAction?: RegisterBuffSemanticEventAction,
 ): CombatBuffDefinition<Key> {
   if (definition.actions !== undefined) {
     throw new Error(
@@ -155,8 +264,17 @@ export function attachBuffLifecycleSequences<Key extends string>(
   };
   const registerEventResponses = (buff: CombatBuff<Key>): void => {
     if (abilityEventResponses.length === 0) return;
-    if (registerAbilityEventAction === undefined) {
+    if (
+      abilityEventResponses.some(response => response.event !== 'afterKillEntity') &&
+      registerAbilityEventAction === undefined
+    ) {
       throw new Error(`buff '${definition.id}' has ability event responses, but no event runtime`);
+    }
+    if (
+      abilityEventResponses.some(response => response.event === 'afterKillEntity') &&
+      registerSemanticEventAction === undefined
+    ) {
+      throw new Error(`buff '${definition.id}' has semantic event responses, but no event runtime`);
     }
     if (eventRegistrations.has(buff)) {
       throw new Error(`buff '${definition.id}' ability event responses are already active`);
@@ -185,8 +303,21 @@ export function attachBuffLifecycleSequences<Key extends string>(
         }
       }
       for (const group of responseGroups.values()) {
+        if (group.event === 'afterKillEntity') {
+          registrations.push(
+            registerSemanticEventAction!(group.event, group.priority, event => {
+              const runtime = runtimeFor(buff);
+              for (const response of group.responses) {
+                runtime
+                  .createSequence(response.sequence, { ...runtime.context, event })
+                  .executeInstant({});
+              }
+            }),
+          );
+          continue;
+        }
         registrations.push(
-          registerAbilityEventAction(
+          registerAbilityEventAction!(
             group.event,
             group.priority,
             payload => {
@@ -195,7 +326,13 @@ export function attachBuffLifecycleSequences<Key extends string>(
                 runtime
                   .createSequence(response.sequence, {
                     ...runtime.context,
-                    event: normalizeBuffAbilityEvent(response.event, payload),
+                    event: normalizeBuffAbilityEvent(
+                      response.event as Exclude<
+                        ResolvedSkillBuffAbilityEventResponse['event'],
+                        'afterKillEntity'
+                      >,
+                      payload,
+                    ),
                   })
                   .executeInstant({});
               }
@@ -213,10 +350,17 @@ export function attachBuffLifecycleSequences<Key extends string>(
     eventRegistrations.set(buff, registrations);
   };
   const actions: BuffLifecycleActions<Key> = {
-    ...(scheduledSequences.length === 0
+    ...(scheduledSequences.length === 0 && skillSlotReplacements.length === 0
       ? {}
       : {
-          duringEnable: new BuffScheduledSequenceAction(scheduledSequences, runtimeFor),
+          duringEnable: new CompositeBuffDuringEnableAction([
+            ...(scheduledSequences.length === 0
+              ? []
+              : [new BuffScheduledSequenceAction(scheduledSequences, runtimeFor)]),
+            ...(skillSlotReplacements.length === 0
+              ? []
+              : [new BuffSkillSlotReplacementAction(skillSlotReplacements, resolveOperations)]),
+          ]),
         }),
     ...(sequences.start === undefined ? {} : { start: buff => execute(sequences.start, buff) }),
     ...(sequences.enable === undefined && abilityEventResponses.length === 0
@@ -327,7 +471,7 @@ function isCommutativeCurrentBuffTimeResponse(
 }
 
 function normalizeBuffAbilityEvent(
-  event: ResolvedSkillBuffAbilityEventResponse['event'],
+  event: Exclude<ResolvedSkillBuffAbilityEventResponse['event'], 'afterKillEntity'>,
   payload: unknown,
 ): CombatSemanticEvent | CombatAbilityDamageEvent | CombatAbilitySkillEvent {
   if (typeof payload !== 'object' || payload === null) {
