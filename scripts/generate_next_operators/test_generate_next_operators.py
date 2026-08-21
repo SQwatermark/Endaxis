@@ -6883,6 +6883,62 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "EnemyRankSet bits"):
             parse_conditional_actions(root, "fixture.json", {})
 
+    def test_super_armor_condition_preserves_target_comparison_and_operand(self) -> None:
+        condition = {
+            "$type": "Example.CheckSuperArmor+Data, Example",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 46,
+            "checkTarget": target_settings_fixture("Target"),
+            "compareType": "GE",
+            "value": {
+                "useBlackboardKey": False,
+                "value": 30.0,
+                "blackboardKey": "",
+            },
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 2,
+                        "_endFrame": 2,
+                        "_sequenceActionData": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.IfElseAction+Data, Example",
+                                    "serverActionIndex": 1,
+                                    "conditionAction": {"actionData": [condition]},
+                                    "succeedActions": {
+                                        "actionData": [
+                                            {"$type": "Example.DamageAction+Data, Example"}
+                                        ]
+                                    },
+                                    "failActions": {"actionData": []},
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+
+        parsed = parse_conditional_actions(root, "fixture.json", {})[0].conditions[0]
+
+        self.assertEqual(parsed.superArmor.target.targetSource, "Target")
+        self.assertEqual(parsed.superArmor.comparison, "GE")
+        self.assertEqual(parsed.superArmor.value.value, 30.0)
+        compiled = compile_combat_condition_group(
+            (parsed,),
+            "fixture.conditions",
+            root_skill_context=True,
+            input_target="enemy",
+        )
+        self.assertIn("kind: 'enemySuperArmorCompare'", compiled)
+        self.assertIn("operator: 'greaterOrEqual'", compiled)
+        self.assertIn("value: { kind: 'constant', value: 30 }", compiled)
+
     def test_target_equality_between_input_and_main_target_is_guaranteed(self) -> None:
         condition = {
             "$type": "Example.CheckTargetsEqual+Data, Example",

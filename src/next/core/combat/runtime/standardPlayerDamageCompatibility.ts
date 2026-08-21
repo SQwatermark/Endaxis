@@ -86,6 +86,7 @@ function inspectCondition(
     case 'elementalReactionActive':
     case 'casterControlled':
     case 'enemyRankIn':
+    case 'enemySuperArmorCompare':
     case 'eventSourceMatchesBuffSource':
     case 'eventDamageTagsMatch':
     case 'eventDamageFeaturesMatch':

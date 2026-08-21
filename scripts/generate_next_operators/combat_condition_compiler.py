@@ -361,6 +361,34 @@ def compile_combat_condition(
             if enemy_rank.rankMask & bit
         )
         return f"{{ kind: 'enemyRankIn', ranks: {ts_inline_literal(ranks)} }}"
+    if source.sourceType == "CheckSuperArmor":
+        super_armor = source.superArmor
+        if super_armor is None:
+            raise ValueError(f"{path}: missing super armor condition payload")
+        if not target_reference_has_plain_selector(super_armor.target):
+            raise ValueError(f"{path}: CheckSuperArmor target selector changes identity")
+        target = resolve_fixed_combat_target(
+            super_armor.target.targetSource,
+            super_armor.target.targetGroupKey,
+            action=action,
+            target_group_writes=target_group_writes,
+            root_skill_context=root_skill_context,
+            input_target=input_target,
+        )
+        if target != "enemy":
+            raise ValueError(f"{path}: CheckSuperArmor target does not resolve to the enemy")
+        operator = comparison_operator_map.get(super_armor.comparison)
+        if operator is None:
+            raise ValueError(f"{path}: unsupported comparison {super_armor.comparison!r}")
+        return "\n".join(
+            [
+                "{",
+                "  kind: 'enemySuperArmorCompare',",
+                f"  operator: {ts_inline_literal(operator)},",
+                f"  value: {compile_condition_operand(super_armor.value, f'{path}.value')},",
+                "}",
+            ]
+        )
     if source.sourceType == "CompareFloat":
         if source.left is None or source.right is None or source.comparison is None:
             raise ValueError(f"{path}: incomplete CompareFloat condition")

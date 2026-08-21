@@ -65,6 +65,7 @@ from source_models import (
     SkillHasHitConditionSource,
     StoreCurrentTimelineFramePayload,
     StoreCurrentTimelineFrameActionSource,
+    SuperArmorConditionSource,
     SwitchActionSource,
     TargetIdentityConditionSource,
     TimedMarkerConditionSource,
@@ -800,6 +801,33 @@ def parse_conditional_actions(
                 enemyRank=EnemyRankConditionSource(
                     target=parse_target_reference(condition.get("target"), f"{path}.target"),
                     rankMask=rank_mask,
+                ),
+            )
+        if condition_type == "CheckSuperArmor":
+            expected_fields = {
+                "$type", "isEnable", "priorityLevel", "priorityOffset",
+                "serverActionIndex", "checkTarget", "compareType", "value",
+            }
+            if set(condition) != expected_fields:
+                raise ValueError(f"{path}: unexpected fields {sorted(condition)}")
+            comparison = condition.get("compareType")
+            if not isinstance(comparison, str) or not comparison:
+                raise ValueError(f"{path}.compareType: expected non-empty string")
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=False,
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                superArmor=SuperArmorConditionSource(
+                    target=parse_target_reference(
+                        condition.get("checkTarget"), f"{path}.checkTarget"
+                    ),
+                    comparison=comparison,
+                    value=parse_scalar(
+                        condition.get("value"), f"{path}.value", inherited_blackboard
+                    ),
                 ),
             )
         if condition_type == "CheckTargetsEqual":

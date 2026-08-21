@@ -456,6 +456,10 @@ function validateCombatCondition(
         });
       }
       break;
+    case 'enemySuperArmorCompare':
+      requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
+      validateActionValueOperand(record.value, `${path}.value`, out);
+      break;
     case 'skillBranchEnabled':
       requireString(record, 'branchKey', path, out);
       break;

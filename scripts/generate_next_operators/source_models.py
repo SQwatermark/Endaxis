@@ -847,6 +847,15 @@ class EnemyRankConditionSource:
 
 
 @dataclass(frozen=True)
+class SuperArmorConditionSource:
+    """原生 CheckSuperArmor：比较首目标当前整数霸体值。"""
+
+    target: "TargetReferenceSource"
+    comparison: str
+    value: ScalarSource
+
+
+@dataclass(frozen=True)
 class TargetReferenceSource:
     """一个原生 TargetSettings 引用；保留证明目标身份与位置所需的选择器语义。"""
 
@@ -948,6 +957,7 @@ class ConditionSource:
     health: HealthConditionSource | None = None
     mainOperator: MainOperatorConditionSource | None = None
     enemyRank: "EnemyRankConditionSource | None" = None
+    superArmor: "SuperArmorConditionSource | None" = None
     targetIdentity: TargetIdentityConditionSource | None = None
     distance: DistanceConditionSource | None = None
     entityTag: "EntityTagConditionSource | None" = None

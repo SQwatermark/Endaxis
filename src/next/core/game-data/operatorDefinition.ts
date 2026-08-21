@@ -217,6 +217,12 @@ export type CombatCondition =
   | { kind: 'casterControlled' }
   /** 当前单敌人是否属于任一原生 EnemyTemplateData.rank。 */
   | { kind: 'enemyRankIn'; ranks: readonly import('./enemyRank').EnemyRank[] }
+  | {
+      /** 比较当前单敌人的原生整数超级护甲值。 */
+      kind: 'enemySuperArmorCompare';
+      operator: ComparisonOperator;
+      value: ActionValueOperand;
+    }
   | { kind: 'skillBranchEnabled'; branchKey: string }
   | { kind: 'targetStaggered'; target: CombatTarget }
   | {
@@ -351,6 +357,7 @@ export const COMBAT_CONDITION_KINDS = [
   'singleEnemyPresent',
   'casterControlled',
   'enemyRankIn',
+  'enemySuperArmorCompare',
   'skillBranchEnabled',
   'targetStaggered',
   'healthCompare',

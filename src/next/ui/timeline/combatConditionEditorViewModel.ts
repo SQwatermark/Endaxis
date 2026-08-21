@@ -17,6 +17,12 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
       return { kind };
     case 'enemyRankIn':
       return { kind, ranks: ['mob'] };
+    case 'enemySuperArmorCompare':
+      return {
+        kind,
+        operator: 'greaterOrEqual',
+        value: { kind: 'constant', value: 30 },
+      };
     case 'skillBranchEnabled':
       return { kind, branchKey: 'custom-branch' };
     case 'targetStaggered':

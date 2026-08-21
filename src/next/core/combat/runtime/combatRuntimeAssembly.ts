@@ -41,6 +41,7 @@ import type { CombatVitals } from './combatVitals';
 import type { PlayerDamageDefenderSnapshot } from '../damage/playerActiveDamageInput';
 import { CombatVitalsConditionExecutor } from './combatVitalsConditionExecutor';
 import { EnemyRankConditionExecutor } from './enemyRankConditionExecutor';
+import { EnemySuperArmorConditionExecutor } from './enemySuperArmorConditionExecutor';
 import { TimedMarkerContainer } from './timedMarkers';
 import { TimedMarkerOperationExecutor } from './timedMarkerOperationExecutor';
 import { ComboWindowRuntime } from './comboWindowRuntime';
@@ -1082,7 +1083,11 @@ export class CombatRuntimeAssembly {
       globalClock: this.clock,
       delegate: statusOperations,
     });
-    const rankConditions = new EnemyRankConditionExecutor(enemy.rank, timedMarkerOperations);
+    const superArmorConditions = new EnemySuperArmorConditionExecutor(
+      enemy.superArmor,
+      timedMarkerOperations,
+    );
+    const rankConditions = new EnemyRankConditionExecutor(enemy.rank, superArmorConditions);
     const vitalsConditions = new CombatVitalsConditionExecutor({
       resolveTarget: (target, buffSourceId) => {
         if (resolveVitals === undefined) {
@@ -1219,7 +1224,11 @@ export class CombatRuntimeAssembly {
       globalClock: this.clock,
       delegate: statusOperations,
     });
-    const rankConditions = new EnemyRankConditionExecutor(options.enemy.rank, markerOperations);
+    const superArmorConditions = new EnemySuperArmorConditionExecutor(
+      options.enemy.superArmor,
+      markerOperations,
+    );
+    const rankConditions = new EnemyRankConditionExecutor(options.enemy.rank, superArmorConditions);
     const vitalsConditions = new CombatVitalsConditionExecutor({
       resolveTarget: (target, buffSourceId) => {
         if (options.resolveVitals === undefined) {

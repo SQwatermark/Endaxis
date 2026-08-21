@@ -109,6 +109,9 @@ function setComparison(event: Event): void {
     case 'healthCompare':
       emit('update', { ...condition, operator });
       break;
+    case 'enemySuperArmorCompare':
+      emit('update', { ...condition, operator });
+      break;
     case 'actionValueCompare':
       emit('update', { ...condition, operator });
       break;
@@ -133,6 +136,8 @@ function setOperand(
 ): void {
   const condition = props.condition;
   if (condition.kind === 'healthCompare' && field === 'value')
+    emit('update', { ...condition, value });
+  else if (condition.kind === 'enemySuperArmorCompare' && field === 'value')
     emit('update', { ...condition, value });
   else if (condition.kind === 'buffStackCompare' && field === 'value')
     emit('update', { ...condition, value });
@@ -448,6 +453,29 @@ function removeChild(index: number): void {
         />{{ rank }}</label
       >
     </fieldset>
+
+    <template v-if="condition.kind === 'enemySuperArmorCompare'">
+      <label class="condition-editor__field"
+        ><EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.comparisonOperator')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.comparisonOperator')"
+        /><select :value="condition.operator" @change="setComparison">
+          <option v-for="operator in COMPARISON_OPERATORS" :key="operator" :value="operator">
+            {{ t(`nextTimeline.skillEditing.comparisonOperators.${operator}`) }}
+          </option>
+        </select></label
+      >
+      <label class="condition-editor__operand"
+        ><EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.superArmor')"
+          :help="
+            t('nextTimeline.skillEditing.fieldHelp.conditionOperand')
+          " /><ActionValueOperandEditor
+          :value="condition.value"
+          :labels="operandLabels()"
+          @update="setOperand('value', $event)"
+      /></label>
+    </template>
 
     <template v-if="condition.kind === 'contextFlagEquals'">
       <label class="condition-editor__field"
