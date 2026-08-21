@@ -7,15 +7,13 @@
   },
   "summary": {
     "parsedCount": 320,
-    "compiledCount": 300,
-    "completeOperatorCount": 15,
+    "compiledCount": 310,
+    "completeOperatorCount": 21,
     "blockerKinds": {
       "projectile-child-actions": 2,
-      "projectile-data": 5,
       "root-action-coverage": 2,
-      "condition-other": 6,
       "other": 2,
-      "condition-entity-count": 1,
+      "condition-other": 2,
       "buff-source-or-target": 2
     },
     "unresolvedActionPresence": {
@@ -934,11 +932,9 @@
       "operatorName": "Wulfgard",
       "skillCount": 9,
       "parsedCount": 9,
-      "compiledCount": 8,
-      "complete": false,
-      "blockerKinds": {
-        "projectile-data": 1
-      }
+      "compiledCount": 9,
+      "complete": true,
+      "blockerKinds": {}
     },
     {
       "characterId": "chr_0023_antal",
@@ -1005,11 +1001,9 @@
       "operatorName": "Alesh",
       "skillCount": 10,
       "parsedCount": 10,
-      "compiledCount": 9,
-      "complete": false,
-      "blockerKinds": {
-        "condition-other": 1
-      }
+      "compiledCount": 10,
+      "complete": true,
+      "blockerKinds": {}
     },
     {
       "characterId": "chr_0012_avywen",
@@ -1056,10 +1050,9 @@
       "operatorName": "Liino",
       "skillCount": 12,
       "parsedCount": 12,
-      "compiledCount": 8,
+      "compiledCount": 11,
       "complete": false,
       "blockerKinds": {
-        "projectile-data": 3,
         "other": 1
       }
     },
@@ -1068,22 +1061,18 @@
       "operatorName": "Laevatain",
       "skillCount": 15,
       "parsedCount": 15,
-      "compiledCount": 14,
-      "complete": false,
-      "blockerKinds": {
-        "condition-entity-count": 1
-      }
+      "compiledCount": 15,
+      "complete": true,
+      "blockerKinds": {}
     },
     {
       "characterId": "chr_0017_yvonne",
       "operatorName": "Yvonne",
       "skillCount": 16,
       "parsedCount": 16,
-      "compiledCount": 15,
-      "complete": false,
-      "blockerKinds": {
-        "condition-other": 1
-      }
+      "compiledCount": 16,
+      "complete": true,
+      "blockerKinds": {}
     },
     {
       "characterId": "chr_0022_bounda",
@@ -1129,11 +1118,9 @@
       "operatorName": "Ardelia",
       "skillCount": 9,
       "parsedCount": 9,
-      "compiledCount": 8,
-      "complete": false,
-      "blockerKinds": {
-        "projectile-data": 1
-      }
+      "compiledCount": 9,
+      "complete": true,
+      "blockerKinds": {}
     },
     {
       "characterId": "chr_0026_lastrite",
@@ -1178,11 +1165,9 @@
       "operatorName": "Mifu",
       "skillCount": 11,
       "parsedCount": 11,
-      "compiledCount": 9,
-      "complete": false,
-      "blockerKinds": {
-        "condition-other": 2
-      }
+      "compiledCount": 11,
+      "complete": true,
+      "blockerKinds": {}
     },
     {
       "characterId": "chr_0032_lizhiyan",
@@ -2061,9 +2046,9 @@
       "operatorName": "Wulfgard",
       "skillId": "chr_0006_wolfgd_ultimate_skill",
       "skillType": "ultimate",
-      "stage": "dsl-blocked",
-      "blockerKind": "projectile-data",
-      "blocker": "ultimate_skill: projectile without triggered SkillData remains unresolved",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": [
         "CreateBuffAction",
         "DamageAction",
@@ -3379,9 +3364,9 @@
       "operatorName": "Alesh",
       "skillId": "chr_0024_deepfin_power_attack",
       "skillType": "finisher",
-      "stage": "dsl-blocked",
-      "blockerKind": "condition-other",
-      "blocker": "power_attack.schedule[4].conditionalAction.conditions[0]: unsupported condition type 'CheckTwoDirectionAngle'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 2,
       "referencedBuffCount": 2,
@@ -4030,7 +4015,7 @@
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
       "blockerKind": "condition-other",
-      "blocker": "normal_skill.schedule[7].conditionalAction.succeedActions[0].nestedCondition.conditions[0]: unsupported condition type 'CheckTargetAngle'",
+      "blocker": "normal_skill.schedule[8].conditionalAction.succeedActions[0].nestedCondition.conditions[0]: unsupported condition type 'CheckTargetAngle'",
       "unresolvedActions": [
         "AuraAction",
         "CreateBuffAction",
@@ -4320,9 +4305,9 @@
       "operatorName": "Liino",
       "skillId": "chr_0035_liino_attack3",
       "skillType": "basicAttack",
-      "stage": "dsl-blocked",
-      "blockerKind": "projectile-data",
-      "blocker": "attack3: projectile without triggered SkillData remains unresolved",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "LaunchProjectile"],
       "conditionCount": 4,
       "referencedBuffCount": 4,
@@ -4339,9 +4324,9 @@
       "operatorName": "Liino",
       "skillId": "chr_0035_liino_attack4",
       "skillType": "basicAttack",
-      "stage": "dsl-blocked",
-      "blockerKind": "projectile-data",
-      "blocker": "attack4: projectile without triggered SkillData remains unresolved",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "IfElseAction", "LaunchProjectile"],
       "conditionCount": 4,
       "referencedBuffCount": 4,
@@ -4396,9 +4381,9 @@
       "operatorName": "Liino",
       "skillId": "chr_0035_liino_plunging_attack_end",
       "skillType": "plungingAttack",
-      "stage": "dsl-blocked",
-      "blockerKind": "projectile-data",
-      "blocker": "plunging_attack_end: projectile without triggered SkillData remains unresolved",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "LaunchProjectile"],
       "conditionCount": 2,
       "referencedBuffCount": 4,
@@ -4536,9 +4521,9 @@
       "operatorName": "Laevatain",
       "skillId": "chr_0016_laevat_combo_skill",
       "skillType": "comboSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "condition-entity-count",
-      "blocker": "combo_skill.schedule[6].conditionalAction.conditions[0]: unsupported condition type 'CheckEntityNum'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "LaunchProjectile", "SwitchAction"],
       "conditionCount": 3,
       "referencedBuffCount": 6,
@@ -4977,9 +4962,9 @@
       "operatorName": "Yvonne",
       "skillId": "chr_0017_yvonne_plunging_attack_end",
       "skillType": "plungingAttack",
-      "stage": "dsl-blocked",
-      "blockerKind": "condition-other",
-      "blocker": "plunging_attack_end.schedule[0].conditionalAction.succeedActions[0].nestedCondition.conditions[0]: unsupported condition type 'Probablity'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction", "ObtainCostAction"],
       "conditionCount": 1,
       "referencedBuffCount": 1,
@@ -5069,7 +5054,7 @@
       ],
       "conditionCount": 11,
       "referencedBuffCount": 6,
-      "projectileChildCount": 4,
+      "projectileChildCount": 0,
       "abilityEntityCount": 0,
       "auraActionCount": 0,
       "physicalInflictionCount": 0,
@@ -5093,7 +5078,7 @@
       ],
       "conditionCount": 9,
       "referencedBuffCount": 6,
-      "projectileChildCount": 2,
+      "projectileChildCount": 0,
       "abilityEntityCount": 0,
       "auraActionCount": 0,
       "physicalInflictionCount": 0,
@@ -5682,7 +5667,7 @@
       "skillType": "battleSkill",
       "stage": "dsl-blocked",
       "blockerKind": "condition-other",
-      "blocker": "normal_skill.schedule[5].conditionalAction.succeedActions[0].nestedCondition.conditions[0]: unsupported condition type 'CheckTargetAngle'",
+      "blocker": "normal_skill.schedule[6].conditionalAction.succeedActions[0].nestedCondition.conditions[0]: unsupported condition type 'CheckTargetAngle'",
       "unresolvedActions": ["AuraAction", "CreateBuffAction", "DamageAction", "ObtainCostAction"],
       "conditionCount": 2,
       "referencedBuffCount": 3,
@@ -5997,9 +5982,9 @@
       "operatorName": "Ardelia",
       "skillId": "chr_0025_ardelia_power_attack",
       "skillType": "finisher",
-      "stage": "dsl-blocked",
-      "blockerKind": "projectile-data",
-      "blocker": "power_attack: projectile without triggered SkillData remains unresolved",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "LaunchProjectile"],
       "conditionCount": 0,
       "referencedBuffCount": 2,
@@ -7278,9 +7263,9 @@
       "operatorName": "Mifu",
       "skillId": "chr_0031_mifu_powerattack",
       "skillType": "basicAttack",
-      "stage": "dsl-blocked",
-      "blockerKind": "condition-other",
-      "blocker": "powerattack.schedule[0].conditionalAction.conditions[0]: unsupported condition type 'CheckTwoDirectionAngle'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "IfElseAction"],
       "conditionCount": 4,
       "referencedBuffCount": 3,
@@ -7335,9 +7320,9 @@
       "operatorName": "Mifu",
       "skillId": "chr_0031_mifu_normalskill_3",
       "skillType": "battleSkill",
-      "stage": "dsl-blocked",
-      "blockerKind": "condition-other",
-      "blocker": "normalskill_3.schedule[1].conditionalAction.succeedActions[1].nestedCondition.conditions[0]: unsupported condition type 'CheckTwoDirectionAngle'",
+      "stage": "dsl-compiled",
+      "blockerKind": null,
+      "blocker": null,
       "unresolvedActions": ["CreateBuffAction", "DamageAction", "FinishBuffAction", "IfElseAction"],
       "conditionCount": 4,
       "referencedBuffCount": 1,

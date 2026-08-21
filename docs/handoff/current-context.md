@@ -419,3 +419,10 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 本轮最终门禁：Next Vitest 197 文件、1276/1276 通过；弭弗生成与 `--check` 通过；新增 Python 定向测试 27/27 通过。Python 大夹具恢复为既有 325 项中的 3 个无关失败；`type-check:next` 只剩既有 3 个 `afterKillEntity` 回调联合类型错误；`git diff --check` 通过。尝试全量刷新生成物时在唐糖嵌套 Buff 的空 `spawnedObjectType` 严格校验处停止，未保留半生成的其他干员产物；该目标身份必须按复刻库先行规则取证，不能为全量生成猜默认值。`tmp/` 未纳入版本控制。
 - 本轮新增命令层、Build 投影和场景编译回归，`npm run type-check:next` 通过。当前 Codex 文件沙箱会阻止 esbuild 读取用户目录，Vitest 在加载任意配置文件前即失败；该环境阻塞须在正常终端补跑完整 Next 测试，不能把类型检查写成测试通过。`tmp/` 中的临时 Vitest 配置不得提交。
 - 门禁：Python 375/375、全量生成与 `--check`、`npm run type-check:next`、Next Vitest 178 文件 1174/1174 均通过。全仓 Vitest 仍有旧版/UI 结构基线失败，与本轮 Next 链路分开；`tmp/` 保持未跟踪且不得提交。
+
+### 2026-08-22：伊冯、莱万汀、梨诺、弭弗横向收敛
+
+- 伊冯、莱万汀和弭弗已经退出全量技能阻塞列表。横向补齐的都是通用机制：Buff 启用/持续/停用生命周期、Aura 离场清理、动态 `StoreAttributeValue`、投射物目标身份、已知角色自身的 `CheckObjectTypeMatch` 静态分支、施法者治疗、动画自然结束/提前结束回调、`OnSkillEnd` 的自然完成与中断派发，以及技能替换时的冷却继承。动画结束回调使用同一 once scope，避免自然结束和提前结束重复执行。
+- 梨诺 12 个技能现有 11 个严格可编译；唯一阻塞为终结技第 76 帧引用 `abilityentity_chr_0035_liino_ult_skill_projhit`。AKEDB `1.4.4@9433094-12` 提供引用动作与 41 帧子 SkillData，但版本化 AbilityEntity 证据明确记录 `manifestAssetMissing`；本机 8 月 17 日热更新资源的两份 manifest 缓存各含 191 个 `data_abilityentity_*` 资产，均没有任何 `chr_0035`、`liino` 或该 `projhit` 模板。不能用子技能长度猜模板寿命，也不能借其他干员模板。
+- 当前全量审计已经重生成：320/320 个技能可解析、310/320 可编译、21/30 名干员全部技能严格直转。伊冯、莱万汀、弭弗均计入完整集合；梨诺仅剩上述数据缺口。其余 9 个干员共 10 个首阻塞，分别落在递归投射物、`FractureAction`、缺失实体标签/模板证据、方向角条件和 Context Buff 目标来源。
+- 后续继续遵守复刻库先行：优先选择证据完整的通用缺口；若处理 `FractureAction`，必须先在 `combat-spec` 复刻其破防层、事件、碎甲 Buff 与伤害顺序，再接 Endaxis。梨诺缺失模板保持失败关闭，直到取得对应客户端资产或证明原生查表失败分支的精确语义。

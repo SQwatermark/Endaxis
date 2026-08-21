@@ -11,8 +11,8 @@
 - 干员：30 名。
 - 技能入口：320 个。
 - 进入严格中间层：320 个。
-- 无角色专用声明即可进入通用 DSL：300 个。
-- 当前整名干员完整直转：15 名。
+- 无角色专用声明即可进入通用 DSL：310 个。
+- 当前整名干员完整直转：21 名。
 - 当前技能入口调用图中已结构化的区域持续动作引用：21 个。
 - 当前技能入口中已结构化的事件监听器：17 个。
 
@@ -27,31 +27,31 @@
 | Ember          | `chr_0009_azrila`   |    9 |      9 |      9 | 是       |
 | Chen Qianyu    | `chr_0005_chen`     |   10 |     10 |     10 | 是       |
 | Akekuri        | `chr_0019_karin`    |    9 |      9 |      9 | 是       |
-| Wulfgard       | `chr_0006_wolfgd`   |    9 |      9 |      8 | 否       |
+| Wulfgard       | `chr_0006_wolfgd`   |    9 |      9 |      9 | 是       |
 | Antal          | `chr_0023_antal`    |    9 |      9 |      8 | 否       |
 | Tangtang       | `chr_0027_tangtang` |   11 |     11 |     11 | 是       |
 | Pogranichnik   | `chr_0029_pograni`  |   10 |     10 |      9 | 否       |
 | Arclight       | `chr_0007_ikut`     |   10 |     10 |     10 | 是       |
 | Gilberta       | `chr_0013_aglina`   |    9 |      9 |      9 | 是       |
 | Xaihi          | `chr_0011_seraph`   |   10 |     10 |      9 | 否       |
-| Alesh          | `chr_0024_deepfin`  |   10 |     10 |      9 | 否       |
+| Alesh          | `chr_0024_deepfin`  |   10 |     10 |     10 | 是       |
 | Avywenna       | `chr_0012_avywen`   |   10 |     10 |      9 | 否       |
 | Camille        | `chr_0033_camille`  |   12 |     12 |     12 | 是       |
 | Snowshine      | `chr_0014_aurora`   |    8 |      8 |      7 | 否       |
 | Lifeng         | `chr_0015_lifeng`   |    9 |      9 |      9 | 是       |
-| Liino          | `chr_0035_liino`    |   12 |     12 |      8 | 否       |
-| Laevatain      | `chr_0016_laevat`   |   15 |     15 |     14 | 否       |
-| Yvonne         | `chr_0017_yvonne`   |   16 |     16 |     15 | 否       |
+| Liino          | `chr_0035_liino`    |   12 |     12 |     11 | 否       |
+| Laevatain      | `chr_0016_laevat`   |   15 |     15 |     15 | 是       |
+| Yvonne         | `chr_0017_yvonne`   |   16 |     16 |     16 | 是       |
 | Fluorite       | `chr_0022_bounda`   |   10 |     10 |     10 | 是       |
 | Da Pan         | `chr_0018_dapan`    |    9 |      9 |      9 | 是       |
 | Catcher        | `chr_0020_meurs`    |    9 |      9 |      7 | 否       |
 | Estella        | `chr_0021_whiten`   |    9 |      9 |      9 | 是       |
-| Ardelia        | `chr_0025_ardelia`  |    9 |      9 |      8 | 否       |
+| Ardelia        | `chr_0025_ardelia`  |    9 |      9 |      9 | 是       |
 | Last Rite      | `chr_0026_lastrite` |    9 |      9 |      9 | 是       |
 | Endministrator | `chr_9000_endmin`   |   20 |     20 |     20 | 是       |
 | Rossi          | `chr_0028_wulfa`    |   11 |     11 |     11 | 是       |
 | Zhuang Fangyi  | `chr_0030_zhuangfy` |   15 |     15 |     14 | 否       |
-| Mifu           | `chr_0031_mifu`     |   11 |     11 |      9 | 否       |
+| Mifu           | `chr_0031_mifu`     |   11 |     11 |     11 | 是       |
 | Arcane         | `chr_0032_lizhiyan` |   11 |     11 |     11 | 是       |
 
 ## 共通阻塞簇
@@ -61,13 +61,11 @@
 
 | 阻塞类别                   | 技能数 |
 | -------------------------- | -----: |
-| `condition-other`          |      6 |
-| `projectile-data`          |      5 |
 | `buff-source-or-target`    |      2 |
+| `condition-other`          |      2 |
 | `other`                    |      2 |
 | `projectile-child-actions` |      2 |
 | `root-action-coverage`     |      2 |
-| `condition-entity-count`   |      1 |
 
 ## 技能事件监听器
 
