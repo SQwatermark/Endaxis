@@ -363,6 +363,8 @@ export type CombatCondition =
     }
   /** Buff 宿主的承伤事件来源是否等于创建该 Buff 的实体。 */
   | { kind: 'eventSourceMatchesBuffSource' }
+  /** 承伤事件的伤害来源是否是当前现实时间下的主控干员。 */
+  | { kind: 'eventSourceControlled' }
   /** 当前 Buff 的创建来源实体是否也是其宿主。 */
   | { kind: 'buffSourceMatchesOwner' }
   | {
@@ -414,6 +416,7 @@ export const COMBAT_CONDITION_KINDS = [
   'eventBuffEndedEarly',
   'eventBuffTagsMatch',
   'eventSourceMatchesBuffSource',
+  'eventSourceControlled',
   'buffSourceMatchesOwner',
   'elementalInflictionPresent',
   'elementalReactionActive',
@@ -1108,6 +1111,7 @@ export interface SkillBuffAbilityEventResponse {
     | 'takeDamage'
     | 'takeCriticalDamage'
     | 'outputDamage'
+    | 'poiseZero'
     | 'beforeCastSkill'
     | 'skillEnd'
     | 'beforeOutputBuff'

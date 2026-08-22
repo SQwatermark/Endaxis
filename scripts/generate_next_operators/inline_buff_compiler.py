@@ -55,6 +55,7 @@ def compile_inline_buff_event_responses(
     buff_definitions: dict[str, BuffDefinitionSource],
     ignored_buff_ids: frozenset[str] = frozenset(),
     invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
+    current_ability_entity_id: str | None = None,
     damage_tags: tuple[str, ...] = (),
     services: InlineBuffServices,
 ) -> str:
@@ -100,6 +101,7 @@ def compile_inline_buff_event_responses(
                     buff_definitions=buff_definitions,
                     buff_owner_target=buff_owner_target,
                     current_buff_environment=True,
+                    current_ability_entity_id=current_ability_entity_id,
                     invoked_child_context=invoked_child_context,
                     aura_actions=tuple(
                         aura
@@ -342,6 +344,9 @@ def compile_inline_buff_event_responses(
             is_output_damage = (
                 event.eventSource == "ability" and event.event == "OnOutputDamage"
             )
+            is_poise_zero = (
+                event.eventSource == "ability" and event.event == "OnPoiseZero"
+            )
             is_take_critical_damage = (
                 event.eventSource == "ability" and event.event == "OnTakeCriticalDamage"
             )
@@ -395,6 +400,8 @@ def compile_inline_buff_event_responses(
                 if is_take_critical_damage
                 else "outputDamage"
                 if is_output_damage
+                else "poiseZero"
+                if is_poise_zero
                 else "beforeCastSkill"
                 if is_before_cast_skill
                 else "outputBuff"
@@ -428,6 +435,7 @@ def compile_inline_buff_event_responses(
                     or is_take_damage
                     or is_take_critical_damage
                     or is_output_damage
+                    or is_poise_zero
                     or is_before_cast_skill
                     or is_added_buff
                     or is_before_output_buff
@@ -435,6 +443,7 @@ def compile_inline_buff_event_responses(
                 ),
                 buff_owner_target=buff_owner_target,
                 current_buff_environment=True,
+                current_ability_entity_id=current_ability_entity_id,
                 invoked_child_context=invoked_child_context,
                 aura_actions=tuple(
                     aura
@@ -477,6 +486,7 @@ def compile_inline_buff_event_responses(
                 or is_take_damage
                 or is_take_critical_damage
                 or is_output_damage
+                or is_poise_zero
                 or is_before_cast_skill
                 or is_skill_end
                 or is_added_buff
@@ -502,6 +512,8 @@ def compile_inline_buff_event_responses(
                 if is_take_critical_damage
                 else "outputDamage"
                 if is_output_damage
+                else "poiseZero"
+                if is_poise_zero
                 else "beforeCastSkill"
                 if is_before_cast_skill
                 else "skillEnd"
@@ -579,6 +591,7 @@ def compile_inline_buff_behaviors(
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"],
     buff_definitions: dict[str, BuffDefinitionSource],
     invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
+    current_ability_entity_id: str | None = None,
     ignored_buff_ids: frozenset[str] = frozenset(),
     damage_tags: tuple[str, ...] = (),
     services: InlineBuffServices,
@@ -634,6 +647,7 @@ def compile_inline_buff_behaviors(
                 buff_definitions=buff_definitions,
                 buff_owner_target=buff_owner_target,
                 current_buff_environment=True,
+                current_ability_entity_id=current_ability_entity_id,
                 invoked_child_context=invoked_child_context,
                 damage_tags=damage_tags,
             )
@@ -657,6 +671,7 @@ def compile_inline_buff_behaviors(
             buff_definitions=buff_definitions,
             ignored_buff_ids=ignored_buff_ids,
             invoked_child_context=invoked_child_context,
+            current_ability_entity_id=current_ability_entity_id,
             damage_tags=damage_tags,
             services=services,
         )
@@ -823,6 +838,7 @@ def compile_inline_buff_behaviors(
                 buff_definitions=buff_definitions,
                 buff_owner_target=buff_owner_target,
                 current_buff_environment=True,
+                current_ability_entity_id=current_ability_entity_id,
                 invoked_child_context=invoked_child_context,
                 damage_tags=damage_tags,
             )
@@ -858,6 +874,7 @@ def compile_inline_buff_scheduled_sequences(
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"],
     buff_definitions: dict[str, BuffDefinitionSource],
     invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
+    current_ability_entity_id: str | None = None,
     damage_tags: tuple[str, ...] = (),
     services: InlineBuffServices,
 ) -> str:
@@ -1140,6 +1157,7 @@ def compile_inline_buff_scheduled_sequences(
             buff_definitions=buff_definitions,
             buff_owner_target=buff_owner_target,
             current_buff_environment=True,
+            current_ability_entity_id=current_ability_entity_id,
             invoked_child_context=invoked_child_context,
         )
         if compiled_condition != COMPILED_EMPTY_SEQUENCE:

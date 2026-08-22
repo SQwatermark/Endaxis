@@ -8,6 +8,32 @@ const terminal = {
 };
 
 describe('EventContextConditionExecutor', () => {
+  it('matches the ability damage source against live control state', () => {
+    const executor = new EventContextConditionExecutor(
+      terminal,
+      operatorId => operatorId === 'operator:controlled',
+    );
+    const context = {
+      blackboard: new ActionBlackboard(),
+      event: {
+        kind: 'abilityDamage' as const,
+        event: 'beforeTakeDamage' as const,
+        sourceId: 'operator:controlled',
+        targetId: 'enemy',
+        tags: [] as const,
+        features: [] as const,
+      },
+    };
+
+    expect(executor.evaluate({ kind: 'eventSourceControlled' }, context)).toBe(true);
+    expect(
+      executor.evaluate(
+        { kind: 'eventSourceControlled' },
+        { ...context, event: { ...context.event, sourceId: 'operator:other' } },
+      ),
+    ).toBe(false);
+  });
+
   it('matches the Buff identity carried by an application event', () => {
     const executor = new EventContextConditionExecutor(terminal);
     const context = {

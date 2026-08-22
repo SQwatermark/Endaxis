@@ -24,6 +24,8 @@ Aura 对目标的进入、离开和整体结束是实例生命周期，而不是
 
 `BuffData.shieldConfigs` 只按复刻库已经恢复的原生字段进入正式定义：有限/无限容量、按伤害类型的吸收比例与容量换算、有限/无限次数、耗尽一击处理、耗尽结束 Buff、消费优先级和受击特效选择位。空 `damageAbsorptions` 使用原生默认 `(ratio=1, scale=1)`，不能解释为不吸收。`SetSuperArmorAction` 的启用期句柄另投影为 Buff 持续霸体与冲击抗性，停用或结束时注销；表现特效不进入后端。证据与当前边界见 `combat-spec/docs/shield.md` 和 `combat-spec/docs/set-super-armor-action.md`。
 
+能力实体内联 Buff 中的距离条件只在两端实例存在性均已证明时按零距离折叠。`OwnerSpawnedEntityFinder(AbilityEntity) + TagValidator` 会保留对象类型和完整 GameplayTag 查询，并只在查询结果包含当前正在执行的能力实体 ID 时证明命中；不能从“某个模板拥有该标签”反推该实例已经生成。该实体身份会显式穿过 Aura、Buff 应用与内联 Buff 生命周期。承伤事件中的 `Target == MainCharacter` 按原生事件上下文解释为伤害来源是否为当前主控干员；`OnPoiseZero` 则使用正常玩家失衡链发布的来源/目标事件，不转入外部事件系统。
+
 干员的稳定 slug、原始数据名称与本地化展示名必须分开：例如技术身份 `arcane` 的中文展示名是“诀”。展示名的权威对照本是 `src/i18n/game-locales/<locale>/operators.json`，由 `getOperatorGameName` 读取；本目录的 `operators.json` 不重复保存名称。生成审计中的原始英文 `operatorName` 可保留来源事实，UI 和面向用户的中文文档不得把它当作中文展示名。
 
 时间膨胀按原生动作直接转换：命名曲线保留公共键，内联曲线保留完整 Unity 关键帧；原生优先级 GameplayTag 在生成正式 DSL 时通过当前版本 `TimeDilationConfig.priorityMap` 降为可直接比较的数值，未知标签立即报错。普通动作生成 `startTimeDilation`，终结技专用动作生成 `startUltimateTimeDilation`。根技能中的 `Source` 与 `Owner` 都归约为施法者；能力实体目标只有在固定单敌人模型下可安全省略时才记入审计。嵌套时间动作、未知字段和无法归约的实体目标会立即报错。

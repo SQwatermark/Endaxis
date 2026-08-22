@@ -368,6 +368,71 @@ describe('attachBuffLifecycleSequences', () => {
     expect(reached).toEqual(['abilityDamage', 'abilityDamage']);
   });
 
+  it('把失衡归零事件保留为带来源身份的 Ability 事件', () => {
+    const reached: string[] = [];
+    const terminal: CombatOperationExecutor = {
+      execute: (_step, context) => {
+        reached.push(context!.event!.kind);
+        return true;
+      },
+      evaluate: condition => {
+        throw new Error(`unexpected terminal condition '${condition.kind}'`);
+      },
+    };
+    const dispatcher = new AbilityEventDispatcher<'poiseZero', unknown>();
+    const definition = attachBuffLifecycleSequences<never>(
+      { id: 'poise-listener', stackingType: 'unique' },
+      {},
+      () => new EventContextConditionExecutor(terminal, sourceId => sourceId === 'operator'),
+      undefined,
+      [
+        {
+          event: 'poiseZero',
+          priority: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'conditional',
+                parameters: { condition: { kind: 'eventSourceControlled' } },
+                whenTrue: {
+                  steps: [
+                    {
+                      kind: 'setContextFlag',
+                      parameters: { flag: 'broken', value: true, target: 'caster' },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
+      (event, priority, handle) => {
+        if (event !== 'poiseZero') throw new Error(`unexpected event '${event}'`);
+        return dispatcher.registerAction(event, priority, context => handle(context.payload));
+      },
+    );
+    const container = new CombatBuffContainer<never>('enemy', new CombatAttributeSet<never>());
+    container.add(definition, 'abilityentity.arcane')!;
+
+    dispatcher.dispatch(
+      {
+        event: 'poiseZero',
+        payload: {
+          sourceId: 'operator',
+          targetId: 'enemy',
+          finalDelta: -10,
+          actualDelta: -10,
+          ignorePoiseImmune: false,
+          cancelled: false,
+        },
+      },
+      [],
+    );
+
+    expect(reached).toEqual(['abilityPoise']);
+  });
+
   it('只在 Buff 启用期间订阅击杀语义事件', () => {
     const reached: string[] = [];
     let handler:

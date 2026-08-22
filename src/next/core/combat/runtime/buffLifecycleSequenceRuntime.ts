@@ -26,6 +26,7 @@ import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
 import type {
   CombatAbilityDamageEvent,
+  CombatAbilityPoiseEvent,
   CombatAbilityLifecycleEvent,
   CombatAbilitySkillEvent,
 } from './skillRuntime';
@@ -480,6 +481,7 @@ function normalizeBuffAbilityEvent(
 ):
   | CombatSemanticEvent
   | CombatAbilityDamageEvent
+  | CombatAbilityPoiseEvent
   | CombatAbilitySkillEvent
   | CombatAbilityLifecycleEvent {
   if (typeof payload !== 'object' || payload === null) {
@@ -558,6 +560,14 @@ function normalizeBuffAbilityEvent(
                 `Buff ability event '${event}' payload has invalid skill identity`,
               );
             })(),
+    };
+  }
+  if (event === 'poiseZero') {
+    return {
+      kind: 'abilityPoise',
+      event,
+      sourceId: source.sourceId,
+      targetId: source.targetId,
     };
   }
   if (

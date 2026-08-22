@@ -1944,6 +1944,188 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
         ),
       },
     },
+    'buff_chr_0032_lizhiyan_combo_skill_spell_vulnerable': {
+      stackingType: 'stack',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: { blackboardKey: 'duration_vul' },
+      blackboard: {
+        'atk_scale_calc': 0,
+        'atk_scale_laser1': 0,
+        'atk_scale_laser2': 0,
+        'cd_reduce': 7,
+        'duration_vul': 6,
+        'isWisd': 0,
+        'poise_final': 0,
+        'rate': 0.2,
+      },
+      damageModifiers: [
+        {
+          enabledSide: 'defender',
+          condition: {
+            kind: 'eventDamageTypesMatch',
+            damageTypes: ['nature'],
+          },
+          processors: [
+            {
+              kind: 'damageScale',
+              side: 'defender',
+              zone: 'vulnerable',
+              addition: { blackboardKey: 'rate' },
+            },
+          ],
+        },
+        {
+          enabledSide: 'defender',
+          condition: {
+            kind: 'eventDamageTypesMatch',
+            damageTypes: ['cryo'],
+          },
+          processors: [
+            {
+              kind: 'damageScale',
+              side: 'defender',
+              zone: 'vulnerable',
+              addition: { blackboardKey: 'rate' },
+            },
+          ],
+        },
+      ],
+    },
+    'buff_chr_0032_lizhiyan_combo_skill_seal_finish_count': {
+      stackingType: 'unlimited',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: 1,
+    },
+    'buff_chr_0032_lizhiyan_combo_skill_seal_finisher_wisd': {
+      stackingType: 'unlimited',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: 3,
+      triggerIntervalSeconds: 0,
+      waitFirstTriggerInterval: true,
+      maxTriggerCount: -1,
+      blackboard: {
+        'atb_return_wisd': 0,
+        'atk_scale_laser1': 0.5,
+        'atk_scale_laser2': 3,
+        'cd_reduce': 7,
+        'isWisd': 0,
+        'poise_final': 10,
+        'radius': 5.67,
+      },
+      lifecycleSequences: {
+        start: sequence(
+          step('createTimedMarker', {
+            target: 'caster',
+            markerId: 'lizhiyan_combo_wisd_has_finish',
+            durationSeconds: { kind: 'constant', value: 1 },
+            autoFinishByAction: false,
+          }),
+        ),
+      },
+      scheduledSequences: [
+        scheduled(
+          2,
+          sequence(
+            step('dealDamage', {
+              damageType: 'nature',
+              attackScale: { kind: 'blackboard', key: 'atk_scale_laser1' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+            }, '53:buff_chr_0032_lizhiyan_combo_skill_seal_finisher_wisd4:buff53:buff_chr_0032_lizhiyan_combo_skill_seal_finisher_wisd11:actionOrder2:18'),
+          ),
+        ),
+        scheduled(
+          5,
+          sequence(
+            step('dealDamage', {
+              damageType: 'nature',
+              attackScale: { kind: 'blackboard', key: 'atk_scale_laser1' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+            }, '53:buff_chr_0032_lizhiyan_combo_skill_seal_finisher_wisd4:buff53:buff_chr_0032_lizhiyan_combo_skill_seal_finisher_wisd11:actionOrder2:21'),
+          ),
+        ),
+        scheduled(
+          8,
+          sequence(
+            step('dealDamage', {
+              damageType: 'nature',
+              attackScale: { kind: 'blackboard', key: 'atk_scale_laser1' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+            }, '53:buff_chr_0032_lizhiyan_combo_skill_seal_finisher_wisd4:buff53:buff_chr_0032_lizhiyan_combo_skill_seal_finisher_wisd11:actionOrder2:24'),
+          ),
+        ),
+        scheduled(
+          11,
+          sequence(
+            step('dealDamage', {
+              damageType: 'nature',
+              attackScale: { kind: 'blackboard', key: 'atk_scale_laser1' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+            }, '53:buff_chr_0032_lizhiyan_combo_skill_seal_finisher_wisd4:buff53:buff_chr_0032_lizhiyan_combo_skill_seal_finisher_wisd11:actionOrder2:27'),
+          ),
+        ),
+        scheduled(
+          17,
+          sequence(
+            step('dealDamage', {
+              damageType: 'nature',
+              attackScale: { kind: 'blackboard', key: 'atk_scale_laser2' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'poise_final' },
+            }, '53:buff_chr_0032_lizhiyan_combo_skill_seal_finisher_wisd4:buff53:buff_chr_0032_lizhiyan_combo_skill_seal_finisher_wisd11:actionOrder2:31'),
+            step('createTimedMarker', {
+              target: 'caster',
+              markerId: 'lizhiyan_combo_hit',
+              durationSeconds: { kind: 'constant', value: 0.1 },
+              autoFinishByAction: false,
+            }),
+          ),
+        ),
+      ],
+    },
+    'buff_chr_0032_lizhiyan_combo_skill_seal_finisher': {
+      stackingType: 'unlimited',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: 5,
+      triggerIntervalSeconds: 0,
+      waitFirstTriggerInterval: true,
+      maxTriggerCount: -1,
+      blackboard: {
+        'atk_scale_laser2': 0,
+        'cd_reduce': 7,
+        'isWisd': 0,
+        'poise_final': 10,
+        'radius': 5,
+      },
+      scheduledSequences: [
+        scheduled(
+          0,
+          sequence(
+            step('dealDamage', {
+              damageType: 'nature',
+              attackScale: { kind: 'blackboard', key: 'atk_scale_laser2' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'poise_final' },
+            }, '48:buff_chr_0032_lizhiyan_combo_skill_seal_finisher4:buff48:buff_chr_0032_lizhiyan_combo_skill_seal_finisher11:actionOrder1:1'),
+            step('createTimedMarker', {
+              target: 'caster',
+              markerId: 'lizhiyan_combo_hit',
+              durationSeconds: { kind: 'constant', value: 0.1 },
+              autoFinishByAction: false,
+            }),
+          ),
+        ),
+      ],
+    },
     'buff_chr_0032_lizhiyan_combo_skill_seal_listener': {
       stackingType: 'unlimited',
       priority: 0,
@@ -2887,6 +3069,75 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
           ),
         ],
     } },
+    'abilityentity_chr_0032_lizhiyan_ultimate_skill_death': { lifetime: { kind: 'limited', durationSeconds: 6 } },
+    'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser_target': { lifetime: { kind: 'limited', durationSeconds: 6 } },
+    'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser': { lifetime: { kind: 'limited', durationSeconds: 6 }, childSkill: {
+        skillId: 'chr_0032_lizhiyan_ultimate_skill_laser',
+        blackboard: {
+          'atk_scale_laser': 1,
+          'duration': 0,
+          'radius': 5.67,
+        },
+        scheduledSequences: [
+          scheduled(
+            12,
+            sequence(
+              step('dealDamage', {
+                damageType: 'nature',
+                attackScale: { kind: 'blackboard', key: 'atk_scale_laser' },
+                tags: ['ultimateSkill'],
+                features: ['canBreakWeakness'],
+              }, '91:abilityentity_chr_0032_lizhiyan_ultimate_skill_laser:chr_0032_lizhiyan_ultimate_skill_laser13:abilityEntity38:chr_0032_lizhiyan_ultimate_skill_laser11:actionOrder1:6'),
+            ),
+          ),
+          scheduled(
+            13,
+            sequence(
+              branch(
+                { kind: 'not', condition: { kind: 'timedMarkerPresent', target: 'caster', markerId: 'lizhiyan_ult_laser_hit1' } },
+                sequence(
+                  step('createTimedMarker', {
+                    target: 'caster',
+                    markerId: 'lizhiyan_ult_laser_hit1',
+                    durationSeconds: { kind: 'constant', value: 0.8 },
+                    autoFinishByAction: false,
+                  }),
+                ),
+                sequence(
+                  branch(
+                    { kind: 'not', condition: { kind: 'timedMarkerPresent', target: 'caster', markerId: 'lizhiyan_ult_laser_hit2' } },
+                    sequence(
+                      step('createTimedMarker', {
+                        target: 'caster',
+                        markerId: 'lizhiyan_ult_laser_hit2',
+                        durationSeconds: { kind: 'constant', value: 0.8 },
+                        autoFinishByAction: false,
+                      }),
+                    ),
+                    sequence(
+                      branch(
+                        { kind: 'not', condition: { kind: 'timedMarkerPresent', target: 'caster', markerId: 'lizhiyan_ult_laser_hit3' } },
+                        sequence(
+                          step('createTimedMarker', {
+                            target: 'caster',
+                            markerId: 'lizhiyan_ult_laser_hit3',
+                            durationSeconds: { kind: 'constant', value: 0.8 },
+                            autoFinishByAction: false,
+                          }),
+                        ),
+                        undefined,
+                        { alwaysNext: true },
+                      ),
+                    ),
+                    { alwaysNext: true },
+                  ),
+                ),
+                { alwaysNext: true },
+              ),
+            ),
+          ),
+        ],
+    } },
     'abilityentity_chr_0032_lizhiyan_ultimate_skill': { lifetime: { kind: 'limited', durationSeconds: 6 }, childSkill: {
         skillId: 'chr_0032_lizhiyan_ultimate_skill_abilityrange',
         blackboard: {
@@ -2934,6 +3185,576 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura',
+                    definition: {
+                      stackingType: 'unique',
+                      priority: 0,
+                      maxStackCount: 1,
+                      blackboard: {
+                        'atk_scale_laser': 0.5,
+                        'is_power_attacked': 0,
+                        'usp_step': 0,
+                      },
+                      lifecycleSequences: {
+                        start: sequence(
+                          step('storeSourceAttributeValue', {
+                            attribute: { kind: 'specific', key: 'maxUltimateEnergy' },
+                            stage: 'armedNonConverted',
+                            useFloor: false,
+                            divisor: { kind: 'constant', value: 1 },
+                            multiplier: { kind: 'constant', value: 1 },
+                            base: { kind: 'constant', value: 0 },
+                            targetKey: 'usp_step',
+                          }),
+                          step('calculateActionValue', {
+                            key: 'usp_step',
+                            operation: 'divide',
+                            left: { kind: 'blackboard', key: 'usp_step' },
+                            right: { kind: 'constant', value: 2 },
+                          }),
+                        ),
+                      },
+                      abilityEventResponses: [
+                        {
+                          event: 'beforeTakeDamage',
+                          priority: 0,
+                          sequence:
+                            sequence(
+                              branch(
+                                { kind: 'eventSourceControlled' },
+                                sequence(
+                                  branch(
+                                    { kind: 'singleEnemyPresent' },
+                                    sequence(
+                                      branch(
+                                        {
+                                          kind: 'eventDamageTagsMatch',
+                                          match: 'hasAny',
+                                          tags: ['normalAttackLastCombo'],
+                                        },
+                                        sequence(
+                                          step('spawnAbilityEntity', { abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_death',  dieWhenSourceDies: false, inheritActionBlackboard: true, overrideDurationSeconds: { kind: 'constant', value: 0.2 }, saveToContextKey: 'ult_death' }),
+                                          forEachContextTarget(
+                                            'ult_death',
+                                            sequence(
+                                              step('applyBuff', {
+                                                buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_target_mark',
+                                                definition: {
+                                                  stackingType: 'stack',
+                                                  priority: 0,
+                                                  maxStackCount: 1,
+                                                  durationSeconds: 0.1,
+                                                  triggerIntervalSeconds: 0.033,
+                                                  waitFirstTriggerInterval: false,
+                                                  maxTriggerCount: 1,
+                                                  blackboard: {
+                                                    'atk_scale_laser': 0,
+                                                    'usp_step': 0,
+                                                  },
+                                                  lifecycleSequences: {
+                                                    trigger: sequence(
+                                                      branch(
+                                                        { kind: 'not', condition: { kind: 'timedMarkerPresent', target: 'caster', markerId: 'chr_0032_lizhiyan_ultimate_count' } },
+                                                        sequence(
+                                                          step('createTimedMarker', {
+                                                            target: 'caster',
+                                                            markerId: 'chr_0032_lizhiyan_ultimate_count',
+                                                            durationSeconds: { kind: 'constant', value: 0.4 },
+                                                            autoFinishByAction: false,
+                                                          }),
+                                                          branch(
+                                                            {
+                                                              kind: 'buffIdStackCompare',
+                                                              target: 'caster',
+                                                              buffIds: ['buff_chr_0032_lizhiyan_ultimate_skill_layer'],
+                                                              operator: 'lessOrEqual',
+                                                              value: { kind: 'constant', value: 0 },
+                                                            },
+                                                            sequence(
+                                                              step('spawnAbilityEntity', { abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser_target',  dieWhenSourceDies: false, inheritActionBlackboard: true, saveToContextKey: 'laser_target1' }),
+                                                              forEachContextTarget(
+                                                                'laser_target1',
+                                                                sequence(
+                                                                  step('applyBuff', {
+                                                                    buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser1',
+                                                                    definition: {
+                                                                      stackingType: 'unlimited',
+                                                                      priority: 0,
+                                                                      maxStackCount: 1,
+                                                                      durationSeconds: 2,
+                                                                      blackboard: {
+                                                                        'atk_scale_laser': 10,
+                                                                        'trigger_time': 0,
+                                                                      },
+                                                                      scheduledSequences: [
+                                                                        scheduled(
+                                                                          0,
+                                                                          sequence(
+                                                                            step('spawnAbilityEntity', {
+                                                                              abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                                  dieWhenSourceDies: false,
+                                                                              inheritActionBlackboard: true,
+                                                                              target: 'currentAbilityEntity',
+                                                                            }),
+                                                                          ),
+                                                                        ),
+                                                                        scheduled(
+                                                                          4,
+                                                                          sequence(
+                                                                            step('spawnAbilityEntity', {
+                                                                              abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                                  dieWhenSourceDies: false,
+                                                                              inheritActionBlackboard: true,
+                                                                              target: 'currentAbilityEntity',
+                                                                            }),
+                                                                          ),
+                                                                        ),
+                                                                        scheduled(
+                                                                          8,
+                                                                          sequence(
+                                                                            step('spawnAbilityEntity', {
+                                                                              abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                                  dieWhenSourceDies: false,
+                                                                              inheritActionBlackboard: true,
+                                                                              target: 'currentAbilityEntity',
+                                                                            }),
+                                                                          ),
+                                                                        ),
+                                                                        scheduled(
+                                                                          12,
+                                                                          sequence(
+                                                                            step('spawnAbilityEntity', {
+                                                                              abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                                  dieWhenSourceDies: false,
+                                                                              inheritActionBlackboard: true,
+                                                                              target: 'currentAbilityEntity',
+                                                                            }),
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    },
+                                                                    target: 'currentAbilityEntity',
+                                                                    inheritSourceSkillCastInfo: true,
+                                                                    blackboardAssignments: {
+                                                                      'atk_scale_laser': { kind: 'blackboard', key: 'atk_scale_laser' },
+                                                                    },
+                                                                  }),
+                                                                ),
+                                                              ),
+                                                              step('changeResourceByActionValue', {
+                                                                resource: 'ultimateEnergy',
+                                                                amount: { kind: 'blackboard', key: 'usp_step' },
+                                                                recipient: 'caster',
+                                                                ultimateRecoveryTagId: 903366032,
+                                                                ignoreUltimateEnergyGainMultiplier: true,
+                                                              }),
+                                                            ),
+                                                            sequence(
+                                                              branch(
+                                                                {
+                                                                  kind: 'buffIdStackCompare',
+                                                                  target: 'caster',
+                                                                  buffIds: ['buff_chr_0032_lizhiyan_ultimate_skill_layer'],
+                                                                  operator: 'lessOrEqual',
+                                                                  value: { kind: 'constant', value: 1 },
+                                                                },
+                                                                sequence(
+                                                                  step('spawnAbilityEntity', { abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser_target',  dieWhenSourceDies: false, inheritActionBlackboard: true, saveToContextKey: 'laser_target2' }),
+                                                                  forEachContextTarget(
+                                                                    'laser_target2',
+                                                                    sequence(
+                                                                      step('applyBuff', {
+                                                                        buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser2',
+                                                                        definition: {
+                                                                          stackingType: 'unlimited',
+                                                                          priority: 0,
+                                                                          maxStackCount: 1,
+                                                                          durationSeconds: 2,
+                                                                          blackboard: {
+                                                                            'atk_scale_laser': 10,
+                                                                            'trigger_time': 0,
+                                                                          },
+                                                                          scheduledSequences: [
+                                                                            scheduled(
+                                                                              0,
+                                                                              sequence(
+                                                                                step('spawnAbilityEntity', {
+                                                                                  abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                                          dieWhenSourceDies: false,
+                                                                                  inheritActionBlackboard: true,
+                                                                                  target: 'currentAbilityEntity',
+                                                                                }),
+                                                                              ),
+                                                                            ),
+                                                                            scheduled(
+                                                                              4,
+                                                                              sequence(
+                                                                                step('spawnAbilityEntity', {
+                                                                                  abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                                          dieWhenSourceDies: false,
+                                                                                  inheritActionBlackboard: true,
+                                                                                  target: 'currentAbilityEntity',
+                                                                                }),
+                                                                              ),
+                                                                            ),
+                                                                            scheduled(
+                                                                              8,
+                                                                              sequence(
+                                                                                step('spawnAbilityEntity', {
+                                                                                  abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                                          dieWhenSourceDies: false,
+                                                                                  inheritActionBlackboard: true,
+                                                                                  target: 'currentAbilityEntity',
+                                                                                }),
+                                                                              ),
+                                                                            ),
+                                                                            scheduled(
+                                                                              12,
+                                                                              sequence(
+                                                                                step('spawnAbilityEntity', {
+                                                                                  abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                                          dieWhenSourceDies: false,
+                                                                                  inheritActionBlackboard: true,
+                                                                                  target: 'currentAbilityEntity',
+                                                                                }),
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        },
+                                                                        target: 'currentAbilityEntity',
+                                                                        inheritSourceSkillCastInfo: true,
+                                                                        blackboardAssignments: {
+                                                                          'atk_scale_laser': { kind: 'blackboard', key: 'atk_scale_laser' },
+                                                                        },
+                                                                      }),
+                                                                    ),
+                                                                  ),
+                                                                  step('changeResourceByActionValue', {
+                                                                    resource: 'ultimateEnergy',
+                                                                    amount: { kind: 'blackboard', key: 'usp_step' },
+                                                                    recipient: 'caster',
+                                                                    ultimateRecoveryTagId: 903366032,
+                                                                    ignoreUltimateEnergyGainMultiplier: true,
+                                                                  }),
+                                                                ),
+                                                                undefined,
+                                                                { alwaysNext: true },
+                                                              ),
+                                                            ),
+                                                            { alwaysNext: true },
+                                                          ),
+                                                          step('applyBuff', {
+                                                            buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_layer',
+                                                            definition: {
+                                                              stackingType: 'enhance',
+                                                              priority: 0,
+                                                              maxStackCount: 3,
+                                                              blackboard: {
+                                                                'count': 0,
+                                                              },
+                                                              lifecycleSequences: {
+                                                                enhanceChanged: sequence(
+                                                                  step('readBuffStackCount', {
+                                                                    target: 'caster',
+                                                                    outputKey: 'count',
+                                                                    query: { kind: 'environment' },
+                                                                  }),
+                                                                ),
+                                                              },
+                                                            },
+                                                            target: 'caster',
+                                                            inheritSourceSkillCastInfo: true,
+                                                          }),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  },
+                                                },
+                                                target: 'currentAbilityEntity',
+                                                inheritSourceSkillCastInfo: true,
+                                                blackboardAssignments: {
+                                                  'atk_scale_laser': { kind: 'blackboard', key: 'atk_scale_laser' },
+                                                  'usp_step': { kind: 'blackboard', key: 'usp_step' },
+                                                },
+                                              }),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        },
+                        {
+                          event: 'beforeTakeDamage',
+                          priority: 0,
+                          sequence:
+                            sequence(
+                              branch(
+                                { kind: 'eventSourceControlled' },
+                                sequence(
+                                  branch(
+                                    { kind: 'singleEnemyPresent' },
+                                    sequence(
+                                      branch(
+                                        {
+                                          kind: 'eventDamageTagsMatch',
+                                          match: 'hasAny',
+                                          tags: ['powerAttack'],
+                                        },
+                                        sequence(
+                                          branch(
+                                            {
+                                              kind: 'actionValueCompare',
+                                              left: { kind: 'blackboard', key: 'is_power_attacked' },
+                                              operator: 'equal',
+                                              right: { kind: 'constant', value: 0 },
+                                            },
+                                            sequence(
+                                              branch(
+                                                { kind: 'not', condition: { kind: 'timedMarkerPresent', target: 'caster', markerId: 'chr_0032_lizhiyan_ultimate_count' } },
+                                                sequence(
+                                                  step('createTimedMarker', {
+                                                    target: 'caster',
+                                                    markerId: 'chr_0032_lizhiyan_ultimate_count',
+                                                    durationSeconds: { kind: 'constant', value: 0.4 },
+                                                    autoFinishByAction: false,
+                                                  }),
+                                                  step('modifyActionValue', {
+                                                    key: 'is_power_attacked',
+                                                    operation: 'assign',
+                                                    value: { kind: 'constant', value: 1 },
+                                                  }),
+                                                  branch(
+                                                    {
+                                                      kind: 'buffIdStackCompare',
+                                                      target: 'caster',
+                                                      buffIds: ['buff_chr_0032_lizhiyan_ultimate_skill_layer'],
+                                                      operator: 'lessOrEqual',
+                                                      value: { kind: 'constant', value: 0 },
+                                                    },
+                                                    sequence(
+                                                      step('spawnAbilityEntity', { abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser_target',  dieWhenSourceDies: false, inheritActionBlackboard: true, saveToContextKey: 'laser_target1' }),
+                                                      forEachContextTarget(
+                                                        'laser_target1',
+                                                        sequence(
+                                                          step('applyBuff', {
+                                                            buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser1',
+                                                            definition: {
+                                                              stackingType: 'unlimited',
+                                                              priority: 0,
+                                                              maxStackCount: 1,
+                                                              durationSeconds: 2,
+                                                              blackboard: {
+                                                                'atk_scale_laser': 10,
+                                                                'trigger_time': 0,
+                                                              },
+                                                              scheduledSequences: [
+                                                                scheduled(
+                                                                  0,
+                                                                  sequence(
+                                                                    step('spawnAbilityEntity', {
+                                                                      abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                  dieWhenSourceDies: false,
+                                                                      inheritActionBlackboard: true,
+                                                                      target: 'currentAbilityEntity',
+                                                                    }),
+                                                                  ),
+                                                                ),
+                                                                scheduled(
+                                                                  4,
+                                                                  sequence(
+                                                                    step('spawnAbilityEntity', {
+                                                                      abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                  dieWhenSourceDies: false,
+                                                                      inheritActionBlackboard: true,
+                                                                      target: 'currentAbilityEntity',
+                                                                    }),
+                                                                  ),
+                                                                ),
+                                                                scheduled(
+                                                                  8,
+                                                                  sequence(
+                                                                    step('spawnAbilityEntity', {
+                                                                      abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                  dieWhenSourceDies: false,
+                                                                      inheritActionBlackboard: true,
+                                                                      target: 'currentAbilityEntity',
+                                                                    }),
+                                                                  ),
+                                                                ),
+                                                                scheduled(
+                                                                  12,
+                                                                  sequence(
+                                                                    step('spawnAbilityEntity', {
+                                                                      abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                  dieWhenSourceDies: false,
+                                                                      inheritActionBlackboard: true,
+                                                                      target: 'currentAbilityEntity',
+                                                                    }),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            },
+                                                            target: 'currentAbilityEntity',
+                                                            inheritSourceSkillCastInfo: true,
+                                                            blackboardAssignments: {
+                                                              'atk_scale_laser': { kind: 'blackboard', key: 'atk_scale_laser' },
+                                                            },
+                                                          }),
+                                                        ),
+                                                      ),
+                                                      step('changeResourceByActionValue', {
+                                                        resource: 'ultimateEnergy',
+                                                        amount: { kind: 'blackboard', key: 'usp_step' },
+                                                        recipient: 'caster',
+                                                        ultimateRecoveryTagId: 903366032,
+                                                        ignoreUltimateEnergyGainMultiplier: true,
+                                                      }),
+                                                    ),
+                                                    sequence(
+                                                      branch(
+                                                        {
+                                                          kind: 'buffIdStackCompare',
+                                                          target: 'caster',
+                                                          buffIds: ['buff_chr_0032_lizhiyan_ultimate_skill_layer'],
+                                                          operator: 'lessOrEqual',
+                                                          value: { kind: 'constant', value: 1 },
+                                                        },
+                                                        sequence(
+                                                          step('spawnAbilityEntity', { abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser_target',  dieWhenSourceDies: false, inheritActionBlackboard: true, saveToContextKey: 'laser_target2' }),
+                                                          forEachContextTarget(
+                                                            'laser_target2',
+                                                            sequence(
+                                                              step('applyBuff', {
+                                                                buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser2',
+                                                                definition: {
+                                                                  stackingType: 'unlimited',
+                                                                  priority: 0,
+                                                                  maxStackCount: 1,
+                                                                  durationSeconds: 2,
+                                                                  blackboard: {
+                                                                    'atk_scale_laser': 10,
+                                                                    'trigger_time': 0,
+                                                                  },
+                                                                  scheduledSequences: [
+                                                                    scheduled(
+                                                                      0,
+                                                                      sequence(
+                                                                        step('spawnAbilityEntity', {
+                                                                          abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                          dieWhenSourceDies: false,
+                                                                          inheritActionBlackboard: true,
+                                                                          target: 'currentAbilityEntity',
+                                                                        }),
+                                                                      ),
+                                                                    ),
+                                                                    scheduled(
+                                                                      4,
+                                                                      sequence(
+                                                                        step('spawnAbilityEntity', {
+                                                                          abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                          dieWhenSourceDies: false,
+                                                                          inheritActionBlackboard: true,
+                                                                          target: 'currentAbilityEntity',
+                                                                        }),
+                                                                      ),
+                                                                    ),
+                                                                    scheduled(
+                                                                      8,
+                                                                      sequence(
+                                                                        step('spawnAbilityEntity', {
+                                                                          abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                          dieWhenSourceDies: false,
+                                                                          inheritActionBlackboard: true,
+                                                                          target: 'currentAbilityEntity',
+                                                                        }),
+                                                                      ),
+                                                                    ),
+                                                                    scheduled(
+                                                                      12,
+                                                                      sequence(
+                                                                        step('spawnAbilityEntity', {
+                                                                          abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                          dieWhenSourceDies: false,
+                                                                          inheritActionBlackboard: true,
+                                                                          target: 'currentAbilityEntity',
+                                                                        }),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                },
+                                                                target: 'currentAbilityEntity',
+                                                                inheritSourceSkillCastInfo: true,
+                                                                blackboardAssignments: {
+                                                                  'atk_scale_laser': { kind: 'blackboard', key: 'atk_scale_laser' },
+                                                                },
+                                                              }),
+                                                            ),
+                                                          ),
+                                                          step('changeResourceByActionValue', {
+                                                            resource: 'ultimateEnergy',
+                                                            amount: { kind: 'blackboard', key: 'usp_step' },
+                                                            recipient: 'caster',
+                                                            ultimateRecoveryTagId: 903366032,
+                                                            ignoreUltimateEnergyGainMultiplier: true,
+                                                          }),
+                                                        ),
+                                                        undefined,
+                                                        { alwaysNext: true },
+                                                      ),
+                                                    ),
+                                                    { alwaysNext: true },
+                                                  ),
+                                                  step('applyBuff', {
+                                                    buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_layer',
+                                                    definition: {
+                                                      stackingType: 'enhance',
+                                                      priority: 0,
+                                                      maxStackCount: 3,
+                                                      blackboard: {
+                                                        'count': 0,
+                                                      },
+                                                      lifecycleSequences: {
+                                                        enhanceChanged: sequence(
+                                                          step('readBuffStackCount', {
+                                                            target: 'caster',
+                                                            outputKey: 'count',
+                                                            query: { kind: 'environment' },
+                                                          }),
+                                                        ),
+                                                      },
+                                                    },
+                                                    target: 'caster',
+                                                    inheritSourceSkillCastInfo: true,
+                                                  }),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        },
+                        {
+                          event: 'poiseZero',
+                          priority: 0,
+                          sequence:
+                            sequence(
+                              step('modifyActionValue', {
+                                key: 'is_power_attacked',
+                                operation: 'assign',
+                                value: { kind: 'constant', value: 0 },
+                              }),
+                            ),
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     finishByAction: true,
@@ -2945,6 +3766,576 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura',
+                    definition: {
+                      stackingType: 'unique',
+                      priority: 0,
+                      maxStackCount: 1,
+                      blackboard: {
+                        'atk_scale_laser': 0.5,
+                        'is_power_attacked': 0,
+                        'usp_step': 0,
+                      },
+                      lifecycleSequences: {
+                        start: sequence(
+                          step('storeSourceAttributeValue', {
+                            attribute: { kind: 'specific', key: 'maxUltimateEnergy' },
+                            stage: 'armedNonConverted',
+                            useFloor: false,
+                            divisor: { kind: 'constant', value: 1 },
+                            multiplier: { kind: 'constant', value: 1 },
+                            base: { kind: 'constant', value: 0 },
+                            targetKey: 'usp_step',
+                          }),
+                          step('calculateActionValue', {
+                            key: 'usp_step',
+                            operation: 'divide',
+                            left: { kind: 'blackboard', key: 'usp_step' },
+                            right: { kind: 'constant', value: 2 },
+                          }),
+                        ),
+                      },
+                      abilityEventResponses: [
+                        {
+                          event: 'beforeTakeDamage',
+                          priority: 0,
+                          sequence:
+                            sequence(
+                              branch(
+                                { kind: 'eventSourceControlled' },
+                                sequence(
+                                  branch(
+                                    { kind: 'singleEnemyPresent' },
+                                    sequence(
+                                      branch(
+                                        {
+                                          kind: 'eventDamageTagsMatch',
+                                          match: 'hasAny',
+                                          tags: ['normalAttackLastCombo'],
+                                        },
+                                        sequence(
+                                          step('spawnAbilityEntity', { abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_death',  dieWhenSourceDies: false, inheritActionBlackboard: true, overrideDurationSeconds: { kind: 'constant', value: 0.2 }, saveToContextKey: 'ult_death' }),
+                                          forEachContextTarget(
+                                            'ult_death',
+                                            sequence(
+                                              step('applyBuff', {
+                                                buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_target_mark',
+                                                definition: {
+                                                  stackingType: 'stack',
+                                                  priority: 0,
+                                                  maxStackCount: 1,
+                                                  durationSeconds: 0.1,
+                                                  triggerIntervalSeconds: 0.033,
+                                                  waitFirstTriggerInterval: false,
+                                                  maxTriggerCount: 1,
+                                                  blackboard: {
+                                                    'atk_scale_laser': 0,
+                                                    'usp_step': 0,
+                                                  },
+                                                  lifecycleSequences: {
+                                                    trigger: sequence(
+                                                      branch(
+                                                        { kind: 'not', condition: { kind: 'timedMarkerPresent', target: 'caster', markerId: 'chr_0032_lizhiyan_ultimate_count' } },
+                                                        sequence(
+                                                          step('createTimedMarker', {
+                                                            target: 'caster',
+                                                            markerId: 'chr_0032_lizhiyan_ultimate_count',
+                                                            durationSeconds: { kind: 'constant', value: 0.4 },
+                                                            autoFinishByAction: false,
+                                                          }),
+                                                          branch(
+                                                            {
+                                                              kind: 'buffIdStackCompare',
+                                                              target: 'caster',
+                                                              buffIds: ['buff_chr_0032_lizhiyan_ultimate_skill_layer'],
+                                                              operator: 'lessOrEqual',
+                                                              value: { kind: 'constant', value: 0 },
+                                                            },
+                                                            sequence(
+                                                              step('spawnAbilityEntity', { abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser_target',  dieWhenSourceDies: false, inheritActionBlackboard: true, saveToContextKey: 'laser_target1' }),
+                                                              forEachContextTarget(
+                                                                'laser_target1',
+                                                                sequence(
+                                                                  step('applyBuff', {
+                                                                    buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser1',
+                                                                    definition: {
+                                                                      stackingType: 'unlimited',
+                                                                      priority: 0,
+                                                                      maxStackCount: 1,
+                                                                      durationSeconds: 2,
+                                                                      blackboard: {
+                                                                        'atk_scale_laser': 10,
+                                                                        'trigger_time': 0,
+                                                                      },
+                                                                      scheduledSequences: [
+                                                                        scheduled(
+                                                                          0,
+                                                                          sequence(
+                                                                            step('spawnAbilityEntity', {
+                                                                              abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                                  dieWhenSourceDies: false,
+                                                                              inheritActionBlackboard: true,
+                                                                              target: 'currentAbilityEntity',
+                                                                            }),
+                                                                          ),
+                                                                        ),
+                                                                        scheduled(
+                                                                          4,
+                                                                          sequence(
+                                                                            step('spawnAbilityEntity', {
+                                                                              abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                                  dieWhenSourceDies: false,
+                                                                              inheritActionBlackboard: true,
+                                                                              target: 'currentAbilityEntity',
+                                                                            }),
+                                                                          ),
+                                                                        ),
+                                                                        scheduled(
+                                                                          8,
+                                                                          sequence(
+                                                                            step('spawnAbilityEntity', {
+                                                                              abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                                  dieWhenSourceDies: false,
+                                                                              inheritActionBlackboard: true,
+                                                                              target: 'currentAbilityEntity',
+                                                                            }),
+                                                                          ),
+                                                                        ),
+                                                                        scheduled(
+                                                                          12,
+                                                                          sequence(
+                                                                            step('spawnAbilityEntity', {
+                                                                              abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                                  dieWhenSourceDies: false,
+                                                                              inheritActionBlackboard: true,
+                                                                              target: 'currentAbilityEntity',
+                                                                            }),
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    },
+                                                                    target: 'currentAbilityEntity',
+                                                                    inheritSourceSkillCastInfo: true,
+                                                                    blackboardAssignments: {
+                                                                      'atk_scale_laser': { kind: 'blackboard', key: 'atk_scale_laser' },
+                                                                    },
+                                                                  }),
+                                                                ),
+                                                              ),
+                                                              step('changeResourceByActionValue', {
+                                                                resource: 'ultimateEnergy',
+                                                                amount: { kind: 'blackboard', key: 'usp_step' },
+                                                                recipient: 'caster',
+                                                                ultimateRecoveryTagId: 903366032,
+                                                                ignoreUltimateEnergyGainMultiplier: true,
+                                                              }),
+                                                            ),
+                                                            sequence(
+                                                              branch(
+                                                                {
+                                                                  kind: 'buffIdStackCompare',
+                                                                  target: 'caster',
+                                                                  buffIds: ['buff_chr_0032_lizhiyan_ultimate_skill_layer'],
+                                                                  operator: 'lessOrEqual',
+                                                                  value: { kind: 'constant', value: 1 },
+                                                                },
+                                                                sequence(
+                                                                  step('spawnAbilityEntity', { abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser_target',  dieWhenSourceDies: false, inheritActionBlackboard: true, saveToContextKey: 'laser_target2' }),
+                                                                  forEachContextTarget(
+                                                                    'laser_target2',
+                                                                    sequence(
+                                                                      step('applyBuff', {
+                                                                        buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser2',
+                                                                        definition: {
+                                                                          stackingType: 'unlimited',
+                                                                          priority: 0,
+                                                                          maxStackCount: 1,
+                                                                          durationSeconds: 2,
+                                                                          blackboard: {
+                                                                            'atk_scale_laser': 10,
+                                                                            'trigger_time': 0,
+                                                                          },
+                                                                          scheduledSequences: [
+                                                                            scheduled(
+                                                                              0,
+                                                                              sequence(
+                                                                                step('spawnAbilityEntity', {
+                                                                                  abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                                          dieWhenSourceDies: false,
+                                                                                  inheritActionBlackboard: true,
+                                                                                  target: 'currentAbilityEntity',
+                                                                                }),
+                                                                              ),
+                                                                            ),
+                                                                            scheduled(
+                                                                              4,
+                                                                              sequence(
+                                                                                step('spawnAbilityEntity', {
+                                                                                  abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                                          dieWhenSourceDies: false,
+                                                                                  inheritActionBlackboard: true,
+                                                                                  target: 'currentAbilityEntity',
+                                                                                }),
+                                                                              ),
+                                                                            ),
+                                                                            scheduled(
+                                                                              8,
+                                                                              sequence(
+                                                                                step('spawnAbilityEntity', {
+                                                                                  abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                                          dieWhenSourceDies: false,
+                                                                                  inheritActionBlackboard: true,
+                                                                                  target: 'currentAbilityEntity',
+                                                                                }),
+                                                                              ),
+                                                                            ),
+                                                                            scheduled(
+                                                                              12,
+                                                                              sequence(
+                                                                                step('spawnAbilityEntity', {
+                                                                                  abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                                          dieWhenSourceDies: false,
+                                                                                  inheritActionBlackboard: true,
+                                                                                  target: 'currentAbilityEntity',
+                                                                                }),
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        },
+                                                                        target: 'currentAbilityEntity',
+                                                                        inheritSourceSkillCastInfo: true,
+                                                                        blackboardAssignments: {
+                                                                          'atk_scale_laser': { kind: 'blackboard', key: 'atk_scale_laser' },
+                                                                        },
+                                                                      }),
+                                                                    ),
+                                                                  ),
+                                                                  step('changeResourceByActionValue', {
+                                                                    resource: 'ultimateEnergy',
+                                                                    amount: { kind: 'blackboard', key: 'usp_step' },
+                                                                    recipient: 'caster',
+                                                                    ultimateRecoveryTagId: 903366032,
+                                                                    ignoreUltimateEnergyGainMultiplier: true,
+                                                                  }),
+                                                                ),
+                                                                undefined,
+                                                                { alwaysNext: true },
+                                                              ),
+                                                            ),
+                                                            { alwaysNext: true },
+                                                          ),
+                                                          step('applyBuff', {
+                                                            buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_layer',
+                                                            definition: {
+                                                              stackingType: 'enhance',
+                                                              priority: 0,
+                                                              maxStackCount: 3,
+                                                              blackboard: {
+                                                                'count': 0,
+                                                              },
+                                                              lifecycleSequences: {
+                                                                enhanceChanged: sequence(
+                                                                  step('readBuffStackCount', {
+                                                                    target: 'caster',
+                                                                    outputKey: 'count',
+                                                                    query: { kind: 'environment' },
+                                                                  }),
+                                                                ),
+                                                              },
+                                                            },
+                                                            target: 'caster',
+                                                            inheritSourceSkillCastInfo: true,
+                                                          }),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  },
+                                                },
+                                                target: 'currentAbilityEntity',
+                                                inheritSourceSkillCastInfo: true,
+                                                blackboardAssignments: {
+                                                  'atk_scale_laser': { kind: 'blackboard', key: 'atk_scale_laser' },
+                                                  'usp_step': { kind: 'blackboard', key: 'usp_step' },
+                                                },
+                                              }),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        },
+                        {
+                          event: 'beforeTakeDamage',
+                          priority: 0,
+                          sequence:
+                            sequence(
+                              branch(
+                                { kind: 'eventSourceControlled' },
+                                sequence(
+                                  branch(
+                                    { kind: 'singleEnemyPresent' },
+                                    sequence(
+                                      branch(
+                                        {
+                                          kind: 'eventDamageTagsMatch',
+                                          match: 'hasAny',
+                                          tags: ['powerAttack'],
+                                        },
+                                        sequence(
+                                          branch(
+                                            {
+                                              kind: 'actionValueCompare',
+                                              left: { kind: 'blackboard', key: 'is_power_attacked' },
+                                              operator: 'equal',
+                                              right: { kind: 'constant', value: 0 },
+                                            },
+                                            sequence(
+                                              branch(
+                                                { kind: 'not', condition: { kind: 'timedMarkerPresent', target: 'caster', markerId: 'chr_0032_lizhiyan_ultimate_count' } },
+                                                sequence(
+                                                  step('createTimedMarker', {
+                                                    target: 'caster',
+                                                    markerId: 'chr_0032_lizhiyan_ultimate_count',
+                                                    durationSeconds: { kind: 'constant', value: 0.4 },
+                                                    autoFinishByAction: false,
+                                                  }),
+                                                  step('modifyActionValue', {
+                                                    key: 'is_power_attacked',
+                                                    operation: 'assign',
+                                                    value: { kind: 'constant', value: 1 },
+                                                  }),
+                                                  branch(
+                                                    {
+                                                      kind: 'buffIdStackCompare',
+                                                      target: 'caster',
+                                                      buffIds: ['buff_chr_0032_lizhiyan_ultimate_skill_layer'],
+                                                      operator: 'lessOrEqual',
+                                                      value: { kind: 'constant', value: 0 },
+                                                    },
+                                                    sequence(
+                                                      step('spawnAbilityEntity', { abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser_target',  dieWhenSourceDies: false, inheritActionBlackboard: true, saveToContextKey: 'laser_target1' }),
+                                                      forEachContextTarget(
+                                                        'laser_target1',
+                                                        sequence(
+                                                          step('applyBuff', {
+                                                            buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser1',
+                                                            definition: {
+                                                              stackingType: 'unlimited',
+                                                              priority: 0,
+                                                              maxStackCount: 1,
+                                                              durationSeconds: 2,
+                                                              blackboard: {
+                                                                'atk_scale_laser': 10,
+                                                                'trigger_time': 0,
+                                                              },
+                                                              scheduledSequences: [
+                                                                scheduled(
+                                                                  0,
+                                                                  sequence(
+                                                                    step('spawnAbilityEntity', {
+                                                                      abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                  dieWhenSourceDies: false,
+                                                                      inheritActionBlackboard: true,
+                                                                      target: 'currentAbilityEntity',
+                                                                    }),
+                                                                  ),
+                                                                ),
+                                                                scheduled(
+                                                                  4,
+                                                                  sequence(
+                                                                    step('spawnAbilityEntity', {
+                                                                      abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                  dieWhenSourceDies: false,
+                                                                      inheritActionBlackboard: true,
+                                                                      target: 'currentAbilityEntity',
+                                                                    }),
+                                                                  ),
+                                                                ),
+                                                                scheduled(
+                                                                  8,
+                                                                  sequence(
+                                                                    step('spawnAbilityEntity', {
+                                                                      abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                  dieWhenSourceDies: false,
+                                                                      inheritActionBlackboard: true,
+                                                                      target: 'currentAbilityEntity',
+                                                                    }),
+                                                                  ),
+                                                                ),
+                                                                scheduled(
+                                                                  12,
+                                                                  sequence(
+                                                                    step('spawnAbilityEntity', {
+                                                                      abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                  dieWhenSourceDies: false,
+                                                                      inheritActionBlackboard: true,
+                                                                      target: 'currentAbilityEntity',
+                                                                    }),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            },
+                                                            target: 'currentAbilityEntity',
+                                                            inheritSourceSkillCastInfo: true,
+                                                            blackboardAssignments: {
+                                                              'atk_scale_laser': { kind: 'blackboard', key: 'atk_scale_laser' },
+                                                            },
+                                                          }),
+                                                        ),
+                                                      ),
+                                                      step('changeResourceByActionValue', {
+                                                        resource: 'ultimateEnergy',
+                                                        amount: { kind: 'blackboard', key: 'usp_step' },
+                                                        recipient: 'caster',
+                                                        ultimateRecoveryTagId: 903366032,
+                                                        ignoreUltimateEnergyGainMultiplier: true,
+                                                      }),
+                                                    ),
+                                                    sequence(
+                                                      branch(
+                                                        {
+                                                          kind: 'buffIdStackCompare',
+                                                          target: 'caster',
+                                                          buffIds: ['buff_chr_0032_lizhiyan_ultimate_skill_layer'],
+                                                          operator: 'lessOrEqual',
+                                                          value: { kind: 'constant', value: 1 },
+                                                        },
+                                                        sequence(
+                                                          step('spawnAbilityEntity', { abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser_target',  dieWhenSourceDies: false, inheritActionBlackboard: true, saveToContextKey: 'laser_target2' }),
+                                                          forEachContextTarget(
+                                                            'laser_target2',
+                                                            sequence(
+                                                              step('applyBuff', {
+                                                                buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser2',
+                                                                definition: {
+                                                                  stackingType: 'unlimited',
+                                                                  priority: 0,
+                                                                  maxStackCount: 1,
+                                                                  durationSeconds: 2,
+                                                                  blackboard: {
+                                                                    'atk_scale_laser': 10,
+                                                                    'trigger_time': 0,
+                                                                  },
+                                                                  scheduledSequences: [
+                                                                    scheduled(
+                                                                      0,
+                                                                      sequence(
+                                                                        step('spawnAbilityEntity', {
+                                                                          abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                          dieWhenSourceDies: false,
+                                                                          inheritActionBlackboard: true,
+                                                                          target: 'currentAbilityEntity',
+                                                                        }),
+                                                                      ),
+                                                                    ),
+                                                                    scheduled(
+                                                                      4,
+                                                                      sequence(
+                                                                        step('spawnAbilityEntity', {
+                                                                          abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                          dieWhenSourceDies: false,
+                                                                          inheritActionBlackboard: true,
+                                                                          target: 'currentAbilityEntity',
+                                                                        }),
+                                                                      ),
+                                                                    ),
+                                                                    scheduled(
+                                                                      8,
+                                                                      sequence(
+                                                                        step('spawnAbilityEntity', {
+                                                                          abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                          dieWhenSourceDies: false,
+                                                                          inheritActionBlackboard: true,
+                                                                          target: 'currentAbilityEntity',
+                                                                        }),
+                                                                      ),
+                                                                    ),
+                                                                    scheduled(
+                                                                      12,
+                                                                      sequence(
+                                                                        step('spawnAbilityEntity', {
+                                                                          abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
+                                                                                                                                                          dieWhenSourceDies: false,
+                                                                          inheritActionBlackboard: true,
+                                                                          target: 'currentAbilityEntity',
+                                                                        }),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                },
+                                                                target: 'currentAbilityEntity',
+                                                                inheritSourceSkillCastInfo: true,
+                                                                blackboardAssignments: {
+                                                                  'atk_scale_laser': { kind: 'blackboard', key: 'atk_scale_laser' },
+                                                                },
+                                                              }),
+                                                            ),
+                                                          ),
+                                                          step('changeResourceByActionValue', {
+                                                            resource: 'ultimateEnergy',
+                                                            amount: { kind: 'blackboard', key: 'usp_step' },
+                                                            recipient: 'caster',
+                                                            ultimateRecoveryTagId: 903366032,
+                                                            ignoreUltimateEnergyGainMultiplier: true,
+                                                          }),
+                                                        ),
+                                                        undefined,
+                                                        { alwaysNext: true },
+                                                      ),
+                                                    ),
+                                                    { alwaysNext: true },
+                                                  ),
+                                                  step('applyBuff', {
+                                                    buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_layer',
+                                                    definition: {
+                                                      stackingType: 'enhance',
+                                                      priority: 0,
+                                                      maxStackCount: 3,
+                                                      blackboard: {
+                                                        'count': 0,
+                                                      },
+                                                      lifecycleSequences: {
+                                                        enhanceChanged: sequence(
+                                                          step('readBuffStackCount', {
+                                                            target: 'caster',
+                                                            outputKey: 'count',
+                                                            query: { kind: 'environment' },
+                                                          }),
+                                                        ),
+                                                      },
+                                                    },
+                                                    target: 'caster',
+                                                    inheritSourceSkillCastInfo: true,
+                                                  }),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        },
+                        {
+                          event: 'poiseZero',
+                          priority: 0,
+                          sequence:
+                            sequence(
+                              step('modifyActionValue', {
+                                key: 'is_power_attacked',
+                                operation: 'assign',
+                                value: { kind: 'constant', value: 0 },
+                              }),
+                            ),
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     finishByAction: true,

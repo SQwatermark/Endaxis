@@ -980,6 +980,8 @@ class TargetReferenceSource:
     finderType: str | None
     validatorTypes: tuple[str, ...]
     postProcessorTypes: tuple[str, ...]
+    finderSpawnedObjectType: str | None = None
+    validatorTagQueries: tuple[tuple[str, tuple[int, ...]], ...] = ()
 
 
 @dataclass(frozen=True)

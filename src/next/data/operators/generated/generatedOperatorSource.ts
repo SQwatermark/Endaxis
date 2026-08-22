@@ -374,6 +374,8 @@ export interface GeneratedBuffDefinitionSource {
   readonly auraActions: readonly GeneratedAuraActionSource[];
   /** Buff 事件通过 CastSkill 在既有能力实体上启动的隐藏子技能。 */
   readonly invokedAbilityEntitySkills?: readonly GeneratedAbilityEntityHitSource[];
+  /** Buff 自身时间线直接生成的能力实体及其已解析子图。 */
+  readonly abilityEntityHits?: readonly GeneratedAbilityEntityHitSource[];
   /** Buff 自身时间线中的生成、子 Buff 等辅助动作证据。 */
   readonly auxiliaryActions?: readonly GeneratedAuxiliaryActionSource[];
   /** Buff 动作树对 Context 目标组的写入证据。 */
@@ -629,6 +631,10 @@ export interface GeneratedTargetReferenceSource {
   readonly finderType: string | null;
   readonly validatorTypes: readonly string[];
   readonly postProcessorTypes: readonly string[];
+  /** OwnerSpawnedEntityFinder 的对象类型；其他 finder 不携带该身份。 */
+  readonly finderSpawnedObjectType?: string | null;
+  /** TagValidator 的完整查询类型与原生有符号 GameplayTag ID。 */
+  readonly validatorTagQueries?: readonly (readonly [string, readonly number[]])[];
 }
 
 export interface GeneratedVector3Source {

@@ -11,7 +11,10 @@ type EventDamageTagsCondition = Extract<CombatCondition, { kind: 'eventDamageTag
 type EventDamageFeaturesCondition = Extract<CombatCondition, { kind: 'eventDamageFeaturesMatch' }>;
 
 export class EventContextConditionExecutor implements CombatOperationExecutor {
-  constructor(readonly delegate: CombatOperationExecutor) {}
+  constructor(
+    readonly delegate: CombatOperationExecutor,
+    readonly isOperatorControlled?: (operatorId: string) => boolean,
+  ) {}
 
   execute(
     step: Parameters<CombatOperationExecutor['execute']>[0],
@@ -38,7 +41,8 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       condition.kind !== 'eventBuffIdMatch' &&
       condition.kind !== 'eventBuffEndedEarly' &&
       condition.kind !== 'eventBuffTagsMatch' &&
-      condition.kind !== 'eventSourceMatchesBuffSource'
+      condition.kind !== 'eventSourceMatchesBuffSource' &&
+      condition.kind !== 'eventSourceControlled'
     ) {
       return context === undefined
         ? this.delegate.evaluate(condition)
@@ -53,6 +57,14 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       }
       return context.event.kind === 'abilityDamage'
         ? context.event.sourceId === context.buffSourceId
+        : false;
+    }
+    if (condition.kind === 'eventSourceControlled') {
+      if (this.isOperatorControlled === undefined) {
+        throw new Error('eventSourceControlled requires control state');
+      }
+      return context.event.kind === 'abilityDamage' || context.event.kind === 'abilityPoise'
+        ? this.isOperatorControlled(context.event.sourceId)
         : false;
     }
     if (condition.kind === 'eventSkillTypeIn') {

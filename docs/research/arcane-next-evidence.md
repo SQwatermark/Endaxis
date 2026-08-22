@@ -94,12 +94,12 @@
 
 ## 生成审计现状（1.4.4@9433094-12）
 
-当前生成清单以 `outputStage: audit` 收录诀（`arcane`）的连携、五段普攻、处决、下落攻击、战技和
-两个原生终结技入口，共 11 个技能。严格技能序列均可编译，并生成
-`arcane.generated.ts`、`arcane.audit.json` 与 `arcane.skills.audit.generated.ts`；这些文件只用于
-逐项对照，不是正式 `OperatorDefinition`，也没有替换本文件审计的手写定义。
+当前生成清单以 `outputStage: complete` 收录诀（`arcane`）的连携、五段普攻、处决、下落攻击、战技和
+两个原生终结技入口，共 11 个技能。严格技能序列、养成与干员装配均可编译，并生成
+`arcane.generated.ts`、`arcane.audit.json` 与 `arcane.operator.generated.ts`；正式目录直接消费该
+`OperatorDefinition`。
 
-正式生成仍有四条相互独立的证据/实现缺口：
+以下四条曾是正式生成的主要证据/实现缺口，现均已闭环；保留详细过程作为规则边界：
 
 1. 连携封印 Buff 的 `DuringBuffEnable` 含 `ForEachAction`：它以 Buff 的 `ActionSource` 为 owner，
    用 `OwnerSpawnedEntityFinder(AbilityEntity)`、标签 `-1480463572` 与
@@ -167,5 +167,8 @@
    二段放入 `replacementSkills`；不能把这条规则泛化到可直接拖放的强化技能。诀仍保持 audit
    阶段的原因已经转为下列
    干员级展示、连携与养成语义，而不是换槽 DSL 缺失。
-4. `presentationVariants`、形态感知连携注册、天赋和潜能的行为仍需逐项与手写定义及原始数据
-   对照；11/11 只证明技能主体通过严格编译，不证明干员级形态、养成和展示语义完整。
+4. `presentationVariants`、形态感知连携注册、天赋和潜能已逐项与手写定义及原始数据对照并进入
+   正式定义。奥义范围 Buff 的最后闭环额外保留了当前能力实体身份：标签查询必须命中正在执行的
+   `abilityentity_chr_0032_lizhiyan_ultimate_skill` 才能证明距离两端存在；`Target == MainCharacter`
+   读取承伤/失衡事件来源的实时主控状态；`OnPoiseZero` 由正常玩家失衡归零链触发。2026-08-22 的
+   `--operator arcane --check` 已通过，`conversionSupport` 为 `complete`。

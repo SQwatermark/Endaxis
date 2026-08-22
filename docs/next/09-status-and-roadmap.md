@@ -42,7 +42,7 @@
 - Buff 来源中的 `ContextTarget/smart_target` 与普通目标解析共享唯一敌人归约，不再因来源字段使用了 Context 身份而阻塞；Yvonne 战技因此进入通用 DSL。当前严格审计为 318/320 可解析、289/320 可编译、13 名完整直转。Yvonne 连携、Tangtang 连携与 Liino 连携的无标签 owner-spawned Entity 时间膨胀仍可能命中此前技能留下的任意实体，在全干员实体闭包完成前不能按“当前技能实体”缩窄。
 
 - 能力实体定义内联：`spawnAbilityEntity` 现在使用 `abilityEntityId + definition`，逐使用点携带默认生命周期和可选子技能。born tags 与 `maxStackingCount` 留在 VFS 证据层；生成器把受支持的 owner-spawned 标签查询严格降为明确的 `abilityEntityIds`，生产 DSL、编辑器、编译器和运行时均不再携带无语义标签或共享模板注册表。技能编辑器可递归编辑实体子技能；普通全局、普通实体和终结技时间膨胀表单也能编辑明确实体 ID 或 Context 组查询，不会重新引入 born-tag 字段。
-- 诀（`arcane`）生成审计：11 个技能入口已作为 `outputStage: audit` 样本落盘并通过定向生成检查，但不属于正式目录。`seal_total -> seal/listener -> 隐藏结束技能` 已闭环，Interrupt 在无敌方主动行为模型中归约为零效果。形态实体黑板已从基础被动自动派生并在技能创建前写入共享实体黑板。终结技的原生 `ChangeSkillAction` 也已结构化：首段直接 Buff 在启用时把 `UltimateSkill` 换成二段并指定还原首段，二段自身第 0 帧永久换回首段，audit 已严格输出 `ultimate -> arcana -> ultimate`。稳定技能组支持不可直接放置的 `replacementSkills`；场景为同一 `castId` 编译全部形态，能力系统在释放开始时快照当前槽技能，`changeSkillSlot` 只影响未来释放。生成器现已消费闭环关系：诀在 manifest 明确声明 `arcana` 为运行时替换形态后，首段第 47 帧在监听 Buff 后生成换到 `arcana` 的步骤，二段按原生第 0 帧动作生成换回 `ultimate` 的步骤。只有明确声明的不可放置形态才进入 `replacementSkills`；庄方宜等普通/强化技能继续作为独立技能组供用户拖放，不从原生换技动作猜测编辑器语义。下一项干员级阻塞转为形态展示、形态感知连携注册、天赋和潜能对照。
+- 诀（`arcane`）已从审计阶段进入完整生产定义：11 个技能、`seal_total -> seal/listener -> 隐藏结束技能`、`ultimate -> arcana -> ultimate` 换槽闭环、基础被动实体黑板以及天赋/潜能均由生成器输出。奥义主能力实体通过 Aura 给敌人施加的内联 Buff 现保留当前实体 ID；`OwnerSpawnedEntityFinder(AbilityEntity) + TagValidator` 只有实际查询命中该当前实体时才按零距离折叠。承伤事件的 `Target == MainCharacter` 按实时主控状态求值，正常失衡链的 `OnPoiseZero` 会把来源/目标身份送入同一 Buff 事件响应。诀已通过定向生成与 check，不再依赖角色专用跳过。
 
 ### 尚未闭环
 

@@ -443,6 +443,7 @@ function validateCombatCondition(
     case 'singleEnemyPresent':
     case 'casterControlled':
     case 'eventSourceMatchesBuffSource':
+    case 'eventSourceControlled':
     case 'buffSourceMatchesOwner':
       break;
     case 'enemyRankIn':

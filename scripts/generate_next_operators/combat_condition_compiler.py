@@ -79,6 +79,7 @@ def compile_combat_condition(
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
     *,
     current_buff_environment: bool = False,
+    current_ability_entity_id: str | None = None,
     services: CombatConditionServices,
 ) -> str:
     """只编译已由 Next 运行时闭环的原生条件，其他条件必须显式失败。"""
@@ -99,6 +100,7 @@ def compile_combat_condition(
             any_groups=source.anyConditionGroups,
             any_group_negated=source.anyConditionNegated,
             current_buff_environment=current_buff_environment,
+            current_ability_entity_id=current_ability_entity_id,
             services=services,
         )
     comparison_operator_map = services.comparison_operator_map
@@ -168,6 +170,8 @@ def compile_combat_condition(
         pair = {(first.targetSource, first.targetGroupKey), (second.targetSource, second.targetGroupKey)}
         if buff_ability_damage_event and pair == {("Target", ""), ("Source", "")}:
             return "{ kind: 'eventSourceMatchesBuffSource' }"
+        if buff_ability_damage_event and pair == {("Target", ""), ("MainCharacter", "")}:
+            return "{ kind: 'eventSourceControlled' }"
         if current_buff_environment and pair == {("Source", ""), ("Owner", "")}:
             return "{ kind: 'buffSourceMatchesOwner' }"
     if source.sourceType == "CheckSkillType" and buff_ability_damage_event:
@@ -468,6 +472,9 @@ def compile_combat_condition(
             root_skill_context=root_skill_context,
             input_target=input_target,
             ability_entity_current_target=ability_entity_current_target,
+            current_ability_entity_id=current_ability_entity_id,
+            current_buff_environment=current_buff_environment,
+            buff_owner_target=buff_owner_target,
             present_context_keys=frozenset(present_context_keys),
         )
         if result is True:
@@ -941,6 +948,7 @@ def compile_combat_condition_group(
     any_group_negated: tuple[tuple[bool, ...], ...] = (),
     *,
     current_buff_environment: bool = False,
+    current_ability_entity_id: str | None = None,
     services: CombatConditionServices,
 ) -> str:
     """保持原生条件组的全满足语义，并生成可直接嵌入 DSL 的条件树。"""
@@ -967,6 +975,7 @@ def compile_combat_condition_group(
                     else ()
                 ),
                 current_buff_environment=current_buff_environment,
+                current_ability_entity_id=current_ability_entity_id,
                 services=services,
             )
             for index, group in enumerate(any_groups)
@@ -995,6 +1004,7 @@ def compile_combat_condition_group(
             buff_ability_damage_event,
             buff_owner_target,
             current_buff_environment=current_buff_environment,
+            current_ability_entity_id=current_ability_entity_id,
             services=services,
         )
         for index, condition in enumerate(conditions)

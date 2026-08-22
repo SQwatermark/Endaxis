@@ -39,6 +39,14 @@ export interface CombatAbilityDamageEvent {
   readonly features: readonly DamageFeature[];
 }
 
+/** AbilitySystem 的失衡归零同步事件；保留本次失衡来源与目标身份。 */
+export interface CombatAbilityPoiseEvent {
+  readonly kind: 'abilityPoise';
+  readonly event: 'poiseZero';
+  readonly sourceId: string;
+  readonly targetId: string;
+}
+
 /** AbilitySystem 在技能正式启动前发出的施放事件。 */
 export interface CombatAbilitySkillEvent {
   readonly kind: 'abilitySkill';
@@ -71,6 +79,7 @@ export interface CombatOperationContext {
   readonly event?:
     | CombatSemanticEvent
     | CombatAbilityDamageEvent
+    | CombatAbilityPoiseEvent
     | CombatAbilitySkillEvent
     | CombatAbilityLifecycleEvent;
   /** 仅由 Buff 实例响应提供；用于保留原生 ActionSource 身份。 */

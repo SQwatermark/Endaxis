@@ -144,6 +144,9 @@ def parse_spawned_entity_selector_identity(
                     f"{path}.finderData.spawnedObjectType: expected non-empty string"
                 )
 
+    if spawned_object_type is None:
+        return None, ()
+
     tag_queries: list[tuple[str, tuple[int, ...]]] = []
     for index, raw_validator in enumerate(
         require_list(selector.get("validatorData"), f"{path}.validatorData")
@@ -300,10 +303,16 @@ def parse_target_reference(value: Any, path: str) -> TargetReferenceSource:
     ):
         if not isinstance(item, str):
             raise ValueError(f"{path}.{key}: expected string")
+    selector_data = target.get("selectorData")
+    selector_path = f"{path}.selectorData"
     finder, _, _, _, validators, post_processors = parse_selector_summary(
-        target.get("selectorData"),
-        f"{path}.selectorData",
+        selector_data,
+        selector_path,
         finder_required=target_source == "InstantSearch",
+    )
+    spawned_object_type, validator_tag_queries = parse_spawned_entity_selector_identity(
+        selector_data,
+        selector_path,
     )
     return TargetReferenceSource(
         targetSource=target_source,
@@ -322,6 +331,8 @@ def parse_target_reference(value: Any, path: str) -> TargetReferenceSource:
         finderType=finder,
         validatorTypes=validators,
         postProcessorTypes=post_processors,
+        finderSpawnedObjectType=spawned_object_type,
+        validatorTagQueries=validator_tag_queries,
     )
 
 

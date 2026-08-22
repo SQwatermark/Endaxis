@@ -15,7 +15,7 @@
 
 - 当前台式机仓库：`D:\Projects\Endaxis`（本文其他位置所称“远程”即当前环境）
 - 当前工作分支：`codex/time-dilation-curve-editor`（后续整合目标仍为 `feature/next`）。
-- 本轮开发前的 HEAD：`59b4f084 feat(next): complete Zhuang Fangyi conversion`；实际 HEAD 始终以 `git log` 为准。
+- 本轮开发前的 HEAD：`8645b9d1 feat(next): read current buff enhance count`；实际 HEAD 始终以 `git log` 为准。
 - `tmp/` 是未跟踪临时目录，绝对不要提交。
 - 工作树可能含用户改动；始终先运行 `git status --short`，不要重置或回退不属于当前任务的内容。
 
@@ -73,6 +73,15 @@ step('spawnAbilityEntity', {
 - `type-check:next`、默认定义严格校验、三语言资源与组件接线测试已覆盖。默认 Next 项目第二轨放置并选中 Arclight 终结技，直接引用当前生成定义；其 5 秒能力实体包含局部第 7、63 帧两段真实子时间线，可直接进入“编辑逻辑”验收。此前零倍率终结技造成的时间线停滞已经修复；当前真实阻塞改为 `Pulse` 法术爆发缺少原生 `SkillSetting` / `spellInflictionSettings` 数据，现有本地 AKEDB 与版本化证据均没有可注入内容，不能猜造。
 
 ## 4. 本轮已经完成
+
+### 诀奥义能力实体 Aura 闭环
+
+- `TargetReferenceSource` 现保留 `OwnerSpawnedEntityFinder` 的对象类型与 GameplayTag 查询；当前能力实体模板 ID 从子技能条件上下文显式穿过 Aura、Buff 应用、事件响应和 Buff 本地定时序列。
+- 距离条件仍统一按零距离计算，但 owner-spawned 查询只有在版本化模板证据的标签结果包含当前真实执行实体时才证明实例存在；缺失或不匹配身份继续严格失败。
+- 承伤事件中的 `Target == MainCharacter` 新增 `eventSourceControlled` 条件，按当前现实帧查询伤害来源是否为主控干员。`OnPoiseZero` 已接入正常失衡归零事件并保留来源/目标身份，不使用外部事件标记。
+- 诀 11 个技能现可严格生成完整 `OperatorDefinition`；`--operator arcane --check` 通过。生成产物包含奥义范围 Buff 的承伤、失衡归零与四段局部激光能力实体行为。
+- Python 生成器测试为 420/420；相关 Next 事件、Buff 生命周期与场景装配定向测试为 75/75。全仓 `type-check` 仍被旧版目录中既有错误阻塞，本轮改动文件未出现在错误列表；应以 `type-check:next` 和完整 Next 测试继续验收。
+- `type-check:next` 与完整 Next 198 文件、1332 条测试均通过。全清单 `--check` 仍会先报告其他干员审计产物尚未刷新；尝试统一刷新后在 Camille 天赋 `OnReceiveHeal` 正常事件缺口处严格停止，已回退该次失败生成的非诀机械输出。后续应先闭环正常治疗事件，再做全目录刷新，不能为通过 check 省略该事件。
 
 ### 生成器结构化编译后端
 

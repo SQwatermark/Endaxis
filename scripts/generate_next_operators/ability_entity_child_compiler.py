@@ -392,6 +392,7 @@ def compile_ability_entity_child_skill(
                 root_skill_context=False,
                 input_target=input_target,
                 ability_entity_current_target=True,
+                current_ability_entity_id=hit.abilityEntityId,
                 skill_has_output_damage=any(
                     damage_frame < frame for damage_frame in child_damage_frames
                 ),

@@ -124,6 +124,7 @@ def compile_conditional_branch_action(
     ] = (),
     compiled_projectile_launches: tuple[tuple[tuple[str, ...], str], ...] = (),
     prefer_compiled_ability_entity_spawns: bool = False,
+    current_ability_entity_id: str | None = None,
     *,
     services: ConditionalLeafServices,
 ) -> str:
@@ -177,6 +178,7 @@ def compile_conditional_branch_action(
             path,
             buff_definitions=buff_definitions,
             invoked_child_context=invoked_child_context,
+            current_ability_entity_id=current_ability_entity_id,
             buff_owner_target=buff_owner_target,
             current_buff_environment=current_buff_environment,
         )
@@ -825,6 +827,7 @@ def compile_conditional_branch_action(
             current_buff_environment=current_buff_environment,
             current_ability_entity_target=ability_entity_current_target,
             current_ability_entity_owner=ability_entity_current_target,
+            current_ability_entity_id=current_ability_entity_id,
             current_event_target=buff_ability_damage_event,
             damage_tags=damage_tags,
         )

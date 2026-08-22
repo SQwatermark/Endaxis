@@ -1238,7 +1238,12 @@ export class CombatRuntimeAssembly {
       this.comboWindows,
       controlConditions,
     );
-    const eventConditions = new EventContextConditionExecutor(comboWindowOperations);
+    const eventConditions = new EventContextConditionExecutor(
+      comboWindowOperations,
+      isOperatorControlled === undefined
+        ? undefined
+        : sourceId => isOperatorControlled(sourceId, this.clock.frame),
+    );
     const delegate = new ActionBlackboardOperationExecutor(
       eventConditions,
       this.#options.probabilitySamples,
@@ -1377,7 +1382,12 @@ export class CombatRuntimeAssembly {
       },
       delegate: vitalsConditions,
     });
-    const eventConditions = new EventContextConditionExecutor(controlConditions);
+    const eventConditions = new EventContextConditionExecutor(
+      controlConditions,
+      options.isOperatorControlled === undefined
+        ? undefined
+        : sourceId => options.isOperatorControlled!(sourceId, this.clock.frame),
+    );
     const blackboardOperations = new ActionBlackboardOperationExecutor(
       eventConditions,
       options.probabilitySamples,

@@ -49,6 +49,7 @@ class ConditionalCompileContext:
     step_key_prefix: str | None = None
     buff_definitions: dict[str, BuffDefinitionSource] | None = None
     ability_entity_current_target: bool = False
+    current_ability_entity_id: str | None = None
     singleton_ability_entity_context_keys: frozenset[str] = frozenset()
     buff_ability_damage_event: bool = False
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None

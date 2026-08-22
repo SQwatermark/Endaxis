@@ -124,6 +124,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -242,6 +243,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -344,6 +346,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -740,6 +743,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [
         {
           "spawnFrame": 0,
@@ -1422,7 +1426,16 @@ export const arcaneGeneratedSource = {
                   "TagValidator",
                   "SkillCastIdValidator"
                 ],
-                "postProcessorTypes": []
+                "postProcessorTypes": [],
+                "finderSpawnedObjectType": "AbilityEntity",
+                "validatorTagQueries": [
+                  [
+                    "HasAny",
+                    [
+                      -1480463572
+                    ]
+                  ]
+                ]
               },
               "spawnedObjectType": "AbilityEntity",
               "tagQueries": [
@@ -2207,6 +2220,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [
         {
           "spawnFrame": 0,
@@ -3453,6 +3467,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -4051,6 +4066,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -4174,6 +4190,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -4354,9 +4371,960 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
+      "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_finish_count",
+      "sourceFile": "buff_chr_0032_lizhiyan_combo_skill_seal_finish_count.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
+      "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_finisher",
+      "sourceFile": "buff_chr_0032_lizhiyan_combo_skill_seal_finisher.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 5.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "atk_scale_laser2",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "cd_reduce",
+          "value": 7.0,
+          "isDynamic": false
+        },
+        {
+          "key": "isWisd",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "poise_final",
+          "value": 10.0,
+          "isDynamic": false
+        },
+        {
+          "key": "radius",
+          "value": 5.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [
+        {
+          "startFrame": 0,
+          "endFrame": 6,
+          "actionIndex": 1,
+          "damageUnits": [
+            {
+              "damageType": "Natural",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_laser2",
+                "levelValues": [
+                  0.0
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 12288
+            },
+            {
+              "damageType": "Physical",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "calculationMultiplier": null,
+              "poiseValue": {
+                "value": 0.0,
+                "blackboardKey": "poise_final",
+                "levelValues": [
+                  10.0
+                ]
+              },
+              "definiteValue": null,
+              "damageDecorateMask": 0
+            }
+          ],
+          "timedMarkerGate": null,
+          "sequenceIndex": 1
+        }
+      ],
+      "inflictions": [],
+      "conditionalActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 6,
+          "actionIndex": 5,
+          "actionPath": [
+            "timelineActions[1]",
+            "_sequenceActionData",
+            "actionData",
+            "[4]"
+          ],
+          "conditions": [],
+          "succeedActions": [
+            {
+              "actionType": "CreateTimedMarker",
+              "actionIndex": 5,
+              "actionPath": [
+                "timelineActions[1]",
+                "_sequenceActionData",
+                "actionData",
+                "[4]"
+              ],
+              "serverActionIndex": 5,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "timedMarkerApplication": {
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "markerId": "lizhiyan_combo_hit",
+                "duration": {
+                  "value": 0.1,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "autoFinishByAction": false,
+                "useTimeDilationDt": false
+              }
+            }
+          ],
+          "failActions": [],
+          "conditionNegated": [],
+          "alwaysNext": false
+        }
+      ],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [
+        "CreateTimedMarker",
+        "DamageAction"
+      ],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [
+        {
+          "startFrame": 0,
+          "endFrame": 4,
+          "actionIndex": 0,
+          "actionPath": [
+            "timelineActions[0]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Ally",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
+        },
+        {
+          "startFrame": 1,
+          "endFrame": 4,
+          "actionIndex": 6,
+          "actionPath": [
+            "timelineActions[2]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "bunshin",
+          "producerType": "FindTargetAction",
+          "finderType": "OwnerSpawnedEntityFinder",
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [
+            "TagValidator",
+            "SkillCastIdValidator"
+          ],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null,
+          "finderSpawnedObjectType": "AbilityEntity",
+          "validatorTagQueries": [
+            [
+              "HasAny",
+              [
+                -1480463572
+              ]
+            ]
+          ],
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
+        }
+      ],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
+      "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_finisher_wisd",
+      "sourceFile": "buff_chr_0032_lizhiyan_combo_skill_seal_finisher_wisd.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 3.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "atb_return_wisd",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale_laser1",
+          "value": 0.5,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale_laser2",
+          "value": 3.0,
+          "isDynamic": false
+        },
+        {
+          "key": "cd_reduce",
+          "value": 7.0,
+          "isDynamic": false
+        },
+        {
+          "key": "isWisd",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "poise_final",
+          "value": 10.0,
+          "isDynamic": false
+        },
+        {
+          "key": "radius",
+          "value": 5.67,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [
+        {
+          "startFrame": 2,
+          "endFrame": 4,
+          "actionIndex": 18,
+          "damageUnits": [
+            {
+              "damageType": "Natural",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_laser1",
+                "levelValues": [
+                  0.5
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 12288
+            }
+          ],
+          "timedMarkerGate": null,
+          "sequenceIndex": 15
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 7,
+          "actionIndex": 21,
+          "damageUnits": [
+            {
+              "damageType": "Natural",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_laser1",
+                "levelValues": [
+                  0.5
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 12288
+            }
+          ],
+          "timedMarkerGate": null,
+          "sequenceIndex": 16
+        },
+        {
+          "startFrame": 8,
+          "endFrame": 10,
+          "actionIndex": 24,
+          "damageUnits": [
+            {
+              "damageType": "Natural",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_laser1",
+                "levelValues": [
+                  0.5
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 12288
+            }
+          ],
+          "timedMarkerGate": null,
+          "sequenceIndex": 17
+        },
+        {
+          "startFrame": 11,
+          "endFrame": 13,
+          "actionIndex": 27,
+          "damageUnits": [
+            {
+              "damageType": "Natural",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_laser1",
+                "levelValues": [
+                  0.5
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 12288
+            }
+          ],
+          "timedMarkerGate": null,
+          "sequenceIndex": 18
+        },
+        {
+          "startFrame": 17,
+          "endFrame": 23,
+          "actionIndex": 31,
+          "damageUnits": [
+            {
+              "damageType": "Natural",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale_laser2",
+                "levelValues": [
+                  3.0
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 12288
+            },
+            {
+              "damageType": "Physical",
+              "attributeType": "Poise",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "calculationMultiplier": null,
+              "poiseValue": {
+                "value": 0.0,
+                "blackboardKey": "poise_final",
+                "levelValues": [
+                  10.0
+                ]
+              },
+              "definiteValue": null,
+              "damageDecorateMask": 0
+            }
+          ],
+          "timedMarkerGate": null,
+          "sequenceIndex": 20
+        }
+      ],
+      "inflictions": [],
+      "conditionalActions": [
+        {
+          "startFrame": 17,
+          "endFrame": 23,
+          "actionIndex": 35,
+          "actionPath": [
+            "timelineActions[20]",
+            "_sequenceActionData",
+            "actionData",
+            "[4]"
+          ],
+          "conditions": [],
+          "succeedActions": [
+            {
+              "actionType": "CreateTimedMarker",
+              "actionIndex": 35,
+              "actionPath": [
+                "timelineActions[20]",
+                "_sequenceActionData",
+                "actionData",
+                "[4]"
+              ],
+              "serverActionIndex": 35,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "timedMarkerApplication": {
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "markerId": "lizhiyan_combo_hit",
+                "duration": {
+                  "value": 0.1,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "autoFinishByAction": false,
+                "useTimeDilationDt": false
+              }
+            }
+          ],
+          "failActions": [],
+          "conditionNegated": [],
+          "alwaysNext": false
+        }
+      ],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffFinish",
+          "orderedActionTypes": [
+            "TriggerCustomAbilityEvent"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "TriggerCustomAbilityEvent"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        },
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "CreateTimedMarker"
+          ],
+          "combatActions": [
+            "CreateTimedMarker"
+          ],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CreateTimedMarker"
+              ],
+              "combatActions": [
+                "CreateTimedMarker"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "CreateTimedMarker",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 1,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "timedMarkerApplication": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_combo_wisd_has_finish",
+                    "duration": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "autoFinishByAction": false,
+                    "useTimeDilationDt": false
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [
+        "CreateTimedMarker",
+        "DamageAction",
+        "SpawnAbilityEntity"
+      ],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "actionIndex": 3,
+          "actionType": "SpawnAbilityEntity",
+          "sourceId": "abilityentity_chr_0032_lizhiyan_combo_skill_place",
+          "classification": "nonCombatAbilityEntity",
+          "targetSource": "",
+          "targetGroupKey": "",
+          "count": null,
+          "buffSource": null,
+          "inheritSourceSkillCastInfo": null,
+          "blackboardAssignments": {},
+          "nestedCombatActions": [],
+          "buffSourceContextKey": null,
+          "sequenceIndex": 0,
+          "autoFinishByAction": null
+        }
+      ],
+      "targetGroupWrites": [
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "actionIndex": 2,
+          "actionPath": [
+            "timelineActions[0]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "mainchar",
+          "producerType": "FindTargetAction",
+          "finderType": "CharacterTeamFinder",
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [
+            "MainCharacterValidator"
+          ],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
+        },
+        {
+          "startFrame": 2,
+          "endFrame": 4,
+          "actionIndex": 14,
+          "actionPath": [
+            "timelineActions[11]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Ally",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 7,
+          "actionIndex": 15,
+          "actionPath": [
+            "timelineActions[12]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Ally",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
+        },
+        {
+          "startFrame": 8,
+          "endFrame": 10,
+          "actionIndex": 16,
+          "actionPath": [
+            "timelineActions[13]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Ally",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
+        },
+        {
+          "startFrame": 11,
+          "endFrame": 13,
+          "actionIndex": 17,
+          "actionPath": [
+            "timelineActions[14]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Ally",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
+        },
+        {
+          "startFrame": 17,
+          "endFrame": 21,
+          "actionIndex": 30,
+          "actionPath": [
+            "timelineActions[19]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "tar",
+          "producerType": "FindTargetAction",
+          "finderType": "HitBoxFinder",
+          "finderFactionTarget": "Ally",
+          "finderTargetObjectType": "Normal",
+          "finderCheckAlive": true,
+          "validatorTypes": [],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
+        },
+        {
+          "startFrame": 11,
+          "endFrame": 14,
+          "actionIndex": 36,
+          "actionPath": [
+            "timelineActions[21]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "bunshin",
+          "producerType": "FindTargetAction",
+          "finderType": "OwnerSpawnedEntityFinder",
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [
+            "TagValidator",
+            "SkillCastIdValidator"
+          ],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null,
+          "finderSpawnedObjectType": "AbilityEntity",
+          "validatorTagQueries": [
+            [
+              "HasAny",
+              [
+                -1480463572
+              ]
+            ]
+          ],
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
+        },
+        {
+          "startFrame": 18,
+          "endFrame": 21,
+          "actionIndex": 38,
+          "actionPath": [
+            "timelineActions[22]",
+            "_sequenceActionData",
+            "actionData",
+            "[0]"
+          ],
+          "targetGroupKey": "bunshin",
+          "producerType": "FindTargetAction",
+          "finderType": "OwnerSpawnedEntityFinder",
+          "finderFactionTarget": null,
+          "finderTargetObjectType": null,
+          "finderCheckAlive": null,
+          "validatorTypes": [
+            "TagValidator",
+            "SkillCastIdValidator"
+          ],
+          "postProcessorTypes": [],
+          "inputTargets": [],
+          "intervalSeconds": null,
+          "finderSpawnedObjectType": "AbilityEntity",
+          "validatorTagQueries": [
+            [
+              "HasAny",
+              [
+                -1480463572
+              ]
+            ]
+          ],
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
+        }
+      ],
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
@@ -4647,6 +5615,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [
         {
           "spawnFrame": 0,
@@ -8054,6 +9023,7 @@ export const arcaneGeneratedSource = {
       ],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [
         {
@@ -8314,6 +9284,237 @@ export const arcaneGeneratedSource = {
       "presentationOnlySwitchActionIndexes": []
     },
     {
+      "buffId": "buff_chr_0032_lizhiyan_combo_skill_spell_vulnerable",
+      "sourceFile": "buff_chr_0032_lizhiyan_combo_skill_spell_vulnerable.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 12.0,
+          "blackboardKey": "duration_vul",
+          "levelValues": [
+            6.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Stack",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": [
+          "EffectAction"
+        ]
+      },
+      "blackboard": [
+        {
+          "key": "atk_scale_calc",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale_laser1",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale_laser2",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "cd_reduce",
+          "value": 7.0,
+          "isDynamic": false
+        },
+        {
+          "key": "duration_vul",
+          "value": 6.0,
+          "isDynamic": false
+        },
+        {
+          "key": "isWisd",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "poise_final",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "rate",
+          "value": 0.2,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [
+        {
+          "enabledSide": "Defender",
+          "targetSource": "Owner",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [],
+          "processors": [
+            {
+              "side": "Defender",
+              "zone": "VulnerableDmgIncreace",
+              "addition": {
+                "value": 0.0,
+                "blackboardKey": "rate",
+                "levelValues": [
+                  0.2
+                ]
+              }
+            }
+          ],
+          "tagConditions": [],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "damageTypes": [
+            "nature"
+          ],
+          "numberComparisons": [],
+          "healthComparisons": [],
+          "buffCountComparisons": []
+        },
+        {
+          "enabledSide": "Defender",
+          "targetSource": "Owner",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [],
+          "processors": [
+            {
+              "side": "Defender",
+              "zone": "VulnerableDmgIncreace",
+              "addition": {
+                "value": 0.0,
+                "blackboardKey": "rate",
+                "levelValues": [
+                  0.2
+                ]
+              }
+            }
+          ],
+          "tagConditions": [],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "damageTypes": [
+            "cryo"
+          ],
+          "numberComparisons": [],
+          "healthComparisons": [],
+          "buffCountComparisons": []
+        }
+      ],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "VulnerableAction",
+            "VulnerableAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "VulnerableAction",
+                "VulnerableAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        },
+        {
+          "eventSource": "ability",
+          "event": "OnOwnerHpZero",
+          "orderedActionTypes": [],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_spell_vulnerable_pre",
       "sourceFile": "buff_chr_0032_lizhiyan_combo_skill_spell_vulnerable_pre.json",
       "sourceAvailable": true,
@@ -8489,6 +9690,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -8787,6 +9989,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -8891,6 +10094,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -8999,6 +10203,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -9183,6 +10388,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -9476,6 +10682,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -9578,6 +10785,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -10099,7 +11307,16 @@ export const arcaneGeneratedSource = {
                                   "validatorTypes": [
                                     "TagValidator"
                                   ],
-                                  "postProcessorTypes": []
+                                  "postProcessorTypes": [],
+                                  "finderSpawnedObjectType": "AbilityEntity",
+                                  "validatorTagQueries": [
+                                    [
+                                      "HasAny",
+                                      [
+                                        464088014
+                                      ]
+                                    ]
+                                  ]
                                 },
                                 "distance": 60.0,
                                 "lessThan": true,
@@ -10482,7 +11699,16 @@ export const arcaneGeneratedSource = {
                                   "validatorTypes": [
                                     "TagValidator"
                                   ],
-                                  "postProcessorTypes": []
+                                  "postProcessorTypes": [],
+                                  "finderSpawnedObjectType": "AbilityEntity",
+                                  "validatorTagQueries": [
+                                    [
+                                      "HasAny",
+                                      [
+                                        464088014
+                                      ]
+                                    ]
+                                  ]
                                 },
                                 "distance": 60.0,
                                 "lessThan": true,
@@ -11339,6 +12565,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -11531,6 +12758,1572 @@ export const arcaneGeneratedSource = {
       ],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [
+        {
+          "spawnFrame": 0,
+          "actionOrder": [
+            12
+          ],
+          "abilityEntityId": "abilityentity_chr_0032_lizhiyan_ultimate_skill_laser",
+          "skillId": "chr_0032_lizhiyan_ultimate_skill_laser",
+          "sourceFile": "chr_0032_lizhiyan_ultimate_skill_laser.json",
+          "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0032_lizhiyan_ultimate_skill_laser",
+            "skillId": "chr_0032_lizhiyan_ultimate_skill_laser",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Owner",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
+          "directDamageHits": [
+            {
+              "startFrame": 12,
+              "endFrame": 28,
+              "actionIndex": 6,
+              "damageUnits": [
+                {
+                  "damageType": "Natural",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.9,
+                    "blackboardKey": "atk_scale_laser",
+                    "levelValues": [
+                      10.0
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null,
+                  "definiteValue": null,
+                  "damageDecorateMask": 4608
+                }
+              ],
+              "timedMarkerGate": null,
+              "sequenceIndex": 2
+            }
+          ],
+          "intervalDamageHits": [],
+          "explicitFinishes": [],
+          "timelineJumps": [],
+          "conditionalActions": [
+            {
+              "startFrame": 13,
+              "endFrame": 45,
+              "actionIndex": 10,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckTimedMarkerCondition",
+                  "supported": true,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "targetAngle": null,
+                  "timedMarker": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_ult_laser_hit1",
+                    "blackboardKey": "",
+                    "useBlackboardKey": false,
+                    "returnTrueIfNotExists": true
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "CreateTimedMarker",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[4]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 12,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "timedMarkerApplication": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_ult_laser_hit1",
+                    "duration": {
+                      "value": 0.8,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "autoFinishByAction": false,
+                    "useTimeDilationDt": false
+                  }
+                }
+              ],
+              "failActions": [
+                {
+                  "actionType": "IfElseAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[4]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 14,
+                  "nestedCondition": {
+                    "startFrame": 13,
+                    "endFrame": 45,
+                    "actionIndex": 14,
+                    "actionPath": [
+                      "timelineActions[4]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckTimedMarkerCondition",
+                        "supported": true,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "timedMarker": {
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "markerId": "lizhiyan_ult_laser_hit2",
+                          "blackboardKey": "",
+                          "useBlackboardKey": false,
+                          "returnTrueIfNotExists": true
+                        },
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CreateTimedMarker",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[4]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 16,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
+                        "timedMarkerApplication": {
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "markerId": "lizhiyan_ult_laser_hit2",
+                          "duration": {
+                            "value": 0.8,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "autoFinishByAction": false,
+                          "useTimeDilationDt": false
+                        }
+                      }
+                    ],
+                    "failActions": [
+                      {
+                        "actionType": "IfElseAction",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[4]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 18,
+                        "nestedCondition": {
+                          "startFrame": 13,
+                          "endFrame": 45,
+                          "actionIndex": 18,
+                          "actionPath": [
+                            "timelineActions[4]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "CheckTimedMarkerCondition",
+                              "supported": true,
+                              "comparison": null,
+                              "left": null,
+                              "right": null,
+                              "skillTypes": [],
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
+                              "targetAngle": null,
+                              "timedMarker": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "markerId": "lizhiyan_ult_laser_hit3",
+                                "blackboardKey": "",
+                                "useBlackboardKey": false,
+                                "returnTrueIfNotExists": true
+                              },
+                              "damageDecorateMask": null,
+                              "contextBuffId": null,
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "CreateTimedMarker",
+                              "actionIndex": 0,
+                              "actionPath": [
+                                "timelineActions[4]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "failActions",
+                                "actionData",
+                                "[0]",
+                                "failActions",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[0]"
+                              ],
+                              "serverActionIndex": 20,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
+                              "timedMarkerApplication": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "markerId": "lizhiyan_ult_laser_hit3",
+                                "duration": {
+                                  "value": 0.8,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "autoFinishByAction": false,
+                                "useTimeDilationDt": false
+                              }
+                            }
+                          ],
+                          "failActions": [],
+                          "conditionNegated": [
+                            false
+                          ],
+                          "alwaysNext": true
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      }
+                    ],
+                    "conditionNegated": [
+                      false
+                    ],
+                    "alwaysNext": true
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "conditionNegated": [
+                false
+              ],
+              "alwaysNext": true
+            }
+          ],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileTriggeredSkills": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "CreateTimedMarker",
+            "DamageAction",
+            "IfElseAction"
+          ],
+          "cycleTruncated": false,
+          "inheritsSourceBlackboard": true,
+          "declaredBlackboard": [
+            {
+              "key": "atk_scale_laser",
+              "value": 1.0,
+              "isDynamic": false
+            },
+            {
+              "key": "duration",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "radius",
+              "value": 5.67,
+              "isDynamic": false
+            }
+          ],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
+        },
+        {
+          "spawnFrame": 4,
+          "actionOrder": [
+            13
+          ],
+          "abilityEntityId": "abilityentity_chr_0032_lizhiyan_ultimate_skill_laser",
+          "skillId": "chr_0032_lizhiyan_ultimate_skill_laser",
+          "sourceFile": "chr_0032_lizhiyan_ultimate_skill_laser.json",
+          "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0032_lizhiyan_ultimate_skill_laser",
+            "skillId": "chr_0032_lizhiyan_ultimate_skill_laser",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Owner",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
+          "directDamageHits": [
+            {
+              "startFrame": 12,
+              "endFrame": 28,
+              "actionIndex": 6,
+              "damageUnits": [
+                {
+                  "damageType": "Natural",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.9,
+                    "blackboardKey": "atk_scale_laser",
+                    "levelValues": [
+                      10.0
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null,
+                  "definiteValue": null,
+                  "damageDecorateMask": 4608
+                }
+              ],
+              "timedMarkerGate": null,
+              "sequenceIndex": 2
+            }
+          ],
+          "intervalDamageHits": [],
+          "explicitFinishes": [],
+          "timelineJumps": [],
+          "conditionalActions": [
+            {
+              "startFrame": 13,
+              "endFrame": 45,
+              "actionIndex": 10,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckTimedMarkerCondition",
+                  "supported": true,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "targetAngle": null,
+                  "timedMarker": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_ult_laser_hit1",
+                    "blackboardKey": "",
+                    "useBlackboardKey": false,
+                    "returnTrueIfNotExists": true
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "CreateTimedMarker",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[4]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 12,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "timedMarkerApplication": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_ult_laser_hit1",
+                    "duration": {
+                      "value": 0.8,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "autoFinishByAction": false,
+                    "useTimeDilationDt": false
+                  }
+                }
+              ],
+              "failActions": [
+                {
+                  "actionType": "IfElseAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[4]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 14,
+                  "nestedCondition": {
+                    "startFrame": 13,
+                    "endFrame": 45,
+                    "actionIndex": 14,
+                    "actionPath": [
+                      "timelineActions[4]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckTimedMarkerCondition",
+                        "supported": true,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "timedMarker": {
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "markerId": "lizhiyan_ult_laser_hit2",
+                          "blackboardKey": "",
+                          "useBlackboardKey": false,
+                          "returnTrueIfNotExists": true
+                        },
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CreateTimedMarker",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[4]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 16,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
+                        "timedMarkerApplication": {
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "markerId": "lizhiyan_ult_laser_hit2",
+                          "duration": {
+                            "value": 0.8,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "autoFinishByAction": false,
+                          "useTimeDilationDt": false
+                        }
+                      }
+                    ],
+                    "failActions": [
+                      {
+                        "actionType": "IfElseAction",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[4]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 18,
+                        "nestedCondition": {
+                          "startFrame": 13,
+                          "endFrame": 45,
+                          "actionIndex": 18,
+                          "actionPath": [
+                            "timelineActions[4]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "CheckTimedMarkerCondition",
+                              "supported": true,
+                              "comparison": null,
+                              "left": null,
+                              "right": null,
+                              "skillTypes": [],
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
+                              "targetAngle": null,
+                              "timedMarker": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "markerId": "lizhiyan_ult_laser_hit3",
+                                "blackboardKey": "",
+                                "useBlackboardKey": false,
+                                "returnTrueIfNotExists": true
+                              },
+                              "damageDecorateMask": null,
+                              "contextBuffId": null,
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "CreateTimedMarker",
+                              "actionIndex": 0,
+                              "actionPath": [
+                                "timelineActions[4]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "failActions",
+                                "actionData",
+                                "[0]",
+                                "failActions",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[0]"
+                              ],
+                              "serverActionIndex": 20,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
+                              "timedMarkerApplication": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "markerId": "lizhiyan_ult_laser_hit3",
+                                "duration": {
+                                  "value": 0.8,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "autoFinishByAction": false,
+                                "useTimeDilationDt": false
+                              }
+                            }
+                          ],
+                          "failActions": [],
+                          "conditionNegated": [
+                            false
+                          ],
+                          "alwaysNext": true
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      }
+                    ],
+                    "conditionNegated": [
+                      false
+                    ],
+                    "alwaysNext": true
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "conditionNegated": [
+                false
+              ],
+              "alwaysNext": true
+            }
+          ],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileTriggeredSkills": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "CreateTimedMarker",
+            "DamageAction",
+            "IfElseAction"
+          ],
+          "cycleTruncated": false,
+          "inheritsSourceBlackboard": true,
+          "declaredBlackboard": [
+            {
+              "key": "atk_scale_laser",
+              "value": 1.0,
+              "isDynamic": false
+            },
+            {
+              "key": "duration",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "radius",
+              "value": 5.67,
+              "isDynamic": false
+            }
+          ],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
+        },
+        {
+          "spawnFrame": 8,
+          "actionOrder": [
+            14
+          ],
+          "abilityEntityId": "abilityentity_chr_0032_lizhiyan_ultimate_skill_laser",
+          "skillId": "chr_0032_lizhiyan_ultimate_skill_laser",
+          "sourceFile": "chr_0032_lizhiyan_ultimate_skill_laser.json",
+          "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0032_lizhiyan_ultimate_skill_laser",
+            "skillId": "chr_0032_lizhiyan_ultimate_skill_laser",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Owner",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
+          "directDamageHits": [
+            {
+              "startFrame": 12,
+              "endFrame": 28,
+              "actionIndex": 6,
+              "damageUnits": [
+                {
+                  "damageType": "Natural",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.9,
+                    "blackboardKey": "atk_scale_laser",
+                    "levelValues": [
+                      10.0
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null,
+                  "definiteValue": null,
+                  "damageDecorateMask": 4608
+                }
+              ],
+              "timedMarkerGate": null,
+              "sequenceIndex": 2
+            }
+          ],
+          "intervalDamageHits": [],
+          "explicitFinishes": [],
+          "timelineJumps": [],
+          "conditionalActions": [
+            {
+              "startFrame": 13,
+              "endFrame": 45,
+              "actionIndex": 10,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckTimedMarkerCondition",
+                  "supported": true,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "targetAngle": null,
+                  "timedMarker": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_ult_laser_hit1",
+                    "blackboardKey": "",
+                    "useBlackboardKey": false,
+                    "returnTrueIfNotExists": true
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "CreateTimedMarker",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[4]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 12,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "timedMarkerApplication": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_ult_laser_hit1",
+                    "duration": {
+                      "value": 0.8,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "autoFinishByAction": false,
+                    "useTimeDilationDt": false
+                  }
+                }
+              ],
+              "failActions": [
+                {
+                  "actionType": "IfElseAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[4]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 14,
+                  "nestedCondition": {
+                    "startFrame": 13,
+                    "endFrame": 45,
+                    "actionIndex": 14,
+                    "actionPath": [
+                      "timelineActions[4]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckTimedMarkerCondition",
+                        "supported": true,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "timedMarker": {
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "markerId": "lizhiyan_ult_laser_hit2",
+                          "blackboardKey": "",
+                          "useBlackboardKey": false,
+                          "returnTrueIfNotExists": true
+                        },
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CreateTimedMarker",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[4]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 16,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
+                        "timedMarkerApplication": {
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "markerId": "lizhiyan_ult_laser_hit2",
+                          "duration": {
+                            "value": 0.8,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "autoFinishByAction": false,
+                          "useTimeDilationDt": false
+                        }
+                      }
+                    ],
+                    "failActions": [
+                      {
+                        "actionType": "IfElseAction",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[4]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 18,
+                        "nestedCondition": {
+                          "startFrame": 13,
+                          "endFrame": 45,
+                          "actionIndex": 18,
+                          "actionPath": [
+                            "timelineActions[4]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "CheckTimedMarkerCondition",
+                              "supported": true,
+                              "comparison": null,
+                              "left": null,
+                              "right": null,
+                              "skillTypes": [],
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
+                              "targetAngle": null,
+                              "timedMarker": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "markerId": "lizhiyan_ult_laser_hit3",
+                                "blackboardKey": "",
+                                "useBlackboardKey": false,
+                                "returnTrueIfNotExists": true
+                              },
+                              "damageDecorateMask": null,
+                              "contextBuffId": null,
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "CreateTimedMarker",
+                              "actionIndex": 0,
+                              "actionPath": [
+                                "timelineActions[4]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "failActions",
+                                "actionData",
+                                "[0]",
+                                "failActions",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[0]"
+                              ],
+                              "serverActionIndex": 20,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
+                              "timedMarkerApplication": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "markerId": "lizhiyan_ult_laser_hit3",
+                                "duration": {
+                                  "value": 0.8,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "autoFinishByAction": false,
+                                "useTimeDilationDt": false
+                              }
+                            }
+                          ],
+                          "failActions": [],
+                          "conditionNegated": [
+                            false
+                          ],
+                          "alwaysNext": true
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      }
+                    ],
+                    "conditionNegated": [
+                      false
+                    ],
+                    "alwaysNext": true
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "conditionNegated": [
+                false
+              ],
+              "alwaysNext": true
+            }
+          ],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileTriggeredSkills": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "CreateTimedMarker",
+            "DamageAction",
+            "IfElseAction"
+          ],
+          "cycleTruncated": false,
+          "inheritsSourceBlackboard": true,
+          "declaredBlackboard": [
+            {
+              "key": "atk_scale_laser",
+              "value": 1.0,
+              "isDynamic": false
+            },
+            {
+              "key": "duration",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "radius",
+              "value": 5.67,
+              "isDynamic": false
+            }
+          ],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
+        },
+        {
+          "spawnFrame": 12,
+          "actionOrder": [
+            15
+          ],
+          "abilityEntityId": "abilityentity_chr_0032_lizhiyan_ultimate_skill_laser",
+          "skillId": "chr_0032_lizhiyan_ultimate_skill_laser",
+          "sourceFile": "chr_0032_lizhiyan_ultimate_skill_laser.json",
+          "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0032_lizhiyan_ultimate_skill_laser",
+            "skillId": "chr_0032_lizhiyan_ultimate_skill_laser",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Owner",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
+          "directDamageHits": [
+            {
+              "startFrame": 12,
+              "endFrame": 28,
+              "actionIndex": 6,
+              "damageUnits": [
+                {
+                  "damageType": "Natural",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.9,
+                    "blackboardKey": "atk_scale_laser",
+                    "levelValues": [
+                      10.0
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null,
+                  "definiteValue": null,
+                  "damageDecorateMask": 4608
+                }
+              ],
+              "timedMarkerGate": null,
+              "sequenceIndex": 2
+            }
+          ],
+          "intervalDamageHits": [],
+          "explicitFinishes": [],
+          "timelineJumps": [],
+          "conditionalActions": [
+            {
+              "startFrame": 13,
+              "endFrame": 45,
+              "actionIndex": 10,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckTimedMarkerCondition",
+                  "supported": true,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "targetAngle": null,
+                  "timedMarker": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_ult_laser_hit1",
+                    "blackboardKey": "",
+                    "useBlackboardKey": false,
+                    "returnTrueIfNotExists": true
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "CreateTimedMarker",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[4]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 12,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "timedMarkerApplication": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_ult_laser_hit1",
+                    "duration": {
+                      "value": 0.8,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "autoFinishByAction": false,
+                    "useTimeDilationDt": false
+                  }
+                }
+              ],
+              "failActions": [
+                {
+                  "actionType": "IfElseAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[4]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 14,
+                  "nestedCondition": {
+                    "startFrame": 13,
+                    "endFrame": 45,
+                    "actionIndex": 14,
+                    "actionPath": [
+                      "timelineActions[4]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckTimedMarkerCondition",
+                        "supported": true,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "timedMarker": {
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "markerId": "lizhiyan_ult_laser_hit2",
+                          "blackboardKey": "",
+                          "useBlackboardKey": false,
+                          "returnTrueIfNotExists": true
+                        },
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CreateTimedMarker",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[4]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 16,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
+                        "timedMarkerApplication": {
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "markerId": "lizhiyan_ult_laser_hit2",
+                          "duration": {
+                            "value": 0.8,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "autoFinishByAction": false,
+                          "useTimeDilationDt": false
+                        }
+                      }
+                    ],
+                    "failActions": [
+                      {
+                        "actionType": "IfElseAction",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[4]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 18,
+                        "nestedCondition": {
+                          "startFrame": 13,
+                          "endFrame": 45,
+                          "actionIndex": 18,
+                          "actionPath": [
+                            "timelineActions[4]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "CheckTimedMarkerCondition",
+                              "supported": true,
+                              "comparison": null,
+                              "left": null,
+                              "right": null,
+                              "skillTypes": [],
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
+                              "targetAngle": null,
+                              "timedMarker": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "markerId": "lizhiyan_ult_laser_hit3",
+                                "blackboardKey": "",
+                                "useBlackboardKey": false,
+                                "returnTrueIfNotExists": true
+                              },
+                              "damageDecorateMask": null,
+                              "contextBuffId": null,
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "CreateTimedMarker",
+                              "actionIndex": 0,
+                              "actionPath": [
+                                "timelineActions[4]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "failActions",
+                                "actionData",
+                                "[0]",
+                                "failActions",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[0]"
+                              ],
+                              "serverActionIndex": 20,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
+                              "timedMarkerApplication": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "markerId": "lizhiyan_ult_laser_hit3",
+                                "duration": {
+                                  "value": 0.8,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "autoFinishByAction": false,
+                                "useTimeDilationDt": false
+                              }
+                            }
+                          ],
+                          "failActions": [],
+                          "conditionNegated": [
+                            false
+                          ],
+                          "alwaysNext": true
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      }
+                    ],
+                    "conditionNegated": [
+                      false
+                    ],
+                    "alwaysNext": true
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "conditionNegated": [
+                false
+              ],
+              "alwaysNext": true
+            }
+          ],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileTriggeredSkills": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "CreateTimedMarker",
+            "DamageAction",
+            "IfElseAction"
+          ],
+          "cycleTruncated": false,
+          "inheritsSourceBlackboard": true,
+          "declaredBlackboard": [
+            {
+              "key": "atk_scale_laser",
+              "value": 1.0,
+              "isDynamic": false
+            },
+            {
+              "key": "duration",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "radius",
+              "value": 5.67,
+              "isDynamic": false
+            }
+          ],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
+        }
+      ],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [
         {
@@ -11677,7 +14470,16 @@ export const arcaneGeneratedSource = {
             "validatorTypes": [
               "TagValidator"
             ],
-            "postProcessorTypes": []
+            "postProcessorTypes": [],
+            "finderSpawnedObjectType": "AbilityEntity",
+            "validatorTagQueries": [
+              [
+                "HasAny",
+                [
+                  464088014
+                ]
+              ]
+            ]
           },
           "pickIndexValue": null,
           "pickIndexBlackboardKey": null
@@ -12157,6 +14959,1572 @@ export const arcaneGeneratedSource = {
       ],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [
+        {
+          "spawnFrame": 0,
+          "actionOrder": [
+            12
+          ],
+          "abilityEntityId": "abilityentity_chr_0032_lizhiyan_ultimate_skill_laser",
+          "skillId": "chr_0032_lizhiyan_ultimate_skill_laser",
+          "sourceFile": "chr_0032_lizhiyan_ultimate_skill_laser.json",
+          "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0032_lizhiyan_ultimate_skill_laser",
+            "skillId": "chr_0032_lizhiyan_ultimate_skill_laser",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Owner",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
+          "directDamageHits": [
+            {
+              "startFrame": 12,
+              "endFrame": 28,
+              "actionIndex": 6,
+              "damageUnits": [
+                {
+                  "damageType": "Natural",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.9,
+                    "blackboardKey": "atk_scale_laser",
+                    "levelValues": [
+                      10.0
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null,
+                  "definiteValue": null,
+                  "damageDecorateMask": 4608
+                }
+              ],
+              "timedMarkerGate": null,
+              "sequenceIndex": 2
+            }
+          ],
+          "intervalDamageHits": [],
+          "explicitFinishes": [],
+          "timelineJumps": [],
+          "conditionalActions": [
+            {
+              "startFrame": 13,
+              "endFrame": 45,
+              "actionIndex": 10,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckTimedMarkerCondition",
+                  "supported": true,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "targetAngle": null,
+                  "timedMarker": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_ult_laser_hit1",
+                    "blackboardKey": "",
+                    "useBlackboardKey": false,
+                    "returnTrueIfNotExists": true
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "CreateTimedMarker",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[4]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 12,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "timedMarkerApplication": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_ult_laser_hit1",
+                    "duration": {
+                      "value": 0.8,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "autoFinishByAction": false,
+                    "useTimeDilationDt": false
+                  }
+                }
+              ],
+              "failActions": [
+                {
+                  "actionType": "IfElseAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[4]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 14,
+                  "nestedCondition": {
+                    "startFrame": 13,
+                    "endFrame": 45,
+                    "actionIndex": 14,
+                    "actionPath": [
+                      "timelineActions[4]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckTimedMarkerCondition",
+                        "supported": true,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "timedMarker": {
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "markerId": "lizhiyan_ult_laser_hit2",
+                          "blackboardKey": "",
+                          "useBlackboardKey": false,
+                          "returnTrueIfNotExists": true
+                        },
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CreateTimedMarker",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[4]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 16,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
+                        "timedMarkerApplication": {
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "markerId": "lizhiyan_ult_laser_hit2",
+                          "duration": {
+                            "value": 0.8,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "autoFinishByAction": false,
+                          "useTimeDilationDt": false
+                        }
+                      }
+                    ],
+                    "failActions": [
+                      {
+                        "actionType": "IfElseAction",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[4]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 18,
+                        "nestedCondition": {
+                          "startFrame": 13,
+                          "endFrame": 45,
+                          "actionIndex": 18,
+                          "actionPath": [
+                            "timelineActions[4]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "CheckTimedMarkerCondition",
+                              "supported": true,
+                              "comparison": null,
+                              "left": null,
+                              "right": null,
+                              "skillTypes": [],
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
+                              "targetAngle": null,
+                              "timedMarker": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "markerId": "lizhiyan_ult_laser_hit3",
+                                "blackboardKey": "",
+                                "useBlackboardKey": false,
+                                "returnTrueIfNotExists": true
+                              },
+                              "damageDecorateMask": null,
+                              "contextBuffId": null,
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "CreateTimedMarker",
+                              "actionIndex": 0,
+                              "actionPath": [
+                                "timelineActions[4]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "failActions",
+                                "actionData",
+                                "[0]",
+                                "failActions",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[0]"
+                              ],
+                              "serverActionIndex": 20,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
+                              "timedMarkerApplication": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "markerId": "lizhiyan_ult_laser_hit3",
+                                "duration": {
+                                  "value": 0.8,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "autoFinishByAction": false,
+                                "useTimeDilationDt": false
+                              }
+                            }
+                          ],
+                          "failActions": [],
+                          "conditionNegated": [
+                            false
+                          ],
+                          "alwaysNext": true
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      }
+                    ],
+                    "conditionNegated": [
+                      false
+                    ],
+                    "alwaysNext": true
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "conditionNegated": [
+                false
+              ],
+              "alwaysNext": true
+            }
+          ],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileTriggeredSkills": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "CreateTimedMarker",
+            "DamageAction",
+            "IfElseAction"
+          ],
+          "cycleTruncated": false,
+          "inheritsSourceBlackboard": true,
+          "declaredBlackboard": [
+            {
+              "key": "atk_scale_laser",
+              "value": 1.0,
+              "isDynamic": false
+            },
+            {
+              "key": "duration",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "radius",
+              "value": 5.67,
+              "isDynamic": false
+            }
+          ],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
+        },
+        {
+          "spawnFrame": 4,
+          "actionOrder": [
+            13
+          ],
+          "abilityEntityId": "abilityentity_chr_0032_lizhiyan_ultimate_skill_laser",
+          "skillId": "chr_0032_lizhiyan_ultimate_skill_laser",
+          "sourceFile": "chr_0032_lizhiyan_ultimate_skill_laser.json",
+          "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0032_lizhiyan_ultimate_skill_laser",
+            "skillId": "chr_0032_lizhiyan_ultimate_skill_laser",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Owner",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
+          "directDamageHits": [
+            {
+              "startFrame": 12,
+              "endFrame": 28,
+              "actionIndex": 6,
+              "damageUnits": [
+                {
+                  "damageType": "Natural",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.9,
+                    "blackboardKey": "atk_scale_laser",
+                    "levelValues": [
+                      10.0
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null,
+                  "definiteValue": null,
+                  "damageDecorateMask": 4608
+                }
+              ],
+              "timedMarkerGate": null,
+              "sequenceIndex": 2
+            }
+          ],
+          "intervalDamageHits": [],
+          "explicitFinishes": [],
+          "timelineJumps": [],
+          "conditionalActions": [
+            {
+              "startFrame": 13,
+              "endFrame": 45,
+              "actionIndex": 10,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckTimedMarkerCondition",
+                  "supported": true,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "targetAngle": null,
+                  "timedMarker": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_ult_laser_hit1",
+                    "blackboardKey": "",
+                    "useBlackboardKey": false,
+                    "returnTrueIfNotExists": true
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "CreateTimedMarker",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[4]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 12,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "timedMarkerApplication": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_ult_laser_hit1",
+                    "duration": {
+                      "value": 0.8,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "autoFinishByAction": false,
+                    "useTimeDilationDt": false
+                  }
+                }
+              ],
+              "failActions": [
+                {
+                  "actionType": "IfElseAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[4]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 14,
+                  "nestedCondition": {
+                    "startFrame": 13,
+                    "endFrame": 45,
+                    "actionIndex": 14,
+                    "actionPath": [
+                      "timelineActions[4]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckTimedMarkerCondition",
+                        "supported": true,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "timedMarker": {
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "markerId": "lizhiyan_ult_laser_hit2",
+                          "blackboardKey": "",
+                          "useBlackboardKey": false,
+                          "returnTrueIfNotExists": true
+                        },
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CreateTimedMarker",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[4]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 16,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
+                        "timedMarkerApplication": {
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "markerId": "lizhiyan_ult_laser_hit2",
+                          "duration": {
+                            "value": 0.8,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "autoFinishByAction": false,
+                          "useTimeDilationDt": false
+                        }
+                      }
+                    ],
+                    "failActions": [
+                      {
+                        "actionType": "IfElseAction",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[4]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 18,
+                        "nestedCondition": {
+                          "startFrame": 13,
+                          "endFrame": 45,
+                          "actionIndex": 18,
+                          "actionPath": [
+                            "timelineActions[4]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "CheckTimedMarkerCondition",
+                              "supported": true,
+                              "comparison": null,
+                              "left": null,
+                              "right": null,
+                              "skillTypes": [],
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
+                              "targetAngle": null,
+                              "timedMarker": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "markerId": "lizhiyan_ult_laser_hit3",
+                                "blackboardKey": "",
+                                "useBlackboardKey": false,
+                                "returnTrueIfNotExists": true
+                              },
+                              "damageDecorateMask": null,
+                              "contextBuffId": null,
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "CreateTimedMarker",
+                              "actionIndex": 0,
+                              "actionPath": [
+                                "timelineActions[4]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "failActions",
+                                "actionData",
+                                "[0]",
+                                "failActions",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[0]"
+                              ],
+                              "serverActionIndex": 20,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
+                              "timedMarkerApplication": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "markerId": "lizhiyan_ult_laser_hit3",
+                                "duration": {
+                                  "value": 0.8,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "autoFinishByAction": false,
+                                "useTimeDilationDt": false
+                              }
+                            }
+                          ],
+                          "failActions": [],
+                          "conditionNegated": [
+                            false
+                          ],
+                          "alwaysNext": true
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      }
+                    ],
+                    "conditionNegated": [
+                      false
+                    ],
+                    "alwaysNext": true
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "conditionNegated": [
+                false
+              ],
+              "alwaysNext": true
+            }
+          ],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileTriggeredSkills": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "CreateTimedMarker",
+            "DamageAction",
+            "IfElseAction"
+          ],
+          "cycleTruncated": false,
+          "inheritsSourceBlackboard": true,
+          "declaredBlackboard": [
+            {
+              "key": "atk_scale_laser",
+              "value": 1.0,
+              "isDynamic": false
+            },
+            {
+              "key": "duration",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "radius",
+              "value": 5.67,
+              "isDynamic": false
+            }
+          ],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
+        },
+        {
+          "spawnFrame": 8,
+          "actionOrder": [
+            14
+          ],
+          "abilityEntityId": "abilityentity_chr_0032_lizhiyan_ultimate_skill_laser",
+          "skillId": "chr_0032_lizhiyan_ultimate_skill_laser",
+          "sourceFile": "chr_0032_lizhiyan_ultimate_skill_laser.json",
+          "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0032_lizhiyan_ultimate_skill_laser",
+            "skillId": "chr_0032_lizhiyan_ultimate_skill_laser",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Owner",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
+          "directDamageHits": [
+            {
+              "startFrame": 12,
+              "endFrame": 28,
+              "actionIndex": 6,
+              "damageUnits": [
+                {
+                  "damageType": "Natural",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.9,
+                    "blackboardKey": "atk_scale_laser",
+                    "levelValues": [
+                      10.0
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null,
+                  "definiteValue": null,
+                  "damageDecorateMask": 4608
+                }
+              ],
+              "timedMarkerGate": null,
+              "sequenceIndex": 2
+            }
+          ],
+          "intervalDamageHits": [],
+          "explicitFinishes": [],
+          "timelineJumps": [],
+          "conditionalActions": [
+            {
+              "startFrame": 13,
+              "endFrame": 45,
+              "actionIndex": 10,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckTimedMarkerCondition",
+                  "supported": true,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "targetAngle": null,
+                  "timedMarker": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_ult_laser_hit1",
+                    "blackboardKey": "",
+                    "useBlackboardKey": false,
+                    "returnTrueIfNotExists": true
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "CreateTimedMarker",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[4]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 12,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "timedMarkerApplication": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_ult_laser_hit1",
+                    "duration": {
+                      "value": 0.8,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "autoFinishByAction": false,
+                    "useTimeDilationDt": false
+                  }
+                }
+              ],
+              "failActions": [
+                {
+                  "actionType": "IfElseAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[4]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 14,
+                  "nestedCondition": {
+                    "startFrame": 13,
+                    "endFrame": 45,
+                    "actionIndex": 14,
+                    "actionPath": [
+                      "timelineActions[4]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckTimedMarkerCondition",
+                        "supported": true,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "timedMarker": {
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "markerId": "lizhiyan_ult_laser_hit2",
+                          "blackboardKey": "",
+                          "useBlackboardKey": false,
+                          "returnTrueIfNotExists": true
+                        },
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CreateTimedMarker",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[4]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 16,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
+                        "timedMarkerApplication": {
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "markerId": "lizhiyan_ult_laser_hit2",
+                          "duration": {
+                            "value": 0.8,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "autoFinishByAction": false,
+                          "useTimeDilationDt": false
+                        }
+                      }
+                    ],
+                    "failActions": [
+                      {
+                        "actionType": "IfElseAction",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[4]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 18,
+                        "nestedCondition": {
+                          "startFrame": 13,
+                          "endFrame": 45,
+                          "actionIndex": 18,
+                          "actionPath": [
+                            "timelineActions[4]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "CheckTimedMarkerCondition",
+                              "supported": true,
+                              "comparison": null,
+                              "left": null,
+                              "right": null,
+                              "skillTypes": [],
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
+                              "targetAngle": null,
+                              "timedMarker": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "markerId": "lizhiyan_ult_laser_hit3",
+                                "blackboardKey": "",
+                                "useBlackboardKey": false,
+                                "returnTrueIfNotExists": true
+                              },
+                              "damageDecorateMask": null,
+                              "contextBuffId": null,
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "CreateTimedMarker",
+                              "actionIndex": 0,
+                              "actionPath": [
+                                "timelineActions[4]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "failActions",
+                                "actionData",
+                                "[0]",
+                                "failActions",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[0]"
+                              ],
+                              "serverActionIndex": 20,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
+                              "timedMarkerApplication": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "markerId": "lizhiyan_ult_laser_hit3",
+                                "duration": {
+                                  "value": 0.8,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "autoFinishByAction": false,
+                                "useTimeDilationDt": false
+                              }
+                            }
+                          ],
+                          "failActions": [],
+                          "conditionNegated": [
+                            false
+                          ],
+                          "alwaysNext": true
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      }
+                    ],
+                    "conditionNegated": [
+                      false
+                    ],
+                    "alwaysNext": true
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "conditionNegated": [
+                false
+              ],
+              "alwaysNext": true
+            }
+          ],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileTriggeredSkills": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "CreateTimedMarker",
+            "DamageAction",
+            "IfElseAction"
+          ],
+          "cycleTruncated": false,
+          "inheritsSourceBlackboard": true,
+          "declaredBlackboard": [
+            {
+              "key": "atk_scale_laser",
+              "value": 1.0,
+              "isDynamic": false
+            },
+            {
+              "key": "duration",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "radius",
+              "value": 5.67,
+              "isDynamic": false
+            }
+          ],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
+        },
+        {
+          "spawnFrame": 12,
+          "actionOrder": [
+            15
+          ],
+          "abilityEntityId": "abilityentity_chr_0032_lizhiyan_ultimate_skill_laser",
+          "skillId": "chr_0032_lizhiyan_ultimate_skill_laser",
+          "sourceFile": "chr_0032_lizhiyan_ultimate_skill_laser.json",
+          "entityBlackboardAssignments": [],
+          "spawnPayload": {
+            "abilityEntityId": "abilityentity_chr_0032_lizhiyan_ultimate_skill_laser",
+            "skillId": "chr_0032_lizhiyan_ultimate_skill_laser",
+            "entityBlackboardAssignments": [],
+            "assignBlackboard": true,
+            "sourceType": "ActionSource",
+            "sourceContextKey": "",
+            "target": {
+              "targetSource": "Owner",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "target": "ActionSource",
+              "targetContextKey": "",
+              "enableAdvancedDirection": false,
+              "selectorDirection": "SourceForward",
+              "finderType": null,
+              "validatorTypes": [],
+              "postProcessorTypes": []
+            },
+            "overrideDuration": null,
+            "saveToContextKey": null,
+            "dieWhenSourceDies": false,
+            "dieOnEnd": false
+          },
+          "directDamageHits": [
+            {
+              "startFrame": 12,
+              "endFrame": 28,
+              "actionIndex": 6,
+              "damageUnits": [
+                {
+                  "damageType": "Natural",
+                  "attributeType": "Hp",
+                  "calculation": "standard",
+                  "attackScale": {
+                    "value": 0.9,
+                    "blackboardKey": "atk_scale_laser",
+                    "levelValues": [
+                      10.0
+                    ]
+                  },
+                  "calculationMultiplier": null,
+                  "poiseValue": null,
+                  "definiteValue": null,
+                  "damageDecorateMask": 4608
+                }
+              ],
+              "timedMarkerGate": null,
+              "sequenceIndex": 2
+            }
+          ],
+          "intervalDamageHits": [],
+          "explicitFinishes": [],
+          "timelineJumps": [],
+          "conditionalActions": [
+            {
+              "startFrame": 13,
+              "endFrame": 45,
+              "actionIndex": 10,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ],
+              "conditions": [
+                {
+                  "sourceType": "CheckTimedMarkerCondition",
+                  "supported": true,
+                  "comparison": null,
+                  "left": null,
+                  "right": null,
+                  "skillTypes": [],
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "targetAngle": null,
+                  "timedMarker": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_ult_laser_hit1",
+                    "blackboardKey": "",
+                    "useBlackboardKey": false,
+                    "returnTrueIfNotExists": true
+                  },
+                  "damageDecorateMask": null,
+                  "contextBuffId": null,
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
+                }
+              ],
+              "succeedActions": [
+                {
+                  "actionType": "CreateTimedMarker",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[4]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 12,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "timedMarkerApplication": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "markerId": "lizhiyan_ult_laser_hit1",
+                    "duration": {
+                      "value": 0.8,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "autoFinishByAction": false,
+                    "useTimeDilationDt": false
+                  }
+                }
+              ],
+              "failActions": [
+                {
+                  "actionType": "IfElseAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[4]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "failActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 14,
+                  "nestedCondition": {
+                    "startFrame": 13,
+                    "endFrame": 45,
+                    "actionIndex": 14,
+                    "actionPath": [
+                      "timelineActions[4]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "failActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckTimedMarkerCondition",
+                        "supported": true,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "timedMarker": {
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "markerId": "lizhiyan_ult_laser_hit2",
+                          "blackboardKey": "",
+                          "useBlackboardKey": false,
+                          "returnTrueIfNotExists": true
+                        },
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CreateTimedMarker",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[4]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 16,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
+                        "timedMarkerApplication": {
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "markerId": "lizhiyan_ult_laser_hit2",
+                          "duration": {
+                            "value": 0.8,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "autoFinishByAction": false,
+                          "useTimeDilationDt": false
+                        }
+                      }
+                    ],
+                    "failActions": [
+                      {
+                        "actionType": "IfElseAction",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[4]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 18,
+                        "nestedCondition": {
+                          "startFrame": 13,
+                          "endFrame": 45,
+                          "actionIndex": 18,
+                          "actionPath": [
+                            "timelineActions[4]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[0]",
+                            "failActions",
+                            "actionData",
+                            "[0]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "CheckTimedMarkerCondition",
+                              "supported": true,
+                              "comparison": null,
+                              "left": null,
+                              "right": null,
+                              "skillTypes": [],
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
+                              "targetAngle": null,
+                              "timedMarker": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "markerId": "lizhiyan_ult_laser_hit3",
+                                "blackboardKey": "",
+                                "useBlackboardKey": false,
+                                "returnTrueIfNotExists": true
+                              },
+                              "damageDecorateMask": null,
+                              "contextBuffId": null,
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "CreateTimedMarker",
+                              "actionIndex": 0,
+                              "actionPath": [
+                                "timelineActions[4]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "failActions",
+                                "actionData",
+                                "[0]",
+                                "failActions",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[0]"
+                              ],
+                              "serverActionIndex": 20,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
+                              "timedMarkerApplication": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "markerId": "lizhiyan_ult_laser_hit3",
+                                "duration": {
+                                  "value": 0.8,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "autoFinishByAction": false,
+                                "useTimeDilationDt": false
+                              }
+                            }
+                          ],
+                          "failActions": [],
+                          "conditionNegated": [
+                            false
+                          ],
+                          "alwaysNext": true
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      }
+                    ],
+                    "conditionNegated": [
+                      false
+                    ],
+                    "alwaysNext": true
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "conditionNegated": [
+                false
+              ],
+              "alwaysNext": true
+            }
+          ],
+          "inflictions": [],
+          "auxiliaryActions": [],
+          "resourceGains": [],
+          "projectileLaunches": [],
+          "projectileTriggeredSkills": [],
+          "nestedAbilityEntityHits": [],
+          "combatActions": [
+            "CreateTimedMarker",
+            "DamageAction",
+            "IfElseAction"
+          ],
+          "cycleTruncated": false,
+          "inheritsSourceBlackboard": true,
+          "declaredBlackboard": [
+            {
+              "key": "atk_scale_laser",
+              "value": 1.0,
+              "isDynamic": false
+            },
+            {
+              "key": "duration",
+              "value": 0.0,
+              "isDynamic": false
+            },
+            {
+              "key": "radius",
+              "value": 5.67,
+              "isDynamic": false
+            }
+          ],
+          "blackboardCalculations": [],
+          "blackboardMutations": [],
+          "buffBlackboardReads": [],
+          "buffFinishes": [],
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
+        }
+      ],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [
         {
@@ -12303,7 +16671,16 @@ export const arcaneGeneratedSource = {
             "validatorTypes": [
               "TagValidator"
             ],
-            "postProcessorTypes": []
+            "postProcessorTypes": [],
+            "finderSpawnedObjectType": "AbilityEntity",
+            "validatorTagQueries": [
+              [
+                "HasAny",
+                [
+                  464088014
+                ]
+              ]
+            ]
           },
           "pickIndexValue": null,
           "pickIndexBlackboardKey": null
@@ -12776,6 +17153,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -13431,6 +17809,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -13608,6 +17987,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -14582,6 +18962,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -15426,6 +19807,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -15497,6 +19879,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -15580,6 +19963,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -15663,6 +20047,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -16413,6 +20798,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -17046,6 +21432,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -17164,6 +21551,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -17241,6 +21629,7 @@ export const arcaneGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -23162,7 +27551,8 @@ export const arcaneGeneratedSource = {
                 "selectorDirection": "SourceForward",
                 "finderType": "OwnerSpawnedEntityFinder",
                 "validatorTypes": [],
-                "postProcessorTypes": []
+                "postProcessorTypes": [],
+                "finderSpawnedObjectType": "AbilityEntity"
               },
               "spawnedObjectType": "AbilityEntity",
               "tagQueries": []
@@ -23253,7 +27643,16 @@ export const arcaneGeneratedSource = {
                 "validatorTypes": [
                   "TagValidator"
                 ],
-                "postProcessorTypes": []
+                "postProcessorTypes": [],
+                "finderSpawnedObjectType": "AbilityEntity",
+                "validatorTagQueries": [
+                  [
+                    "HasAny",
+                    [
+                      -1480463572
+                    ]
+                  ]
+                ]
               },
               "spawnedObjectType": "AbilityEntity",
               "tagQueries": [
@@ -23304,7 +27703,8 @@ export const arcaneGeneratedSource = {
                 "selectorDirection": "SourceForward",
                 "finderType": "OwnerSpawnedEntityFinder",
                 "validatorTypes": [],
-                "postProcessorTypes": []
+                "postProcessorTypes": [],
+                "finderSpawnedObjectType": "AbilityEntity"
               },
               "spawnedObjectType": "AbilityEntity",
               "tagQueries": []

@@ -8030,6 +8030,69 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             "{ kind: 'singleEnemyPresent' }",
         )
 
+    def test_owner_spawned_tagged_current_entity_distance_uses_zero_distance_model(self) -> None:
+        target = target_settings_fixture("InstantSearch")
+        target["selectorOwner"] = "ActionSource"
+        target["selectorData"] = {
+            "finderData": {
+                "$type": "Example.Selector+OwnerSpawnedEntityFinder+Data, Example",
+                "spawnedObjectType": "AbilityEntity",
+            },
+            "validatorData": [
+                {
+                    "$type": "Example.Selector+TagValidator+Data, Example",
+                    "query": {
+                        "queryType": "HasAny",
+                        "tags": [{"tagId": 464088014}],
+                    },
+                }
+            ],
+            "postProcessorData": [],
+        }
+        parsed_target = parse_target_reference(target, "fixture.target")
+        self.assertEqual(parsed_target.finderSpawnedObjectType, "AbilityEntity")
+        self.assertEqual(
+            parsed_target.validatorTagQueries,
+            (("HasAny", (464088014,)),),
+        )
+        condition = SimpleNamespace(
+            sourceType="CheckDistanceCondition",
+            distance=SimpleNamespace(
+                source=parse_target_reference(target_settings_fixture("Owner"), "fixture.source"),
+                target=parsed_target,
+                distance=60.0,
+                lessThan=True,
+                includeTargetRadius=False,
+                containsHittableObject=False,
+            ),
+        )
+        templates = {
+            "abilityentity.current": {"bornTagIds": [464088014]},
+            "abilityentity.other": {"bornTagIds": [1]},
+        }
+        with patch(
+            "generate_next_operators.load_ability_entity_template_evidence",
+            return_value=templates,
+        ):
+            self.assertEqual(
+                compile_combat_condition(
+                    condition,
+                    "fixture.distance",
+                    buff_owner_target="enemy",
+                    current_buff_environment=True,
+                    current_ability_entity_id="abilityentity.current",
+                ),
+                "{ kind: 'singleEnemyPresent' }",
+            )
+            with self.assertRaisesRegex(ValueError, "zero-distance model"):
+                compile_combat_condition(
+                    condition,
+                    "fixture.distance",
+                    buff_owner_target="enemy",
+                    current_buff_environment=True,
+                    current_ability_entity_id="abilityentity.other",
+                )
+
     def test_zero_space_ability_entity_omits_fixed_point_spawn_target(self) -> None:
         target = parse_target_reference(
             target_settings_fixture("Context", target_group_key="corner"),
@@ -14696,6 +14759,26 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
         with self.assertRaisesRegex(ValueError, "unsupported target identity pair"):
             compile_combat_condition(condition, "fixture.identity")
+
+    def test_buff_damage_event_target_main_character_identity_compiles_exactly(self) -> None:
+        condition = SimpleNamespace(
+            sourceType="CheckTargetsEqual",
+            targetIdentity=SimpleNamespace(
+                first=parse_target_reference(target_settings_fixture("Target"), "first"),
+                second=parse_target_reference(
+                    target_settings_fixture("MainCharacter"), "second"
+                ),
+            ),
+        )
+
+        self.assertEqual(
+            compile_combat_condition(
+                condition,
+                "fixture.identity",
+                buff_ability_damage_event=True,
+            ),
+            "{ kind: 'eventSourceControlled' }",
+        )
 
     def test_buff_source_owner_identity_compiles_exactly(self) -> None:
         condition = SimpleNamespace(
