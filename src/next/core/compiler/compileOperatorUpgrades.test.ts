@@ -118,9 +118,9 @@ describe('operator upgrade compilation', () => {
     ]);
   });
 
-  it('compiles Endministrator potential 1 and 2 as ordered attached-Buff initialization', () => {
+  it('compiles Endministrator potentials 1 through 3 as ordered attached-Buff initialization', () => {
     const active = resolveActiveOperatorUpgrades(
-      build({ operatorSlug: endministratorGeneratedOperator.slug, potential: 2 }),
+      build({ operatorSlug: endministratorGeneratedOperator.slug, potential: 3 }),
       endministratorGeneratedOperator,
     );
     const programs = compileOperatorInitializationPrograms(active);
@@ -128,6 +128,7 @@ describe('operator upgrade compilation', () => {
     expect(programs.map(program => program.key)).toEqual([
       'potential:potential1',
       'potential:potential2',
+      'potential:potential3',
     ]);
     expect(programs[0]?.sequence.steps[0]).toMatchObject({
       kind: 'applyBuff',
@@ -136,6 +137,13 @@ describe('operator upgrade compilation', () => {
     expect(programs[1]?.sequence.steps[0]).toMatchObject({
       kind: 'applyBuff',
       parameters: { buffId: 'buff_chr_0003_endminf_potential2' },
+    });
+    expect(programs[2]?.sequence.steps[0]).toMatchObject({
+      kind: 'applyBuff',
+      parameters: {
+        buffId: 'buff_chr_0003_endminf_potential3',
+        blackboardAssignments: { usp: { kind: 'constant', value: 15 } },
+      },
     });
   });
 

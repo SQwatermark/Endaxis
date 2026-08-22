@@ -2593,7 +2593,7 @@
       "potentials": [
         { "key": "potential1", "compile": "attachedBuff" },
         { "key": "potential2", "compile": "attachedBuff" },
-        { "key": "potential3", "compile": "unmodeledPotential" },
+        { "key": "potential3", "compile": "attachedBuff" },
         { "key": "potential4", "compile": "unmodeledPotential" },
         { "key": "potential5", "compile": "attachedBuff" }
       ],

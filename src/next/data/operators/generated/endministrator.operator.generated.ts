@@ -1689,6 +1689,14 @@ export const endministratorGeneratedOperator: OperatorDefinition = {
         'ratio': 0.5,
       },
     },
+    'buff_chr_0003_endminf_potential3': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      blackboard: {
+        'usp': 15,
+      },
+    },
     'buff_chr_0003_endminf_potential5': {
       stackingType: 'unique',
       priority: 0,
@@ -1773,7 +1781,16 @@ export const endministratorGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential3',
       levels: 1,
-      modifiers: [],
+      initializationSequence: sequence(
+        step('applyBuff', {
+          buffId: 'buff_chr_0003_endminf_potential3',
+          target: 'caster',
+          inheritSourceSkillCastInfo: false,
+          blackboardAssignments: {
+            'usp': { kind: 'constant', value: 15 },
+          },
+        }),
+      ),
     },
     {
       key: 'potential4',

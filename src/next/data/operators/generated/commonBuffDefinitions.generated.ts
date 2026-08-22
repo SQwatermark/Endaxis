@@ -858,186 +858,235 @@ export const generatedCommonBuffDefinitions = {
         igniteType: 'EndminUlt',
         finishAfterIgnited: true,
         sequence: sequence(
-          step('dealDamage', {
-            damageType: 'physical',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_trigger' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '46:buff_common_originum_frozen:ignite:EndminUlt:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
-          step('readBuffBlackboard', {
-            target: 'caster',
-            query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
-            desiredKey: 'atk_up',
-            outputKey: 'atk_up_dynamic',
-          }),
-          step('readBuffBlackboard', {
-            target: 'caster',
-            query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
-            desiredKey: 'duration',
-            outputKey: 'duration_dynamic',
-          }),
-          step('applyBuff', {
-            buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              'duration': { kind: 'blackboard', key: 'duration_dynamic' },
-              'atk_up': { kind: 'blackboard', key: 'atk_up_dynamic' },
-            },
-          }),
-          step('readBuffBlackboard', {
-            target: 'caster',
-            query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_potential2'] },
-            desiredKey: 'ratio',
-            outputKey: 'teammate_ratio',
-          }),
-          step('modifyActionValue', {
-            key: 'atk_up_dynamic',
-            operation: 'multiply',
-            value: { kind: 'blackboard', key: 'teammate_ratio' },
-          }),
-          step('modifyActionValue', {
-            key: 'duration_dynamic',
-            operation: 'multiply',
-            value: { kind: 'constant', value: 1 },
-          }),
-          step('applyBuff', {
-            buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
-            target: 'partyExceptCaster',
-            inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              'duration': { kind: 'blackboard', key: 'duration_dynamic' },
-              'atk_up': { kind: 'blackboard', key: 'atk_up_dynamic' },
-            },
-          }),
-          step('readBuffBlackboard', {
-            target: 'enemy',
-            query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_potential3'] },
-            desiredKey: 'usp',
-            outputKey: 'endmin_usp',
-          }),
-          step('changeResourceByActionValue', {
-            resource: 'ultimateEnergy',
-            amount: { kind: 'blackboard', key: 'endmin_usp' },
-            recipient: 'caster',
-            ignoreUltimateEnergyGainMultiplier: true,
-          }),
+          branch(
+            { kind: 'combatActive' },
+            sequence(
+              step('dealDamage', {
+                damageType: 'physical',
+                attackScale: { kind: 'blackboard', key: 'atk_scale_trigger' },
+                tags: ['ultimateSkill'],
+                features: ['canBreakWeakness'],
+              }, '46:buff_common_originum_frozen:ignite:EndminUlt:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+          branch(
+            { kind: 'combatActive' },
+            sequence(
+              step('readBuffBlackboard', {
+                target: 'caster',
+                query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
+                desiredKey: 'atk_up',
+                outputKey: 'atk_up_dynamic',
+              }),
+              step('readBuffBlackboard', {
+                target: 'caster',
+                query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
+                desiredKey: 'duration',
+                outputKey: 'duration_dynamic',
+              }),
+              step('applyBuff', {
+                buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: {
+                  'duration': { kind: 'blackboard', key: 'duration_dynamic' },
+                  'atk_up': { kind: 'blackboard', key: 'atk_up_dynamic' },
+                },
+              }),
+              step('readBuffBlackboard', {
+                target: 'caster',
+                query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_potential2'] },
+                desiredKey: 'ratio',
+                outputKey: 'teammate_ratio',
+              }),
+              step('modifyActionValue', {
+                key: 'atk_up_dynamic',
+                operation: 'multiply',
+                value: { kind: 'blackboard', key: 'teammate_ratio' },
+              }),
+              step('modifyActionValue', {
+                key: 'duration_dynamic',
+                operation: 'multiply',
+                value: { kind: 'constant', value: 1 },
+              }),
+              step('applyBuff', {
+                buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
+                target: 'partyExceptCaster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: {
+                  'duration': { kind: 'blackboard', key: 'duration_dynamic' },
+                  'atk_up': { kind: 'blackboard', key: 'atk_up_dynamic' },
+                },
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+          branch(
+            { kind: 'combatActive' },
+            sequence(
+              step('readBuffBlackboard', {
+                target: 'caster',
+                query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_potential3'] },
+                desiredKey: 'usp',
+                outputKey: 'endmin_usp',
+              }),
+              step('changeResourceByActionValue', {
+                resource: 'ultimateEnergy',
+                amount: { kind: 'blackboard', key: 'endmin_usp' },
+                recipient: 'caster',
+                ignoreUltimateEnergyGainMultiplier: true,
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       },
       {
         igniteType: 'PhysicalStatus',
         finishAfterIgnited: true,
         sequence: sequence(
-          step('dealDamage', {
-            damageType: 'physical',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_trigger' },
-            tags: ['comboSkill'],
-            features: ['canBreakWeakness'],
-          }, '51:buff_common_originum_frozen:ignite:PhysicalStatus:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:24'),
-          step('readBuffBlackboard', {
-            target: 'caster',
-            query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
-            desiredKey: 'atk_up',
-            outputKey: 'atk_up_dynamic',
-          }),
-          step('readBuffBlackboard', {
-            target: 'caster',
-            query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
-            desiredKey: 'duration',
-            outputKey: 'duration_dynamic',
-          }),
-          step('applyBuff', {
-            buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              'duration': { kind: 'blackboard', key: 'duration_dynamic' },
-              'atk_up': { kind: 'blackboard', key: 'atk_up_dynamic' },
-            },
-          }),
-          step('readBuffBlackboard', {
-            target: 'caster',
-            query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_potential2'] },
-            desiredKey: 'ratio',
-            outputKey: 'teammate_ratio',
-          }),
-          step('modifyActionValue', {
-            key: 'atk_up_dynamic',
-            operation: 'multiply',
-            value: { kind: 'blackboard', key: 'teammate_ratio' },
-          }),
-          step('modifyActionValue', {
-            key: 'duration_dynamic',
-            operation: 'multiply',
-            value: { kind: 'constant', value: 1 },
-          }),
-          step('applyBuff', {
-            buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
-            target: 'partyExceptCaster',
-            inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              'duration': { kind: 'blackboard', key: 'duration_dynamic' },
-              'atk_up': { kind: 'blackboard', key: 'atk_up_dynamic' },
-            },
-          }),
+          branch(
+            { kind: 'combatActive' },
+            sequence(
+              step('dealDamage', {
+                damageType: 'physical',
+                attackScale: { kind: 'blackboard', key: 'atk_scale_trigger' },
+                tags: ['comboSkill'],
+                features: ['canBreakWeakness'],
+              }, '51:buff_common_originum_frozen:ignite:PhysicalStatus:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:24'),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+          branch(
+            { kind: 'combatActive' },
+            sequence(
+              step('readBuffBlackboard', {
+                target: 'caster',
+                query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
+                desiredKey: 'atk_up',
+                outputKey: 'atk_up_dynamic',
+              }),
+              step('readBuffBlackboard', {
+                target: 'caster',
+                query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
+                desiredKey: 'duration',
+                outputKey: 'duration_dynamic',
+              }),
+              step('applyBuff', {
+                buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: {
+                  'duration': { kind: 'blackboard', key: 'duration_dynamic' },
+                  'atk_up': { kind: 'blackboard', key: 'atk_up_dynamic' },
+                },
+              }),
+              step('readBuffBlackboard', {
+                target: 'caster',
+                query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_potential2'] },
+                desiredKey: 'ratio',
+                outputKey: 'teammate_ratio',
+              }),
+              step('modifyActionValue', {
+                key: 'atk_up_dynamic',
+                operation: 'multiply',
+                value: { kind: 'blackboard', key: 'teammate_ratio' },
+              }),
+              step('modifyActionValue', {
+                key: 'duration_dynamic',
+                operation: 'multiply',
+                value: { kind: 'constant', value: 1 },
+              }),
+              step('applyBuff', {
+                buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
+                target: 'partyExceptCaster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: {
+                  'duration': { kind: 'blackboard', key: 'duration_dynamic' },
+                  'atk_up': { kind: 'blackboard', key: 'atk_up_dynamic' },
+                },
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       },
       {
         igniteType: 'NoGuard',
         finishAfterIgnited: true,
         sequence: sequence(
-          step('dealDamage', {
-            damageType: 'physical',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_trigger' },
-            tags: ['comboSkill'],
-            features: ['canBreakWeakness'],
-          }, '44:buff_common_originum_frozen:ignite:NoGuard:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:35'),
-          step('readBuffBlackboard', {
-            target: 'caster',
-            query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
-            desiredKey: 'atk_up',
-            outputKey: 'atk_up_dynamic',
-          }),
-          step('readBuffBlackboard', {
-            target: 'caster',
-            query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
-            desiredKey: 'duration',
-            outputKey: 'duration_dynamic',
-          }),
-          step('applyBuff', {
-            buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              'duration': { kind: 'blackboard', key: 'duration_dynamic' },
-              'atk_up': { kind: 'blackboard', key: 'atk_up_dynamic' },
-            },
-          }),
-          step('readBuffBlackboard', {
-            target: 'caster',
-            query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_potential2'] },
-            desiredKey: 'ratio',
-            outputKey: 'teammate_ratio',
-          }),
-          step('modifyActionValue', {
-            key: 'atk_up_dynamic',
-            operation: 'multiply',
-            value: { kind: 'blackboard', key: 'teammate_ratio' },
-          }),
-          step('modifyActionValue', {
-            key: 'duration_dynamic',
-            operation: 'multiply',
-            value: { kind: 'constant', value: 1 },
-          }),
-          step('applyBuff', {
-            buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
-            target: 'partyExceptCaster',
-            inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              'duration': { kind: 'blackboard', key: 'duration_dynamic' },
-              'atk_up': { kind: 'blackboard', key: 'atk_up_dynamic' },
-            },
-          }),
+          branch(
+            { kind: 'combatActive' },
+            sequence(
+              step('dealDamage', {
+                damageType: 'physical',
+                attackScale: { kind: 'blackboard', key: 'atk_scale_trigger' },
+                tags: ['comboSkill'],
+                features: ['canBreakWeakness'],
+              }, '44:buff_common_originum_frozen:ignite:NoGuard:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder2:35'),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+          branch(
+            { kind: 'combatActive' },
+            sequence(
+              step('readBuffBlackboard', {
+                target: 'caster',
+                query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
+                desiredKey: 'atk_up',
+                outputKey: 'atk_up_dynamic',
+              }),
+              step('readBuffBlackboard', {
+                target: 'caster',
+                query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
+                desiredKey: 'duration',
+                outputKey: 'duration_dynamic',
+              }),
+              step('applyBuff', {
+                buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: {
+                  'duration': { kind: 'blackboard', key: 'duration_dynamic' },
+                  'atk_up': { kind: 'blackboard', key: 'atk_up_dynamic' },
+                },
+              }),
+              step('readBuffBlackboard', {
+                target: 'caster',
+                query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_potential2'] },
+                desiredKey: 'ratio',
+                outputKey: 'teammate_ratio',
+              }),
+              step('modifyActionValue', {
+                key: 'atk_up_dynamic',
+                operation: 'multiply',
+                value: { kind: 'blackboard', key: 'teammate_ratio' },
+              }),
+              step('modifyActionValue', {
+                key: 'duration_dynamic',
+                operation: 'multiply',
+                value: { kind: 'constant', value: 1 },
+              }),
+              step('applyBuff', {
+                buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
+                target: 'partyExceptCaster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: {
+                  'duration': { kind: 'blackboard', key: 'duration_dynamic' },
+                  'atk_up': { kind: 'blackboard', key: 'atk_up_dynamic' },
+                },
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       },
     ],

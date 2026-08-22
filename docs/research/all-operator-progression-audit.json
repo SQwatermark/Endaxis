@@ -159,8 +159,8 @@
       },
       "potential": {
         "totalCount": 110,
-        "definitionConvertedCount": 106,
-        "standardSimulationCompileReadyCount": 106
+        "definitionConvertedCount": 107,
+        "standardSimulationCompileReadyCount": 107
       },
       "definitionCompleteOperatorCount": 9,
       "standardSimulationCompileReadyOperatorCount": 9
@@ -8403,8 +8403,8 @@
         },
         "potential": {
           "totalCount": 5,
-          "definitionConvertedCount": 3,
-          "standardSimulationCompileReadyCount": 3
+          "definitionConvertedCount": 4,
+          "standardSimulationCompileReadyCount": 4
         },
         "definitionComplete": false,
         "standardSimulationCompileReady": false,
@@ -8444,10 +8444,9 @@
           {
             "key": "potential3",
             "sourceEffectIds": ["chr_9000_endmin_potential_3"],
-            "compiler": "unmodeledPotential",
-            "definitionConverted": false,
-            "standardSimulationCompileReady": false,
-            "blocker": "unmodeled-source-effect"
+            "compiler": "attachedBuff",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
           },
           {
             "key": "potential4",

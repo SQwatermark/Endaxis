@@ -91,6 +91,7 @@ from generate_next_operators import (
     AbilityEntitySpawnPayload,
     AbilityEntityDurationAssignmentPayload,
     BuffBlackboardReadSource,
+    BuffBlackboardReadPayload,
     BuffFinishSource,
     BuffHoldSource,
     BuffStackReadPayload,
@@ -15629,6 +15630,71 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("target: 'enemy'", compiled)
         self.assertIn("buffIds: ['seal', 'seal-effect']", compiled)
         self.assertIn("step('finishCurrentBuff', { reason: 'early' })", compiled)
+
+    def test_ignite_wrappers_keep_independent_failure_boundaries_and_source_target(self) -> None:
+        def read_action(index: int, buff_id: str) -> ConditionalBranchActionSource:
+            return ConditionalBranchActionSource(
+                actionType="GetTargetBuffBBAdvanced",
+                actionIndex=index,
+                buffBlackboardRead=BuffBlackboardReadPayload(
+                    outputKey=f"value_{index}",
+                    desiredKey="value",
+                    targetSource="Target",
+                    targetGroupKey="",
+                    buffCheckType="Id",
+                    buffIds=(buff_id,),
+                    tagQueryType="hasAny",
+                    buffTagIds=(),
+                ),
+            )
+
+        event = SimpleNamespace(
+            event="EndminUlt",
+            finishAfterIgnited=True,
+            damageUnits=(),
+            runtimeTargetGroupWrites=(),
+            sequences=(
+                SkillEventActionSequenceSource(
+                    onlyMainOperator=False,
+                    onlyGuard=False,
+                    orderedActionTypes=("GetTargetBuffBBAdvanced",),
+                    combatActions=(),
+                    buffApplications=(),
+                    actions=(read_action(0, "buff.first"),),
+                    priority=0,
+                ),
+                SkillEventActionSequenceSource(
+                    onlyMainOperator=False,
+                    onlyGuard=False,
+                    orderedActionTypes=("GetTargetBuffBBAdvanced",),
+                    combatActions=(),
+                    buffApplications=(),
+                    actions=(read_action(1, "buff.second"),),
+                    priority=0,
+                ),
+            ),
+        )
+        source = SimpleNamespace(
+            buffId="buff.ignite",
+            blackboard=(
+                DeclaredBlackboardValueSource("value_0", 0, True),
+                DeclaredBlackboardValueSource("value_1", 0, True),
+            ),
+            igniteEventActions=(event,),
+            targetGroupWrites=(),
+            auraActions=(),
+        )
+
+        compiled = compile_inline_buff_event_responses(
+            source,
+            "buff.igniteEventActions",
+            buff_owner_target="enemy",
+            buff_definitions={},
+        )
+
+        self.assertEqual(compiled.count("target: 'caster'"), 2)
+        self.assertEqual(compiled.count("{ alwaysNext: true }"), 2)
+        self.assertLess(compiled.index("buff.first"), compiled.index("buff.second"))
 
     def test_take_damage_buff_event_keeps_its_post_damage_phase(self) -> None:
         finish = ConditionalBranchActionSource(

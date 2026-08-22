@@ -267,7 +267,7 @@ function createGeneratedEndministratorIgniteScenario() {
       operatorSlug: endministratorGeneratedOperator.slug,
       level: 90,
       promoted: true,
-      potential: 0,
+      potential: 3,
       trustLevel: 4,
       skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
       talentStates: {},
@@ -1316,6 +1316,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         }),
       }),
     );
+    expect(result.finalResources.squad[0]?.ultimateEnergy).toBe(15);
   });
 
   it('ends generated Arclight ultimate time freeze within the fixed actual-time range', () => {

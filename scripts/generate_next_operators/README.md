@@ -167,8 +167,8 @@ python scripts/generate_next_operators/audit_operator_progression.py `
 报告的 `summary.configuredProgression` 以正式 manifest 的天赋/潜能槽位为单位，分别给出
 `definitionConvertedCount` 与 `standardSimulationCompileReadyCount`。后者只表示面板、技能补丁或常驻
 被动程序已经能进入标准场景编译，不等于所有触发条件都能在某条具体时间轴中发生，也不替代技能主体
-和 Buff 闭包审计。当前基线为 14 名正式生成干员：天赋 13/28 已转换、13/28 可进入模拟编译；潜能
-61/70 已转换、61/70 可进入模拟编译。当前所有已经完整写入定义的养成槽位都已有标准模拟消费链；
+和 Buff 闭包审计。当前基线为 22 名正式生成干员：天赋 27/44 已转换、27/44 可进入模拟编译；潜能
+107/110 已转换、107/110 可进入模拟编译。当前所有已经完整写入定义的养成槽位都已有标准模拟消费链；
 后续重点转为扩大可无损转换的来源效果集合。
 
 `skillSpGainAttackStack` 严格转换秋栗潜能 1 的 `OnObtainAtb` 监听器：仅接受原生
@@ -344,6 +344,7 @@ key 与二段第 0 帧还原帧。Next 用 `replacementSkills` 保存不可直�
 - 事件监听器的有序响应可解析空条件 `JumpToAction` 并生成 `jumpTimeline`。该开关只在 `parse_ordered_action_sequence` 的临时事件外壳中启用，普通技能根时间轴仍由 `parse_timeline_jumps` 独占，不能重复投影。事件中的 `CheckDamageDecorateMask`、`CheckBuffIdInContext` 等顺序守卫继续包住跳帧；带非空内部条件、主控/Guard 限制或未知字段的跳帧仍拒绝。
 - Buff/技能事件 `SequenceAction` 中直接排列的 `CheckTagMatch`、`CheckDamageType` 与 `Probablity` 也是顺序守卫：任一返回失败都会截断其后的兄弟动作。生成器把它们保留为嵌套条件树；伤害类型只从当前 Ability 伤害事件或显式外部受击事实读取，概率继续使用动态黑板与显式随机样本源。萤石天赋 2 是首个同时覆盖三类守卫的正式生产样本，潜能 2 只修改同一被动的概率黑板。
 - 敌方 Buff 的 `OnEnemyBeforeTakeSpellInfliction` 对应元素附着步骤写入目标状态前同步发布的 `beforeTakeInfliction`，与角色侧 `OnCharBeforeTakeSpellInfliction` 保持分离。直接 `CheckSpellInflictionType` 会编译为事件元素集合条件；萤石潜能 5 用该链筛选 `Cryst, Natural`，再执行固定秒数冷却缩减和来源干员定时标记限频。`SetSkillCdAtOnce` 的原生技能 ID 由运行时同时对照内部技能 key 与 `sourceSkillId`，不得在生成阶段猜成技能组 key。
+- Buff `igniteEventAction.actions` 的每个动作包装器是独立的原生执行边界。生成器用恒成立且 `alwaysNext` 的条件步骤保留每个包装器内部短路，同时保证失败不会阻断后续包装器。1.4.4 `Buff.OnIgnite` 还证明输入 `TargetHandle` 来自 `igniteSource.selfTargetHandle`，因此引爆映射内的 plain `Target` 归约为施法者/引爆来源，`Owner` 才是持有被引爆 Buff 的宿主。管理员潜能 3 的冻结引爆回能是首个同时依赖这两项语义的生产样本。
 - 条件分支中的能力实体按精确 `actionPath` 留在各自分支，并递归内联各自 `childSkill`；子伤害不会提升为根技能无条件命中。条件实体可继续生成嵌套实体和实体局部 Aura。同帧 `FixedPointFinder` 只提供空间位置时，按零空间模型删除位置目标但保留实体实例。友方 Aura 可归约为全队或排除施法者，敌方 Aura 可归约为唯一敌人，每目标最多一次与唯一实例模型等价。Snowshine 终结技由此完整编译；Tangtang 普通战技继续在更深层的施法 ID 限定 Buff 层数查询处严格阻塞。
 - 干员级 Buff 定义目录递归收集能力实体、投射物及条件分支 Aura 的引用；audit 阶段逐根解析，单个未知定义只留下独立问题，不再清空其他已证明定义。`OnBuffEnable` 先于 `DuringBuffEnable` 进入可重启动的 `lifecycleSequences.enable`，`OnBuffDisable` 进入 `lifecycleSequences.disable`；动作时长 Slow 用 `finishByAction` 与宿主序列对称结束。生命周期顺序以 `combat-spec/docs/buff-lifecycle.md` 的反编译结论为准。公共 Buff 数据证明 `VulnerableAction` 的 `Physical` 只匹配物理伤害，`Spell` 只匹配 heat/electric/cryo/nature，标准伤害环境以 `eventDamageTypesMatch` 执行该过滤。
 - `CheckBuffStackNumAdvanced` / `SaveBuffStackNumAdvanced` 保留 `limitSkillCastId`。启用时生成 `sameSourceSkillCast: true`，运行时只累计与当前技能或继承 Buff 施法序号相同的实例；缺少施法身份立即失败。

@@ -74,6 +74,13 @@ step('spawnAbilityEntity', {
 
 ## 4. 本轮已经完成
 
+### 管理员潜能 3 冻结引爆回能（2026-08-22）
+
+- `chr_9000_endmin` 潜能 3 已从占位槽位转为常驻 `buff_chr_0003_endminf_potential3`，黑板 `usp=15`。男女管理员终结技引爆 `buff_common_originum_frozen` 时，公共 Buff 映射从引爆者身上读取该值，并向同一干员返还 15 点终结技能量；生产场景已走通连携冻结、终结技引爆、伤害和实际回能。
+- 这项闭环先修复了 `D:\Projects\combat-spec`，提交 `1e99f4a`。1.4.4 `Buff.OnIgnite` 反汇编证明动作序列的输入 `TargetHandle` 是 `igniteSource.selfTargetHandle`，而 Buff owner 仍是被冻结敌人；复刻库此前把两者错误合并。`GetTargetBuffBBAdvanced` 的 ID 查询分支也已按容器首匹配语义补齐。
+- Endaxis 的 Buff 引爆编译现把原生 `Target` 归约为引爆来源干员，把 `Owner` 继续归约为 Buff 宿主。`igniteEventAction.actions` 中每个包装器会独立执行：某个包装器内部条件/读取失败只截断该包装器，不再吞掉后续天赋或潜能包装器。
+- 养成审计更新为天赋 27/44、潜能 107/110，均已进入标准模拟编译；定义完整及养成模拟就绪干员均为 9 名。剩余 3 个潜能是黎风 5、秋栗 5、管理员 4，仍须分别闭环其真实消费者，不能只提高统计数。
+
 ### 萤石潜能 5 元素附着减冷却（2026-08-22）
 
 - `chr_0022_bounda_potential_5` 已从占位槽位转换为常驻 Aura Buff。Aura 给唯一敌人挂载监听 Buff；原生 `OnEnemyBeforeTakeSpellInfliction` 精确映射到元素附着管线发给目标方的 `beforeTakeInfliction`，不与角色侧 `OnCharBeforeTakeSpellInfliction` 合并。

@@ -8,6 +8,7 @@ from typing import Any, Callable, Literal
 
 from compiler_ir import (
     atom,
+    branch,
     CompiledNode,
     EMPTY_SEQUENCE as COMPILED_EMPTY_SEQUENCE,
     render as render_compiled_node,
@@ -95,7 +96,9 @@ def compile_inline_buff_event_responses(
                             )
                         )
                     ),
-                    input_target="enemy",
+                    # Buff.OnIgnite passes igniteSource.selfTargetHandle to the action sequence.
+                    # Buff owner remains independently available through buff_owner_target.
+                    input_target="caster",
                     runtime_blackboard_keys=runtime_blackboard_keys,
                     step_key_prefix=f"{source.buffId}:ignite:{event.event}:{sequence_index}",
                     buff_definitions=buff_definitions,
@@ -111,7 +114,15 @@ def compile_inline_buff_event_responses(
                     ),
                 )
                 if compiled != COMPILED_EMPTY_SEQUENCE:
-                    compiled_sequences.append(compiled)
+                    # Native ignite mappings execute every actions wrapper independently;
+                    # one wrapper's false result does not suppress later wrappers.
+                    compiled_sequences.append(
+                        branch(
+                            "{ kind: 'combatActive' }",
+                            compiled,
+                            always_next=True,
+                        )
+                    )
             if not compiled_sequences:
                 continue
             response_lines.extend(
