@@ -136,9 +136,8 @@ export class BuffDefinitionOperationTarget<Key extends string>
   ): CombatBuffDefinition<Key> {
     const cached = this.#inlineDefinitions.get(source);
     if (cached !== undefined) return cached;
-    // 显示信息随技能定义保存，但不进入战斗运行时。
     const {
-      presentation: _presentation,
+      presentation,
       scheduledSequences,
       lifecycleSequences,
       abilityEventResponses,
@@ -182,10 +181,14 @@ export class BuffDefinitionOperationTarget<Key extends string>
       ...(typeof maxStackCount === 'number' ? { maxStackCount } : {}),
     };
     const compiledBaseDefinition = this.definitions.compile(entry);
+    const compiledDefinitionWithPresentation =
+      presentation === undefined
+        ? compiledBaseDefinition
+        : { ...compiledBaseDefinition, presentation };
     const baseDefinition =
       maxStackCount !== undefined && typeof maxStackCount !== 'number'
-        ? { ...compiledBaseDefinition, maxStackCount }
-        : compiledBaseDefinition;
+        ? { ...compiledDefinitionWithPresentation, maxStackCount }
+        : compiledDefinitionWithPresentation;
     const definition =
       scheduledSequences === undefined &&
       lifecycleSequences === undefined &&

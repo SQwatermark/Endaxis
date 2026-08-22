@@ -352,6 +352,21 @@ export interface GeneratedBuffLifecycleSource {
   readonly stackEffectActionTypes?: readonly string[];
 }
 
+/** BuffData 中与数值行为正交、但用户可观察的原生图标与显示规则。 */
+export interface GeneratedBuffPresentationSource {
+  readonly hasIcon: boolean;
+  readonly spritePath: string;
+  readonly showInHeadBarCommon: boolean;
+  readonly showInHeadBarAttached: boolean;
+  readonly showInSquadIcon: boolean;
+  readonly onlyShowForMainCharacter: boolean;
+  readonly iconStyleInSquad: string;
+  readonly abnormalColorType: string;
+  readonly orderUseDirectoryValue: boolean;
+  readonly orderPriorityValue: number;
+  readonly orderPriorityEnum: string;
+}
+
 /** 与应用位置解耦的 Buff 定义；包含由直接依赖递归发现的事件依赖，并以 buffId 去重。 */
 export interface GeneratedBuffDefinitionSource {
   readonly buffId: string;
@@ -361,6 +376,8 @@ export interface GeneratedBuffDefinitionSource {
   readonly useTimeDilationDt: boolean;
   /** useTimeDilationDt 为真时，选择宿主自身而非全局时间膨胀增量。 */
   readonly onlyUseSelfTimeDilation: boolean;
+  /** 旧生成快照可能缺失；新转换不得丢弃原生图标身份与显示规则。 */
+  readonly presentation?: GeneratedBuffPresentationSource;
   readonly lifecycle: GeneratedBuffLifecycleSource | null;
   readonly blackboard: readonly GeneratedDeclaredBlackboardValueSource[];
   /** 原生有符号 int32 GameplayTag ID，不得与 DamageTag 混用。 */

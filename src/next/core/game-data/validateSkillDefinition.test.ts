@@ -360,7 +360,22 @@ describe('validateSkillDefinition', () => {
                 target: 'caster',
                 definition: {
                   stackingType: 'refresh',
-                  presentation: { iconPath: '/icons/buffs/example.webp' },
+                  presentation: {
+                    iconId: 'icon_battle_buff_atk_up',
+                    iconPath: '/icons/buffs/example.webp',
+                    visible: true,
+                    showInHeadBarCommon: false,
+                    showInHeadBarAttached: false,
+                    showInSquadIcon: true,
+                    onlyShowForMainCharacter: false,
+                    iconStyleInSquad: 'Default',
+                    abnormalColorType: 'Physical',
+                    orderPriority: {
+                      useDirectoryValue: false,
+                      value: 0,
+                      category: 'CommonCharBuff',
+                    },
+                  },
                 },
               },
             },

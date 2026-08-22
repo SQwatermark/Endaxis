@@ -60,12 +60,38 @@ def definition(**overrides):
         "unparsedPayloads": (),
         "useTimeDilationDt": False,
         "onlyUseSelfTimeDilation": False,
+        "presentation": None,
     }
     values.update(overrides)
     return SimpleNamespace(**values)
 
 
 class BuffDefinitionCompilerTests(unittest.TestCase):
+    def test_preserves_native_buff_icon_identity_and_rendering_metadata(self) -> None:
+        source = definition(
+            presentation=SimpleNamespace(
+                hasIcon=True,
+                spritePath="icon_battle_affix_combo",
+                showInHeadBarCommon=True,
+                showInHeadBarAttached=False,
+                showInSquadIcon=True,
+                onlyShowForMainCharacter=False,
+                iconStyleInSquad="Default",
+                abnormalColorType="Physical",
+                orderUseDirectoryValue=False,
+                orderPriorityValue=7,
+                orderPriorityEnum="CommonCharBuff",
+            )
+        )
+
+        compiled = compile_inline_buff_definition(source, "skill.buff")
+
+        self.assertIn("iconId: 'icon_battle_affix_combo'", compiled)
+        self.assertIn("iconPath: '/icons/icon_battle_affix_combo.webp'", compiled)
+        self.assertIn("visible: true", compiled)
+        self.assertIn("showInSquadIcon: true", compiled)
+        self.assertIn("value: 7", compiled)
+
     def test_compiles_conditional_healer_result_multiplier(self) -> None:
         source = definition(
             healModifiers=(

@@ -33,6 +33,7 @@ from source_models import (
     BuffDefinitionSource,
     BuffLifecycleSource,
     BuffPauseTimeSource,
+    BuffPresentationSource,
     BlackboardMutationSource,
     BuffSourceDeathFinishSource,
     BuffShieldAbsorptionSource,
@@ -81,6 +82,56 @@ BUFF_ATTRIBUTE_MODIFIER_SLOTS = {
     "BaseFinalMultiplier",
 }
 SLOW_GAMEPLAY_TAG_ID = 1925762097
+
+
+def parse_buff_presentation(
+    buff: dict[str, Any], source_name: str
+) -> BuffPresentationSource:
+    """严格保存 Buff 图标身份与原生显示位；这些字段不能因不参与伤害而丢弃。"""
+
+    has_icon = buff.get("hasIcon")
+    if not isinstance(has_icon, bool):
+        raise ValueError(f"{source_name}.hasIcon: expected boolean")
+    icon_path = f"{source_name}.iconConfig"
+    icon = require_dict(buff.get("iconConfig"), icon_path)
+
+    def string_field(name: str) -> str:
+        value = icon.get(name)
+        if not isinstance(value, str):
+            raise ValueError(f"{icon_path}.{name}: expected string")
+        return value
+
+    def bool_field(name: str) -> bool:
+        value = icon.get(name)
+        if not isinstance(value, bool):
+            raise ValueError(f"{icon_path}.{name}: expected boolean")
+        return value
+
+    order_path = f"{icon_path}._orderPriorityConfig"
+    order = require_dict(icon.get("_orderPriorityConfig"), order_path)
+    order_use_directory = order.get("useDirectoryValue")
+    order_priority = order.get("priorityValue")
+    order_enum = order.get("priorityEnum")
+    if not isinstance(order_use_directory, bool):
+        raise ValueError(f"{order_path}.useDirectoryValue: expected boolean")
+    if not isinstance(order_priority, int) or isinstance(order_priority, bool):
+        raise ValueError(f"{order_path}.priorityValue: expected integer")
+    if not isinstance(order_enum, str):
+        raise ValueError(f"{order_path}.priorityEnum: expected string")
+
+    return BuffPresentationSource(
+        hasIcon=has_icon,
+        spritePath=string_field("_spritePath"),
+        showInHeadBarCommon=bool_field("showInHeadBarCommon"),
+        showInHeadBarAttached=bool_field("showInHeadBarAttached"),
+        showInSquadIcon=bool_field("showInSquadIcon"),
+        onlyShowForMainCharacter=bool_field("onlyShowForMainCharacter"),
+        iconStyleInSquad=string_field("iconStyleInSquad"),
+        abnormalColorType=string_field("abnormalColorType"),
+        orderUseDirectoryValue=order_use_directory,
+        orderPriorityValue=order_priority,
+        orderPriorityEnum=order_enum,
+    )
 
 
 def parse_buff_shields(
@@ -1492,6 +1543,7 @@ def resolve_buff_definitions(
             sourceFile=source_file,
             sourceAvailable=True,
             lifecycle=parse_buff_lifecycle(buff, source_file, blackboard),
+            presentation=parse_buff_presentation(buff, source_file),
             blackboard=declared_blackboard,
             applyTagIds=tuple(
                 dict.fromkeys(

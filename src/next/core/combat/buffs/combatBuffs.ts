@@ -174,9 +174,28 @@ export interface BuffLifecycleActions<Key extends string> {
   readonly duringEnable?: BuffDuringEnableAction<Key>;
 }
 
+/** Buff 实例的用户可观察显示身份；不参与数值计算，但必须随定义进入运行时。 */
+export interface CombatBuffPresentation {
+  readonly iconId?: string;
+  readonly iconPath?: string;
+  readonly visible?: boolean;
+  readonly showInHeadBarCommon?: boolean;
+  readonly showInHeadBarAttached?: boolean;
+  readonly showInSquadIcon?: boolean;
+  readonly onlyShowForMainCharacter?: boolean;
+  readonly iconStyleInSquad?: string;
+  readonly abnormalColorType?: string;
+  readonly orderPriority?: {
+    readonly useDirectoryValue: boolean;
+    readonly value: number;
+    readonly category: string;
+  };
+}
+
 /** 可复用、不可变的 Buff 定义；实例状态不应写回这里。 */
 export interface CombatBuffDefinition<Key extends string> {
   readonly id: string;
+  readonly presentation?: CombatBuffPresentation;
   readonly timeClock?: BuffTimeClock;
   /** Buff 实例自身的原生分类标签；不等同于启用期间可能挂到所属实体的标签。 */
   readonly applyTags?: readonly GameplayTagId[];

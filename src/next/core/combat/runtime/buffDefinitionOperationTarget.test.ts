@@ -45,7 +45,11 @@ describe('BuffDefinitionOperationTarget', () => {
 
     expect(container.buffs).toHaveLength(1);
     expect(instance.definition.durationSeconds).toBe(5);
+    expect(instance.definition.presentation).toEqual({
+      iconPath: '/icons/buffs/shared.webp',
+    });
     expect(instance.remainingDuration).toBe(9);
+    // 展示元数据跟随最终运行时定义，但不会污染只负责战斗语义的外部定义编译器输入。
     expect(compiledEntries[0]).not.toHaveProperty('presentation');
   });
 

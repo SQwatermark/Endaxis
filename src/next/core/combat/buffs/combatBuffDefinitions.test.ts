@@ -23,6 +23,11 @@ function createDocument(): CombatBuffDefinitionsDocument {
     buffs: [
       {
         id: 'attachment.heat',
+        presentation: {
+          iconId: 'icon_attachment_heat',
+          iconPath: '/icons/icon_attachment_heat.webp',
+          visible: true,
+        },
         stackingType: 'enhanceAndRefresh',
         maxStackCount: 4,
         durationSeconds: { blackboardKey: 'duration' },
@@ -63,6 +68,11 @@ describe('compileCombatBuffDefinitions', () => {
       }),
     );
     expect(first.remainingDuration).toBe(12);
+    expect(first.definition.presentation).toEqual({
+      iconId: 'icon_attachment_heat',
+      iconPath: '/icons/icon_attachment_heat.webp',
+      visible: true,
+    });
     expect(index.getAttachmentElement(definition)).toBe('heat');
     expect(index.getBurst('heat').id).toBe('burst.heat');
     expect(index.getCompoundStatus('heat', 'cryo').id).toBe('status.heat.cryo');
@@ -135,6 +145,43 @@ describe('compileCombatBuffDefinitions', () => {
         ],
       }),
     ).toThrow("unknown property 'unexpectedNativeField'");
+  });
+
+  it('strictly parses and compiles Buff presentation instead of dropping it', () => {
+    const document = parseCombatBuffDefinitionsDocument({
+      schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
+      revision: 'test-presentation',
+      buffs: [
+        {
+          id: 'buff.visible',
+          stackingType: 'refresh',
+          presentation: {
+            iconId: 'icon_buff_visible',
+            visible: true,
+            showInSquadIcon: true,
+            orderPriority: {
+              useDirectoryValue: false,
+              value: 3,
+              category: 'CommonCharBuff',
+            },
+          },
+        },
+      ],
+    });
+    const definition = compileCombatBuffDefinitions<Attribute>(document, {
+      emitElementalInflictionStarted: vi.fn(),
+    }).get('buff.visible');
+
+    expect(definition?.presentation).toEqual({
+      iconId: 'icon_buff_visible',
+      visible: true,
+      showInSquadIcon: true,
+      orderPriority: {
+        useDirectoryValue: false,
+        value: 3,
+        category: 'CommonCharBuff',
+      },
+    });
   });
 
   it('parses and compiles dynamic priority without leaking native flag fields', () => {

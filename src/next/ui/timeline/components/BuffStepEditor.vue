@@ -72,6 +72,19 @@ watch(
 const assignments = computed(() =>
   Object.entries(props.step.parameters.blackboardAssignments ?? {}),
 );
+const presentation = computed(() => props.step.parameters.definition?.presentation);
+const failedIconPath = ref('');
+const previewIconPath = computed(() => {
+  const iconPath = presentation.value?.iconPath;
+  return iconPath !== undefined && iconPath !== failedIconPath.value ? iconPath : '';
+});
+
+watch(
+  () => presentation.value?.iconPath,
+  () => {
+    failedIconPath.value = '';
+  },
+);
 const operandLabels = () => ({
   constant: t('nextTimeline.skillEditing.operandConstant'),
   blackboard: t('nextTimeline.skillEditing.operandBlackboard'),
@@ -117,8 +130,13 @@ function setIconPath(event: Event): void {
   if (definition === undefined) return;
   const iconPath = (event.target as HTMLInputElement).value.trim();
   const next = { ...definition };
-  if (iconPath === '') delete next.presentation;
-  else next.presentation = { ...definition.presentation, iconPath };
+  if (iconPath === '') {
+    if (definition.presentation !== undefined) {
+      const { iconPath: _removedIconPath, ...remainingPresentation } = definition.presentation;
+      if (Object.keys(remainingPresentation).length === 0) delete next.presentation;
+      else next.presentation = remainingPresentation;
+    }
+  } else next.presentation = { ...definition.presentation, iconPath };
   setDefinition(next);
 }
 
@@ -431,16 +449,29 @@ function removeAssignment(key: string): void {
           @update="setDefinitionTagIds('extendTagIds', $event)"
         />
       </label>
-      <label>
+      <label class="buff-presentation-editor">
         <EditorFieldLabel
           :label="t('nextTimeline.skillEditing.buffIconPath')"
           :help="t('nextTimeline.skillEditing.fieldHelp.buffIconPath')"
         />
-        <input
-          type="text"
-          :value="step.parameters.definition.presentation?.iconPath ?? ''"
-          @input="setIconPath"
-        />
+        <span class="buff-presentation-editor__content">
+          <span class="buff-icon-preview" :class="{ 'is-hidden': presentation?.visible === false }">
+            <img
+              v-if="previewIconPath"
+              :src="previewIconPath"
+              :alt="presentation?.iconId ?? step.parameters.buffId"
+              @error="failedIconPath = previewIconPath"
+            />
+            <span v-else class="buff-icon-preview__fallback">BUFF</span>
+          </span>
+          <span class="buff-presentation-editor__fields">
+            <input type="text" :value="presentation?.iconPath ?? ''" @input="setIconPath" />
+            <small v-if="presentation?.iconId">
+              <code>{{ presentation.iconId }}</code>
+              <span v-if="presentation.visible === false"> · hidden</span>
+            </small>
+          </span>
+        </span>
       </label>
       <label>
         <EditorFieldLabel :label="t('nextTimeline.skillEditing.durationSeconds')" />
@@ -600,6 +631,57 @@ function removeAssignment(key: string): void {
   grid-template-columns: minmax(110px, 150px) minmax(0, 1fr);
   align-items: center;
   gap: 10px;
+}
+
+.buff-definition__grid .buff-presentation-editor {
+  grid-column: 1 / -1;
+}
+
+.buff-presentation-editor__content {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+
+.buff-presentation-editor__fields {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.buff-presentation-editor__fields small {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--ea-fg-muted);
+}
+
+.buff-icon-preview {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  overflow: hidden;
+  border: 1px solid var(--ea-border);
+  background: var(--ea-fill-input, #16161a);
+}
+
+.buff-icon-preview.is-hidden {
+  opacity: 0.42;
+}
+
+.buff-icon-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.buff-icon-preview__fallback {
+  color: var(--ea-fg-muted);
+  font-size: 8px;
+  letter-spacing: 0.04em;
 }
 
 .buff-lifecycle__tabs {

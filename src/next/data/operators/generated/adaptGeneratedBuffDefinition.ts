@@ -55,6 +55,27 @@ export function adaptGeneratedBuffDefinition(
   const lifecycle = source.lifecycle;
   return {
     id: source.buffId,
+    ...(source.presentation === undefined
+      ? {}
+      : {
+          presentation: {
+            visible: source.presentation.hasIcon,
+            ...(source.presentation.spritePath === ''
+              ? {}
+              : { iconId: source.presentation.spritePath }),
+            showInHeadBarCommon: source.presentation.showInHeadBarCommon,
+            showInHeadBarAttached: source.presentation.showInHeadBarAttached,
+            showInSquadIcon: source.presentation.showInSquadIcon,
+            onlyShowForMainCharacter: source.presentation.onlyShowForMainCharacter,
+            iconStyleInSquad: source.presentation.iconStyleInSquad,
+            abnormalColorType: source.presentation.abnormalColorType,
+            orderPriority: {
+              useDirectoryValue: source.presentation.orderUseDirectoryValue,
+              value: source.presentation.orderPriorityValue,
+              category: source.presentation.orderPriorityEnum,
+            },
+          },
+        }),
     applyTagIds: source.applyTagIds,
     extendTagIds: source.extendTagIds,
     stackingType: STACKING_TYPES[lifecycle.stackingType],

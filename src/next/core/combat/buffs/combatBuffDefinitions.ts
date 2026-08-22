@@ -23,6 +23,7 @@ import type {
   BuffTriggerCount,
   CombatBuff,
   CombatBuffDefinition,
+  CombatBuffPresentation,
 } from './combatBuffs';
 import { BUFF_STACKING_TYPES } from './combatBuffs';
 import type {
@@ -176,6 +177,8 @@ export interface CombatBuffDefinitionDamageModifier {
 /** 外部定义中的一项稳定 Buff 定义。 */
 export interface CombatBuffDefinitionEntry {
   readonly id: string;
+  /** Buff 的用户可观察图标身份和显示规则；不参与数值计算但不得在编译边界丢失。 */
+  readonly presentation?: CombatBuffPresentation;
   /** 缺省为 default；仅在解包配置明确使用全局或实体时间时填写。 */
   readonly timeClock?: BuffTimeClock;
   /** 解包数据中的原始有符号 int32 applyTags。 */
@@ -288,6 +291,7 @@ export class CompiledCombatBuffDefinitions<
     }
     const definition: CombatBuffDefinition<Key> = {
       id: entry.id,
+      presentation: entry.presentation,
       timeClock: entry.timeClock,
       applyTags: entry.applyTagIds?.map(gameplayTagId),
       extendTags: entry.extendTagIds?.map(gameplayTagId),
@@ -404,6 +408,7 @@ export function parseCombatBuffDefinitionEntry(
   const entry = requireObject(input, path);
   requireOnlyKeys(entry, path, [
     'id',
+    'presentation',
     'timeClock',
     'applyTagIds',
     'extendTagIds',
@@ -428,6 +433,7 @@ export function parseCombatBuffDefinitionEntry(
   const stackingType = requireEnum(entry.stackingType, BUFF_STACKING_TYPES, `${path}.stackingType`);
   return {
     id: requireNonEmptyString(entry.id, `${path}.id`),
+    ...parseOptionalPresentation(entry, path),
     ...(entry.timeClock === undefined
       ? {}
       : {
@@ -456,6 +462,67 @@ export function parseCombatBuffDefinitionEntry(
     ...parseOptionalRole(entry, path),
     ...parseOptionalActions(entry, path),
     ...parseOptionalSpellBurst(entry, path),
+  };
+}
+
+function parseOptionalPresentation(
+  entry: Readonly<Record<string, unknown>>,
+  path: string,
+): { presentation?: CombatBuffPresentation } {
+  if (entry.presentation === undefined) return {};
+  const presentationPath = `${path}.presentation`;
+  const input = requireObject(entry.presentation, presentationPath);
+  requireOnlyKeys(input, presentationPath, [
+    'iconId',
+    'iconPath',
+    'visible',
+    'showInHeadBarCommon',
+    'showInHeadBarAttached',
+    'showInSquadIcon',
+    'onlyShowForMainCharacter',
+    'iconStyleInSquad',
+    'abnormalColorType',
+    'orderPriority',
+  ]);
+  const optionalString = (key: 'iconId' | 'iconPath' | 'iconStyleInSquad' | 'abnormalColorType') =>
+    input[key] === undefined
+      ? {}
+      : { [key]: requireNonEmptyString(input[key], `${presentationPath}.${key}`) };
+  const optionalBoolean = (
+    key:
+      | 'visible'
+      | 'showInHeadBarCommon'
+      | 'showInHeadBarAttached'
+      | 'showInSquadIcon'
+      | 'onlyShowForMainCharacter',
+  ) =>
+    input[key] === undefined
+      ? {}
+      : { [key]: requireBoolean(input[key], `${presentationPath}.${key}`) };
+  let orderPriority: CombatBuffPresentation['orderPriority'];
+  if (input.orderPriority !== undefined) {
+    const orderPath = `${presentationPath}.orderPriority`;
+    const order = requireObject(input.orderPriority, orderPath);
+    requireOnlyKeys(order, orderPath, ['useDirectoryValue', 'value', 'category']);
+    orderPriority = {
+      useDirectoryValue: requireBoolean(order.useDirectoryValue, `${orderPath}.useDirectoryValue`),
+      value: requireFiniteNumber(order.value, `${orderPath}.value`),
+      category: requireNonEmptyString(order.category, `${orderPath}.category`),
+    };
+  }
+  return {
+    presentation: {
+      ...optionalString('iconId'),
+      ...optionalString('iconPath'),
+      ...optionalBoolean('visible'),
+      ...optionalBoolean('showInHeadBarCommon'),
+      ...optionalBoolean('showInHeadBarAttached'),
+      ...optionalBoolean('showInSquadIcon'),
+      ...optionalBoolean('onlyShowForMainCharacter'),
+      ...optionalString('iconStyleInSquad'),
+      ...optionalString('abnormalColorType'),
+      ...(orderPriority === undefined ? {} : { orderPriority }),
+    },
   };
 }
 

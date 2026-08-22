@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from pathlib import Path
 
 from source_models import (
     BuffDamageScaleProcessorSource,
@@ -115,6 +116,21 @@ PRESENTATION_EVENT_ACTION_TYPES = frozenset(
     }
 )
 PRESENTATION_STACK_EFFECT_ACTION_TYPES = frozenset({"EffectAction"})
+PUBLIC_ASSET_ROOT = Path(__file__).resolve().parents[2] / "public"
+
+
+def _resolve_buff_icon_path(sprite_id: str) -> str | None:
+    """把原生 Sprite ID 映射到仓库中已提取的图标；ID 本身始终另行保留。"""
+
+    if not sprite_id:
+        return None
+    shared = PUBLIC_ASSET_ROOT / "icons" / f"{sprite_id}.webp"
+    if shared.is_file():
+        return f"/icons/{sprite_id}.webp"
+    matches = sorted((PUBLIC_ASSET_ROOT / "operators").glob(f"*/{sprite_id}.webp"))
+    if len(matches) == 1:
+        return "/" + matches[0].relative_to(PUBLIC_ASSET_ROOT).as_posix()
+    return None
 
 
 def _event_actions_are_presentation_only(source: BuffDefinitionSource) -> bool:
@@ -268,6 +284,35 @@ def compile_inline_buff_definition(
         raise ValueError(f"{path}: Buff {source.buffId!r} uses unsupported stack effects")
 
     fields = [f"stackingType: {ts_inline_literal(STACKING_TYPES[lifecycle.stackingType])},"]
+    presentation = getattr(source, "presentation", None)
+    if presentation is not None and (presentation.hasIcon or presentation.spritePath):
+        icon_path = _resolve_buff_icon_path(presentation.spritePath)
+        fields.extend(
+            [
+                "presentation: {",
+                f"  visible: {ts_inline_literal(presentation.hasIcon)},",
+                *(
+                    []
+                    if not presentation.spritePath
+                    else [f"  iconId: {ts_inline_literal(presentation.spritePath)},"]
+                ),
+                *([] if icon_path is None else [f"  iconPath: {ts_inline_literal(icon_path)},"]),
+                f"  showInHeadBarCommon: {ts_inline_literal(presentation.showInHeadBarCommon)},",
+                f"  showInHeadBarAttached: {ts_inline_literal(presentation.showInHeadBarAttached)},",
+                f"  showInSquadIcon: {ts_inline_literal(presentation.showInSquadIcon)},",
+                "  onlyShowForMainCharacter: "
+                f"{ts_inline_literal(presentation.onlyShowForMainCharacter)},",
+                f"  iconStyleInSquad: {ts_inline_literal(presentation.iconStyleInSquad)},",
+                f"  abnormalColorType: {ts_inline_literal(presentation.abnormalColorType)},",
+                "  orderPriority: {",
+                "    useDirectoryValue: "
+                f"{ts_inline_literal(presentation.orderUseDirectoryValue)},",
+                f"    value: {ts_inline_literal(presentation.orderPriorityValue)},",
+                f"    category: {ts_inline_literal(presentation.orderPriorityEnum)},",
+                "  },",
+                "},",
+            ]
+        )
     if getattr(source, "useTimeDilationDt", False):
         fields.append(
             "timeClock: "

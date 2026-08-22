@@ -570,6 +570,23 @@ class BuffLifecycleSource:
 
 
 @dataclass(frozen=True)
+class BuffPresentationSource:
+    """BuffData 中会影响图标展示的原生元数据；不参与战斗数值计算。"""
+
+    hasIcon: bool
+    spritePath: str
+    showInHeadBarCommon: bool
+    showInHeadBarAttached: bool
+    showInSquadIcon: bool
+    onlyShowForMainCharacter: bool
+    iconStyleInSquad: str
+    abnormalColorType: str
+    orderUseDirectoryValue: bool
+    orderPriorityValue: int
+    orderPriorityEnum: str
+
+
+@dataclass(frozen=True)
 class BuffDefinitionSource:
     buffId: str
     sourceFile: str
@@ -614,6 +631,7 @@ class BuffDefinitionSource:
     animationEndBuffApplications: tuple["BuffAnimationEndApplicationSource", ...] = ()
     projectileLaunches: tuple[ProjectileLaunchSource, ...] = ()
     presentationOnlySwitchActionIndexes: tuple[int, ...] = ()
+    presentation: BuffPresentationSource | None = None
 
 
 @dataclass(frozen=True)

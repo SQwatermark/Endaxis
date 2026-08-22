@@ -72,6 +72,14 @@ describe('SkillDefinitionEditor structure', () => {
     expect(buffGraphEditorSource).toContain('@keydown.esc.stop="pendingMode = \'\'"');
   });
 
+  it('Buff Inspector 渲染图标且清空路径时保留其余原生展示身份', () => {
+    expect(buffStepEditorSource).toContain('class="buff-icon-preview"');
+    expect(buffStepEditorSource).toContain(':src="previewIconPath"');
+    expect(buffStepEditorSource).toContain('presentation?.iconId');
+    expect(buffStepEditorSource).toContain('remainingPresentation');
+    expect(buffStepEditorSource).not.toContain("if (iconPath === '') delete next.presentation");
+  });
+
   it('正式导图贯通拖放与本地结构剪贴板，并提供可见粘贴入口', () => {
     for (const source of [editorSource, buffGraphEditorSource, abilityEntityGraphEditorSource]) {
       expect(source).toContain('@move-node="moveStructureNode"');

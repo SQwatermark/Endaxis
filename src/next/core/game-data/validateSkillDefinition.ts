@@ -1279,7 +1279,20 @@ function validateCombatStep(
               );
               if (presentationRecord !== null) {
                 for (const key of Object.keys(presentationRecord)) {
-                  if (key !== 'iconPath') {
+                  if (
+                    ![
+                      'iconId',
+                      'iconPath',
+                      'visible',
+                      'showInHeadBarCommon',
+                      'showInHeadBarAttached',
+                      'showInSquadIcon',
+                      'onlyShowForMainCharacter',
+                      'iconStyleInSquad',
+                      'abnormalColorType',
+                      'orderPriority',
+                    ].includes(key)
+                  ) {
                     push(
                       out,
                       `${path}.parameters.definition.presentation.${key}`,
@@ -1294,6 +1307,68 @@ function validateCombatStep(
                     `${path}.parameters.definition.presentation`,
                     out,
                   );
+                }
+                for (const key of ['iconId', 'iconStyleInSquad', 'abnormalColorType']) {
+                  if (presentationRecord[key] !== undefined) {
+                    requireString(
+                      presentationRecord,
+                      key,
+                      `${path}.parameters.definition.presentation`,
+                      out,
+                    );
+                  }
+                }
+                for (const key of [
+                  'visible',
+                  'showInHeadBarCommon',
+                  'showInHeadBarAttached',
+                  'showInSquadIcon',
+                  'onlyShowForMainCharacter',
+                ]) {
+                  if (presentationRecord[key] !== undefined) {
+                    requireBoolean(
+                      presentationRecord,
+                      key,
+                      `${path}.parameters.definition.presentation`,
+                      out,
+                    );
+                  }
+                }
+                if (presentationRecord.orderPriority !== undefined) {
+                  const order = asRecord(
+                    presentationRecord.orderPriority,
+                    `${path}.parameters.definition.presentation.orderPriority`,
+                    out,
+                  );
+                  if (order !== null) {
+                    for (const key of Object.keys(order)) {
+                      if (!['useDirectoryValue', 'value', 'category'].includes(key)) {
+                        push(
+                          out,
+                          `${path}.parameters.definition.presentation.orderPriority.${key}`,
+                          'unknown Buff icon order field',
+                        );
+                      }
+                    }
+                    requireBoolean(
+                      order,
+                      'useDirectoryValue',
+                      `${path}.parameters.definition.presentation.orderPriority`,
+                      out,
+                    );
+                    requireFiniteNumber(
+                      order,
+                      'value',
+                      `${path}.parameters.definition.presentation.orderPriority`,
+                      out,
+                    );
+                    requireString(
+                      order,
+                      'category',
+                      `${path}.parameters.definition.presentation.orderPriority`,
+                      out,
+                    );
+                  }
                 }
               }
             }

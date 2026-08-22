@@ -30,6 +30,42 @@ describe('adaptGeneratedBuffDefinition', () => {
     ).toEqual([123]);
   });
 
+  it('preserves native icon identity and visibility in the runtime definition', () => {
+    const source = requireBuff('buff_chr_0030_zhuangfy_ult_skill_free');
+    expect(
+      adaptGeneratedBuffDefinition({
+        ...source,
+        presentation: {
+          hasIcon: true,
+          spritePath: 'icon_battle_buff_atk_up',
+          showInHeadBarCommon: true,
+          showInHeadBarAttached: false,
+          showInSquadIcon: true,
+          onlyShowForMainCharacter: false,
+          iconStyleInSquad: 'Default',
+          abnormalColorType: 'Physical',
+          orderUseDirectoryValue: false,
+          orderPriorityValue: 12,
+          orderPriorityEnum: 'CommonCharBuff',
+        },
+      }).presentation,
+    ).toEqual({
+      visible: true,
+      iconId: 'icon_battle_buff_atk_up',
+      showInHeadBarCommon: true,
+      showInHeadBarAttached: false,
+      showInSquadIcon: true,
+      onlyShowForMainCharacter: false,
+      iconStyleInSquad: 'Default',
+      abnormalColorType: 'Physical',
+      orderPriority: {
+        useDirectoryValue: false,
+        value: 12,
+        category: 'CommonCharBuff',
+      },
+    });
+  });
+
   it('recognizes extend tags but still rejects other unsupported behavior', () => {
     expect(requireBuff('buff_chr_0030_zhuangfy_ult_base').extendTagIds).not.toEqual([]);
     expect(() =>

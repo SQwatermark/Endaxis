@@ -1113,10 +1113,7 @@ export interface CombatEventHandlerDefinition {
  * `applyBuff` 步骤内联的 Buff 蓝图，不重复保存步骤已经携带的 `buffId`。
  * 施加次数、目标和本次传入的黑板值属于施加行为，不属于这份定义。
  */
-export interface SkillBuffPresentation {
-  /** Endaxis 内部可直接加载的图标路径，只影响编辑器和时间轴显示。 */
-  iconPath?: string;
-}
+export type SkillBuffPresentation = import('../combat/buffs/combatBuffs').CombatBuffPresentation;
 
 /**
  * Buff 实例生命周期边界上的有序步骤。
