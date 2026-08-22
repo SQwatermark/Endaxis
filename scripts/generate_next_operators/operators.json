@@ -705,7 +705,7 @@
         },
         {
           "key": "potential5",
-          "compile": "unmodeledPotential"
+          "compile": "passiveBlackboardPatch"
         }
       ],
       "skillGroups": [

@@ -391,13 +391,9 @@ def _render_attached_passive_skills(
     source = passive_skills.get(skill_id)
     if source is None:
         return None
-    event_only = (
-        not source.buffs
-        and bool(source.event_listeners)
-        and source.unsupported_reasons == ("passive has no startup Buff",)
-        and compile_event_listener is not None
-    )
-    if not source.can_generate_add_buff and not event_only:
+    if not source.can_generate_add_buff and not (
+        source.can_generate_event_program and compile_event_listener is not None
+    ):
         return None
     unknown_keys = set(values_by_key).difference(source.declared_blackboard_keys)
     if unknown_keys:
@@ -987,7 +983,7 @@ def _render_skill_and_passive_blackboard_patch_modifiers(
     lines = skill_lines[:-1]
     for index, modifier, passive in passive_entries:
         entry_path = f"{path}[{index}]"
-        if not passive.can_generate_add_buff:
+        if not passive.can_generate_program:
             raise ValueError(f"{entry_path}: target passive {passive.skill_id!r} is not generated")
         blackboard_key = modifier.get("bbKey")
         if blackboard_key not in passive.declared_blackboard_keys:
@@ -1853,7 +1849,7 @@ def render_potentials(
                         f"{entry_path}.skillBbModifier.skillId: expected passive skill id"
                     )
                 passive = passive_skills.get(passive_skill_id)
-                if passive is None or not passive.can_generate_add_buff:
+                if passive is None or not passive.can_generate_program:
                     raise ValueError(
                         f"{entry_path}: target passive {passive_skill_id!r} is not generated"
                     )

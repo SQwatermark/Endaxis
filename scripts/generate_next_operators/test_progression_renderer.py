@@ -968,6 +968,58 @@ class ProgressionRendererTests(unittest.TestCase):
         self.assertIn("blackboardKey: 'first'", rendered[0])
         self.assertIn("blackboardKey: 'second'", rendered[0])
 
+    def test_potential_can_patch_event_only_passive_blackboard(self) -> None:
+        passive = PassiveSkillSource(
+            skill_id="skill.event-passive",
+            source_file="skill.event-passive.json",
+            passive_type="AddBuff",
+            declared_blackboard_keys=("ratio",),
+            buffs=(),
+            unsupported_reasons=("passive has no startup Buff",),
+            event_listeners=(SimpleNamespace(),),
+        )
+        rendered = render_potentials(
+            {
+                "slug": "operator",
+                "charId": "char",
+                "potentials": [
+                    {"key": "potential5", "compile": "passiveBlackboardPatch"}
+                ],
+                "skillGroups": [
+                    {"key": "comboSkill", "skillKeys": ["comboSkill"]},
+                    {"key": "ultimate", "skillKeys": ["ultimate"]},
+                ],
+            },
+            [
+                SimpleNamespace(key="comboSkill", skillId="skill.combo"),
+                SimpleNamespace(key="ultimate", skillId="skill.ultimate"),
+            ],
+            {
+                "char": {
+                    "potentialUnlockBundle": [
+                        {"level": 5, "potentialEffectId": "effect.potential"}
+                    ]
+                }
+            },
+            {
+                "effect.potential": {
+                    "dataList": [
+                        skill_blackboard_entry(
+                            skill_id="skill.event-passive",
+                            blackboard_key="ratio",
+                            value=0.06,
+                        )
+                    ]
+                }
+            },
+            {passive.skill_id: passive},
+        )
+
+        self.assertIn("kind: 'patchPassiveBlackboard'", rendered[0])
+        self.assertIn("passiveSkillKey: 'skill.event-passive'", rendered[0])
+        self.assertIn("blackboardKey: 'ratio'", rendered[0])
+        self.assertIn("value: 0.06", rendered[0])
+
     def test_potential_can_combine_variant_cooldown_and_blackboard_patches(self) -> None:
         rendered = render_potentials(
             {

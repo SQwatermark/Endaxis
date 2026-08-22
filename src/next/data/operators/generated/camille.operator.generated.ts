@@ -1554,8 +1554,16 @@ export const camilleGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential5',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchPassiveBlackboard',
+          passiveSkillKey: 'chr_0033_camille_passive_talent1',
+          blackboardKey: 'atk_up',
+          operation: 'add',
+          value: 0.06,
+        },
+      ],
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'potentialEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['battleSkill', 'ultimate'] }] },
+  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'skillBehavior', skillGroupKeys: ['battleSkill', 'ultimate'] }] },
 };

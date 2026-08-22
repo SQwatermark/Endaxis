@@ -61,6 +61,20 @@ class PassiveSkillSource:
             and not self.unsupported_reasons
         )
 
+    @property
+    def can_generate_event_program(self) -> bool:
+        """无启动 Buff、但事件时间线完整时同样是可生成的被动程序。"""
+        return (
+            self.passive_type == "AddBuff"
+            and not self.buffs
+            and bool(self.event_listeners)
+            and self.unsupported_reasons == ("passive has no startup Buff",)
+        )
+
+    @property
+    def can_generate_program(self) -> bool:
+        return self.can_generate_add_buff or self.can_generate_event_program
+
 
 def parse_passive_skill(skill_id: str, source_dir: Path) -> PassiveSkillSource:
     """严格读取隐藏被动的启动载荷；不支持的行为保留为审计原因。"""
