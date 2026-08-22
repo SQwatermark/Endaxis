@@ -432,6 +432,49 @@ function createGeneratedMifuProtectionScenario() {
   }).scenario;
 }
 
+function createGeneratedMifuBattleChainScenario() {
+  const scenario = createEmptyScenario('scenario:generated-mifu-chain', '弭弗三段战技样本');
+  scenario.battle.durationFrames = 140;
+  scenario.battle.resourceRules = {
+    ...scenario.battle.resourceRules,
+    initialSp: 300,
+    spRecoveryPerSecond: 0,
+  };
+  scenario.tracks[0] = {
+    id: 'track:mifu-chain',
+    operator: {
+      operatorSlug: mifuGeneratedOperator.slug,
+      level: 90,
+      promoted: true,
+      potential: 0,
+      trustLevel: 4,
+      skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+      talentStates: {},
+    },
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    initialState: { ultimateEnergy: 0 },
+    skillCasts: [],
+  };
+  let nextId = 0;
+  const ids = { allocate: (kind: string) => `${kind}:mifu-chain:${++nextId}` };
+  let placed = scenario;
+  for (const startFrame of [1, 20, 60]) {
+    placed = placeSkillGroup({
+      scenario: placed,
+      trackIndex: 0,
+      operator: mifuGeneratedOperator,
+      skillGroupKey: 'battleSkill',
+      startFrame,
+      ids,
+    }).scenario;
+  }
+  placed.tracks[0]!.skillCasts.at(-1)!.simulationInputs = {
+    cameraToTargetSignedAngleDegrees: 0,
+  };
+  return placed;
+}
+
 function runGeneratedLifengScenario(talentLevel: number) {
   return runStandardPlayerDamageScenarioSimulation({
     scenario: createGeneratedLifengScenario(talentLevel),
@@ -1000,6 +1043,48 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         }),
       }),
     );
+  });
+
+  it('runs all three generated Mifu battle-skill forms with stable hit identities', () => {
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: createGeneratedMifuBattleChainScenario(),
+      endFrame: 140,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        ...standardOptions(),
+        index: {
+          getCommonBuffDefinitions: () => generatedCommonBuffDefinitions,
+          getOperator: slug => (slug === mifuGeneratedOperator.slug ? mifuGeneratedOperator : null),
+          getWeapon: () => null,
+          getGear: () => null,
+          getGearSet: () => null,
+        },
+      },
+    });
+
+    expect(
+      result.receiptEntries
+        .filter(entry => entry.event === 'SkillStarted')
+        .map(entry => entry.data?.skillId),
+    ).toEqual(['battleSkill1', 'battleSkill2', 'battleSkill3']);
+    const damageSteps = result.receiptEntries
+      .filter(entry => entry.event === 'DamageApplied')
+      .map(entry => String(entry.data?.stepKey));
+    expect(damageSteps.filter(stepKey => stepKey.includes('battleSkill1'))).toHaveLength(1);
+    expect(damageSteps.filter(stepKey => stepKey.includes('battleSkill2'))).toHaveLength(3);
+    expect(damageSteps.filter(stepKey => stepKey.includes('battleSkill3'))).toHaveLength(1);
+    expect(
+      result.receiptEntries
+        .filter(entry => entry.event === 'DamageApplied')
+        .every(
+          entry => typeof entry.data?.castId === 'string' && typeof entry.data?.hitId === 'string',
+        ),
+    ).toBe(true);
   });
 
   it('runs generated Last Rite party Buff events relative to the controlled owner', () => {

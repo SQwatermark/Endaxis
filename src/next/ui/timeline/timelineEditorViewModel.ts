@@ -14,7 +14,10 @@ import {
   type ResolvedSkillDefinition,
 } from '../../core/compiler/resolveSkillDefinition';
 import { projectOperatorSupport, type OperatorSupportViewModel } from './operatorSupportViewModel';
-import { projectCastHitMarkers, type TimelineHitMarker } from './timelineHitProjection';
+import {
+  projectCastHitMarkersWithReplacements,
+  type TimelineHitMarker,
+} from './timelineHitProjection';
 
 /** UI 投影读取干员定义的最小端口。 */
 export interface TimelineOperatorIndex {
@@ -111,7 +114,15 @@ function projectSkillCast(
     skillType,
     hitMarkers:
       resolved !== null
-        ? projectCastHitMarkers(skillCast, resolved.definition, abilityEntityDefinitions)
+        ? projectCastHitMarkersWithReplacements(
+            skillCast,
+            resolved.definition,
+            [
+              ...(resolved.group.replacementSkills ?? []),
+              ...(resolved.group.routedReplacementSkills ?? []).map(item => item.skill),
+            ],
+            abilityEntityDefinitions,
+          )
         : [],
     disabled: skillCast.presentation?.disabled ?? false,
     locked: skillCast.presentation?.locked ?? false,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createEmptyScenario } from '../../core/project/createProject';
-import { perlica } from '../../data/operators';
+import { mifu, perlica } from '../../data/operators';
 import { placeSkillGroup } from './placeSkillGroup';
 import { projectTimelineEditor } from './timelineEditorViewModel';
 
@@ -118,6 +118,53 @@ describe('projectTimelineEditor', () => {
       maxUltimateEnergy: null,
       skillLibrary: [],
     });
+  });
+
+  it('projects every runtime replacement hit for Mifu chained battle-skill blocks', () => {
+    const scenario = createEmptyScenario('scenario:mifu-hit-markers', '弭弗三段战技命中投影');
+    scenario.tracks[0] = {
+      id: 'track:mifu',
+      operator: {
+        operatorSlug: mifu.slug,
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: {},
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    const placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: mifu,
+      skillGroupKey: 'battleSkill',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:mifu` },
+    }).scenario;
+
+    const [cast] = projectTimelineEditor(placed, {
+      getOperator: slug => (slug === mifu.slug ? mifu : null),
+    }).tracks[0]!.skillCasts;
+    const markersByForm = cast!.hitMarkers.reduce<Record<string, number>>((result, marker) => {
+      const form = marker.stepKey.match(/battleSkill[123]/)?.[0] ?? 'unknown';
+      result[form] = (result[form] ?? 0) + 1;
+      return result;
+    }, {});
+
+    expect(markersByForm).toEqual({ battleSkill1: 1, battleSkill2: 3, battleSkill3: 1 });
+    expect(cast!.hitMarkers.filter(marker => marker.stepKey.includes('battleSkill1'))).toEqual([
+      expect.objectContaining({ conditional: false }),
+    ]);
+    expect(
+      cast!.hitMarkers
+        .filter(marker => !marker.stepKey.includes('battleSkill1'))
+        .every(marker => marker.conditional),
+    ).toBe(true);
   });
 
   it('keeps project template identity separate from inherited operator assets', () => {

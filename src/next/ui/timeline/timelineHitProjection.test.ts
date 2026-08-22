@@ -8,6 +8,7 @@ import { deriveHitId } from '../../core/combat/timeline/deriveHitId';
 import {
   findCastHitMarker,
   projectCastHitMarkers,
+  projectCastHitMarkersWithReplacements,
   projectTimelineHitMarkerLeftPx,
   shouldDisplayTimelineHitMarker,
 } from './timelineHitProjection';
@@ -141,6 +142,32 @@ describe('projectCastHitMarkers', () => {
   it('空技能释放不产生命中标记', () => {
     const emptyCast = createCast([]);
     expect(projectCastHitMarkers(emptyCast, fixtureDef(emptyCast))).toEqual([]);
+  });
+
+  it('keeps replacement-skill hits as receipt-gated candidates for the same cast', () => {
+    const cast = createCast([damageStep('base-hit', 'base-hit')]);
+    const replacement: SkillDefinition = {
+      key: 'battleSkill2',
+      timelineBlockFrames: 30,
+      scheduledSequences: [
+        {
+          startFrame: 18,
+          sequence: { steps: [damageStep('replacement-hit', 'replacement-hit')] },
+        },
+      ],
+    };
+
+    expect(projectCastHitMarkersWithReplacements(cast, fixtureDef(cast), [replacement])).toEqual([
+      expect.objectContaining({
+        hitId: deriveHitId('cast:1', 'base-hit'),
+        conditional: false,
+      }),
+      expect.objectContaining({
+        hitId: deriveHitId('cast:1', 'replacement-hit'),
+        frameOffset: 18,
+        conditional: true,
+      }),
+    ]);
   });
 
   it('collects ID-only ability-entity child hits from the operator definition table', () => {
