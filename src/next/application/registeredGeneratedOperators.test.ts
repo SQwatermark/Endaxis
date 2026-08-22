@@ -7,7 +7,15 @@ import { resolveScenarioBuilds } from '../core/compiler/resolveScenarioBuilds';
 import { createEmptyScenario } from '../core/project/createProject';
 import { nextGameDataRepository } from '../data/gameDataRepository';
 import { elementalAttachments } from '../data/buffs/elementalAttachments';
-import { arcane, ember, laevatain, pogranichnik, yvonne, zhuangFangyi } from '../data/operators';
+import {
+  arcane,
+  camille,
+  ember,
+  laevatain,
+  pogranichnik,
+  yvonne,
+  zhuangFangyi,
+} from '../data/operators';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
 
@@ -412,6 +420,98 @@ describe('registered generated operators', () => {
     expect(
       withTalent.receiptEntries.some(
         entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:pogranichnik',
+      ),
+    ).toBe(true);
+  });
+
+  it('routes Camille battle skill through her ultimate transformation and restores the slot', () => {
+    const scenario = createEmptyScenario('scenario:camille:registered', '卡米拉默认仓库回归');
+    scenario.battle.durationFrames = 360;
+    scenario.battle.resourceRules = {
+      ...scenario.battle.resourceRules,
+      initialSp: 300,
+      spRecoveryPerSecond: 0,
+    };
+    scenario.tracks[0] = {
+      id: 'track:camille',
+      operator: {
+        operatorSlug: camille.slug,
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 2 },
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 130 },
+      skillCasts: [],
+    };
+    let nextId = 0;
+    const ids = { allocate: (kind: string) => `${kind}:camille:${++nextId}` };
+    const ultimate = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: camille,
+      skillGroupKey: 'ultimate',
+      startFrame: 1,
+      ids,
+    }).scenario;
+    const placed = placeSkillGroup({
+      scenario: ultimate,
+      trackIndex: 0,
+      operator: camille,
+      skillGroupKey: 'battleSkill',
+      startFrame: 180,
+      ids,
+    }).scenario;
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      endFrame: 360,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(80).fill(1)),
+      elementalInflictionDocument: elementalAttachments,
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          ultimateEnergySystemUnlocked: true,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+        },
+      },
+    });
+
+    expect(
+      result.receiptEntries
+        .filter(entry => entry.event === 'SkillStarted')
+        .map(entry => entry.data?.skillId),
+    ).toEqual(['ultimate', 'battleSkillDuringUltimate']);
+    const slotChanges = result.receiptEntries
+      .filter(entry => entry.event === 'SkillSlotChanged' && entry.sourceId === 'track:camille')
+      .map(entry => entry.data?.targetSkillKey);
+    expect(slotChanges).toEqual(['battleSkillDuringUltimate', 'battleSkill']);
+    expect(
+      result.receiptEntries.some(
+        entry =>
+          entry.event === 'SpChanged' &&
+          entry.sourceId === 'track:camille' &&
+          entry.data?.skillId === 'battleSkillDuringUltimate' &&
+          entry.data?.requestedValue === -40,
+      ),
+    ).toBe(true);
+    expect(
+      result.receiptEntries.some(
+        entry =>
+          entry.event === 'DamageApplied' &&
+          entry.sourceId === 'track:camille' &&
+          String(entry.data?.stepKey).includes('comboSkill2'),
       ),
     ).toBe(true);
   });

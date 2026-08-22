@@ -551,3 +551,10 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 
 - 波格兰尼奇默认仓库生产场景已随后贯通：终结技先生成 4 个常规士兵，连携获得的实际 Skill/Gain 技力触发天赋增攻，后续普攻伤害高于未启用天赋的同构场景；终结技 Buff 再生成 4 个 `finish4` 子技能实体。战技的 `applyPhysicalInfliction` 也进入标准兼容预检，且两棵内联 Buff 定义会递归接受同一门禁扫描。
 - 此回归发现并修复了常驻被动生命周期：装配层此前对 enableSequence 调用 `executeInstant`，导致 `listenForCombatEvents` 在同一调用末尾立即注销。现在常驻序列保持 started 状态并由装配持有，初始化程序仍是瞬时语义；装配级测试确认后续 Skill/Gain 能唤醒监听。最终门禁为 Next 200 文件 1349/1349、`type-check:next` 与 `git diff --check` 通过。
+
+### 2026-08-22：Camille 变身战技生产闭环
+
+- `buff_chr_0033_camille_ult_henshin_state` 已由正式生成定义承载战技槽替换：奥义第 118 局部帧施加变身，`battleSkill` 槽映射到复用连携二段程序的 `battleSkillDuringUltimate`；用户时间轴仍只保存稳定组键，不保存当时形态的技能键。
+- 默认仓库生产场景现已贯通“奥义 → 换槽 → 现实帧上的战技块解析当前形态 → 支付 40 SP → 产生连携二段伤害 → 技能第 0 帧结束变身 → 槽恢复”。回执同时锁定两次 `SkillSlotChanged` 和实际 `SkillStarted` 身份，避免生成定义正确但运行时路由退化。
+- Camille 的奥义行为缺口因此关闭；`conversionSupport` 只剩基础战技内 `WeakAction`。该关键词行为仍等待 IFix 方法体或等价运行时证据，不会用空 child Buff 或“木桩无主动行为”将其标成无效果。梨诺缺失能力实体模板的边界也没有变化。
+- 定向生产测试为 7/7；下一项从横向审计已达 29/30、但尚无正式 manifest 的资产闭合干员中继续正式化，优先选择能覆盖公共机制而非仅有普攻冒烟的样本。
