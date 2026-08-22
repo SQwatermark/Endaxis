@@ -8,6 +8,34 @@ const terminal = {
 };
 
 describe('EventContextConditionExecutor', () => {
+  it('matches an explicitly typed external operator hit and rejects an unspecified type', () => {
+    const executor = new EventContextConditionExecutor(terminal);
+    const condition = { kind: 'eventDamageTypeIn', damageTypes: ['heat'] } as const;
+
+    expect(
+      executor.evaluate(condition, {
+        blackboard: new ActionBlackboard(),
+        event: {
+          kind: 'operatorHit',
+          targetOperatorId: 'operator',
+          damageType: 'heat',
+          tags: [],
+          features: [],
+        },
+      }),
+    ).toBe(true);
+    expect(
+      executor.evaluate(condition, {
+        blackboard: new ActionBlackboard(),
+        event: {
+          kind: 'operatorHit',
+          targetOperatorId: 'operator',
+          tags: [],
+          features: [],
+        },
+      }),
+    ).toBe(false);
+  });
   it('matches the ability damage source against live control state', () => {
     const executor = new EventContextConditionExecutor(
       terminal,

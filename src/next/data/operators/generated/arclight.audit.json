@@ -4654,6 +4654,7 @@
                 "levelValues": null
               },
               "skillTypes": [],
+              "damageType": null,
               "entityCount": null,
               "buffStack": null,
               "health": null,

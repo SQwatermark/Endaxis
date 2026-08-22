@@ -24,6 +24,7 @@ export type CombatSemanticEvent =
   | {
       readonly kind: 'operatorHit';
       readonly targetOperatorId: string;
+      readonly damageType?: import('../../game-data/operatorDefinition').DamageType;
       readonly tags: readonly DamageTag[];
       readonly features: readonly DamageFeature[];
     }

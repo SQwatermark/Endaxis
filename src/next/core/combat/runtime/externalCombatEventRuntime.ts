@@ -14,6 +14,7 @@ export interface ScheduledExternalCombatEventInput {
   readonly targetOperatorIds: readonly string[];
   readonly event: {
     readonly kind: 'operatorHit';
+    readonly damageType?: import('../../game-data/operatorDefinition').DamageType;
     readonly tags: readonly DamageTag[];
     readonly features: readonly DamageFeature[];
   };
@@ -29,6 +30,7 @@ export interface ExternalCombatEventRuntimeOptions {
     payload: {
       readonly sourceId: 'enemy';
       readonly targetId: string;
+      readonly damageType?: import('../../game-data/operatorDefinition').DamageType;
       readonly tags: readonly DamageTag[];
       readonly features: readonly DamageFeature[];
     },
@@ -82,12 +84,14 @@ export class ExternalCombatEventRuntime implements FrameRuntime {
         this.#emitOperatorHitAbilityEvent?.(operatorId, {
           sourceId: 'enemy',
           targetId: operatorId,
+          ...(input.event.damageType === undefined ? {} : { damageType: input.event.damageType }),
           tags: input.event.tags,
           features: input.event.features,
         });
         this.#semanticEvents.emit({
           kind: input.event.kind,
           targetOperatorId: operatorId,
+          ...(input.event.damageType === undefined ? {} : { damageType: input.event.damageType }),
           tags: input.event.tags,
           features: input.event.features,
         });

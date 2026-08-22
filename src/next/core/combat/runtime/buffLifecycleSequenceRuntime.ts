@@ -34,7 +34,7 @@ import type {
   CombatAbilitySkillEvent,
 } from './skillRuntime';
 import type { CombatSemanticEvent } from './combatSemanticEventRuntime';
-import type { SkillBuffSlotReplacement } from '../../game-data/operatorDefinition';
+import { DAMAGE_TYPES, type SkillBuffSlotReplacement } from '../../game-data/operatorDefinition';
 
 /** 由 Buff 所有者环境提供的事件注册端口，避免生命周期层依赖具体伤害环境。 */
 export type RegisterBuffAbilityEventAction = (
@@ -621,11 +621,20 @@ function normalizeBuffAbilityEvent(
   ) {
     throw new TypeError(`Buff ability event '${event}' payload has invalid damage properties`);
   }
+  if (
+    source.damageType !== undefined &&
+    !DAMAGE_TYPES.includes(source.damageType as (typeof DAMAGE_TYPES)[number])
+  ) {
+    throw new TypeError(`Buff ability event '${event}' payload has invalid damage type`);
+  }
   return {
     kind: 'abilityDamage',
     event,
     sourceId: source.sourceId,
     targetId: source.targetId,
+    ...(source.damageType === undefined
+      ? {}
+      : { damageType: source.damageType as CombatAbilityDamageEvent['damageType'] }),
     tags: source.tags as CombatAbilityDamageEvent['tags'],
     features: source.features as CombatAbilityDamageEvent['features'],
   };

@@ -8691,6 +8691,7 @@
               "left": null,
               "right": null,
               "skillTypes": [],
+              "damageType": null,
               "entityCount": {
                 "targetSource": "Context",
                 "targetGroupKey": "targets",
@@ -8761,6 +8762,7 @@
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "damageType": null,
                     "entityCount": {
                       "targetSource": "Target",
                       "targetGroupKey": "",
@@ -8802,6 +8804,7 @@
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "damageType": null,
                     "entityCount": null,
                     "buffStack": null,
                     "health": null,

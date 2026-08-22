@@ -2825,29 +2825,27 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
       },
       lifecycleSequences: {
         finish: sequence(
-          sequence(
-            branch(
-              {
-                kind: 'all',
-                conditions: [
-                  {
-                    kind: 'actionValueCompare',
-                    left: { kind: 'blackboard', key: 'has_potential2' },
-                    operator: 'greaterOrEqual',
-                    right: { kind: 'constant', value: 1 },
-                  },
-                  { kind: 'singleEnemyPresent' },
-                ],
-              },
+          branch(
+            {
+              kind: 'entityTagMatch',
+              target: 'caster',
+              tagQueryType: 'exceptAny',
+              tagIds: [430405417, 839947434, -1666491964, -1855674685, 1253324189, 1015258574, -1472906513, -1486085048],
+            },
+            sequence(
               sequence(
                 branch(
                   {
-                    kind: 'buffStackCompare',
-                    target: 'enemy',
-                    tagQueryType: 'hasAny',
-                    buffTagIds: [1570888476, -1411846745],
-                    operator: 'greaterOrEqual',
-                    value: { kind: 'constant', value: 1 },
+                    kind: 'all',
+                    conditions: [
+                      {
+                        kind: 'actionValueCompare',
+                        left: { kind: 'blackboard', key: 'has_potential2' },
+                        operator: 'greaterOrEqual',
+                        right: { kind: 'constant', value: 1 },
+                      },
+                      { kind: 'singleEnemyPresent' },
+                    ],
                   },
                   sequence(
                     branch(
@@ -2855,83 +2853,132 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                         kind: 'buffStackCompare',
                         target: 'enemy',
                         tagQueryType: 'hasAny',
-                        buffTagIds: [1570888476],
+                        buffTagIds: [1570888476, -1411846745],
                         operator: 'greaterOrEqual',
                         value: { kind: 'constant', value: 1 },
                       },
                       sequence(
-                        step('readBuffStackCount', {
-                          target: 'enemy',
-                          outputKey: 'count',
-                          query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [1570888476] },
-                        }),
-                        step('calculateActionValue', {
-                          key: 'atk_scale_final',
-                          operation: 'multiply',
-                          left: { kind: 'blackboard', key: 'atk_scale_layer' },
-                          right: { kind: 'blackboard', key: 'count' },
-                        }),
-                        step('modifyActionValue', {
-                          key: 'atk_scale_final',
-                          operation: 'add',
-                          value: { kind: 'blackboard', key: 'atk_scale' },
-                        }),
-                        step('modifyActionValue', {
-                          key: 'atk_scale_final',
-                          operation: 'add',
-                          value: { kind: 'blackboard', key: 'atk_scale2' },
-                        }),
-                        step('changeResourceByActionValue', {
-                          resource: 'sp',
-                          amount: { kind: 'blackboard', key: 'atb_return' },
-                          recipient: 'team',
-                          spGainKind: 'refund',
-                          spGainSource: 'skill',
-                        }),
-                        step('dealDamage', {
-                          damageType: 'cryo',
-                          attackScale: percentage(0),
-                          tags: ['normalSkill'],
-                          features: ['canBreakWeakness'],
-                          stagger: { kind: 'blackboard', key: 'poise' },
-                        }, '53:buff_chr_0017_yvonne_normal_skill_projectile:finish:011:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[6]11:actionOrder2:18'),
                         branch(
                           {
-                            kind: 'actionValueCompare',
-                            left: { kind: 'blackboard', key: 'count' },
-                            operator: 'greater',
-                            right: { kind: 'blackboard', key: 'max_count' },
+                            kind: 'buffStackCompare',
+                            target: 'enemy',
+                            tagQueryType: 'hasAny',
+                            buffTagIds: [1570888476],
+                            operator: 'greaterOrEqual',
+                            value: { kind: 'constant', value: 1 },
                           },
                           sequence(
-                            step('modifyActionValue', {
-                              key: 'max_count',
-                              operation: 'assign',
-                              value: { kind: 'blackboard', key: 'count' },
+                            step('readBuffStackCount', {
+                              target: 'enemy',
+                              outputKey: 'count',
+                              query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [1570888476] },
                             }),
+                            step('calculateActionValue', {
+                              key: 'atk_scale_final',
+                              operation: 'multiply',
+                              left: { kind: 'blackboard', key: 'atk_scale_layer' },
+                              right: { kind: 'blackboard', key: 'count' },
+                            }),
+                            step('modifyActionValue', {
+                              key: 'atk_scale_final',
+                              operation: 'add',
+                              value: { kind: 'blackboard', key: 'atk_scale' },
+                            }),
+                            step('modifyActionValue', {
+                              key: 'atk_scale_final',
+                              operation: 'add',
+                              value: { kind: 'blackboard', key: 'atk_scale2' },
+                            }),
+                            step('changeResourceByActionValue', {
+                              resource: 'sp',
+                              amount: { kind: 'blackboard', key: 'atb_return' },
+                              recipient: 'team',
+                              spGainKind: 'refund',
+                              spGainSource: 'skill',
+                            }),
+                            step('dealDamage', {
+                              damageType: 'cryo',
+                              attackScale: percentage(0),
+                              tags: ['normalSkill'],
+                              features: ['canBreakWeakness'],
+                              stagger: { kind: 'blackboard', key: 'poise' },
+                            }, '53:buff_chr_0017_yvonne_normal_skill_projectile:finish:011:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[6]11:actionOrder2:18'),
+                            branch(
+                              {
+                                kind: 'actionValueCompare',
+                                left: { kind: 'blackboard', key: 'count' },
+                                operator: 'greater',
+                                right: { kind: 'blackboard', key: 'max_count' },
+                              },
+                              sequence(
+                                step('modifyActionValue', {
+                                  key: 'max_count',
+                                  operation: 'assign',
+                                  value: { kind: 'blackboard', key: 'count' },
+                                }),
+                              ),
+                            ),
                           ),
+                          sequence(
+                            step('readBuffStackCount', {
+                              target: 'enemy',
+                              outputKey: 'count',
+                              query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [-1411846745] },
+                            }),
+                            step('calculateActionValue', {
+                              key: 'atk_scale_final',
+                              operation: 'multiply',
+                              left: { kind: 'blackboard', key: 'atk_scale_layer' },
+                              right: { kind: 'blackboard', key: 'count' },
+                            }),
+                            step('modifyActionValue', {
+                              key: 'atk_scale_final',
+                              operation: 'add',
+                              value: { kind: 'blackboard', key: 'atk_scale' },
+                            }),
+                            step('modifyActionValue', {
+                              key: 'atk_scale_final',
+                              operation: 'add',
+                              value: { kind: 'blackboard', key: 'atk_scale2' },
+                            }),
+                            step('changeResourceByActionValue', {
+                              resource: 'sp',
+                              amount: { kind: 'blackboard', key: 'atb_return' },
+                              recipient: 'team',
+                              spGainKind: 'refund',
+                              spGainSource: 'skill',
+                            }),
+                            step('dealDamage', {
+                              damageType: 'cryo',
+                              attackScale: percentage(0),
+                              tags: ['normalSkill'],
+                              features: ['canBreakWeakness'],
+                              stagger: { kind: 'blackboard', key: 'poise' },
+                            }, '53:buff_chr_0017_yvonne_normal_skill_projectile:finish:011:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[6]11:actionOrder2:27'),
+                            branch(
+                              {
+                                kind: 'actionValueCompare',
+                                left: { kind: 'blackboard', key: 'count' },
+                                operator: 'greater',
+                                right: { kind: 'blackboard', key: 'max_count' },
+                              },
+                              sequence(
+                                step('modifyActionValue', {
+                                  key: 'max_count',
+                                  operation: 'assign',
+                                  value: { kind: 'blackboard', key: 'count' },
+                                }),
+                              ),
+                            ),
+                          ),
+                          { alwaysNext: true },
                         ),
                       ),
                       sequence(
-                        step('readBuffStackCount', {
-                          target: 'enemy',
-                          outputKey: 'count',
-                          query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [-1411846745] },
-                        }),
-                        step('calculateActionValue', {
-                          key: 'atk_scale_final',
-                          operation: 'multiply',
-                          left: { kind: 'blackboard', key: 'atk_scale_layer' },
-                          right: { kind: 'blackboard', key: 'count' },
-                        }),
                         step('modifyActionValue', {
                           key: 'atk_scale_final',
-                          operation: 'add',
+                          operation: 'assign',
                           value: { kind: 'blackboard', key: 'atk_scale' },
-                        }),
-                        step('modifyActionValue', {
-                          key: 'atk_scale_final',
-                          operation: 'add',
-                          value: { kind: 'blackboard', key: 'atk_scale2' },
                         }),
                         step('changeResourceByActionValue', {
                           resource: 'sp',
@@ -2946,7 +2993,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                           tags: ['normalSkill'],
                           features: ['canBreakWeakness'],
                           stagger: { kind: 'blackboard', key: 'poise' },
-                        }, '53:buff_chr_0017_yvonne_normal_skill_projectile:finish:011:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[6]11:actionOrder2:27'),
+                        }, '53:buff_chr_0017_yvonne_normal_skill_projectile:finish:011:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]6:action10:actionData3:[0]11:failActions10:actionData3:[2]11:actionOrder2:32'),
                         branch(
                           {
                             kind: 'actionValueCompare',
@@ -2965,161 +3012,154 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                       ),
                       { alwaysNext: true },
                     ),
-                  ),
-                  sequence(
-                    step('modifyActionValue', {
-                      key: 'atk_scale_final',
-                      operation: 'assign',
-                      value: { kind: 'blackboard', key: 'atk_scale' },
-                    }),
-                    step('changeResourceByActionValue', {
-                      resource: 'sp',
-                      amount: { kind: 'blackboard', key: 'atb_return' },
-                      recipient: 'team',
-                      spGainKind: 'refund',
-                      spGainSource: 'skill',
-                    }),
-                    step('dealDamage', {
-                      damageType: 'cryo',
-                      attackScale: percentage(0),
-                      tags: ['normalSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'poise' },
-                    }, '53:buff_chr_0017_yvonne_normal_skill_projectile:finish:011:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]6:action10:actionData3:[0]11:failActions10:actionData3:[2]11:actionOrder2:32'),
+                    step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
                     branch(
                       {
                         kind: 'actionValueCompare',
-                        left: { kind: 'blackboard', key: 'count' },
+                        left: { kind: 'blackboard', key: 'max_count' },
                         operator: 'greater',
-                        right: { kind: 'blackboard', key: 'max_count' },
+                        right: { kind: 'constant', value: 0 },
                       },
                       sequence(
+                        step('calculateActionValue', {
+                          key: 'usp_final',
+                          operation: 'multiply',
+                          left: { kind: 'blackboard', key: 'usp_layer' },
+                          right: { kind: 'blackboard', key: 'max_count' },
+                        }),
                         step('modifyActionValue', {
-                          key: 'max_count',
-                          operation: 'assign',
-                          value: { kind: 'blackboard', key: 'count' },
+                          key: 'usp_final',
+                          operation: 'add',
+                          value: { kind: 'blackboard', key: 'usp_base' },
+                        }),
+                        step('changeResourceByActionValue', {
+                          resource: 'ultimateEnergy',
+                          amount: { kind: 'blackboard', key: 'usp_final' },
+                          recipient: 'caster',
                         }),
                       ),
+                      undefined,
+                      { alwaysNext: true },
                     ),
                   ),
-                  { alwaysNext: true },
-                ),
-                step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
-                branch(
-                  {
-                    kind: 'actionValueCompare',
-                    left: { kind: 'blackboard', key: 'max_count' },
-                    operator: 'greater',
-                    right: { kind: 'constant', value: 0 },
-                  },
-                  sequence(
-                    step('calculateActionValue', {
-                      key: 'usp_final',
-                      operation: 'multiply',
-                      left: { kind: 'blackboard', key: 'usp_layer' },
-                      right: { kind: 'blackboard', key: 'max_count' },
-                    }),
-                    step('modifyActionValue', {
-                      key: 'usp_final',
-                      operation: 'add',
-                      value: { kind: 'blackboard', key: 'usp_base' },
-                    }),
-                    step('changeResourceByActionValue', {
-                      resource: 'ultimateEnergy',
-                      amount: { kind: 'blackboard', key: 'usp_final' },
-                      recipient: 'caster',
-                    }),
-                  ),
-                  undefined,
-                  { alwaysNext: true },
-                ),
-              ),
-              sequence(
-                branch(
-                  {
-                    kind: 'buffStackCompare',
-                    target: 'enemy',
-                    tagQueryType: 'hasAny',
-                    buffTagIds: [1570888476, -1411846745],
-                    operator: 'greaterOrEqual',
-                    value: { kind: 'constant', value: 1 },
-                  },
                   sequence(
                     branch(
                       {
                         kind: 'buffStackCompare',
                         target: 'enemy',
                         tagQueryType: 'hasAny',
-                        buffTagIds: [1570888476],
+                        buffTagIds: [1570888476, -1411846745],
                         operator: 'greaterOrEqual',
                         value: { kind: 'constant', value: 1 },
                       },
                       sequence(
-                        step('readBuffStackCount', {
-                          target: 'enemy',
-                          outputKey: 'count',
-                          query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [1570888476] },
-                        }),
-                        step('calculateActionValue', {
-                          key: 'atk_scale_final',
-                          operation: 'multiply',
-                          left: { kind: 'blackboard', key: 'atk_scale_layer' },
-                          right: { kind: 'blackboard', key: 'count' },
-                        }),
-                        step('modifyActionValue', {
-                          key: 'atk_scale_final',
-                          operation: 'add',
-                          value: { kind: 'blackboard', key: 'atk_scale' },
-                        }),
-                        step('modifyActionValue', {
-                          key: 'atk_scale_final',
-                          operation: 'add',
-                          value: { kind: 'blackboard', key: 'atk_scale2' },
-                        }),
-                        step('dealDamage', {
-                          damageType: 'cryo',
-                          attackScale: percentage(0),
-                          tags: ['normalSkill'],
-                          features: ['canBreakWeakness'],
-                          stagger: { kind: 'blackboard', key: 'poise' },
-                        }, '53:buff_chr_0017_yvonne_normal_skill_projectile:finish:011:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[2]11:failActions10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[5]11:actionOrder2:52'),
                         branch(
                           {
-                            kind: 'actionValueCompare',
-                            left: { kind: 'blackboard', key: 'count' },
-                            operator: 'greater',
-                            right: { kind: 'blackboard', key: 'max_count' },
+                            kind: 'buffStackCompare',
+                            target: 'enemy',
+                            tagQueryType: 'hasAny',
+                            buffTagIds: [1570888476],
+                            operator: 'greaterOrEqual',
+                            value: { kind: 'constant', value: 1 },
                           },
                           sequence(
-                            step('modifyActionValue', {
-                              key: 'max_count',
-                              operation: 'assign',
-                              value: { kind: 'blackboard', key: 'count' },
+                            step('readBuffStackCount', {
+                              target: 'enemy',
+                              outputKey: 'count',
+                              query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [1570888476] },
                             }),
+                            step('calculateActionValue', {
+                              key: 'atk_scale_final',
+                              operation: 'multiply',
+                              left: { kind: 'blackboard', key: 'atk_scale_layer' },
+                              right: { kind: 'blackboard', key: 'count' },
+                            }),
+                            step('modifyActionValue', {
+                              key: 'atk_scale_final',
+                              operation: 'add',
+                              value: { kind: 'blackboard', key: 'atk_scale' },
+                            }),
+                            step('modifyActionValue', {
+                              key: 'atk_scale_final',
+                              operation: 'add',
+                              value: { kind: 'blackboard', key: 'atk_scale2' },
+                            }),
+                            step('dealDamage', {
+                              damageType: 'cryo',
+                              attackScale: percentage(0),
+                              tags: ['normalSkill'],
+                              features: ['canBreakWeakness'],
+                              stagger: { kind: 'blackboard', key: 'poise' },
+                            }, '53:buff_chr_0017_yvonne_normal_skill_projectile:finish:011:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[2]11:failActions10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[5]11:actionOrder2:52'),
+                            branch(
+                              {
+                                kind: 'actionValueCompare',
+                                left: { kind: 'blackboard', key: 'count' },
+                                operator: 'greater',
+                                right: { kind: 'blackboard', key: 'max_count' },
+                              },
+                              sequence(
+                                step('modifyActionValue', {
+                                  key: 'max_count',
+                                  operation: 'assign',
+                                  value: { kind: 'blackboard', key: 'count' },
+                                }),
+                              ),
+                            ),
                           ),
+                          sequence(
+                            step('readBuffStackCount', {
+                              target: 'enemy',
+                              outputKey: 'count',
+                              query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [-1411846745] },
+                            }),
+                            step('calculateActionValue', {
+                              key: 'atk_scale_final',
+                              operation: 'multiply',
+                              left: { kind: 'blackboard', key: 'atk_scale_layer' },
+                              right: { kind: 'blackboard', key: 'count' },
+                            }),
+                            step('modifyActionValue', {
+                              key: 'atk_scale_final',
+                              operation: 'add',
+                              value: { kind: 'blackboard', key: 'atk_scale' },
+                            }),
+                            step('modifyActionValue', {
+                              key: 'atk_scale_final',
+                              operation: 'add',
+                              value: { kind: 'blackboard', key: 'atk_scale2' },
+                            }),
+                            step('dealDamage', {
+                              damageType: 'cryo',
+                              attackScale: percentage(0),
+                              tags: ['normalSkill'],
+                              features: ['canBreakWeakness'],
+                              stagger: { kind: 'blackboard', key: 'poise' },
+                            }, '53:buff_chr_0017_yvonne_normal_skill_projectile:finish:011:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[2]11:failActions10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[5]11:actionOrder2:60'),
+                            branch(
+                              {
+                                kind: 'actionValueCompare',
+                                left: { kind: 'blackboard', key: 'count' },
+                                operator: 'greater',
+                                right: { kind: 'blackboard', key: 'max_count' },
+                              },
+                              sequence(
+                                step('modifyActionValue', {
+                                  key: 'max_count',
+                                  operation: 'assign',
+                                  value: { kind: 'blackboard', key: 'count' },
+                                }),
+                              ),
+                            ),
+                          ),
+                          { alwaysNext: true },
                         ),
                       ),
                       sequence(
-                        step('readBuffStackCount', {
-                          target: 'enemy',
-                          outputKey: 'count',
-                          query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [-1411846745] },
-                        }),
-                        step('calculateActionValue', {
-                          key: 'atk_scale_final',
-                          operation: 'multiply',
-                          left: { kind: 'blackboard', key: 'atk_scale_layer' },
-                          right: { kind: 'blackboard', key: 'count' },
-                        }),
                         step('modifyActionValue', {
                           key: 'atk_scale_final',
-                          operation: 'add',
+                          operation: 'assign',
                           value: { kind: 'blackboard', key: 'atk_scale' },
-                        }),
-                        step('modifyActionValue', {
-                          key: 'atk_scale_final',
-                          operation: 'add',
-                          value: { kind: 'blackboard', key: 'atk_scale2' },
                         }),
                         step('dealDamage', {
                           damageType: 'cryo',
@@ -3127,7 +3167,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                           tags: ['normalSkill'],
                           features: ['canBreakWeakness'],
                           stagger: { kind: 'blackboard', key: 'poise' },
-                        }, '53:buff_chr_0017_yvonne_normal_skill_projectile:finish:011:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[2]11:failActions10:actionData3:[0]6:action10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[5]11:actionOrder2:60'),
+                        }, '53:buff_chr_0017_yvonne_normal_skill_projectile:finish:011:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[2]11:failActions10:actionData3:[0]6:action10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:64'),
                         branch(
                           {
                             kind: 'actionValueCompare',
@@ -3146,69 +3186,39 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                       ),
                       { alwaysNext: true },
                     ),
-                  ),
-                  sequence(
-                    step('modifyActionValue', {
-                      key: 'atk_scale_final',
-                      operation: 'assign',
-                      value: { kind: 'blackboard', key: 'atk_scale' },
-                    }),
-                    step('dealDamage', {
-                      damageType: 'cryo',
-                      attackScale: percentage(0),
-                      tags: ['normalSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'poise' },
-                    }, '53:buff_chr_0017_yvonne_normal_skill_projectile:finish:011:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[2]11:failActions10:actionData3:[0]6:action10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:64'),
+                    step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
                     branch(
                       {
                         kind: 'actionValueCompare',
-                        left: { kind: 'blackboard', key: 'count' },
+                        left: { kind: 'blackboard', key: 'max_count' },
                         operator: 'greater',
-                        right: { kind: 'blackboard', key: 'max_count' },
+                        right: { kind: 'constant', value: 0 },
                       },
                       sequence(
+                        step('calculateActionValue', {
+                          key: 'usp_final',
+                          operation: 'multiply',
+                          left: { kind: 'blackboard', key: 'usp_layer' },
+                          right: { kind: 'blackboard', key: 'max_count' },
+                        }),
                         step('modifyActionValue', {
-                          key: 'max_count',
-                          operation: 'assign',
-                          value: { kind: 'blackboard', key: 'count' },
+                          key: 'usp_final',
+                          operation: 'add',
+                          value: { kind: 'blackboard', key: 'usp_base' },
+                        }),
+                        step('changeResourceByActionValue', {
+                          resource: 'ultimateEnergy',
+                          amount: { kind: 'blackboard', key: 'usp_final' },
+                          recipient: 'caster',
                         }),
                       ),
+                      undefined,
+                      { alwaysNext: true },
                     ),
                   ),
                   { alwaysNext: true },
                 ),
-                step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
-                branch(
-                  {
-                    kind: 'actionValueCompare',
-                    left: { kind: 'blackboard', key: 'max_count' },
-                    operator: 'greater',
-                    right: { kind: 'constant', value: 0 },
-                  },
-                  sequence(
-                    step('calculateActionValue', {
-                      key: 'usp_final',
-                      operation: 'multiply',
-                      left: { kind: 'blackboard', key: 'usp_layer' },
-                      right: { kind: 'blackboard', key: 'max_count' },
-                    }),
-                    step('modifyActionValue', {
-                      key: 'usp_final',
-                      operation: 'add',
-                      value: { kind: 'blackboard', key: 'usp_base' },
-                    }),
-                    step('changeResourceByActionValue', {
-                      resource: 'ultimateEnergy',
-                      amount: { kind: 'blackboard', key: 'usp_final' },
-                      recipient: 'caster',
-                    }),
-                  ),
-                  undefined,
-                  { alwaysNext: true },
-                ),
               ),
-              { alwaysNext: true },
             ),
           ),
         ),

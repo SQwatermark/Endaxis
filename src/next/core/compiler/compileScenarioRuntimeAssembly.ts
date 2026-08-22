@@ -135,6 +135,7 @@ export function compileScenarioExternalEventInputs(
         targetOperatorIds,
         event: {
           kind: marker.event.kind,
+          ...(marker.event.damageType === undefined ? {} : { damageType: marker.event.damageType }),
           tags: [...marker.event.tags],
           features: [...marker.event.features],
         },

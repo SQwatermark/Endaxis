@@ -7873,8 +7873,8 @@
               ],
               "actions": [
                 {
-                  "actionType": "FindTargetAction",
-                  "actionIndex": 3,
+                  "actionType": "CheckTagMatch",
+                  "actionIndex": 0,
                   "actionPath": [
                     "timelineActions[0]",
                     "_sequenceActionData",
@@ -7882,165 +7882,293 @@
                     "[0]",
                     "succeedActions",
                     "actionData",
-                    "[3]"
+                    "[0]"
                   ],
-                  "serverActionIndex": 3,
-                  "legacyBuffFinish": null,
-                  "skillCooldownAdjustment": null,
-                  "buffIgnite": null
-                },
-                {
-                  "actionType": "SimpleCalcBBAction",
-                  "actionIndex": 5,
-                  "actionPath": [
-                    "timelineActions[0]",
-                    "_sequenceActionData",
-                    "actionData",
-                    "[0]",
-                    "succeedActions",
-                    "actionData",
-                    "[5]"
-                  ],
-                  "serverActionIndex": 5,
-                  "blackboardCalculation": {
-                    "key": "swordRateFinal",
-                    "operation": "Multiply",
-                    "left": {
-                      "value": 0.0,
-                      "blackboardKey": "sword_rate",
-                      "levelValues": 0.0
-                    },
-                    "right": {
-                      "value": 0.0,
-                      "blackboardKey": "swordsNum",
-                      "levelValues": 0.0
-                    },
-                    "addend": null
-                  },
-                  "legacyBuffFinish": null,
-                  "skillCooldownAdjustment": null,
-                  "buffIgnite": null
-                },
-                {
-                  "actionType": "SimpleCalcBBAction",
-                  "actionIndex": 6,
-                  "actionPath": [
-                    "timelineActions[0]",
-                    "_sequenceActionData",
-                    "actionData",
-                    "[0]",
-                    "succeedActions",
-                    "actionData",
-                    "[6]"
-                  ],
-                  "serverActionIndex": 6,
-                  "blackboardCalculation": {
-                    "key": "probability",
-                    "operation": "Add",
-                    "left": {
-                      "value": 0.0,
-                      "blackboardKey": "base_rate",
-                      "levelValues": 0.0
-                    },
-                    "right": {
-                      "value": 0.0,
-                      "blackboardKey": "swordRateFinal",
-                      "levelValues": 0.0
-                    },
-                    "addend": null
-                  },
-                  "legacyBuffFinish": null,
-                  "skillCooldownAdjustment": null,
-                  "buffIgnite": null
-                },
-                {
-                  "actionType": "CreateBuffAction",
-                  "actionIndex": 8,
-                  "actionPath": [
-                    "timelineActions[0]",
-                    "_sequenceActionData",
-                    "actionData",
-                    "[0]",
-                    "succeedActions",
-                    "actionData",
-                    "[8]"
-                  ],
-                  "serverActionIndex": 8,
-                  "legacyBuffFinish": null,
-                  "skillCooldownAdjustment": null,
-                  "buffIgnite": null,
-                  "buffApplication": {
-                    "buffs": [
+                  "serverActionIndex": 0,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
                       {
-                        "buffId": "buff_common_damage_immune_talent",
-                        "classification": "incomingDamageProtection",
-                        "blackboardAssignments": {
-                          "duration": {
-                            "value": 0.01,
-                            "blackboardKey": null,
-                            "levelValues": null
-                          }
-                        }
+                        "sourceType": "CheckTagMatch",
+                        "supported": true,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "entityTag": {
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "tagQueryType": "exceptAny",
+                          "tagIds": [
+                            -727577212,
+                            1622340854,
+                            1357114970
+                          ]
+                        },
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
                       }
                     ],
-                    "targetSource": "Source",
-                    "targetGroupKey": "",
-                    "count": {
-                      "value": 1.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "buffSource": "ActionSource",
-                    "buffSourceContextKey": "",
-                    "inheritSourceSkillCastInfo": true
-                  }
-                },
-                {
-                  "actionType": "CreateBuffAction",
-                  "actionIndex": 10,
-                  "actionPath": [
-                    "timelineActions[0]",
-                    "_sequenceActionData",
-                    "actionData",
-                    "[0]",
-                    "succeedActions",
-                    "actionData",
-                    "[10]"
-                  ],
-                  "serverActionIndex": 10,
-                  "legacyBuffFinish": null,
-                  "skillCooldownAdjustment": null,
-                  "buffIgnite": null,
-                  "buffApplication": {
-                    "buffs": [
+                    "succeedActions": [
                       {
-                        "buffId": "buff_chr_0030_zhuangfy_talent2_heal",
-                        "classification": null,
-                        "blackboardAssignments": {
-                          "heal": {
+                        "actionType": "FindTargetAction",
+                        "actionIndex": 3,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[3]"
+                        ],
+                        "serverActionIndex": 3,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      },
+                      {
+                        "actionType": "SimpleCalcBBAction",
+                        "actionIndex": 5,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[5]"
+                        ],
+                        "serverActionIndex": 5,
+                        "blackboardCalculation": {
+                          "key": "swordRateFinal",
+                          "operation": "Multiply",
+                          "left": {
                             "value": 0.0,
-                            "blackboardKey": "heal",
+                            "blackboardKey": "sword_rate",
                             "levelValues": 0.0
                           },
-                          "duration": {
+                          "right": {
                             "value": 0.0,
-                            "blackboardKey": "duration",
+                            "blackboardKey": "swordsNum",
                             "levelValues": 0.0
-                          }
-                        }
+                          },
+                          "addend": null
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      },
+                      {
+                        "actionType": "SimpleCalcBBAction",
+                        "actionIndex": 6,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[6]"
+                        ],
+                        "serverActionIndex": 6,
+                        "blackboardCalculation": {
+                          "key": "probability",
+                          "operation": "Add",
+                          "left": {
+                            "value": 0.0,
+                            "blackboardKey": "base_rate",
+                            "levelValues": 0.0
+                          },
+                          "right": {
+                            "value": 0.0,
+                            "blackboardKey": "swordRateFinal",
+                            "levelValues": 0.0
+                          },
+                          "addend": null
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      },
+                      {
+                        "actionType": "Probablity",
+                        "actionIndex": 7,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[7]"
+                        ],
+                        "serverActionIndex": 7,
+                        "nestedCondition": {
+                          "startFrame": 0,
+                          "endFrame": 0,
+                          "actionIndex": 7,
+                          "actionPath": [
+                            "timelineActions[0]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[7]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "Probablity",
+                              "supported": true,
+                              "comparison": null,
+                              "left": null,
+                              "right": null,
+                              "skillTypes": [],
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
+                              "targetAngle": null,
+                              "damageDecorateMask": null,
+                              "contextBuffId": null,
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": {
+                                "value": 1.0,
+                                "blackboardKey": "probability",
+                                "levelValues": 0.0
+                              },
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "CreateBuffAction",
+                              "actionIndex": 8,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[8]"
+                              ],
+                              "serverActionIndex": 8,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
+                              "buffApplication": {
+                                "buffs": [
+                                  {
+                                    "buffId": "buff_common_damage_immune_talent",
+                                    "classification": "incomingDamageProtection",
+                                    "blackboardAssignments": {
+                                      "duration": {
+                                        "value": 0.01,
+                                        "blackboardKey": null,
+                                        "levelValues": null
+                                      }
+                                    }
+                                  }
+                                ],
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "count": {
+                                  "value": 1.0,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "buffSource": "ActionSource",
+                                "buffSourceContextKey": "",
+                                "inheritSourceSkillCastInfo": true
+                              }
+                            },
+                            {
+                              "actionType": "CreateBuffAction",
+                              "actionIndex": 10,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[10]"
+                              ],
+                              "serverActionIndex": 10,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
+                              "buffApplication": {
+                                "buffs": [
+                                  {
+                                    "buffId": "buff_chr_0030_zhuangfy_talent2_heal",
+                                    "classification": null,
+                                    "blackboardAssignments": {
+                                      "heal": {
+                                        "value": 0.0,
+                                        "blackboardKey": "heal",
+                                        "levelValues": 0.0
+                                      },
+                                      "duration": {
+                                        "value": 0.0,
+                                        "blackboardKey": "duration",
+                                        "levelValues": 0.0
+                                      }
+                                    }
+                                  }
+                                ],
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "count": {
+                                  "value": 1.0,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "buffSource": "ActionSource",
+                                "buffSourceContextKey": "",
+                                "inheritSourceSkillCastInfo": true
+                              }
+                            }
+                          ],
+                          "failActions": [],
+                          "conditionNegated": [],
+                          "alwaysNext": false
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
                       }
                     ],
-                    "targetSource": "Source",
-                    "targetGroupKey": "",
-                    "count": {
-                      "value": 1.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "buffSource": "ActionSource",
-                    "buffSourceContextKey": "",
-                    "inheritSourceSkillCastInfo": true
-                  }
+                    "failActions": [],
+                    "conditionNegated": [],
+                    "alwaysNext": false
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "priority": 0
@@ -30193,6 +30321,7 @@
                 "left": null,
                 "right": null,
                 "skillTypes": [],
+                "damageType": null,
                 "entityCount": null,
                 "buffStack": null,
                 "health": null,
@@ -30243,6 +30372,7 @@
                   "levelValues": null
                 },
                 "skillTypes": [],
+                "damageType": null,
                 "entityCount": null,
                 "buffStack": null,
                 "health": null,
@@ -34685,6 +34815,7 @@
                 "left": null,
                 "right": null,
                 "skillTypes": [],
+                "damageType": null,
                 "entityCount": null,
                 "buffStack": null,
                 "health": null,
@@ -34735,6 +34866,7 @@
                   "levelValues": null
                 },
                 "skillTypes": [],
+                "damageType": null,
                 "entityCount": null,
                 "buffStack": null,
                 "health": null,

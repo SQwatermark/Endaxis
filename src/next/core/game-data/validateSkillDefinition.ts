@@ -557,6 +557,17 @@ function validateCombatCondition(
       requireEnum(record, 'match', TAG_QUERY_TYPES_WITH_EXACT_SET, path, out);
       validateDamageFeatures(record.features, `${path}.features`, out);
       break;
+    case 'eventDamageTypeIn':
+      if (!Array.isArray(record.damageTypes) || record.damageTypes.length === 0) {
+        push(out, `${path}.damageTypes`, 'expected a non-empty array');
+      } else {
+        record.damageTypes.forEach((damageType, index) => {
+          if (typeof damageType !== 'string' || !DAMAGE_TYPES_SET.has(damageType)) {
+            push(out, `${path}.damageTypes[${index}]`, 'unknown damage type');
+          }
+        });
+      }
+      break;
     case 'eventSkillTypeIn':
       if (!Array.isArray(record.skillTypes) || record.skillTypes.length === 0) {
         push(out, `${path}.skillTypes`, 'expected a non-empty array');

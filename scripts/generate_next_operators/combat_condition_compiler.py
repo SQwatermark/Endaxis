@@ -248,6 +248,13 @@ def compile_combat_condition(
         if not skill_types or any(not value for value in skill_types):
             raise ValueError(f"{path}: unsupported ability-event skill type list")
         return f"{{ kind: 'eventSkillTypeIn', skillTypes: {ts_inline_literal(skill_types)} }}"
+    if source.sourceType == "CheckDamageType" and buff_ability_damage_event:
+        if source.damageType is None:
+            raise ValueError(f"{path}: missing damage-type payload")
+        return (
+            "{ kind: 'eventDamageTypeIn', damageTypes: "
+            f"{ts_inline_literal((source.damageType,))} }}"
+        )
     if source.sourceType == "CompareDeckAttr":
         deck = source.deckAttributeCompare
         if deck is None:

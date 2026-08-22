@@ -276,6 +276,8 @@ export type ExternalEventTargetDocument =
 /** 当前第一种外部事实；联合类型会随取得证据的事件消费者继续扩展。 */
 export type ExternalCombatEventDocument = {
   kind: 'operatorHit';
+  /** 旧项目可以省略；缺失类型只表示未知，不能通过具体伤害类型条件。 */
+  damageType?: import('../game-data/operatorDefinition').DamageType;
   tags: import('../game-data/operatorDefinition').DamageTag[];
   features: import('../game-data/operatorDefinition').DamageFeature[];
 };

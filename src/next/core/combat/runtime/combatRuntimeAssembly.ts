@@ -272,6 +272,7 @@ export interface CombatRuntimeAssemblyOptions {
     payload: {
       readonly sourceId: 'enemy';
       readonly targetId: string;
+      readonly damageType?: import('../../game-data/operatorDefinition').DamageType;
       readonly tags: readonly import('../../game-data/operatorDefinition').DamageTag[];
       readonly features: readonly import('../../game-data/operatorDefinition').DamageFeature[];
     },

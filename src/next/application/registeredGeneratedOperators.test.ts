@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ExplicitCriticalSampleSource } from '../core/combat/random/criticalSampleSource';
+import { ExplicitProbabilitySampleSource } from '../core/combat/random/probabilitySampleSource';
 import { compileOperatorEntityBlackboardInitialValues } from '../core/compiler/compileScenarioRuntimeAssembly';
 import { compileOperatorDefinitionSkills } from '../core/compiler/compileScenarioTimeline';
 import { resolveOperatorPanel } from '../core/compiler/resolveOperatorPanel';
@@ -11,6 +12,7 @@ import {
   arcane,
   camille,
   ember,
+  fluorite,
   laevatain,
   perlica,
   pogranichnik,
@@ -308,6 +310,78 @@ describe('registered generated operators', () => {
         entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:ember',
       ),
     ).toBe(true);
+  });
+
+  it('applies Fluorite talent 2 only when the external hit type and patched probability match', () => {
+    const run = (potential: 1 | 2) => {
+      const scenario = createEmptyScenario(
+        `scenario:fluorite:talent2:${potential}`,
+        '萤石天赋二默认仓库回归',
+      );
+      scenario.battle.durationFrames = 120;
+      scenario.tracks[0] = {
+        id: 'track:fluorite',
+        operator: {
+          operatorSlug: fluorite.slug,
+          level: 90,
+          promoted: true,
+          potential,
+          trustLevel: 4,
+          skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+          talentStates: { 1: 2 },
+        },
+        weapon: null,
+        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+        initialState: { ultimateEnergy: 0 },
+        skillCasts: [],
+      };
+      const placed = placeSkillGroup({
+        scenario,
+        trackIndex: 0,
+        operator: fluorite,
+        skillGroupKey: 'basicAttack',
+        startFrame: 1,
+        ids: { allocate: kind => `${kind}:fluorite:${potential}` },
+      }).scenario;
+      placed.battle.externalEventMarkers = [
+        {
+          id: `hit:fluorite:${potential}`,
+          frame: 0,
+          target: { scope: 'operator', trackIndex: 0 },
+          event: { kind: 'operatorHit', damageType: 'heat', tags: [], features: [] },
+        },
+      ];
+
+      const result = runStandardPlayerDamageScenarioSimulation({
+        scenario: placed,
+        endFrame: 120,
+        criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+        probabilitySamples: new ExplicitProbabilitySampleSource([0.25]),
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        options: {
+          index: nextGameDataRepository,
+          resources: {
+            sharedSpGain: { baseGainEfficiency: 1 },
+            spRecoveryPauseDuration: 1.5,
+            ultimateEnergySystemUnlocked: true,
+            normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+          },
+        },
+      });
+      return result.receiptEntries.find(
+        entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:fluorite',
+      )?.data?.value as number | undefined;
+    };
+
+    const withoutPotential2 = run(1);
+    const withPotential2 = run(2);
+    expect(withoutPotential2).toBeTypeOf('number');
+    expect(withPotential2).toBeTypeOf('number');
+    expect(withPotential2!).toBeGreaterThan(withoutPotential2!);
   });
 
   it('runs Pogranichnik physical infliction, SP talent, and ultimate soldiers', () => {

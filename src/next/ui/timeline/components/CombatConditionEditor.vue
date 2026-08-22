@@ -14,6 +14,7 @@ import {
   DAMAGE_ELEMENTS,
   DAMAGE_FEATURES,
   DAMAGE_TAGS,
+  DAMAGE_TYPES,
   ELEMENTAL_REACTIONS,
   OPERATOR_ATTRIBUTES,
   type ActionValueOperand,
@@ -24,6 +25,7 @@ import {
   type DamageElement,
   type DamageFeature,
   type DamageTag,
+  type DamageType,
   type ElementalReaction,
   type OperatorAttribute,
 } from '../../../core/game-data/operatorDefinition';
@@ -266,6 +268,15 @@ function toggleEventDamageFeature(feature: DamageFeature, event: Event): void {
     ? [...new Set([...props.condition.features, feature])]
     : props.condition.features.filter(item => item !== feature);
   if (features.length > 0) emit('update', { ...props.condition, features });
+}
+
+function toggleEventDamageType(damageType: DamageType, event: Event): void {
+  if (props.condition.kind !== 'eventDamageTypeIn') return;
+  const enabled = (event.target as HTMLInputElement).checked;
+  const damageTypes = enabled
+    ? [...new Set([...props.condition.damageTypes, damageType])]
+    : props.condition.damageTypes.filter(item => item !== damageType);
+  if (damageTypes.length > 0) emit('update', { ...props.condition, damageTypes });
 }
 
 function setOptionalInteger(field: 'minimumStacks' | 'minimumLevel', event: Event): void {
@@ -854,6 +865,19 @@ function removeChild(index: number): void {
             :checked="condition.features.includes(feature)"
             @change="toggleEventDamageFeature(feature, $event)"
           />{{ t(`nextTimeline.skillEditing.damageFeatureNames.${feature}`) }}</label
+        >
+      </fieldset>
+    </template>
+
+    <template v-if="condition.kind === 'eventDamageTypeIn'">
+      <fieldset class="condition-editor__elements">
+        <legend>{{ t('nextTimeline.skillEditing.damageType') }}</legend>
+        <label v-for="damageType in DAMAGE_TYPES" :key="damageType"
+          ><input
+            type="checkbox"
+            :checked="condition.damageTypes.includes(damageType)"
+            @change="toggleEventDamageType(damageType, $event)"
+          />{{ t(`nextTimeline.skillEditing.damageTypes.${damageType}`) }}</label
         >
       </fieldset>
     </template>

@@ -841,6 +841,7 @@ export interface GeneratedConditionSource {
   readonly left: GeneratedScalarSource | null;
   readonly right: GeneratedScalarSource | null;
   readonly skillTypes: readonly string[];
+  readonly damageType?: string | null;
   readonly entityCount?: GeneratedEntityCountConditionSource;
   readonly buffStack?: GeneratedBuffStackConditionSource;
   readonly health?: GeneratedHealthConditionSource;

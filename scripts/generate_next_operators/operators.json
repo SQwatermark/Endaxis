@@ -2438,14 +2438,13 @@
       "slug": "fluorite",
       "exportName": "fluoriteGeneratedSource",
       "charId": "chr_0022_bounda",
-      "unmodeledPassiveSkillIds": ["chr_0022_bounda_talent_2"],
       "talents": [
         { "index": 0, "key": "talent1", "compile": "attachedPassive" },
-        { "index": 1, "key": "talent2", "compile": "unmodeledTalent" }
+        { "index": 1, "key": "talent2", "compile": "attachedPassive" }
       ],
       "potentials": [
         { "key": "potential1", "compile": "staticAttributes" },
-        { "key": "potential2", "compile": "unmodeledPotential" },
+        { "key": "potential2", "compile": "passiveBlackboardPatch" },
         { "key": "potential3", "compile": "skillBlackboardPatch" },
         { "key": "potential4" },
         { "key": "potential5", "compile": "unmodeledPotential" }

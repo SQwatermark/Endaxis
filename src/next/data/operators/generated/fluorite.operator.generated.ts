@@ -646,6 +646,231 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
         },
       ],
     },
+    'buff_chr_0022_bounda_talent_2_atkup': {
+      stackingType: 'refresh',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'atk_up': 0.1,
+        'duration': 10,
+      },
+      attributeModifiers: [
+        {
+          attribute: 'Atk',
+          slot: 'baseMultiplier',
+          value: { blackboardKey: 'atk_up' },
+        },
+      ],
+    },
+    'buff_chr_0022_bounda_talent_2': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      blackboard: {
+        'atk_up': 0.1,
+        'duration': 10,
+        'probability': 0.2,
+      },
+      abilityEventResponses: [
+        {
+          event: 'beforeTakeDamage',
+          priority: 0,
+          sequence:
+            sequence(
+              branch(
+                {
+                  kind: 'entityTagMatch',
+                  target: 'caster',
+                  tagQueryType: 'exceptAny',
+                  tagIds: [1622340854, 1357114970],
+                },
+                sequence(
+                  branch(
+                    { kind: 'eventDamageTypeIn', damageTypes: ['heat'] },
+                    sequence(
+                      branch(
+                        {
+                          kind: 'probability',
+                          probability: { kind: 'blackboard', key: 'probability' },
+                        },
+                        sequence(
+                          sequence(
+                            step('applyBuff', {
+                              buffId: 'buff_common_damage_immune_talent',
+                              target: 'caster',
+                              inheritSourceSkillCastInfo: true,
+                              blackboardAssignments: {
+                                'duration': { kind: 'constant', value: 0.01 },
+                              },
+                            }),
+                            step('applyBuff', {
+                              buffId: 'buff_chr_0022_bounda_talent_2_atkup',
+                              target: 'caster',
+                              inheritSourceSkillCastInfo: true,
+                              blackboardAssignments: {
+                                'atk_up': { kind: 'blackboard', key: 'atk_up' },
+                                'duration': { kind: 'blackboard', key: 'duration' },
+                              },
+                            }),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        },
+        {
+          event: 'beforeTakeDamage',
+          priority: 0,
+          sequence:
+            sequence(
+              branch(
+                {
+                  kind: 'entityTagMatch',
+                  target: 'caster',
+                  tagQueryType: 'exceptAny',
+                  tagIds: [1622340854, 1357114970],
+                },
+                sequence(
+                  branch(
+                    { kind: 'eventDamageTypeIn', damageTypes: ['electric'] },
+                    sequence(
+                      branch(
+                        {
+                          kind: 'probability',
+                          probability: { kind: 'blackboard', key: 'probability' },
+                        },
+                        sequence(
+                          sequence(
+                            step('applyBuff', {
+                              buffId: 'buff_common_damage_immune_talent',
+                              target: 'caster',
+                              inheritSourceSkillCastInfo: true,
+                              blackboardAssignments: {
+                                'duration': { kind: 'constant', value: 0.01 },
+                              },
+                            }),
+                            step('applyBuff', {
+                              buffId: 'buff_chr_0022_bounda_talent_2_atkup',
+                              target: 'caster',
+                              inheritSourceSkillCastInfo: true,
+                              blackboardAssignments: {
+                                'atk_up': { kind: 'blackboard', key: 'atk_up' },
+                                'duration': { kind: 'blackboard', key: 'duration' },
+                              },
+                            }),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        },
+        {
+          event: 'beforeTakeDamage',
+          priority: 0,
+          sequence:
+            sequence(
+              branch(
+                {
+                  kind: 'entityTagMatch',
+                  target: 'caster',
+                  tagQueryType: 'exceptAny',
+                  tagIds: [1622340854, 1357114970],
+                },
+                sequence(
+                  branch(
+                    { kind: 'eventDamageTypeIn', damageTypes: ['cryo'] },
+                    sequence(
+                      branch(
+                        {
+                          kind: 'probability',
+                          probability: { kind: 'blackboard', key: 'probability' },
+                        },
+                        sequence(
+                          sequence(
+                            step('applyBuff', {
+                              buffId: 'buff_common_damage_immune_talent',
+                              target: 'caster',
+                              inheritSourceSkillCastInfo: true,
+                              blackboardAssignments: {
+                                'duration': { kind: 'constant', value: 0.01 },
+                              },
+                            }),
+                            step('applyBuff', {
+                              buffId: 'buff_chr_0022_bounda_talent_2_atkup',
+                              target: 'caster',
+                              inheritSourceSkillCastInfo: true,
+                              blackboardAssignments: {
+                                'atk_up': { kind: 'blackboard', key: 'atk_up' },
+                                'duration': { kind: 'blackboard', key: 'duration' },
+                              },
+                            }),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        },
+        {
+          event: 'beforeTakeDamage',
+          priority: 0,
+          sequence:
+            sequence(
+              branch(
+                {
+                  kind: 'entityTagMatch',
+                  target: 'caster',
+                  tagQueryType: 'exceptAny',
+                  tagIds: [1622340854, 1357114970],
+                },
+                sequence(
+                  branch(
+                    { kind: 'eventDamageTypeIn', damageTypes: ['nature'] },
+                    sequence(
+                      branch(
+                        {
+                          kind: 'probability',
+                          probability: { kind: 'blackboard', key: 'probability' },
+                        },
+                        sequence(
+                          sequence(
+                            step('applyBuff', {
+                              buffId: 'buff_common_damage_immune_talent',
+                              target: 'caster',
+                              inheritSourceSkillCastInfo: true,
+                              blackboardAssignments: {
+                                'duration': { kind: 'constant', value: 0.01 },
+                              },
+                            }),
+                            step('applyBuff', {
+                              buffId: 'buff_chr_0022_bounda_talent_2_atkup',
+                              target: 'caster',
+                              inheritSourceSkillCastInfo: true,
+                              blackboardAssignments: {
+                                'atk_up': { kind: 'blackboard', key: 'atk_up' },
+                                'duration': { kind: 'blackboard', key: 'duration' },
+                              },
+                            }),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        },
+      ],
+    },
   },
   abilityEntityDefinitions: {
     'abilityentity_chr_0022_bounda_normal_skill': { lifetime: { kind: 'limited', durationSeconds: 5 }, childSkill: {
@@ -832,6 +1057,28 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
       key: 'talent2',
       levels: 2,
       modifiers: [],
+      passiveSkills: [
+        {
+          key: 'chr_0022_bounda_talent_2',
+          blackboard: {
+            'atk_up': [0.1, 0.2],
+            'duration': 10,
+            'probability': 0.2,
+          },
+          enableSequence: sequence(
+            step('applyBuff', {
+              buffId: 'buff_chr_0022_bounda_talent_2',
+              target: 'caster',
+              inheritSourceSkillCastInfo: false,
+              blackboardAssignments: {
+                'atk_up': { kind: 'blackboard', key: 'atk_up' },
+                'probability': { kind: 'blackboard', key: 'probability' },
+                'duration': { kind: 'blackboard', key: 'duration' },
+              },
+            }),
+          ),
+        },
+      ],
     },
   ],
   potentials: [
@@ -849,7 +1096,15 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential2',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchPassiveBlackboard',
+          passiveSkillKey: 'chr_0022_bounda_talent_2',
+          blackboardKey: 'probability',
+          operation: 'add',
+          value: 0.1,
+        },
+      ],
     },
     {
       key: 'potential3',
@@ -889,5 +1144,5 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
       modifiers: [],
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }, { capability: 'potentialEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['finisher', 'ultimate'] }] },
+  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'potentialEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['finisher', 'ultimate'] }] },
 };

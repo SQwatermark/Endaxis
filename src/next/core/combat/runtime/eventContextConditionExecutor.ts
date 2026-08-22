@@ -37,6 +37,7 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
     if (
       condition.kind !== 'eventDamageTagsMatch' &&
       condition.kind !== 'eventDamageFeaturesMatch' &&
+      condition.kind !== 'eventDamageTypeIn' &&
       condition.kind !== 'eventSkillTypeIn' &&
       condition.kind !== 'eventSkillIdIn' &&
       condition.kind !== 'eventBuffIdMatch' &&
@@ -137,20 +138,28 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
     }
     const damageEvent = eventDamageProperties(context.event);
     if (damageEvent === null) return false;
+    if (condition.kind === 'eventDamageTypeIn') {
+      return (
+        damageEvent.damageType !== undefined &&
+        condition.damageTypes.includes(damageEvent.damageType)
+      );
+    }
     return condition.kind === 'eventDamageTagsMatch'
       ? matchValues(damageEvent.tags, condition.tags, condition.match)
       : matchValues(damageEvent.features, condition.features, condition.match);
   }
 }
 
-function eventDamageProperties(
-  event: NonNullable<CombatOperationContext['event']>,
-): { readonly tags: readonly DamageTag[]; readonly features: readonly DamageFeature[] } | null {
+function eventDamageProperties(event: NonNullable<CombatOperationContext['event']>): {
+  readonly tags: readonly DamageTag[];
+  readonly features: readonly DamageFeature[];
+  readonly damageType?: import('../../game-data/operatorDefinition').DamageType;
+} | null {
   switch (event.kind) {
     case 'operatorHit':
-      return { tags: event.tags, features: event.features };
+      return { tags: event.tags, features: event.features, damageType: event.damageType };
     case 'abilityDamage':
-      return { tags: event.tags, features: event.features };
+      return { tags: event.tags, features: event.features, damageType: event.damageType };
     case 'damageTagHit':
     case 'enemyDefeated':
       return { tags: event.tags, features: event.features ?? [] };

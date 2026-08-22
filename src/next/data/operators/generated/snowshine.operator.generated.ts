@@ -681,11 +681,21 @@ export const snowshineGeneratedOperator: OperatorDefinition = {
           priority: 0,
           sequence:
             sequence(
-              step('applyBuff', {
-                buffId: 'buff_chr_0014_aurora_potential_1',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-              }),
+              branch(
+                {
+                  kind: 'entityTagMatch',
+                  target: 'caster',
+                  tagQueryType: 'hasAny',
+                  tagIds: [-1957150384],
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0014_aurora_potential_1',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
             ),
         },
       ],

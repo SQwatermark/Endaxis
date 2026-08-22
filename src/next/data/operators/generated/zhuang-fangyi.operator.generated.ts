@@ -3064,35 +3064,53 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
                     phase: 'dataAction',
                     priority: 0,
                     sequence: sequence(
-                      step('calculateActionValue', {
-                        key: 'swordRateFinal',
-                        operation: 'multiply',
-                        left: { kind: 'blackboard', key: 'sword_rate' },
-                        right: { kind: 'blackboard', key: 'swordsNum' },
-                      }),
-                      step('calculateActionValue', {
-                        key: 'probability',
-                        operation: 'add',
-                        left: { kind: 'blackboard', key: 'base_rate' },
-                        right: { kind: 'blackboard', key: 'swordRateFinal' },
-                      }),
-                      step('applyBuff', {
-                        buffId: 'buff_common_damage_immune_talent',
-                        target: 'caster',
-                        inheritSourceSkillCastInfo: true,
-                        blackboardAssignments: {
-                          'duration': { kind: 'constant', value: 0.01 },
+                      branch(
+                        {
+                          kind: 'entityTagMatch',
+                          target: 'caster',
+                          tagQueryType: 'exceptAny',
+                          tagIds: [-727577212, 1622340854, 1357114970],
                         },
-                      }),
-                      step('applyBuff', {
-                        buffId: 'buff_chr_0030_zhuangfy_talent2_heal',
-                        target: 'caster',
-                        inheritSourceSkillCastInfo: true,
-                        blackboardAssignments: {
-                          'heal': { kind: 'blackboard', key: 'heal' },
-                          'duration': { kind: 'blackboard', key: 'duration' },
-                        },
-                      }),
+                        sequence(
+                          step('calculateActionValue', {
+                            key: 'swordRateFinal',
+                            operation: 'multiply',
+                            left: { kind: 'blackboard', key: 'sword_rate' },
+                            right: { kind: 'blackboard', key: 'swordsNum' },
+                          }),
+                          step('calculateActionValue', {
+                            key: 'probability',
+                            operation: 'add',
+                            left: { kind: 'blackboard', key: 'base_rate' },
+                            right: { kind: 'blackboard', key: 'swordRateFinal' },
+                          }),
+                          branch(
+                            {
+                              kind: 'probability',
+                              probability: { kind: 'blackboard', key: 'probability' },
+                            },
+                            sequence(
+                              step('applyBuff', {
+                                buffId: 'buff_common_damage_immune_talent',
+                                target: 'caster',
+                                inheritSourceSkillCastInfo: true,
+                                blackboardAssignments: {
+                                  'duration': { kind: 'constant', value: 0.01 },
+                                },
+                              }),
+                              step('applyBuff', {
+                                buffId: 'buff_chr_0030_zhuangfy_talent2_heal',
+                                target: 'caster',
+                                inheritSourceSkillCastInfo: true,
+                                blackboardAssignments: {
+                                  'heal': { kind: 'blackboard', key: 'heal' },
+                                  'duration': { kind: 'blackboard', key: 'duration' },
+                                },
+                              }),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   },
               ],

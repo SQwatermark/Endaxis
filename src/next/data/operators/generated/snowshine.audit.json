@@ -697,8 +697,8 @@
               ],
               "actions": [
                 {
-                  "actionType": "CreateBuffAction",
-                  "actionIndex": 1,
+                  "actionType": "CheckTagMatch",
+                  "actionIndex": 0,
                   "actionPath": [
                     "timelineActions[0]",
                     "_sequenceActionData",
@@ -706,31 +706,96 @@
                     "[0]",
                     "succeedActions",
                     "actionData",
-                    "[1]"
+                    "[0]"
                   ],
-                  "serverActionIndex": 1,
-                  "legacyBuffFinish": null,
-                  "skillCooldownAdjustment": null,
-                  "buffIgnite": null,
-                  "buffApplication": {
-                    "buffs": [
+                  "serverActionIndex": 0,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
                       {
-                        "buffId": "buff_chr_0014_aurora_potential_1",
-                        "classification": null,
-                        "blackboardAssignments": {}
+                        "sourceType": "CheckTagMatch",
+                        "supported": true,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "entityTag": {
+                          "targetSource": "Owner",
+                          "targetGroupKey": "",
+                          "tagQueryType": "hasAny",
+                          "tagIds": [
+                            -1957150384
+                          ]
+                        },
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
                       }
                     ],
-                    "targetSource": "Owner",
-                    "targetGroupKey": "",
-                    "count": {
-                      "value": 1.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "buffSource": "ActionSource",
-                    "buffSourceContextKey": "",
-                    "inheritSourceSkillCastInfo": true
-                  }
+                    "succeedActions": [
+                      {
+                        "actionType": "CreateBuffAction",
+                        "actionIndex": 1,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[1]"
+                        ],
+                        "serverActionIndex": 1,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
+                        "buffApplication": {
+                          "buffs": [
+                            {
+                              "buffId": "buff_chr_0014_aurora_potential_1",
+                              "classification": null,
+                              "blackboardAssignments": {}
+                            }
+                          ],
+                          "targetSource": "Owner",
+                          "targetGroupKey": "",
+                          "count": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "buffSource": "ActionSource",
+                          "buffSourceContextKey": "",
+                          "inheritSourceSkillCastInfo": true
+                        }
+                      }
+                    ],
+                    "failActions": [],
+                    "conditionNegated": [],
+                    "alwaysNext": false
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
                 }
               ],
               "priority": 0

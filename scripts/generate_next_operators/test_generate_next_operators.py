@@ -64,6 +64,7 @@ from generate_next_operators import (
     compile_combat_condition,
     compile_combat_condition_group,
     compile_conditional_action,
+    compile_conditional_branch,
     compile_conditional_branch_action,
     compile_inline_buff_event_responses,
     compile_inline_buff_behaviors,
@@ -14718,6 +14719,74 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("kind: 'eventDamageTagsMatch'", compiled)
         self.assertIn("match: 'hasAll'", compiled)
         self.assertIn("tags: ['comboSkill']", compiled)
+
+    def test_event_sequence_preserves_damage_type_and_probability_short_circuit(self) -> None:
+        actions = parse_ordered_action_sequence(
+            [
+                {
+                    "$type": "Example.CheckDamageType+Data, Example",
+                    "isEnable": True,
+                    "priorityLevel": "Default",
+                    "priorityOffset": 0,
+                    "serverActionIndex": 1,
+                    "damageType": "Fire",
+                },
+                {
+                    "$type": "Example.Probablity+Data, Example",
+                    "isEnable": True,
+                    "priorityLevel": "Default",
+                    "priorityOffset": 0,
+                    "serverActionIndex": 2,
+                    "prob": {
+                        "useBlackboardKey": True,
+                        "blackboardKey": "probability",
+                        "value": 1,
+                    },
+                },
+                {
+                    "$type": "Example.ModifyDynamicBlackboard+Data, Example",
+                    "isEnable": True,
+                    "serverActionIndex": 3,
+                    "key": "triggered",
+                    "operation": "Assign",
+                    "directValue": True,
+                    "value": {
+                        "useBlackboardKey": False,
+                        "blackboardKey": "",
+                        "value": 1,
+                    },
+                    "calculationTarget": {
+                        "targetSource": "Owner",
+                        "targetGroupKey": "",
+                    },
+                    "calculateType": "HpRatio",
+                },
+            ],
+            "fixture.damage-probability",
+            {"probability": (0.2,)},
+        )
+
+        self.assertEqual(len(actions), 1)
+        damage_guard = actions[0].nestedCondition
+        self.assertIsNotNone(damage_guard)
+        assert damage_guard is not None
+        self.assertEqual(damage_guard.conditions[0].damageType, "heat")
+        probability_guard = damage_guard.succeedActions[0].nestedCondition
+        self.assertIsNotNone(probability_guard)
+        assert probability_guard is not None
+        self.assertEqual(probability_guard.conditions[0].sourceType, "Probablity")
+        compiled = compile_conditional_branch(
+            actions,
+            "fixture.damage-probability.actions",
+            runtime_blackboard_keys=frozenset({"probability", "triggered"}),
+            buff_ability_damage_event=True,
+            buff_owner_target="caster",
+            current_buff_environment=True,
+        )
+        self.assertIn("kind: 'eventDamageTypeIn'", compiled)
+        self.assertIn("damageTypes: ['heat']", compiled)
+        self.assertIn("kind: 'probability'", compiled)
+        self.assertIn("key: 'triggered'", compiled)
 
     def test_event_sequence_guard_preserves_unconditional_timeline_jump(self) -> None:
         actions = parse_ordered_action_sequence(

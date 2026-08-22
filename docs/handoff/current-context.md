@@ -74,6 +74,15 @@ step('spawnAbilityEntity', {
 
 ## 4. 本轮已经完成
 
+### 萤石受击天赋与潜能 2（2026-08-22）
+
+- 天赋 2 的 `chr_0022_bounda_talent_2` 已作为常驻被动完整生成。原生四条 `OnBeforeTakeDamage` 响应分别检查火、电、寒冷、自然伤害，先排除两个免疫标签，再以黑板 `probability=0.2` 判定；成功时给自身创建 0.01 秒伤害免疫和 10 秒攻击 Buff。二级天赋攻击增幅为 20%。
+- 潜能 2 通过 `patchPassiveBlackboard` 将同一被动概率提高 0.1。生产场景使用固定样本 0.25：潜能 1 的 20% 判定失败，潜能 2 的 30% 判定成功，后续首段普攻伤害实际提高；未把概率或伤害类型静态折叠。
+- Buff 事件的直接 `CheckTagMatch / CheckDamageType / Probablity` 现按复刻库已证明的 `SequenceAction` 返回值短路语义保留为嵌套顺序守卫，不再出现审计有条件而正式 DSL 丢条件的问题。新增 `eventDamageTypeIn` 只读取当前事件明确携带的伤害类型；旧外部标记未声明类型时不会误命中。
+- 全量生成随同纠正了既有正式产物中的同类缺口：Snowshine 的受击标签门控、Yvonne Buff 结束链的标签分流，以及庄方宜受击治疗的标签/概率门控重新进入可执行定义；这批变化来自同一通用规则，不是角色特判。
+- 外部 `operatorHit` 仍不模拟敌方技能、伤害公式或生命扣减，但同一次明确受击事实会依次发布 `beforeTakeDamage` 与 `takeDamage` 两个原生生命周期边界。Ember 的后置监听和萤石的前置监听各自保持原生事件身份。养成审计更新为天赋 27/44、潜能 105/110，均已进入标准模拟编译。
+- 下一批优先继续处理能够与剩余 5 个潜能形成闭环的事件型天赋/常驻 Buff；任何依赖未建模敌方主动行为的触发仍只能由明确外部标记唤醒，不能自动发生。
+
 ### 吉尔伯塔团队回能天赋与潜能 3（2026-08-22）
 
 - 天赋 1 的 `chr_0013_aglina_talent_0` 已从 `attachSkill` 转为常驻被动，通过全局友方 Aura 向全队施加 `UltimateSpGainScalar/BaseAddition`；两级分别为 +0.04/+0.07。潜能 3 再对同一被动黑板 `add += 0.05`。
@@ -486,7 +495,7 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 伊冯默认仓库生产回归已补：满天赋、潜能 3 的构筑只放置一段普攻，标准场景能够正常产生 `SkillStarted` 与 `DamageApplied`。该回归同时修复场景增量编译边界：只对本次已编译技能组应用对应养成补丁，未放置技能组的补丁跳过；完整干员定义编译仍使用严格模式检查错误组键，因此不会掩盖悬空配置。下一步的伊冯专项回归应直接构造可证明的冻结 Buff 输出链，检查 talent1 valid Buff 与 damage modifier，而不是制造敌方行为。
 - Ember 已由 `audit` 提升为正式生成干员并加入默认仓库：9 个技能、2 项天赋和 5 项潜能均由版本化来源完整转换，`conversionSupport` 为 `complete`。天赋 1 与潜能 1/3/5 是技能黑板补丁，天赋 2 是附着被动，潜能 2 是力量/意志静态属性，潜能 4 是终结技费用乘以 0.85；养成审计更新为天赋 21/38、潜能 85/95，全部已转换槽位均可进入标准模拟。
 - Ember 终结技护盾 Buff 的 `OnBuffStart` 中 plain `Target` 已依据 Buff 原生执行上下文归约为当前 Buff 宿主；Ability 事件里的 plain `Target` 仍是事件目标，两者有专门测试隔离，不能泛化合并。
-- 外部 `operatorHit` 标记现在除语义监听器外，还向目标干员的 Buff Ability 事件中心派发受击后的 `takeDamage` 事实。它只携带 `sourceId=enemy`、目标、标签和 damage features，不执行敌方技能、伤害计算或生命扣减。Ember 天赋 2 因而可由时间轴受击标记触发攻击 Buff；原生 `OnTakeDamage` 没有被偷换成 `OnBeforeTakeDamage`。
+- 外部 `operatorHit` 标记现在除语义监听器外，还向目标干员的 Buff Ability 事件中心依次派发 `beforeTakeDamage` 与 `takeDamage` 事实。它只携带 `sourceId=enemy`、目标、可选伤害类型、标签和 damage features，不执行敌方技能、伤害计算或生命扣减。Ember 与萤石分别消费原生后置/前置边界，没有互相偷换。
 - `inheritSourceSkillCastInfo` 已修正为可选继承：上下文存在施法信息时完整复制，不存在时保持为空。外部受击事实没有敌方技能实例，因此不得伪造技能 ID 或施法序号；这一行为已由 Buff 执行器测试和 Ember 默认仓库生产回归锁定。
 - 庄方宜正式化试跑没有越过证据边界：15 个技能、潜能及终结技换槽可以进入统一链，但两项 `AddBuff` 天赋的 SkillData 实际没有 startup Buff，效果位于被动技能自身的时间轴条件程序；现有 `attachedPassive` 只覆盖启动 Buff 型被动。因此清单已恢复 `outputStage: audit`，没有生成或注册伪完整定义。下一真实能力是通用“被动技能时间轴程序”编译，而不是给庄方宜写特例。
 - 试跑补齐了两个有独立复刻证据的通用事实：`PulseAbnormalDamageIncrease` 映射为电磁异常增伤动态属性，可由 `StoreAttributeValue(FinalNonConverted)` 写入 Buff 黑板；`ChangeSkillAction(specificRevertedSkillId=false)` 按原生快照替换前槽位，在同技能类型只有唯一基础候选时可严格派生 `revertMode: buffActionEnd`。候选不唯一仍拒绝。庄方宜审计现能明确列出战技与连携强化形态的两条槽位关系。
@@ -556,7 +565,7 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 全仓生成已重新执行并通过 `--check`，不再保留“生成器已前进、正式产物仍陈旧”的双重基线。20 名 `complete` 干员输出正式定义；梨诺恢复为 `audit`，12 个技能事实全部保留、其中 11 个输出审计 DSL。其终结技仍因 1.4.4 VFS manifest 缺少 `abilityentity_chr_0035_liino_ult_skill_projhit` 模板而失败关闭，不能用子技能时长猜造实体寿命或组件行为。
 - owner-spawned 选择器现在保留原生数值零掩码：`spawnedObjectType=0` 是合法的未命名默认枚举值，按 `combat-spec` 证据不命中任何非零对象类型；普通 HitBox 等非 owner-spawned Finder 的 `TagValidator` 查询也不再被提前返回误删。莱万汀的实体标签数量条件与唐糖的零掩码被动因此按原始身份生成。
 - 唐糖被动启动的 `buff_chr_0027_tangtang_water_passiveui` 只统计水实体并通知角色被动 UI，现通过严格校验的 `presentationOnlyPassiveBuffIds` 从模拟定义移除；真实水实体被动仍保留。技能与养成 Buff 现在共用“递归纯表现子 Buff 可省略”的边界，Estella Aura 应用目标统一从已证明的 Context 目标传入，不再因 Buff 环境把敌方目标误解析成宿主。
-- 萤石第二天赋的原始承伤响应包含标签、伤害类型和概率三重守卫；这些守卫尚未完整编译，因此不得只输出后半段免伤/加攻。`unmodeledPassiveSkillIds` 会把这类已知不完整的隐藏被动保留在 audit 的 `generationIssues`，正式定义中整段省略；萤石第一天赋和其他已证明行为不受影响。
+- 萤石第二天赋的标签、伤害类型和概率三重守卫已经按顺序短路语义完整生成；潜能 2 的概率补丁与生产模拟也已闭环。此前整段省略的限制已经解除。
 - 弭弗护盾的 `StoreAttributeValue(MaxHp, FinalNonConverted)` 现由标准环境读取同一干员生命账本的 `maxHealth`，不再把静态实体黑板当作通用属性来源。养成缺口门禁改为单向约束：完全没有可执行行为的天赋/潜能必须声明缺口，而安全的部分行为允许与明确缺口共存。
 - 当前门禁：生成器 427/427、全量生成 `--check`、Next 198 文件 1336/1336、`type-check:next`、`git diff --check` 全部通过。`tmp/` 仍只作为未跟踪证据/临时目录，不得提交。
 

@@ -1098,6 +1098,7 @@ class ConditionSource:
     left: ScalarSource | None
     right: ScalarSource | None
     skillTypes: tuple[str, ...]
+    damageType: str | None = None
     entityCount: EntityCountConditionSource | None = None
     buffStack: BuffStackConditionSource | None = None
     health: HealthConditionSource | None = None

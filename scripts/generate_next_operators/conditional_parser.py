@@ -157,6 +157,9 @@ EVENT_SEQUENCE_GUARD_ACTION_NAMES = {
     "CompareFloat",
     "CheckHealTag",
     "CheckOverHeal",
+    "CheckTagMatch",
+    "CheckDamageType",
+    "Probablity",
 }
 
 # 这些叶子只改变运行时状态，仍应让前置顺序守卫把它们纳入控制流。
@@ -504,6 +507,36 @@ def parse_conditional_actions(
                 probability=parse_scalar(
                     condition.get("prob"), f"{path}.prob", inherited_blackboard
                 ),
+            )
+        if condition_type == "CheckDamageType":
+            expected_fields = {
+                "$type", "isEnable", "priorityLevel", "priorityOffset",
+                "serverActionIndex", "damageType",
+            }
+            if set(condition) != expected_fields:
+                raise ValueError(f"{path}: unexpected fields {sorted(condition)}")
+            native_damage_type = condition.get("damageType")
+            damage_type_map = {
+                "Physical": "physical",
+                "Fire": "heat",
+                "Heat": "heat",
+                "Cryst": "cryo",
+                "Cold": "cryo",
+                "Pulse": "electric",
+                "Natural": "nature",
+                "Nature": "nature",
+            }
+            damage_type = damage_type_map.get(str(native_damage_type))
+            if damage_type is None:
+                raise ValueError(f"{path}.damageType: unsupported value {native_damage_type!r}")
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=True,
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                damageType=damage_type,
             )
         if condition_type == "CompareDeckAttr":
             expected_fields = {

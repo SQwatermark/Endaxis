@@ -286,6 +286,1710 @@
       "presentationOnlySwitchActionIndexes": []
     },
     {
+      "buffId": "buff_chr_0022_bounda_talent_2",
+      "sourceFile": "buff_chr_0022_bounda_talent_2.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 10.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "atk_up",
+          "value": 0.1,
+          "isDynamic": false
+        },
+        {
+          "key": "duration",
+          "value": 10.0,
+          "isDynamic": false
+        },
+        {
+          "key": "probability",
+          "value": 0.2,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "ability",
+          "event": "OnBeforeTakeDamage",
+          "orderedActionTypes": [
+            "CheckTagMatch",
+            "CheckDamageType",
+            "Probablity",
+            "CreateBuffAction",
+            "EffectAction",
+            "EffectAction",
+            "EffectAction",
+            "CheckTagMatch",
+            "CheckDamageType",
+            "Probablity",
+            "CreateBuffAction",
+            "EffectAction",
+            "EffectAction",
+            "EffectAction",
+            "CheckTagMatch",
+            "CheckDamageType",
+            "Probablity",
+            "CreateBuffAction",
+            "EffectAction",
+            "EffectAction",
+            "EffectAction",
+            "CheckTagMatch",
+            "CheckDamageType",
+            "Probablity",
+            "CreateBuffAction",
+            "EffectAction",
+            "EffectAction",
+            "EffectAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 3,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_common_damage_immune_talent",
+                    "classification": "incomingDamageProtection",
+                    "blackboardAssignments": {
+                      "duration": {
+                        "value": 0.01,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
+                    }
+                  },
+                  {
+                    "buffId": "buff_chr_0022_bounda_talent_2_atkup",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "atk_up": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_up",
+                        "levelValues": [
+                          0.1
+                        ]
+                      },
+                      "duration": {
+                        "value": 0.0,
+                        "blackboardKey": "duration",
+                        "levelValues": [
+                          10.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            },
+            {
+              "actionIndex": 10,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_common_damage_immune_talent",
+                    "classification": "incomingDamageProtection",
+                    "blackboardAssignments": {
+                      "duration": {
+                        "value": 0.01,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
+                    }
+                  },
+                  {
+                    "buffId": "buff_chr_0022_bounda_talent_2_atkup",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "atk_up": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_up",
+                        "levelValues": [
+                          0.1
+                        ]
+                      },
+                      "duration": {
+                        "value": 0.0,
+                        "blackboardKey": "duration",
+                        "levelValues": [
+                          10.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            },
+            {
+              "actionIndex": 17,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_common_damage_immune_talent",
+                    "classification": "incomingDamageProtection",
+                    "blackboardAssignments": {
+                      "duration": {
+                        "value": 0.01,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
+                    }
+                  },
+                  {
+                    "buffId": "buff_chr_0022_bounda_talent_2_atkup",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "atk_up": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_up",
+                        "levelValues": [
+                          0.1
+                        ]
+                      },
+                      "duration": {
+                        "value": 0.0,
+                        "blackboardKey": "duration",
+                        "levelValues": [
+                          10.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            },
+            {
+              "actionIndex": 24,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_common_damage_immune_talent",
+                    "classification": "incomingDamageProtection",
+                    "blackboardAssignments": {
+                      "duration": {
+                        "value": 0.01,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      }
+                    }
+                  },
+                  {
+                    "buffId": "buff_chr_0022_bounda_talent_2_atkup",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "atk_up": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_up",
+                        "levelValues": [
+                          0.1
+                        ]
+                      },
+                      "duration": {
+                        "value": 0.0,
+                        "blackboardKey": "duration",
+                        "levelValues": [
+                          10.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_chr_0022_bounda_talent_2_atkup",
+            "buff_common_damage_immune_talent"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckTagMatch",
+                "CheckDamageType",
+                "Probablity",
+                "CreateBuffAction",
+                "EffectAction",
+                "EffectAction",
+                "EffectAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 3,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_damage_immune_talent",
+                        "classification": "incomingDamageProtection",
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 0.01,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          }
+                        }
+                      },
+                      {
+                        "buffId": "buff_chr_0022_bounda_talent_2_atkup",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "atk_up": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_up",
+                            "levelValues": [
+                              0.1
+                            ]
+                          },
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration",
+                            "levelValues": [
+                              10.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CheckTagMatch",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckTagMatch",
+                        "supported": true,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "entityTag": {
+                          "targetSource": "Owner",
+                          "targetGroupKey": "",
+                          "tagQueryType": "exceptAny",
+                          "tagIds": [
+                            1622340854,
+                            1357114970
+                          ]
+                        },
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CheckDamageType",
+                        "actionIndex": 1,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[1]"
+                        ],
+                        "serverActionIndex": 1,
+                        "nestedCondition": {
+                          "startFrame": 0,
+                          "endFrame": 0,
+                          "actionIndex": 1,
+                          "actionPath": [
+                            "timelineActions[0]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "CheckDamageType",
+                              "supported": true,
+                              "comparison": null,
+                              "left": null,
+                              "right": null,
+                              "skillTypes": [],
+                              "damageType": "heat",
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
+                              "targetAngle": null,
+                              "damageDecorateMask": null,
+                              "contextBuffId": null,
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "Probablity",
+                              "actionIndex": 2,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[2]"
+                              ],
+                              "serverActionIndex": 2,
+                              "nestedCondition": {
+                                "startFrame": 0,
+                                "endFrame": 0,
+                                "actionIndex": 2,
+                                "actionPath": [
+                                  "timelineActions[0]",
+                                  "_sequenceActionData",
+                                  "actionData",
+                                  "[0]",
+                                  "succeedActions",
+                                  "actionData",
+                                  "[2]"
+                                ],
+                                "conditions": [
+                                  {
+                                    "sourceType": "Probablity",
+                                    "supported": true,
+                                    "comparison": null,
+                                    "left": null,
+                                    "right": null,
+                                    "skillTypes": [],
+                                    "poise": null,
+                                    "superArmor": null,
+                                    "twoDirectionAngle": null,
+                                    "targetAngle": null,
+                                    "damageDecorateMask": null,
+                                    "contextBuffId": null,
+                                    "objectTypeMatch": null,
+                                    "deckAttributeCompare": null,
+                                    "probability": {
+                                      "value": 1.0,
+                                      "blackboardKey": "probability",
+                                      "levelValues": [
+                                        0.2
+                                      ]
+                                    },
+                                    "anyConditionGroups": [],
+                                    "anyConditionNegated": []
+                                  }
+                                ],
+                                "succeedActions": [
+                                  {
+                                    "actionType": "CreateBuffAction",
+                                    "actionIndex": 3,
+                                    "actionPath": [
+                                      "timelineActions[0]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[0]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[3]"
+                                    ],
+                                    "serverActionIndex": 3,
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null,
+                                    "buffApplication": {
+                                      "buffs": [
+                                        {
+                                          "buffId": "buff_common_damage_immune_talent",
+                                          "classification": "incomingDamageProtection",
+                                          "blackboardAssignments": {
+                                            "duration": {
+                                              "value": 0.01,
+                                              "blackboardKey": null,
+                                              "levelValues": null
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "buffId": "buff_chr_0022_bounda_talent_2_atkup",
+                                          "classification": null,
+                                          "blackboardAssignments": {
+                                            "atk_up": {
+                                              "value": 0.0,
+                                              "blackboardKey": "atk_up",
+                                              "levelValues": [
+                                                0.1
+                                              ]
+                                            },
+                                            "duration": {
+                                              "value": 0.0,
+                                              "blackboardKey": "duration",
+                                              "levelValues": [
+                                                10.0
+                                              ]
+                                            }
+                                          }
+                                        }
+                                      ],
+                                      "targetSource": "Source",
+                                      "targetGroupKey": "",
+                                      "count": {
+                                        "value": 1.0,
+                                        "blackboardKey": null,
+                                        "levelValues": null
+                                      },
+                                      "buffSource": "ActionSource",
+                                      "buffSourceContextKey": "",
+                                      "inheritSourceSkillCastInfo": true
+                                    }
+                                  }
+                                ],
+                                "failActions": [],
+                                "conditionNegated": [],
+                                "alwaysNext": false
+                              },
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null
+                            }
+                          ],
+                          "failActions": [],
+                          "conditionNegated": [],
+                          "alwaysNext": false
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      }
+                    ],
+                    "failActions": [],
+                    "conditionNegated": [],
+                    "alwaysNext": false
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckTagMatch",
+                "CheckDamageType",
+                "Probablity",
+                "CreateBuffAction",
+                "EffectAction",
+                "EffectAction",
+                "EffectAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 10,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_damage_immune_talent",
+                        "classification": "incomingDamageProtection",
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 0.01,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          }
+                        }
+                      },
+                      {
+                        "buffId": "buff_chr_0022_bounda_talent_2_atkup",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "atk_up": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_up",
+                            "levelValues": [
+                              0.1
+                            ]
+                          },
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration",
+                            "levelValues": [
+                              10.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CheckTagMatch",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 7,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 7,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckTagMatch",
+                        "supported": true,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "entityTag": {
+                          "targetSource": "Owner",
+                          "targetGroupKey": "",
+                          "tagQueryType": "exceptAny",
+                          "tagIds": [
+                            1622340854,
+                            1357114970
+                          ]
+                        },
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CheckDamageType",
+                        "actionIndex": 1,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[1]"
+                        ],
+                        "serverActionIndex": 8,
+                        "nestedCondition": {
+                          "startFrame": 0,
+                          "endFrame": 0,
+                          "actionIndex": 8,
+                          "actionPath": [
+                            "timelineActions[0]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "CheckDamageType",
+                              "supported": true,
+                              "comparison": null,
+                              "left": null,
+                              "right": null,
+                              "skillTypes": [],
+                              "damageType": "electric",
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
+                              "targetAngle": null,
+                              "damageDecorateMask": null,
+                              "contextBuffId": null,
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "Probablity",
+                              "actionIndex": 2,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[2]"
+                              ],
+                              "serverActionIndex": 9,
+                              "nestedCondition": {
+                                "startFrame": 0,
+                                "endFrame": 0,
+                                "actionIndex": 9,
+                                "actionPath": [
+                                  "timelineActions[0]",
+                                  "_sequenceActionData",
+                                  "actionData",
+                                  "[0]",
+                                  "succeedActions",
+                                  "actionData",
+                                  "[2]"
+                                ],
+                                "conditions": [
+                                  {
+                                    "sourceType": "Probablity",
+                                    "supported": true,
+                                    "comparison": null,
+                                    "left": null,
+                                    "right": null,
+                                    "skillTypes": [],
+                                    "poise": null,
+                                    "superArmor": null,
+                                    "twoDirectionAngle": null,
+                                    "targetAngle": null,
+                                    "damageDecorateMask": null,
+                                    "contextBuffId": null,
+                                    "objectTypeMatch": null,
+                                    "deckAttributeCompare": null,
+                                    "probability": {
+                                      "value": 1.0,
+                                      "blackboardKey": "probability",
+                                      "levelValues": [
+                                        0.2
+                                      ]
+                                    },
+                                    "anyConditionGroups": [],
+                                    "anyConditionNegated": []
+                                  }
+                                ],
+                                "succeedActions": [
+                                  {
+                                    "actionType": "CreateBuffAction",
+                                    "actionIndex": 3,
+                                    "actionPath": [
+                                      "timelineActions[0]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[0]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[3]"
+                                    ],
+                                    "serverActionIndex": 10,
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null,
+                                    "buffApplication": {
+                                      "buffs": [
+                                        {
+                                          "buffId": "buff_common_damage_immune_talent",
+                                          "classification": "incomingDamageProtection",
+                                          "blackboardAssignments": {
+                                            "duration": {
+                                              "value": 0.01,
+                                              "blackboardKey": null,
+                                              "levelValues": null
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "buffId": "buff_chr_0022_bounda_talent_2_atkup",
+                                          "classification": null,
+                                          "blackboardAssignments": {
+                                            "atk_up": {
+                                              "value": 0.0,
+                                              "blackboardKey": "atk_up",
+                                              "levelValues": [
+                                                0.1
+                                              ]
+                                            },
+                                            "duration": {
+                                              "value": 0.0,
+                                              "blackboardKey": "duration",
+                                              "levelValues": [
+                                                10.0
+                                              ]
+                                            }
+                                          }
+                                        }
+                                      ],
+                                      "targetSource": "Source",
+                                      "targetGroupKey": "",
+                                      "count": {
+                                        "value": 1.0,
+                                        "blackboardKey": null,
+                                        "levelValues": null
+                                      },
+                                      "buffSource": "ActionSource",
+                                      "buffSourceContextKey": "",
+                                      "inheritSourceSkillCastInfo": true
+                                    }
+                                  }
+                                ],
+                                "failActions": [],
+                                "conditionNegated": [],
+                                "alwaysNext": false
+                              },
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null
+                            }
+                          ],
+                          "failActions": [],
+                          "conditionNegated": [],
+                          "alwaysNext": false
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      }
+                    ],
+                    "failActions": [],
+                    "conditionNegated": [],
+                    "alwaysNext": false
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckTagMatch",
+                "CheckDamageType",
+                "Probablity",
+                "CreateBuffAction",
+                "EffectAction",
+                "EffectAction",
+                "EffectAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 17,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_damage_immune_talent",
+                        "classification": "incomingDamageProtection",
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 0.01,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          }
+                        }
+                      },
+                      {
+                        "buffId": "buff_chr_0022_bounda_talent_2_atkup",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "atk_up": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_up",
+                            "levelValues": [
+                              0.1
+                            ]
+                          },
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration",
+                            "levelValues": [
+                              10.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CheckTagMatch",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 14,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 14,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckTagMatch",
+                        "supported": true,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "entityTag": {
+                          "targetSource": "Owner",
+                          "targetGroupKey": "",
+                          "tagQueryType": "exceptAny",
+                          "tagIds": [
+                            1622340854,
+                            1357114970
+                          ]
+                        },
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CheckDamageType",
+                        "actionIndex": 1,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[1]"
+                        ],
+                        "serverActionIndex": 15,
+                        "nestedCondition": {
+                          "startFrame": 0,
+                          "endFrame": 0,
+                          "actionIndex": 15,
+                          "actionPath": [
+                            "timelineActions[0]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "CheckDamageType",
+                              "supported": true,
+                              "comparison": null,
+                              "left": null,
+                              "right": null,
+                              "skillTypes": [],
+                              "damageType": "cryo",
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
+                              "targetAngle": null,
+                              "damageDecorateMask": null,
+                              "contextBuffId": null,
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "Probablity",
+                              "actionIndex": 2,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[2]"
+                              ],
+                              "serverActionIndex": 16,
+                              "nestedCondition": {
+                                "startFrame": 0,
+                                "endFrame": 0,
+                                "actionIndex": 16,
+                                "actionPath": [
+                                  "timelineActions[0]",
+                                  "_sequenceActionData",
+                                  "actionData",
+                                  "[0]",
+                                  "succeedActions",
+                                  "actionData",
+                                  "[2]"
+                                ],
+                                "conditions": [
+                                  {
+                                    "sourceType": "Probablity",
+                                    "supported": true,
+                                    "comparison": null,
+                                    "left": null,
+                                    "right": null,
+                                    "skillTypes": [],
+                                    "poise": null,
+                                    "superArmor": null,
+                                    "twoDirectionAngle": null,
+                                    "targetAngle": null,
+                                    "damageDecorateMask": null,
+                                    "contextBuffId": null,
+                                    "objectTypeMatch": null,
+                                    "deckAttributeCompare": null,
+                                    "probability": {
+                                      "value": 1.0,
+                                      "blackboardKey": "probability",
+                                      "levelValues": [
+                                        0.2
+                                      ]
+                                    },
+                                    "anyConditionGroups": [],
+                                    "anyConditionNegated": []
+                                  }
+                                ],
+                                "succeedActions": [
+                                  {
+                                    "actionType": "CreateBuffAction",
+                                    "actionIndex": 3,
+                                    "actionPath": [
+                                      "timelineActions[0]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[0]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[3]"
+                                    ],
+                                    "serverActionIndex": 17,
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null,
+                                    "buffApplication": {
+                                      "buffs": [
+                                        {
+                                          "buffId": "buff_common_damage_immune_talent",
+                                          "classification": "incomingDamageProtection",
+                                          "blackboardAssignments": {
+                                            "duration": {
+                                              "value": 0.01,
+                                              "blackboardKey": null,
+                                              "levelValues": null
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "buffId": "buff_chr_0022_bounda_talent_2_atkup",
+                                          "classification": null,
+                                          "blackboardAssignments": {
+                                            "atk_up": {
+                                              "value": 0.0,
+                                              "blackboardKey": "atk_up",
+                                              "levelValues": [
+                                                0.1
+                                              ]
+                                            },
+                                            "duration": {
+                                              "value": 0.0,
+                                              "blackboardKey": "duration",
+                                              "levelValues": [
+                                                10.0
+                                              ]
+                                            }
+                                          }
+                                        }
+                                      ],
+                                      "targetSource": "Source",
+                                      "targetGroupKey": "",
+                                      "count": {
+                                        "value": 1.0,
+                                        "blackboardKey": null,
+                                        "levelValues": null
+                                      },
+                                      "buffSource": "ActionSource",
+                                      "buffSourceContextKey": "",
+                                      "inheritSourceSkillCastInfo": true
+                                    }
+                                  }
+                                ],
+                                "failActions": [],
+                                "conditionNegated": [],
+                                "alwaysNext": false
+                              },
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null
+                            }
+                          ],
+                          "failActions": [],
+                          "conditionNegated": [],
+                          "alwaysNext": false
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      }
+                    ],
+                    "failActions": [],
+                    "conditionNegated": [],
+                    "alwaysNext": false
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckTagMatch",
+                "CheckDamageType",
+                "Probablity",
+                "CreateBuffAction",
+                "EffectAction",
+                "EffectAction",
+                "EffectAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 24,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_damage_immune_talent",
+                        "classification": "incomingDamageProtection",
+                        "blackboardAssignments": {
+                          "duration": {
+                            "value": 0.01,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          }
+                        }
+                      },
+                      {
+                        "buffId": "buff_chr_0022_bounda_talent_2_atkup",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "atk_up": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_up",
+                            "levelValues": [
+                              0.1
+                            ]
+                          },
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration",
+                            "levelValues": [
+                              10.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CheckTagMatch",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 21,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 21,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckTagMatch",
+                        "supported": true,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "entityTag": {
+                          "targetSource": "Owner",
+                          "targetGroupKey": "",
+                          "tagQueryType": "exceptAny",
+                          "tagIds": [
+                            1622340854,
+                            1357114970
+                          ]
+                        },
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CheckDamageType",
+                        "actionIndex": 1,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[1]"
+                        ],
+                        "serverActionIndex": 22,
+                        "nestedCondition": {
+                          "startFrame": 0,
+                          "endFrame": 0,
+                          "actionIndex": 22,
+                          "actionPath": [
+                            "timelineActions[0]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "CheckDamageType",
+                              "supported": true,
+                              "comparison": null,
+                              "left": null,
+                              "right": null,
+                              "skillTypes": [],
+                              "damageType": "nature",
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
+                              "targetAngle": null,
+                              "damageDecorateMask": null,
+                              "contextBuffId": null,
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "Probablity",
+                              "actionIndex": 2,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[2]"
+                              ],
+                              "serverActionIndex": 23,
+                              "nestedCondition": {
+                                "startFrame": 0,
+                                "endFrame": 0,
+                                "actionIndex": 23,
+                                "actionPath": [
+                                  "timelineActions[0]",
+                                  "_sequenceActionData",
+                                  "actionData",
+                                  "[0]",
+                                  "succeedActions",
+                                  "actionData",
+                                  "[2]"
+                                ],
+                                "conditions": [
+                                  {
+                                    "sourceType": "Probablity",
+                                    "supported": true,
+                                    "comparison": null,
+                                    "left": null,
+                                    "right": null,
+                                    "skillTypes": [],
+                                    "poise": null,
+                                    "superArmor": null,
+                                    "twoDirectionAngle": null,
+                                    "targetAngle": null,
+                                    "damageDecorateMask": null,
+                                    "contextBuffId": null,
+                                    "objectTypeMatch": null,
+                                    "deckAttributeCompare": null,
+                                    "probability": {
+                                      "value": 1.0,
+                                      "blackboardKey": "probability",
+                                      "levelValues": [
+                                        0.2
+                                      ]
+                                    },
+                                    "anyConditionGroups": [],
+                                    "anyConditionNegated": []
+                                  }
+                                ],
+                                "succeedActions": [
+                                  {
+                                    "actionType": "CreateBuffAction",
+                                    "actionIndex": 3,
+                                    "actionPath": [
+                                      "timelineActions[0]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[0]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[3]"
+                                    ],
+                                    "serverActionIndex": 24,
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null,
+                                    "buffApplication": {
+                                      "buffs": [
+                                        {
+                                          "buffId": "buff_common_damage_immune_talent",
+                                          "classification": "incomingDamageProtection",
+                                          "blackboardAssignments": {
+                                            "duration": {
+                                              "value": 0.01,
+                                              "blackboardKey": null,
+                                              "levelValues": null
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "buffId": "buff_chr_0022_bounda_talent_2_atkup",
+                                          "classification": null,
+                                          "blackboardAssignments": {
+                                            "atk_up": {
+                                              "value": 0.0,
+                                              "blackboardKey": "atk_up",
+                                              "levelValues": [
+                                                0.1
+                                              ]
+                                            },
+                                            "duration": {
+                                              "value": 0.0,
+                                              "blackboardKey": "duration",
+                                              "levelValues": [
+                                                10.0
+                                              ]
+                                            }
+                                          }
+                                        }
+                                      ],
+                                      "targetSource": "Source",
+                                      "targetGroupKey": "",
+                                      "count": {
+                                        "value": 1.0,
+                                        "blackboardKey": null,
+                                        "levelValues": null
+                                      },
+                                      "buffSource": "ActionSource",
+                                      "buffSourceContextKey": "",
+                                      "inheritSourceSkillCastInfo": true
+                                    }
+                                  }
+                                ],
+                                "failActions": [],
+                                "conditionNegated": [],
+                                "alwaysNext": false
+                              },
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null
+                            }
+                          ],
+                          "failActions": [],
+                          "conditionNegated": [],
+                          "alwaysNext": false
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      }
+                    ],
+                    "failActions": [],
+                    "conditionNegated": [],
+                    "alwaysNext": false
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
+      "buffId": "buff_chr_0022_bounda_talent_2_atkup",
+      "sourceFile": "buff_chr_0022_bounda_talent_2_atkup.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 10.0,
+          "blackboardKey": "duration",
+          "levelValues": [
+            10.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Refresh",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "atk_up",
+          "value": 0.1,
+          "isDynamic": false
+        },
+        {
+          "key": "duration",
+          "value": 10.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [
+        {
+          "targetType": "Specific",
+          "attributeType": "Atk",
+          "slot": "BaseMultiplier",
+          "value": {
+            "value": 0.15,
+            "blackboardKey": "atk_up",
+            "levelValues": [
+              0.1
+            ]
+          }
+        }
+      ],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
       "buffId": "buff_chr_0022_bounda_ultimate_skill",
       "sourceFile": "buff_chr_0022_bounda_ultimate_skill.json",
       "sourceAvailable": true,
@@ -353,6 +2057,151 @@
       "onlyUseSelfTimeDilation": false,
       "shields": [],
       "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
+      "buffId": "buff_common_damage_immune_talent",
+      "sourceFile": "buff_common_damage_immune_talent.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 2.0,
+          "blackboardKey": "duration",
+          "levelValues": [
+            9999.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "duration",
+          "value": 9999.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [
+        782082172,
+        -104052028,
+        -1128398902
+      ],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "ImmuneTextAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "ImmuneTextAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [
+        {
+          "target": {
+            "targetSource": "Owner",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "superArmor": {
+            "value": 35.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "impactResistance": {
+            "value": 100.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
       "presentationOnlySwitchActionIndexes": []
@@ -864,9 +2713,7 @@
       ],
       "event_listeners": [],
       "event_buff_ids": [],
-      "generationIssues": [
-        "manifest explicitly keeps this passive skill unmodeled"
-      ]
+      "generationIssues": []
     }
   ],
   "skills": [

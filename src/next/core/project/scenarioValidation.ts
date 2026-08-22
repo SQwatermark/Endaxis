@@ -3,7 +3,12 @@
  * 这里只检查持久化结构和引用关系，不应调用游戏数据或执行战斗规则。
  */
 import { ENEMY_EDITABLE_FIELDS, GLOBAL_OPERATOR_STAT_MODIFIERS, type JsonObject } from './schema';
-import { DAMAGE_FEATURES, DAMAGE_TAGS, SKILL_TYPES } from '../game-data/operatorDefinition';
+import {
+  DAMAGE_FEATURES,
+  DAMAGE_TAGS,
+  DAMAGE_TYPES,
+  SKILL_TYPES,
+} from '../game-data/operatorDefinition';
 import { ENEMY_RANKS } from '../game-data/enemyRank';
 import {
   isObject,
@@ -22,6 +27,7 @@ const globalOperatorStatModifiers = new Set<string>(GLOBAL_OPERATOR_STAT_MODIFIE
 const skillTypes = new Set<string>(SKILL_TYPES);
 const damageTags = new Set<string>(DAMAGE_TAGS);
 const damageFeatures = new Set<string>(DAMAGE_FEATURES);
+const damageTypes = new Set<string>(DAMAGE_TYPES);
 const enemyRanks = new Set<string>(ENEMY_RANKS);
 
 export function validateOperatorInstance(
@@ -257,6 +263,15 @@ export function validateBattle(value: unknown, path: string, issues: ValidationI
         if (entry.event.kind !== 'operatorHit') {
           issues.push({ path: `${entryPath}.event.kind`, message: 'unknown external event kind' });
           return;
+        }
+        if (
+          entry.event.damageType !== undefined &&
+          (typeof entry.event.damageType !== 'string' || !damageTypes.has(entry.event.damageType))
+        ) {
+          issues.push({
+            path: `${entryPath}.event.damageType`,
+            message: 'unknown damage type',
+          });
         }
         for (const [field, allowed] of [
           ['tags', damageTags],

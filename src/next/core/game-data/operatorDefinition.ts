@@ -339,6 +339,11 @@ export type CombatCondition =
       features: readonly DamageFeature[];
     }
   | {
+      /** 匹配触发当前响应的伤害类型；未声明类型的外部事实不会命中。 */
+      kind: 'eventDamageTypeIn';
+      damageTypes: readonly DamageType[];
+    }
+  | {
       /** 匹配触发 Buff 响应的待施放技能类型。 */
       kind: 'eventSkillTypeIn';
       skillTypes: readonly SkillType[];
@@ -425,6 +430,7 @@ export const COMBAT_CONDITION_KINDS = [
   'abilityEntityTimedMarkerPresent',
   'eventDamageTagsMatch',
   'eventDamageFeaturesMatch',
+  'eventDamageTypeIn',
   'eventSkillTypeIn',
   'eventSkillIdIn',
   'eventBuffIdMatch',

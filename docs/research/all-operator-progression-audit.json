@@ -154,13 +154,13 @@
       "operatorCount": 22,
       "talent": {
         "totalCount": 44,
-        "definitionConvertedCount": 26,
-        "standardSimulationCompileReadyCount": 26
+        "definitionConvertedCount": 27,
+        "standardSimulationCompileReadyCount": 27
       },
       "potential": {
         "totalCount": 110,
-        "definitionConvertedCount": 104,
-        "standardSimulationCompileReadyCount": 104
+        "definitionConvertedCount": 105,
+        "standardSimulationCompileReadyCount": 105
       },
       "definitionCompleteOperatorCount": 8,
       "standardSimulationCompileReadyOperatorCount": 8
@@ -4423,13 +4423,13 @@
         "slug": "fluorite",
         "talent": {
           "totalCount": 2,
-          "definitionConvertedCount": 1,
-          "standardSimulationCompileReadyCount": 1
+          "definitionConvertedCount": 2,
+          "standardSimulationCompileReadyCount": 2
         },
         "potential": {
           "totalCount": 5,
-          "definitionConvertedCount": 3,
-          "standardSimulationCompileReadyCount": 3
+          "definitionConvertedCount": 4,
+          "standardSimulationCompileReadyCount": 4
         },
         "definitionComplete": false,
         "standardSimulationCompileReady": false,
@@ -4444,10 +4444,9 @@
           {
             "key": "talent2",
             "sourceEffectIds": ["chr_0022_bounda_talent_2_1", "chr_0022_bounda_talent_2_2"],
-            "compiler": "unmodeledTalent",
-            "definitionConverted": false,
-            "standardSimulationCompileReady": false,
-            "blocker": "unmodeled-source-effect"
+            "compiler": "attachedPassive",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
           }
         ],
         "potentials": [
@@ -4461,10 +4460,9 @@
           {
             "key": "potential2",
             "sourceEffectIds": ["chr_0022_bounda_potential_2"],
-            "compiler": "unmodeledPotential",
-            "definitionConverted": false,
-            "standardSimulationCompileReady": false,
-            "blocker": "unmodeled-source-effect"
+            "compiler": "passiveBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
           },
           {
             "key": "potential3",

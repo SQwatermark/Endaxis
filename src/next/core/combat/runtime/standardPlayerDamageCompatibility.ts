@@ -95,6 +95,7 @@ function inspectCondition(
     case 'buffSourceMatchesOwner':
     case 'eventDamageTagsMatch':
     case 'eventDamageFeaturesMatch':
+    case 'eventDamageTypeIn':
     case 'eventSkillTypeIn':
     case 'eventSkillIdIn':
     case 'eventBuffIdMatch':

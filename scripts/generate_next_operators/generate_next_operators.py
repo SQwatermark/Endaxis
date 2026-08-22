@@ -412,6 +412,7 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "heal",
         "healTag",
         "overHeal",
+        "damageType",
     }
 )
 

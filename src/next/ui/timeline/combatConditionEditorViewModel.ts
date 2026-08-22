@@ -97,6 +97,8 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
       return { kind, match: 'hasAny', tags: ['normalSkill'] };
     case 'eventDamageFeaturesMatch':
       return { kind, match: 'hasAny', features: ['canBreakWeakness'] };
+    case 'eventDamageTypeIn':
+      return { kind, damageTypes: ['physical'] };
     case 'eventSkillTypeIn':
       return { kind, skillTypes: ['battleSkill'] };
     case 'eventSkillIdIn':
