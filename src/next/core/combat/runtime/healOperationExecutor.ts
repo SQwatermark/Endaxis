@@ -6,6 +6,7 @@ import { resolveActionValueOperand } from './actionBlackboard';
 import type { CombatClock } from './combatClock';
 import type { CombatVitals } from './combatVitals';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
+import type { CombatAbilityHealEvent } from './skillRuntime';
 
 type HealStep = Extract<ResolvedCombatOperationStep, { kind: 'heal' }>;
 
@@ -20,6 +21,8 @@ export interface HealOperationDependencies {
   readonly receipt: CombatReceiptSink;
   readonly resolveSourceAttribute: (attribute: HealCalculationAttribute) => number;
   readonly resolveTarget: (target: HealTarget, buffSourceId?: string) => ResolvedHealTarget;
+  /** 原生 Modifier 成功后固定先 output、再 receive；满血治疗也必须调用。 */
+  readonly emitSuccessfulHeal?: (event: CombatAbilityHealEvent) => void;
   readonly delegate: CombatOperationExecutor;
 }
 
@@ -62,6 +65,17 @@ export class HealOperationExecutor implements CombatOperationExecutor {
         currentHealth: result.currentHealth,
       },
     });
+    const eventBase = {
+      kind: 'abilityHeal' as const,
+      sourceId: this.dependencies.sourceOperatorId,
+      targetId: target.operatorId,
+      requestedHealing: result.requestedHealing,
+      actualHealing: result.actualHealing,
+      overhealing: result.overhealing,
+      tagIds: step.parameters.tagIds,
+    };
+    this.dependencies.emitSuccessfulHeal?.({ ...eventBase, event: 'outputHeal' });
+    this.dependencies.emitSuccessfulHeal?.({ ...eventBase, event: 'receiveHeal' });
     return true;
   }
 

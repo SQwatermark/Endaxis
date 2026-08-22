@@ -14441,6 +14441,17 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
         self.assertIn("kind: 'airborneOutput'", airborne_compiled)
 
+        healed_compiled = compile_skill_event_listener(
+            replace(
+                parse_skill_event_listeners(root, "fixture.json", {"enabled": (1,)})[0],
+                event="OnReceiveHeal",
+            ),
+            "fixture.healedEventListener",
+            runtime_blackboard_keys=frozenset({"enabled", "kill_num"}),
+            step_key_prefix="fixture",
+        )
+        self.assertIn("kind: 'operatorHealed'", healed_compiled)
+
     def test_skill_event_listener_preserves_event_context_condition_payloads(self) -> None:
         root = {
             "actionGroupData": {

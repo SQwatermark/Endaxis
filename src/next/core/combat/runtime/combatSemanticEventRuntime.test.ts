@@ -51,6 +51,42 @@ describe('CombatSemanticEventRuntime', () => {
     expect(received).toEqual(['operator:b']);
   });
 
+  it('routes successful heal facts only to the receiver, including zero-real-delta heals', () => {
+    const runtime = new CombatSemanticEventRuntime();
+    const received: string[] = [];
+    for (const ownerOperatorId of ['operator:healer', 'operator:receiver']) {
+      runtime.register({
+        ownerOperatorId,
+        trigger: { kind: 'operatorHealed' },
+        phase: 'skill',
+        handle: ({ event }) => {
+          expect(event).toMatchObject({
+            kind: 'operatorHealed',
+            sourceOperatorId: 'operator:healer',
+            targetOperatorId: 'operator:receiver',
+            requestedHealing: 100,
+            actualHealing: 0,
+            overhealing: 100,
+            tagIds: [-320297214],
+          });
+          received.push(ownerOperatorId);
+        },
+      });
+    }
+
+    runtime.emit({
+      kind: 'operatorHealed',
+      sourceOperatorId: 'operator:healer',
+      targetOperatorId: 'operator:receiver',
+      requestedHealing: 100,
+      actualHealing: 0,
+      overhealing: 100,
+      tagIds: [-320297214],
+    });
+
+    expect(received).toEqual(['operator:receiver']);
+  });
+
   it('routes airborne output to the source operator regardless of its target', () => {
     const runtime = new CombatSemanticEventRuntime();
     const received: string[] = [];

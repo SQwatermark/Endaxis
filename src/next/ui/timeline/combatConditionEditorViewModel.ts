@@ -107,6 +107,10 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
       return { kind };
     case 'eventBuffTagsMatch':
       return { kind, match: 'hasAny', buffTagIds: [0] };
+    case 'eventHealTagsMatch':
+      return { kind, match: 'hasAny', tagIds: [0] };
+    case 'eventOverheal':
+      return { kind };
     case 'eventSourceMatchesBuffSource':
     case 'eventSourceControlled':
     case 'buffSourceMatchesOwner':

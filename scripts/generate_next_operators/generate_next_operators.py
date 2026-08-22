@@ -408,6 +408,8 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "projectedProjectileLaunches",
         "characterTeamSelectionRole",
         "heal",
+        "healTag",
+        "overHeal",
     }
 )
 
@@ -7658,6 +7660,7 @@ def compile_skill_event_listener(
         "OnAddedBuff": {"kind": "buffApplied"},
         "OnBeforeOutputAirborne": {"kind": "airborneOutput"},
         "OnBeforeTakeDamage": {"kind": "operatorHit"},
+        "OnReceiveHeal": {"kind": "operatorHealed"},
         "OnAfterKillEntity": {"kind": "enemyDefeated", "scope": "operator"},
     }.get(listener.event)
     if event is None:

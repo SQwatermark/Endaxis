@@ -17,6 +17,7 @@ describe('combatEventTriggerCatalog', () => {
   it('keeps the picker restricted to trigger kinds supported by the layer-local editor', () => {
     expect(EDITABLE_COMBAT_EVENT_TRIGGER_KINDS).toEqual([
       'buffApplied',
+      'operatorHealed',
       'airborneOutput',
       'damageTagHit',
       'elementalInflictionApplied',

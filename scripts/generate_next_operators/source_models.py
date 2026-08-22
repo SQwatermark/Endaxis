@@ -54,6 +54,8 @@ __all__ = [
     "TimedMarkerConditionSource",
     "GlobalCooldownConditionSource",
     "SkillHasHitConditionSource",
+    "HealTagConditionSource",
+    "OverHealConditionSource",
     "ConditionSource",
     "EntityTagConditionSource",
     "BlackboardCalculationPayload",
@@ -1043,6 +1045,23 @@ class BuffIdInContextConditionSource:
 
 
 @dataclass(frozen=True)
+class HealTagConditionSource:
+    """当前 HealContext 的原生 GameplayTagQuery。"""
+
+    queryType: str
+    tagIds: tuple[int, ...]
+
+
+@dataclass(frozen=True)
+class OverHealConditionSource:
+    """当前 HealContext 的过量治疗判断与可选黑板输出键。"""
+
+    overHealKey: str
+    finalHealKey: str
+    realHealKey: str
+
+
+@dataclass(frozen=True)
 class AbilityEntityDurationConditionSource:
     """原生能力实体剩余时长检查的完整可审计载荷。"""
 
@@ -1084,6 +1103,8 @@ class ConditionSource:
     skillHasHit: "SkillHasHitConditionSource | None" = None
     damageDecorateMask: "DamageDecorateMaskConditionSource | None" = None
     contextBuffId: "BuffIdInContextConditionSource | None" = None
+    healTag: "HealTagConditionSource | None" = None
+    overHeal: "OverHealConditionSource | None" = None
     abilityEntityDuration: "AbilityEntityDurationConditionSource | None" = None
     objectTypeMatch: "ObjectTypeMatchConditionSource | None" = None
     deckAttributeCompare: "DeckAttributeCompareConditionSource | None" = None

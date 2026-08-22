@@ -512,6 +512,69 @@ describe('StandardPlayerDamageEnvironment', () => {
     });
   });
 
+  it('publishes successful heals to both ability sides before the receiver semantic event', () => {
+    const environment = new StandardPlayerDamageEnvironment({
+      criticalSamples: { nextCriticalSample: () => 1 },
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      enemyVitals: createEnemyCombatVitals(testEnemy),
+      isOperatorControlled: operatorId => operatorId === 'operator:receiver',
+    });
+    const order: string[] = [];
+    environment.eventsFor('operator:healer').registerAction('outputHeal', 0, ({ payload }) => {
+      expect(payload).toMatchObject({
+        sourceId: 'operator:healer',
+        targetId: 'operator:receiver',
+        actualHealing: 0,
+      });
+      order.push('output');
+    });
+    environment.eventsFor('operator:receiver').registerAction('receiveHeal', 0, () => {
+      order.push('receive');
+    });
+
+    const context = createContext();
+    const semanticEvents = context.semanticEvents;
+    semanticEvents.register({
+      ownerOperatorId: 'operator:receiver',
+      trigger: { kind: 'operatorHealed' },
+      phase: 'skill',
+      handle: () => order.push('semantic'),
+    });
+    const executor = environment.runtimeOptions.createOperationExecutor({
+      ...context,
+      program: { ...context.program, operatorId: 'operator:healer' },
+      panel: {
+        ...context.panel!,
+        operatorId: 'operator:healer',
+        attributes: { ...context.panel!.attributes, will: 100 },
+      },
+    });
+    environment.runtimeOptions.createOperationExecutor({
+      ...createContext(),
+      program: { ...context.program, operatorId: 'operator:receiver' },
+      panel: { ...context.panel!, operatorId: 'operator:receiver' },
+      semanticEvents,
+    });
+
+    expect(
+      executor.execute({
+        kind: 'heal',
+        parameters: {
+          target: 'controlledOperator',
+          attribute: 'will',
+          multiplier: 1,
+          addition: 0,
+          tagIds: [],
+        },
+      }),
+    ).toBe(true);
+    expect(order).toEqual(['output', 'receive', 'semantic']);
+  });
+
   it('evaluates health conditions against the shared post-damage vitals', () => {
     const environment = createEnvironment();
     const executor = environment.runtimeOptions.createOperationExecutor(createContext());

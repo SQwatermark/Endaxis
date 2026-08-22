@@ -59,6 +59,8 @@ from source_models import (
     ForEachContextActionSource,
     GlobalCooldownConditionSource,
     HealthConditionSource,
+    HealTagConditionSource,
+    OverHealConditionSource,
     PoiseConditionSource,
     LegacyBuffFinishPayload,
     MainOperatorConditionSource,
@@ -149,6 +151,8 @@ EVENT_SEQUENCE_GUARD_ACTION_NAMES = {
     "CheckDamageDecorateMask",
     "CheckTimedMarkerCondition",
     "CompareFloat",
+    "CheckHealTag",
+    "CheckOverHeal",
 }
 
 # 这些叶子只改变运行时状态，仍应让前置顺序守卫把它们纳入控制流。
@@ -596,6 +600,44 @@ def parse_conditional_actions(
                     checkType=check_type,
                     mask=mask,
                 ),
+            )
+        if condition_type == "CheckHealTag":
+            expected_fields = {
+                "$type", "isEnable", "priorityLevel", "priorityOffset",
+                "serverActionIndex", "query",
+            }
+            if set(condition) != expected_fields:
+                raise ValueError(f"{path}: unexpected fields {sorted(condition)}")
+            query_type, tag_ids = parse_tag_query(condition.get("query"), f"{path}.query")
+            if not tag_ids:
+                raise ValueError(f"{path}.query.tags: expected non-empty tags")
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=True,
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                healTag=HealTagConditionSource(queryType=query_type, tagIds=tag_ids),
+            )
+        if condition_type == "CheckOverHeal":
+            expected_fields = {
+                "$type", "isEnable", "priorityLevel", "priorityOffset",
+                "serverActionIndex", "overHealKey", "finalHealKey", "realHealKey",
+            }
+            if set(condition) != expected_fields:
+                raise ValueError(f"{path}: unexpected fields {sorted(condition)}")
+            keys = tuple(condition.get(key) for key in ("overHealKey", "finalHealKey", "realHealKey"))
+            if not all(isinstance(key, str) for key in keys):
+                raise ValueError(f"{path}: heal output keys must be strings")
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=True,
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                overHeal=OverHealConditionSource(*keys),
             )
         if condition_type == "CheckBuffIdInContext":
             check_type = condition.get("checkType")
@@ -1388,6 +1430,47 @@ def parse_conditional_actions(
                             )
                         )
                 else:
+                    parsed_loop_target = (
+                        parse_target_reference(
+                            target, f"{source_name}.{'.'.join(action_path)}.target"
+                        )
+                        if target_source == "InstantSearch"
+                        else None
+                    )
+                    if (
+                        parsed_loop_target is not None
+                        and parsed_loop_target.targetSource == "InstantSearch"
+                        and parsed_loop_target.finderType == "CharacterTeamFinder"
+                        and parsed_loop_target.validatorTypes
+                        in {(), ("ExcludeOwnerValidator",)}
+                        and not parsed_loop_target.postProcessorTypes
+                    ):
+                        projected_actions: list[ConditionalBranchActionSource] = []
+                        for nested_action in nested_actions:
+                            payload = nested_action.buffApplication
+                            if (
+                                payload is None
+                                or payload.targetSource != "Target"
+                                or payload.targetGroupKey
+                            ):
+                                raise ValueError(
+                                    f"{source_name}.{'.'.join(action_path)}: "
+                                    "party ForEach only supports direct Target Buff applications"
+                                )
+                            projected_actions.append(
+                                replace(
+                                    nested_action,
+                                    buffApplication=replace(
+                                        payload,
+                                        targetSource="InstantSearch",
+                                        targetFinderType="CharacterTeamFinder",
+                                        targetValidatorTypes=parsed_loop_target.validatorTypes,
+                                        targetPostProcessorTypes=(),
+                                    ),
+                                )
+                            )
+                        actions.extend(projected_actions)
+                        continue
                     # 固定单敌人模型下，直接 Target 容器只执行一次。
                     tuple(
                         walk_single_enemy_actions(

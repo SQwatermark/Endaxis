@@ -26,6 +26,7 @@ import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
 import type {
   CombatAbilityDamageEvent,
+  CombatAbilityHealEvent,
   CombatAbilityPoiseEvent,
   CombatAbilityLifecycleEvent,
   CombatAbilitySkillEvent,
@@ -482,6 +483,7 @@ function normalizeBuffAbilityEvent(
   | CombatSemanticEvent
   | CombatAbilityDamageEvent
   | CombatAbilityPoiseEvent
+  | CombatAbilityHealEvent
   | CombatAbilitySkillEvent
   | CombatAbilityLifecycleEvent {
   if (typeof payload !== 'object' || payload === null) {
@@ -568,6 +570,27 @@ function normalizeBuffAbilityEvent(
       event,
       sourceId: source.sourceId,
       targetId: source.targetId,
+    };
+  }
+  if (event === 'outputHeal' || event === 'receiveHeal') {
+    if (
+      typeof source.requestedHealing !== 'number' ||
+      typeof source.actualHealing !== 'number' ||
+      typeof source.overhealing !== 'number' ||
+      !Array.isArray(source.tagIds) ||
+      !source.tagIds.every(value => typeof value === 'number' && Number.isInteger(value))
+    ) {
+      throw new TypeError(`Buff ability event '${event}' payload has invalid healing values`);
+    }
+    return {
+      kind: 'abilityHeal',
+      event,
+      sourceId: source.sourceId,
+      targetId: source.targetId,
+      requestedHealing: source.requestedHealing,
+      actualHealing: source.actualHealing,
+      overhealing: source.overhealing,
+      tagIds: source.tagIds,
     };
   }
   if (

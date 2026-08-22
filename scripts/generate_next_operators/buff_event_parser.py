@@ -525,17 +525,21 @@ def parse_buff_event_actions(
                             for item in sequence_actions
                             if action_name(item["$type"]) == "CreateBuffAction"
                         ),
-                        # ForEach 循环体由独立 typed facts 保存；不能再让通用条件解析器
-                        # 把循环 Target 近似成技能输入敌人。
+                        # 纯 ForEach 响应继续由 typed facts 保存；当同一序列还包含
+                        # 已支持的事件短路守卫时，必须保留完整有序树，不能丢掉循环前后的动作。
                         actions=(
-                            ()
-                            if "ForEachAction" in sequence_types
-                            else parse_ordered_action_sequence(
+                            parse_ordered_action_sequence(
                                 sequence.get("actionData"),
                                 sequence_path,
                                 blackboard,
                                 include_target_group_provenance=True,
                             )
+                            if "ForEachAction" not in sequence_types
+                            or any(
+                                guard in sequence_types
+                                for guard in ("CheckHealTag", "CheckOverHeal")
+                            )
+                            else ()
                         ),
                         priority=parse_sequence_action_priority(
                             sequence_actions, sequence_path

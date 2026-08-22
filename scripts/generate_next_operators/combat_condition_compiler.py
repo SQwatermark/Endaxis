@@ -158,6 +158,33 @@ def compile_combat_condition(
                 ]
             )
         raise ValueError(f"{path}: unsupported event Buff identity query")
+    if source.sourceType == "CheckHealTag":
+        heal_tag = source.healTag
+        if heal_tag is None:
+            raise ValueError(f"{path}: missing heal-tag query")
+        return "\n".join(
+            [
+                "{",
+                "  kind: 'eventHealTagsMatch',",
+                f"  match: {ts_inline_literal(heal_tag.queryType)},",
+                f"  tagIds: {ts_inline_literal(heal_tag.tagIds)},",
+                "}",
+            ]
+        )
+    if source.sourceType == "CheckOverHeal":
+        over_heal = source.overHeal
+        if over_heal is None:
+            raise ValueError(f"{path}: missing overheal payload")
+        fields = ["{", "  kind: 'eventOverheal',"]
+        for field, value in (
+            ("overHealKey", over_heal.overHealKey),
+            ("finalHealKey", over_heal.finalHealKey),
+            ("realHealKey", over_heal.realHealKey),
+        ):
+            if value:
+                fields.append(f"  {field}: {ts_inline_literal(value)},")
+        fields.append("}")
+        return "\n".join(fields)
     if source.sourceType == "CheckTargetsEqual":
         identity = source.targetIdentity
         if identity is None:

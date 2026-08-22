@@ -344,6 +344,12 @@ def compile_inline_buff_event_responses(
             is_output_damage = (
                 event.eventSource == "ability" and event.event == "OnOutputDamage"
             )
+            is_output_heal = (
+                event.eventSource == "ability" and event.event == "OnOutputHeal"
+            )
+            is_receive_heal = (
+                event.eventSource == "ability" and event.event == "OnReceiveHeal"
+            )
             is_poise_zero = (
                 event.eventSource == "ability" and event.event == "OnPoiseZero"
             )
@@ -400,6 +406,10 @@ def compile_inline_buff_event_responses(
                 if is_take_critical_damage
                 else "outputDamage"
                 if is_output_damage
+                else "outputHeal"
+                if is_output_heal
+                else "receiveHeal"
+                if is_receive_heal
                 else "poiseZero"
                 if is_poise_zero
                 else "beforeCastSkill"
@@ -435,6 +445,8 @@ def compile_inline_buff_event_responses(
                     or is_take_damage
                     or is_take_critical_damage
                     or is_output_damage
+                    or is_output_heal
+                    or is_receive_heal
                     or is_poise_zero
                     or is_before_cast_skill
                     or is_added_buff
@@ -486,6 +498,8 @@ def compile_inline_buff_event_responses(
                 or is_take_damage
                 or is_take_critical_damage
                 or is_output_damage
+                or is_output_heal
+                or is_receive_heal
                 or is_poise_zero
                 or is_before_cast_skill
                 or is_skill_end
@@ -512,6 +526,10 @@ def compile_inline_buff_event_responses(
                 if is_take_critical_damage
                 else "outputDamage"
                 if is_output_damage
+                else "outputHeal"
+                if is_output_heal
+                else "receiveHeal"
+                if is_receive_heal
                 else "poiseZero"
                 if is_poise_zero
                 else "beforeCastSkill"

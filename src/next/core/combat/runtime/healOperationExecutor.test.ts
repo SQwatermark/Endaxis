@@ -67,12 +67,18 @@ describe('HealOperationExecutor', () => {
   it('records a full-health heal instead of suppressing it', () => {
     const target = vitals(1000);
     const receipt = new CombatReceiptCollector();
+    const events: string[] = [];
     const executor = new HealOperationExecutor({
       sourceOperatorId: 'operator:healer',
       clock: new CombatClock(),
       receipt,
       resolveSourceAttribute: () => 100,
       resolveTarget: () => ({ operatorId: 'operator:target', vitals: target }),
+      emitSuccessfulHeal: event => {
+        events.push(
+          `${event.event}:${event.sourceId}->${event.targetId}:${event.requestedHealing}:${event.actualHealing}`,
+        );
+      },
       delegate: terminal,
     });
 
@@ -92,6 +98,10 @@ describe('HealOperationExecutor', () => {
       actualHealing: 0,
       overhealing: 100,
     });
+    expect(events).toEqual([
+      'outputHeal:operator:healer->operator:target:100:0',
+      'receiveHeal:operator:healer->operator:target:100:0',
+    ]);
   });
 
   it('uses the source maximum health for native MaxHp healing formulas', () => {

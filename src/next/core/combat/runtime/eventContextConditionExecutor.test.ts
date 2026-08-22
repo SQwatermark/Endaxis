@@ -148,4 +148,41 @@ describe('EventContextConditionExecutor', () => {
       ),
     ).toBe(true);
   });
+
+  it('matches heal tags and writes native overheal outputs before returning', () => {
+    const executor = new EventContextConditionExecutor(terminal);
+    const blackboard = new ActionBlackboard();
+    const context = {
+      blackboard,
+      event: {
+        kind: 'abilityHeal' as const,
+        event: 'receiveHeal' as const,
+        sourceId: 'operator:healer',
+        targetId: 'operator:receiver',
+        requestedHealing: 216,
+        actualHealing: 0,
+        overhealing: 216,
+        tagIds: [-320297214],
+      },
+    };
+
+    expect(
+      executor.evaluate(
+        { kind: 'eventHealTagsMatch', match: 'hasAny', tagIds: [-320297214, 1] },
+        context,
+      ),
+    ).toBe(true);
+    expect(
+      executor.evaluate(
+        {
+          kind: 'eventOverheal',
+          overHealKey: 'over',
+          finalHealKey: 'final',
+          realHealKey: 'real',
+        },
+        context,
+      ),
+    ).toBe(true);
+    expect(blackboard.snapshot()).toMatchObject({ over: 216, final: 216, real: 0 });
+  });
 });

@@ -89,6 +89,8 @@ export type StandardPlayerDamageEvent =
   | 'takeDamage'
   | 'takeCriticalDamage'
   | 'outputDamage'
+  | 'outputHeal'
+  | 'receiveHeal'
   | 'beforeOutputPoiseDamage'
   | 'beforeTakePoiseDamage'
   | 'takePoiseDamage'
@@ -374,6 +376,22 @@ export class StandardPlayerDamageEnvironment {
           context.clock.frame,
           buffSourceId,
         ),
+      emitSuccessfulHeal: event => {
+        if (event.event === 'outputHeal') {
+          this.#emit(event.sourceId, event.event, event);
+          return;
+        }
+        this.#emit(event.targetId, event.event, event);
+        context.semanticEvents.emit({
+          kind: 'operatorHealed',
+          sourceOperatorId: event.sourceId,
+          targetOperatorId: event.targetId,
+          requestedHealing: event.requestedHealing,
+          actualHealing: event.actualHealing,
+          overhealing: event.overhealing,
+          tagIds: event.tagIds,
+        });
+      },
       delegate: damage,
     });
   }

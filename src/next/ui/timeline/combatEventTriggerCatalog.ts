@@ -2,6 +2,7 @@ import type { CombatEventTrigger } from '../../core/game-data/operatorDefinition
 
 export const EDITABLE_COMBAT_EVENT_TRIGGER_KINDS = [
   'buffApplied',
+  'operatorHealed',
   'airborneOutput',
   'damageTagHit',
   'elementalInflictionApplied',
@@ -19,6 +20,7 @@ export function createCombatEventTriggerDraft(
 ): CombatEventTrigger {
   switch (kind) {
     case 'buffApplied':
+    case 'operatorHealed':
     case 'airborneOutput':
       return { kind };
     case 'damageTagHit':

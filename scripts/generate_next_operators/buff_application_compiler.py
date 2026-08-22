@@ -108,6 +108,13 @@ def compile_buff_application_values(
         target = "party"
     elif (
         target_source == "InstantSearch"
+        and target_finder_type == "CharacterTeamFinder"
+        and target_validator_types == ("ExcludeOwnerValidator",)
+        and not target_post_processor_types
+    ):
+        target = "partyExceptCaster"
+    elif (
+        target_source == "InstantSearch"
         and target_finder_type in {"HitBoxFinder", "MainTargetFinder"}
         and not target_validator_types
         and not target_post_processor_types

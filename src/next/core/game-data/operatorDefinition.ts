@@ -361,6 +361,19 @@ export type CombatCondition =
       match: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
       buffTagIds: readonly number[];
     }
+  | {
+      /** 匹配当前治疗事件携带的原生治疗标签。 */
+      kind: 'eventHealTagsMatch';
+      match: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+      tagIds: readonly number[];
+    }
+  | {
+      /** 原生 CheckOverHeal；非空键会在判断前接收对应事件值。 */
+      kind: 'eventOverheal';
+      overHealKey?: string;
+      finalHealKey?: string;
+      realHealKey?: string;
+    }
   /** Buff 宿主的承伤事件来源是否等于创建该 Buff 的实体。 */
   | { kind: 'eventSourceMatchesBuffSource' }
   /** 承伤事件的伤害来源是否是当前现实时间下的主控干员。 */
@@ -415,6 +428,8 @@ export const COMBAT_CONDITION_KINDS = [
   'eventBuffIdMatch',
   'eventBuffEndedEarly',
   'eventBuffTagsMatch',
+  'eventHealTagsMatch',
+  'eventOverheal',
   'eventSourceMatchesBuffSource',
   'eventSourceControlled',
   'buffSourceMatchesOwner',
@@ -1023,6 +1038,7 @@ export type SkillTriggerScope = 'operator' | 'team';
  */
 export type CombatEventTrigger =
   | { kind: 'operatorHit' }
+  | { kind: 'operatorHealed' }
   | { kind: 'buffApplied' }
   | { kind: 'airborneOutput' }
   | { kind: 'damageTagHit'; tag: DamageTag; scope: SkillTriggerScope }
@@ -1111,6 +1127,8 @@ export interface SkillBuffAbilityEventResponse {
     | 'takeDamage'
     | 'takeCriticalDamage'
     | 'outputDamage'
+    | 'outputHeal'
+    | 'receiveHeal'
     | 'poiseZero'
     | 'beforeCastSkill'
     | 'skillEnd'

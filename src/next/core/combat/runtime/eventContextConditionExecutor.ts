@@ -41,6 +41,8 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       condition.kind !== 'eventBuffIdMatch' &&
       condition.kind !== 'eventBuffEndedEarly' &&
       condition.kind !== 'eventBuffTagsMatch' &&
+      condition.kind !== 'eventHealTagsMatch' &&
+      condition.kind !== 'eventOverheal' &&
       condition.kind !== 'eventSourceMatchesBuffSource' &&
       condition.kind !== 'eventSourceControlled'
     ) {
@@ -63,7 +65,9 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       if (this.isOperatorControlled === undefined) {
         throw new Error('eventSourceControlled requires control state');
       }
-      return context.event.kind === 'abilityDamage' || context.event.kind === 'abilityPoise'
+      return context.event.kind === 'abilityDamage' ||
+        context.event.kind === 'abilityPoise' ||
+        context.event.kind === 'abilityHeal'
         ? this.isOperatorControlled(context.event.sourceId)
         : false;
     }
@@ -95,6 +99,26 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
         context.event.kind === 'buffApplied' &&
         matchValues(context.event.buffTagIds, condition.buffTagIds, condition.match)
       );
+    }
+    if (condition.kind === 'eventHealTagsMatch') {
+      const event = context.event;
+      const tagIds =
+        event.kind === 'abilityHeal' || event.kind === 'operatorHealed' ? event.tagIds : null;
+      return tagIds !== null && matchValues(tagIds, condition.tagIds, condition.match);
+    }
+    if (condition.kind === 'eventOverheal') {
+      const event = context.event;
+      if (event.kind !== 'abilityHeal' && event.kind !== 'operatorHealed') return false;
+      if (condition.overHealKey) {
+        context.blackboard.assignDynamic(condition.overHealKey, event.overhealing);
+      }
+      if (condition.finalHealKey) {
+        context.blackboard.assignDynamic(condition.finalHealKey, event.requestedHealing);
+      }
+      if (condition.realHealKey) {
+        context.blackboard.assignDynamic(condition.realHealKey, event.actualHealing);
+      }
+      return event.requestedHealing > event.actualHealing + 0.00001;
     }
     const damageEvent = eventDamageProperties(context.event);
     if (damageEvent === null) return false;

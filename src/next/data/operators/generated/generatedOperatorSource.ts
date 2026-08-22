@@ -782,6 +782,17 @@ export interface GeneratedBuffIdInContextConditionSource {
   readonly buffTagIds?: readonly number[];
 }
 
+export interface GeneratedHealTagConditionSource {
+  readonly queryType: string;
+  readonly tagIds: readonly number[];
+}
+
+export interface GeneratedOverHealConditionSource {
+  readonly overHealKey: string;
+  readonly finalHealKey: string;
+  readonly realHealKey: string;
+}
+
 export interface GeneratedAbilityEntityDurationConditionSource {
   readonly target: GeneratedTargetReferenceSource;
   readonly comparison: string;
@@ -843,6 +854,8 @@ export interface GeneratedConditionSource {
   readonly skillHasHit?: GeneratedSkillHasHitConditionSource;
   readonly damageDecorateMask?: GeneratedDamageDecorateMaskConditionSource | null;
   readonly contextBuffId?: GeneratedBuffIdInContextConditionSource | null;
+  readonly healTag?: GeneratedHealTagConditionSource | null;
+  readonly overHeal?: GeneratedOverHealConditionSource | null;
   readonly abilityEntityDuration?: GeneratedAbilityEntityDurationConditionSource;
   readonly objectTypeMatch?: {
     readonly target: GeneratedTargetReferenceSource;

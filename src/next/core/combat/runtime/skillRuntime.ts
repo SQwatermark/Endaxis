@@ -47,6 +47,18 @@ export interface CombatAbilityPoiseEvent {
   readonly targetId: string;
 }
 
+/** AbilitySystem 成功治疗事件；actualHealing 为零时仍是有效事件。 */
+export interface CombatAbilityHealEvent {
+  readonly kind: 'abilityHeal';
+  readonly event: 'outputHeal' | 'receiveHeal';
+  readonly sourceId: string;
+  readonly targetId: string;
+  readonly requestedHealing: number;
+  readonly actualHealing: number;
+  readonly overhealing: number;
+  readonly tagIds: readonly number[];
+}
+
 /** AbilitySystem 在技能正式启动前发出的施放事件。 */
 export interface CombatAbilitySkillEvent {
   readonly kind: 'abilitySkill';
@@ -80,6 +92,7 @@ export interface CombatOperationContext {
     | CombatSemanticEvent
     | CombatAbilityDamageEvent
     | CombatAbilityPoiseEvent
+    | CombatAbilityHealEvent
     | CombatAbilitySkillEvent
     | CombatAbilityLifecycleEvent;
   /** 仅由 Buff 实例响应提供；用于保留原生 ActionSource 身份。 */

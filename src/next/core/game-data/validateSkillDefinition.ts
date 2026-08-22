@@ -579,6 +579,15 @@ function validateCombatCondition(
       requireEnum(record, 'match', TAG_QUERY_TYPES_SET, path, out);
       validateNonEmptyIntegerArray(record.buffTagIds, `${path}.buffTagIds`, out);
       break;
+    case 'eventHealTagsMatch':
+      requireEnum(record, 'match', TAG_QUERY_TYPES_SET, path, out);
+      validateNonEmptyIntegerArray(record.tagIds, `${path}.tagIds`, out);
+      break;
+    case 'eventOverheal':
+      for (const key of ['overHealKey', 'finalHealKey', 'realHealKey'] as const) {
+        if (record[key] !== undefined) requireString(record, key, path, out);
+      }
+      break;
     case 'elementalInflictionPresent':
       validateElements(record.elements, `${path}.elements`, out);
       if (record.minimumStacks !== undefined) {
@@ -1850,6 +1859,7 @@ function validateEventTrigger(
   if (kind === null) return;
   switch (kind) {
     case 'operatorHit':
+    case 'operatorHealed':
     case 'buffApplied':
     case 'airborneOutput':
       break;

@@ -234,3 +234,6 @@ Next 迁移期间允许存在用于贯通新旧入口、生成审计和功能占
 - 原生 `MaxUltimateSp` 属性快照已接入 Next：生成 DSL 使用稳定键 `maxUltimateEnergy`，标准环境从同一 `CombatResources` 读取每名干员的实际终结技能量上限。下一阶段继续补 Buff 传递闭包与 Buff 本地时间线的带子技能实体生成，再完成 Arcane 奥义换槽/激光输出生产回归；不得把已取得模板的实体降格成无效果动作。
 - Buff 本地时间线的战斗型 `SpawnAbilityEntity` 已进入统一能力实体图：解析层保存直接子图，依赖闭包递归收集其 Buff，编译层按原生局部帧生成携带子技能的实例。Arcane 四次激光生成的 plain `Owner` 被严格解释为当前 Buff 宿主能力实体，DSL/运行时新增上下文受限的 `currentAbilityEntity` 生成锚点，不再误映射为 caster。Arcane 严格生成的下一阻塞已前移到更深的 `enhanceChanged` 空 Buff 查询；下一步先恢复该查询的原生身份，再补奥义激光生产回归。
 - `enhanceChanged` 查询已由真实 BuffData 和复刻库确认是当前 Buff 层数快照，不是空 ID 查询。`combat-spec f23ec70` 与 Next 已接入 `SaveBuffStackNumAdvanced(Environment + BuffCount)`；严格生成现停在奥义 Aura Buff 的 owner-spawned 能力实体距离条件。下一步需让内联目标引用保留 `AbilityEntity + GameplayTag` 身份，并证明它命中当前奥义主实体后按项目统一零距离模型折叠，不能把所有带标签 owner-spawned 查询无条件视为存在。
+- 治疗成功事件已形成端到端公共管线：`HealAction` 成功后按原生顺序派发 output/receive heal，满血治疗仍触发；载荷保留治疗双方、请求/实际/溢出量和治疗 GameplayTag。Buff 响应、语义 `operatorHealed`、标签查询与溢出判断均走统一运行时，不需要角色特判。
+- Camille 天赋 2 已由真实 Buff 条件树生成：治疗标签门控、自身/队友差异化增益、溢出治疗嵌套重复施加全部进入正式组件树；严格的队伍 `ForEach` 投影仅接受 `CharacterTeamFinder + ExcludeOwnerValidator + Target Buff`。Camille 当前缺口缩减为潜能效果及战技/奥义行为。
+- 本阶段门禁为生成器 366/366、Next 198 文件 1335/1335、`type-check:next`。全仓生成检查另有历史陈旧 Perlica 产物，未与本次 Camille 变更混合刷新。下一阶段先完成 Camille 潜能与技能行为，再补生产模拟回归；遇到新机制继续坚持 `combat-spec` 先行。

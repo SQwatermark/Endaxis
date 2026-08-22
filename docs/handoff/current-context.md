@@ -495,6 +495,14 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 能力实体模板证据提取器此前只扫描 `SkillData`，因此漏掉仅由 `BuffData` 事件生成的实体。默认引用闭包现扩为 `chr_*.json + buff_chr_*.json`，同一 1.4.4 manifest 的可解析模板由 54 增至 59；Arcane 奥义所需 `ultimate_skill_death`、`ultimate_skill_laser`、`ultimate_skill_laser_target`、`ultimate_skill_place` 均取得真实 MonoBehaviour 生命周期与 born tag。梨诺缺失模板仍是唯一 unresolved reference。
 - `StoreAttributeValue(MaxUltimateSp, BaseNonConverted)` 已严格映射为 `maxUltimateEnergy`，运行时从本场 `CombatResources` 的干员账本读取构筑结算后的上限，不再误读静态面板。Arcane 真实数据已重新生成并通过专项规则/运行时测试。下一步重新开启传递 Buff 闭包时，应继续处理 Buff 本地时间线中携带子技能的 `SpawnAbilityEntity`；现已确认这类激光实体有真实模板，不能再当作模板缺失或纯表现动作跳过。
 
+### 2026-08-22：治疗成功事件与 Camille 天赋 2
+
+- 原生治疗事件链已先在 `combat-spec` 闭环（提交 `72ecd67`、`f72051d`）：成功治疗先向治疗者派发 `OnOutputHeal`，再向受治疗者派发 `OnReceiveHeal`；即使目标满血、实际回复量为 0 也照常派发。`CheckHealTag` 查询当前 `HealContext.healTags`；`CheckOverHeal` 比较 `finalHealValue > realHealValue + 1e-5`，并可把溢出量、请求量、实际量写入动作黑板。
+- Next 使用统一 `abilityHeal` 事件载荷保存 source/target、请求/实际/溢出治疗量和 GameplayTag ID；Buff 可直接监听 output/receive heal，语义事件 `operatorHealed` 只路由给受治疗者。治疗执行顺序、满血治疗、标签条件、溢出条件和黑板写入均有运行时回归，不依赖敌人主动行为或人为扣血。
+- Camille 天赋 2 已从 `unmodeledTalent` 提升为正式 `attachedPassive`：监听受治疗事件，严格匹配原始治疗标签，计算队友档位后分别给自身和其余队友施加不同倍率 Buff；发生溢出治疗时按原始嵌套分支再次施加。`CharacterTeamFinder + ExcludeOwnerValidator` 只在结构完全匹配时投影为 `partyExceptCaster`，普通或异构 `ForEach` 仍失败关闭。
+- 当前 Camille 生成可严格通过，`conversionSupport` 剩余边界为 `potentialEffects` 以及战技/奥义 `skillBehavior`，不再包含 `talentEffects`。门禁：生成器定向 366/366、Next Vitest 198 文件 1335/1335、`type-check:next` 通过。仓库级 `--check` 仍首先报告此前已过期的 `perlica.generated.ts`，本轮没有刷新无关干员产物；`tmp/` 保持未跟踪且不得提交。
+- 下一步优先复用已贯通的治疗监听器处理 Camille 尚未建模的潜能项，再清理战技/奥义剩余 Buff/行为缺口并补默认仓库生产场景。新条件或动作仍须先在 `combat-spec` 恢复语义，不能从 Camille 文案反推规则。
+
 ### 2026-08-22：Arcane 奥义 Buff 局部激光实体链
 
 - `BuffDefinitionSource` 现在保存 Buff 时间线直接生成的能力实体子图，递归定义闭包同时遍历直接生成与事件调用的隐藏子技能，不再只收集其顶层 `CreateBuffAction`。能力实体条件编译也会收到完整 Buff 定义目录，因此 Aura/事件内的传递 Buff 可继续严格内联。

@@ -29,6 +29,8 @@ export const camilleBasicAttack1: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -52,6 +54,8 @@ export const camilleBasicAttack1: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -91,6 +95,8 @@ export const camilleBasicAttack2: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -114,6 +120,8 @@ export const camilleBasicAttack2: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -153,6 +161,8 @@ export const camilleBasicAttack3: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -176,6 +186,8 @@ export const camilleBasicAttack3: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -199,6 +211,8 @@ export const camilleBasicAttack3: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -222,6 +236,8 @@ export const camilleBasicAttack3: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -260,6 +276,8 @@ export const camilleBasicAttack4: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -384,6 +402,8 @@ export const camilleBasicAttack5: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -514,6 +534,8 @@ export const camilleFinisher: SkillDefinition = withSkillBlackboard(
                 targets: ['enemy', 'caster'],
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -540,6 +562,8 @@ export const camilleFinisher: SkillDefinition = withSkillBlackboard(
                 targets: ['enemy'],
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -559,6 +583,8 @@ export const camilleFinisher: SkillDefinition = withSkillBlackboard(
                 ignoredTargets: [],
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -595,6 +621,8 @@ export const camillePlungingAttack: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -706,60 +734,71 @@ export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
               }),
             ),
           ),
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: percentages([80, 88, 96, 104, 112, 120, 128, 136, 144, 154, 166, 180]),
-            tags: ['comboSkill'],
-            features: ['canBreakWeakness'],
-            stagger: 10,
-          }, '11:comboSkill111:conditional19:timelineActions[27]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder2:81'),
           branch(
-            {
-              kind: 'entityTagMatch',
-              target: 'enemy',
-              tagQueryType: 'hasAny',
-              tagIds: [2079142122],
-            },
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
             sequence(
+              step('dealDamage', {
+                damageType: 'heat',
+                attackScale: percentages([80, 88, 96, 104, 112, 120, 128, 136, 144, 154, 166, 180]),
+                tags: ['comboSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 10,
+              }, '11:comboSkill111:conditional19:timelineActions[27]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder2:81'),
+              branch(
+                {
+                  kind: 'entityTagMatch',
+                  target: 'enemy',
+                  tagQueryType: 'hasAny',
+                  tagIds: [2079142122],
+                },
+                sequence(
+                  branch(
+                    {
+                      kind: 'actionValueCompare',
+                      left: { kind: 'blackboard', key: 'talent_0' },
+                      operator: 'greaterOrEqual',
+                      right: { kind: 'constant', value: 1 },
+                    },
+                    sequence(
+                      step('heal', {
+                        target: 'controlledOperator',
+                        alwaysNext: true,
+                        attribute: 'intellect',
+                        multiplier: { kind: 'blackboard', key: 'heal_sub_multi' },
+                        addition: { kind: 'blackboard', key: 'heal_base' },
+                        tagIds: [-1517158118],
+                      }),
+                    ),
+                    undefined,
+                    { alwaysNext: true },
+                  ),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
               branch(
                 {
                   kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'talent_0' },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
+                  left: { kind: 'blackboard', key: 'usp_gained' },
+                  operator: 'lessOrEqual',
+                  right: { kind: 'constant', value: 0 },
                 },
                 sequence(
-                  step('heal', {
-                    target: 'controlledOperator',
-                    alwaysNext: true,
-                    attribute: 'intellect',
-                    multiplier: { kind: 'blackboard', key: 'heal_sub_multi' },
-                    addition: { kind: 'blackboard', key: 'heal_base' },
-                    tagIds: [-1517158118],
+                  step('changeResourceByActionValue', {
+                    resource: 'ultimateEnergy',
+                    amount: { kind: 'blackboard', key: 'usp' },
+                    recipient: 'caster',
+                  }),
+                  step('modifyActionValue', {
+                    key: 'usp_gained',
+                    operation: 'assign',
+                    value: { kind: 'constant', value: 1 },
                   }),
                 ),
               ),
             ),
-          ),
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'blackboard', key: 'usp_gained' },
-              operator: 'lessOrEqual',
-              right: { kind: 'constant', value: 0 },
-            },
-            sequence(
-              step('changeResourceByActionValue', {
-                resource: 'ultimateEnergy',
-                amount: { kind: 'blackboard', key: 'usp' },
-                recipient: 'caster',
-              }),
-              step('modifyActionValue', {
-                key: 'usp_gained',
-                operation: 'assign',
-                value: { kind: 'constant', value: 1 },
-              }),
-            ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -888,50 +927,59 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
               }),
             ),
           ),
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: percentages([142, 157, 171, 185, 199, 214, 228, 242, 256, 274, 295, 320]),
-            tags: ['comboSkill'],
-            features: ['canBreakWeakness'],
-            stagger: 10,
-          }, '11:comboSkill211:conditional19:timelineActions[42]19:_sequenceActionData10:actionData3:[4]14:succeedActions10:actionData3:[0]11:actionOrder3:134'),
           branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'blackboard', key: 'talent_0' },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
             sequence(
-              step('heal', {
-                target: 'controlledOperator',
-                alwaysNext: true,
-                attribute: 'intellect',
-                multiplier: { kind: 'blackboard', key: 'heal_sub_multi' },
-                addition: { kind: 'blackboard', key: 'heal_base' },
-                tagIds: [-1517158118],
-              }),
+              step('dealDamage', {
+                damageType: 'heat',
+                attackScale: percentages([142, 157, 171, 185, 199, 214, 228, 242, 256, 274, 295, 320]),
+                tags: ['comboSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 10,
+              }, '11:comboSkill211:conditional19:timelineActions[42]19:_sequenceActionData10:actionData3:[4]14:succeedActions10:actionData3:[0]11:actionOrder3:134'),
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'talent_0' },
+                  operator: 'greaterOrEqual',
+                  right: { kind: 'constant', value: 1 },
+                },
+                sequence(
+                  step('heal', {
+                    target: 'controlledOperator',
+                    alwaysNext: true,
+                    attribute: 'intellect',
+                    multiplier: { kind: 'blackboard', key: 'heal_sub_multi' },
+                    addition: { kind: 'blackboard', key: 'heal_base' },
+                    tagIds: [-1517158118],
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'usp_gained' },
+                  operator: 'lessOrEqual',
+                  right: { kind: 'constant', value: 0 },
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'ultimateEnergy',
+                    amount: { kind: 'blackboard', key: 'usp' },
+                    recipient: 'caster',
+                  }),
+                  step('modifyActionValue', {
+                    key: 'usp_gained',
+                    operation: 'assign',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+              ),
             ),
-          ),
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'blackboard', key: 'usp_gained' },
-              operator: 'lessOrEqual',
-              right: { kind: 'constant', value: 0 },
-            },
-            sequence(
-              step('changeResourceByActionValue', {
-                resource: 'ultimateEnergy',
-                amount: { kind: 'blackboard', key: 'usp' },
-                recipient: 'caster',
-              }),
-              step('modifyActionValue', {
-                key: 'usp_gained',
-                operation: 'assign',
-                value: { kind: 'constant', value: 1 },
-              }),
-            ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -1087,6 +1135,8 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
                 inheritSourceSkillCastInfo: true,
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
           once(
             'do-once:timelineActions[33]._sequenceActionData.actionData.[1]',
@@ -1154,6 +1204,24 @@ export const camilleGeneratedOperator: OperatorDefinition = {
       maxStackCount: { blackboardKey: 'max_stack' },
       durationSeconds: 1,
     },
+    'buff_chr_0033_camille_talent1_atkup': {
+      stackingType: 'stack',
+      priority: 1,
+      maxStackCount: { blackboardKey: 'max_stack' },
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'atk_up': 0,
+        'duration': 0,
+        'max_stack': 5,
+      },
+      attributeModifiers: [
+        {
+          attribute: 'FireDamageIncrease',
+          slot: 'baseAddition',
+          value: { blackboardKey: 'atk_up' },
+        },
+      ],
+    },
   },
   abilityEntityDefinitions: {
     'abilityentity_chr_0033_camille_normal_skill': { lifetime: { kind: 'limited', durationSeconds: 30 }, childSkill: {
@@ -1175,7 +1243,7 @@ export const camilleGeneratedOperator: OperatorDefinition = {
                 tags: ['normalSkill'],
                 features: ['canBreakWeakness'],
                 stagger: 10,
-              }, '11:battleSkill13:abilityEntity29:chr_0033_camille_normal_skill37:chr_0033_camille_normal_skill_projhit48:chr_0033_camille_normal_skill_abilityrange_first11:actionOrder2:101:21:6'),
+              }, '92:abilityentity_chr_0033_camille_normal_skill:chr_0033_camille_normal_skill_abilityrange_first13:abilityEntity48:chr_0033_camille_normal_skill_abilityrange_first11:actionOrder1:6'),
             ),
           ),
         ],
@@ -1256,6 +1324,88 @@ export const camilleGeneratedOperator: OperatorDefinition = {
       key: 'talent2',
       levels: 2,
       modifiers: [],
+      passiveSkills: [
+        {
+          key: 'chr_0033_camille_passive_talent1',
+          blackboard: {
+            'atk_up': [0.02, 0.04],
+            'duration': 40,
+            'teammate_rate': 0.25,
+          },
+          enableSequence: sequence(
+            step('listenForCombatEvents', {
+              responses: [
+                  {
+                    key: 'native-event-0-0',
+                    event: { kind: 'operatorHealed' },
+                    phase: 'dataAction',
+                    priority: 0,
+                    sequence: sequence(
+                      step('calculateActionValue', {
+                        key: 'atk_up_teammate',
+                        operation: 'multiply',
+                        left: { kind: 'blackboard', key: 'atk_up' },
+                        right: { kind: 'blackboard', key: 'teammate_rate' },
+                      }),
+                      branch(
+                        {
+                          kind: 'eventHealTagsMatch',
+                          match: 'hasAny',
+                          tagIds: [-320297214, -1517158118, -1499119779],
+                        },
+                        sequence(
+                          step('applyBuff', {
+                            buffId: 'buff_chr_0033_camille_talent1_atkup',
+                            target: 'caster',
+                            inheritSourceSkillCastInfo: true,
+                            blackboardAssignments: {
+                              'atk_up': { kind: 'blackboard', key: 'atk_up' },
+                              'duration': { kind: 'blackboard', key: 'duration' },
+                            },
+                          }),
+                          step('applyBuff', {
+                            buffId: 'buff_chr_0033_camille_talent1_atkup',
+                            target: 'partyExceptCaster',
+                            inheritSourceSkillCastInfo: true,
+                            blackboardAssignments: {
+                              'atk_up': { kind: 'blackboard', key: 'atk_up_teammate' },
+                              'duration': { kind: 'blackboard', key: 'duration' },
+                            },
+                          }),
+                          branch(
+                            {
+                              kind: 'eventOverheal',
+                            },
+                            sequence(
+                              step('applyBuff', {
+                                buffId: 'buff_chr_0033_camille_talent1_atkup',
+                                target: 'caster',
+                                inheritSourceSkillCastInfo: true,
+                                blackboardAssignments: {
+                                  'atk_up': { kind: 'blackboard', key: 'atk_up' },
+                                  'duration': { kind: 'blackboard', key: 'duration' },
+                                },
+                              }),
+                              step('applyBuff', {
+                                buffId: 'buff_chr_0033_camille_talent1_atkup',
+                                target: 'partyExceptCaster',
+                                inheritSourceSkillCastInfo: true,
+                                blackboardAssignments: {
+                                  'atk_up': { kind: 'blackboard', key: 'atk_up_teammate' },
+                                  'duration': { kind: 'blackboard', key: 'duration' },
+                                },
+                              }),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  },
+              ],
+            }),
+          ),
+        },
+      ],
     },
   ],
   potentials: [
@@ -1407,5 +1557,5 @@ export const camilleGeneratedOperator: OperatorDefinition = {
       modifiers: [],
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }, { capability: 'potentialEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['battleSkill', 'ultimate'] }] },
+  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'potentialEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['battleSkill', 'ultimate'] }] },
 };
