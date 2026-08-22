@@ -112,6 +112,7 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
     case 'eventOverheal':
       return { kind };
     case 'eventSourceMatchesBuffSource':
+    case 'eventSourceMatchesBuffSourceEntitySource':
     case 'eventSourceControlled':
     case 'buffSourceMatchesOwner':
       return { kind };

@@ -248,6 +248,7 @@ export const akekuriGeneratedSource = {
               ]
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -635,6 +636,7 @@ export const akekuriGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -956,6 +958,7 @@ export const akekuriGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -1070,6 +1073,7 @@ export const akekuriGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -1386,6 +1390,7 @@ export const akekuriGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }

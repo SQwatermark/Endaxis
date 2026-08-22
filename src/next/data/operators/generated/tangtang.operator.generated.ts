@@ -539,7 +539,7 @@ export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
               ),
               step('spawnAbilityEntity', {
                 abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_move',
-                                dieWhenSourceDies: false,
+                dieWhenSourceDies: false,
                 inheritActionBlackboard: true,
                 target: 'caster',
                 saveToContextKey: 'normalskill_watermove',
@@ -548,7 +548,7 @@ export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
             sequence(
               step('spawnAbilityEntity', {
                 abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_move',
-                                dieWhenSourceDies: false,
+                dieWhenSourceDies: false,
                 inheritActionBlackboard: true,
                 target: 'caster',
                 saveToContextKey: 'normalskill_watermove_1',
@@ -750,7 +750,7 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                               sequence(
                                 step('spawnAbilityEntity', {
                                   abilityEntityId: 'abilityentity_chr_0027_tangtang_comboskill_water',
-                                                                    dieWhenSourceDies: false,
+                                  dieWhenSourceDies: false,
                                   inheritActionBlackboard: true,
                                   saveToContextKey: 'water_abilityentity02',
                                 }),
@@ -815,7 +815,7 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                               sequence(
                                 step('spawnAbilityEntity', {
                                   abilityEntityId: 'abilityentity_chr_0027_tangtang_comboskill_water',
-                                                                    dieWhenSourceDies: false,
+                                  dieWhenSourceDies: false,
                                   inheritActionBlackboard: true,
                                   saveToContextKey: 'water_abilityentity01',
                                 }),
@@ -853,7 +853,7 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                               sequence(
                                 step('spawnAbilityEntity', {
                                   abilityEntityId: 'abilityentity_chr_0027_tangtang_comboskill_water',
-                                                                    dieWhenSourceDies: false,
+                                  dieWhenSourceDies: false,
                                   inheritActionBlackboard: true,
                                   saveToContextKey: 'water_abilityentity02',
                                 }),
@@ -918,7 +918,7 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                               sequence(
                                 step('spawnAbilityEntity', {
                                   abilityEntityId: 'abilityentity_chr_0027_tangtang_comboskill_water',
-                                                                    dieWhenSourceDies: false,
+                                  dieWhenSourceDies: false,
                                   inheritActionBlackboard: true,
                                   saveToContextKey: 'water_abilityentity01',
                                 }),
@@ -968,7 +968,7 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                       sequence(
                         step('spawnAbilityEntity', {
                           abilityEntityId: 'abilityentity_chr_0027_tangtang_comboskill_water',
-                                                    dieWhenSourceDies: false,
+                          dieWhenSourceDies: false,
                           inheritActionBlackboard: true,
                           saveToContextKey: 'water_abilityentity02',
                         }),
@@ -1033,7 +1033,7 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                       sequence(
                         step('spawnAbilityEntity', {
                           abilityEntityId: 'abilityentity_chr_0027_tangtang_comboskill_water',
-                                                    dieWhenSourceDies: false,
+                          dieWhenSourceDies: false,
                           inheritActionBlackboard: true,
                           saveToContextKey: 'water_abilityentity01',
                         }),
@@ -1071,7 +1071,7 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                       sequence(
                         step('spawnAbilityEntity', {
                           abilityEntityId: 'abilityentity_chr_0027_tangtang_comboskill_water',
-                                                    dieWhenSourceDies: false,
+                          dieWhenSourceDies: false,
                           inheritActionBlackboard: true,
                           saveToContextKey: 'water_abilityentity02',
                         }),
@@ -1136,7 +1136,7 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                       sequence(
                         step('spawnAbilityEntity', {
                           abilityEntityId: 'abilityentity_chr_0027_tangtang_comboskill_water',
-                                                    dieWhenSourceDies: false,
+                          dieWhenSourceDies: false,
                           inheritActionBlackboard: true,
                           saveToContextKey: 'water_abilityentity01',
                         }),
@@ -8482,19 +8482,19 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     sequence(
                       step('spawnAbilityEntity', {
                         abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_03',
-                                                          dieWhenSourceDies: false,
+                        dieWhenSourceDies: false,
                         inheritActionBlackboard: true,
                         target: 'caster',
                       }),
                       step('spawnAbilityEntity', {
                         abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_03_02',
-                                                          dieWhenSourceDies: false,
+                        dieWhenSourceDies: false,
                         inheritActionBlackboard: true,
                         target: 'caster',
                       }),
                       step('spawnAbilityEntity', {
                         abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_03_03',
-                                                          dieWhenSourceDies: false,
+                        dieWhenSourceDies: false,
                         inheritActionBlackboard: true,
                         target: 'caster',
                       }),
@@ -8507,13 +8507,13 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     sequence(
                       step('spawnAbilityEntity', {
                         abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_02',
-                                                          dieWhenSourceDies: false,
+                        dieWhenSourceDies: false,
                         inheritActionBlackboard: true,
                         target: 'caster',
                       }),
                       step('spawnAbilityEntity', {
                         abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_02_02',
-                                                          dieWhenSourceDies: false,
+                        dieWhenSourceDies: false,
                         inheritActionBlackboard: true,
                         target: 'caster',
                       }),
@@ -8529,7 +8529,7 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('spawnAbilityEntity', {
                     abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill',
-                                                  dieWhenSourceDies: false,
+                    dieWhenSourceDies: false,
                     inheritActionBlackboard: true,
                     target: 'caster',
                   }),

@@ -84,6 +84,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -114,6 +115,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -217,6 +219,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -233,6 +236,7 @@ export const arcaneGeneratedSource = {
           "sequences": [],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -336,6 +340,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -568,6 +573,7 @@ export const arcaneGeneratedSource = {
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -733,6 +739,7 @@ export const arcaneGeneratedSource = {
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -1723,6 +1730,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -1882,6 +1890,7 @@ export const arcaneGeneratedSource = {
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -2043,6 +2052,7 @@ export const arcaneGeneratedSource = {
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -2210,6 +2220,7 @@ export const arcaneGeneratedSource = {
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -3457,6 +3468,7 @@ export const arcaneGeneratedSource = {
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -4056,6 +4068,7 @@ export const arcaneGeneratedSource = {
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -4180,6 +4193,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -4300,6 +4314,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -4361,6 +4376,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -5012,6 +5028,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -5076,6 +5093,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -5600,6 +5618,7 @@ export const arcaneGeneratedSource = {
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [
             [
               "buff_chr_0032_lizhiyan_combo_skill_seal",
@@ -9006,6 +9025,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -9474,6 +9494,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -9490,6 +9511,7 @@ export const arcaneGeneratedSource = {
           "sequences": [],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -9680,6 +9702,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -9922,6 +9945,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -9979,6 +10003,7 @@ export const arcaneGeneratedSource = {
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -10193,6 +10218,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -10378,6 +10404,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -10660,6 +10687,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffTagQueries": [
             [
               "HasAny",
@@ -10775,6 +10803,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -10972,6 +11001,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -12498,6 +12528,7 @@ export const arcaneGeneratedSource = {
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -12555,6 +12586,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -12746,6 +12778,7 @@ export const arcaneGeneratedSource = {
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -14947,6 +14980,7 @@ export const arcaneGeneratedSource = {
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -17097,6 +17131,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -17127,6 +17162,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -17143,6 +17179,7 @@ export const arcaneGeneratedSource = {
           "sequences": [],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -17280,6 +17317,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -17388,6 +17426,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -17799,6 +17838,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -17977,6 +18017,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -18399,6 +18440,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -18449,6 +18491,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -18769,6 +18812,7 @@ export const arcaneGeneratedSource = {
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -18922,6 +18966,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -18952,6 +18997,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -19797,6 +19843,7 @@ export const arcaneGeneratedSource = {
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -20346,6 +20393,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -20614,6 +20662,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -20758,6 +20807,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -20788,6 +20838,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -21422,6 +21473,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -21541,6 +21593,7 @@ export const arcaneGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }

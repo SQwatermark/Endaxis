@@ -780,6 +780,7 @@ class BuffEventActionSource:
     finishAfterIgnited: bool = False
     runtimeTargetGroupWrites: tuple["TargetGroupWriteSource", ...] = ()
     obtainAtbFilters: tuple["ObtainAtbFilterSource", ...] = ()
+    obtainAtbValueKeys: tuple[tuple[str, str], ...] = ()
     contextBuffTagQueries: tuple[tuple[str, tuple[int, ...]], ...] = ()
     contextBuffIdQueries: tuple[tuple[str, ...], ...] = ()
     consumeBuffLayerChecks: tuple[tuple[str, float, str], ...] = ()
@@ -877,6 +878,8 @@ class SkillEventListenerSource:
     event: str
     sequences: tuple[SkillEventActionSequenceSource, ...]
     sequenceIndex: int = -1
+    obtainAtbFilters: tuple["ObtainAtbFilterSource", ...] = ()
+    obtainAtbValueKeys: tuple[tuple[str, str], ...] = ()
 
 
 @dataclass(frozen=True)

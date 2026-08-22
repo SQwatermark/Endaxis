@@ -1243,6 +1243,7 @@ export class CombatRuntimeAssembly {
       isOperatorControlled === undefined
         ? undefined
         : sourceId => isOperatorControlled(sourceId, this.clock.frame),
+      sourceId => this.#resolveAbilitySystemSourceId(sourceId),
     );
     const delegate = new ActionBlackboardOperationExecutor(
       eventConditions,
@@ -1387,6 +1388,7 @@ export class CombatRuntimeAssembly {
       options.isOperatorControlled === undefined
         ? undefined
         : sourceId => options.isOperatorControlled!(sourceId, this.clock.frame),
+      sourceId => this.#resolveAbilitySystemSourceId(sourceId),
     );
     const blackboardOperations = new ActionBlackboardOperationExecutor(
       eventConditions,
@@ -1530,6 +1532,18 @@ export class CombatRuntimeAssembly {
       throw new Error(`combat entity '${targetId}' has no Buff operation target`);
     }
     return target;
+  }
+
+  #resolveAbilitySystemSourceId(entityId: string): string {
+    const match = /^ability-entity:(\d+)$/.exec(entityId);
+    if (match === null) return entityId;
+    const source = this.abilityEntities.snapshot({
+      kind: 'abilityEntity',
+      instanceId: Number(match[1]),
+    }).source;
+    if (source.kind === 'operator') return source.operatorId;
+    if (source.kind === 'enemy') return 'enemy';
+    return logicalAbilityEntityRuntimeId(source.instanceId);
   }
 
   #resolveAbilityEntityBuffTarget(

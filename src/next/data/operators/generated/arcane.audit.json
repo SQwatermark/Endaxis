@@ -107,6 +107,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -137,6 +138,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -240,6 +242,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -256,6 +259,7 @@
           "sequences": [],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -359,6 +363,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -591,6 +596,7 @@
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -756,6 +762,7 @@
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -1746,6 +1753,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -1905,6 +1913,7 @@
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -2066,6 +2075,7 @@
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -2233,6 +2243,7 @@
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -3480,6 +3491,7 @@
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -4079,6 +4091,7 @@
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -4203,6 +4216,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -4323,6 +4337,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -4384,6 +4399,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -5035,6 +5051,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -5099,6 +5116,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -5623,6 +5641,7 @@
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [
             [
               "buff_chr_0032_lizhiyan_combo_skill_seal",
@@ -9029,6 +9048,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -9497,6 +9517,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -9513,6 +9534,7 @@
           "sequences": [],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -9703,6 +9725,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -9945,6 +9968,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -10002,6 +10026,7 @@
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -10216,6 +10241,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -10401,6 +10427,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -10683,6 +10710,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffTagQueries": [
             [
               "HasAny",
@@ -10798,6 +10826,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -10995,6 +11024,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -12521,6 +12551,7 @@
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -12578,6 +12609,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -12769,6 +12801,7 @@
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -14970,6 +15003,7 @@
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -17120,6 +17154,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -17150,6 +17185,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -17166,6 +17202,7 @@
           "sequences": [],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -17303,6 +17340,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -17411,6 +17449,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -17822,6 +17861,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -18000,6 +18040,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -18422,6 +18463,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -18472,6 +18514,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -18792,6 +18835,7 @@
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -18945,6 +18989,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -18975,6 +19020,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -19820,6 +19866,7 @@
               "pickIndexBlackboardKey": null
             }
           ],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -20369,6 +20416,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -20637,6 +20685,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -20781,6 +20830,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -20811,6 +20861,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -21445,6 +21496,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -21564,6 +21616,7 @@
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -21839,7 +21892,8 @@
               "priority": 0
             }
           ],
-          "sequenceIndex": 0
+          "sequenceIndex": 0,
+          "obtainAtbValueKeys": []
         },
         {
           "startFrame": 0,
@@ -21861,7 +21915,8 @@
               "priority": 0
             }
           ],
-          "sequenceIndex": 1
+          "sequenceIndex": 1,
+          "obtainAtbValueKeys": []
         }
       ],
       "event_buff_ids": [],

@@ -246,6 +246,7 @@ export const laevatainGeneratedSource = {
           "sequences": [],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -360,6 +361,7 @@ export const laevatainGeneratedSource = {
           "sequences": [],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -615,6 +617,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -1242,6 +1245,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -1516,6 +1520,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -1619,6 +1624,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -1733,6 +1739,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -2012,6 +2019,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -2226,6 +2234,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -2347,6 +2356,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -2509,6 +2519,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -2958,6 +2969,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -3080,6 +3092,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -3199,6 +3212,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -3320,6 +3334,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -3383,6 +3398,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -3548,6 +3564,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -3627,6 +3644,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -3786,6 +3804,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -3818,6 +3837,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [
             [
               "buff_chr_0016_laevat_pause_ult"
@@ -4116,6 +4136,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -4148,6 +4169,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [
             [
               "buff_chr_0016_laevat_pause_ult"
@@ -4266,6 +4288,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -4369,6 +4392,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -4540,6 +4564,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -4910,6 +4935,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -5061,6 +5087,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -5180,6 +5207,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -5210,6 +5238,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -5240,6 +5269,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -5351,6 +5381,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -5454,6 +5485,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -5693,6 +5725,7 @@ export const laevatainGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }

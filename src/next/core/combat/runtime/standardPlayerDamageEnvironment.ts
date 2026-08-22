@@ -83,6 +83,7 @@ export type StandardPlayerDamageEvent =
   | 'beforeDamageAction'
   | 'beforeCalculateDamage'
   | 'beforeTakeDamage'
+  | 'beforeTakePhysicalInfliction'
   | 'beforeOutputDamage'
   | 'beforeKillEntity'
   | 'afterKillEntity'
@@ -740,8 +741,7 @@ export class StandardPlayerDamageEnvironment {
       definition,
       sourceId: payload.sourceId,
       attack: resolveOperatorAttack(panel, operatorAttributes),
-      // 来源附着增强属性尚未在面板落地；需要增强公式的爆发会在此明确失败。
-      enhance: null,
+      enhance: operatorAttributes.get('PhysicalAndSpellInflictionEnhance'),
       criticalRate: panel.criticalRate + operatorAttributes.get('criticalRate'),
       criticalDamageIncrease:
         panel.criticalDamage + operatorAttributes.get('criticalDamageIncrease'),

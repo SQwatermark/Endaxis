@@ -100,6 +100,7 @@ export const emberGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -130,6 +131,7 @@ export const emberGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -193,6 +195,7 @@ export const emberGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -309,6 +312,7 @@ export const emberGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -650,6 +654,7 @@ export const emberGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -984,6 +989,7 @@ export const emberGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -1129,6 +1135,7 @@ export const emberGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         },
@@ -1341,6 +1348,7 @@ export const emberGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -1678,6 +1686,7 @@ export const emberGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -11242,7 +11251,8 @@ export const emberGeneratedSource = {
               "priority": 0
             }
           ],
-          "sequenceIndex": 2
+          "sequenceIndex": 2,
+          "obtainAtbValueKeys": []
         }
       ],
       "timeDilations": [],

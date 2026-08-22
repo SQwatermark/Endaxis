@@ -44,6 +44,13 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
       );
       return true;
     }
+    if (step.kind === 'storeEventSpGainAmount') {
+      if (context?.event?.kind !== 'spGained') {
+        throw new Error('storeEventSpGainAmount requires an spGained event context');
+      }
+      context.blackboard.assignDynamic(step.parameters.outputKey, context.event.amount);
+      return true;
+    }
     if (step.kind === 'modifyActionValue') {
       if (context === undefined) {
         throw new Error('modifyActionValue requires a combat operation context');

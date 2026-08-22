@@ -26,6 +26,7 @@ import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
 import type {
   CombatAbilityDamageEvent,
+  CombatAbilityPhysicalInflictionEvent,
   CombatAbilityHealEvent,
   CombatAbilityPoiseEvent,
   CombatAbilityLifecycleEvent,
@@ -482,6 +483,7 @@ function normalizeBuffAbilityEvent(
 ):
   | CombatSemanticEvent
   | CombatAbilityDamageEvent
+  | CombatAbilityPhysicalInflictionEvent
   | CombatAbilityPoiseEvent
   | CombatAbilityHealEvent
   | CombatAbilitySkillEvent
@@ -496,6 +498,14 @@ function normalizeBuffAbilityEvent(
   if (event === 'enterFight' || event === 'ownerHpZero') {
     return {
       kind: 'abilityLifecycle',
+      event,
+      sourceId: source.sourceId,
+      targetId: source.targetId,
+    };
+  }
+  if (event === 'beforeTakePhysicalInfliction') {
+    return {
+      kind: 'abilityPhysicalInfliction',
       event,
       sourceId: source.sourceId,
       targetId: source.targetId,

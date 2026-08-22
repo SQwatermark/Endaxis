@@ -14799,6 +14799,28 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unsupported target identity pair"):
             compile_combat_condition(condition, "fixture.identity")
 
+    def test_buff_event_source_finder_identity_preserves_entity_provenance(self) -> None:
+        source_finder = parse_target_reference(
+            target_settings_fixture("InstantSearch", finder_type="SourceFinder"),
+            "sourceFinder",
+        )
+        condition = SimpleNamespace(
+            sourceType="CheckTargetsEqual",
+            targetIdentity=SimpleNamespace(
+                first=replace(source_finder, selectorOwner="ActionSource"),
+                second=parse_target_reference(target_settings_fixture("Target"), "target"),
+            ),
+        )
+
+        self.assertEqual(
+            compile_combat_condition(
+                condition,
+                "fixture.sourceFinderIdentity",
+                buff_ability_damage_event=True,
+            ),
+            "{ kind: 'eventSourceMatchesBuffSourceEntitySource' }",
+        )
+
     def test_buff_damage_event_target_main_character_identity_compiles_exactly(self) -> None:
         condition = SimpleNamespace(
             sourceType="CheckTargetsEqual",
@@ -15923,13 +15945,16 @@ class OperatorAbilityEntityLinkerTests(unittest.TestCase):
         self.assertNotIn("definition:", operator_definitions["abilityentity_chr_parent"])
         self.assertEqual(shared, {})
 
-    def test_rejects_conflicting_definitions_for_the_same_identity(self) -> None:
+    def test_keeps_spawn_local_variant_for_the_same_template_identity(self) -> None:
         sources = [
             "step('spawnAbilityEntity', { abilityEntityId: 'abilityentity_chr_same', definition: { lifetime: { kind: 'infinite' } }, dieWhenSourceDies: false })",
             "step('spawnAbilityEntity', { abilityEntityId: 'abilityentity_chr_same', definition: { lifetime: { kind: 'limited', durationSeconds: 1 } }, dieWhenSourceDies: false })",
         ]
-        with self.assertRaisesRegex(ValueError, "multiple definitions"):
-            link_operator_ability_entity_definitions(sources)
+        linked, definitions, _ = link_operator_ability_entity_definitions(sources)
+
+        self.assertNotIn("definition:", linked[0])
+        self.assertIn("definition: { lifetime: { kind: 'limited'", linked[1])
+        self.assertIn("kind: 'infinite'", definitions["abilityentity_chr_same"])
 
 
 if __name__ == "__main__":

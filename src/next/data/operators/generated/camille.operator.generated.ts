@@ -648,7 +648,7 @@ export const camilleBattleSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0033_camille_normal_skill',
-                        dieWhenSourceDies: false,
+            dieWhenSourceDies: false,
             inheritActionBlackboard: true,
             target: 'enemy',
             saveToContextKey: 'Camille_Bat',

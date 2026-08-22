@@ -171,6 +171,7 @@ export interface ResolvedCombatStepParameters {
   startTimeDilation: CombatStepParameters['startTimeDilation'];
   startUltimateTimeDilation: CombatStepParameters['startUltimateTimeDilation'];
   storeCurrentTimelineFrame: CombatStepParameters['storeCurrentTimelineFrame'];
+  storeEventSpGainAmount: CombatStepParameters['storeEventSpGainAmount'];
   modifyActionValue: CombatStepParameters['modifyActionValue'];
   calculateActionValue: CombatStepParameters['calculateActionValue'];
   storeSourceAttributeValue: CombatStepParameters['storeSourceAttributeValue'];

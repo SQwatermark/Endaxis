@@ -332,6 +332,10 @@ def compile_inline_buff_event_responses(
             is_before_take_damage = (
                 event.eventSource == "ability" and event.event == "OnBeforeTakeDamage"
             )
+            is_before_take_physical_infliction = (
+                event.eventSource == "ability"
+                and event.event == "OnBeforeTakePhysicalInfliction"
+            )
             is_enter_fight = (
                 event.eventSource == "ability" and event.event == "OnEnterFight"
             )
@@ -442,6 +446,7 @@ def compile_inline_buff_event_responses(
                 buff_definitions=buff_definitions,
                 buff_ability_damage_event=(
                     is_before_take_damage
+                    or is_before_take_physical_infliction
                     or is_take_damage
                     or is_take_critical_damage
                     or is_output_damage
@@ -495,6 +500,7 @@ def compile_inline_buff_event_responses(
                 is_enter_fight
                 or is_owner_hp_zero
                 or is_before_take_damage
+                or is_before_take_physical_infliction
                 or is_take_damage
                 or is_take_critical_damage
                 or is_output_damage
@@ -520,6 +526,8 @@ def compile_inline_buff_event_responses(
                 if is_owner_hp_zero
                 else "beforeTakeDamage"
                 if is_before_take_damage
+                else "beforeTakePhysicalInfliction"
+                if is_before_take_physical_infliction
                 else "takeDamage"
                 if is_take_damage
                 else "takeCriticalDamage"

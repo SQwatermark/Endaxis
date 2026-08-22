@@ -267,6 +267,175 @@ export const generatedCommonBuffDefinitions = {
       ),
     },
   },
+  'buff_physical_do_fracture': {
+    stackingType: 'stack',
+    stackingKey: 'fracture',
+    priority: 0,
+    maxStackCount: 1,
+    durationSeconds: { blackboardKey: 'duration' },
+    triggerIntervalSeconds: 0,
+    waitFirstTriggerInterval: false,
+    maxTriggerCount: 0,
+    applyTagIds: [-430063731],
+    blackboard: {
+      'atk_scale': 0,
+      'count': 0,
+      'duration': 15,
+      'extra_scaling': 1,
+      'physical_res_down': 0,
+    },
+    damageModifiers: [
+      {
+        enabledSide: 'defender',
+        condition: {
+          kind: 'eventDamageTypesMatch',
+          damageTypes: ['physical'],
+        },
+        processors: [
+          {
+            kind: 'damageScale',
+            side: 'defender',
+            zone: 'normal',
+            addition: { blackboardKey: 'physical_res_down' },
+          },
+        ],
+      },
+    ],
+    lifecycleSequences: {
+      start: sequence(
+        step('modifyActionValue', {
+          key: 'physical_res_down',
+          operation: 'multiply',
+          value: { kind: 'blackboard', key: 'extra_scaling' },
+        }),
+        step('applyBuff', {
+          buffId: 'buff_physical_handle_cryst_break',
+          target: 'enemy',
+          inheritSourceSkillCastInfo: true,
+        }),
+        step('igniteBuffs', {
+          target: 'enemy',
+          source: 'caster',
+          igniteType: 'PhysicalStatus',
+        }),
+        step('finishBuffsById', {
+          target: 'enemy',
+          buffIds: ['buff_physical_no_guard'],
+          reason: 'early',
+        }),
+        step('dealDamage', {
+          damageType: 'physical',
+          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+          tags: [],
+          features: ['physicalInfliction'],
+        }, '33:buff_physical_do_fracture:start:311:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:11'),
+        branch(
+          {
+            kind: 'actionValueCompare',
+            left: { kind: 'blackboard', key: 'count' },
+            operator: 'equal',
+            right: { kind: 'constant', value: 0 },
+          },
+          sequence(
+            step('startTimeDilation', {
+              scope: 'entity',
+              durationSeconds: { kind: 'constant', value: 0.1 },
+              slot: 1464849466,
+              priority: 15,
+              curve: { kind: 'named', key: 'interrupt_weakness' },
+              finishByAction: false,
+              targets: ['caster', 'caster'],
+            }),
+          ),
+          sequence(
+            branch(
+              {
+                kind: 'actionValueCompare',
+                left: { kind: 'blackboard', key: 'count' },
+                operator: 'equal',
+                right: { kind: 'constant', value: 1 },
+              },
+              sequence(
+                step('startTimeDilation', {
+                  scope: 'entity',
+                  durationSeconds: { kind: 'constant', value: 0.1 },
+                  slot: 1464849466,
+                  priority: 10,
+                  curve: { kind: 'named', key: 'interrupt_weakness' },
+                  finishByAction: false,
+                  targets: ['caster', 'caster'],
+                }),
+              ),
+              sequence(
+                branch(
+                  {
+                    kind: 'actionValueCompare',
+                    left: { kind: 'blackboard', key: 'count' },
+                    operator: 'equal',
+                    right: { kind: 'constant', value: 2 },
+                  },
+                  sequence(
+                    step('startTimeDilation', {
+                      scope: 'entity',
+                      durationSeconds: { kind: 'constant', value: 0.25 },
+                      slot: 1464849466,
+                      priority: 20,
+                      curve: { kind: 'named', key: 'interrupt_weakness' },
+                      finishByAction: false,
+                      targets: ['caster', 'caster'],
+                    }),
+                  ),
+                  sequence(
+                    branch(
+                      {
+                        kind: 'actionValueCompare',
+                        left: { kind: 'blackboard', key: 'count' },
+                        operator: 'equal',
+                        right: { kind: 'constant', value: 3 },
+                      },
+                      sequence(
+                        step('startTimeDilation', {
+                          scope: 'entity',
+                          durationSeconds: { kind: 'constant', value: 0.5 },
+                          slot: 1464849466,
+                          priority: 20,
+                          curve: { kind: 'named', key: 'interrupt_weakness' },
+                          finishByAction: false,
+                          targets: ['caster', 'caster'],
+                        }),
+                      ),
+                      sequence(
+                        branch(
+                          {
+                            kind: 'actionValueCompare',
+                            left: { kind: 'blackboard', key: 'count' },
+                            operator: 'equal',
+                            right: { kind: 'constant', value: 4 },
+                          },
+                          sequence(
+                            step('startTimeDilation', {
+                              scope: 'entity',
+                              durationSeconds: { kind: 'constant', value: 0.65 },
+                              slot: 1464849466,
+                              priority: 20,
+                              curve: { kind: 'named', key: 'interrupt_weakness' },
+                              finishByAction: false,
+                              targets: ['caster', 'caster'],
+                            }),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          { alwaysNext: true },
+        ),
+      ),
+    },
+  },
   'buff_common_pulse_triggered_start': {
     stackingType: 'unlimited',
     priority: 0,

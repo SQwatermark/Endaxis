@@ -1297,6 +1297,8 @@ export interface GeneratedBuffEventActionSource {
     readonly checkObtainMethod: boolean;
     readonly obtainMethods: readonly string[];
   }[];
+  /** SaveAtbObtainValue 的普通获得量键与实际资源变化量键。 */
+  readonly obtainAtbValueKeys?: readonly (readonly [string, string])[];
   /** 事件上下文 Buff 的原生标签查询；只作为严格转换与审计证据。 */
   readonly contextBuffTagQueries?: readonly (readonly [string, readonly number[]])[];
   /** 事件上下文 Buff 的原生 ID 查询；只作为严格转换与审计证据。 */
@@ -1369,6 +1371,8 @@ export interface GeneratedSkillEventListenerSource extends GeneratedNativeSequen
   readonly priorityLevel: string;
   readonly priorityOffset: number;
   readonly event: string;
+  /** SaveAtbObtainValue 的普通获得量键与实际资源变化量键。 */
+  readonly obtainAtbValueKeys?: readonly (readonly [string, string])[];
   readonly sequences: readonly GeneratedSkillEventActionSequenceSource[];
 }
 

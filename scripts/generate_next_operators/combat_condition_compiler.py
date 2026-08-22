@@ -190,6 +190,43 @@ def compile_combat_condition(
         if identity is None:
             raise ValueError(f"{path}: missing target identity payload")
         first, second = identity.first, identity.second
+        references = (first, second)
+        source_finder = next(
+            (
+                reference
+                for reference in references
+                if reference.targetSource == "InstantSearch"
+                and reference.selectorOwner == "ActionSource"
+                and reference.finderType == "SourceFinder"
+            ),
+            None,
+        )
+        event_target = next(
+            (
+                reference
+                for reference in references
+                if reference.targetSource == "Target" and not reference.targetGroupKey
+            ),
+            None,
+        )
+        if (
+            buff_ability_damage_event
+            and source_finder is not None
+            and event_target is not None
+            and not source_finder.targetGroupKey
+            and not source_finder.ownerContextKey
+            and source_finder.centerType == "ActionSource"
+            and not source_finder.centerContextKey
+            and not source_finder.centerToGround
+            and source_finder.target == "ActionSource"
+            and not source_finder.targetContextKey
+            and not source_finder.enableAdvancedDirection
+            and source_finder.selectorDirection == "SourceForward"
+            and not source_finder.validatorTypes
+            and not source_finder.postProcessorTypes
+            and target_reference_has_plain_selector(event_target)
+        ):
+            return "{ kind: 'eventSourceMatchesBuffSourceEntitySource' }"
         if not target_reference_has_plain_selector(first) or not target_reference_has_plain_selector(
             second
         ):

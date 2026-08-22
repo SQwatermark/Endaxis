@@ -376,6 +376,8 @@ export type CombatCondition =
     }
   /** Buff 宿主的承伤事件来源是否等于创建该 Buff 的实体。 */
   | { kind: 'eventSourceMatchesBuffSource' }
+  /** 事件来源是否等于 Buff 来源能力实体的原生 AbilitySystem.source。 */
+  | { kind: 'eventSourceMatchesBuffSourceEntitySource' }
   /** 承伤事件的伤害来源是否是当前现实时间下的主控干员。 */
   | { kind: 'eventSourceControlled' }
   /** 当前 Buff 的创建来源实体是否也是其宿主。 */
@@ -431,6 +433,7 @@ export const COMBAT_CONDITION_KINDS = [
   'eventHealTagsMatch',
   'eventOverheal',
   'eventSourceMatchesBuffSource',
+  'eventSourceMatchesBuffSourceEntitySource',
   'eventSourceControlled',
   'buffSourceMatchesOwner',
   'elementalInflictionPresent',
@@ -816,6 +819,8 @@ export interface CombatStepParameters {
     /** 把宿主技能或能力实体子技能的局部整数执行帧写入动作黑板。 */
     outputKey: string;
   };
+  /** 把当前 spGained 语义事件的实际获得量写入动作黑板。 */
+  storeEventSpGainAmount: { outputKey: string };
   modifyActionValue: {
     key: string;
     operation: ActionValueOperation;
@@ -957,6 +962,7 @@ export const COMBAT_STEP_KINDS = [
   'startTimeDilation',
   'startUltimateTimeDilation',
   'storeCurrentTimelineFrame',
+  'storeEventSpGainAmount',
   'modifyActionValue',
   'calculateActionValue',
   'storeSourceAttributeValue',
@@ -1041,6 +1047,7 @@ export type CombatEventTrigger =
   | { kind: 'operatorHealed' }
   | { kind: 'buffApplied' }
   | { kind: 'airborneOutput' }
+  | { kind: 'spGained'; source: SpGainSource; gainKind: SpGainKind }
   | { kind: 'damageTagHit'; tag: DamageTag; scope: SkillTriggerScope }
   | {
       kind: 'elementalInflictionApplied';
@@ -1124,6 +1131,7 @@ export interface SkillBuffAbilityEventResponse {
     | 'enterFight'
     | 'ownerHpZero'
     | 'beforeTakeDamage'
+    | 'beforeTakePhysicalInfliction'
     | 'takeDamage'
     | 'takeCriticalDamage'
     | 'outputDamage'
@@ -1423,7 +1431,7 @@ export type UpgradeModifierKind = (typeof UPGRADE_MODIFIER_KINDS)[number];
 
 export type UpgradeEvent =
   | { kind: 'reactionApplied'; reaction: ElementalReaction }
-  | { kind: 'spGained'; source: SpGainSource; gainKind: SpGainKind }
+  | Extract<CombatEventTrigger, { kind: 'spGained' }>
   | { kind: 'elementalAttachmentConsumed' }
   | Extract<CombatEventTrigger, { kind: 'skillHit' }>;
 

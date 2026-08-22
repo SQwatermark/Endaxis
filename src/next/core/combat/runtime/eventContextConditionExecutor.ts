@@ -14,6 +14,7 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
   constructor(
     readonly delegate: CombatOperationExecutor,
     readonly isOperatorControlled?: (operatorId: string) => boolean,
+    readonly resolveEntitySourceId?: (entityId: string) => string,
   ) {}
 
   execute(
@@ -44,6 +45,7 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       condition.kind !== 'eventHealTagsMatch' &&
       condition.kind !== 'eventOverheal' &&
       condition.kind !== 'eventSourceMatchesBuffSource' &&
+      condition.kind !== 'eventSourceMatchesBuffSourceEntitySource' &&
       condition.kind !== 'eventSourceControlled'
     ) {
       return context === undefined
@@ -57,8 +59,21 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       if (context.buffSourceId === undefined) {
         throw new Error('eventSourceMatchesBuffSource requires a Buff source identity');
       }
-      return context.event.kind === 'abilityDamage'
+      return context.event.kind === 'abilityDamage' ||
+        context.event.kind === 'abilityPhysicalInfliction'
         ? context.event.sourceId === context.buffSourceId
+        : false;
+    }
+    if (condition.kind === 'eventSourceMatchesBuffSourceEntitySource') {
+      if (context.buffSourceId === undefined) {
+        throw new Error('eventSourceMatchesBuffSourceEntitySource requires a Buff source identity');
+      }
+      if (this.resolveEntitySourceId === undefined) {
+        throw new Error('eventSourceMatchesBuffSourceEntitySource requires entity provenance');
+      }
+      return context.event.kind === 'abilityDamage' ||
+        context.event.kind === 'abilityPhysicalInfliction'
+        ? context.event.sourceId === this.resolveEntitySourceId(context.buffSourceId)
         : false;
     }
     if (condition.kind === 'eventSourceControlled') {

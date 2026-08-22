@@ -954,6 +954,81 @@ def _render_attached_buff_initialization(
     return "\n".join(lines)
 
 
+def _render_multilevel_attached_buff_talent(
+    effect_entries: list[tuple[str, list[dict[str, Any]]]],
+    buff_definitions: dict[str, BuffDefinitionSource],
+    compile_buff_definition: Callable[
+        [BuffDefinitionSource, str, dict[str, BuffDefinitionSource]], str
+    ],
+) -> str:
+    """把各天赋等级的同一 AddBuff 合并为按等级解析黑板的常驻被动。"""
+    buff_id: str | None = None
+    keys: tuple[str, ...] | None = None
+    values: dict[str, list[int | float]] = {}
+    for effect_id, data_list in effect_entries:
+        if len(data_list) != 1:
+            raise ValueError(f"{effect_id}: attached Buff talent expects one payload")
+        entry = data_list[0]
+        path = f"{effect_id}.dataList[0]"
+        if _effect_payload_kinds(entry, path) != ("attachBuff",) or entry.get("modifyType") != 5:
+            raise ValueError(f"{path}: expected only AddBuff(5)")
+        if require_list(entry.get("activeCondition"), f"{path}.activeCondition"):
+            raise ValueError(f"{path}: conditional attached Buff is not supported")
+        attach = require_dict(entry.get("attachBuff"), f"{path}.attachBuff")
+        current_buff_id = attach.get("buffId")
+        if not isinstance(current_buff_id, str) or not current_buff_id:
+            raise ValueError(f"{path}.attachBuff.buffId: expected non-empty id")
+        if buff_id is None:
+            buff_id = current_buff_id
+        elif buff_id != current_buff_id:
+            raise ValueError(f"{path}: talent levels attach different Buffs")
+        level_values: dict[str, int | float] = {}
+        for index, raw_item in enumerate(require_list(attach.get("blackboard"), f"{path}.attachBuff.blackboard")):
+            item = require_dict(raw_item, f"{path}.attachBuff.blackboard[{index}]")
+            key = item.get("key")
+            if not isinstance(key, str) or not key or key in level_values:
+                raise ValueError(f"{path}.attachBuff.blackboard[{index}].key: expected unique key")
+            level_values[key] = require_number(item.get("value"), f"{path}.attachBuff.blackboard[{index}].value")
+        current_keys = tuple(sorted(level_values))
+        if keys is None:
+            keys = current_keys
+            values = {key: [] for key in current_keys}
+        elif keys != current_keys:
+            raise ValueError(f"{path}: talent levels attach different blackboard keys")
+        for key in current_keys:
+            values[key].append(level_values[key])
+    assert buff_id is not None
+    definition = buff_definitions.get(buff_id)
+    if definition is None:
+        raise ValueError(f"attached Buff talent: missing resolved Buff {buff_id!r}")
+    declared = {item.key for item in definition.blackboard}
+    if not set(values).issubset(declared):
+        raise ValueError(f"attached Buff talent: assignments are absent from {buff_id!r}")
+    lines = ["  modifiers: [],", "  passiveSkills: [", "    {", f"      key: {ts_inline_literal(buff_id)},"]
+    if values:
+        lines.append("      blackboard: {")
+        for key, level_values in values.items():
+            lines.append(f"        {ts_inline_literal(key)}: {ts_inline_literal(level_values)},")
+        lines.append("      },")
+    lines.extend([
+        "      enableSequence: sequence(",
+        "        step('applyBuff', {",
+        f"          buffId: {ts_inline_literal(buff_id)},",
+        "          definition: {",
+        *("            " + line for line in compile_buff_definition(definition, "attached Buff talent", buff_definitions).splitlines()),
+        "          },",
+        "          target: 'caster',",
+        "          inheritSourceSkillCastInfo: false,",
+    ])
+    if values:
+        lines.append("          blackboardAssignments: {")
+        for key in values:
+            lines.append(f"            {ts_inline_literal(key)}: {{ kind: 'blackboard', key: {ts_inline_literal(key)} }},")
+        lines.append("          },")
+    lines.extend(["        }),", "      ),", "    },", "  ],"])
+    return "\n".join(lines)
+
+
 def _render_skill_and_passive_blackboard_patch_modifiers(
     entries: list[dict[str, Any]],
     path: str,
@@ -1573,6 +1648,22 @@ def render_talents(
                         f"  levels: {len(entries)},",
                         modifier_body,
                         conditional_passive_body,
+                        "}",
+                    ]
+                )
+            )
+        elif kind == "attachedBuff":
+            result.append(
+                "\n".join(
+                    [
+                        "{",
+                        f"  key: {ts_inline_literal(key)},",
+                        f"  levels: {len(entries)},",
+                        _render_multilevel_attached_buff_talent(
+                            attach_entries,
+                            buff_definitions,
+                            compile_buff_definition,
+                        ),
                         "}",
                     ]
                 )

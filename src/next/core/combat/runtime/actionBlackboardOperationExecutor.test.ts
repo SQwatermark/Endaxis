@@ -32,6 +32,28 @@ describe('ActionBlackboardOperationExecutor', () => {
     ).toThrow('storeCurrentTimelineFrame requires a timeline host');
   });
 
+  it('stores the actual amount carried by an sp-gain event', () => {
+    const blackboard = new ActionBlackboard();
+    const executor = new ActionBlackboardOperationExecutor(delegate);
+
+    expect(
+      executor.execute(
+        { kind: 'storeEventSpGainAmount', parameters: { outputKey: 'atb_contain_temp' } },
+        {
+          blackboard,
+          event: {
+            kind: 'spGained',
+            sourceOperatorId: 'pogranichnik',
+            source: 'skill',
+            gainKind: 'gain',
+            amount: 37,
+          },
+        },
+      ),
+    ).toBe(true);
+    expect(blackboard.getNumber('atb_contain_temp')).toBe(37);
+  });
+
   it.each(['combatActive', 'singleEnemyPresent'] as const)(
     'treats the fixed Endaxis %s invariant as satisfied',
     kind => {

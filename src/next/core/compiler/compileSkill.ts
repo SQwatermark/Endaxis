@@ -466,6 +466,8 @@ function resolveStep(
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'storeCurrentTimelineFrame':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'storeEventSpGainAmount':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'modifyActionValue':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'calculateActionValue':

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from collections import OrderedDict
-from difflib import unified_diff
 import textwrap
 
 from operator_buff_linker import (
@@ -125,20 +124,17 @@ def _transform_source(
         )
         previous = definitions.get(ability_entity_id)
         if previous is not None and previous != canonical:
-            difference = "\n".join(
-                unified_diff(
-                    previous.splitlines(),
-                    canonical.splitlines(),
-                    fromfile="first definition",
-                    tofile="conflicting definition",
-                    lineterm="",
-                    n=2,
-                )
+            # 原生模板 ID 只标识公共 AbilityEntityData；不同生成点仍可挂载不同的
+            # 子技能蓝图。首个定义继续作为干员级默认值，变体保留在生成步骤本地。
+            transformed_object = (
+                object_source[:definition_start]
+                + transformed_definition
+                + object_source[definition_end + 1 :]
             )
-            raise ValueError(
-                f"AbilityEntity {ability_entity_id!r} compiled to multiple definitions:\n"
-                f"{difference}"
-            )
+            result.append(source[cursor:object_start])
+            result.append(transformed_object)
+            cursor = object_end + 1
+            continue
         definitions.setdefault(ability_entity_id, canonical)
 
         removal_end = definition_end + 1
@@ -148,8 +144,12 @@ def _transform_source(
             removal_end += 1
         if removal_end < len(object_source) and object_source[removal_end] == "\n":
             removal_end += 1
+        removal_start = property_start
+        line_start = object_source.rfind("\n", 0, property_start) + 1
+        if line_start > 0 and not object_source[line_start:property_start].strip():
+            removal_start = line_start
         result.append(source[cursor:object_start])
-        result.append(object_source[:property_start] + object_source[removal_end:])
+        result.append(object_source[:removal_start] + object_source[removal_end:])
         cursor = object_end + 1
     return "".join(result)
 

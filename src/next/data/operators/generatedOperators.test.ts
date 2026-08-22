@@ -24,6 +24,7 @@ import {
   laevatain,
   lifeng,
   mifu,
+  pogranichnik,
   rossi,
   tangtang,
   yvonne,
@@ -48,6 +49,7 @@ const generatedOperators: readonly [OperatorDefinition, number][] = [
   [mifu, 9],
   [yvonne, 16],
   [zhuangFangyi, 13],
+  [pogranichnik, 10],
 ];
 
 function hasUpgradeBehavior(

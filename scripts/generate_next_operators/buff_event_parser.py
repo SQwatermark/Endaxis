@@ -249,11 +249,29 @@ def parse_buff_event_actions(
                 action_name(item["$type"]) for item in walked_actions
             )
             obtain_atb_filters: list[ObtainAtbFilterSource] = []
+            obtain_atb_value_keys: list[tuple[str, str]] = []
             context_buff_tag_queries: list[tuple[str, tuple[int, ...]]] = []
             context_buff_id_queries: list[tuple[str, ...]] = []
             consume_buff_layer_checks: list[tuple[str, float, str]] = []
             for item in walked_actions:
                 item_type = action_name(item["$type"])
+                if item_type == "SaveAtbObtainValue":
+                    expected_fields = {
+                        "$type", "isEnable", "priorityLevel", "priorityOffset",
+                        "serverActionIndex", "valueKey", "realDeltaKey",
+                    }
+                    if set(item) != expected_fields:
+                        raise ValueError(f"{event_path}.SaveAtbObtainValue: unexpected fields")
+                    value_key = item.get("valueKey")
+                    real_delta_key = item.get("realDeltaKey")
+                    if not isinstance(value_key, str) or not value_key:
+                        raise ValueError(f"{event_path}.SaveAtbObtainValue.valueKey: expected key")
+                    if not isinstance(real_delta_key, str):
+                        raise ValueError(
+                            f"{event_path}.SaveAtbObtainValue.realDeltaKey: expected string"
+                        )
+                    obtain_atb_value_keys.append((value_key, real_delta_key))
+                    continue
                 if item_type == "CheckBuffIdInContextAdvanced":
                     raw_buff_ids = require_list(
                         item.get("buffIdList"), f"{event_path}.buffIdList"
@@ -601,6 +619,7 @@ def parse_buff_event_actions(
                     sequences=tuple(parsed_sequences),
                     runtimeTargetGroupWrites=tuple(runtime_target_group_writes),
                     obtainAtbFilters=tuple(obtain_atb_filters),
+                    obtainAtbValueKeys=tuple(obtain_atb_value_keys),
                     contextBuffTagQueries=tuple(context_buff_tag_queries),
                     contextBuffIdQueries=tuple(context_buff_id_queries),
                     consumeBuffLayerChecks=tuple(consume_buff_layer_checks),

@@ -875,8 +875,15 @@ describe('StandardPlayerDamageEnvironment', () => {
     expect(environment.enemyVitals.health).toBeLessThan(10000);
   });
 
-  it('fails explicitly when a burst needs the unavailable infliction-enhance attribute', () => {
-    const context = createContext();
+  it('uses the resolved panel infliction-enhance attribute for spell bursts', () => {
+    const baseContext = createContext();
+    if (baseContext.panel === undefined) throw new Error('test fixture requires a resolved panel');
+    const receipt = new CombatReceiptCollector();
+    const context: CombatOperationExecutorContext = {
+      ...baseContext,
+      panel: { ...baseContext.panel, artsIntensity: 2 },
+      receipt,
+    };
     const environment = new StandardPlayerDamageEnvironment({
       criticalSamples: { nextCriticalSample: () => 1 },
       resolveNonRandomRuntimeSnapshot: () => ({
@@ -934,9 +941,10 @@ describe('StandardPlayerDamageEnvironment', () => {
     expect(executor.execute(step)).toBe(true);
     expect(executor.execute(step)).toBe(true);
     const buffRuntime = environment.runtimeOptions.enemyBuffRuntime;
-    expect(() => {
-      for (let frame = 0; frame < 40; frame += 1) buffRuntime.advanceFrame();
-    }).toThrow('requires the source infliction-enhance attribute');
+    for (let frame = 0; frame < 40; frame += 1) buffRuntime.advanceFrame();
+    expect(receipt.entries.find(entry => entry.event === 'SpellBurstApplied')).toMatchObject({
+      data: { enhanceFactor: 2 },
+    });
   });
 
   it('fails explicitly when a burst triggers without SkillSetting data', () => {

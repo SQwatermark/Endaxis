@@ -492,7 +492,7 @@ export const gilbertaBattleSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0013_aglina_normal_skill',
-                        dieWhenSourceDies: false,
+            dieWhenSourceDies: false,
             inheritActionBlackboard: true,
           }),
         ),
@@ -801,7 +801,7 @@ export const gilbertaUltimate: SkillDefinition = withSkillBlackboard(
         sequence(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0013_aglina_ultimate_skill',
-                        dieWhenSourceDies: false,
+            dieWhenSourceDies: false,
             inheritActionBlackboard: true,
             overrideDurationSeconds: { kind: 'blackboard', key: 'duration' },
           }),

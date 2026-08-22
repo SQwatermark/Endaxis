@@ -425,6 +425,7 @@ export const chenQianyuGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -7571,7 +7572,8 @@ export const chenQianyuGeneratedSource = {
               "priority": 0
             }
           ],
-          "sequenceIndex": 7
+          "sequenceIndex": 7,
+          "obtainAtbValueKeys": []
         }
       ],
       "timeDilations": [

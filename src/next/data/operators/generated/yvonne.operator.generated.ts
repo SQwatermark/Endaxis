@@ -31,7 +31,7 @@ export const yvonneComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0017_yvonne_combo_skill',
-                        dieWhenSourceDies: false,
+            dieWhenSourceDies: false,
             inheritActionBlackboard: true,
           }),
         ),

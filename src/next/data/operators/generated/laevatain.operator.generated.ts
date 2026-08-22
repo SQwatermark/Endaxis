@@ -985,7 +985,7 @@ export const laevatainBattleSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0016_laevat_normal_skill',
-                        dieWhenSourceDies: false,
+            dieWhenSourceDies: false,
             inheritActionBlackboard: true,
             saveToContextKey: 'ball',
           }),

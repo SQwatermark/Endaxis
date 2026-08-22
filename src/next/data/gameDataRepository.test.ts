@@ -16,6 +16,7 @@ import {
   lifeng,
   mifu,
   perlica,
+  pogranichnik,
   rossi,
   tangtang,
   yvonne,
@@ -56,6 +57,7 @@ describe('gameDataRepository', () => {
       chenQianyu,
       rossi,
       camille,
+      pogranichnik,
       tangtang,
       laevatain,
       mifu,
@@ -81,6 +83,7 @@ describe('gameDataRepository', () => {
     expect(nextGameDataRepository.getOperator(laevatain.slug)).toBe(laevatain);
     expect(nextGameDataRepository.getOperator(mifu.slug)).toBe(mifu);
     expect(nextGameDataRepository.getOperator(yvonne.slug)).toBe(yvonne);
+    expect(nextGameDataRepository.getOperator(pogranichnik.slug)).toBe(pogranichnik);
     expect(nextGameDataRepository.getOperator('missing')).toBeNull();
   });
 

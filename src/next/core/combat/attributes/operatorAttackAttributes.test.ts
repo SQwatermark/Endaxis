@@ -13,11 +13,26 @@ import {
 const input: OperatorAttackDerivationInput = {
   attributes: { strength: 100, agility: 80, intellect: 120, will: 200 },
   attackBeforeAttributeScalar: 500,
+  artsIntensity: 16,
   mainAttribute: 'intellect',
   secondaryAttribute: 'will',
 };
 
 describe('operator attack attributes', () => {
+  it('uses panel arts intensity as native infliction enhance and accepts Buff additions', () => {
+    const attributes = createOperatorAttackAttributes(input);
+    attributes.addModifier(
+      new CombatAttributeModifier(
+        'PhysicalAndSpellInflictionEnhance',
+        attributeModifierValues('baseAddition', 10),
+        ATTRIBUTE_MODIFIER_SOURCES.buff,
+        'runtime',
+      ),
+    );
+
+    expect(attributes.get('PhysicalAndSpellInflictionEnhance')).toBe(26);
+  });
+
   it('按原生主副属性系数计算静态攻击', () => {
     const attributes = createOperatorAttackAttributes(input);
 

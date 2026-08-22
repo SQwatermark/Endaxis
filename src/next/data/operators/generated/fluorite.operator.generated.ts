@@ -282,7 +282,7 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0022_bounda_normal_skill',
-                        dieWhenSourceDies: false,
+            dieWhenSourceDies: false,
             inheritActionBlackboard: true,
             target: 'enemy',
           }),

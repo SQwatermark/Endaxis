@@ -27,6 +27,7 @@ export type OperatorRuntimeAttribute =
   | AttackFactorAttribute
   | DamageScaleAttributeKey
   | 'Atk'
+  | 'PhysicalAndSpellInflictionEnhance'
   | 'AtbCostAddition'
   | 'ComboSkillCooldownRecoveryScalar'
   | 'criticalRate'
@@ -35,6 +36,8 @@ export type OperatorRuntimeAttribute =
 export interface OperatorAttackDerivationInput {
   readonly attributes: Readonly<Record<OperatorAttribute, number>>;
   readonly attackBeforeAttributeScalar: number;
+  /** 面板术法强度就是原生 PhysicalAndSpellInflictionEnhance(87) 的构筑期值。 */
+  readonly artsIntensity?: number;
   readonly mainAttribute: OperatorAttribute;
   readonly secondaryAttribute: OperatorAttribute;
 }
@@ -46,6 +49,9 @@ export function createOperatorAttackAttributes(
   const result = new CombatAttributeSet<OperatorRuntimeAttribute>();
   // 原生 Atk/BaseMultiplier Buff（例如佩丽卡潜能 3）修正的是属性换算前攻击基数。
   result.define('Atk', input.attackBeforeAttributeScalar, { minimum: 0, maximum: 1000000 });
+  result.define('PhysicalAndSpellInflictionEnhance', input.artsIntensity ?? 0, {
+    minimum: 0,
+  });
   for (const attribute of Object.keys(
     ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE,
   ) as OperatorAttribute[]) {

@@ -17,6 +17,7 @@ export { lastRite } from './last-rite';
 export { chenQianyu } from './chen-qianyu';
 export { rossi } from './rossi';
 export { camille } from './camille';
+export { pogranichnik } from './pogranichnik';
 export { tangtang } from './tangtang';
 export { laevatain } from './laevatain';
 export { mifu } from './mifu';

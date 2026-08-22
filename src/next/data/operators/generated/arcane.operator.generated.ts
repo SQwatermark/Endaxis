@@ -954,7 +954,7 @@ export const arcaneBattleSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0032_lizhiyan_normal_skill',
-                        dieWhenSourceDies: false,
+            dieWhenSourceDies: false,
             inheritActionBlackboard: true,
             overrideDurationSeconds: { kind: 'constant', value: 7 },
             blackboardAssignments: { 'EntityBB_wisd_greater_will': { kind: 'blackboard', key: 'EntityBB_wisd_greater_will' } },
@@ -1044,7 +1044,7 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
         sequence(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill',
-                        dieWhenSourceDies: false,
+            dieWhenSourceDies: false,
             inheritActionBlackboard: true,
             overrideDurationSeconds: { kind: 'blackboard', key: 'duration_aura' },
           }),
@@ -3291,7 +3291,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                           sequence(
                                                                             step('spawnAbilityEntity', {
                                                                               abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                                  dieWhenSourceDies: false,
+                                                                              dieWhenSourceDies: false,
                                                                               inheritActionBlackboard: true,
                                                                               target: 'currentAbilityEntity',
                                                                             }),
@@ -3302,7 +3302,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                           sequence(
                                                                             step('spawnAbilityEntity', {
                                                                               abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                                  dieWhenSourceDies: false,
+                                                                              dieWhenSourceDies: false,
                                                                               inheritActionBlackboard: true,
                                                                               target: 'currentAbilityEntity',
                                                                             }),
@@ -3313,7 +3313,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                           sequence(
                                                                             step('spawnAbilityEntity', {
                                                                               abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                                  dieWhenSourceDies: false,
+                                                                              dieWhenSourceDies: false,
                                                                               inheritActionBlackboard: true,
                                                                               target: 'currentAbilityEntity',
                                                                             }),
@@ -3324,7 +3324,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                           sequence(
                                                                             step('spawnAbilityEntity', {
                                                                               abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                                  dieWhenSourceDies: false,
+                                                                              dieWhenSourceDies: false,
                                                                               inheritActionBlackboard: true,
                                                                               target: 'currentAbilityEntity',
                                                                             }),
@@ -3379,7 +3379,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                               sequence(
                                                                                 step('spawnAbilityEntity', {
                                                                                   abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                                          dieWhenSourceDies: false,
+                                                                                  dieWhenSourceDies: false,
                                                                                   inheritActionBlackboard: true,
                                                                                   target: 'currentAbilityEntity',
                                                                                 }),
@@ -3390,7 +3390,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                               sequence(
                                                                                 step('spawnAbilityEntity', {
                                                                                   abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                                          dieWhenSourceDies: false,
+                                                                                  dieWhenSourceDies: false,
                                                                                   inheritActionBlackboard: true,
                                                                                   target: 'currentAbilityEntity',
                                                                                 }),
@@ -3401,7 +3401,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                               sequence(
                                                                                 step('spawnAbilityEntity', {
                                                                                   abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                                          dieWhenSourceDies: false,
+                                                                                  dieWhenSourceDies: false,
                                                                                   inheritActionBlackboard: true,
                                                                                   target: 'currentAbilityEntity',
                                                                                 }),
@@ -3412,7 +3412,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                               sequence(
                                                                                 step('spawnAbilityEntity', {
                                                                                   abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                                          dieWhenSourceDies: false,
+                                                                                  dieWhenSourceDies: false,
                                                                                   inheritActionBlackboard: true,
                                                                                   target: 'currentAbilityEntity',
                                                                                 }),
@@ -3556,7 +3556,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                   sequence(
                                                                     step('spawnAbilityEntity', {
                                                                       abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                  dieWhenSourceDies: false,
+                                                                      dieWhenSourceDies: false,
                                                                       inheritActionBlackboard: true,
                                                                       target: 'currentAbilityEntity',
                                                                     }),
@@ -3567,7 +3567,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                   sequence(
                                                                     step('spawnAbilityEntity', {
                                                                       abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                  dieWhenSourceDies: false,
+                                                                      dieWhenSourceDies: false,
                                                                       inheritActionBlackboard: true,
                                                                       target: 'currentAbilityEntity',
                                                                     }),
@@ -3578,7 +3578,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                   sequence(
                                                                     step('spawnAbilityEntity', {
                                                                       abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                  dieWhenSourceDies: false,
+                                                                      dieWhenSourceDies: false,
                                                                       inheritActionBlackboard: true,
                                                                       target: 'currentAbilityEntity',
                                                                     }),
@@ -3589,7 +3589,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                   sequence(
                                                                     step('spawnAbilityEntity', {
                                                                       abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                  dieWhenSourceDies: false,
+                                                                      dieWhenSourceDies: false,
                                                                       inheritActionBlackboard: true,
                                                                       target: 'currentAbilityEntity',
                                                                     }),
@@ -3644,7 +3644,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                       sequence(
                                                                         step('spawnAbilityEntity', {
                                                                           abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                          dieWhenSourceDies: false,
+                                                                          dieWhenSourceDies: false,
                                                                           inheritActionBlackboard: true,
                                                                           target: 'currentAbilityEntity',
                                                                         }),
@@ -3655,7 +3655,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                       sequence(
                                                                         step('spawnAbilityEntity', {
                                                                           abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                          dieWhenSourceDies: false,
+                                                                          dieWhenSourceDies: false,
                                                                           inheritActionBlackboard: true,
                                                                           target: 'currentAbilityEntity',
                                                                         }),
@@ -3666,7 +3666,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                       sequence(
                                                                         step('spawnAbilityEntity', {
                                                                           abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                          dieWhenSourceDies: false,
+                                                                          dieWhenSourceDies: false,
                                                                           inheritActionBlackboard: true,
                                                                           target: 'currentAbilityEntity',
                                                                         }),
@@ -3677,7 +3677,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                       sequence(
                                                                         step('spawnAbilityEntity', {
                                                                           abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                          dieWhenSourceDies: false,
+                                                                          dieWhenSourceDies: false,
                                                                           inheritActionBlackboard: true,
                                                                           target: 'currentAbilityEntity',
                                                                         }),
@@ -3872,7 +3872,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                           sequence(
                                                                             step('spawnAbilityEntity', {
                                                                               abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                                  dieWhenSourceDies: false,
+                                                                              dieWhenSourceDies: false,
                                                                               inheritActionBlackboard: true,
                                                                               target: 'currentAbilityEntity',
                                                                             }),
@@ -3883,7 +3883,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                           sequence(
                                                                             step('spawnAbilityEntity', {
                                                                               abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                                  dieWhenSourceDies: false,
+                                                                              dieWhenSourceDies: false,
                                                                               inheritActionBlackboard: true,
                                                                               target: 'currentAbilityEntity',
                                                                             }),
@@ -3894,7 +3894,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                           sequence(
                                                                             step('spawnAbilityEntity', {
                                                                               abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                                  dieWhenSourceDies: false,
+                                                                              dieWhenSourceDies: false,
                                                                               inheritActionBlackboard: true,
                                                                               target: 'currentAbilityEntity',
                                                                             }),
@@ -3905,7 +3905,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                           sequence(
                                                                             step('spawnAbilityEntity', {
                                                                               abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                                  dieWhenSourceDies: false,
+                                                                              dieWhenSourceDies: false,
                                                                               inheritActionBlackboard: true,
                                                                               target: 'currentAbilityEntity',
                                                                             }),
@@ -3960,7 +3960,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                               sequence(
                                                                                 step('spawnAbilityEntity', {
                                                                                   abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                                          dieWhenSourceDies: false,
+                                                                                  dieWhenSourceDies: false,
                                                                                   inheritActionBlackboard: true,
                                                                                   target: 'currentAbilityEntity',
                                                                                 }),
@@ -3971,7 +3971,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                               sequence(
                                                                                 step('spawnAbilityEntity', {
                                                                                   abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                                          dieWhenSourceDies: false,
+                                                                                  dieWhenSourceDies: false,
                                                                                   inheritActionBlackboard: true,
                                                                                   target: 'currentAbilityEntity',
                                                                                 }),
@@ -3982,7 +3982,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                               sequence(
                                                                                 step('spawnAbilityEntity', {
                                                                                   abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                                          dieWhenSourceDies: false,
+                                                                                  dieWhenSourceDies: false,
                                                                                   inheritActionBlackboard: true,
                                                                                   target: 'currentAbilityEntity',
                                                                                 }),
@@ -3993,7 +3993,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                               sequence(
                                                                                 step('spawnAbilityEntity', {
                                                                                   abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                                          dieWhenSourceDies: false,
+                                                                                  dieWhenSourceDies: false,
                                                                                   inheritActionBlackboard: true,
                                                                                   target: 'currentAbilityEntity',
                                                                                 }),
@@ -4137,7 +4137,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                   sequence(
                                                                     step('spawnAbilityEntity', {
                                                                       abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                  dieWhenSourceDies: false,
+                                                                      dieWhenSourceDies: false,
                                                                       inheritActionBlackboard: true,
                                                                       target: 'currentAbilityEntity',
                                                                     }),
@@ -4148,7 +4148,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                   sequence(
                                                                     step('spawnAbilityEntity', {
                                                                       abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                  dieWhenSourceDies: false,
+                                                                      dieWhenSourceDies: false,
                                                                       inheritActionBlackboard: true,
                                                                       target: 'currentAbilityEntity',
                                                                     }),
@@ -4159,7 +4159,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                   sequence(
                                                                     step('spawnAbilityEntity', {
                                                                       abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                  dieWhenSourceDies: false,
+                                                                      dieWhenSourceDies: false,
                                                                       inheritActionBlackboard: true,
                                                                       target: 'currentAbilityEntity',
                                                                     }),
@@ -4170,7 +4170,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                   sequence(
                                                                     step('spawnAbilityEntity', {
                                                                       abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                  dieWhenSourceDies: false,
+                                                                      dieWhenSourceDies: false,
                                                                       inheritActionBlackboard: true,
                                                                       target: 'currentAbilityEntity',
                                                                     }),
@@ -4225,7 +4225,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                       sequence(
                                                                         step('spawnAbilityEntity', {
                                                                           abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                          dieWhenSourceDies: false,
+                                                                          dieWhenSourceDies: false,
                                                                           inheritActionBlackboard: true,
                                                                           target: 'currentAbilityEntity',
                                                                         }),
@@ -4236,7 +4236,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                       sequence(
                                                                         step('spawnAbilityEntity', {
                                                                           abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                          dieWhenSourceDies: false,
+                                                                          dieWhenSourceDies: false,
                                                                           inheritActionBlackboard: true,
                                                                           target: 'currentAbilityEntity',
                                                                         }),
@@ -4247,7 +4247,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                       sequence(
                                                                         step('spawnAbilityEntity', {
                                                                           abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                          dieWhenSourceDies: false,
+                                                                          dieWhenSourceDies: false,
                                                                           inheritActionBlackboard: true,
                                                                           target: 'currentAbilityEntity',
                                                                         }),
@@ -4258,7 +4258,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                       sequence(
                                                                         step('spawnAbilityEntity', {
                                                                           abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
-                                                                                                                                                          dieWhenSourceDies: false,
+                                                                          dieWhenSourceDies: false,
                                                                           inheritActionBlackboard: true,
                                                                           target: 'currentAbilityEntity',
                                                                         }),

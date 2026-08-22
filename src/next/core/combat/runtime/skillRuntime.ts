@@ -39,6 +39,14 @@ export interface CombatAbilityDamageEvent {
   readonly features: readonly DamageFeature[];
 }
 
+/** AbilitySystem 即将承受物理异常时的同步事件；来源是施加该异常的实体。 */
+export interface CombatAbilityPhysicalInflictionEvent {
+  readonly kind: 'abilityPhysicalInfliction';
+  readonly event: 'beforeTakePhysicalInfliction';
+  readonly sourceId: string;
+  readonly targetId: string;
+}
+
 /** AbilitySystem 的失衡归零同步事件；保留本次失衡来源与目标身份。 */
 export interface CombatAbilityPoiseEvent {
   readonly kind: 'abilityPoise';
@@ -91,6 +99,7 @@ export interface CombatOperationContext {
   readonly event?:
     | CombatSemanticEvent
     | CombatAbilityDamageEvent
+    | CombatAbilityPhysicalInflictionEvent
     | CombatAbilityPoiseEvent
     | CombatAbilityHealEvent
     | CombatAbilitySkillEvent

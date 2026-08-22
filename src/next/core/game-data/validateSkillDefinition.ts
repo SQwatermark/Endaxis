@@ -443,6 +443,7 @@ function validateCombatCondition(
     case 'singleEnemyPresent':
     case 'casterControlled':
     case 'eventSourceMatchesBuffSource':
+    case 'eventSourceMatchesBuffSourceEntitySource':
     case 'eventSourceControlled':
     case 'buffSourceMatchesOwner':
       break;
@@ -1556,6 +1557,7 @@ function validateCombatStep(
       break;
     }
     case 'storeCurrentTimelineFrame':
+    case 'storeEventSpGainAmount':
       requireString(parameters, 'outputKey', `${path}.parameters`, out);
       break;
     case 'modifyActionValue':
@@ -1862,6 +1864,10 @@ function validateEventTrigger(
     case 'operatorHealed':
     case 'buffApplied':
     case 'airborneOutput':
+      break;
+    case 'spGained':
+      requireEnum(record, 'source', SP_GAIN_SOURCES_SET, path, out);
+      requireEnum(record, 'gainKind', SP_GAIN_KINDS_SET, path, out);
       break;
     case 'damageTagHit':
       requireEnum(record, 'tag', DAMAGE_TAGS_SET, path, out);

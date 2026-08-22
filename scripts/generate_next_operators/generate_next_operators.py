@@ -357,10 +357,12 @@ DEFAULT_GAMEPLAY_TAG_CATALOG = (
 )
 
 CONNECTED_RUNTIME_ATTRIBUTE_MODIFIERS = {
+    "Atk",
     "AtkIncreaseFactorFromStr",
     "AtkIncreaseFactorFromAgi",
     "AtkIncreaseFactorFromWisd",
     "AtkIncreaseFactorFromWill",
+    "PhysicalAndSpellInflictionEnhance",
 }
 
 
@@ -2431,12 +2433,15 @@ def resolve_progression_buff_definitions(
         if not effect_id:
             continue
         index = require_non_negative_int(passive.get("index"), "passiveSkillNodeInfo.index")
-        if talent_configs.get(index, {}).get("compile") != "consumedInflictionVulnerability":
+        if talent_configs.get(index, {}).get("compile") not in {
+            "consumedInflictionVulnerability",
+            "attachedBuff",
+        }:
             continue
         effect = table_row(effects, str(effect_id), "PotentialTalentEffectTable")
         entries = require_list(effect.get("dataList"), f"{effect_id}.dataList")
         if len(entries) != 1:
-            raise ValueError(f"{effect_id}: consumed-infliction talent expects one entry")
+            raise ValueError(f"{effect_id}: attached-Buff talent expects one entry")
         entry = require_dict(entries[0], f"{effect_id}.dataList[0]")
         attach = require_dict(entry.get("attachBuff"), f"{effect_id}.dataList[0].attachBuff")
         buff_id = attach.get("buffId")
@@ -2577,6 +2582,8 @@ def collect_operator_passive_skills(
                 event=event.event,
                 sequences=event.sequences,
                 sequenceIndex=index,
+                obtainAtbFilters=event.obtainAtbFilters,
+                obtainAtbValueKeys=event.obtainAtbValueKeys,
             )
             for index, event in enumerate(parsed_passive_events)
         )
@@ -7668,11 +7675,25 @@ def compile_skill_event_listener(
         "OnBeforeTakeDamage": {"kind": "operatorHit"},
         "OnReceiveHeal": {"kind": "operatorHealed"},
         "OnAfterKillEntity": {"kind": "enemyDefeated", "scope": "operator"},
+        "OnObtainAtb": {"kind": "spGained", "source": "skill", "gainKind": "gain"},
     }.get(listener.event)
     if event is None:
         raise ValueError(f"{path}: unsupported native skill event {listener.event!r}")
     if not listener.sequences:
         raise ValueError(f"{path}: event listener has no response sequence")
+    obtain_atb_value_key: str | None = None
+    if listener.event == "OnObtainAtb":
+        if (
+            len(listener.obtainAtbFilters) != 1
+            or listener.obtainAtbFilters[0].checkObtainType is not True
+            or listener.obtainAtbFilters[0].obtainTypes != ("Skill",)
+            or listener.obtainAtbFilters[0].checkObtainMethod is not True
+            or listener.obtainAtbFilters[0].obtainMethods != ("Gain",)
+            or len(listener.obtainAtbValueKeys) != 1
+            or listener.obtainAtbValueKeys[0][1]
+        ):
+            raise ValueError(f"{path}: unsupported OnObtainAtb payload projection")
+        obtain_atb_value_key = listener.obtainAtbValueKeys[0][0]
 
     responses: list[str] = []
     for index, response in enumerate(listener.sequences):
@@ -7704,6 +7725,19 @@ def compile_skill_event_listener(
         )
         if sequence_source == "sequence()":
             raise ValueError(f"{response_path}: event response compiles to an empty sequence")
+        if obtain_atb_value_key is not None:
+            sequence_lines = sequence_source.splitlines()
+            if sequence_lines[0] != "sequence(" or sequence_lines[-1] != ")":
+                raise ValueError(f"{response_path}: expected a rendered sequence")
+            sequence_source = "\n".join(
+                [
+                    "sequence(",
+                    "  step('storeEventSpGainAmount', { "
+                    f"outputKey: {ts_inline_literal(obtain_atb_value_key)} }}),",
+                    *sequence_lines[1:-1],
+                    ")",
+                ]
+            )
         sequence_lines = indent_source(f"sequence: {sequence_source}", 8)
         sequence_lines[-1] += ","
         phase_lines = (

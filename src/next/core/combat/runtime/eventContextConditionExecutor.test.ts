@@ -34,6 +34,31 @@ describe('EventContextConditionExecutor', () => {
     ).toBe(false);
   });
 
+  it('resolves SourceFinder through the Buff-source AbilityEntity provenance', () => {
+    const executor = new EventContextConditionExecutor(terminal, undefined, entityId =>
+      entityId === 'ability-entity:7' ? 'pogranichnik' : entityId,
+    );
+    const condition = { kind: 'eventSourceMatchesBuffSourceEntitySource' } as const;
+    const context = {
+      blackboard: new ActionBlackboard(),
+      buffSourceId: 'ability-entity:7',
+      event: {
+        kind: 'abilityPhysicalInfliction' as const,
+        event: 'beforeTakePhysicalInfliction' as const,
+        sourceId: 'pogranichnik',
+        targetId: 'ability-entity:7',
+      },
+    };
+
+    expect(executor.evaluate(condition, context)).toBe(true);
+    expect(
+      executor.evaluate(condition, {
+        ...context,
+        event: { ...context.event, sourceId: 'another-operator' },
+      }),
+    ).toBe(false);
+  });
+
   it('matches the Buff identity carried by an application event', () => {
     const executor = new EventContextConditionExecutor(terminal);
     const context = {

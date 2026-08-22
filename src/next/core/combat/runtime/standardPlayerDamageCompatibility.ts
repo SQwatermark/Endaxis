@@ -90,6 +90,7 @@ function inspectCondition(
     case 'cameraToTargetAngleCompare':
     case 'poiseCompare':
     case 'eventSourceMatchesBuffSource':
+    case 'eventSourceMatchesBuffSourceEntitySource':
     case 'eventSourceControlled':
     case 'buffSourceMatchesOwner':
     case 'eventDamageTagsMatch':
@@ -249,6 +250,7 @@ function inspectSequence(
       case 'dealStagger':
       case 'spawnAbilityEntity':
       case 'storeCurrentTimelineFrame':
+      case 'storeEventSpGainAmount':
       case 'modifyActionValue':
       case 'calculateActionValue':
       case 'createTimedMarker':

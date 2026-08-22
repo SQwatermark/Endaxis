@@ -96,7 +96,7 @@ export const zhuangFangyiBasicAttack2: SkillDefinition = withSkillBlackboard(
         sequence(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack2',
-                        dieWhenSourceDies: false,
+            dieWhenSourceDies: false,
             inheritActionBlackboard: true,
           }),
         ),
@@ -205,7 +205,7 @@ export const zhuangFangyiBasicAttack4: SkillDefinition = withSkillBlackboard(
         sequence(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack2',
-                        dieWhenSourceDies: false,
+            dieWhenSourceDies: false,
             inheritActionBlackboard: true,
           }),
         ),
@@ -229,7 +229,7 @@ export const zhuangFangyiBasicAttack5: SkillDefinition = withSkillBlackboard(
         sequence(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack5',
-                        dieWhenSourceDies: false,
+            dieWhenSourceDies: false,
             inheritActionBlackboard: true,
             target: 'enemy',
           }),
@@ -333,7 +333,7 @@ export const zhuangFangyiEnhancedBasicAttack3: SkillDefinition = withSkillBlackb
         sequence(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack3_ult',
-                        dieWhenSourceDies: false,
+            dieWhenSourceDies: false,
             inheritActionBlackboard: true,
             target: 'enemy',
             saveToContextKey: 'thunder',
@@ -1042,7 +1042,7 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
         sequence(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0030_zhuangfy_normal_skill_ult',
-                        dieWhenSourceDies: true,
+            dieWhenSourceDies: true,
             inheritActionBlackboard: true,
             blackboardAssignments: { 'EntityBB_SwordNum': { kind: 'blackboard', key: 'EntityBB_SwordNum' } },
           }),

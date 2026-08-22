@@ -688,6 +688,7 @@ export const fluoriteGeneratedSource = {
           ],
           "finishAfterIgnited": false,
           "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
           "contextBuffIdQueries": [],
           "collectedBuffReactionModifier": null
         }
@@ -8217,7 +8218,8 @@ export const fluoriteGeneratedSource = {
               "priority": 0
             }
           ],
-          "sequenceIndex": 8
+          "sequenceIndex": 8,
+          "obtainAtbValueKeys": []
         }
       ],
       "timeDilations": [
