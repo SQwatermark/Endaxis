@@ -579,3 +579,4 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - `BattleConst` 证据对应的意志派生系数为治疗输出 `0`、受治疗 `0.001`。构筑层新增 `addStaticHealingIncrease(output|taken)`，并通过 resolved panel 的战斗修正进入每名干员的战斗属性集；Buff 治疗修正仍先按 healer/receiver 两侧执行，随后应用双方属性倍率。
 - 梨诺潜能 2 的 `Will +20` 与 `HealOutputIncrease +0.1` 现由同一个 `staticAttributes` 养成槽严格生成；审计保存 `staticHealingIncrease/output` 的明确目标，不再把属性 29 标为缺少运行时消费者。她仍保持 `outputStage: audit`：终结技缺失的 `abilityentity_chr_0035_liino_ult_skill_projhit` 在 Endaxis、vfs-index-browser、IL2CPP-Dumper 与 AnimeStudio 的本地证据范围内均未找到，不能为得到正式产物而猜造模板。
 - 当前门禁：生成器 435/435、全量生成 `--check`、Next 201 文件 1362/1362、`type-check:next` 与 `git diff --check` 通过。`tmp/` 仍未跟踪且不得提交。
+- 雪绒默认仓库场景现按双方 resolved panel 锁定精确治疗量：初次连携治疗先计算施法者 `Will * 0.5 + 216`，再乘佩丽卡 `1 + Will * 0.001` 的受治疗增幅；目标满血时 `actualHealing=0`，但 `requestedHealing` 仍必须与公式一致并派发成功治疗事件。

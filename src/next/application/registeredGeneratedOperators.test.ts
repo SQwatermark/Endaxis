@@ -661,6 +661,20 @@ describe('registered generated operators', () => {
       startFrame: 1,
       ids: { allocate: kind => `${kind}:snowshine` },
     }).scenario;
+    const panels = new Map(
+      resolveScenarioBuilds(placed, nextGameDataRepository).map(build => [
+        build.track.id,
+        resolveOperatorPanel(build),
+      ]),
+    );
+    const snowshinePanel = panels.get('track:snowshine');
+    const perlicaPanel = panels.get('track:perlica');
+    if (snowshinePanel === undefined || perlicaPanel === undefined) {
+      throw new Error('missing Snowshine production panels');
+    }
+    const expectedInitialHealing =
+      (snowshinePanel.attributes.will * 0.5 + 216) *
+      (1 + perlicaPanel.attributes.will * Math.fround(0.001));
 
     const result = runStandardPlayerDamageScenarioSimulation({
       scenario: placed,
@@ -700,5 +714,9 @@ describe('registered generated operators', () => {
         data: expect.objectContaining({ actualHealing: 0 }),
       }),
     );
+    const initialHealing = result.receiptEntries.find(
+      entry => entry.event === 'HealingApplied' && entry.targetId === 'track:perlica',
+    );
+    expect(initialHealing?.data?.requestedHealing).toBeCloseTo(expectedInitialHealing);
   });
 });
