@@ -21,6 +21,7 @@ import {
   perlica,
   pogranichnik,
   snowshine,
+  wulfgard,
   yvonne,
   zhuangFangyi,
 } from '../data/operators';
@@ -1221,5 +1222,63 @@ describe('registered generated operators', () => {
       entry => entry.event === 'HealingApplied' && entry.targetId === 'track:perlica',
     );
     expect(initialHealing?.data?.requestedHealing).toBeCloseTo(expectedInitialHealing);
+  });
+
+  it('runs Wulfgard battle skill through the registered production repository', () => {
+    const scenario = createEmptyScenario('scenario:wulfgard:registered', '狼卫默认仓库回归');
+    scenario.battle.durationFrames = 150;
+    scenario.tracks[0] = {
+      id: 'track:wulfgard',
+      operator: {
+        operatorSlug: wulfgard.slug,
+        level: 90,
+        promoted: true,
+        potential: 5,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 2, 1: 2 },
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    const placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: wulfgard,
+      skillGroupKey: 'battleSkill',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:wulfgard` },
+    }).scenario;
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      endFrame: 150,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+      elementalInflictionDocument: elementalAttachments,
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+          ultimateEnergySystemUnlocked: false,
+        },
+      },
+    });
+
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'DamageApplied',
+        sourceId: 'track:wulfgard',
+        targetId: 'enemy',
+      }),
+    );
   });
 });

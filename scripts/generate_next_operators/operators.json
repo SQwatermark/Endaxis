@@ -286,6 +286,132 @@
       ]
     },
     {
+      "slug": "wulfgard",
+      "exportName": "wulfgardGeneratedSource",
+      "charId": "chr_0006_wolfgd",
+      "outputStage": "complete",
+      "talents": [
+        { "index": 0, "key": "talent1", "compile": "attachedBuff" },
+        { "index": 1, "key": "talent2", "compile": "skillBlackboardPatch" }
+      ],
+      "potentials": [
+        { "key": "potential1", "compile": "staticAttributes" },
+        { "key": "potential2", "compile": "skillBlackboardPatch" },
+        { "key": "potential3", "compile": "skillBlackboardPatch" },
+        { "key": "potential4", "compile": "multiplyUltimateCost" },
+        { "key": "potential5", "compile": "skillBlackboardPatch" }
+      ],
+      "skillGroups": [
+        {
+          "key": "basicAttack",
+          "skillType": "basicAttack",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["basicAttack1", "basicAttack2", "basicAttack3", "basicAttack4"]
+        },
+        {
+          "key": "finisher",
+          "skillType": "finisher",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["finisher"]
+        },
+        {
+          "key": "plungingAttack",
+          "skillType": "plungingAttack",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["plungingAttack"]
+        },
+        {
+          "key": "battleSkill",
+          "skillType": "battleSkill",
+          "levelSource": "battleSkill",
+          "nativeGroupType": 1,
+          "skillKeys": ["battleSkill"]
+        },
+        {
+          "key": "comboSkill",
+          "skillType": "comboSkill",
+          "levelSource": "comboSkill",
+          "nativeGroupType": 3,
+          "skillKeys": ["comboSkill"]
+        },
+        {
+          "key": "ultimate",
+          "skillType": "ultimate",
+          "levelSource": "ultimate",
+          "nativeGroupType": 2,
+          "skillKeys": ["ultimate"]
+        }
+      ],
+      "skills": [
+        {
+          "key": "comboSkill",
+          "skillType": "comboSkill",
+          "source": "chr_0006_wolfgd_combo_skill.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["comboSkill"] }
+        },
+        {
+          "key": "basicAttack1",
+          "skillType": "basicAttack",
+          "source": "chr_0006_wolfgd_attack1.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
+          "key": "basicAttack2",
+          "skillType": "basicAttack",
+          "source": "chr_0006_wolfgd_attack2.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
+          "key": "basicAttack3",
+          "skillType": "basicAttack",
+          "source": "chr_0006_wolfgd_attack3.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
+          "key": "basicAttack4",
+          "skillType": "basicAttack",
+          "source": "chr_0006_wolfgd_attack4.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack", "normalAttackLastCombo"]
+          }
+        },
+        {
+          "key": "finisher",
+          "skillType": "finisher",
+          "source": "chr_0006_wolfgd_power_attack.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack", "powerAttack"]
+          }
+        },
+        {
+          "key": "plungingAttack",
+          "skillType": "plungingAttack",
+          "source": "chr_0006_wolfgd_plunging_attack_end.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack", "plungingAttack"]
+          }
+        },
+        {
+          "key": "battleSkill",
+          "skillType": "battleSkill",
+          "source": "chr_0006_wolfgd_normal_skill.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalSkill"] }
+        },
+        {
+          "key": "ultimate",
+          "skillType": "ultimate",
+          "source": "chr_0006_wolfgd_ultimate_skill.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["ultimateSkill"] }
+        }
+      ]
+    },
+    {
       "slug": "chen-qianyu",
       "exportName": "chenQianyuGeneratedSource",
       "charId": "chr_0005_chen",

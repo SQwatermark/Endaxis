@@ -20,6 +20,7 @@ import {
   rossi,
   snowshine,
   tangtang,
+  wulfgard,
   yvonne,
   zhuangFangyi,
 } from './operators';
@@ -64,6 +65,7 @@ describe('gameDataRepository', () => {
       mifu,
       yvonne,
       snowshine,
+      wulfgard,
     ]);
     expect(nextGameDataRepository.getOperator(perlica.slug)).toBe(perlica);
     expect(nextGameDataRepository.getOperator(arcane.slug)).toBe(arcane);
@@ -87,6 +89,7 @@ describe('gameDataRepository', () => {
     expect(nextGameDataRepository.getOperator(yvonne.slug)).toBe(yvonne);
     expect(nextGameDataRepository.getOperator(pogranichnik.slug)).toBe(pogranichnik);
     expect(nextGameDataRepository.getOperator(snowshine.slug)).toBe(snowshine);
+    expect(nextGameDataRepository.getOperator(wulfgard.slug)).toBe(wulfgard);
     expect(nextGameDataRepository.getOperator('missing')).toBeNull();
   });
 
