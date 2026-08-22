@@ -546,6 +546,43 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("operator: 'greater'", compiled)
         self.assertIn("step('outputKnockDown'", compiled)
 
+    def test_conditional_knock_down_preserves_root_owner_and_smart_target_proof(self) -> None:
+        def payload(target_key: str) -> SimpleNamespace:
+            return SimpleNamespace(
+                forceKnockDown=False,
+                duration=ScalarSource(2, None, None),
+                isExtra=False,
+                source=SimpleNamespace(
+                    targetSource="Owner",
+                    targetGroupKey="",
+                    validatorTypes=(),
+                    postProcessorTypes=(),
+                ),
+                target=SimpleNamespace(
+                    targetSource="Context",
+                    targetGroupKey=target_key,
+                    validatorTypes=(),
+                    postProcessorTypes=(),
+                ),
+                faceDirectionType="TargetToSource",
+                immobilizedTime=0,
+                deadOption="AllValid",
+                returnTrueWhen="Always",
+            )
+
+        for target_key in ("tar", "smart_target"):
+            compiled = compile_conditional_branch_action(
+                ConditionalBranchActionSource(
+                    "KnockDownAction",
+                    14,
+                    knockDownOutput=payload(target_key),
+                ),
+                f"fixture.knockDown.{target_key}",
+                root_skill_context=True,
+                input_target="enemy",
+            )
+            self.assertIn("step('outputKnockDown'", compiled)
+
     def test_parses_native_shield_config_strictly(self) -> None:
         scalar = lambda value, key="": {
             "useBlackboardKey": bool(key),

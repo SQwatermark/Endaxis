@@ -965,5 +965,46 @@ def compile_conditional_branch_action(
         )
     knock_down_output = getattr(action, "knockDownOutput", None)
     if knock_down_output is not None:
-        return compile_knock_down_output(knock_down_output, path)
+        context_target_is_enemy = (
+            root_skill_context
+            and input_target == "enemy"
+            and knock_down_output.target.targetSource == "Context"
+            and knock_down_output.target.targetGroupKey == "smart_target"
+        )
+        if knock_down_output.target.targetSource == "Context":
+            write = resolve_latest_target_group_write_at(
+                read_frame=getattr(context_action, "startFrame", 0),
+                read_action_index=(
+                    getattr(action, "serverActionIndex", None)
+                    if getattr(action, "serverActionIndex", None) is not None
+                    else getattr(
+                        context_action,
+                        "actionIndex",
+                        getattr(action, "actionIndex", 0),
+                    )
+                ),
+                read_action_path=(
+                    getattr(action, "actionPath", ())
+                    or getattr(context_action, "actionPath", ())
+                ),
+                target_group_key=knock_down_output.target.targetGroupKey,
+                writes=target_group_writes,
+            )
+            context_target_is_enemy = context_target_is_enemy or (
+                write is not None
+                and target_group_write_guarantees_single_enemy(
+                    write, target_group_writes
+                )
+            ) or guarded_context_group_is_unique_enemy(
+                action,
+                context_action,
+                knock_down_output.target.targetGroupKey,
+                write,
+            )
+        return compile_knock_down_output(
+            knock_down_output,
+            path,
+            context_target_is_enemy=context_target_is_enemy,
+            root_skill_context=root_skill_context,
+        )
     raise ValueError(f"{path}: unsupported conditional leaf {action.actionType!r}")

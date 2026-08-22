@@ -11,8 +11,8 @@
 - 干员：30 名。
 - 技能入口：320 个。
 - 进入严格中间层：320 个。
-- 无角色专用声明即可进入通用 DSL：319 个。
-- 当前整名干员完整直转：29 名。
+- 无角色专用声明即可进入通用 DSL：318 个。
+- 当前整名干员完整直转：28 名。
 - 当前技能入口调用图中已结构化的区域持续动作引用：21 个。
 - 当前技能入口中已结构化的事件监听器：17 个。
 
@@ -51,7 +51,7 @@
 | Endministrator | `chr_9000_endmin`   |   20 |     20 |     20 | 是       |
 | Rossi          | `chr_0028_wulfa`    |   11 |     11 |     11 | 是       |
 | Zhuang Fangyi  | `chr_0030_zhuangfy` |   15 |     15 |     15 | 是       |
-| Mifu           | `chr_0031_mifu`     |   11 |     11 |     11 | 是       |
+| Mifu           | `chr_0031_mifu`     |   11 |     11 |     10 | 否       |
 | Arcane         | `chr_0032_lizhiyan` |   11 |     11 |     11 | 是       |
 
 ## 共通阻塞簇
@@ -61,7 +61,7 @@
 
 | 阻塞类别 | 技能数 |
 | -------- | -----: |
-| `other`  |      1 |
+| `other`  |      2 |
 
 ## 技能事件监听器
 
@@ -253,7 +253,7 @@ Buff 层数与黑板读取的 ID/Tag 查询类型和目标身份彼此独立，�
 | 动作                            | 涉及技能数 |
 | ------------------------------- | ---------: |
 | `DamageAction`                  |        236 |
-| `IfElseAction`                  |        187 |
+| `IfElseAction`                  |        188 |
 | `ObtainCostAction`              |        167 |
 | `CreateBuffAction`              |        137 |
 | `LaunchProjectile`              |         79 |
@@ -261,7 +261,9 @@ Buff 层数与黑板读取的 ID/Tag 查询类型和目标身份彼此独立，�
 | `FinishBuffAction`              |         23 |
 | `SpellInfliction`               |         12 |
 | `CreateTimedMarker`             |          7 |
+| `KnockDownAction`               |          7 |
 | `HealAction`                    |          6 |
+| `CrushAction`                   |          5 |
 | `SwitchAction`                  |          5 |
 | `AuraAction`                    |          4 |
 | `SetSkillCdAtOnce`              |          4 |
