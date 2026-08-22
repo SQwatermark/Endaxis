@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { arcane } from '../../data/operators/arcane';
+import { endministrator } from '../../data/operators/endministrator';
 import { zhuangFangyi } from '../../data/operators/zhuang-fangyi';
 import type {
   GearDefinition,
@@ -45,6 +46,15 @@ function resolvedBuild(
 }
 
 describe('resolveOperatorPanel', () => {
+  it('applies Endministrator potential 4 agility and health to the production panel', () => {
+    const before = resolveOperatorPanel(resolvedBuild(endministrator, { potential: 3 }));
+    const unlocked = resolveOperatorPanel(resolvedBuild(endministrator, { potential: 4 }));
+
+    expect(unlocked.attributes.agility - before.attributes.agility).toBe(25);
+    expect(unlocked.attack).toBeGreaterThan(before.attack);
+    expect(unlocked.health).toBeGreaterThan(before.health);
+  });
+
   it('calculates the verified level-90 operator baseline and default trust nodes', () => {
     const panel = resolveOperatorPanel(resolvedBuild(zhuangFangyi));
 

@@ -2594,7 +2594,11 @@
         { "key": "potential1", "compile": "attachedBuff" },
         { "key": "potential2", "compile": "attachedBuff" },
         { "key": "potential3", "compile": "attachedBuff" },
-        { "key": "potential4", "compile": "unmodeledPotential" },
+        {
+          "key": "potential4",
+          "compile": "staticAttributes",
+          "simulationNoEffectAttributeTypes": [60]
+        },
         { "key": "potential5", "compile": "attachedBuff" }
       ],
       "skillGroups": [

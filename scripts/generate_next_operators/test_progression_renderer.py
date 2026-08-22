@@ -598,6 +598,46 @@ class ProgressionRendererTests(unittest.TestCase):
             rendered[0],
         )
 
+    def test_renders_damage_relevant_attributes_while_declaring_player_defense_gap(self) -> None:
+        source = {
+            "char": {
+                "potentialUnlockBundle": [
+                    {"level": 1, "potentialEffectId": "effect.attributes"}
+                ]
+            }
+        }
+        effects = {
+            "effect.attributes": {
+                "dataList": [
+                    effect_entry(attr_type=1, value=0.1, modifier_type=6),
+                    effect_entry(attr_type=60, value=-0.1),
+                    effect_entry(attr_type=40, value=25),
+                ]
+            }
+        }
+        operator = {
+            "slug": "operator",
+            "charId": "char",
+            "potentials": [
+                {
+                    "key": "attributes",
+                    "compile": "staticAttributes",
+                    "simulationNoEffectAttributeTypes": [60],
+                }
+            ],
+        }
+        skills = [SimpleNamespace(key="ultimate", skillId="skill.ultimate")]
+        rendered = render_potentials(operator, skills, source, effects)
+
+        self.assertIn("attributes: ['agility']", rendered[0])
+        self.assertIn("value: 25", rendered[0])
+        self.assertIn("stat: 'health', operation: 'percent', value: 0.1", rendered[0])
+        self.assertNotIn("EtherDamageTakenScalar", rendered[0])
+
+        operator["potentials"][0]["simulationNoEffectAttributeTypes"] = [60, 60]
+        with self.assertRaisesRegex(ValueError, "duplicate AttributeType"):
+            render_potentials(operator, skills, source, effects)
+
     def test_audit_marks_mixed_build_and_healing_effect_as_complete(self) -> None:
         effect = audit_effect(
             "effect.mixed",

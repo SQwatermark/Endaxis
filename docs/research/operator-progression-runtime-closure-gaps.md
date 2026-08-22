@@ -76,7 +76,10 @@ Next 已有 `PlayerDamageDefenderSnapshot.resistances.ether.damageTakenMultiplie
 
 `HealOutputIncrease` 只有在治疗公式、快照和事件生命周期均有反编译依据并接入 Next 后才能转换。
 
-`EtherDamageTakenScalar` 只有在 Next 存在干员作为防御方的伤害路径后才能转换；届时应写入干员防御快照，而不能复用现有敌人快照。
+`EtherDamageTakenScalar` 在当前标准木桩中通过清单的
+`simulationNoEffectAttributeTypes: [60]` 明确隔离，只允许管理员潜能 4 已证明的原生形状；这表示
+“当前没有玩家承伤消费者”，不表示效果被删除或已经近似实现。只有在 Next 存在干员作为防御方的
+伤害路径后才能恢复运行转换；届时应写入干员防御快照，而不能复用现有敌人快照。
 
 `AtkIncreaseFactorFromWisd/Will` 已满足转换条件，并继续保留隐藏被动和内联 Buff，没有改写成静态
 面板 modifier。

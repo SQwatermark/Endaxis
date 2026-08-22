@@ -1811,7 +1811,14 @@ export const endministratorGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential4',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'addBuildAttribute',
+          attributes: ['agility'],
+          value: 25,
+        },
+        { kind: 'modifyBasePanelStat', stat: 'health', operation: 'percent', value: 0.1 },
+      ],
     },
     {
       key: 'potential5',
@@ -1828,5 +1835,5 @@ export const endministratorGeneratedOperator: OperatorDefinition = {
       ),
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }, { capability: 'potentialEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['ultimate', 'ultimateFemale'] }] },
+  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['ultimate', 'ultimateFemale'] }] },
 };

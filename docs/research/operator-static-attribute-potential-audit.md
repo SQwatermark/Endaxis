@@ -109,16 +109,19 @@
 
 ## 剩余缺口
 
-语义已知但尚不可转换的类型为 `29, 60`。在 Next 新增
-对应治疗或承伤属性容器及明确消费规则前，生成器会继续保留这些项并标记 `potentialEffects` 缺失，
-不会用技能组枚举或倍率近似替代。潜能中更常见的 `skillBbModifier`、
-`skillParamModifier` 与 `attachBuff` 也仍需分别建立通用转换。
+语义已知但当前标准木桩没有运行消费者的类型只剩 `60`。`HealOutputIncrease` 已在治疗公式、
+双方快照和事件链闭环后转换为 `addStaticHealingIncrease(output)`；不能再把旧审计中的类型 `29`
+当作缺口。
 
-管理员第四潜能同时包含可转换的最大生命 `+10%` 和未支持的以太承伤倍率 `-10%`，因此审计
-会保留生命 modifier，但整个潜能仍标为 `partial`；局部成功不能掩盖同一效果中的剩余能力。
+管理员第四潜能同时包含最大生命 `+10%`、敏捷 `+25` 和以太承伤倍率 `-10%`。前两项现已严格
+生成，其中敏捷会通过正式面板改变对敌伤害。清单以
+`simulationNoEffectAttributeTypes: [60]` 显式声明最后一项在标准木桩无消费者；生成器只允许此处
+已经证明的 `EtherDamageTakenScalar/BaseAddition/Specific` 形状，声明缺失、重复、换类型、混入
+其他载荷或改变修正槽都会失败关闭。它没有被近似成敌人承伤或我方以太增伤。
 
-这两项并非相同层面的简单字段缺失：`HealOutputIncrease` 缺少完整治疗执行链，
-`EtherDamageTakenScalar` 则缺少干员作为防御方的受击路径；现有敌人承伤快照方向相反，不能复用。
+因此管理员潜能 4 在当前“敌人不主动攻击、玩家不作为伤害防御方”的标准模拟边界内定义完整且
+可运行；原生防御效果仍留在来源审计与运行闭环缺口文档中。若未来引入玩家受击路径，必须恢复
+该属性的真实防御快照消费者，而不是继续沿用木桩无效果分类。
 完整证据、禁止的近似方案与重新开放转换的条件见
 `docs/research/operator-progression-runtime-closure-gaps.md`。机器审计同步在
 `attributeFacts[].runtimeClosure` 和 `summary.runtimeClosureGaps` 中保留这些信息。

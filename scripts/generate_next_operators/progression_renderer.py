@@ -1387,6 +1387,71 @@ def parse_static_attribute_progression(
     )
 
 
+def parse_static_attribute_progression_for_standard_simulation(
+    raw_entries: Any,
+    path: str,
+    *,
+    simulation_no_effect_attribute_types: Any,
+) -> StaticAttributeProgressionResult:
+    """严格转换静态属性，并显式隔离标准木桩没有消费者的玩家承伤槽位。"""
+    raw_types = require_list(
+        simulation_no_effect_attribute_types,
+        f"{path}.simulationNoEffectAttributeTypes",
+    )
+    deferred_types = {
+        require_non_negative_int(
+            value,
+            f"{path}.simulationNoEffectAttributeTypes[{index}]",
+        )
+        for index, value in enumerate(raw_types)
+    }
+    if len(deferred_types) != len(raw_types):
+        raise ValueError(f"{path}.simulationNoEffectAttributeTypes: duplicate AttributeType")
+    # 当前标准环境没有干员作为伤害防御方的执行路径。这里只接受证据已经闭环的
+    # EtherDamageTakenScalar；增加其他类型必须先补原生语义和消费者边界审计。
+    unsupported_declarations = deferred_types.difference({60})
+    if unsupported_declarations:
+        raise ValueError(
+            f"{path}.simulationNoEffectAttributeTypes: unsupported declarations "
+            f"{sorted(unsupported_declarations)!r}"
+        )
+
+    retained_entries: list[Any] = []
+    observed_deferred_types: set[int] = set()
+    for index, raw_entry in enumerate(require_list(raw_entries, path)):
+        entry_path = f"{path}[{index}]"
+        entry = require_dict(raw_entry, entry_path)
+        modifier = require_dict(entry.get("attrModifier"), f"{entry_path}.attrModifier")
+        attr_type = modifier.get("attrType")
+        if attr_type not in deferred_types:
+            retained_entries.append(raw_entry)
+            continue
+        if sorted(set(entry).difference(EFFECT_ENTRY_FIELDS)):
+            raise ValueError(f"{entry_path}: unknown fields in simulation-no-effect entry")
+        if _effect_payload_kinds(entry, entry_path) != ("attrModifier",):
+            raise ValueError(f"{entry_path}: expected only attrModifier")
+        if entry.get("modifyType") != 4:
+            raise ValueError(f"{entry_path}.modifyType: expected modifyType=4")
+        if sorted(set(modifier).difference(ATTRIBUTE_MODIFIER_FIELDS)):
+            raise ValueError(f"{entry_path}.attrModifier: unknown fields")
+        if (
+            modifier.get("modifierType") != 5
+            or modifier.get("modifyAttributeType") != 0
+        ):
+            raise ValueError(
+                f"{entry_path}.attrModifier: expected BaseAddition/Specific player-defense modifier"
+            )
+        require_number(modifier.get("attrValue"), f"{entry_path}.attrModifier.attrValue")
+        observed_deferred_types.add(attr_type)
+
+    if observed_deferred_types != deferred_types:
+        missing = sorted(deferred_types.difference(observed_deferred_types))
+        raise ValueError(
+            f"{path}.simulationNoEffectAttributeTypes: declarations not found {missing!r}"
+        )
+    return parse_static_attribute_progression(retained_entries, path, mode="strict")
+
+
 def parse_ultimate_cost_multiplier(
     raw_entries: Any,
     ultimate_skill_ids: set[str],
@@ -2260,8 +2325,17 @@ def render_potentials(
                 ]
             )
         elif kind == "staticAttributes":
+            simulation_no_effect_attribute_types = config.get(
+                "simulationNoEffectAttributeTypes"
+            )
             body = _render_static_attribute_modifiers(
-                parse_static_attribute_progression(
+                parse_static_attribute_progression_for_standard_simulation(
+                    data_list,
+                    f"PotentialTalentEffectTable.{effect_id}.dataList",
+                    simulation_no_effect_attribute_types=simulation_no_effect_attribute_types,
+                )
+                if simulation_no_effect_attribute_types is not None
+                else parse_static_attribute_progression(
                     data_list,
                     f"PotentialTalentEffectTable.{effect_id}.dataList",
                     mode="strict",

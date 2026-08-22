@@ -206,11 +206,17 @@ Estella 潜能 5 覆盖 Buff 生命周期中的 `DuringBuffEnable` Aura：常驻
 潜能中的 `attrModifier` 只有在每条数据均为已确认的永久静态属性
 （条目 `modifyType = 4`、`modifyAttributeType = 0`，且属性与公式槽组合受支持）时，
 才允许由清单中的 `compile: "staticAttributes"` 生成。目前可无损生成四维
-`addBuildAttribute`，生命、防御、暴击率和源石技艺强度的 `modifyBasePanelStat`，以及普攻、
-战技、物理、电磁和寒冷增伤的 `addStaticDamageIncrease`。其中生命百分比必须来自基础倍率槽，
-其他已支持属性当前只接受基础加算槽。
+`addBuildAttribute`，生命、防御、暴击率和源石技艺强度的 `modifyBasePanelStat`，普攻、
+战技、物理、电磁和寒冷增伤的 `addStaticDamageIncrease`，以及治疗输出/受治疗的
+`addStaticHealingIncrease`。其中生命百分比必须来自基础倍率槽，其他已支持属性当前只接受基础
+加算槽。
 严格模式遇到混合载荷、未知字段、未知属性或修正模式会立即失败；全量审计使用宽松模式，
 会保留可识别的四维部分，同时把整个潜能标记为未完整转换，不会静默吞掉其他属性。
+标准木桩明确没有玩家承伤执行链。管理员潜能 4 可额外声明
+`simulationNoEffectAttributeTypes: [60]`，让生成器在严格核验
+`EtherDamageTakenScalar/BaseAddition/Specific` 的原生形状后只生成同槽的生命和敏捷 modifier。
+该配置不是通用忽略列表：目前只接受类型 `60`，声明缺失、重复、新类型或载荷变形都会失败关闭；
+来源审计仍保留其数值与玩家防御快照缺口。
 语义已确认但尚无等价运行时消费链的属性会在
 `staticAttributeConversion.attributeFacts[].runtimeClosure` 中记录原生公式槽、消费点、Next 阻塞项和
 禁止的近似方案，并汇总到 `summary.runtimeClosureGaps`。当前详细结论见
