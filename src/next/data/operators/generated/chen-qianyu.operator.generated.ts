@@ -791,6 +791,26 @@ export const chenQianyuGeneratedOperator: OperatorDefinition = {
         },
       ],
     },
+    'buff_chr_0005_chen_talent_1': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      blackboard: {
+        'poise': 0,
+      },
+      abilityEventResponses: [
+        {
+          event: 'afterOutputWeaknessTriggered',
+          priority: 0,
+          sequence:
+            sequence(
+              step('dealStagger', {
+                value: { kind: 'blackboard', key: 'poise' },
+              }),
+            ),
+        },
+      ],
+    },
     'buff_chr_0005_chen_potential_1': {
       stackingType: 'unique',
       priority: 0,
@@ -851,6 +871,24 @@ export const chenQianyuGeneratedOperator: OperatorDefinition = {
       key: 'talent2',
       levels: 2,
       modifiers: [],
+      passiveSkills: [
+        {
+          key: 'buff_chr_0005_chen_talent_1',
+          blackboard: {
+            'poise': [5, 10],
+          },
+          enableSequence: sequence(
+            step('applyBuff', {
+              buffId: 'buff_chr_0005_chen_talent_1',
+              target: 'caster',
+              inheritSourceSkillCastInfo: false,
+              blackboardAssignments: {
+                'poise': { kind: 'blackboard', key: 'poise' },
+              },
+            }),
+          ),
+        },
+      ],
     },
   ],
   potentials: [
@@ -946,5 +984,5 @@ export const chenQianyuGeneratedOperator: OperatorDefinition = {
       ],
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }] },
+  conversionSupport: { completeness: 'complete', missingCapabilities: [] },
 };

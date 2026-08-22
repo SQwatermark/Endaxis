@@ -85,6 +85,7 @@ type EnvironmentOptions = Pick<
   | 'readSourceAttributeValue'
   | 'emitOperatorEnterFight'
   | 'emitExternalOperatorHit'
+  | 'emitExternalOperatorWeaknessTriggeredOutput'
 >;
 
 export type StandardPlayerDamageEvent =
@@ -118,7 +119,8 @@ export type StandardPlayerDamageEvent =
   | 'beforeOutputBuff'
   | 'outputBuff'
   | 'addedBuff'
-  | 'finishedBuff';
+  | 'finishedBuff'
+  | 'afterOutputWeaknessTriggered';
 
 export interface StandardPlayerDamageEnvironmentOptions {
   /** 暴击样本和命中特殊倍率必须由具有证据的上层策略提供。 */
@@ -252,6 +254,11 @@ export class StandardPlayerDamageEnvironment {
         this.#emit(operatorId, 'beforeTakeDamage', payload);
         this.#emit(operatorId, 'takeDamage', payload);
       },
+      emitExternalOperatorWeaknessTriggeredOutput: operatorId =>
+        this.#emit(operatorId, 'afterOutputWeaknessTriggered', {
+          sourceId: operatorId,
+          targetId: 'enemy',
+        }),
       // 配装事件的通用操作由装配根处理；未闭环的末端操作必须严格失败。
       createEquipmentEventOperationExecutor: () => strictTerminal,
       resolveVitals: (target, operatorId, buffSourceId) => {

@@ -380,6 +380,10 @@ def compile_inline_buff_event_responses(
             is_poise_zero = (
                 event.eventSource == "ability" and event.event == "OnPoiseZero"
             )
+            is_after_output_weakness_triggered = (
+                event.eventSource == "ability"
+                and event.event == "OnAfterOutputWeaknessTriggered"
+            )
             is_take_critical_damage = (
                 event.eventSource == "ability" and event.event == "OnTakeCriticalDamage"
             )
@@ -445,6 +449,8 @@ def compile_inline_buff_event_responses(
                 if is_receive_heal
                 else "poiseZero"
                 if is_poise_zero
+                else "afterOutputWeaknessTriggered"
+                if is_after_output_weakness_triggered
                 else "beforeCastSkill"
                 if is_before_cast_skill
                 else "outputBuff"
@@ -543,6 +549,7 @@ def compile_inline_buff_event_responses(
                 or is_output_heal
                 or is_receive_heal
                 or is_poise_zero
+                or is_after_output_weakness_triggered
                 or is_before_cast_skill
                 or is_skill_end
                 or is_added_buff
@@ -582,6 +589,8 @@ def compile_inline_buff_event_responses(
                 if is_receive_heal
                 else "poiseZero"
                 if is_poise_zero
+                else "afterOutputWeaknessTriggered"
+                if is_after_output_weakness_triggered
                 else "beforeCastSkill"
                 if is_before_cast_skill
                 else "skillEnd"

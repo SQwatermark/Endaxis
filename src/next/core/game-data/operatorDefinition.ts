@@ -1176,6 +1176,7 @@ export interface SkillBuffAbilityEventResponse {
     | 'outputBuff'
     | 'addedBuff'
     | 'finishedBuff'
+    | 'afterOutputWeaknessTriggered'
     | 'afterKillEntity';
   /** 原生数据动作优先级；同一事件同优先级的顺序未证明时运行时会拒绝注册。 */
   priority: number;

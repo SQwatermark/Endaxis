@@ -367,7 +367,10 @@ describe('standardPlayerDamageCompatibility', () => {
                   kind: 'all',
                   conditions: [
                     { kind: 'combatActive' },
-                    { kind: 'not', condition: { kind: 'targetStaggered', target: 'enemy' } },
+                    {
+                      kind: 'not',
+                      condition: { kind: 'skillBranchEnabled', branchKey: 'unsupported' },
+                    },
                   ],
                 },
               },

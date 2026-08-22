@@ -277,6 +277,8 @@ export interface CombatRuntimeAssemblyOptions {
       readonly features: readonly import('../../game-data/operatorDefinition').DamageFeature[];
     },
   ) => void;
+  /** 显式补入敌方弱点窗口回投给攻击者的事件，不创建敌方弱点状态。 */
+  readonly emitExternalOperatorWeaknessTriggeredOutput?: (operatorId: string) => void;
   /** 仅在存在配装事件处理器时需要；不得通过伪造技能程序复用技能末端执行器。 */
   readonly createEquipmentEventOperationExecutor?: (
     context: EquipmentEventOperationExecutorContext,
@@ -781,6 +783,7 @@ export class CombatRuntimeAssembly {
       events: options.externalEvents ?? [],
       semanticEvents: this.semanticEvents,
       emitOperatorHitAbilityEvent: options.emitExternalOperatorHit,
+      emitOperatorWeaknessTriggeredOutput: options.emitExternalOperatorWeaknessTriggeredOutput,
       receipt: this.receipt,
     });
     // 外部事实晚于同帧技能动作：第 0 帧启用的临时监听器也能接收第 0 帧标记。

@@ -13,6 +13,7 @@ import { scheduled, sequence, step } from '../data/operators/definitionHelpers';
 import {
   arcane,
   camille,
+  chenQianyu,
   daPan,
   ember,
   fluorite,
@@ -27,6 +28,80 @@ import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
 
 describe('registered generated operators', () => {
+  it('applies Chen talent 2 poise damage from an explicit weakness-window output fact', () => {
+    const scenario = createEmptyScenario('scenario:chen:talent2', '陈千语天赋二回归');
+    scenario.battle.durationFrames = 2;
+    scenario.enemy.editable.stagger.maximum = 100;
+    scenario.tracks[0] = {
+      id: 'track:chen',
+      operator: {
+        operatorSlug: chenQianyu.slug,
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 0, 1: 2 },
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    scenario.battle.externalEventMarkers = [
+      {
+        id: 'weakness:chen',
+        frame: 0,
+        target: { scope: 'operator', trackIndex: 0 },
+        event: { kind: 'operatorWeaknessTriggeredOutput' },
+      },
+    ];
+    const placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: chenQianyu,
+      skillGroupKey: 'basicAttack',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:chen` },
+    }).scenario;
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      endFrame: 1,
+      criticalSamples: new ExplicitCriticalSampleSource([]),
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          ultimateEnergySystemUnlocked: true,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+        },
+      },
+    });
+
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'ExternalOperatorWeaknessTriggeredOutputProcessed',
+        sourceId: 'track:chen',
+        targetId: 'enemy',
+      }),
+    );
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'PoiseApplied',
+        sourceId: 'track:chen',
+        targetId: 'enemy',
+        data: expect.objectContaining({ calculatedDamage: 10, currentPoise: 90 }),
+      }),
+    );
+  });
+
   it('lets Da Pan Crush consume no-guard before the same-frame hit and activate talent 1', () => {
     const run = (talentLevel: number) => {
       const scenario = createEmptyScenario(`scenario:dapan:${talentLevel}`, '大潘压制天赋回归');

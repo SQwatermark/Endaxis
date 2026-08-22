@@ -322,7 +322,9 @@ Next 迁移期间允许存在用于贯通新旧入口、生成审计和功能占
 - 陈千语天赋 1 与艾斯黛拉两项天赋已进入正式定义，养成审计达到天赋 43/44、潜能 110/110。
   陈千语的技能伤害叠攻与艾斯黛拉碎冰后 7.5/15 技力返还均有生产回归；艾斯黛拉自身寒冷承伤
   降低在木桩边界保留完整定义但无结果影响。唯一养成缺口是陈千语天赋 2 的
-  `OnAfterOutputWeaknessTriggered` 发射语义。艾斯黛拉战技另有角色模板共享黑板
+  `OnAfterOutputWeaknessTriggered` 已由 1.4.4 反编译闭环为敌方弱点窗口回投攻击者 AbilitySystem
+  的事件，并以最小 `operatorWeaknessTriggeredOutput` 外部事实接入；陈千语天赋二据此完成 5/10
+  点失衡伤害转换。艾斯黛拉战技另有角色模板共享黑板
   `EntityBB_first_hit` 初值未取证，因此仍显式标记 `battleSkill.runtimeDependencies`；下一阶段先
   闭合该模板证据，再处理 Camille Weak、汤汤空曲线与梨诺能力实体模板，不能仅按养成统计宣称
   全干员模拟完成。

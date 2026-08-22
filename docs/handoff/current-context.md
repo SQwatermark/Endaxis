@@ -868,3 +868,17 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
   `CharacterTemplateData` MonoBehaviour 导出因 managed-reference TypeTree 损坏，尚不能证明初值。
   正式定义因此显式保留 `battleSkill` 的 `runtimeDependencies` 缺口，不用猜测的 0 掩盖；天赋回归
   只隔离该无关伤害分支。后续应先修复角色模板解码或取得等价原生初始化证据。
+
+### 2026-08-23：弱点触发输出事件与陈千语二天赋闭环
+
+- 1.4.4 IL2CPP 已关闭此前未知边界：`SetWeaknessAction._OnWeaknessTriggered`（RVA
+  `0x06D304A0`）从输入事件解析攻击者，并在攻击者 AbilitySystem 上发射事件 141；目标仍是弱点
+  所属敌人。它不是 `OnPoiseZero`。`combat-spec` 提交 `2955c03` 新增最小事件边界、身份载荷、测试
+  与 `docs/weakness-trigger-output.md`，没有添加未证明的次数或倍率字段。
+- Endaxis 新增无数值负载的 `operatorWeaknessTriggeredOutput` 外部事实，只唤醒指定干员的
+  `afterOutputWeaknessTriggered` Buff 监听器，不创建敌方弱点窗口、技能、伤害或失衡过程。陈千语
+  天赋 2 已从 `unmodeledTalent` 提升为严格 `attachedBuff`；2 级生产场景产生 10 点 `PoiseApplied`。
+  养成审计达到天赋 44/44、潜能 110/110，全部 simulation-ready。
+- 另确认一个独立装配缺口：技能轴完全为空时，常驻 Buff 反应动作没有可创建标准末端执行器的
+  已编译技能程序载体；轴上存在任意技能时不受影响。不得猜造基础攻击类型的伪技能，后续应给
+  常驻/外部事件程序提供不依赖时间轴放置项的正式执行上下文。

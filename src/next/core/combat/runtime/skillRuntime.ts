@@ -101,6 +101,14 @@ export interface CombatAbilityLifecycleEvent {
   readonly targetId: string;
 }
 
+/** 敌方弱点窗口确认触发后，在攻击者 AbilitySystem 上发布的同步事件。 */
+export interface CombatAbilityWeaknessTriggeredEvent {
+  readonly kind: 'abilityWeaknessTriggered';
+  readonly event: 'afterOutputWeaknessTriggered';
+  readonly sourceId: string;
+  readonly targetId: string;
+}
+
 /** 技能运行时把普通操作和条件判断委托给战斗装配层的端口。 */
 export interface CombatOperationContext {
   /** 一次技能运行实例独占的动作黑板；步骤不得把它缓存到实例生命周期之外。 */
@@ -120,7 +128,8 @@ export interface CombatOperationContext {
     | CombatAbilityPoiseEvent
     | CombatAbilityHealEvent
     | CombatAbilitySkillEvent
-    | CombatAbilityLifecycleEvent;
+    | CombatAbilityLifecycleEvent
+    | CombatAbilityWeaknessTriggeredEvent;
   /** 仅由 Buff 实例响应提供；用于保留原生 ActionSource 身份。 */
   readonly buffSourceId?: string;
   /** 仅由 Buff 实例响应提供；用于保留原生 ActionOwner 身份。 */

@@ -223,7 +223,7 @@ describe('compileScenarioRuntimeAssembly', () => {
         id: 'hit:early',
         frame: 30,
         target: { scope: 'operator', trackIndex: 0 },
-        event: { kind: 'operatorHit', tags: [], features: [] },
+        event: { kind: 'operatorWeaknessTriggeredOutput' },
       },
     ];
 
@@ -231,7 +231,7 @@ describe('compileScenarioRuntimeAssembly', () => {
       {
         frame: 30,
         targetOperatorIds: ['track:0'],
-        event: { kind: 'operatorHit', tags: [], features: [] },
+        event: { kind: 'operatorWeaknessTriggeredOutput' },
       },
       {
         frame: 60,

@@ -84,4 +84,34 @@ describe('ExternalCombatEventRuntime', () => {
         }),
     ).toThrow('scheduled external event inputs must be ordered by frame');
   });
+
+  it('dispatches weakness-trigger output only to the selected attacker ability system', () => {
+    const clock = new CombatClock();
+    const receipt = new CombatReceiptCollector();
+    const received: string[] = [];
+    const runtime = new ExternalCombatEventRuntime({
+      clock,
+      semanticEvents: new CombatSemanticEventRuntime(),
+      receipt,
+      emitOperatorWeaknessTriggeredOutput: operatorId => received.push(operatorId),
+      events: [
+        {
+          frame: 0,
+          targetOperatorIds: ['operator:chen'],
+          event: { kind: 'operatorWeaknessTriggeredOutput' },
+        },
+      ],
+    });
+
+    runtime.applyCurrentFrame();
+
+    expect(received).toEqual(['operator:chen']);
+    expect(receipt.entries).toContainEqual(
+      expect.objectContaining({
+        event: 'ExternalOperatorWeaknessTriggeredOutputProcessed',
+        sourceId: 'operator:chen',
+        targetId: 'enemy',
+      }),
+    );
+  });
 });

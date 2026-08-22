@@ -298,7 +298,7 @@
         {
           "index": 1,
           "key": "talent2",
-          "compile": "unmodeledTalent"
+          "compile": "attachedBuff"
         }
       ],
       "potentials": [

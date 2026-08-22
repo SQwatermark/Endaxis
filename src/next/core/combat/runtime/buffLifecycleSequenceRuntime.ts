@@ -32,6 +32,7 @@ import type {
   CombatAbilityPoiseEvent,
   CombatAbilityLifecycleEvent,
   CombatAbilitySkillEvent,
+  CombatAbilityWeaknessTriggeredEvent,
 } from './skillRuntime';
 import type { CombatSemanticEvent } from './combatSemanticEventRuntime';
 import { DAMAGE_TYPES, type SkillBuffSlotReplacement } from '../../game-data/operatorDefinition';
@@ -512,7 +513,8 @@ function normalizeBuffAbilityEvent(
   | CombatAbilityPoiseEvent
   | CombatAbilityHealEvent
   | CombatAbilitySkillEvent
-  | CombatAbilityLifecycleEvent {
+  | CombatAbilityLifecycleEvent
+  | CombatAbilityWeaknessTriggeredEvent {
   if (typeof payload !== 'object' || payload === null) {
     throw new TypeError(`Buff ability event '${event}' payload must be an object`);
   }
@@ -523,6 +525,14 @@ function normalizeBuffAbilityEvent(
   if (event === 'enterFight' || event === 'ownerHpZero') {
     return {
       kind: 'abilityLifecycle',
+      event,
+      sourceId: source.sourceId,
+      targetId: source.targetId,
+    };
+  }
+  if (event === 'afterOutputWeaknessTriggered') {
+    return {
+      kind: 'abilityWeaknessTriggered',
       event,
       sourceId: source.sourceId,
       targetId: source.targetId,

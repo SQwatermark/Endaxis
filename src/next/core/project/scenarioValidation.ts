@@ -260,10 +260,14 @@ export function validateBattle(value: unknown, path: string, issues: ValidationI
           issues.push({ path: `${entryPath}.event`, message: 'expected an object' });
           return;
         }
-        if (entry.event.kind !== 'operatorHit') {
+        if (
+          entry.event.kind !== 'operatorHit' &&
+          entry.event.kind !== 'operatorWeaknessTriggeredOutput'
+        ) {
           issues.push({ path: `${entryPath}.event.kind`, message: 'unknown external event kind' });
           return;
         }
+        if (entry.event.kind === 'operatorWeaknessTriggeredOutput') return;
         if (
           entry.event.damageType !== undefined &&
           (typeof entry.event.damageType !== 'string' || !damageTypes.has(entry.event.damageType))

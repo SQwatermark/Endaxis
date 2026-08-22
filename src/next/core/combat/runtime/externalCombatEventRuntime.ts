@@ -12,12 +12,14 @@ import type { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 export interface ScheduledExternalCombatEventInput {
   readonly frame: number;
   readonly targetOperatorIds: readonly string[];
-  readonly event: {
-    readonly kind: 'operatorHit';
-    readonly damageType?: import('../../game-data/operatorDefinition').DamageType;
-    readonly tags: readonly DamageTag[];
-    readonly features: readonly DamageFeature[];
-  };
+  readonly event:
+    | {
+        readonly kind: 'operatorHit';
+        readonly damageType?: import('../../game-data/operatorDefinition').DamageType;
+        readonly tags: readonly DamageTag[];
+        readonly features: readonly DamageFeature[];
+      }
+    | { readonly kind: 'operatorWeaknessTriggeredOutput' };
 }
 
 export interface ExternalCombatEventRuntimeOptions {
@@ -35,6 +37,8 @@ export interface ExternalCombatEventRuntimeOptions {
       readonly features: readonly DamageFeature[];
     },
   ) => void;
+  /** 在攻击者 AbilitySystem 上发射弱点触发后的输出事件；敌人保持唯一木桩目标。 */
+  readonly emitOperatorWeaknessTriggeredOutput?: (operatorId: string) => void;
   readonly receipt: CombatReceiptSink;
 }
 
@@ -43,6 +47,7 @@ export class ExternalCombatEventRuntime implements FrameRuntime {
   readonly #events: readonly ScheduledExternalCombatEventInput[];
   readonly #semanticEvents: CombatSemanticEventRuntime;
   readonly #emitOperatorHitAbilityEvent: ExternalCombatEventRuntimeOptions['emitOperatorHitAbilityEvent'];
+  readonly #emitOperatorWeaknessTriggeredOutput: ExternalCombatEventRuntimeOptions['emitOperatorWeaknessTriggeredOutput'];
   readonly #receipt: CombatReceiptSink;
   #nextEventIndex = 0;
 
@@ -51,6 +56,7 @@ export class ExternalCombatEventRuntime implements FrameRuntime {
     this.#events = [...options.events];
     this.#semanticEvents = options.semanticEvents;
     this.#emitOperatorHitAbilityEvent = options.emitOperatorHitAbilityEvent;
+    this.#emitOperatorWeaknessTriggeredOutput = options.emitOperatorWeaknessTriggeredOutput;
     this.#receipt = options.receipt;
     let previousFrame = -1;
     for (const [index, input] of this.#events.entries()) {
@@ -81,6 +87,18 @@ export class ExternalCombatEventRuntime implements FrameRuntime {
       if (input === undefined || input.frame > actualFrame) break;
       this.#nextEventIndex += 1;
       for (const operatorId of input.targetOperatorIds) {
+        if (input.event.kind === 'operatorWeaknessTriggeredOutput') {
+          this.#emitOperatorWeaknessTriggeredOutput?.(operatorId);
+          this.#receipt.record({
+            frame: this.#clock.frame,
+            time: this.#clock.time,
+            event: 'ExternalOperatorWeaknessTriggeredOutputProcessed',
+            sourceId: operatorId,
+            targetId: 'enemy',
+            data: { scheduledActualFrame: input.frame },
+          });
+          continue;
+        }
         this.#emitOperatorHitAbilityEvent?.(operatorId, {
           sourceId: 'enemy',
           targetId: operatorId,
