@@ -2473,6 +2473,83 @@ def render_talents(
                     ]
                 )
             )
+        elif kind == "simulationNoEffectOnBeforeTakeSpellInfliction":
+            expected_probabilities = (0.3, 0.5)
+            if key != "electricAdditionalHit" or len(attach_entries) != len(expected_probabilities):
+                raise ValueError(f"talent {key}: unexpected spell-infliction immunity levels")
+            for level_index, ((effect_id, level_entries), expected_probability) in enumerate(
+                zip(attach_entries, expected_probabilities, strict=True)
+            ):
+                if len(level_entries) != 1:
+                    raise ValueError(f"{effect_id}: expected one source entry")
+                entry_path = f"{effect_id}.dataList[0]"
+                entry = level_entries[0]
+                if _effect_payload_kinds(entry, entry_path) != ("attachBuff",) or entry.get("modifyType") != 5:
+                    raise ValueError(f"{entry_path}: expected only attachBuff with modifyType=5")
+                attach = require_dict(entry.get("attachBuff"), f"{entry_path}.attachBuff")
+                if attach.get("buffId") != "buff_chr_0007_ikut_talent_2":
+                    raise ValueError(f"{entry_path}.attachBuff.buffId: unexpected Buff")
+                values = {
+                    str(item["key"]): float(item["value"])
+                    for item in (
+                        require_dict(raw, f"{entry_path}.attachBuff.blackboard[{index}]")
+                        for index, raw in enumerate(
+                            require_list(attach.get("blackboard"), f"{entry_path}.attachBuff.blackboard")
+                        )
+                    )
+                }
+                if values != {"prob": expected_probability}:
+                    raise ValueError(
+                        f"{entry_path}.attachBuff.blackboard: unexpected level {level_index + 1} values"
+                    )
+
+            root = buff_definitions.get("buff_chr_0007_ikut_talent_2")
+            immune = buff_definitions.get("buff_chr_0007_ikut_talent_2_immune")
+            if root is None or not root.sourceAvailable or immune is None or not immune.sourceAvailable:
+                raise ValueError("Arclight talent 2: missing source Buff closure")
+            if (
+                len(root.eventActions) != 1
+                or root.eventActions[0].eventSource != "ability"
+                or root.eventActions[0].event != "OnCharBeforeTakeSpellInfliction"
+                or root.eventActions[0].orderedActionTypes != ("Probablity", "CreateBuffAction")
+                or root.eventActions[0].createdBuffIds != ("buff_chr_0007_ikut_talent_2_immune",)
+                or root.attributeModifiers
+                or root.damageModifiers
+                or root.healModifiers
+                or root.directDamageHits
+                or root.inflictions
+                or root.applyTagIds
+                or root.extendTagIds
+            ):
+                raise ValueError(
+                    "buff_chr_0007_ikut_talent_2: expected only probabilistic incoming-infliction immunity"
+                )
+            if (
+                immune.applyTagIds != (-956116137,)
+                or immune.attributeModifiers
+                or immune.damageModifiers
+                or immune.healModifiers
+                or immune.directDamageHits
+                or immune.inflictions
+                or immune.eventActions
+                or immune.igniteEventActions
+                or immune.combatActions
+            ):
+                raise ValueError(
+                    "buff_chr_0007_ikut_talent_2_immune: expected an inert immunity-tag carrier"
+                )
+            result.append(
+                "\n".join(
+                    [
+                        "{",
+                        f"  key: {ts_inline_literal(key)},",
+                        f"  levels: {len(entries)},",
+                        "  simulationNoEffect: 'enemyDoesNotInflictSpellStatusOnOperators',",
+                        "  modifiers: [],",
+                        "}",
+                    ]
+                )
+            )
         else:
             raise ValueError(f"talent {key}: unsupported compiler {kind!r}")
     return result

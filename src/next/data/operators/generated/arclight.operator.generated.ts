@@ -966,6 +966,7 @@ export const arclightGeneratedOperator: OperatorDefinition = {
     {
       key: 'electricAdditionalHit',
       levels: 2,
+      simulationNoEffect: 'enemyDoesNotInflictSpellStatusOnOperators',
       modifiers: [],
     },
   ],
@@ -1040,5 +1041,5 @@ export const arclightGeneratedOperator: OperatorDefinition = {
       ),
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }] },
+  conversionSupport: { completeness: 'complete', missingCapabilities: [] },
 };

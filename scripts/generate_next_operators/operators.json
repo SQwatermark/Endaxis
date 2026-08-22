@@ -1441,7 +1441,7 @@
         {
           "index": 1,
           "key": "electricAdditionalHit",
-          "compile": "unmodeledTalent"
+          "compile": "simulationNoEffectOnBeforeTakeSpellInfliction"
         }
       ],
       "potentials": [
@@ -2578,8 +2578,7 @@
             "tags": ["ultimateSkill"],
             "costResource": "ultimateEnergy",
             "usePatchCooldown": true,
-            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"],
-            "unmodeledBuffIds": ["buff_chr_0022_bounda_ultimate_skill"]
+            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"]
           }
         }
       ]

@@ -13,6 +13,8 @@ import { CombatVitalsConditionExecutor } from './combatVitalsConditionExecutor';
 import { ActionBlackboard } from './actionBlackboard';
 import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
 import { gameplayTagId } from '../tags/gameplayTags';
+import { elementalAttachments } from '../../../data/buffs/elementalAttachments';
+import { skillSettings } from '../../../data/combat/skillSettings';
 
 const damageStep: Extract<ResolvedCombatStep, { kind: 'dealDamage' }> = {
   kind: 'dealDamage',
@@ -873,6 +875,51 @@ describe('StandardPlayerDamageEnvironment', () => {
     expect((burst?.data?.value ?? 0) as number).toBeGreaterThan(0);
     // 敌人实际掉了血（数值经过防御与抗性修正，不断言具体值）。
     expect(environment.enemyVitals.health).toBeLessThan(10000);
+  });
+
+  it('executes all four generated 1.4.4 spell bursts through the standard environment', () => {
+    const expectedBurstTypes = {
+      heat: 'Fire',
+      electric: 'Pulse',
+      cryo: 'Cryst',
+      nature: 'Natural',
+    } as const;
+
+    for (const [element, burstType] of Object.entries(expectedBurstTypes)) {
+      const context = createContext();
+      const receipt = context.receipt as CombatReceiptCollector;
+      const environment = new StandardPlayerDamageEnvironment({
+        criticalSamples: { nextCriticalSample: () => 1 },
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        enemyVitals: createEnemyCombatVitals(testEnemy),
+        elementalInflictionDocument: elementalAttachments,
+        spellInflictionSettings: skillSettings,
+      });
+      const executor = environment.runtimeOptions.createOperationExecutor(context);
+      const step = {
+        kind: 'applyElementalInfliction' as const,
+        parameters: {
+          element: element as keyof typeof expectedBurstTypes,
+          isExtra: false,
+        },
+      };
+
+      expect(executor.execute(step)).toBe(true);
+      expect(executor.execute(step)).toBe(true);
+      for (let frame = 0; frame < 31; frame += 1) {
+        environment.runtimeOptions.enemyBuffRuntime.advanceFrame();
+      }
+
+      expect(receipt.entries.find(entry => entry.event === 'SpellBurstApplied')).toMatchObject({
+        sourceId: 'operator',
+        data: { burstType, skillScale: 1.6, enhanceFactor: 1 },
+      });
+      expect(environment.enemyVitals.health).toBeLessThan(testEnemy.health);
+    }
   });
 
   it('uses the resolved panel infliction-enhance attribute for spell bursts', () => {

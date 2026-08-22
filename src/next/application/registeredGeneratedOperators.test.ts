@@ -673,6 +673,71 @@ describe('registered generated operators', () => {
     expect(unavailable(5)).toBe(false);
   });
 
+  it('runs all four Fluorite ultimate projectile hits with the native per-target marker', () => {
+    const scenario = createEmptyScenario('scenario:fluorite:ultimate', '萤石终结技完整回归');
+    scenario.battle.durationFrames = 120;
+    scenario.enemy.editable.hp = 10_000_000;
+    scenario.tracks[0] = {
+      id: 'track:fluorite',
+      operator: {
+        operatorSlug: fluorite.slug,
+        level: 90,
+        promoted: true,
+        potential: 5,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: {},
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 100, maxUltimateEnergyOverride: 100 },
+      skillCasts: [],
+    };
+    const placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: fluorite,
+      skillGroupKey: 'ultimate',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:fluorite:ultimate` },
+    }).scenario;
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      endFrame: 120,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+      elementalInflictionDocument: elementalAttachments,
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          ultimateEnergySystemUnlocked: true,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+        },
+      },
+    });
+    const hits = result.receiptEntries.filter(
+      entry =>
+        entry.event === 'DamageApplied' &&
+        entry.sourceId === 'track:fluorite' &&
+        entry.data?.castId === 'skillCast:fluorite:ultimate',
+    );
+
+    expect(hits).toHaveLength(4);
+    expect(hits.map(entry => entry.frame)).toEqual([59, 63, 67, 72]);
+    expect(hits.every(entry => Number(entry.data?.value) > 0)).toBe(true);
+    expect(fluorite.conversionSupport).toEqual({
+      completeness: 'complete',
+      missingCapabilities: [],
+    });
+  });
+
   it('runs Pogranichnik physical infliction, SP talent, and ultimate soldiers', () => {
     const run = (talentLevel: 0 | 2) => {
       const scenario = createEmptyScenario(

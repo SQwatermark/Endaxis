@@ -488,6 +488,11 @@ export const fluoriteUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: 5,
           }, '8:ultimate10:projectile30:chr_0022_bounda_ultimate_skill40:chr_0022_bounda_ultimate_skill_1_projhit11:actionOrder2:251:0'),
+          step('applyBuff', {
+            buffId: 'buff_chr_0022_bounda_ultimate_skill',
+            target: 'enemy',
+            inheritSourceSkillCastInfo: true,
+          }),
         ),
       ),
       scheduled(
@@ -499,6 +504,11 @@ export const fluoriteUltimate: SkillDefinition = withSkillBlackboard(
             tags: ['ultimateSkill'],
             stagger: 5,
           }, '8:ultimate10:projectile30:chr_0022_bounda_ultimate_skill40:chr_0022_bounda_ultimate_skill_2_projhit11:actionOrder2:261:0'),
+          step('applyBuff', {
+            buffId: 'buff_chr_0022_bounda_ultimate_skill',
+            target: 'enemy',
+            inheritSourceSkillCastInfo: true,
+          }),
         ),
       ),
       scheduled(
@@ -510,6 +520,11 @@ export const fluoriteUltimate: SkillDefinition = withSkillBlackboard(
             tags: ['ultimateSkill'],
             stagger: 5,
           }, '8:ultimate10:projectile30:chr_0022_bounda_ultimate_skill40:chr_0022_bounda_ultimate_skill_3_projhit11:actionOrder2:271:0'),
+          step('applyBuff', {
+            buffId: 'buff_chr_0022_bounda_ultimate_skill',
+            target: 'enemy',
+            inheritSourceSkillCastInfo: true,
+          }),
         ),
       ),
       scheduled(
@@ -552,6 +567,11 @@ export const fluoriteUltimate: SkillDefinition = withSkillBlackboard(
             tags: ['ultimateSkill'],
             stagger: 5,
           }, '8:ultimate10:projectile30:chr_0022_bounda_ultimate_skill40:chr_0022_bounda_ultimate_skill_4_projhit11:actionOrder2:281:6'),
+          step('applyBuff', {
+            buffId: 'buff_chr_0022_bounda_ultimate_skill',
+            target: 'enemy',
+            inheritSourceSkillCastInfo: true,
+          }),
         ),
       ),
     ],
@@ -634,6 +654,15 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
           value: { blackboardKey: 'atk_up_potential_4' },
         },
       ],
+    },
+    'buff_chr_0022_bounda_ultimate_skill': {
+      stackingType: 'stack',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: 0.2,
+      triggerIntervalSeconds: 0,
+      waitFirstTriggerInterval: true,
+      maxTriggerCount: 1,
     },
     'buff_chr_0022_bounda_talent_1': {
       stackingType: 'unique',
@@ -1252,5 +1281,5 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
       ),
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'skillBehavior', skillGroupKeys: ['ultimate'] }] },
+  conversionSupport: { completeness: 'complete', missingCapabilities: [] },
 };

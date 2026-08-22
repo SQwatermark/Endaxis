@@ -15,13 +15,19 @@ function findSkill(key: string): SkillDefinition {
 }
 
 describe('arclight generated operator', () => {
-  it('has partial conversion support only for its remaining talent gap', () => {
+  it('is complete after classifying its incoming-infliction immunity at the wooden-dummy boundary', () => {
     expect(arclightGeneratedOperator.slug).toBe('arclight');
     expect(arclightGeneratedOperator.weaponType).toBe('sword');
     expect(arclightGeneratedOperator.role).toBe('vanguard');
     expect(arclightGeneratedOperator.conversionSupport).toEqual({
-      completeness: 'partial',
-      missingCapabilities: [{ capability: 'talentEffects' }],
+      completeness: 'complete',
+      missingCapabilities: [],
+    });
+    expect(arclightGeneratedOperator.talents[1]).toMatchObject({
+      key: 'electricAdditionalHit',
+      levels: 2,
+      simulationNoEffect: 'enemyDoesNotInflictSpellStatusOnOperators',
+      modifiers: [],
     });
   });
 
