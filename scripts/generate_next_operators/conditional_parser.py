@@ -159,6 +159,7 @@ EVENT_SEQUENCE_GUARD_ACTION_NAMES = {
     "CheckOverHeal",
     "CheckTagMatch",
     "CheckDamageType",
+    "CheckSpellInflictionType",
     "Probablity",
 }
 
@@ -537,6 +538,40 @@ def parse_conditional_actions(
                 right=None,
                 skillTypes=(),
                 damageType=damage_type,
+            )
+        if condition_type == "CheckSpellInflictionType":
+            expected_fields = {
+                "$type", "isEnable", "priorityLevel", "priorityOffset",
+                "serverActionIndex", "mask", "savedKey",
+            }
+            if set(condition) != expected_fields:
+                raise ValueError(f"{path}: unexpected fields {sorted(condition)}")
+            if condition.get("savedKey") != "":
+                raise ValueError(f"{path}.savedKey: event value capture is not supported")
+            native_elements = tuple(
+                item.strip() for item in str(condition.get("mask", "")).split(",")
+                if item.strip()
+            )
+            element_map = {
+                "Fire": "heat",
+                "Heat": "heat",
+                "Pulse": "electric",
+                "Cryst": "cryo",
+                "Cold": "cryo",
+                "Natural": "nature",
+                "Nature": "nature",
+            }
+            elements = tuple(dict.fromkeys(element_map.get(item, "") for item in native_elements))
+            if not elements or any(not item for item in elements):
+                raise ValueError(f"{path}.mask: unsupported value {condition.get('mask')!r}")
+            return ConditionSource(
+                sourceType=condition_type,
+                supported=True,
+                comparison=None,
+                left=None,
+                right=None,
+                skillTypes=(),
+                inflictionElements=elements,
             )
         if condition_type == "CompareDeckAttr":
             expected_fields = {

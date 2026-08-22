@@ -159,11 +159,11 @@
       },
       "potential": {
         "totalCount": 110,
-        "definitionConvertedCount": 105,
-        "standardSimulationCompileReadyCount": 105
+        "definitionConvertedCount": 106,
+        "standardSimulationCompileReadyCount": 106
       },
-      "definitionCompleteOperatorCount": 8,
-      "standardSimulationCompileReadyOperatorCount": 8
+      "definitionCompleteOperatorCount": 9,
+      "standardSimulationCompileReadyOperatorCount": 9
     }
   },
   "operators": [
@@ -4428,11 +4428,11 @@
         },
         "potential": {
           "totalCount": 5,
-          "definitionConvertedCount": 4,
-          "standardSimulationCompileReadyCount": 4
+          "definitionConvertedCount": 5,
+          "standardSimulationCompileReadyCount": 5
         },
-        "definitionComplete": false,
-        "standardSimulationCompileReady": false,
+        "definitionComplete": true,
+        "standardSimulationCompileReady": true,
         "talents": [
           {
             "key": "talent1",
@@ -4481,10 +4481,9 @@
           {
             "key": "potential5",
             "sourceEffectIds": ["chr_0022_bounda_potential_5"],
-            "compiler": "unmodeledPotential",
-            "definitionConverted": false,
-            "standardSimulationCompileReady": false,
-            "blocker": "unmodeled-source-effect"
+            "compiler": "attachedBuff",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
           }
         ]
       }

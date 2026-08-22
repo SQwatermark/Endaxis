@@ -496,7 +496,11 @@ def compile_conditional_branch_action(
     if cooldown_adjustment is not None:
         if (
             cooldown_adjustment.target.targetSource
-            not in ({"Owner", "Source"} if root_skill_context else {"Owner"})
+            not in (
+                {"Owner", "Source"}
+                if root_skill_context or current_buff_environment
+                else {"Owner"}
+            )
             or cooldown_adjustment.target.targetGroupKey
             or cooldown_adjustment.target.validatorTypes
             or cooldown_adjustment.target.postProcessorTypes
@@ -534,10 +538,17 @@ def compile_conditional_branch_action(
             )
         else:
             raise ValueError(f"{path}: unsupported skill cooldown selector")
+        target = (
+            "caster"
+            if cooldown_adjustment.target.targetSource == "Source"
+            else buff_owner_target
+            if current_buff_environment and buff_owner_target in {"caster", "enemy"}
+            else "caster"
+        )
         return "\n".join(
             [
                 "step('adjustSkillCooldown', {",
-                "  target: 'caster',",
+                f"  target: {ts_inline_literal(target)},",
                 f"  skill: {skill_selector},",
                 f"  operation: '{operation}',",
                 f"  basis: '{basis}',",

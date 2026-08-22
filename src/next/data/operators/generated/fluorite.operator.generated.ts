@@ -871,6 +871,72 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
         },
       ],
     },
+    'buff_chr_0022_bounda_potential_5_cd': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      blackboard: {
+        'CD': 0,
+        'dmg_up': 0,
+        'reduce': 0,
+      },
+      abilityEventResponses: [
+        {
+          event: 'beforeTakeInfliction',
+          priority: 0,
+          sequence:
+            sequence(
+              branch(
+                { kind: 'not', condition: { kind: 'timedMarkerPresent', target: 'caster', markerId: 'potential' } },
+                sequence(
+                  branch(
+                    { kind: 'eventInflictionElementIn', elements: ['cryo', 'nature'] },
+                    sequence(
+                      step('adjustSkillCooldown', {
+                        target: 'caster',
+                        skill: { kind: 'id', skillId: 'chr_0022_bounda_combo_skill' },
+                        operation: 'reduce',
+                        basis: 'absoluteSeconds',
+                        value: { kind: 'blackboard', key: 'reduce' },
+                      }),
+                      step('createTimedMarker', {
+                        target: 'caster',
+                        markerId: 'potential',
+                        durationSeconds: { kind: 'blackboard', key: 'CD' },
+                        autoFinishByAction: false,
+                      }),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        },
+      ],
+    },
+    'buff_chr_0022_bounda_potential_5_auro': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      blackboard: {
+        'CD': 1,
+        'dmg_up': 0,
+        'reduce': 1,
+      },
+      lifecycleSequences: {
+        enable: sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0022_bounda_potential_5_cd',
+            target: 'enemy',
+            inheritSourceSkillCastInfo: false,
+            finishByAction: true,
+            blackboardAssignments: {
+              'CD': { kind: 'blackboard', key: 'CD' },
+              'reduce': { kind: 'blackboard', key: 'reduce' },
+            },
+          }),
+        ),
+      },
+    },
   },
   abilityEntityDefinitions: {
     'abilityentity_chr_0022_bounda_normal_skill': { lifetime: { kind: 'limited', durationSeconds: 5 }, childSkill: {
@@ -1141,8 +1207,18 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential5',
       levels: 1,
-      modifiers: [],
+      initializationSequence: sequence(
+        step('applyBuff', {
+          buffId: 'buff_chr_0022_bounda_potential_5_auro',
+          target: 'caster',
+          inheritSourceSkillCastInfo: false,
+          blackboardAssignments: {
+            'CD': { kind: 'constant', value: 1 },
+            'reduce': { kind: 'constant', value: 1 },
+          },
+        }),
+      ),
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'potentialEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['finisher', 'ultimate'] }] },
+  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'skillBehavior', skillGroupKeys: ['finisher', 'ultimate'] }] },
 };

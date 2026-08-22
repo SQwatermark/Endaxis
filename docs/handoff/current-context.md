@@ -74,6 +74,13 @@ step('spawnAbilityEntity', {
 
 ## 4. 本轮已经完成
 
+### 萤石潜能 5 元素附着减冷却（2026-08-22）
+
+- `chr_0022_bounda_potential_5` 已从占位槽位转换为常驻 Aura Buff。Aura 给唯一敌人挂载监听 Buff；原生 `OnEnemyBeforeTakeSpellInfliction` 精确映射到元素附着管线发给目标方的 `beforeTakeInfliction`，不与角色侧 `OnCharBeforeTakeSpellInfliction` 合并。
+- `CheckSpellInflictionType(Cryst, Natural)` 生成事件元素条件。寒冷/自然附着命中后，按原生 ID 将萤石连携技当前剩余冷却减少 1 秒，并在来源干员身上创建 1 秒 `potential` 标记限频；其他元素和限频期内的重复附着均不触发。
+- 响应式 Buff 操作链现接入通用技能冷却执行器；按 ID 调整冷却同时匹配 Endaxis 技能 key 与原生 `sourceSkillId`。标准伤害兼容性预检也会递归检查 `listenForCombatEvents` 的条件与响应序列，不再把运行时已支持的监听步骤误报为未知。
+- 生产场景以萤石二段连携的寒冷附着验证：潜能 4 时第二次连携仍处于冷却，潜能 5 时提前 30 帧就绪。养成审计更新为天赋 27/44、潜能 106/110，均已进入标准模拟编译。
+
 ### 萤石受击天赋与潜能 2（2026-08-22）
 
 - 天赋 2 的 `chr_0022_bounda_talent_2` 已作为常驻被动完整生成。原生四条 `OnBeforeTakeDamage` 响应分别检查火、电、寒冷、自然伤害，先排除两个免疫标签，再以黑板 `probability=0.2` 判定；成功时给自身创建 0.01 秒伤害免疫和 10 秒攻击 Buff。二级天赋攻击增幅为 20%。

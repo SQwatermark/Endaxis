@@ -255,6 +255,13 @@ def compile_combat_condition(
             "{ kind: 'eventDamageTypeIn', damageTypes: "
             f"{ts_inline_literal((source.damageType,))} }}"
         )
+    if source.sourceType == "CheckSpellInflictionType" and buff_ability_damage_event:
+        if not source.inflictionElements:
+            raise ValueError(f"{path}: missing spell-infliction element payload")
+        return (
+            "{ kind: 'eventInflictionElementIn', elements: "
+            f"{ts_inline_literal(source.inflictionElements)} }}"
+        )
     if source.sourceType == "CompareDeckAttr":
         deck = source.deckAttributeCompare
         if deck is None:

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ExplicitCriticalSampleSource } from '../core/combat/random/criticalSampleSource';
 import { ExplicitProbabilitySampleSource } from '../core/combat/random/probabilitySampleSource';
+import type { SkillDefinition } from '../core/game-data/operatorDefinition';
 import { compileOperatorEntityBlackboardInitialValues } from '../core/compiler/compileScenarioRuntimeAssembly';
 import { compileOperatorDefinitionSkills } from '../core/compiler/compileScenarioTimeline';
 import { resolveOperatorPanel } from '../core/compiler/resolveOperatorPanel';
@@ -382,6 +383,91 @@ describe('registered generated operators', () => {
     expect(withoutPotential2).toBeTypeOf('number');
     expect(withPotential2).toBeTypeOf('number');
     expect(withPotential2!).toBeGreaterThan(withoutPotential2!);
+  });
+
+  it('reduces Fluorite combo cooldown once when her nature infliction reaches the enemy', () => {
+    const run = (potential: 4 | 5) => {
+      const scenario = createEmptyScenario(
+        `scenario:fluorite:potential5:${potential}`,
+        '萤石潜能五默认仓库回归',
+      );
+      scenario.battle.durationFrames = 1175;
+      scenario.tracks[0] = {
+        id: 'track:fluorite',
+        operator: {
+          operatorSlug: fluorite.slug,
+          level: 90,
+          promoted: true,
+          potential,
+          trustLevel: 4,
+          skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+          talentStates: {},
+        },
+        weapon: null,
+        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+        initialState: { ultimateEnergy: 0 },
+        skillCasts: [],
+      };
+      let placed = placeSkillGroup({
+        scenario,
+        trackIndex: 0,
+        operator: fluorite,
+        skillGroupKey: 'comboSkill',
+        startFrame: 1,
+        ids: { allocate: kind => `${kind}:fluorite:${potential}:first` },
+      }).scenario;
+      placed = placeSkillGroup({
+        scenario: placed,
+        trackIndex: 0,
+        operator: fluorite,
+        skillGroupKey: 'comboSkill',
+        startFrame: 1128,
+        ids: { allocate: kind => `${kind}:fluorite:${potential}:second` },
+      }).scenario;
+      const comboDefinition = fluorite.skillGroups.find(group => group.key === 'comboSkill')
+        ?.skills as SkillDefinition | undefined;
+      if (comboDefinition === undefined) {
+        throw new Error('missing Fluorite combo definition');
+      }
+      placed.tracks[0]!.skillCasts.forEach(cast => {
+        cast.customDefinition = {
+          ...comboDefinition,
+          blackboard: { ...comboDefinition.blackboard, EntityBB_combo_index: 2 },
+        };
+      });
+
+      return runStandardPlayerDamageScenarioSimulation({
+        scenario: placed,
+        endFrame: 1175,
+        criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+        elementalInflictionDocument: elementalAttachments,
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        options: {
+          index: nextGameDataRepository,
+          resources: {
+            sharedSpGain: { baseGainEfficiency: 1 },
+            spRecoveryPauseDuration: 1.5,
+            ultimateEnergySystemUnlocked: true,
+            normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+          },
+        },
+      }).receiptEntries;
+    };
+
+    const unavailable = (potential: 4 | 5) =>
+      run(potential).some(
+        entry =>
+          entry.event === 'SkillCooldownUnavailableAtStart' &&
+          entry.sourceId === 'track:fluorite' &&
+          entry.data?.castId === 'skillCast:fluorite:' + potential + ':second',
+      );
+
+    expect(unavailable(4)).toBe(true);
+    expect(unavailable(5)).toBe(false);
   });
 
   it('runs Pogranichnik physical infliction, SP talent, and ultimate soldiers', () => {

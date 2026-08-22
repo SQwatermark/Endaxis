@@ -8,6 +8,32 @@ const terminal = {
 };
 
 describe('EventContextConditionExecutor', () => {
+  it('matches only the requested element on an enemy infliction event', () => {
+    const executor = new EventContextConditionExecutor(terminal);
+    const condition = {
+      kind: 'eventInflictionElementIn',
+      elements: ['cryo', 'nature'],
+    } as const;
+    const context = {
+      blackboard: new ActionBlackboard(),
+      event: {
+        kind: 'abilitySpellInfliction' as const,
+        event: 'beforeTakeInfliction' as const,
+        sourceId: 'fluorite',
+        targetId: 'enemy',
+        element: 'nature' as const,
+      },
+    };
+
+    expect(executor.evaluate(condition, context)).toBe(true);
+    expect(
+      executor.evaluate(condition, {
+        ...context,
+        event: { ...context.event, element: 'electric' as const },
+      }),
+    ).toBe(false);
+  });
+
   it('matches an explicitly typed external operator hit and rejects an unspecified type', () => {
     const executor = new EventContextConditionExecutor(terminal);
     const condition = { kind: 'eventDamageTypeIn', damageTypes: ['heat'] } as const;

@@ -970,7 +970,7 @@ export class CombatRuntimeAssembly {
         program.operatorId !== operatorId ||
         (skill.kind === 'type'
           ? program.skillType !== skill.skillType
-          : program.skillId !== skill.skillId)
+          : program.skillId !== skill.skillId && program.sourceSkillId !== skill.skillId)
       ) {
         continue;
       }
@@ -996,7 +996,7 @@ export class CombatRuntimeAssembly {
         program.operatorId !== operatorId ||
         (skill.kind === 'type'
           ? program.skillType !== skill.skillType
-          : program.skillId !== skill.skillId)
+          : program.skillId !== skill.skillId && program.sourceSkillId !== skill.skillId)
       ) {
         continue;
       }
@@ -1021,7 +1021,7 @@ export class CombatRuntimeAssembly {
         program.operatorId !== operatorId ||
         (skill.kind === 'type'
           ? program.skillType !== skill.skillType
-          : program.skillId !== skill.skillId)
+          : program.skillId !== skill.skillId && program.sourceSkillId !== skill.skillId)
       ) {
         continue;
       }
@@ -1314,10 +1314,21 @@ export class CombatRuntimeAssembly {
       receipt: this.receipt,
       delegate: terminal,
     });
+    const cooldownOperations = new SkillCooldownOperationExecutor({
+      reduceByBaseDurationRatio: (skill, ratio) =>
+        this.#reduceSkillCooldownsByBaseDurationRatio(operatorId, skill, ratio),
+      reduceByAbsoluteFrames: (skill, frames) =>
+        this.#reduceSkillCooldownsByAbsoluteFrames(operatorId, skill, frames),
+      setByBaseDurationRatio: (skill, ratio) =>
+        this.#setSkillCooldowns(operatorId, skill, ratio, 'baseDurationRatio'),
+      setByAbsoluteFrames: (skill, frames) =>
+        this.#setSkillCooldowns(operatorId, skill, frames, 'absoluteFrames'),
+      delegate: semanticOutputOperations,
+    });
     const slotOperations = new SkillSlotOperationExecutor({
       changeSkillSlot: (skillGroupKey, targetSkillKey, inheritCooldownProgress) =>
         this.#changeSkillSlot(operatorId, skillGroupKey, targetSkillKey, inheritCooldownProgress),
-      delegate: semanticOutputOperations,
+      delegate: cooldownOperations,
     });
     const timeDilationOperations = this.#wrapTimeDilationOperations(
       slotOperations,

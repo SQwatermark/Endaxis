@@ -12205,6 +12205,7 @@
               "right": null,
               "skillTypes": [],
               "damageType": null,
+              "inflictionElements": [],
               "entityCount": null,
               "buffStack": {
                 "targetSource": "Owner",
@@ -15370,6 +15371,7 @@
               "right": null,
               "skillTypes": [],
               "damageType": null,
+              "inflictionElements": [],
               "entityCount": null,
               "buffStack": {
                 "targetSource": "Owner",

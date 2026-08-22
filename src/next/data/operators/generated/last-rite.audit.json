@@ -6257,6 +6257,7 @@
               "right": null,
               "skillTypes": [],
               "damageType": null,
+              "inflictionElements": [],
               "entityCount": null,
               "buffStack": null,
               "health": null,

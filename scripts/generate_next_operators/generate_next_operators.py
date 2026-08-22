@@ -429,6 +429,7 @@ EMPTY_SOURCE_SEQUENCE_KEYS = frozenset(
         "obtainAtbFilters",
         "contextBuffTagQueries",
         "consumeBuffLayerChecks",
+        "inflictionElements",
     }
 )
 

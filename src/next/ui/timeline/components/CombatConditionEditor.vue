@@ -16,6 +16,7 @@ import {
   DAMAGE_TAGS,
   DAMAGE_TYPES,
   ELEMENTAL_REACTIONS,
+  INFLICTION_ELEMENTS,
   OPERATOR_ATTRIBUTES,
   type ActionValueOperand,
   type CombatCondition,
@@ -27,6 +28,7 @@ import {
   type DamageTag,
   type DamageType,
   type ElementalReaction,
+  type InflictionElement,
   type OperatorAttribute,
 } from '../../../core/game-data/operatorDefinition';
 import { ENEMY_RANKS, type EnemyRank } from '../../../core/game-data/enemyRank';
@@ -277,6 +279,15 @@ function toggleEventDamageType(damageType: DamageType, event: Event): void {
     ? [...new Set([...props.condition.damageTypes, damageType])]
     : props.condition.damageTypes.filter(item => item !== damageType);
   if (damageTypes.length > 0) emit('update', { ...props.condition, damageTypes });
+}
+
+function toggleEventInflictionElement(element: InflictionElement, event: Event): void {
+  if (props.condition.kind !== 'eventInflictionElementIn') return;
+  const enabled = (event.target as HTMLInputElement).checked;
+  const elements = enabled
+    ? [...new Set([...props.condition.elements, element])]
+    : props.condition.elements.filter(item => item !== element);
+  if (elements.length > 0) emit('update', { ...props.condition, elements });
 }
 
 function setOptionalInteger(field: 'minimumStacks' | 'minimumLevel', event: Event): void {
@@ -878,6 +889,19 @@ function removeChild(index: number): void {
             :checked="condition.damageTypes.includes(damageType)"
             @change="toggleEventDamageType(damageType, $event)"
           />{{ t(`nextTimeline.skillEditing.damageTypes.${damageType}`) }}</label
+        >
+      </fieldset>
+    </template>
+
+    <template v-if="condition.kind === 'eventInflictionElementIn'">
+      <fieldset class="condition-editor__elements">
+        <legend>{{ t('nextTimeline.skillEditing.element') }}</legend>
+        <label v-for="element in INFLICTION_ELEMENTS" :key="element"
+          ><input
+            type="checkbox"
+            :checked="condition.elements.includes(element)"
+            @change="toggleEventInflictionElement(element, $event)"
+          />{{ t(`nextTimeline.skillEditing.damageTypes.${element}`) }}</label
         >
       </fieldset>
     </template>

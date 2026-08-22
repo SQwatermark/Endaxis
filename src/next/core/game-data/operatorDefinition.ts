@@ -344,6 +344,11 @@ export type CombatCondition =
       damageTypes: readonly DamageType[];
     }
   | {
+      /** 匹配触发当前响应的元素附着类型。 */
+      kind: 'eventInflictionElementIn';
+      elements: readonly InflictionElement[];
+    }
+  | {
       /** 匹配触发 Buff 响应的待施放技能类型。 */
       kind: 'eventSkillTypeIn';
       skillTypes: readonly SkillType[];
@@ -431,6 +436,7 @@ export const COMBAT_CONDITION_KINDS = [
   'eventDamageTagsMatch',
   'eventDamageFeaturesMatch',
   'eventDamageTypeIn',
+  'eventInflictionElementIn',
   'eventSkillTypeIn',
   'eventSkillIdIn',
   'eventBuffIdMatch',
@@ -1140,6 +1146,7 @@ export interface SkillBuffAbilityEventResponse {
     | 'beforeTakeDamage'
     | 'beforeTakePhysicalInfliction'
     | 'beforeTakeSpellInfliction'
+    | 'beforeTakeInfliction'
     | 'takeDamage'
     | 'takeCriticalDamage'
     | 'outputDamage'

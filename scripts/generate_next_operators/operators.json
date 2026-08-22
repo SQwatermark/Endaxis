@@ -2447,7 +2447,7 @@
         { "key": "potential2", "compile": "passiveBlackboardPatch" },
         { "key": "potential3", "compile": "skillBlackboardPatch" },
         { "key": "potential4" },
-        { "key": "potential5", "compile": "unmodeledPotential" }
+        { "key": "potential5", "compile": "attachedBuff" }
       ],
       "skillGroups": [
         {

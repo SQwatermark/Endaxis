@@ -14788,6 +14788,57 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("kind: 'probability'", compiled)
         self.assertIn("key: 'triggered'", compiled)
 
+    def test_event_sequence_preserves_spell_infliction_element_guard(self) -> None:
+        actions = parse_ordered_action_sequence(
+            [
+                {
+                    "$type": "Example.CheckSpellInflictionType+Data, Example",
+                    "isEnable": True,
+                    "priorityLevel": "Default",
+                    "priorityOffset": 0,
+                    "serverActionIndex": 1,
+                    "mask": "Cryst, Natural",
+                    "savedKey": "",
+                },
+                {
+                    "$type": "Example.ModifyDynamicBlackboard+Data, Example",
+                    "isEnable": True,
+                    "serverActionIndex": 2,
+                    "key": "triggered",
+                    "operation": "Assign",
+                    "directValue": True,
+                    "value": {
+                        "useBlackboardKey": False,
+                        "blackboardKey": "",
+                        "value": 1,
+                    },
+                    "calculationTarget": {
+                        "targetSource": "Owner",
+                        "targetGroupKey": "",
+                    },
+                    "calculateType": "HpRatio",
+                },
+            ],
+            "fixture.infliction-element",
+            {},
+        )
+
+        self.assertEqual(len(actions), 1)
+        guard = actions[0].nestedCondition
+        self.assertIsNotNone(guard)
+        assert guard is not None
+        self.assertEqual(guard.conditions[0].inflictionElements, ("cryo", "nature"))
+        compiled = compile_conditional_branch(
+            actions,
+            "fixture.infliction-element.actions",
+            buff_ability_damage_event=True,
+            buff_owner_target="enemy",
+            current_buff_environment=True,
+            runtime_blackboard_keys=frozenset({"triggered"}),
+        )
+        self.assertIn("kind: 'eventInflictionElementIn'", compiled)
+        self.assertIn("elements: ['cryo', 'nature']", compiled)
+
     def test_event_sequence_guard_preserves_unconditional_timeline_jump(self) -> None:
         actions = parse_ordered_action_sequence(
             [

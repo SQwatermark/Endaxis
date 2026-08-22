@@ -96,6 +96,7 @@ function inspectCondition(
     case 'eventDamageTagsMatch':
     case 'eventDamageFeaturesMatch':
     case 'eventDamageTypeIn':
+    case 'eventInflictionElementIn':
     case 'eventSkillTypeIn':
     case 'eventSkillIdIn':
     case 'eventBuffIdMatch':
@@ -285,6 +286,25 @@ function inspectSequence(
       case 'adjustSkillCooldown':
       case 'startTimeDilation':
       case 'startUltimateTimeDilation':
+        return;
+      case 'listenForCombatEvents':
+        step.parameters.responses.forEach((response, index) => {
+          if (response.condition !== undefined) {
+            inspectCondition(
+              response.condition,
+              `${stepPath}.parameters.responses[${index}].condition`,
+              collect,
+              flags,
+            );
+          }
+          inspectSequence(
+            response.sequence,
+            `${stepPath}.parameters.responses[${index}].sequence`,
+            collect,
+            flags,
+            source,
+          );
+        });
         return;
       case 'storeSourceAttributeValue':
         if (!flags.operatorVitals) {

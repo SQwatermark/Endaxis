@@ -568,6 +568,17 @@ function validateCombatCondition(
         });
       }
       break;
+    case 'eventInflictionElementIn':
+      if (!Array.isArray(record.elements) || record.elements.length === 0) {
+        push(out, `${path}.elements`, 'expected a non-empty array');
+      } else {
+        record.elements.forEach((element, index) => {
+          if (typeof element !== 'string' || !INFLICTION_ELEMENTS_SET.has(element)) {
+            push(out, `${path}.elements[${index}]`, 'unknown infliction element');
+          }
+        });
+      }
+      break;
     case 'eventSkillTypeIn':
       if (!Array.isArray(record.skillTypes) || record.skillTypes.length === 0) {
         push(out, `${path}.skillTypes`, 'expected a non-empty array');
@@ -1160,6 +1171,7 @@ function validateCombatStep(
                     response.event !== 'beforeTakeDamage' &&
                     response.event !== 'beforeTakePhysicalInfliction' &&
                     response.event !== 'beforeTakeSpellInfliction' &&
+                    response.event !== 'beforeTakeInfliction' &&
                     response.event !== 'takeDamage' &&
                     response.event !== 'takeCriticalDamage' &&
                     response.event !== 'outputDamage' &&

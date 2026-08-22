@@ -513,12 +513,22 @@ function normalizeBuffAbilityEvent(
       targetId: source.targetId,
     };
   }
-  if (event === 'beforeTakeSpellInfliction') {
+  if (event === 'beforeTakeSpellInfliction' || event === 'beforeTakeInfliction') {
+    if (
+      source.element !== undefined &&
+      source.element !== 'heat' &&
+      source.element !== 'electric' &&
+      source.element !== 'cryo' &&
+      source.element !== 'nature'
+    ) {
+      throw new TypeError(`Buff ability event '${event}' payload has invalid element`);
+    }
     return {
       kind: 'abilitySpellInfliction',
       event,
       sourceId: source.sourceId,
       targetId: source.targetId,
+      ...(source.element === undefined ? {} : { element: source.element }),
     };
   }
   if (event === 'beforeOutputBuff' || event === 'outputBuff' || event === 'addedBuff') {
