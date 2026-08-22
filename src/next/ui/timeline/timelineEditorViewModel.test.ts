@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createEmptyScenario } from '../../core/project/createProject';
-import { mifu, perlica } from '../../data/operators';
+import { laevatain, mifu, perlica } from '../../data/operators';
 import { placeSkillGroup } from './placeSkillGroup';
 import { projectTimelineEditor } from './timelineEditorViewModel';
 
@@ -118,6 +118,39 @@ describe('projectTimelineEditor', () => {
       maxUltimateEnergy: null,
       skillLibrary: [],
     });
+  });
+
+  it('projects enhanced basic attacks as a variant entry using ultimate level', () => {
+    const scenario = createEmptyScenario('scenario:laevatain-variant', '莱万汀强化普攻');
+    scenario.tracks[0] = {
+      id: 'track:laevatain',
+      operator: {
+        operatorSlug: laevatain.slug,
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 3, battleSkill: 4, comboSkill: 5, ultimate: 11 },
+        talentStates: {},
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+
+    const projected = projectTimelineEditor(scenario, {
+      getOperator: slug => (slug === laevatain.slug ? laevatain : null),
+    });
+    const basicEntries = projected.tracks[0]!.skillLibrary.filter(
+      entry => entry.skillGroupKey === 'basicAttack',
+    );
+
+    expect(basicEntries).toHaveLength(2);
+    expect(basicEntries[0]?.variantKey).toBeUndefined();
+    expect(basicEntries[0]?.level).toBe(3);
+    expect(basicEntries[1]).toMatchObject({ variantKey: 'enhancedBasicAttack', level: 11 });
+    expect(basicEntries[1]!.skills).toHaveLength(4);
   });
 
   it('projects every runtime replacement hit for Mifu chained battle-skill blocks', () => {

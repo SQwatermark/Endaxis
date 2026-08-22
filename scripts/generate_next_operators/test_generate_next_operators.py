@@ -13215,6 +13215,44 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         validate_skill_groups(operator, skills, growth, "growth")
 
+    def test_named_variant_chain_can_use_a_different_native_level_group(self) -> None:
+        operator = {
+            "slug": "operator",
+            "skillGroups": [
+                {
+                    "nativeGroupType": 0,
+                    "skillKeys": ["basic1", "basic2"],
+                    "variants": [
+                        {
+                            "key": "enhancedBasicAttack",
+                            "levelSource": "ultimate",
+                            "nativeGroupType": 2,
+                            "skillKeys": ["enhanced1", "enhanced2"],
+                        }
+                    ],
+                },
+                {"nativeGroupType": 2, "skillKeys": ["ultimate"]},
+            ],
+        }
+        skills = [
+            SimpleNamespace(key="basic1", skillId="basic_1"),
+            SimpleNamespace(key="basic2", skillId="basic_2"),
+            SimpleNamespace(key="ultimate", skillId="ultimate"),
+            SimpleNamespace(key="enhanced1", skillId="enhanced_1"),
+            SimpleNamespace(key="enhanced2", skillId="enhanced_2"),
+        ]
+        growth = {
+            "skillGroupMap": {
+                "basic": {"skillGroupType": 0, "skillIdList": ["basic_1", "basic_2"]},
+                "ultimate": {
+                    "skillGroupType": 2,
+                    "skillIdList": ["ultimate", "enhanced_1", "enhanced_2"],
+                },
+            }
+        }
+
+        validate_skill_groups(operator, skills, growth, "growth")
+
     def test_simulation_equivalent_native_skill_can_be_represented_by_one_selected_variant(self) -> None:
         operator = {
             "slug": "operator",

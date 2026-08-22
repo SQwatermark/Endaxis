@@ -95,6 +95,32 @@ describe('resolveEffectiveSkillDefinition', () => {
     expect(resolved.group).toBe(skillGroup);
   });
 
+  it('resolves a named group variant with its own level source', () => {
+    const enhanced: SkillDefinition = {
+      key: 'enhancedBattleSkill',
+      timelineBlockFrames: 30,
+      scheduledSequences: [],
+    };
+    const groupWithVariant: SkillGroupDefinition = {
+      ...skillGroup,
+      variants: [{ key: 'enhanced', levelSource: 'ultimate', skills: enhanced }],
+    };
+    const resolved = resolveEffectiveSkillDefinition(
+      createCast({
+        source: {
+          kind: 'operatorSkill',
+          skillGroupKey: 'battleSkill',
+          skillKey: 'enhancedBattleSkill',
+        },
+      }),
+      { ...operator, skillGroups: [groupWithVariant] },
+    );
+
+    expect(resolved.definition).toBe(enhanced);
+    expect(resolved.variantKey).toBe('enhanced');
+    expect(resolved.levelSource).toBe('ultimate');
+  });
+
   it('returns custom definition when present', () => {
     const resolved = resolveEffectiveSkillDefinition(
       createCast({ customDefinition: customSkill }),

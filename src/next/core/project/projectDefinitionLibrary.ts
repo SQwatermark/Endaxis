@@ -246,6 +246,11 @@ function collectSkillIdentities(definition: OperatorDefinition): ReadonlySet<str
     for (const skill of Array.isArray(group.skills) ? group.skills : [group.skills]) {
       identities.add(`${group.key}\u0000${skill.key}`);
     }
+    for (const variant of group.variants ?? []) {
+      for (const skill of Array.isArray(variant.skills) ? variant.skills : [variant.skills]) {
+        identities.add(`${group.key}\u0000${skill.key}`);
+      }
+    }
   }
   return identities;
 }

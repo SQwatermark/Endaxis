@@ -171,6 +171,22 @@ def render_operator_definition(
         )
         for skill_key in require_list(group.get("skillKeys"), f"{operator['slug']}.skillGroups[].skillKeys")
     }
+    canonical_skill_identities.update(
+        (str(group["key"]), str(skill_key))
+        for group in (
+            require_dict(raw, f"{operator['slug']}.skillGroups[]")
+            for raw in require_list(operator.get("skillGroups"), f"{operator['slug']}.skillGroups")
+        )
+        for variant in (
+            require_dict(raw, f"{operator['slug']}.skillGroups[].variants[]")
+            for raw in require_list(
+                group.get("variants", []), f"{operator['slug']}.skillGroups[].variants"
+            )
+        )
+        for skill_key in require_list(
+            variant.get("skillKeys"), f"{operator['slug']}.skillGroups[].variants[].skillKeys"
+        )
+    )
     skill_aliases: list[dict[str, list[str]]] = []
     seen_aliases: set[tuple[str, str]] = set()
     for index, raw_alias in enumerate(

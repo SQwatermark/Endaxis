@@ -1720,7 +1720,19 @@ def skill_patch_target_by_id(
     matches: list[tuple[str, list[Any]]] = []
     for index, raw_group in enumerate(raw_groups):
         group = require_dict(raw_group, f"{operator['slug']}.skillGroups[{index}]")
-        skill_keys = require_list(group.get("skillKeys"), f"{operator['slug']}.skillGroups[{index}].skillKeys")
+        skill_keys = list(require_list(group.get("skillKeys"), f"{operator['slug']}.skillGroups[{index}].skillKeys"))
+        for raw_variant in require_list(
+            group.get("variants", []), f"{operator['slug']}.skillGroups[{index}].variants"
+        ):
+            variant = require_dict(
+                raw_variant, f"{operator['slug']}.skillGroups[{index}].variants[]"
+            )
+            skill_keys.extend(
+                require_list(
+                    variant.get("skillKeys"),
+                    f"{operator['slug']}.skillGroups[{index}].variants[].skillKeys",
+                )
+            )
         if skill_key in skill_keys:
             matches.append((str(group["key"]), skill_keys))
     if len(matches) != 1:
@@ -1748,7 +1760,19 @@ def skill_ids_by_group_key(
     ]
     if len(groups) != 1:
         raise ValueError(f"{operator['slug']}.skillGroups: expected one {group_key!r} group")
-    skill_keys = require_list(groups[0].get("skillKeys"), f"{operator['slug']}.{group_key}.skillKeys")
+    skill_keys = list(
+        require_list(groups[0].get("skillKeys"), f"{operator['slug']}.{group_key}.skillKeys")
+    )
+    for raw_variant in require_list(
+        groups[0].get("variants", []), f"{operator['slug']}.{group_key}.variants"
+    ):
+        variant = require_dict(raw_variant, f"{operator['slug']}.{group_key}.variants[]")
+        skill_keys.extend(
+            require_list(
+                variant.get("skillKeys"),
+                f"{operator['slug']}.{group_key}.variants[].skillKeys",
+            )
+        )
     ids = {skill_id_by_key(skills, str(key)) for key in skill_keys}
     if not ids:
         raise ValueError(f"{operator['slug']}.{group_key}: expected at least one skill")

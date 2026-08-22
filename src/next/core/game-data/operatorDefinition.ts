@@ -1261,6 +1261,11 @@ export interface SkillGroupDefinition {
   /** 单个可放置技能，或作为一个技能库条目放置的有序技能链。 */
   skills: SkillDefinition | readonly SkillDefinition[];
   /**
+   * 同一稳定输入类型下的具名形态链。形态不是新的技能类型；它可以使用不同的养成等级来源，
+   * 例如终结技状态下的强化普攻仍属于普攻，但倍率取终结技等级。
+   */
+  variants?: readonly SkillGroupVariantDefinition[];
+  /**
    * 与 `skills` 共用一个稳定放置身份、仅由运行时换槽动作选中的技能形态。
    * 它们不会被技能库展开为额外技能块，也不能由项目存档直接指定。
    */
@@ -1272,6 +1277,12 @@ export interface SkillGroupDefinition {
   routedReplacementSkills?: readonly RoutedSkillReplacementDefinition[];
   /** 同一稳定技能组的 UI 变体，不会产生独立的释放身份。 */
   presentationVariants?: readonly SkillPresentationVariantDefinition[];
+}
+
+export interface SkillGroupVariantDefinition {
+  key: string;
+  levelSource: SkillLevelSource;
+  skills: SkillDefinition | readonly SkillDefinition[];
 }
 
 export interface RoutedSkillReplacementDefinition {

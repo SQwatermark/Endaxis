@@ -93,7 +93,12 @@ export function validateProjectBuildDefinitionReferences(
               });
               continue;
             }
-            const skills = Array.isArray(group.skills) ? group.skills : [group.skills];
+            const skills = [
+              ...(Array.isArray(group.skills) ? group.skills : [group.skills]),
+              ...(group.variants ?? []).flatMap(variant =>
+                Array.isArray(variant.skills) ? variant.skills : [variant.skills],
+              ),
+            ];
             const skill = skills.find(candidate => candidate.key === source.skillKey);
             if (skill === undefined) {
               issues.push({

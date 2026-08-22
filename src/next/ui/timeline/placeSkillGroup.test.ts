@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createEmptyScenario } from '../../core/project/createProject';
-import { perlica } from '../../data/operators';
+import { laevatain, perlica } from '../../data/operators';
 import { placeSkillGroup, type TimelineDocumentIdAllocator } from './placeSkillGroup';
 
 function createIds(): TimelineDocumentIdAllocator {
@@ -104,6 +104,28 @@ describe('placeSkillGroup', () => {
       skillKey: 'basicAttack3',
     });
     expect(casts[0]!.placement.startFrame).toBe(45);
+  });
+
+  it('places an enhanced basic-attack variant without changing its stable parent group', () => {
+    const scenario = createPerlicaScenario();
+    scenario.tracks[0]!.operator!.operatorSlug = laevatain.slug;
+    const result = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: laevatain,
+      skillGroupKey: 'basicAttack',
+      variantKey: 'enhancedBasicAttack',
+      startFrame: 90,
+      ids: createIds(),
+    });
+
+    expect(result.scenario.tracks[0]!.skillCasts).toHaveLength(4);
+    expect(result.scenario.tracks[0]!.skillCasts.map(cast => cast.source)).toEqual([
+      expect.objectContaining({ skillGroupKey: 'basicAttack', skillKey: 'ultimateAttack1' }),
+      expect.objectContaining({ skillGroupKey: 'basicAttack', skillKey: 'ultimateAttack2' }),
+      expect.objectContaining({ skillGroupKey: 'basicAttack', skillKey: 'ultimateAttack3' }),
+      expect.objectContaining({ skillGroupKey: 'basicAttack', skillKey: 'ultimateAttack4' }),
+    ]);
   });
 
   it('rejects a definition that does not match the track build', () => {

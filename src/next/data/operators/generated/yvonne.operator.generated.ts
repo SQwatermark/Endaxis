@@ -2716,11 +2716,11 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
     baseHealth: [500, 1566, 2689, 3811, 4934, 5495],
   },
   skillGroups: [
-    { key: 'basicAttack', skillType: 'basicAttack', levelSource: 'basicAttack', skills: [yvonneBasicAttack1, yvonneBasicAttack2, yvonneBasicAttack3, yvonneBasicAttack4, yvonneBasicAttack5] },
+    { key: 'basicAttack', skillType: 'basicAttack', levelSource: 'basicAttack', skills: [yvonneBasicAttack1, yvonneBasicAttack2, yvonneBasicAttack3, yvonneBasicAttack4, yvonneBasicAttack5], variants: [{ key: 'enhancedBasicAttack', levelSource: 'ultimate', skills: [yvonneUltimateAttack1, yvonneUltimateAttack2A, yvonneUltimateAttack2B, yvonneUltimateAttack3A, yvonneUltimateAttack3B, yvonneUltimateAttackEnd] }] },
     { key: 'finisher', skillType: 'finisher', levelSource: 'basicAttack', skills: yvonneFinisher },
     { key: 'plungingAttack', skillType: 'plungingAttack', levelSource: 'basicAttack', skills: yvonnePlungingAttack },
     { key: 'battleSkill', skillType: 'battleSkill', levelSource: 'battleSkill', skills: yvonneBattleSkill },
-    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: [yvonneUltimate, yvonneUltimateAttack1, yvonneUltimateAttack2A, yvonneUltimateAttack2B, yvonneUltimateAttack3A, yvonneUltimateAttack3B, yvonneUltimateAttackEnd] },
+    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: yvonneUltimate },
     { key: 'comboSkill', skillType: 'comboSkill', levelSource: 'comboSkill', skills: yvonneComboSkill },
   ],
   buffDefinitions: {
@@ -4260,7 +4260,6 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'ultimate',
-          skillKey: 'ultimate',
           blackboardKey: 'has_potential5',
           operation: 'assign',
           value: 1,
@@ -4268,7 +4267,6 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'ultimate',
-          skillKey: 'ultimate',
           blackboardKey: 'atk_up',
           operation: 'assign',
           value: 0.1,
@@ -4276,14 +4274,13 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'ultimate',
-          skillKey: 'ultimate',
           blackboardKey: 'crit_dmg_up',
           operation: 'assign',
           value: 0.3,
         },
         {
           kind: 'patchSkillBlackboard',
-          skillGroupKey: 'ultimate',
+          skillGroupKey: 'basicAttack',
           skillKey: 'ultimateAttackEnd',
           blackboardKey: 'crit_dmg_up',
           operation: 'assign',
@@ -4291,7 +4288,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
         },
         {
           kind: 'patchSkillBlackboard',
-          skillGroupKey: 'ultimate',
+          skillGroupKey: 'basicAttack',
           skillKey: 'ultimateAttackEnd',
           blackboardKey: 'atk_up',
           operation: 'assign',

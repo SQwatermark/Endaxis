@@ -25178,7 +25178,7 @@ export const laevatainGeneratedSource = {
     {
       "key": "ultimateAttack1",
       "skillId": "chr_0016_laevat_ult_attack1",
-      "skillType": "ultimate",
+      "skillType": "basicAttack",
       "sourceFile": "chr_0016_laevat_ult_attack1.json",
       "timelineBlockFrames": 17,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
@@ -26167,7 +26167,7 @@ export const laevatainGeneratedSource = {
     {
       "key": "ultimateAttack2",
       "skillId": "chr_0016_laevat_ult_attack2",
-      "skillType": "ultimate",
+      "skillType": "basicAttack",
       "sourceFile": "chr_0016_laevat_ult_attack2.json",
       "timelineBlockFrames": 27,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
@@ -27941,7 +27941,7 @@ export const laevatainGeneratedSource = {
     {
       "key": "ultimateAttack3",
       "skillId": "chr_0016_laevat_ult_attack3",
-      "skillType": "ultimate",
+      "skillType": "basicAttack",
       "sourceFile": "chr_0016_laevat_ult_attack3.json",
       "timelineBlockFrames": 14,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",
@@ -28924,7 +28924,7 @@ export const laevatainGeneratedSource = {
     {
       "key": "ultimateAttack4",
       "skillId": "chr_0016_laevat_ult_attack4",
-      "skillType": "ultimate",
+      "skillType": "basicAttack",
       "sourceFile": "chr_0016_laevat_ult_attack4.json",
       "timelineBlockFrames": 35,
       "blockBoundarySource": "AllowNextSkillAction.startFrame",

@@ -344,6 +344,14 @@ export function compileOperatorDefinitionSkills(
         executionSkillGroupKey: replacement.executionSkillGroupKey,
         executionSkillId: replacement.executionSkillKey,
       })),
+      ...(group.variants ?? []).flatMap(variant => {
+        const variantLevel = requireSkillLevel(build, variant.levelSource);
+        return (Array.isArray(variant.skills) ? variant.skills : [variant.skills]).map(skill => ({
+          skill,
+          skillType: group.skillType,
+          level: variantLevel,
+        }));
+      }),
     ];
     return definitions.map(
       ({ skill, skillType, level, executionSkillGroupKey, executionSkillId }) => ({
@@ -410,7 +418,7 @@ function compileResolvedTimelineTracks(
         );
       }
       const resolved = resolveEffectiveSkillDefinition(cast, operator);
-      const level = requireSkillLevel(operatorInstance, resolved.group.levelSource);
+      const level = requireSkillLevel(operatorInstance, resolved.levelSource);
       skills.push(
         ...compileCastSkillPrograms(
           track.id,

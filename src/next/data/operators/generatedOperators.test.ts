@@ -205,15 +205,36 @@ describe('新增的完整技能转换干员', () => {
   });
 
   it.each(generatedOperators)('每个技能都被分配到技能组', (operator, count) => {
-    const skills = operator.skillGroups.flatMap(group =>
-      Array.isArray(group.skills) ? group.skills : [group.skills],
-    );
+    const skills = operator.skillGroups.flatMap(group => [
+      ...(Array.isArray(group.skills) ? group.skills : [group.skills]),
+      ...(group.variants ?? []).flatMap(variant =>
+        Array.isArray(variant.skills) ? variant.skills : [variant.skills],
+      ),
+    ]);
 
     expect(skills).toHaveLength(count);
     expect(new Set(skills.map(skill => skill.key)).size).toBe(count);
     expect(
       skills.filter(skill => skill.scheduledSequences.length === 0).map(skill => skill.key),
     ).toEqual([]);
+  });
+
+  it.each([
+    [laevatain, 4],
+    [yvonne, 6],
+  ] as const)('%s 的终结技开场与强化普攻形态链严格分层', (operator, variantLength) => {
+    const ultimate = operator.skillGroups.find(group => group.key === 'ultimate');
+    const basicAttack = operator.skillGroups.find(group => group.key === 'basicAttack');
+    expect(ultimate).toBeDefined();
+    expect(Array.isArray(ultimate!.skills) ? ultimate!.skills : [ultimate!.skills]).toHaveLength(1);
+    expect(basicAttack?.variants).toHaveLength(1);
+    expect(basicAttack?.variants?.[0]?.key).toBe('enhancedBasicAttack');
+    expect(basicAttack?.variants?.[0]?.levelSource).toBe('ultimate');
+    expect(
+      Array.isArray(basicAttack!.variants![0]!.skills)
+        ? basicAttack!.variants![0]!.skills
+        : [basicAttack!.variants![0]!.skills],
+    ).toHaveLength(variantLength);
   });
 
   it.each(generatedOperators)('尚无可执行行为的养成定义必须保留对应缺口', operator => {

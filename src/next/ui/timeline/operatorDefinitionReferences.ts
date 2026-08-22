@@ -111,6 +111,16 @@ export function collectOperatorDefinitionReferences(
         references,
       );
     });
+    (group.variants ?? []).forEach((variant, variantIndex) => {
+      normalizeSkills(variant.skills).forEach((skill, skillIndex) => {
+        collectValueReferences(
+          skill,
+          `skillGroups[${groupIndex}].variants[${variantIndex}].skills[${skillIndex}]`,
+          { kind: 'skill', id: `${group.key}/${variant.key}/${skill.key}` },
+          references,
+        );
+      });
+    });
   });
 
   Object.entries(definition.buffDefinitions ?? {}).forEach(([id, buff]) => {

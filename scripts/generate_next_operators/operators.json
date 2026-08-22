@@ -2946,6 +2946,19 @@
             "basicAttack3",
             "basicAttack4",
             "basicAttack5"
+          ],
+          "variants": [
+            {
+              "key": "enhancedBasicAttack",
+              "levelSource": "ultimate",
+              "nativeGroupType": 2,
+              "skillKeys": [
+                "ultimateAttack1",
+                "ultimateAttack2",
+                "ultimateAttack3",
+                "ultimateAttack4"
+              ]
+            }
           ]
         },
         {
@@ -2974,13 +2987,7 @@
           "skillType": "ultimate",
           "levelSource": "ultimate",
           "nativeGroupType": 2,
-          "skillKeys": [
-            "ultimate",
-            "ultimateAttack1",
-            "ultimateAttack2",
-            "ultimateAttack3",
-            "ultimateAttack4"
-          ]
+          "skillKeys": ["ultimate"]
         },
         {
           "key": "comboSkill",
@@ -3062,25 +3069,25 @@
         },
         {
           "key": "ultimateAttack1",
-          "skillType": "ultimate",
+          "skillType": "basicAttack",
           "source": "chr_0016_laevat_ult_attack1.json",
           "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
         },
         {
           "key": "ultimateAttack2",
-          "skillType": "ultimate",
+          "skillType": "basicAttack",
           "source": "chr_0016_laevat_ult_attack2.json",
           "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
         },
         {
           "key": "ultimateAttack3",
-          "skillType": "ultimate",
+          "skillType": "basicAttack",
           "source": "chr_0016_laevat_ult_attack3.json",
           "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
         },
         {
           "key": "ultimateAttack4",
-          "skillType": "ultimate",
+          "skillType": "basicAttack",
           "source": "chr_0016_laevat_ult_attack4.json",
           "compile": {
             "kind": "resolvedSequence",
@@ -3117,6 +3124,21 @@
             "basicAttack3",
             "basicAttack4",
             "basicAttack5"
+          ],
+          "variants": [
+            {
+              "key": "enhancedBasicAttack",
+              "levelSource": "ultimate",
+              "nativeGroupType": 2,
+              "skillKeys": [
+                "ultimateAttack1",
+                "ultimateAttack2A",
+                "ultimateAttack2B",
+                "ultimateAttack3A",
+                "ultimateAttack3B",
+                "ultimateAttackEnd"
+              ]
+            }
           ]
         },
         {
@@ -3145,15 +3167,7 @@
           "skillType": "ultimate",
           "levelSource": "ultimate",
           "nativeGroupType": 2,
-          "skillKeys": [
-            "ultimate",
-            "ultimateAttack1",
-            "ultimateAttack2A",
-            "ultimateAttack2B",
-            "ultimateAttack3A",
-            "ultimateAttack3B",
-            "ultimateAttackEnd"
-          ]
+          "skillKeys": ["ultimate"]
         },
         {
           "key": "comboSkill",
@@ -3233,37 +3247,37 @@
         },
         {
           "key": "ultimateAttack1",
-          "skillType": "ultimate",
+          "skillType": "basicAttack",
           "source": "chr_0017_yvonne_ult_attack1_1.json",
           "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
         },
         {
           "key": "ultimateAttack2A",
-          "skillType": "ultimate",
+          "skillType": "basicAttack",
           "source": "chr_0017_yvonne_ult_attack2_1.json",
           "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
         },
         {
           "key": "ultimateAttack2B",
-          "skillType": "ultimate",
+          "skillType": "basicAttack",
           "source": "chr_0017_yvonne_ult_attack2_2.json",
           "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
         },
         {
           "key": "ultimateAttack3A",
-          "skillType": "ultimate",
+          "skillType": "basicAttack",
           "source": "chr_0017_yvonne_ult_attack3_1.json",
           "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
         },
         {
           "key": "ultimateAttack3B",
-          "skillType": "ultimate",
+          "skillType": "basicAttack",
           "source": "chr_0017_yvonne_ult_attack3_2.json",
           "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
         },
         {
           "key": "ultimateAttackEnd",
-          "skillType": "ultimate",
+          "skillType": "basicAttack",
           "source": "chr_0017_yvonne_ult_attack_end.json",
           "compile": {
             "kind": "resolvedSequence",

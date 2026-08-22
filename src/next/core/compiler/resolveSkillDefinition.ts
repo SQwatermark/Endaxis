@@ -6,6 +6,7 @@ import type {
   OperatorDefinition,
   SkillDefinition,
   SkillGroupDefinition,
+  SkillLevelSource,
 } from '../game-data/operatorDefinition';
 import type { SkillCastDocument } from '../project/schema';
 
@@ -15,6 +16,9 @@ export interface ResolvedSkillDefinition {
   readonly definition: SkillDefinition;
   /** 定义所属的技能组（提供 skillType 与 levelSource）。 */
   readonly group: SkillGroupDefinition;
+  /** 基础链使用组等级；具名形态可以明确改用另一养成技能等级。 */
+  readonly levelSource: SkillLevelSource;
+  readonly variantKey?: string;
 }
 
 /** 解析技能块当前引用的游戏数据模板，不考虑完整自定义覆盖。 */
@@ -37,8 +41,13 @@ export function resolveSkillTemplateDefinition(
         ? directGroup.skills
         : [directGroup.skills];
   const directDefinition = directSkills.find(candidate => candidate.key === source.skillKey);
+  const directVariant = directGroup?.variants?.find(variant =>
+    (Array.isArray(variant.skills) ? variant.skills : [variant.skills]).some(
+      candidate => candidate.key === source.skillKey,
+    ),
+  );
   const alias =
-    directDefinition === undefined
+    directDefinition === undefined && directVariant === undefined
       ? operator.skillAliases?.find(
           candidate =>
             candidate.from[0] === source.skillGroupKey && candidate.from[1] === source.skillKey,
@@ -52,12 +61,32 @@ export function resolveSkillTemplateDefinition(
   }
   const skills = Array.isArray(group.skills) ? group.skills : [group.skills];
   const definition = skills.find(candidate => candidate.key === skillKey);
-  if (definition === undefined) {
+  const variant =
+    definition === undefined
+      ? group.variants?.find(candidate =>
+          (Array.isArray(candidate.skills) ? candidate.skills : [candidate.skills]).some(
+            skill => skill.key === skillKey,
+          ),
+        )
+      : undefined;
+  const variantDefinition =
+    variant === undefined
+      ? undefined
+      : (Array.isArray(variant.skills) ? variant.skills : [variant.skills]).find(
+          candidate => candidate.key === skillKey,
+        );
+  const resolvedDefinition = definition ?? variantDefinition;
+  if (resolvedDefinition === undefined) {
     throw new Error(
       `skill group '${operator.slug}/${group.key}' has no skill '${source.skillKey}'`,
     );
   }
-  return { definition, group };
+  return {
+    definition: resolvedDefinition,
+    group,
+    levelSource: variant?.levelSource ?? group.levelSource,
+    ...(variant === undefined ? {} : { variantKey: variant.key }),
+  };
 }
 
 /**
@@ -86,7 +115,12 @@ export function resolveEffectiveSkillDefinition(
         `custom definition key '${definition.key}' does not match source skill key '${source.skillKey}'`,
       );
     }
-    return { definition, group: template.group };
+    return {
+      definition,
+      group: template.group,
+      levelSource: template.levelSource,
+      ...(template.variantKey === undefined ? {} : { variantKey: template.variantKey }),
+    };
   }
   return template;
 }

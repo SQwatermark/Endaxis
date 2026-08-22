@@ -8664,6 +8664,47 @@ def render_skill_groups(
                 f"executionSkillGroupKey: {ts_inline_literal(execution_group_key)}, "
                 f"executionSkillKey: {ts_inline_literal(target_skill_key)} }}"
             )
+        rendered_variants: list[str] = []
+        for raw_variant in require_list(
+            group.get("variants", []), f"skillGroups.{key}.variants"
+        ):
+            variant = require_dict(raw_variant, f"skillGroups.{key}.variants[]")
+            variant_key = str(variant.get("key"))
+            variant_level_source = str(variant.get("levelSource"))
+            variant_skill_keys = [
+                str(item)
+                for item in require_list(
+                    variant.get("skillKeys"),
+                    f"skillGroups.{key}.variants.{variant_key}.skillKeys",
+                )
+            ]
+            if not variant_key or not variant_level_source or not variant_skill_keys:
+                raise ValueError(f"skillGroups.{key}.variants: expected key, levelSource and skills")
+            try:
+                variant_skills = [skill_by_key[item] for item in variant_skill_keys]
+            except KeyError as error:
+                raise ValueError(
+                    f"skillGroups.{key}.variants.{variant_key}: unknown skill key {error.args[0]!r}"
+                ) from error
+            if any(skill.skillType != skill_type for skill in variant_skills):
+                raise ValueError(
+                    f"skillGroups.{key}.variants.{variant_key}: skill type does not match group"
+                )
+            variant_references = [
+                generated_skill_name(operator, skill.key) for skill in variant_skills
+            ]
+            variant_source = (
+                variant_references[0]
+                if len(variant_references) == 1
+                else f"[{', '.join(variant_references)}]"
+            )
+            rendered_variants.append(
+                "{ "
+                f"key: {ts_inline_literal(variant_key)}, "
+                f"levelSource: {ts_inline_literal(variant_level_source)}, "
+                f"skills: {variant_source} "
+                "}"
+            )
         result.append(
             "{ "
             f"key: {ts_inline_literal(key)}, skillType: {ts_inline_literal(skill_type)}, "
@@ -8676,6 +8717,11 @@ def render_skill_groups(
             + (
                 f", routedReplacementSkills: [{', '.join(routed_references)}]"
                 if routed_references
+                else ""
+            )
+            + (
+                f", variants: [{', '.join(rendered_variants)}]"
+                if rendered_variants
                 else ""
             )
             + " "
@@ -8702,6 +8748,25 @@ def validate_skill_groups(
                 raise ValueError(f"{operator['slug']}.skillGroups: unknown skill key {key!r}")
             expected_by_type.setdefault(group_type, []).append(skill_by_key[key].skillId)
             referenced_keys.append(key)
+        for raw_variant in require_list(
+            group.get("variants", []), f"{operator['slug']}.skillGroups.variants"
+        ):
+            variant = require_dict(raw_variant, f"{operator['slug']}.skillGroups.variants[]")
+            variant_type = require_non_negative_int(
+                variant.get("nativeGroupType"), "variants.nativeGroupType"
+            )
+            variant_keys = [
+                str(item) for item in require_list(variant.get("skillKeys"), "variants.skillKeys")
+            ]
+            if not variant_keys:
+                raise ValueError(f"{operator['slug']}.skillGroups.variants: expected skills")
+            for key in variant_keys:
+                if key not in skill_by_key:
+                    raise ValueError(
+                        f"{operator['slug']}.skillGroups.variants: unknown skill key {key!r}"
+                    )
+                expected_by_type.setdefault(variant_type, []).append(skill_by_key[key].skillId)
+                referenced_keys.append(key)
     if len(referenced_keys) != len(set(referenced_keys)):
         raise ValueError(f"{operator['slug']}.skillGroups: a skill is assigned more than once")
     if set(referenced_keys) != set(skill_by_key):
@@ -8797,10 +8862,22 @@ def validate_skill_groups(
         group_type: [skill_id for skill_id in skill_ids if skill_id not in routing_only]
         for group_type, skill_ids in actual_by_type.items()
     }
-    if actual_by_type != expected_by_type:
+    normalized_expected_by_type = {
+        group_type: [
+            skill_id
+            for skill_id in actual_by_type.get(group_type, [])
+            if skill_id in set(skill_ids)
+        ]
+        for group_type, skill_ids in expected_by_type.items()
+    }
+    same_members = set(actual_by_type) == set(expected_by_type) and all(
+        set(actual_by_type[group_type]) == set(expected_by_type[group_type])
+        for group_type in actual_by_type
+    )
+    if not same_members or actual_by_type != normalized_expected_by_type:
         raise ValueError(
             f"{path}.skillGroupMap does not match generated skill sources: "
-            f"expected {expected_by_type}, got {actual_by_type}"
+            f"expected {normalized_expected_by_type}, got {actual_by_type}"
         )
 
 

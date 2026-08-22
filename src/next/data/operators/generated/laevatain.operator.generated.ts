@@ -1788,11 +1788,11 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
     baseHealth: [500, 1566, 2689, 3811, 4934, 5495],
   },
   skillGroups: [
-    { key: 'basicAttack', skillType: 'basicAttack', levelSource: 'basicAttack', skills: [laevatainBasicAttack1, laevatainBasicAttack2, laevatainBasicAttack3, laevatainBasicAttack4, laevatainBasicAttack5] },
+    { key: 'basicAttack', skillType: 'basicAttack', levelSource: 'basicAttack', skills: [laevatainBasicAttack1, laevatainBasicAttack2, laevatainBasicAttack3, laevatainBasicAttack4, laevatainBasicAttack5], variants: [{ key: 'enhancedBasicAttack', levelSource: 'ultimate', skills: [laevatainUltimateAttack1, laevatainUltimateAttack2, laevatainUltimateAttack3, laevatainUltimateAttack4] }] },
     { key: 'finisher', skillType: 'finisher', levelSource: 'basicAttack', skills: laevatainFinisher },
     { key: 'plungingAttack', skillType: 'plungingAttack', levelSource: 'basicAttack', skills: laevatainPlungingAttack },
     { key: 'battleSkill', skillType: 'battleSkill', levelSource: 'battleSkill', skills: laevatainBattleSkill, replacementSkills: [laevatainBattleSkillDuringUltimate] },
-    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: [laevatainUltimate, laevatainUltimateAttack1, laevatainUltimateAttack2, laevatainUltimateAttack3, laevatainUltimateAttack4] },
+    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: laevatainUltimate },
     { key: 'comboSkill', skillType: 'comboSkill', levelSource: 'comboSkill', skills: laevatainComboSkill },
   ],
   buffDefinitions: {
@@ -4452,7 +4452,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
       modifiers: [
         {
           kind: 'patchSkillBlackboard',
-          skillGroupKey: 'ultimate',
+          skillGroupKey: 'basicAttack',
           skillKey: 'ultimateAttack1',
           blackboardKey: 'ratio',
           operation: 'assign',
@@ -4460,7 +4460,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
         },
         {
           kind: 'patchSkillBlackboard',
-          skillGroupKey: 'ultimate',
+          skillGroupKey: 'basicAttack',
           skillKey: 'ultimateAttack2',
           blackboardKey: 'ratio',
           operation: 'assign',
@@ -4468,7 +4468,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
         },
         {
           kind: 'patchSkillBlackboard',
-          skillGroupKey: 'ultimate',
+          skillGroupKey: 'basicAttack',
           skillKey: 'ultimateAttack3',
           blackboardKey: 'ratio',
           operation: 'assign',
@@ -4476,7 +4476,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
         },
         {
           kind: 'patchSkillBlackboard',
-          skillGroupKey: 'ultimate',
+          skillGroupKey: 'basicAttack',
           skillKey: 'ultimateAttack4',
           blackboardKey: 'ratio',
           operation: 'assign',

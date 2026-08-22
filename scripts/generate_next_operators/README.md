@@ -30,6 +30,11 @@ Aura 对目标的进入、离开和整体结束是实例生命周期，而不是
 
 时间膨胀按原生动作直接转换：命名曲线保留公共键，内联曲线保留完整 Unity 关键帧；原生优先级 GameplayTag 在生成正式 DSL 时通过当前版本 `TimeDilationConfig.priorityMap` 降为可直接比较的数值，未知标签立即报错。普通动作生成 `startTimeDilation`，终结技专用动作生成 `startUltimateTimeDilation`。根技能中的 `Source` 与 `Owner` 都归约为施法者；能力实体目标只有在固定单敌人模型下可安全省略时才记入审计。嵌套时间动作、未知字段和无法归约的实体目标会立即报错。
 
+`CharGrowthTable.skillGroupType` 只决定原生养成等级组，不直接决定编辑器释放链。强化普攻可以位于
+原生 `UltimateSkill` 组而在正式 DSL 中保持 `basicAttack` 类型，并通过技能组 `variants` 使用
+`levelSource=ultimate`。莱万汀与伊冯是首批样本：终结技组只暴露真正的开大，强化攻击文件作为普攻
+形态链保留；不得再按原生列表把开大和所有强化攻击顺序拼成一个终结技块。
+
 ## 输出
 
 每名干员最多生成三个文件：

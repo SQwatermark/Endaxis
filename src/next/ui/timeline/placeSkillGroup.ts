@@ -18,6 +18,7 @@ export interface PlaceSkillGroupInput {
   readonly trackIndex: TrackIndex;
   readonly operator: OperatorDefinition;
   readonly skillGroupKey: string;
+  readonly variantKey?: string;
   /** 只放置技能组中的指定技能；省略时按声明顺序放置完整技能组。 */
   readonly skillKey?: string;
   readonly startFrame: number;
@@ -56,7 +57,15 @@ export function placeSkillGroup(input: PlaceSkillGroupInput): PlaceSkillGroupRes
     );
   }
 
-  const groupSkills = Array.isArray(group.skills) ? group.skills : [group.skills];
+  const variant =
+    input.variantKey === undefined
+      ? undefined
+      : group.variants?.find(candidate => candidate.key === input.variantKey);
+  if (input.variantKey !== undefined && variant === undefined) {
+    throw new Error(`skill group '${input.skillGroupKey}' has no variant '${input.variantKey}'`);
+  }
+  const selectedSkills = variant?.skills ?? group.skills;
+  const groupSkills = Array.isArray(selectedSkills) ? selectedSkills : [selectedSkills];
   const skills =
     input.skillKey === undefined
       ? groupSkills

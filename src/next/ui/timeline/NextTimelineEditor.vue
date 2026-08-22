@@ -201,7 +201,7 @@ const connectionDrag = ref<{
   pointer: { x: number; y: number };
 } | null>(null);
 type TimelineDragPayload =
-  | { kind: 'librarySkill'; skillGroupKey: string; skillKey?: string }
+  | { kind: 'librarySkill'; skillGroupKey: string; variantKey?: string; skillKey?: string }
   | { kind: 'trackOrder'; trackIndex: TrackIndex };
 
 const dragPayload = ref<TimelineDragPayload | null>(null);
@@ -1491,6 +1491,7 @@ function placeGroup(
   skillKey?: string,
   startFrame = cursorFrame.value,
   trackIndex = selectedTrack.value,
+  variantKey?: string,
 ): void {
   const operatorSlug = viewModel.value.tracks[trackIndex]?.operatorSlug ?? null;
   const operator =
@@ -1501,6 +1502,7 @@ function placeGroup(
     trackIndex,
     operator,
     skillGroupKey,
+    ...(variantKey === undefined ? {} : { variantKey }),
     ...(skillKey === undefined ? {} : { skillKey }),
     startFrame,
     ids,
@@ -1512,7 +1514,12 @@ function placeGroup(
   const placed = result.scenario.tracks[trackIndex]?.skillCasts ?? [];
   const last = placed.at(-1);
   if (last !== undefined) {
-    const lastSkillDuration = resolvePlacedSkillDurationFrames(operator, skillGroupKey, skillKey);
+    const lastSkillDuration = resolvePlacedSkillDurationFrames(
+      operator,
+      skillGroupKey,
+      skillKey,
+      variantKey,
+    );
     cursorFrame.value = last.placement.startFrame + lastSkillDuration;
   }
 }
@@ -1520,24 +1527,33 @@ function resolvePlacedSkillDurationFrames(
   operator: ReturnType<typeof nextGameDataRepository.getOperator>,
   skillGroupKey: string,
   skillKey?: string,
+  variantKey?: string,
 ): number {
   if (operator === null) return 0;
   const group = operator.skillGroups.find(g => g.key === skillGroupKey);
   if (group === undefined) return 0;
+  const variant = group.variants?.find(candidate => candidate.key === variantKey);
+  const selectedSkills = variant?.skills ?? group.skills;
   const skills: readonly { timelineBlockFrames: number; key: string }[] = Array.isArray(
-    group.skills,
+    selectedSkills,
   )
-    ? group.skills
-    : [group.skills];
+    ? selectedSkills
+    : [selectedSkills];
   const filtered = skillKey === undefined ? skills : skills.filter(s => s.key === skillKey);
   const lastSkill = filtered.at(-1);
   return lastSkill?.timelineBlockFrames ?? 0;
 }
 
-function beginSkillDrag(event: DragEvent, skillGroupKey: string, skillKey?: string): void {
+function beginSkillDrag(
+  event: DragEvent,
+  skillGroupKey: string,
+  skillKey?: string,
+  variantKey?: string,
+): void {
   dragPayload.value = {
     kind: 'librarySkill',
     skillGroupKey,
+    ...(variantKey === undefined ? {} : { variantKey }),
     ...(skillKey === undefined ? {} : { skillKey }),
   };
   if (event.dataTransfer !== null) {
@@ -1742,7 +1758,7 @@ function dropTimelinePayload(event: DragEvent, trackIndex: TrackIndex): void {
     scenario.value.battle.durationFrames,
   );
   cursorFrame.value = frame;
-  placeGroup(payload.skillGroupKey, payload.skillKey, frame, trackIndex);
+  placeGroup(payload.skillGroupKey, payload.skillKey, frame, trackIndex, payload.variantKey);
 }
 
 function resetScenario(): void {
@@ -2088,15 +2104,19 @@ function setPanelDialogVisible(visible: boolean): void {
         <div class="skill-list">
           <SkillLibraryCard
             v-for="entry in selectedTrackModel.skillLibrary"
-            :key="entry.skillGroupKey"
-            :name="skillName(entry.skillGroupKey, selectedTrackModel.operatorSlug)"
+            :key="`${entry.skillGroupKey}:${entry.variantKey ?? 'base'}`"
+            :name="
+              skillName(entry.variantKey ?? entry.skillGroupKey, selectedTrackModel.operatorSlug)
+            "
             :type-label="skillTypeLabel(entry.skillType)"
             :duration="skillDurationSeconds(entry)"
             :icon="skillDisplayIcon(entry.skillType, selectedTrackModel.operatorSlug)"
             :accent-color="skillAccentColor(entry.skillType)"
             :segments="skillSegments(entry)"
-            @dragstart="beginSkillDrag($event, entry.skillGroupKey)"
-            @dragstart-segment="beginSkillDrag($event.event, entry.skillGroupKey, $event.skillKey)"
+            @dragstart="beginSkillDrag($event, entry.skillGroupKey, undefined, entry.variantKey)"
+            @dragstart-segment="
+              beginSkillDrag($event.event, entry.skillGroupKey, $event.skillKey, entry.variantKey)
+            "
           />
         </div>
       </section>

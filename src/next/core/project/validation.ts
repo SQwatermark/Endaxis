@@ -99,6 +99,28 @@ function validateProjectTemplateRecord(
           skills.forEach((skill, skillIndex) => {
             issues.push(...validateSkillDefinition(skill, `${groupPath}.skills[${skillIndex}]`));
           });
+          if (Array.isArray(group.variants)) {
+            group.variants.forEach((variant, variantIndex) => {
+              if (!isObject(variant)) {
+                issues.push({
+                  path: `${groupPath}.variants[${variantIndex}]`,
+                  message: 'expected an object',
+                });
+                return;
+              }
+              const variantPath = `${groupPath}.variants[${variantIndex}]`;
+              requireString(variant, 'key', variantPath, issues);
+              requireString(variant, 'levelSource', variantPath, issues);
+              const variantSkills = Array.isArray(variant.skills)
+                ? variant.skills
+                : [variant.skills];
+              variantSkills.forEach((skill, skillIndex) => {
+                issues.push(
+                  ...validateSkillDefinition(skill, `${variantPath}.skills[${skillIndex}]`),
+                );
+              });
+            });
+          }
         });
       }
     } else {

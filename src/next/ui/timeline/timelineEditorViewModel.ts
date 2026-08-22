@@ -27,6 +27,8 @@ export interface TimelineOperatorIndex {
 /** 技能库中一次拖放所代表的单个技能或有序技能链。 */
 export interface TimelineSkillLibraryEntryViewModel {
   readonly skillGroupKey: string;
+  /** 省略表示基础链；存在时表示同一组下的具名形态链。 */
+  readonly variantKey?: string;
   readonly skillType: SkillType;
   readonly level: number;
   readonly skills: readonly {
@@ -167,13 +169,25 @@ function projectTrack(
   const skillLibrary =
     operator === null || operatorInstance === null
       ? []
-      : operator.skillGroups.map(group => {
-          const skills = Array.isArray(group.skills) ? group.skills : [group.skills];
-          return {
+      : operator.skillGroups.flatMap(group => {
+          const entries = [
+            {
+              variantKey: undefined,
+              levelSource: group.levelSource,
+              skills: Array.isArray(group.skills) ? group.skills : [group.skills],
+            },
+            ...(group.variants ?? []).map(variant => ({
+              variantKey: variant.key,
+              levelSource: variant.levelSource,
+              skills: Array.isArray(variant.skills) ? variant.skills : [variant.skills],
+            })),
+          ];
+          return entries.map(entry => ({
             skillGroupKey: group.key,
+            ...(entry.variantKey === undefined ? {} : { variantKey: entry.variantKey }),
             skillType: group.skillType,
-            level: operatorInstance.skillLevels[group.levelSource] ?? 1,
-            skills: skills.map(skill => ({
+            level: operatorInstance.skillLevels[entry.levelSource] ?? 1,
+            skills: entry.skills.map(skill => ({
               skillKey: skill.key,
               timelineBlockFrames: skill.timelineBlockFrames,
               source: {
@@ -182,7 +196,7 @@ function projectTrack(
                 skillKey: skill.key,
               },
             })),
-          };
+          }));
         });
 
   const skillCasts = track.skillCasts.map(skillCast => {

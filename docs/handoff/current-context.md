@@ -769,3 +769,17 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 男版原生 ID 通过 `simulationEquivalentNativeSkillIds` 留在严格原生技能组闭包中，不被误报为
   缺失入口。早期项目保存的男女技能键通过定义级 `skillAliases` 映射到规范模板；别名只用于解析，
   不回到技能选择列表。完整证据见 `docs/research/endministrator-gender-skill-equivalence.md`。
+
+### 2026-08-22：莱万汀与伊冯强化普攻从终结技释放链分离
+
+- 修正了把 `CharGrowthTable` 养成等级组误当编辑器有序释放链的问题。莱万汀终结技此前被错误生成
+  为“开大 + 4 段强化普攻”，伊冯被错误生成成“开大 + 6 个强化攻击文件”。两人的正式
+  `ultimate` 现在都只含真正开大。
+- `SkillGroupDefinition.variants` 表达同一稳定组下、可使用不同等级来源的具名形态链。两人的
+  `enhancedBasicAttack` 均挂在 `basicAttack` 下而使用 `levelSource=ultimate`；技能库以“强化普攻”
+  普通卡片平齐展示，拖放、
+  模板解析、项目兼容检查、定义引用、全等级编译和养成补丁均遍历形态链。
+- 伊冯 `ultimateAttackEnd` 的原生结束 Buff `ComboCacheAction` 明确把 Attack 命令映射到该技能，故它
+  是强化普攻收尾而不是终结技末段。自动命令映射仍等待角色输入层证据；当前不伪造不存在于
+  SkillData 的逐段 `ChangeSkillAction`。详见
+  `docs/research/ultimate-enhanced-basic-attack-grouping.md`。
