@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { CompiledSkillProgram, CompiledSkillSlotGroup } from '../../compiler/combatProgram';
+import type {
+  CompiledOperatorPassiveProgram,
+  CompiledSkillProgram,
+  CompiledSkillSlotGroup,
+} from '../../compiler/combatProgram';
 import { compileOperatorBuffDefinitions, compileSkill } from '../../compiler/compileSkill';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer } from '../buffs/combatBuffs';
@@ -124,6 +128,7 @@ function createAssembly(
   buffDefinitions?: ConstructorParameters<
     typeof CombatRuntimeAssembly
   >[0]['operators'][number]['buffDefinitions'],
+  passivePrograms?: readonly CompiledOperatorPassiveProgram[],
 ): CombatRuntimeAssembly {
   return new CombatRuntimeAssembly({
     enemy,
@@ -154,6 +159,7 @@ function createAssembly(
         ...(buffDefinitions === undefined ? {} : { buffDefinitions }),
         ...(skillSlotGroups === undefined ? {} : { skillSlotGroups }),
         ...(initialEntityBlackboard === undefined ? {} : { initialEntityBlackboard }),
+        ...(passivePrograms === undefined ? {} : { passivePrograms }),
       },
     ],
     createOperationExecutor: () => rejectingExecutor,
@@ -1377,6 +1383,85 @@ describe('CombatRuntimeAssembly', () => {
 
     expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);
     expect(assembly.resources.sp).toBe(107);
+  });
+
+  it('keeps passive combat event listeners active after their enable sequence completes', () => {
+    const program = skill({
+      costFrame: undefined,
+      costs: [],
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'changeResource',
+                parameters: {
+                  resource: 'sp',
+                  amount: 10,
+                  recipient: 'team',
+                  spGainKind: 'gain',
+                  spGainSource: 'skill',
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const passivePrograms: readonly CompiledOperatorPassiveProgram[] = [
+      {
+        key: 'skill-sp-listener',
+        initialBlackboard: {},
+        enableSequence: {
+          steps: [
+            {
+              kind: 'listenForCombatEvents',
+              parameters: {
+                responses: [
+                  {
+                    key: 'on-skill-sp',
+                    event: { kind: 'spGained', source: 'skill', gainKind: 'gain' },
+                    phase: 'dataAction',
+                    priority: 0,
+                    sequence: {
+                      steps: [
+                        {
+                          kind: 'changeResource',
+                          parameters: {
+                            resource: 'ultimateEnergy',
+                            amount: 9,
+                            recipient: 'caster',
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    ];
+    const assembly = createAssembly(
+      [program],
+      undefined,
+      undefined,
+      emptyEnemyBuffRuntime,
+      undefined,
+      testEnemy,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      passivePrograms,
+    );
+
+    expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);
+    expect(assembly.resources.getUltimateEnergy('operator')).toBe(9);
   });
 
   it('dispatches active airborne output before continuing the authored sequence', () => {

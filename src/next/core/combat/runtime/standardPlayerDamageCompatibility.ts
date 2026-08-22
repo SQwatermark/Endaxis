@@ -224,6 +224,31 @@ function inspectSequence(
           );
         }
         return;
+      case 'applyPhysicalInfliction':
+        if (source === 'equipment') {
+          report(
+            collect,
+            'unsupported-step',
+            stepPath,
+            'equipment-triggered physical infliction requires a recovered source-classification path',
+          );
+          return;
+        }
+        inspectBuffDefinition(
+          step.parameters.noGuardDefinition,
+          `${stepPath}.parameters.noGuardDefinition`,
+          collect,
+          flags,
+          source,
+        );
+        inspectBuffDefinition(
+          step.parameters.fractureDefinition,
+          `${stepPath}.parameters.fractureDefinition`,
+          collect,
+          flags,
+          source,
+        );
+        return;
       case 'applyElementalReaction':
       case 'consumeElementalReaction':
         return;

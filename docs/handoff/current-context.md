@@ -541,10 +541,13 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 ### 2026-08-22：波格兰尼奇正式生成与技力累计天赋闭环
 
 - 波格兰尼奇从横向审计进入正式 `complete` 产物并注册默认 Next 仓库：10 个可放置技能、2 项天赋和 5 项潜能均由版本化来源生成，默认正式干员由 20 名增至 21 名。物理异常战技复用已有 `applyPhysicalInfliction`，没有为角色另写近似路径。
-- 天赋 1 的 `OnObtainAtb` 严格保留 Skill/Gain 过滤和 `SaveAtbObtainValue` 实际获得量。运行时新增 `storeEventSpGainAmount`，把 `spGained.amount` 写入动作黑板，再按原生累计满 100、扣除 100、施加天赋 Buff 的顺序执行；退出战斗清零在固定木桩流程没有自然入口，保持不可触发而不伪造事件。天赋 2 使用统一的多等级附着 Buff 生成，持续时间按等级保留为 5/10 秒。
+- 天赋 1 的 `OnObtainAtb` 严格保留 Skill/Gain 过滤和 `SaveAtbObtainValue` 实际获得量。运行时新增 `storeEventSpGainAmount`，把 `spGained.amount` 写入动作黑板，再按原生 `atb_gain=80` 累计、扣除同一阈值、施加天赋 Buff 的顺序执行；退出战斗清零在固定木桩流程没有自然入口，保持不可触发而不伪造事件。天赋 2 使用统一的多等级附着 Buff 生成，持续时间按等级保留为 5/10 秒。
 - `OnBeforeTakePhysicalInfliction`、`CheckTargetsEqual` 与 `SourceFinder` 身份条件按 `combat-spec` 证据进入事件模型。能力实体来源可沿一次原生 `AbilitySystem.source` 解析回创建它的干员；标准模型不会生成敌人主动攻击，所以该承伤前响应只有在真实事件输入存在时才执行，不能据此宣称模拟了敌方行为。
 - 同一原生 AbilityEntity 模板 ID 可以在不同生成点携带不同子技能蓝图。链接器现在提升首个公共定义，同时把冲突的生成点局部子程序内联保留；波格兰尼奇产物同时锁定终结技中的常规士兵子技能与干员级 `finish4` 变体。此次也修正了旧链接器移除定义后遗留的深层空白，其他正式产物只发生确定性的格式收敛与新增事实刷新。
 - `Atk` 和 `PhysicalAndSpellInflictionEnhance` 已进入生成器“有运行时消费者”的属性白名单。后者以面板术法强度初始化、允许 Buff 动态叠加，并实际参与法术爆发增强公式；没有把它泛化成尚未复刻的全部异常公式。
 - 当前门禁：生成器 430/430、全量生成与 `--check`、Next 200 文件 1347/1347、`type-check:next` 通过。全量审计仍为 320/320 可解析、319/320 可编译、29/30 名完整直转；梨诺唯一模板资产缺口没有变化。`tmp/` 仍只作未跟踪临时目录，不得提交。
 
 下一阶段优先补波格兰尼奇默认仓库生产场景，覆盖战技物理异常、终结技士兵实体和 Skill/Gain 技力累计天赋的真实回执；随后继续 Camille 奥义槽位路由或下一名资产闭合干员的正式化。敌人主动攻击相关响应只保留可验证入口，不用外部标记冒充正常模拟链。
+
+- 波格兰尼奇默认仓库生产场景已随后贯通：终结技先生成 4 个常规士兵，连携获得的实际 Skill/Gain 技力触发天赋增攻，后续普攻伤害高于未启用天赋的同构场景；终结技 Buff 再生成 4 个 `finish4` 子技能实体。战技的 `applyPhysicalInfliction` 也进入标准兼容预检，且两棵内联 Buff 定义会递归接受同一门禁扫描。
+- 此回归发现并修复了常驻被动生命周期：装配层此前对 enableSequence 调用 `executeInstant`，导致 `listenForCombatEvents` 在同一调用末尾立即注销。现在常驻序列保持 started 状态并由装配持有，初始化程序仍是瞬时语义；装配级测试确认后续 Skill/Gain 能唤醒监听。最终门禁为 Next 200 文件 1349/1349、`type-check:next` 与 `git diff --check` 通过。

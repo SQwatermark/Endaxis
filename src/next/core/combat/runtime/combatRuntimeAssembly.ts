@@ -658,7 +658,9 @@ export class CombatRuntimeAssembly {
           operator.operatorId,
         );
         const sequence = runtime.createSequence(passive.enableSequence);
-        sequence.executeInstant({});
+        if (!sequence.tryExecute({})) {
+          throw new Error(`passive skill '${passive.key}' enable sequence returned false`);
+        }
         this.#passiveSequences.push(sequence);
         this.receipt.record({
           frame: this.clock.frame,

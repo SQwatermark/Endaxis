@@ -116,6 +116,26 @@ describe('standardPlayerDamageCompatibility', () => {
               parameters: { element: 'electric', isExtra: false },
             },
             {
+              kind: 'applyPhysicalInfliction',
+              parameters: {
+                type: 'fracture',
+                target: 'enemy',
+                isExtra: false,
+                noGuardBuffId: 'buff:no-guard',
+                noGuardDefinition: {
+                  stackingType: 'stack',
+                  priority: 0,
+                  maxStackCount: 1,
+                },
+                fractureBuffId: 'buff:fracture',
+                fractureDefinition: {
+                  stackingType: 'stack',
+                  priority: 0,
+                  maxStackCount: 1,
+                },
+              },
+            },
+            {
               kind: 'applyElementalReaction',
               parameters: {
                 reaction: 'electrification',

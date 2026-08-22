@@ -7,7 +7,7 @@ import { resolveScenarioBuilds } from '../core/compiler/resolveScenarioBuilds';
 import { createEmptyScenario } from '../core/project/createProject';
 import { nextGameDataRepository } from '../data/gameDataRepository';
 import { elementalAttachments } from '../data/buffs/elementalAttachments';
-import { arcane, ember, laevatain, yvonne, zhuangFangyi } from '../data/operators';
+import { arcane, ember, laevatain, pogranichnik, yvonne, zhuangFangyi } from '../data/operators';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
 
@@ -296,6 +296,122 @@ describe('registered generated operators', () => {
     expect(
       result.receiptEntries.some(
         entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:ember',
+      ),
+    ).toBe(true);
+  });
+
+  it('runs Pogranichnik physical infliction, SP talent, and ultimate soldiers', () => {
+    const run = (talentLevel: 0 | 2) => {
+      const scenario = createEmptyScenario(
+        `scenario:pogranichnik:${talentLevel}`,
+        '波格兰尼奇默认仓库回归',
+      );
+      scenario.battle.durationFrames = 500;
+      scenario.battle.resourceRules = {
+        ...scenario.battle.resourceRules,
+        initialSp: 300,
+        spRecoveryPerSecond: 0,
+      };
+      scenario.tracks[0] = {
+        id: 'track:pogranichnik',
+        operator: {
+          operatorSlug: pogranichnik.slug,
+          level: 90,
+          promoted: true,
+          potential: 0,
+          trustLevel: 4,
+          skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+          talentStates: talentLevel === 0 ? {} : { 0: talentLevel },
+        },
+        weapon: null,
+        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+        initialState: { ultimateEnergy: 90 },
+        skillCasts: [],
+      };
+      let nextId = 0;
+      const ids = { allocate: (kind: string) => `${kind}:pogranichnik:${++nextId}` };
+      const ultimate = placeSkillGroup({
+        scenario,
+        trackIndex: 0,
+        operator: pogranichnik,
+        skillGroupKey: 'ultimate',
+        startFrame: 1,
+        ids,
+      }).scenario;
+      const battle = placeSkillGroup({
+        scenario: ultimate,
+        trackIndex: 0,
+        operator: pogranichnik,
+        skillGroupKey: 'battleSkill',
+        startFrame: 120,
+        ids,
+      }).scenario;
+      const combo = placeSkillGroup({
+        scenario: battle,
+        trackIndex: 0,
+        operator: pogranichnik,
+        skillGroupKey: 'comboSkill',
+        startFrame: 180,
+        ids,
+      }).scenario;
+      const placed = placeSkillGroup({
+        scenario: combo,
+        trackIndex: 0,
+        operator: pogranichnik,
+        skillGroupKey: 'basicAttack',
+        startFrame: 260,
+        ids,
+      }).scenario;
+
+      return runStandardPlayerDamageScenarioSimulation({
+        scenario: placed,
+        endFrame: 500,
+        criticalSamples: new ExplicitCriticalSampleSource(Array(80).fill(1)),
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        options: {
+          index: nextGameDataRepository,
+          resources: {
+            sharedSpGain: { baseGainEfficiency: 20 },
+            spRecoveryPauseDuration: 1.5,
+            ultimateEnergySystemUnlocked: true,
+            normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+          },
+        },
+      });
+    };
+
+    const withoutTalent = run(0);
+    const withTalent = run(2);
+    const basicDamage = (result: typeof withTalent) =>
+      result.receiptEntries.find(
+        entry =>
+          entry.event === 'DamageApplied' && String(entry.data?.stepKey).includes('basicAttack1'),
+      )?.data?.value;
+
+    expect(basicDamage(withoutTalent)).toBeTypeOf('number');
+    expect(basicDamage(withTalent)).toBeTypeOf('number');
+    expect(Number(basicDamage(withTalent))).toBeGreaterThan(Number(basicDamage(withoutTalent)));
+    const soldiers = withTalent.receiptEntries.filter(
+      entry =>
+        entry.event === 'AbilityEntitySpawned' &&
+        entry.data?.abilityEntityId === 'abilityentity_chr_0029_pograni_ultimate_skill',
+    );
+    expect(soldiers).toHaveLength(8);
+    expect(
+      soldiers.filter(entry => String(entry.data?.childSkillId).endsWith('_finish4')),
+    ).toHaveLength(4);
+    expect(
+      soldiers.filter(
+        entry => entry.data?.childSkillId === 'chr_0029_pograni_ultimate_skill_abilityentity',
+      ),
+    ).toHaveLength(4);
+    expect(
+      withTalent.receiptEntries.some(
+        entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:pogranichnik',
       ),
     ).toBe(true);
   });
