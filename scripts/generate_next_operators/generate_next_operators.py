@@ -7866,6 +7866,7 @@ def compile_skill_entries(
         if has_slot_relation and kind not in {
             "resolvedDamageSequence",
             "resolvedSequence",
+            "routedSkill",
         }:
             raise ValueError(
                 f"{skill.key}: stable slot replacement requires a resolved sequence compiler"
@@ -7919,6 +7920,43 @@ def compile_skill_entries(
                     ),
                 )
             )
+        elif kind == "routedSkill":
+            target_skill_key = config.get("targetSkillKey")
+            if not isinstance(target_skill_key, str) or not target_skill_key:
+                raise ValueError(f"{skill.key}.compile.targetSkillKey: expected non-empty string")
+            target = next((candidate for candidate in skills if candidate.key == target_skill_key), None)
+            if target is None:
+                raise ValueError(
+                    f"{skill.key}.compile.targetSkillKey: unknown skill {target_skill_key!r}"
+                )
+            if skills.index(target) >= skills.index(skill):
+                raise ValueError(
+                    f"{skill.key}: routed target {target_skill_key!r} must be declared first"
+                )
+            if config.get("usePatchCooldown") is not None:
+                raise ValueError(
+                    f"{skill.key}.compile.usePatchCooldown: routed wrappers use CastData cooldown"
+                )
+            if skill.cooldownSeconds <= 0:
+                raise ValueError(f"{skill.key}: routed input wrapper must have CastData cooldown")
+            cooldown_frames = round(skill.cooldownSeconds * 30, 8)
+            cost_resource = config.get("costResource")
+            if cost_resource != "sp" or skill.costType != "Atb" or skill.costValue <= 0:
+                raise ValueError(
+                    f"{skill.key}: routed input wrapper must preserve positive CastData Atb cost"
+                )
+            fields = [
+                "{",
+                f"  ...{generated_skill_name(operator, target_skill_key)},",
+                f"  key: {ts_inline_literal(skill.key)},",
+                "  costs: [{ resource: "
+                f"{ts_inline_literal(cost_resource)}, value: "
+                f"{ts_inline_literal(skill.costValue)} }}],",
+                f"  costFrame: {skill.costFrame},",
+            ]
+            fields.append(f"  cooldownFrames: {ts_inline_literal(cooldown_frames)},")
+            fields.extend(["},"])
+            compiled.append((skill, "\n".join(fields)))
         else:
             raise ValueError(f"{skill.key}.compile.kind: unsupported compiler {kind!r}")
     return compiled, damage_type_factories
@@ -8369,11 +8407,60 @@ def render_skill_groups(
             raise ValueError(f"skillGroups.{key}: expected at least one placeable skill")
         references = [generated_skill_name(operator, skill.key) for skill in base_skills]
         skills_source = references[0] if len(references) == 1 else f"[{', '.join(references)}]"
+        routed_skill_keys = {
+            str(item)
+            for item in require_list(
+                operator.get("routedSkillKeys", []), f"{operator['slug']}.routedSkillKeys"
+            )
+        }
         replacement_references = [
             generated_skill_name(operator, skill.key)
             for skill in referenced_skills
-            if skill.key in replacement_keys
+            if skill.key in replacement_keys and skill.key not in routed_skill_keys
         ]
+        routed_references = []
+        entries_by_key = (
+            {
+                str(entry.get("key")): entry
+                for entry in require_list(operator.get("skills"), f"{operator['slug']}.skills")
+                if isinstance(entry, dict)
+            }
+            if routed_skill_keys
+            else {}
+        )
+        for skill in referenced_skills:
+            if skill.key not in replacement_keys or skill.key not in routed_skill_keys:
+                continue
+            compile_config = require_dict(
+                entries_by_key[skill.key].get("compile"), f"{skill.key}.compile"
+            )
+            target_skill_key = str(compile_config["targetSkillKey"])
+            execution_groups = [
+                require_dict(candidate, f"{operator['slug']}.skillGroups[]")
+                for candidate in require_list(
+                    operator.get("skillGroups"), f"{operator['slug']}.skillGroups"
+                )
+                if target_skill_key
+                in require_list(
+                    require_dict(candidate, f"{operator['slug']}.skillGroups[]").get(
+                        "skillKeys"
+                    ),
+                    f"{operator['slug']}.skillGroups[].skillKeys",
+                )
+            ]
+            if len(execution_groups) != 1:
+                raise ValueError(
+                    f"{skill.key}: routed target {target_skill_key!r} must belong to one group"
+                )
+            execution_group_key = str(execution_groups[0]["key"])
+            routed_references.append(
+                "{ skill: "
+                f"{generated_skill_name(operator, skill.key)}, skillType: "
+                f"{ts_inline_literal(str(compile_config['executionSkillType']))}, levelSource: "
+                f"{ts_inline_literal(str(compile_config['executionLevelSource']))}, "
+                f"executionSkillGroupKey: {ts_inline_literal(execution_group_key)}, "
+                f"executionSkillKey: {ts_inline_literal(target_skill_key)} }}"
+            )
         result.append(
             "{ "
             f"key: {ts_inline_literal(key)}, skillType: {ts_inline_literal(skill_type)}, "
@@ -8381,6 +8468,11 @@ def render_skill_groups(
             + (
                 f", replacementSkills: [{', '.join(replacement_references)}]"
                 if replacement_references
+                else ""
+            )
+            + (
+                f", routedReplacementSkills: [{', '.join(routed_references)}]"
+                if routed_references
                 else ""
             )
             + " "
@@ -8430,7 +8522,20 @@ def validate_skill_groups(
     if len(routing_only_ids) != len(set(routing_only_ids)):
         raise ValueError(f"{operator['slug']}.routingOnlyNativeSkillIds: duplicate skill id")
     generated_ids = {skill.skillId for skill in skills}
-    overlap = sorted(generated_ids.intersection(routing_only_ids))
+    routed_skill_keys = {
+        str(value)
+        for value in require_list(
+            operator.get("routedSkillKeys", []), f"{operator['slug']}.routedSkillKeys"
+        )
+    }
+    unknown_routed_keys = sorted(routed_skill_keys.difference(skill_by_key))
+    if unknown_routed_keys:
+        raise ValueError(f"{operator['slug']}.routedSkillKeys: unknown keys {unknown_routed_keys}")
+    overlap = sorted(
+        skill.skillId
+        for skill in skills
+        if skill.skillId in routing_only_ids and skill.key not in routed_skill_keys
+    )
     if overlap:
         raise ValueError(
             f"{operator['slug']}.routingOnlyNativeSkillIds: generated skills cannot be routing-only: {overlap}"
@@ -8453,6 +8558,15 @@ def validate_skill_groups(
     # CharGrowthTable 的可操作技能组中。collect_operator_passive_skills 已严格
     # 校验文件存在、skillId 一致且 castType=Passive；这里只需避免它与主动技能重叠。
     routing_only = set(routing_only_ids) | base_passive_ids
+    routed_skill_ids = {
+        skill.skillId for skill in skills if skill.key in routed_skill_keys
+    }
+    expected_by_type = {
+        group_type: [
+            skill_id for skill_id in skill_ids if skill_id not in routed_skill_ids
+        ]
+        for group_type, skill_ids in expected_by_type.items()
+    }
     actual_by_type = {
         group_type: [skill_id for skill_id in skill_ids if skill_id not in routing_only]
         for group_type, skill_ids in actual_by_type.items()

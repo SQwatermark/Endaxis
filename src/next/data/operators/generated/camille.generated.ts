@@ -19103,6 +19103,270 @@ export const camilleGeneratedSource = {
       "timelineFinishes": []
     },
     {
+      "key": "battleSkillDuringUltimate",
+      "skillId": "chr_0033_camille_normal_skill_2",
+      "skillType": "battleSkill",
+      "sourceFile": "chr_0033_camille_normal_skill_2.json",
+      "timelineBlockFrames": 25,
+      "blockBoundarySource": "exclusiveFrame+1",
+      "cooldownSeconds": 3.0,
+      "costFrame": 0,
+      "costType": "Atb",
+      "costValue": 40.0,
+      "offsetRecordFrame": 0,
+      "allowNextWindows": [],
+      "inputCacheWindows": [],
+      "timelineActions": [
+        {
+          "startFrame": 3,
+          "endFrame": 18,
+          "actionTypes": [
+            "VoiceTriggerAction"
+          ]
+        }
+      ],
+      "directDamageHits": [],
+      "conditionalActions": [],
+      "inflictions": [],
+      "auxiliaryActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "resourceGains": [],
+      "projectileLaunches": [],
+      "projectileTriggeredSkills": [],
+      "abilityEntityHits": [],
+      "referencedBuffIds": [],
+      "patch": {
+        "levels": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "blackboard": {},
+        "cooldownSeconds": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "costTypes": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "costValues": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "declaredBlackboard": [
+        {
+          "key": "atb",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atb_obtain",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "atb_per_layer",
+          "value": 15.0,
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale",
+          "value": 0.1,
+          "isDynamic": false
+        },
+        {
+          "key": "cam_angle",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "cam_duration",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "duration",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "input_angle",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "poise",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "usp",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "blackboardKeys": [
+        "select_radius"
+      ],
+      "blackboardProvenance": [
+        {
+          "key": "atb",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atb_obtain",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atb_per_layer",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "atk_scale",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "cam_angle",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "cam_duration",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "duration",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "input_angle",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "poise",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        },
+        {
+          "key": "select_radius",
+          "declaredInSkill": false,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": true
+        },
+        {
+          "key": "usp",
+          "declaredInSkill": true,
+          "suppliedByPatch": false,
+          "calculatedLocally": false,
+          "mutatedLocally": false,
+          "readFromBuff": false,
+          "externalRuntimeInput": false
+        }
+      ],
+      "unresolvedCombatActions": [],
+      "buffHolds": [],
+      "targetGroupWrites": [],
+      "targetGroupControlFlowActions": [],
+      "auraActions": [],
+      "physicalInflictions": [],
+      "eventListeners": [],
+      "timeDilations": [],
+      "intervalDamageHits": [],
+      "timelineJumps": [],
+      "timelineJumpControlFlowActions": [],
+      "timelineFinishes": []
+    },
+    {
       "key": "ultimate",
       "skillId": "chr_0033_camille_ultimate_skill",
       "skillType": "ultimate",

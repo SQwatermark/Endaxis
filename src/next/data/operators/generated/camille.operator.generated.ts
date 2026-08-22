@@ -1004,6 +1004,14 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
   },
 );
 
+export const camilleBattleSkillDuringUltimate: SkillDefinition = {
+  ...camilleComboSkill2,
+  key: 'battleSkillDuringUltimate',
+  costs: [{ resource: 'sp', value: 40 }],
+  costFrame: 0,
+  cooldownFrames: 90,
+};
+
 export const camilleUltimate: SkillDefinition = withSkillBlackboard(
   {
     key: 'ultimate',
@@ -1117,6 +1125,19 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
         ),
       ),
       scheduled(
+        118,
+        sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0033_camille_ult_henshin_state',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+            blackboardAssignments: {
+              'duration': { kind: 'blackboard', key: 'duration' },
+            },
+          }),
+        ),
+      ),
+      scheduled(
         120,
         sequence(
           branch(
@@ -1193,11 +1214,84 @@ export const camilleGeneratedOperator: OperatorDefinition = {
     { key: 'basicAttack', skillType: 'basicAttack', levelSource: 'basicAttack', skills: [camilleBasicAttack1, camilleBasicAttack2, camilleBasicAttack3, camilleBasicAttack4, camilleBasicAttack5] },
     { key: 'finisher', skillType: 'finisher', levelSource: 'basicAttack', skills: camilleFinisher },
     { key: 'plungingAttack', skillType: 'plungingAttack', levelSource: 'basicAttack', skills: camillePlungingAttack },
-    { key: 'battleSkill', skillType: 'battleSkill', levelSource: 'battleSkill', skills: camilleBattleSkill },
+    { key: 'battleSkill', skillType: 'battleSkill', levelSource: 'battleSkill', skills: camilleBattleSkill, routedReplacementSkills: [{ skill: camilleBattleSkillDuringUltimate, skillType: 'comboSkill', levelSource: 'comboSkill', executionSkillGroupKey: 'comboSkill', executionSkillKey: 'comboSkill2' }] },
     { key: 'comboSkill', skillType: 'comboSkill', levelSource: 'comboSkill', skills: [camilleComboSkill1, camilleComboSkill2] },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: camilleUltimate },
   ],
   buffDefinitions: {
+    'buff_chr_0033_camille_ult_henshin_end_1': {
+      stackingType: 'refresh',
+      timeClock: 'global',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'duration': 0.55,
+      },
+    },
+    'buff_chr_0033_camille_ult_henshin_end_2': {
+      stackingType: 'refresh',
+      timeClock: 'global',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'duration': 0.35,
+      },
+    },
+    'buff_chr_0033_camille_ult_henshin_state': {
+      stackingType: 'refresh',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'duration': 30,
+      },
+      skillSlotReplacements: [
+        {
+          skillGroupKey: 'battleSkill',
+          targetSkillKey: 'battleSkillDuringUltimate',
+          revertedSkillKey: 'battleSkill',
+          inheritOriginSkillCooldownProgress: false,
+        },
+      ],
+      lifecycleSequences: {
+        enable: sequence(
+          step('modifyActionValue', {
+            key: 'EntityBB_henshin',
+            operation: 'assign',
+            value: { kind: 'constant', value: 1 },
+          }),
+          step('modifyActionValue', {
+            key: 'EntityBB_ult_combo_count',
+            operation: 'assign',
+            value: { kind: 'constant', value: 0 },
+          }),
+        ),
+        finish: sequence(
+          step('modifyActionValue', {
+            key: 'EntityBB_henshin',
+            operation: 'assign',
+            value: { kind: 'constant', value: 0 },
+          }),
+          step('modifyActionValue', {
+            key: 'EntityBB_ult_combo_count',
+            operation: 'assign',
+            value: { kind: 'constant', value: 0 },
+          }),
+          step('applyBuff', {
+            buffId: 'buff_chr_0033_camille_ult_henshin_end_1',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+          }),
+          step('applyBuff', {
+            buffId: 'buff_chr_0033_camille_ult_henshin_end_2',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+          }),
+        ),
+      },
+    },
     'buff_chr_0033_camille_ult_hit': {
       stackingType: 'unique',
       priority: 1,
@@ -1416,6 +1510,7 @@ export const camilleGeneratedOperator: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
+          skillKey: 'battleSkill',
           blackboardKey: 'weak_scale',
           operation: 'add',
           value: 0.05,
@@ -1423,6 +1518,7 @@ export const camilleGeneratedOperator: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
+          skillKey: 'battleSkill',
           blackboardKey: 'vulnerable_scale',
           operation: 'add',
           value: 0.05,
@@ -1430,6 +1526,7 @@ export const camilleGeneratedOperator: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
+          skillKey: 'battleSkill',
           blackboardKey: 'bat_duration',
           operation: 'add',
           value: 15,
@@ -1565,5 +1662,5 @@ export const camilleGeneratedOperator: OperatorDefinition = {
       ],
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'skillBehavior', skillGroupKeys: ['battleSkill', 'ultimate'] }] },
+  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'skillBehavior', skillGroupKeys: ['battleSkill'] }] },
 };

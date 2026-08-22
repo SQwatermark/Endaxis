@@ -223,22 +223,17 @@ function patchSkillBlackboard(
   buildAttributes?: Readonly<Record<OperatorAttribute, number>>,
 ): readonly CompiledSkillProgram[] {
   const value = resolveUpgradeLevelValue(modifier.value, upgradeLevel, `${path}.value`);
-  const targets = programs.filter(
-    program =>
-      program.skillGroupKey === modifier.skillGroupKey &&
-      (modifier.skillKey === undefined || program.skillId === modifier.skillKey),
-  );
+  const isTarget = (program: CompiledSkillProgram): boolean =>
+    (program.executionSkillGroupKey ?? program.skillGroupKey) === modifier.skillGroupKey &&
+    (modifier.skillKey === undefined ||
+      (program.executionSkillId ?? program.skillId) === modifier.skillKey);
+  const targets = programs.filter(isTarget);
   if (targets.length === 0) {
     throw new Error(`${path} references missing skill group '${modifier.skillGroupKey}'`);
   }
   if (!matchesBuildCondition(modifier.condition, buildAttributes, path)) return programs;
   return programs.map(program => {
-    if (
-      program.skillGroupKey !== modifier.skillGroupKey ||
-      (modifier.skillKey !== undefined && program.skillId !== modifier.skillKey)
-    ) {
-      return program;
-    }
+    if (!isTarget(program)) return program;
     const previousValue = program.initialBlackboard[modifier.blackboardKey] ?? 0;
     const nextValue =
       modifier.operation === 'add'
@@ -325,14 +320,17 @@ function patchKeyedReactionStep(
   path: string,
   patch: (step: CompiledReactionStep) => CompiledReactionStep,
 ): readonly CompiledSkillProgram[] {
-  const targets = programs.filter(program => program.skillGroupKey === skillGroupKey);
+  const isTarget = (program: CompiledSkillProgram): boolean =>
+    (program.executionSkillGroupKey ?? program.skillGroupKey) === skillGroupKey;
+  const targets = programs.filter(isTarget);
   if (targets.length === 0) {
     throw new Error(`${path} references missing skill group '${skillGroupKey}'`);
   }
   let matchCount = 0;
   const result = programs.map(program => {
-    if (program.skillGroupKey !== skillGroupKey) return program;
-    return {
+    if (!isTarget(program)) return program;
+    let programMatchCount = 0;
+    const patchedProgram = {
       ...program,
       timelineActions: program.timelineActions.map(action => ({
         ...action,
@@ -345,16 +343,21 @@ function patchKeyedReactionStep(
               );
             }
             matchCount += 1;
+            programMatchCount += 1;
             return patch(step);
           }),
         },
       })),
     };
+    if (programMatchCount > 1) {
+      throw new Error(
+        `${path} expected at most one root reaction step '${stepKey}' per execution body`,
+      );
+    }
+    return patchedProgram;
   });
-  if (matchCount !== 1) {
-    throw new Error(
-      `${path} expected exactly one root reaction step '${stepKey}', found ${matchCount}`,
-    );
+  if (matchCount === 0) {
+    throw new Error(`${path} expected exactly one root reaction step '${stepKey}', found 0`);
   }
   return result;
 }
@@ -394,12 +397,14 @@ function addSkillStat(
   if (!Number.isFinite(modifier.value)) {
     throw new TypeError(`${path}.value must be finite`);
   }
-  const targets = programs.filter(program => program.skillGroupKey === modifier.skillGroupKey);
+  const isTarget = (program: CompiledSkillProgram): boolean =>
+    (program.executionSkillGroupKey ?? program.skillGroupKey) === modifier.skillGroupKey;
+  const targets = programs.filter(isTarget);
   if (targets.length === 0) {
     throw new Error(`${path} references missing skill group '${modifier.skillGroupKey}'`);
   }
   return programs.map(program => {
-    if (program.skillGroupKey !== modifier.skillGroupKey) return program;
+    if (!isTarget(program)) return program;
     return {
       ...program,
       statModifiers: {
@@ -454,7 +459,18 @@ export function applyOperatorUpgradeSkillPatches(
       if (
         options.skipUncompiledSkillGroups === true &&
         'skillGroupKey' in modifier &&
-        !patched.some(program => program.skillGroupKey === modifier.skillGroupKey)
+        !patched.some(program =>
+          modifier.kind === 'patchSkillBlackboard' ||
+          modifier.kind === 'multiplyEffectDuration' ||
+          modifier.kind === 'setEffectiveness' ||
+          modifier.kind === 'addSkillStat'
+            ? (program.executionSkillGroupKey ?? program.skillGroupKey) ===
+                modifier.skillGroupKey &&
+              (!('skillKey' in modifier) ||
+                modifier.skillKey === undefined ||
+                (program.executionSkillId ?? program.skillId) === modifier.skillKey)
+            : program.skillGroupKey === modifier.skillGroupKey,
+        )
       ) {
         // 场景只编译实际放置的技能；未放置组的构筑补丁留给完整定义门禁校验。
         continue;

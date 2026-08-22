@@ -674,6 +674,8 @@
       "slug": "camille",
       "exportName": "camilleGeneratedSource",
       "charId": "chr_0033_camille",
+      "runtimeReplacementSkillKeys": ["battleSkillDuringUltimate"],
+      "routedSkillKeys": ["battleSkillDuringUltimate"],
       "routingOnlyNativeSkillIds": ["chr_0033_camille_normal_skill_2"],
       "talents": [
         {
@@ -741,7 +743,7 @@
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
           "nativeGroupType": 1,
-          "skillKeys": ["battleSkill"]
+          "skillKeys": ["battleSkill", "battleSkillDuringUltimate"]
         },
         {
           "key": "comboSkill",
@@ -866,6 +868,20 @@
           }
         },
         {
+          "key": "battleSkillDuringUltimate",
+          "skillType": "battleSkill",
+          "source": "chr_0033_camille_normal_skill_2.json",
+          "compile": {
+            "kind": "routedSkill",
+            "targetSkillKey": "comboSkill2",
+            "executionSkillType": "comboSkill",
+            "executionLevelSource": "comboSkill",
+            "activationBuffId": "buff_chr_0033_camille_ult_henshin_state",
+            "routingBuffId": "buff_chr_0033_camille_cast_combo2",
+            "costResource": "sp"
+          }
+        },
+        {
           "key": "ultimate",
           "skillType": "ultimate",
           "source": "chr_0033_camille_ultimate_skill.json",
@@ -875,8 +891,7 @@
             "costResource": "ultimateEnergy",
             "usePatchCooldown": true,
             "ignoreBuffIds": ["buff_chr_0033_camille_ult_effect"],
-            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"],
-            "unmodeledBuffIds": ["buff_chr_0033_camille_ult_henshin_state"]
+            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"]
           }
         }
       ]

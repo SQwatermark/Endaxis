@@ -10,6 +10,126 @@ from typing import Any, Callable
 from source_utils import require_dict, require_list, table_row
 
 
+def validate_routed_skills(
+    operator: dict[str, Any], skills: list[Any], skill_source_dir: Any
+) -> None:
+    """严格验证 SwitchToAddBuff 包装器到真实 CastSkill 执行体的旁路证据。"""
+    slug = str(operator["slug"])
+    routed_keys = [
+        str(value)
+        for value in require_list(operator.get("routedSkillKeys", []), f"{slug}.routedSkillKeys")
+    ]
+    if len(routed_keys) != len(set(routed_keys)):
+        raise ValueError(f"{slug}.routedSkillKeys: duplicate key")
+    entries = {
+        str(entry["key"]): require_dict(entry, f"{slug}.skills[]")
+        for entry in require_list(operator.get("skills"), f"{slug}.skills")
+    }
+    skills_by_key = {skill.key: skill for skill in skills}
+    for key in routed_keys:
+        path = f"{slug}.skills.{key}.compile"
+        entry = entries.get(key)
+        skill = skills_by_key.get(key)
+        if entry is None or skill is None:
+            raise ValueError(f"{slug}.routedSkillKeys: unknown key {key!r}")
+        config = require_dict(entry.get("compile"), path)
+        if config.get("kind") != "routedSkill":
+            raise ValueError(f"{path}.kind: expected 'routedSkill'")
+        target_key = str(config.get("targetSkillKey", ""))
+        target = skills_by_key.get(target_key)
+        if target is None:
+            raise ValueError(f"{path}.targetSkillKey: unknown skill {target_key!r}")
+        if config.get("executionSkillType") != target.skillType:
+            raise ValueError(
+                f"{path}.executionSkillType: expected target type {target.skillType!r}"
+            )
+        level_source = config.get("executionLevelSource")
+        if level_source not in {"basicAttack", "battleSkill", "comboSkill", "ultimate"}:
+            raise ValueError(f"{path}.executionLevelSource: invalid level source")
+        target_groups = [
+            require_dict(group, f"{slug}.skillGroups[]")
+            for group in require_list(operator.get("skillGroups"), f"{slug}.skillGroups")
+            if target_key
+            in require_list(
+                require_dict(group, f"{slug}.skillGroups[]").get("skillKeys"),
+                f"{slug}.skillGroups[].skillKeys",
+            )
+        ]
+        if len(target_groups) != 1:
+            raise ValueError(f"{path}.targetSkillKey: target must belong to exactly one group")
+        if target_groups[0].get("levelSource") != level_source:
+            raise ValueError(f"{path}.executionLevelSource: does not match target group")
+        activation_buff_id = str(config.get("activationBuffId", ""))
+        routing_buff_id = str(config.get("routingBuffId", ""))
+        if not activation_buff_id or not routing_buff_id:
+            raise ValueError(f"{path}: activationBuffId and routingBuffId are required")
+
+        raw = require_dict(
+            json.loads((skill_source_dir / skill.sourceFile).read_text(encoding="utf-8")),
+            skill.sourceFile,
+        )
+        switch = require_dict(raw.get("switchToBuffConfig"), f"{skill.sourceFile}.switchToBuffConfig")
+        condition = require_dict(switch.get("condition"), f"{skill.sourceFile}.switchToBuffConfig.condition")
+        condition_actions = require_list(condition.get("actionData"), f"{skill.sourceFile}.switchToBuffConfig.condition.actionData")
+        if len(condition_actions) != 1:
+            raise ValueError(f"{path}: expected exactly one routing condition")
+        condition_action = require_dict(condition_actions[0], f"{path}.condition")
+        if "CheckBuffStackNumAdvanced" not in str(condition_action.get("$type")):
+            raise ValueError(f"{path}: routing condition must be CheckBuffStackNumAdvanced")
+        settings = require_dict(condition_action.get("buffSettings"), f"{path}.condition.buffSettings")
+        if settings.get("checkType") != "Id" or require_list(settings.get("buffIdList"), f"{path}.condition.buffIdList") != [activation_buff_id]:
+            raise ValueError(f"{path}: routing condition must check only {activation_buff_id!r}")
+        value = require_dict(condition_action.get("value"), f"{path}.condition.value")
+        if condition_action.get("compareType") != "GE" or value.get("useBlackboardKey") is not False or value.get("value") != 1.0:
+            raise ValueError(f"{path}: routing condition must require at least one Buff stack")
+        buffs = require_list(switch.get("buffs"), f"{path}.buffs")
+        if len(buffs) != 1 or require_dict(buffs[0], f"{path}.buffs[0]").get("buffId") != routing_buff_id:
+            raise ValueError(f"{path}: expected exactly routing Buff {routing_buff_id!r}")
+        for selector_name in ("buffSource", "targets"):
+            selector = require_dict(switch.get(selector_name), f"{path}.{selector_name}")
+            if selector.get("targetSource") != "Owner":
+                raise ValueError(f"{path}.{selector_name}: expected Owner")
+        if switch.get("asSkillCast") is not False:
+            raise ValueError(f"{path}.asSkillCast: expected false")
+
+        buff_path = skill_source_dir.parent / "BuffData" / f"{routing_buff_id}.json"
+        buff = require_dict(json.loads(buff_path.read_text(encoding="utf-8")), str(buff_path))
+        events = require_list(buff.get("buffEventAction"), f"{routing_buff_id}.buffEventAction")
+        if len(events) != 1 or require_dict(events[0], f"{routing_buff_id}.event").get("buffEvent") != "OnBuffEnable":
+            raise ValueError(f"{path}: routing Buff must only act on OnBuffEnable")
+        actions = require_list(require_dict(events[0], f"{routing_buff_id}.event").get("actions"), f"{routing_buff_id}.actions")
+        if len(actions) != 1:
+            raise ValueError(f"{path}: routing Buff must contain one action group")
+        cast_actions = require_list(require_dict(actions[0], f"{routing_buff_id}.actions[0]").get("actionData"), f"{routing_buff_id}.actionData")
+        if len(cast_actions) != 1:
+            raise ValueError(f"{path}: routing Buff must contain one CastSkill action")
+        cast = require_dict(cast_actions[0], f"{routing_buff_id}.cast")
+        if "CastSkill+Data" not in str(cast.get("$type")):
+            raise ValueError(f"{path}: routing Buff action must be CastSkill")
+        skill_id = require_dict(cast.get("skillId"), f"{routing_buff_id}.cast.skillId")
+        if skill_id.get("useBlackboardKey") is not False or skill_id.get("value") != target.skillId:
+            raise ValueError(f"{path}: routing Buff must cast {target.skillId!r}")
+        if require_dict(cast.get("caster"), f"{path}.caster").get("targetSource") != "Owner":
+            raise ValueError(f"{path}: routed caster must be Owner")
+        if require_dict(cast.get("target"), f"{path}.target").get("targetSource") != "MainTarget":
+            raise ValueError(f"{path}: routed target must be MainTarget")
+        if cast.get("skipApplyCost") is not False or cast.get("inheritSourceSkillCastId") is not False:
+            raise ValueError(f"{path}: unsupported routed CastSkill flags")
+
+        combat_fields = (
+            "directDamageHits", "conditionalActions", "inflictions", "auxiliaryActions",
+            "blackboardCalculations", "blackboardMutations", "buffBlackboardReads",
+            "buffFinishes", "buffHolds", "targetGroupControlFlowActions", "auraActions",
+            "physicalInflictions", "resourceGains", "projectileLaunches",
+            "projectileTriggeredSkills", "abilityEntityHits", "eventListeners",
+            "timeDilations", "keywordActions", "skillReplacements", "intervalDamageHits",
+            "timelineJumps", "timelineJumpControlFlowActions", "timelineFinishes",
+        )
+        nonempty = [field for field in combat_fields if getattr(skill, field)]
+        if nonempty:
+            raise ValueError(f"{path}: input wrapper unexpectedly has combat behavior {nonempty}")
+
+
 def filter_presentation_only_passive_buffs(
     operator: dict[str, Any], passive_skills: dict[str, Any]
 ) -> dict[str, Any]:
@@ -198,6 +318,7 @@ def run_generation(*, services: GenerationPipelineServices) -> None:
             parse_skill(require_dict(entry, f"{slug}.skills[]"), args.source, patch_table)
             for entry in require_list(operator["skills"], f"{slug}.skills")
         ]
+        validate_routed_skills(operator, skills, args.source)
         operator_simulation_no_effect_buff_ids = tuple(
             str(value)
             for value in require_list(

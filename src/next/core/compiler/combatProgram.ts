@@ -316,6 +316,9 @@ export interface CompiledSkillProgram {
   };
   readonly skillGroupKey: string;
   readonly skillId: string;
+  /** 路由包装器的行为养成补丁按真实执行体身份匹配；费用和冷却仍使用槽位身份。 */
+  readonly executionSkillGroupKey?: string;
+  readonly executionSkillId?: string;
   readonly sourceSkillId?: string;
   readonly skillType: SkillType;
   readonly skillLevel: number;

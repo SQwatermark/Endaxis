@@ -1,17 +1,127 @@
 from __future__ import annotations
 
 import unittest
+import json
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 
 from generation_pipeline import (
     filter_presentation_only_passive_buffs,
     mark_explicit_unmodeled_passive_skills,
     retain_reachable_buff_definitions,
+    validate_routed_skills,
 )
 from passive_skill_parser import PassiveBuffApplicationSource, PassiveSkillSource
 
 
 class GenerationPipelineTests(unittest.TestCase):
+    def test_validates_strict_switch_to_buff_skill_routing(self) -> None:
+        owner = {"targetSource": "Owner"}
+        main_target = {"targetSource": "MainTarget"}
+        switch = {
+            "condition": {
+                "actionData": [{
+                    "$type": "Beyond.CheckBuffStackNumAdvanced+Data",
+                    "buffSettings": {"checkType": "Id", "buffIdList": ["buff.form"]},
+                    "compareType": "GE",
+                    "value": {"useBlackboardKey": False, "value": 1.0},
+                }]
+            },
+            "buffs": [{"buffId": "buff.route"}],
+            "buffSource": owner,
+            "targets": owner,
+            "asSkillCast": False,
+        }
+        routed_buff = {
+            "buffEventAction": [{
+                "buffEvent": "OnBuffEnable",
+                "actions": [{
+                    "actionData": [{
+                        "$type": "Beyond.CastSkill+Data",
+                        "caster": owner,
+                        "target": main_target,
+                        "skillId": {"useBlackboardKey": False, "value": "skill.combo"},
+                        "skipApplyCost": False,
+                        "inheritSourceSkillCastId": False,
+                    }]
+                }],
+            }]
+        }
+        empty_fields = {
+            field: ()
+            for field in (
+                "directDamageHits", "conditionalActions", "inflictions", "auxiliaryActions",
+                "resourceGains", "projectileLaunches", "projectileTriggeredSkills",
+                "abilityEntityHits", "eventListeners", "timeDilations", "skillReplacements",
+                "blackboardCalculations", "blackboardMutations", "buffBlackboardReads",
+                "buffFinishes", "buffHolds", "targetGroupControlFlowActions", "auraActions",
+                "physicalInflictions", "keywordActions", "intervalDamageHits",
+                "timelineJumps", "timelineJumpControlFlowActions", "timelineFinishes",
+            )
+        }
+        operator = {
+            "slug": "fixture",
+            "routedSkillKeys": ["routed"],
+            "skillGroups": [
+                {
+                    "key": "battleSkill",
+                    "skillKeys": ["routed"],
+                    "levelSource": "battleSkill",
+                },
+                {
+                    "key": "comboSkill",
+                    "skillKeys": ["combo"],
+                    "levelSource": "comboSkill",
+                },
+            ],
+            "skills": [{
+                "key": "routed",
+                "compile": {
+                    "kind": "routedSkill",
+                    "targetSkillKey": "combo",
+                    "executionSkillType": "comboSkill",
+                    "executionLevelSource": "comboSkill",
+                    "activationBuffId": "buff.form",
+                    "routingBuffId": "buff.route",
+                },
+            }],
+        }
+        skills = [
+            SimpleNamespace(
+                key="routed", skillId="skill.router", skillType="battleSkill",
+                sourceFile="skill.router.json", **empty_fields,
+            ),
+            SimpleNamespace(
+                key="combo", skillId="skill.combo", skillType="comboSkill",
+                sourceFile="skill.combo.json", **empty_fields,
+            ),
+        ]
+
+        with TemporaryDirectory() as temp:
+            root = Path(temp)
+            source = root / "skill-data-cdn"
+            buffs = root / "BuffData"
+            source.mkdir()
+            buffs.mkdir()
+            (source / "skill.router.json").write_text(
+                json.dumps({"switchToBuffConfig": switch}), encoding="utf-8"
+            )
+            (buffs / "buff.route.json").write_text(
+                json.dumps(routed_buff), encoding="utf-8"
+            )
+
+            validate_routed_skills(operator, skills, source)
+
+            routed_buff["buffEventAction"][0]["actions"][0]["actionData"][0][
+                "skipApplyCost"
+            ] = True
+            (buffs / "buff.route.json").write_text(
+                json.dumps(routed_buff), encoding="utf-8"
+            )
+            with self.assertRaisesRegex(ValueError, "unsupported routed CastSkill flags"):
+                validate_routed_skills(operator, skills, source)
+
     def test_filters_only_explicit_passive_startup_buffs(self) -> None:
         passive = PassiveSkillSource(
             skill_id="passive",

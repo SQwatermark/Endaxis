@@ -191,6 +191,79 @@ describe('compileScenarioTimeline', () => {
     ]);
   });
 
+  it('compiles a routed replacement with its execution type and level while keeping the slot identity', () => {
+    const scenario = place(createScenario(), 'battleSkill', 60);
+    scenario.tracks[0]!.operator!.skillLevels.battleSkill = 3;
+    scenario.tracks[0]!.operator!.skillLevels.comboSkill = 7;
+    const routed: SkillDefinition = {
+      key: 'battleSkillRoutedToCombo',
+      sourceSkillId: 'native_combo',
+      timelineBlockFrames: 1,
+      costs: [{ resource: 'sp', value: [10, 20, 30, 40, 50, 60, 70] }],
+      costFrame: 0,
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'dealDamage',
+                parameters: {
+                  damageType: 'physical',
+                  attackScale: [1, 2, 3, 4, 5, 6, 7],
+                  tags: [],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    };
+    const operator = {
+      ...perlica,
+      skillGroups: perlica.skillGroups.map(group =>
+        group.key === 'battleSkill'
+          ? {
+              ...group,
+              routedReplacementSkills: [
+                {
+                  skill: routed,
+                  skillType: 'comboSkill' as const,
+                  levelSource: 'comboSkill' as const,
+                  executionSkillGroupKey: 'comboSkill',
+                  executionSkillKey: 'comboSkill',
+                },
+              ],
+            }
+          : group,
+      ),
+    };
+
+    const compiled = compileScenarioTimeline(scenario, {
+      getOperator: slug => (slug === operator.slug ? operator : null),
+    });
+    const variant = compiled.operators[0]!.skills.find(
+      skill => skill.skillId === 'battleSkillRoutedToCombo',
+    )!;
+
+    expect(variant).toMatchObject({
+      skillGroupKey: 'battleSkill',
+      skillType: 'comboSkill',
+      costs: [{ resource: 'sp', value: 70 }],
+      executionSkillGroupKey: 'comboSkill',
+      executionSkillId: 'comboSkill',
+    });
+    expect(variant.timelineActions[0]!.sequence.steps[0]).toMatchObject({
+      kind: 'dealDamage',
+      parameters: { attackScale: 7 },
+    });
+    expect(compiled.operators[0]!.skillSlotGroups![0]).toEqual({
+      skillGroupKey: 'battleSkill',
+      baseSkillKey: 'battleSkill',
+      replacementSkillKeys: ['battleSkillRoutedToCombo'],
+    });
+  });
+
   it('preserves the declaration order of same-frame inputs', () => {
     let scenario = place(createScenario(), 'battleSkill', 60);
     scenario = place(scenario, 'ultimate', 60);

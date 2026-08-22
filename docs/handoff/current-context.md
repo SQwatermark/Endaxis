@@ -15,7 +15,7 @@
 
 - 当前台式机仓库：`D:\Projects\Endaxis`（本文其他位置所称“远程”即当前环境）
 - 当前工作分支：`codex/time-dilation-curve-editor`（后续整合目标仍为 `feature/next`）。
-- 本轮开发前的 HEAD：`8645b9d1 feat(next): read current buff enhance count`；实际 HEAD 始终以 `git log` 为准。
+- 本轮开发前的 HEAD：`db1a7b70 feat(next): refresh complete operator generation`；实际 HEAD 始终以 `git log` 为准。
 - `tmp/` 是未跟踪临时目录，绝对不要提交。
 - 工作树可能含用户改动；始终先运行 `git status --short`，不要重置或回退不属于当前任务的内容。
 
@@ -73,6 +73,13 @@ step('spawnAbilityEntity', {
 - `type-check:next`、默认定义严格校验、三语言资源与组件接线测试已覆盖。默认 Next 项目第二轨放置并选中 Arclight 终结技，直接引用当前生成定义；其 5 秒能力实体包含局部第 7、63 帧两段真实子时间线，可直接进入“编辑逻辑”验收。此前零倍率终结技造成的时间线停滞已经修复；当前真实阻塞改为 `Pulse` 法术爆发缺少原生 `SkillSetting` / `spellInflictionSettings` 数据，现有本地 AKEDB 与版本化证据均没有可注入内容，不能猜造。
 
 ## 4. 本轮已经完成
+
+### 卡缪变身战技的跨组路由替换闭环（2026-08-22）
+
+- `chr_0033_camille_normal_skill_2` 已确认不是独立战斗执行体：原生 `SwitchToAddBuff` 在变身 Buff 存在时先提交包装器的 40 ATB 与 3 秒冷却，再添加 `buff_chr_0033_camille_cast_combo2`；该 Buff 启用时同步 `CastSkill(chr_0033_camille_combo_skill_2)`。这一顺序已由 `combat-spec` 的 `Skill.TrySwitchToAddBuff`、`SwitchToAddBuff` 和对应测试覆盖，Endaxis 没有猜造规则。
+- `SkillGroupDefinition.routedReplacementSkills` 显式表达“占用当前稳定槽位、但按另一原生技能分类和等级源执行”的跨组形态；普通同组 `replacementSkills` 语义不变。场景放置仍只产生基础战技输入，运行时换槽选择隐藏路由形态；编译器按连携技等级/类型编译执行体，同时保留包装器的 40 SP、第 0 帧费用提交和 90 帧冷却。
+- 生成器新增严格 `routedSkill` 入口，逐项验证变身 Buff 条件、唯一 routing Buff、Owner/MainTarget、`asSkillCast=false`、CastSkill 目标与费用标志，并拒绝包装器中出现额外战斗行为。卡缪终结技的 30 秒换槽 Buff 已生成启用/结束生命周期，结束时恢复基础战技；`ultimate` 已退出 `skillBehavior` 缺口，当前只剩基础战技能力实体弱化/死亡监听缺口。
+- 全量生成与 `--check` 均通过；Python 生成器测试 352/352、Next 199 文件 1340/1340、`type-check:next` 均通过。`tmp/` 仍为未跟踪临时目录，不得提交。
 
 ### 诀奥义能力实体 Aura 闭环
 

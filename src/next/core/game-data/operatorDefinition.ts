@@ -1223,8 +1223,26 @@ export interface SkillGroupDefinition {
    * 它们不会被技能库展开为额外技能块，也不能由项目存档直接指定。
    */
   replacementSkills?: readonly SkillDefinition[];
+  /**
+   * 跨原生技能组的换槽形态。技能仍占用本组的稳定槽位，但执行时使用其原生分类与等级源。
+   * 仅用于原生输入旁路（例如战技包装器实际 Cast 连携技）；普通同组换槽继续使用 replacementSkills。
+   */
+  routedReplacementSkills?: readonly RoutedSkillReplacementDefinition[];
   /** 同一稳定技能组的 UI 变体，不会产生独立的释放身份。 */
   presentationVariants?: readonly SkillPresentationVariantDefinition[];
+}
+
+export interface RoutedSkillReplacementDefinition {
+  /** 已合并输入包装器资源规则、且拥有独立稳定 key 的执行定义。 */
+  skill: SkillDefinition;
+  /** 真正被 Cast 的原生技能分类，而不是所在槽位的分类。 */
+  skillType: SkillType;
+  /** 真正被 Cast 的原生技能等级来源。 */
+  levelSource: SkillLevelSource;
+  /** 执行体在原生养成定义中的技能组身份。 */
+  executionSkillGroupKey: string;
+  /** 执行体在原生养成定义中的稳定技能身份。 */
+  executionSkillKey: string;
 }
 
 /** 同一技能组根据养成条件切换的展示形态，不产生新的释放身份。 */

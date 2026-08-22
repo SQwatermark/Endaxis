@@ -12813,6 +12813,33 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         validate_skill_groups(operator, skills, growth, "growth")
 
+    def test_generated_routed_wrapper_can_bind_a_different_native_group(self) -> None:
+        operator = {
+            "slug": "operator",
+            "routedSkillKeys": ["battleRouted"],
+            "routingOnlyNativeSkillIds": ["skill_router"],
+            "skillGroups": [
+                {"nativeGroupType": 1, "skillKeys": ["battle", "battleRouted"]},
+                {"nativeGroupType": 3, "skillKeys": ["combo"]},
+            ],
+        }
+        skills = [
+            SimpleNamespace(key="battle", skillId="skill_battle"),
+            SimpleNamespace(key="battleRouted", skillId="skill_router"),
+            SimpleNamespace(key="combo", skillId="skill_combo"),
+        ]
+        growth = {
+            "skillGroupMap": {
+                "battle": {"skillGroupType": 1, "skillIdList": ["skill_battle"]},
+                "combo": {
+                    "skillGroupType": 3,
+                    "skillIdList": ["skill_combo", "skill_router"],
+                },
+            }
+        }
+
+        validate_skill_groups(operator, skills, growth, "growth")
+
     def test_combo_skill_registration_accepts_a_known_skill_and_trigger(self) -> None:
         operator = {
             "slug": "operator",

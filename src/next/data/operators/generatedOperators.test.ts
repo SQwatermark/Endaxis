@@ -70,7 +70,7 @@ describe('新增的完整技能转换干员', () => {
 
     expect(skillBehaviorGaps(chenQianyu)).toEqual([]);
     expect(skillBehaviorGaps(rossi)).toEqual([]);
-    expect(skillBehaviorGaps(camille)).toEqual(['battleSkill', 'ultimate']);
+    expect(skillBehaviorGaps(camille)).toEqual(['battleSkill']);
   });
 
   it('Gilberta 战技把来源死亡监视 Buff 留在能力实体局部时间轴', () => {

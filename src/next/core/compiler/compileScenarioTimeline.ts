@@ -20,6 +20,8 @@ import type {
   LevelValues,
   OperatorBuffDefinitions,
   OperatorDefinition,
+  SkillDefinition,
+  SkillType,
 } from '../game-data/operatorDefinition';
 import type {
   OperatorInstanceDocument,
@@ -42,6 +44,14 @@ import {
 import { deriveHitId } from '../combat/timeline/deriveHitId';
 import type { OperatorAttribute } from '../game-data/operatorDefinition';
 import { resolveOperatorPanel } from './resolveOperatorPanel';
+
+interface SkillCompilationBinding {
+  readonly skill: SkillDefinition;
+  readonly skillType: SkillType;
+  readonly level: number;
+  readonly executionSkillGroupKey?: string;
+  readonly executionSkillId?: string;
+}
 
 function bindChildSkillHitIds(
   childSkill: CompiledAbilityEntityChildSkillProgram,
@@ -225,33 +235,55 @@ function compileCastSkillPrograms(
   cast: SkillCastDocument,
   resolved: ResolvedSkillDefinition,
   level: number,
+  build: OperatorInstanceDocument,
   abilityEntityDefinitions: OperatorDefinition['abilityEntityDefinitions'],
 ): readonly CompiledSkillProgram[] {
   const definition = resolved.definition;
-  const definitions = [definition, ...(resolved.group.replacementSkills ?? [])];
-  return definitions.map(skill =>
-    bindProgramHitIds(
-      {
-        ...compileSkill({
-          operatorId: trackId,
-          skillGroupKey: resolved.group.key,
-          skillType: resolved.group.skillType,
-          skillLevel: level,
-          skill,
-          abilityEntityDefinitions,
-        }),
-        ...(cast.simulationInputs === undefined
-          ? {}
-          : { simulationInputs: { ...cast.simulationInputs } }),
-      },
-      cast.id,
-    ),
+  const definitions: SkillCompilationBinding[] = [
+    { skill: definition, skillType: resolved.group.skillType, level },
+    ...(resolved.group.replacementSkills ?? []).map(skill => ({
+      skill,
+      skillType: resolved.group.skillType,
+      level,
+    })),
+    ...(resolved.group.routedReplacementSkills ?? []).map(replacement => ({
+      skill: replacement.skill,
+      skillType: replacement.skillType,
+      level: requireSkillLevel(build, replacement.levelSource),
+      executionSkillGroupKey: replacement.executionSkillGroupKey,
+      executionSkillId: replacement.executionSkillKey,
+    })),
+  ];
+  return definitions.map(
+    ({ skill, skillType, level: definitionLevel, executionSkillGroupKey, executionSkillId }) =>
+      bindProgramHitIds(
+        {
+          ...compileSkill({
+            operatorId: trackId,
+            skillGroupKey: resolved.group.key,
+            skillType,
+            skillLevel: definitionLevel,
+            skill,
+            abilityEntityDefinitions,
+          }),
+          ...(executionSkillGroupKey === undefined
+            ? {}
+            : { executionSkillGroupKey, executionSkillId }),
+          ...(cast.simulationInputs === undefined
+            ? {}
+            : { simulationInputs: { ...cast.simulationInputs } }),
+        },
+        cast.id,
+      ),
   );
 }
 
 function compileSkillSlotGroups(operator: OperatorDefinition): readonly CompiledSkillSlotGroup[] {
   return operator.skillGroups.flatMap(group => {
-    const replacements = group.replacementSkills ?? [];
+    const replacements = [
+      ...(group.replacementSkills ?? []),
+      ...(group.routedReplacementSkills ?? []).map(replacement => replacement.skill),
+    ];
     if (replacements.length === 0) return [];
     const placedSkills = Array.isArray(group.skills) ? group.skills : [group.skills];
     if (placedSkills.length !== 1) {
@@ -294,20 +326,40 @@ export function compileOperatorDefinitionSkills(
   };
   const skills = operator.skillGroups.flatMap(group => {
     const skillLevel = requireSkillLevel(build, group.levelSource);
-    const definitions = [
-      ...(Array.isArray(group.skills) ? group.skills : [group.skills]),
-      ...(group.replacementSkills ?? []),
-    ];
-    return definitions.map(skill => {
-      return compileSkill({
-        operatorId: trackId,
-        skillGroupKey: group.key,
-        skillType: group.skillType,
-        skillLevel,
+    const definitions: SkillCompilationBinding[] = [
+      ...(Array.isArray(group.skills) ? group.skills : [group.skills]).map(skill => ({
         skill,
-        abilityEntityDefinitions,
-      });
-    });
+        skillType: group.skillType,
+        level: skillLevel,
+      })),
+      ...(group.replacementSkills ?? []).map(skill => ({
+        skill,
+        skillType: group.skillType,
+        level: skillLevel,
+      })),
+      ...(group.routedReplacementSkills ?? []).map(replacement => ({
+        skill: replacement.skill,
+        skillType: replacement.skillType,
+        level: requireSkillLevel(build, replacement.levelSource),
+        executionSkillGroupKey: replacement.executionSkillGroupKey,
+        executionSkillId: replacement.executionSkillKey,
+      })),
+    ];
+    return definitions.map(
+      ({ skill, skillType, level, executionSkillGroupKey, executionSkillId }) => ({
+        ...compileSkill({
+          operatorId: trackId,
+          skillGroupKey: group.key,
+          skillType,
+          skillLevel: level,
+          skill,
+          abilityEntityDefinitions,
+        }),
+        ...(executionSkillGroupKey === undefined
+          ? {}
+          : { executionSkillGroupKey, executionSkillId }),
+      }),
+    );
   });
   return applyOperatorUpgradeSkillPatches(skills, resolveActiveOperatorUpgrades(build, operator), {
     buildAttributes,
@@ -360,7 +412,14 @@ function compileResolvedTimelineTracks(
       const resolved = resolveEffectiveSkillDefinition(cast, operator);
       const level = requireSkillLevel(operatorInstance, resolved.group.levelSource);
       skills.push(
-        ...compileCastSkillPrograms(track.id, cast, resolved, level, abilityEntityDefinitions),
+        ...compileCastSkillPrograms(
+          track.id,
+          cast,
+          resolved,
+          level,
+          operatorInstance,
+          abilityEntityDefinitions,
+        ),
       );
       pendingInputs.push({
         frame: cast.placement.startFrame,
