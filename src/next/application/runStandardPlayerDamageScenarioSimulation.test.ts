@@ -10,10 +10,16 @@ import { lastRiteGeneratedOperator } from '../data/operators/generated/last-rite
 import { tangtangGeneratedOperator } from '../data/operators/generated/tangtang.operator.generated';
 import { gilbertaGeneratedOperator } from '../data/operators/generated/gilberta.operator.generated';
 import { rossiGeneratedOperator } from '../data/operators/generated/rossi.operator.generated';
+import { chenQianyuGeneratedOperator } from '../data/operators/generated/chen-qianyu.operator.generated';
+import {
+  estellaBattleSkill,
+  estellaGeneratedOperator,
+} from '../data/operators/generated/estella.operator.generated';
 import { mifuGeneratedOperator } from '../data/operators/generated/mifu.operator.generated';
 import { akekuriGeneratedOperator } from '../data/operators/generated/akekuri.operator.generated';
 import { generatedCommonBuffDefinitions } from '../data/operators/generated/commonBuffDefinitions.generated';
 import { elementalAttachments } from '../data/buffs/elementalAttachments';
+import { scheduled, sequence, step } from '../data/operators/definitionHelpers';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { StandardPlayerDamageCompatibilityError } from '../core/combat/runtime/standardPlayerDamageCompatibility';
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
@@ -669,6 +675,188 @@ function runGeneratedLifengScenario(talentLevel: number) {
 }
 
 describe('runStandardPlayerDamageScenarioSimulation', () => {
+  it('refunds Estella talent SP after she outputs the native shatter buff', () => {
+    const run = (talentLevel: 1 | 2) => {
+      // The damage half of Estella's battle skill independently reads the still-unresolved
+      // CharacterTemplateData key EntityBB_first_hit. Keep the exact generated talent-consume
+      // sequence and feed it the native shatter Buff identity through Estella's own output event;
+      // this avoids inventing an entity-blackboard initializer or changing event ownership.
+      const talentTriggerAndConsumptionSkill = {
+        ...estellaBattleSkill,
+        scheduledSequences: [
+          scheduled(
+            0,
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_common_cryst_triggered_physical_break',
+                target: 'enemy',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: {
+                  atk_scale: { kind: 'constant', value: 0 },
+                },
+              }),
+            ),
+          ),
+          estellaBattleSkill.scheduledSequences[0]!,
+        ],
+      };
+      const estellaForTalentTest = {
+        ...estellaGeneratedOperator,
+        skillGroups: estellaGeneratedOperator.skillGroups.map(group =>
+          group.key === 'battleSkill'
+            ? { ...group, skills: talentTriggerAndConsumptionSkill }
+            : group,
+        ),
+      };
+      const scenario = createEmptyScenario(
+        `scenario:generated-estella-talent-${talentLevel}`,
+        '艾斯黛拉冻结碎冰返还',
+      );
+      scenario.battle.durationFrames = 600;
+      scenario.battle.resourceRules = {
+        ...scenario.battle.resourceRules,
+        initialSp: 300,
+        spRecoveryPerSecond: 0,
+      };
+      const build = (operatorSlug: string, talentStates: Record<number, number>) => ({
+        operatorSlug,
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates,
+      });
+      scenario.tracks[0] = {
+        id: 'track:estella',
+        operator: build(estellaGeneratedOperator.slug, { 0: talentLevel }),
+        weapon: null,
+        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+        initialState: { ultimateEnergy: 0 },
+        skillCasts: [],
+      };
+      let nextId = 0;
+      const ids = { allocate: (kind: string) => `${kind}:estella-talent:${++nextId}` };
+      const placements = [
+        {
+          trackIndex: 0 as const,
+          operator: estellaForTalentTest,
+          skillGroupKey: 'battleSkill',
+          startFrame: 1,
+        },
+      ];
+      const placed = placements.reduce(
+        (current, placement) => placeSkillGroup({ scenario: current, ids, ...placement }).scenario,
+        scenario,
+      );
+      return runStandardPlayerDamageScenarioSimulation({
+        scenario: placed,
+        endFrame: 500,
+        criticalSamples: new ExplicitCriticalSampleSource(Array(100).fill(1)),
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        elementalInflictionDocument: elementalAttachments,
+        options: {
+          ...standardOptions(),
+          index: {
+            getCommonBuffDefinitions: () => generatedCommonBuffDefinitions,
+            getOperator: slug =>
+              slug === estellaGeneratedOperator.slug ? estellaForTalentTest : null,
+            getWeapon: () => null,
+            getGear: () => null,
+            getGearSet: () => null,
+          },
+        },
+      });
+    };
+
+    const refunds = (talentLevel: 1 | 2) =>
+      run(talentLevel).receiptEntries.filter(
+        entry =>
+          entry.event === 'SpChanged' &&
+          entry.sourceId === 'track:estella' &&
+          entry.data?.requestedValue === (talentLevel === 1 ? 7.5 : 15),
+      );
+    expect(refunds(1)).toHaveLength(1);
+    expect(refunds(2)).toHaveLength(1);
+  });
+
+  it('stacks Chen Qianyu talent 1 from skill damage before the next attack', () => {
+    const run = (talentLevel: 1 | 2) => {
+      const scenario = createEmptyScenario(
+        `scenario:generated-chen-talent-${talentLevel}`,
+        '陈千语技能伤害叠攻',
+      );
+      scenario.tracks[0] = {
+        id: 'track:chen-qianyu',
+        operator: {
+          operatorSlug: chenQianyuGeneratedOperator.slug,
+          level: 90,
+          promoted: true,
+          potential: 0,
+          trustLevel: 4,
+          skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+          talentStates: { 0: talentLevel },
+        },
+        weapon: null,
+        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+        initialState: { ultimateEnergy: 0 },
+        skillCasts: [],
+      };
+      let nextId = 0;
+      const ids = { allocate: (kind: string) => `${kind}:chen-talent:${++nextId}` };
+      const skill = placeSkillGroup({
+        scenario,
+        trackIndex: 0,
+        operator: chenQianyuGeneratedOperator,
+        skillGroupKey: 'battleSkill',
+        startFrame: 1,
+        ids,
+      }).scenario;
+      const attack = placeSkillGroup({
+        scenario: skill,
+        trackIndex: 0,
+        operator: chenQianyuGeneratedOperator,
+        skillGroupKey: 'basicAttack',
+        skillKey: 'basicAttack1',
+        startFrame: 40,
+        ids,
+      }).scenario;
+      return runStandardPlayerDamageScenarioSimulation({
+        scenario: attack,
+        endFrame: 80,
+        criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        options: {
+          ...standardOptions(),
+          index: {
+            getOperator: slug =>
+              slug === chenQianyuGeneratedOperator.slug ? chenQianyuGeneratedOperator : null,
+            getWeapon: () => null,
+            getGear: () => null,
+            getGearSet: () => null,
+          },
+        },
+      });
+    };
+
+    const attackDamage = (talentLevel: 1 | 2) =>
+      run(talentLevel).receiptEntries.find(
+        entry =>
+          entry.event === 'DamageApplied' &&
+          String(entry.data?.stepKey).includes('chr_0005_chen_attack1'),
+      )?.data?.value as number | undefined;
+    expect(attackDamage(1)).toBeTypeOf('number');
+    expect(attackDamage(2)).toBeGreaterThan(attackDamage(1) ?? 0);
+  });
+
   it('applies both Rossi talent 1 levels to the real battle-skill bleed chain', () => {
     const run = (talentLevel: 1 | 2) => {
       const scenario = createEmptyScenario(

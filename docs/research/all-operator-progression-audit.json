@@ -154,16 +154,16 @@
       "operatorCount": 22,
       "talent": {
         "totalCount": 44,
-        "definitionConvertedCount": 37,
-        "standardSimulationCompileReadyCount": 37
+        "definitionConvertedCount": 43,
+        "standardSimulationCompileReadyCount": 43
       },
       "potential": {
         "totalCount": 110,
         "definitionConvertedCount": 110,
         "standardSimulationCompileReadyCount": 110
       },
-      "definitionCompleteOperatorCount": 18,
-      "standardSimulationCompileReadyOperatorCount": 18
+      "definitionCompleteOperatorCount": 21,
+      "standardSimulationCompileReadyOperatorCount": 21
     }
   },
   "operators": [
@@ -582,8 +582,8 @@
         "slug": "chen-qianyu",
         "talent": {
           "totalCount": 2,
-          "definitionConvertedCount": 0,
-          "standardSimulationCompileReadyCount": 0
+          "definitionConvertedCount": 1,
+          "standardSimulationCompileReadyCount": 1
         },
         "potential": {
           "totalCount": 5,
@@ -596,10 +596,9 @@
           {
             "key": "talent1",
             "sourceEffectIds": ["chr_0005_chen_talent_1_1", "chr_0005_chen_talent_1_2"],
-            "compiler": "unmodeledTalent",
-            "definitionConverted": false,
-            "standardSimulationCompileReady": false,
-            "blocker": "unmodeled-source-effect"
+            "compiler": "attachedBuff",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
           },
           {
             "key": "talent2",
@@ -1063,16 +1062,16 @@
         "slug": "arclight",
         "talent": {
           "totalCount": 2,
-          "definitionConvertedCount": 1,
-          "standardSimulationCompileReadyCount": 1
+          "definitionConvertedCount": 2,
+          "standardSimulationCompileReadyCount": 2
         },
         "potential": {
           "totalCount": 5,
           "definitionConvertedCount": 5,
           "standardSimulationCompileReadyCount": 5
         },
-        "definitionComplete": false,
-        "standardSimulationCompileReady": false,
+        "definitionComplete": true,
+        "standardSimulationCompileReady": true,
         "talents": [
           {
             "key": "electricDamageBonus",
@@ -1084,10 +1083,9 @@
           {
             "key": "electricAdditionalHit",
             "sourceEffectIds": ["chr_0007_ikut_talent_2_1", "chr_0007_ikut_talent_2_2"],
-            "compiler": "unmodeledTalent",
-            "definitionConverted": false,
-            "standardSimulationCompileReady": false,
-            "blocker": "unmodeled-source-effect"
+            "compiler": "simulationNoEffectOnBeforeTakeSpellInfliction",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
           }
         ],
         "potentials": [
@@ -4157,32 +4155,30 @@
         "slug": "estella",
         "talent": {
           "totalCount": 2,
-          "definitionConvertedCount": 0,
-          "standardSimulationCompileReadyCount": 0
+          "definitionConvertedCount": 2,
+          "standardSimulationCompileReadyCount": 2
         },
         "potential": {
           "totalCount": 5,
           "definitionConvertedCount": 5,
           "standardSimulationCompileReadyCount": 5
         },
-        "definitionComplete": false,
-        "standardSimulationCompileReady": false,
+        "definitionComplete": true,
+        "standardSimulationCompileReady": true,
         "talents": [
           {
             "key": "talent1",
             "sourceEffectIds": ["chr_0021_whiten_talent_1_1", "chr_0021_whiten_talent_1_2"],
-            "compiler": "unmodeledTalent",
-            "definitionConverted": false,
-            "standardSimulationCompileReady": false,
-            "blocker": "unmodeled-source-effect"
+            "compiler": "attachedBuff",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
           },
           {
             "key": "talent2",
             "sourceEffectIds": ["chr_0021_whiten_talent_2_1", "chr_0021_whiten_talent_2_2"],
-            "compiler": "unmodeledTalent",
-            "definitionConverted": false,
-            "standardSimulationCompileReady": false,
-            "blocker": "unmodeled-source-effect"
+            "compiler": "attachedBuff",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
           }
         ],
         "potentials": [
@@ -6091,32 +6087,30 @@
         "slug": "rossi",
         "talent": {
           "totalCount": 2,
-          "definitionConvertedCount": 0,
-          "standardSimulationCompileReadyCount": 0
+          "definitionConvertedCount": 2,
+          "standardSimulationCompileReadyCount": 2
         },
         "potential": {
           "totalCount": 5,
           "definitionConvertedCount": 5,
           "standardSimulationCompileReadyCount": 5
         },
-        "definitionComplete": false,
-        "standardSimulationCompileReady": false,
+        "definitionComplete": true,
+        "standardSimulationCompileReady": true,
         "talents": [
           {
             "key": "talent1",
             "sourceEffectIds": ["chr_0028_wulfa_talent_1_1", "chr_0028_wulfa_talent_1_2"],
-            "compiler": "unmodeledTalent",
-            "definitionConverted": false,
-            "standardSimulationCompileReady": false,
-            "blocker": "unmodeled-source-effect"
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
           },
           {
             "key": "talent2",
             "sourceEffectIds": ["chr_0028_wulfa_talent_2_1", "chr_0028_wulfa_talent_2_2"],
-            "compiler": "unmodeledTalent",
-            "definitionConverted": false,
-            "standardSimulationCompileReady": false,
-            "blocker": "unmodeled-source-effect"
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
           }
         ],
         "potentials": [

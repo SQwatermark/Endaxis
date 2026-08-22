@@ -15162,6 +15162,52 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("match: 'hasAll'", compiled)
         self.assertIn("tags: ['comboSkill']", compiled)
 
+    def test_event_buff_tag_query_ignores_the_serialized_empty_id_placeholder(self) -> None:
+        actions = parse_ordered_action_sequence(
+            [
+                {
+                    "$type": "Example.CheckBuffIdInContext+Data, Example",
+                    "isEnable": True,
+                    "priorityLevel": "Default",
+                    "priorityOffset": 0,
+                    "serverActionIndex": 1,
+                    "checkType": "Tag",
+                    "buffIdList": [{"buffId": ""}],
+                    "query": {
+                        "queryType": "HasAny",
+                        "tags": [{"tagId": -615023885}],
+                    },
+                    "blackboardKey": "",
+                },
+                {
+                    "$type": "Example.ModifyDynamicBlackboard+Data, Example",
+                    "isEnable": True,
+                    "serverActionIndex": 2,
+                    "key": "triggered",
+                    "operation": "Add",
+                    "directValue": True,
+                    "value": {
+                        "useBlackboardKey": False,
+                        "blackboardKey": "",
+                        "value": 1,
+                    },
+                    "calculationTarget": {"targetSource": "Owner", "targetGroupKey": ""},
+                    "calculateType": "HpRatio",
+                },
+            ],
+            "fixture.eventBuffTag",
+            {},
+        )
+
+        guard = actions[0].nestedCondition
+        self.assertIsNotNone(guard)
+        assert guard is not None
+        context_buff = guard.conditions[0].contextBuffId
+        self.assertIsNotNone(context_buff)
+        assert context_buff is not None
+        self.assertEqual(context_buff.buffIds, ())
+        self.assertEqual(context_buff.buffTagIds, (-615023885,))
+
     def test_event_sequence_preserves_damage_type_and_probability_short_circuit(self) -> None:
         actions = parse_ordered_action_sequence(
             [

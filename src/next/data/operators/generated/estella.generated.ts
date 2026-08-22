@@ -788,6 +788,590 @@ export const estellaGeneratedSource = {
       }
     },
     {
+      "buffId": "buff_chr_0021_whiten_talent_0",
+      "sourceFile": "buff_chr_0021_whiten_talent_0.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 10.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "atb",
+          "value": 5.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "ability",
+          "event": "OnOutputBuff",
+          "orderedActionTypes": [
+            "CheckBuffIdInContext",
+            "CreateBuffAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 1,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0021_whiten_talent_0_active",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "atb": {
+                        "value": 0.0,
+                        "blackboardKey": "atb",
+                        "levelValues": [
+                          5.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_chr_0021_whiten_talent_0_active"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckBuffIdInContext",
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 1,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0021_whiten_talent_0_active",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "atb": {
+                            "value": 0.0,
+                            "blackboardKey": "atb",
+                            "levelValues": [
+                              5.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CheckBuffIdInContext",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckBuffIdInContext",
+                        "supported": false,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "damageDecorateMask": null,
+                        "contextBuffId": {
+                          "checkType": "Tag",
+                          "buffIds": [],
+                          "queryType": "HasAny",
+                          "buffTagIds": [
+                            -615023885
+                          ]
+                        },
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CreateBuffAction",
+                        "actionIndex": 1,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[1]"
+                        ],
+                        "serverActionIndex": 1,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
+                        "buffApplication": {
+                          "buffs": [
+                            {
+                              "buffId": "buff_chr_0021_whiten_talent_0_active",
+                              "classification": null,
+                              "blackboardAssignments": {
+                                "atb": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atb",
+                                  "levelValues": [
+                                    5.0
+                                  ]
+                                }
+                              }
+                            }
+                          ],
+                          "targetSource": "Source",
+                          "targetGroupKey": "",
+                          "count": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "buffSource": "ActionSource",
+                          "buffSourceContextKey": "",
+                          "inheritSourceSkillCastInfo": true
+                        }
+                      }
+                    ],
+                    "failActions": [],
+                    "conditionNegated": [],
+                    "alwaysNext": false
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
+    },
+    {
+      "buffId": "buff_chr_0021_whiten_talent_0_active",
+      "sourceFile": "buff_chr_0021_whiten_talent_0_active.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 10.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "atb",
+          "value": 5.0,
+          "isDynamic": true
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "ability",
+          "event": "OnTrulyExitFight",
+          "orderedActionTypes": [
+            "FinishBuffAdvanced"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "FinishBuffAdvanced"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "FinishBuffAdvanced",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "buffFinish": {
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Id",
+                    "buffIds": [
+                      "buff_chr_0021_whiten_talent_0_active"
+                    ],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": [],
+                    "finishAll": true,
+                    "limitSource": false,
+                    "isFinishedEarly": false,
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
+    },
+    {
+      "buffId": "buff_chr_0021_whiten_talent_1",
+      "sourceFile": "buff_chr_0021_whiten_talent_1.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 10.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "dmg_down",
+          "value": -0.2,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [
+        -849838746
+      ],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [
+        {
+          "enabledSide": "Defender",
+          "targetSource": "",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [],
+          "processors": [
+            {
+              "side": "Defender",
+              "zone": "ProdCalcZone",
+              "addition": {
+                "value": 0.0,
+                "blackboardKey": "dmg_down",
+                "levelValues": [
+                  -0.2
+                ]
+              }
+            }
+          ],
+          "tagConditions": [],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "damageTypes": [
+            "cryo"
+          ],
+          "numberComparisons": [],
+          "healthComparisons": [],
+          "buffCountComparisons": []
+        }
+      ],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
+    },
+    {
       "buffId": "buff_common_damage_immune_medium",
       "sourceFile": "buff_common_damage_immune_medium.json",
       "sourceAvailable": true,

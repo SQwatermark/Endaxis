@@ -589,6 +589,74 @@ export const estellaGeneratedOperator: OperatorDefinition = {
         },
       ],
     },
+    'buff_chr_0021_whiten_talent_0_active': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      blackboard: {
+        'atb': 5,
+      },
+    },
+    'buff_chr_0021_whiten_talent_0': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      blackboard: {
+        'atb': 5,
+      },
+      abilityEventResponses: [
+        {
+          event: 'outputBuff',
+          priority: 0,
+          sequence:
+            sequence(
+              branch(
+                {
+                  kind: 'eventBuffTagsMatch',
+                  match: 'hasAny',
+                  buffTagIds: [-615023885],
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0021_whiten_talent_0_active',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'atb': { kind: 'blackboard', key: 'atb' },
+                    },
+                  }),
+                ),
+              ),
+            ),
+        },
+      ],
+    },
+    'buff_chr_0021_whiten_talent_1': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      applyTagIds: [-849838746],
+      blackboard: {
+        'dmg_down': -0.2,
+      },
+      damageModifiers: [
+        {
+          enabledSide: 'defender',
+          condition: {
+            kind: 'eventDamageTypesMatch',
+            damageTypes: ['cryo'],
+          },
+          processors: [
+            {
+              kind: 'damageScale',
+              side: 'defender',
+              zone: 'product',
+              addition: { blackboardKey: 'dmg_down' },
+            },
+          ],
+        },
+      ],
+    },
     'buff_chr_0021_whiten_potential_5_inaura': {
       stackingType: 'unique',
       priority: 0,
@@ -661,11 +729,47 @@ export const estellaGeneratedOperator: OperatorDefinition = {
       key: 'talent1',
       levels: 2,
       modifiers: [],
+      passiveSkills: [
+        {
+          key: 'buff_chr_0021_whiten_talent_0',
+          blackboard: {
+            'atb': [7.5, 15],
+          },
+          enableSequence: sequence(
+            step('applyBuff', {
+              buffId: 'buff_chr_0021_whiten_talent_0',
+              target: 'caster',
+              inheritSourceSkillCastInfo: false,
+              blackboardAssignments: {
+                'atb': { kind: 'blackboard', key: 'atb' },
+              },
+            }),
+          ),
+        },
+      ],
     },
     {
       key: 'talent2',
       levels: 2,
       modifiers: [],
+      passiveSkills: [
+        {
+          key: 'buff_chr_0021_whiten_talent_1',
+          blackboard: {
+            'dmg_down': [-0.1, -0.2],
+          },
+          enableSequence: sequence(
+            step('applyBuff', {
+              buffId: 'buff_chr_0021_whiten_talent_1',
+              target: 'caster',
+              inheritSourceSkillCastInfo: false,
+              blackboardAssignments: {
+                'dmg_down': { kind: 'blackboard', key: 'dmg_down' },
+              },
+            }),
+          ),
+        },
+      ],
     },
   ],
   potentials: [
@@ -747,5 +851,5 @@ export const estellaGeneratedOperator: OperatorDefinition = {
       ),
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }] },
+  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'runtimeDependencies', skillGroupKeys: ['battleSkill'] }] },
 };

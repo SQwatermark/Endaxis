@@ -727,8 +727,15 @@ def parse_conditional_actions(
             ):
                 buff = require_dict(raw_buff, f"{path}.buffIdList[{index}]")
                 buff_id = buff.get("buffId")
-                if not isinstance(buff_id, str) or not buff_id:
+                if not isinstance(buff_id, str):
                     raise ValueError(f"{path}.buffIdList[{index}].buffId: expected string")
+                if not buff_id:
+                    # Tag 查询的序列化形状仍带一个空 ID 占位；它不参与身份匹配。
+                    if check_type == "Tag":
+                        continue
+                    raise ValueError(
+                        f"{path}.buffIdList[{index}].buffId: expected non-empty string"
+                    )
                 buff_ids.append(buff_id)
             buff_tag_ids: list[int] = []
             for index, raw_tag in enumerate(

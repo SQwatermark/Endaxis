@@ -672,6 +672,125 @@ export const chenQianyuGeneratedOperator: OperatorDefinition = {
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: chenQianyuUltimate },
   ],
   buffDefinitions: {
+    'buff_chr_0005_chen_talent_0_1': {
+      stackingType: 'enhanceAndRefresh',
+      presentation: {
+        visible: true,
+        iconId: 'icon_battle_buff_atk_up',
+        iconPath: '/icons/icon_battle_buff_atk_up.webp',
+        showInHeadBarCommon: false,
+        showInHeadBarAttached: false,
+        showInSquadIcon: true,
+        onlyShowForMainCharacter: false,
+        iconStyleInSquad: 'Default',
+        abnormalColorType: 'Physical',
+        orderPriority: {
+          useDirectoryValue: false,
+          value: 0,
+          category: 'CommonCharBuff',
+        },
+      },
+      priority: 0,
+      maxStackCount: 5,
+      durationSeconds: { blackboardKey: 'duration' },
+      blackboard: {
+        'atk': 0,
+        'duration': 0,
+      },
+      attributeModifiers: [
+        {
+          attribute: 'Atk',
+          slot: 'baseMultiplier',
+          value: { blackboardKey: 'atk' },
+        },
+      ],
+    },
+    'buff_chr_0005_chen_talent_0': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      blackboard: {
+        'atk': 0,
+        'duration': 0,
+      },
+      abilityEventResponses: [
+        {
+          event: 'outputDamage',
+          priority: 0,
+          sequence:
+            sequence(
+              branch(
+                {
+                  kind: 'eventDamageTagsMatch',
+                  match: 'hasAll',
+                  tags: ['normalSkill'],
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0005_chen_talent_0_1',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'atk': { kind: 'blackboard', key: 'atk' },
+                      'duration': { kind: 'blackboard', key: 'duration' },
+                    },
+                  }),
+                ),
+              ),
+            ),
+        },
+        {
+          event: 'outputDamage',
+          priority: 0,
+          sequence:
+            sequence(
+              branch(
+                {
+                  kind: 'eventDamageTagsMatch',
+                  match: 'hasAll',
+                  tags: ['ultimateSkill'],
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0005_chen_talent_0_1',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'atk': { kind: 'blackboard', key: 'atk' },
+                      'duration': { kind: 'blackboard', key: 'duration' },
+                    },
+                  }),
+                ),
+              ),
+            ),
+        },
+        {
+          event: 'outputDamage',
+          priority: 0,
+          sequence:
+            sequence(
+              branch(
+                {
+                  kind: 'eventDamageTagsMatch',
+                  match: 'hasAll',
+                  tags: ['comboSkill'],
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0005_chen_talent_0_1',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'atk': { kind: 'blackboard', key: 'atk' },
+                      'duration': { kind: 'blackboard', key: 'duration' },
+                    },
+                  }),
+                ),
+              ),
+            ),
+        },
+      ],
+    },
     'buff_chr_0005_chen_potential_1': {
       stackingType: 'unique',
       priority: 0,
@@ -707,6 +826,26 @@ export const chenQianyuGeneratedOperator: OperatorDefinition = {
       key: 'talent1',
       levels: 2,
       modifiers: [],
+      passiveSkills: [
+        {
+          key: 'buff_chr_0005_chen_talent_0',
+          blackboard: {
+            'atk': [0.04, 0.08],
+            'duration': [10, 10],
+          },
+          enableSequence: sequence(
+            step('applyBuff', {
+              buffId: 'buff_chr_0005_chen_talent_0',
+              target: 'caster',
+              inheritSourceSkillCastInfo: false,
+              blackboardAssignments: {
+                'atk': { kind: 'blackboard', key: 'atk' },
+                'duration': { kind: 'blackboard', key: 'duration' },
+              },
+            }),
+          ),
+        },
+      ],
     },
     {
       key: 'talent2',

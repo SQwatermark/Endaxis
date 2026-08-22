@@ -147,6 +147,847 @@ export const chenQianyuGeneratedSource = {
       }
     },
     {
+      "buffId": "buff_chr_0005_chen_talent_0",
+      "sourceFile": "buff_chr_0005_chen_talent_0.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 10.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "atk",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "duration",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "ability",
+          "event": "OnOutputDamage",
+          "orderedActionTypes": [
+            "CheckDamageDecorateMask",
+            "CreateBuffAction",
+            "CheckDamageDecorateMask",
+            "CreateBuffAction",
+            "CheckDamageDecorateMask",
+            "CreateBuffAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 1,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0005_chen_talent_0_1",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "atk": {
+                        "value": 0.0,
+                        "blackboardKey": "atk",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "duration": {
+                        "value": 0.0,
+                        "blackboardKey": "duration",
+                        "levelValues": [
+                          0.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionOwner",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            },
+            {
+              "actionIndex": 3,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0005_chen_talent_0_1",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "atk": {
+                        "value": 0.0,
+                        "blackboardKey": "atk",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "duration": {
+                        "value": 0.0,
+                        "blackboardKey": "duration",
+                        "levelValues": [
+                          0.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionOwner",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            },
+            {
+              "actionIndex": 5,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0005_chen_talent_0_1",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "atk": {
+                        "value": 0.0,
+                        "blackboardKey": "atk",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "duration": {
+                        "value": 0.0,
+                        "blackboardKey": "duration",
+                        "levelValues": [
+                          0.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionOwner",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_chr_0005_chen_talent_0_1"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckDamageDecorateMask",
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 1,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0005_chen_talent_0_1",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "atk": {
+                            "value": 0.0,
+                            "blackboardKey": "atk",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionOwner",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CheckDamageDecorateMask",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckDamageDecorateMask",
+                        "supported": false,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "damageDecorateMask": {
+                          "checkType": "HasAll",
+                          "mask": 256
+                        },
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CreateBuffAction",
+                        "actionIndex": 1,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[1]"
+                        ],
+                        "serverActionIndex": 1,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
+                        "buffApplication": {
+                          "buffs": [
+                            {
+                              "buffId": "buff_chr_0005_chen_talent_0_1",
+                              "classification": null,
+                              "blackboardAssignments": {
+                                "atk": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                },
+                                "duration": {
+                                  "value": 0.0,
+                                  "blackboardKey": "duration",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                }
+                              }
+                            }
+                          ],
+                          "targetSource": "Owner",
+                          "targetGroupKey": "",
+                          "count": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "buffSource": "ActionOwner",
+                          "buffSourceContextKey": "",
+                          "inheritSourceSkillCastInfo": true
+                        }
+                      }
+                    ],
+                    "failActions": [],
+                    "conditionNegated": [],
+                    "alwaysNext": false
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckDamageDecorateMask",
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 3,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0005_chen_talent_0_1",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "atk": {
+                            "value": 0.0,
+                            "blackboardKey": "atk",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionOwner",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CheckDamageDecorateMask",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 2,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 2,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckDamageDecorateMask",
+                        "supported": false,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "damageDecorateMask": {
+                          "checkType": "HasAll",
+                          "mask": 512
+                        },
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CreateBuffAction",
+                        "actionIndex": 1,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[1]"
+                        ],
+                        "serverActionIndex": 3,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
+                        "buffApplication": {
+                          "buffs": [
+                            {
+                              "buffId": "buff_chr_0005_chen_talent_0_1",
+                              "classification": null,
+                              "blackboardAssignments": {
+                                "atk": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                },
+                                "duration": {
+                                  "value": 0.0,
+                                  "blackboardKey": "duration",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                }
+                              }
+                            }
+                          ],
+                          "targetSource": "Owner",
+                          "targetGroupKey": "",
+                          "count": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "buffSource": "ActionOwner",
+                          "buffSourceContextKey": "",
+                          "inheritSourceSkillCastInfo": true
+                        }
+                      }
+                    ],
+                    "failActions": [],
+                    "conditionNegated": [],
+                    "alwaysNext": false
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckDamageDecorateMask",
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 5,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0005_chen_talent_0_1",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "atk": {
+                            "value": 0.0,
+                            "blackboardKey": "atk",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "duration": {
+                            "value": 0.0,
+                            "blackboardKey": "duration",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionOwner",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CheckDamageDecorateMask",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 4,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 4,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckDamageDecorateMask",
+                        "supported": false,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "damageDecorateMask": {
+                          "checkType": "HasAll",
+                          "mask": 8192
+                        },
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CreateBuffAction",
+                        "actionIndex": 1,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[1]"
+                        ],
+                        "serverActionIndex": 5,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
+                        "buffApplication": {
+                          "buffs": [
+                            {
+                              "buffId": "buff_chr_0005_chen_talent_0_1",
+                              "classification": null,
+                              "blackboardAssignments": {
+                                "atk": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                },
+                                "duration": {
+                                  "value": 0.0,
+                                  "blackboardKey": "duration",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                }
+                              }
+                            }
+                          ],
+                          "targetSource": "Owner",
+                          "targetGroupKey": "",
+                          "count": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "buffSource": "ActionOwner",
+                          "buffSourceContextKey": "",
+                          "inheritSourceSkillCastInfo": true
+                        }
+                      }
+                    ],
+                    "failActions": [],
+                    "conditionNegated": [],
+                    "alwaysNext": false
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
+    },
+    {
+      "buffId": "buff_chr_0005_chen_talent_0_1",
+      "sourceFile": "buff_chr_0005_chen_talent_0_1.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 10.0,
+          "blackboardKey": "duration",
+          "levelValues": [
+            0.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "EnhanceAndRefresh",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 5.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "atk",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "duration",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [
+        {
+          "targetType": "Specific",
+          "attributeType": "Atk",
+          "slot": "BaseMultiplier",
+          "value": {
+            "value": 0.0,
+            "blackboardKey": "atk",
+            "levelValues": [
+              0.0
+            ]
+          }
+        }
+      ],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": true,
+        "spritePath": "icon_battle_buff_atk_up",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": true,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
+    },
+    {
       "buffId": "buff_common_damage_immune_medium",
       "sourceFile": "buff_common_damage_immune_medium.json",
       "sourceAvailable": true,

@@ -1172,8 +1172,36 @@ def _render_multilevel_attached_buff_talent(
     if definition is None:
         raise ValueError(f"attached Buff talent: missing resolved Buff {buff_id!r}")
     declared = {item.key for item in definition.blackboard}
-    if not set(values).issubset(declared):
-        raise ValueError(f"attached Buff talent: assignments are absent from {buff_id!r}")
+    undeclared = set(values) - declared
+    if undeclared:
+        # 部分原生养成项重复携带子 Buff 已经静态声明的 max_stack。根 Buff
+        # 不声明也不读取该键；只在唯一子 Buff 的固定上限与所有等级完全一致时省略。
+        if undeclared != {"max_stack"} or len(set(values["max_stack"])) != 1:
+            raise ValueError(f"attached Buff talent: assignments are absent from {buff_id!r}")
+        child_ids = {
+            application.buffId
+            for event in definition.eventActions
+            for sequence in event.sequences
+            for applied in sequence.buffApplications
+            for application in applied.payload.buffs
+        }
+        if len(child_ids) != 1:
+            raise ValueError(
+                f"attached Buff talent: redundant max_stack requires exactly one child Buff"
+            )
+        child = buff_definitions.get(next(iter(child_ids)))
+        expected_max = values["max_stack"][0]
+        if (
+            child is None
+            or child.lifecycle is None
+            or child.lifecycle.maxStackCount.blackboardKey is not None
+            or child.lifecycle.maxStackCount.levelValues is not None
+            or child.lifecycle.maxStackCount.value != expected_max
+        ):
+            raise ValueError(
+                f"attached Buff talent: redundant max_stack does not match child lifecycle"
+            )
+        values.pop("max_stack")
     lines = ["  modifiers: [],", "  passiveSkills: [", "    {", f"      key: {ts_inline_literal(buff_id)},"]
     if values:
         lines.append("      blackboard: {")

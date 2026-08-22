@@ -293,7 +293,7 @@
         {
           "index": 0,
           "key": "talent1",
-          "compile": "unmodeledTalent"
+          "compile": "attachedBuff"
         },
         {
           "index": 1,
@@ -1881,9 +1881,15 @@
       "exportName": "estellaGeneratedSource",
       "charId": "chr_0021_whiten",
       "talents": [
-        { "index": 0, "key": "talent1", "compile": "unmodeledTalent" },
-        { "index": 1, "key": "talent2", "compile": "unmodeledTalent" }
+        { "index": 0, "key": "talent1", "compile": "attachedBuff" },
+        { "index": 1, "key": "talent2", "compile": "attachedBuff" }
       ],
+      "conversionSupport": {
+        "completeness": "partial",
+        "missingCapabilities": [
+          { "capability": "runtimeDependencies", "skillGroupKeys": ["battleSkill"] }
+        ]
+      },
       "potentials": [
         { "key": "potential1", "compile": "skillBlackboardPatch" },
         { "key": "potential2" },
