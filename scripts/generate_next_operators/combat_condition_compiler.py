@@ -180,6 +180,57 @@ def compile_combat_condition(
         if not skill_types or any(not value for value in skill_types):
             raise ValueError(f"{path}: unsupported ability-event skill type list")
         return f"{{ kind: 'eventSkillTypeIn', skillTypes: {ts_inline_literal(skill_types)} }}"
+    if source.sourceType == "CompareDeckAttr":
+        deck = source.deckAttributeCompare
+        if deck is None:
+            raise ValueError(f"{path}: missing deck-attribute comparison payload")
+
+        def direct_zero(value: Any) -> bool:
+            return (
+                value.blackboardKey is None
+                and value.levelValues is None
+                and value.value == 0
+            )
+
+        if (
+            deck.targetSource != "Owner"
+            or deck.targetGroupKey
+            or deck.leftAttribute not in {"Str", "Agi", "Wisd", "Will"}
+            or deck.rightAttribute not in {"Str", "Agi", "Wisd", "Will"}
+            or deck.comparison not in comparison_operator_map
+            or not direct_zero(deck.leftValue)
+            or not direct_zero(deck.rightValue)
+            or action is None
+            or len(action.succeedActions) != 1
+            or len(action.failActions) != 1
+        ):
+            raise ValueError(f"{path}: unsupported dynamic deck-attribute comparison")
+        succeed = action.succeedActions[0].blackboardMutation
+        fail = action.failActions[0].blackboardMutation
+        if succeed is None or fail is None:
+            raise ValueError(f"{path}: deck-attribute branch does not write a projected flag")
+        if (
+            succeed.key != fail.key
+            or not succeed.key.startswith("EntityBB_")
+            or succeed.operation != "Assign"
+            or fail.operation != "Assign"
+            or succeed.value.blackboardKey is not None
+            or succeed.value.levelValues is not None
+            or fail.value.blackboardKey is not None
+            or fail.value.levelValues is not None
+            or succeed.value.value == fail.value.value
+        ):
+            raise ValueError(f"{path}: deck-attribute branch is not an initializer projection")
+        return "\n".join(
+            [
+                "{",
+                "  kind: 'actionValueCompare',",
+                f"  left: {{ kind: 'blackboard', key: {ts_inline_literal(succeed.key)} }},",
+                "  operator: 'equal',",
+                f"  right: {{ kind: 'constant', value: {ts_inline_literal(succeed.value.value)} }},",
+                "}",
+            ]
+        )
     if is_guaranteed_single_enemy_condition(
         source, action=action, target_group_writes=target_group_writes
     ):

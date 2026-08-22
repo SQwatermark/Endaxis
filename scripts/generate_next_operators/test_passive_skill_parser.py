@@ -44,7 +44,7 @@ class PassiveSkillParserTests(unittest.TestCase):
         self.assertEqual(source.referenced_buff_ids, ("buff-passive",))
         self.assertEqual(source.buffs[0].assignments[0].target_key, "amount")
 
-    def test_keeps_toggle_buff_as_an_explicit_generation_gap(self) -> None:
+    def test_keeps_toggle_buff_runtime_as_an_explicit_generation_gap(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / "passive.json").write_text(
@@ -52,7 +52,7 @@ class PassiveSkillParserTests(unittest.TestCase):
                     {
                         "skillId": "passive",
                         "castType": "Passive",
-                        "passiveSkillType": "AddBuff",
+                        "passiveSkillType": "ToggleBuff",
                         "blackboard": [],
                         "buffs": [],
                         "toggleBuffs": [{}],
@@ -65,6 +65,32 @@ class PassiveSkillParserTests(unittest.TestCase):
 
         self.assertFalse(source.can_generate_add_buff)
         self.assertIn("toggle Buffs are not supported", source.unsupported_reasons)
+
+    def test_add_buff_runtime_ignores_inactive_toggle_payload(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "passive.json").write_text(
+                json.dumps(
+                    {
+                        "skillId": "passive",
+                        "castType": "Passive",
+                        "passiveSkillType": "AddBuff",
+                        "blackboard": [],
+                        "buffs": [{
+                            "buffId": "buff.startup",
+                            "assignBlackboard": False,
+                            "assignItems": [],
+                        }],
+                        "toggleBuffs": [{}],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            source = parse_passive_skill("passive", root)
+
+        self.assertTrue(source.can_generate_add_buff)
+        self.assertNotIn("toggle Buffs are not supported", source.unsupported_reasons)
 
 
 if __name__ == "__main__":

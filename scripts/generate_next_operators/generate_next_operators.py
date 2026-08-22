@@ -261,6 +261,7 @@ from source_utils import (
 )
 from progression_renderer import (
     BUILD_ATTRIBUTE_TYPES,
+    collected_buff_reaction_projection,
     render_potentials,
     render_talents,
     skill_id_by_key,
@@ -2612,6 +2613,8 @@ def audit_passive_skill_generation(
         if passive.event_listeners and reasons == ["passive has no startup Buff"]:
             reasons.clear()
         if passive.can_generate_add_buff:
+            if collected_buff_reaction_projection(passive, definitions_by_id) is not None:
+                continue
             for buff_id in passive.referenced_buff_ids:
                 if buff_id in buff_resolution_issues:
                     reasons.append(
@@ -4903,6 +4906,7 @@ def compile_conditional_buff_application(
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
     current_buff_environment: bool = False,
     current_ability_entity_target: bool = False,
+    current_ability_entity_owner: bool = False,
     current_event_target: bool = False,
     damage_tags: tuple[str, ...] = (),
 ) -> str:
@@ -4949,6 +4953,7 @@ def compile_conditional_buff_application(
             buff_owner_target=buff_owner_target,
             current_buff_environment=current_buff_environment,
             current_ability_entity_target=current_ability_entity_target,
+            current_ability_entity_owner=current_ability_entity_owner,
             current_event_target=current_event_target,
             damage_tags=damage_tags,
         )
@@ -5020,32 +5025,32 @@ def projectile_children_are_inline_conditional(
         return False
     for hit in triggered_skills:
         if (
-            hit.assumedTravelFrames != 0
-            or hit.cycleTruncated
-            or hit.damageUnits
-            or hit.directDamageHits
-            or hit.auxiliaryActions
-            or hit.resourceGains
-            or hit.inflictions
-            or hit.nestedProjectileTriggeredSkills
-            or hit.abilityEntityHits
-            or hit.auraActions
-            or hit.keywordActions
-            or not hit.conditionalActions
+            getattr(hit, "assumedTravelFrames", 0) != 0
+            or getattr(hit, "cycleTruncated", False)
+            or getattr(hit, "damageUnits", ())
+            or getattr(hit, "directDamageHits", ())
+            or getattr(hit, "auxiliaryActions", ())
+            or getattr(hit, "resourceGains", ())
+            or getattr(hit, "inflictions", ())
+            or getattr(hit, "nestedProjectileTriggeredSkills", ())
+            or getattr(hit, "abilityEntityHits", ())
+            or getattr(hit, "auraActions", ())
+            or getattr(hit, "keywordActions", ())
+            or not getattr(hit, "conditionalActions", ())
             or any(
                 condition.startFrame != 0
                 or any(frame != 0 for frame in condition.executionFrames)
-                for condition in hit.conditionalActions
+                for condition in getattr(hit, "conditionalActions", ())
             )
         ):
             return False
         covered_actions = collect_compilable_conditional_action_types(
-            hit.conditionalActions
+            getattr(hit, "conditionalActions", ())
         )
         if any(
             action_type not in covered_actions
             and action_type != "SpawnAbilityEntity"
-            for action_type in hit.combatActions
+            for action_type in getattr(hit, "combatActions", ())
         ):
             return False
     return True
@@ -5107,7 +5112,7 @@ def compile_immediate_projectile_children(
                             ignored_buff_ids=ignored_buff_ids,
                             damage_tags=damage_tags,
                             runtime_blackboard_keys=runtime_blackboard_keys,
-                            target_group_writes=hit.localTargetGroupWrites,
+                            target_group_writes=getattr(hit, "localTargetGroupWrites", ()),
                             input_target="caster",
                             step_key_prefix=step_key_prefix,
                             buff_definitions=buff_definitions,
@@ -5124,7 +5129,7 @@ def compile_immediate_projectile_children(
                         ignored_buff_ids=ignored_buff_ids,
                         damage_tags=damage_tags,
                         runtime_blackboard_keys=runtime_blackboard_keys,
-                        target_group_writes=hit.localTargetGroupWrites,
+                        target_group_writes=getattr(hit, "localTargetGroupWrites", ()),
                         input_target=input_target,
                         step_key_prefix=step_key_prefix,
                         buff_definitions=buff_definitions,
@@ -5545,8 +5550,8 @@ def _validate_conditional_for_each(
         or target_group_write_ability_entity_collection_identity(write) is None
     ):
         raise ValueError(
-            f"{path}: Context ForEach target group is neither a proven unique enemy "
-            "nor an owner-spawned AbilityEntity collection"
+            f"{path}: Context ForEach target group has neither proven unique-enemy "
+            "nor owner-spawned AbilityEntity provenance"
         )
     return "abilityEntity"
 
@@ -6639,6 +6644,10 @@ def ability_entity_child_finishes_are_terminal(hit: AbilityEntityHitSource) -> b
             if frame >= destination and (next_destination is None or frame < next_destination)
         )
         if not segment_finishes:
+            # 相邻目的帧不是独立区段：前一入口会按原生时间线自然落入后一入口，
+            # 因而可共用后一帧的终止动作。中间存在空档时仍必须各自闭合。
+            if next_destination == destination + 1:
+                continue
             return False
         segment_finish = segment_finishes[0]
         if any(
@@ -6653,17 +6662,19 @@ def ability_entity_child_finishes_are_terminal(hit: AbilityEntityHitSource) -> b
 def timeline_jump_outer_condition(
     hit: AbilityEntityHitSource,
     jump: TimedTimelineJumpSource,
-) -> tuple[ConditionalActionSource, bool] | None:
-    """关联唯一根 IfElse 分支中的一次性空条件跳转，并保留所选分支。"""
+) -> tuple[tuple[ConditionalActionSource, bool], ...] | None:
+    """关联条件树分支中的一次性空条件跳转，并保留从根到叶的完整路径。"""
     if not (
-        jump.isOnlyBranchAction
-        and jump.isRootContainerOnlySequenceAction
+        jump.isRootContainerOnlySequenceAction
         and not jump.conditionActionTypes
         and not jump.directConditions
         and not jump.directAnyConditions
     ):
         return None
-    for condition in getattr(hit, "conditionalActions", ()):
+    def visit(
+        condition: ConditionalActionSource,
+        ancestors: tuple[tuple[ConditionalActionSource, bool], ...],
+    ) -> tuple[tuple[ConditionalActionSource, bool], ...] | None:
         for branch_name, jump_when_true in (
             ("succeedActions", True),
             ("failActions", False),
@@ -6671,13 +6682,27 @@ def timeline_jump_outer_condition(
             branch_actions = (
                 condition.succeedActions if jump_when_true else condition.failActions
             )
+            current_path = (*ancestors, (condition, jump_when_true))
+            branch_prefix = (*condition.actionPath, branch_name, "actionData")
             if (
-                jump.actionPath
-                == (*condition.actionPath, branch_name, "actionData", "[0]")
-                and not branch_actions
+                len(jump.actionPath) == len(branch_prefix) + 1
+                and jump.actionPath[: len(branch_prefix)] == branch_prefix
                 and condition.conditions
             ):
-                return condition, jump_when_true
+                return current_path
+            for branch_action in branch_actions:
+                nested = getattr(branch_action, "nestedCondition", None)
+                if nested is None:
+                    continue
+                result = visit(nested, current_path)
+                if result is not None:
+                    return result
+        return None
+
+    for condition in getattr(hit, "conditionalActions", ()):
+        result = visit(condition, ())
+        if result is not None:
+            return result
     return None
 
 
@@ -6725,17 +6750,17 @@ def timeline_jump_can_compile(
         return True
     if hit is None or (outer_match := timeline_jump_outer_condition(hit, jump)) is None:
         return False
-    outer, _ = outer_match
     try:
-        compile_combat_condition_group(
-            outer.conditions,
-            "timelineJump.outerCondition",
-            target_group_writes=getattr(hit, "localTargetGroupWrites", ()),
-            root_skill_context=False,
-            input_target=input_target,
-            ability_entity_current_target=True,
-            negated=getattr(outer, "conditionNegated", ()),
-        )
+        for outer, _ in outer_match:
+            compile_combat_condition_group(
+                outer.conditions,
+                "timelineJump.outerCondition",
+                target_group_writes=getattr(hit, "localTargetGroupWrites", ()),
+                root_skill_context=False,
+                input_target=input_target,
+                ability_entity_current_target=True,
+                negated=getattr(outer, "conditionNegated", ()),
+            )
     except ValueError:
         return False
     return True

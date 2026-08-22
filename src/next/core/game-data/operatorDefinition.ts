@@ -353,6 +353,8 @@ export type CombatCondition =
       kind: 'eventBuffIdMatch';
       buffIds: readonly string[];
     }
+  /** 当前 Buff 结束事件由原生 Ignite/Early 原因触发。 */
+  | { kind: 'eventBuffEndedEarly' }
   | {
       /** 匹配触发当前响应的新施加 Buff 原生标签。 */
       kind: 'eventBuffTagsMatch';
@@ -409,6 +411,7 @@ export const COMBAT_CONDITION_KINDS = [
   'eventSkillTypeIn',
   'eventSkillIdIn',
   'eventBuffIdMatch',
+  'eventBuffEndedEarly',
   'eventBuffTagsMatch',
   'eventSourceMatchesBuffSource',
   'buffSourceMatchesOwner',
@@ -1302,6 +1305,8 @@ export type UpgradeModifierDefinition =
       blackboardKey: string;
       operation: 'add' | 'multiply' | 'assign';
       value: LevelValues;
+      /** 原生 activeCondition；按最终构筑属性选择是否应用。 */
+      condition?: BuildCondition;
     }
   | {
       /** 修改已启用天赋安装的隐藏被动技能黑板；目标天赋关闭时不产生被动程序。 */
@@ -1330,7 +1335,7 @@ export type UpgradeModifierDefinition =
       /** 多形态技能组只修改指定技能定义；省略时修改组内全部形态。 */
       skillKey?: string;
       frames: number;
-      condition?: CombatCondition;
+      condition?: BuildCondition;
     }
   | {
       kind: 'addBuildAttribute';

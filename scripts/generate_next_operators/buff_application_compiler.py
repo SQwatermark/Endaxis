@@ -168,10 +168,19 @@ def compile_buff_application_values(
         definition = buff_definitions.get(buff_id)
         if definition is None:
             raise ValueError(f"{path}: Buff definition {buff_id!r} was not resolved")
-        has_event_sequences = bool(getattr(definition, "comboQteActions", ())) or any(
-            sequence.actions
-            for event in definition.eventActions
-            for sequence in event.sequences
+        has_event_sequences = (
+            bool(getattr(definition, "comboQteActions", ()))
+            or bool(definition.eventActions)
+            or any(
+                sequence.actions
+                for event in definition.eventActions
+                for sequence in event.sequences
+            )
+            or any(
+                loop.skillCasts
+                for event in definition.eventActions
+                for loop in event.forEachActions
+            )
         )
         has_scheduled_sequences = any(
             getattr(definition, field, ())

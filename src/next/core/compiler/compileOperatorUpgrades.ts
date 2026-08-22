@@ -11,6 +11,7 @@ import type {
 } from './combatProgram';
 import type {
   LevelValues,
+  OperatorAttribute,
   OperatorDefinition,
   OperatorPassiveSkillDefinition,
   OperatorUpgradeDefinition,
@@ -18,6 +19,7 @@ import type {
 } from '../game-data/operatorDefinition';
 import type { OperatorInstanceDocument } from '../project/schema';
 import { compileActionSequence } from './compileSkill';
+import { compareCombatNumbers } from '../combat/runtime/numericComparison';
 
 export interface ActiveOperatorUpgrade {
   readonly source: 'talent' | 'potential';
@@ -88,6 +90,22 @@ function resolveUpgradeLevelValue(value: LevelValues, upgradeLevel: number, path
   }
   if (!Number.isFinite(resolved)) throw new TypeError(`${path} must resolve to a finite number`);
   return resolved;
+}
+
+function matchesBuildCondition(
+  condition: Extract<UpgradeModifierDefinition, { kind: 'patchSkillBlackboard' }>['condition'],
+  attributes: Readonly<Record<OperatorAttribute, number>> | undefined,
+  path: string,
+): boolean {
+  if (condition === undefined) return true;
+  if (attributes === undefined) {
+    throw new Error(`${path}.condition requires resolved final build attributes`);
+  }
+  return compareCombatNumbers(
+    attributes[condition.left],
+    attributes[condition.right],
+    condition.operator,
+  );
 }
 
 /**
@@ -202,6 +220,7 @@ function patchSkillBlackboard(
   modifier: Extract<UpgradeModifierDefinition, { kind: 'patchSkillBlackboard' }>,
   upgradeLevel: number,
   path: string,
+  buildAttributes?: Readonly<Record<OperatorAttribute, number>>,
 ): readonly CompiledSkillProgram[] {
   const value = resolveUpgradeLevelValue(modifier.value, upgradeLevel, `${path}.value`);
   const targets = programs.filter(
@@ -212,6 +231,7 @@ function patchSkillBlackboard(
   if (targets.length === 0) {
     throw new Error(`${path} references missing skill group '${modifier.skillGroupKey}'`);
   }
+  if (!matchesBuildCondition(modifier.condition, buildAttributes, path)) return programs;
   return programs.map(program => {
     if (
       program.skillGroupKey !== modifier.skillGroupKey ||
@@ -268,13 +288,12 @@ function addSkillCooldownFrames(
   programs: readonly CompiledSkillProgram[],
   modifier: Extract<UpgradeModifierDefinition, { kind: 'addSkillCooldownFrames' }>,
   path: string,
+  buildAttributes?: Readonly<Record<OperatorAttribute, number>>,
 ): readonly CompiledSkillProgram[] {
   if (!Number.isInteger(modifier.frames)) {
     throw new RangeError(`${path}.frames must be an integer frame delta`);
   }
-  if (modifier.condition !== undefined) {
-    throw new Error(`${path}.condition is not connected to skill compilation`);
-  }
+  if (!matchesBuildCondition(modifier.condition, buildAttributes, path)) return programs;
   const isTarget = (program: CompiledSkillProgram): boolean =>
     program.skillGroupKey === modifier.skillGroupKey &&
     (modifier.skillKey === undefined || program.skillId === modifier.skillKey);
@@ -421,7 +440,10 @@ function addConditionalDamage(
 export function applyOperatorUpgradeSkillPatches(
   programs: readonly CompiledSkillProgram[],
   upgrades: readonly ActiveOperatorUpgrade[],
-  options: { readonly skipUncompiledSkillGroups?: boolean } = {},
+  options: {
+    readonly skipUncompiledSkillGroups?: boolean;
+    readonly buildAttributes?: Readonly<Record<OperatorAttribute, number>>;
+  } = {},
 ): readonly CompiledSkillProgram[] {
   if (options.skipUncompiledSkillGroups === true && programs.length === 0) return programs;
   let patched = programs;
@@ -442,11 +464,17 @@ export function applyOperatorUpgradeSkillPatches(
         continue;
       }
       if (modifier.kind === 'patchSkillBlackboard') {
-        patched = patchSkillBlackboard(patched, modifier, upgrade.level, path);
+        patched = patchSkillBlackboard(
+          patched,
+          modifier,
+          upgrade.level,
+          path,
+          options.buildAttributes,
+        );
         continue;
       }
       if (modifier.kind === 'addSkillCooldownFrames') {
-        patched = addSkillCooldownFrames(patched, modifier, path);
+        patched = addSkillCooldownFrames(patched, modifier, path, options.buildAttributes);
         continue;
       }
       if (modifier.kind === 'patchPassiveBlackboard') continue;

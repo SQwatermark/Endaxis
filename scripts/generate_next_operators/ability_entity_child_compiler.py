@@ -89,7 +89,9 @@ def compile_ability_entity_child_skill(
         services.target_group_write_ability_entity_collection_identity
     )
     timeline_jump_outer_condition = services.timeline_jump_outer_condition
-    child_step_key_prefix = f"{hit.abilityEntityId}:{hit.skillId}"
+    child_step_key_prefix = (
+        f"{getattr(hit, 'abilityEntityId', 'abilityEntity')}:{hit.skillId}"
+    )
     if getattr(hit, "inheritsSourceBlackboard", False):
         runtime_blackboard_keys = frozenset(
             (*runtime_blackboard_keys, *(item.key for item in hit.declaredBlackboard))
@@ -472,24 +474,39 @@ def compile_ability_entity_child_skill(
             ]
             end_frame: int | None = jump.endFrame
         else:
-            outer_condition, jump_when_true = outer_match
-            condition = compile_combat_condition_group(
-                outer_condition.conditions,
-                f"{skill.key}.{hit.skillId}.timelineJump.outerCondition",
-                target_group_writes=getattr(hit, "localTargetGroupWrites", ()),
-                root_skill_context=False,
-                input_target=input_target,
-                ability_entity_current_target=True,
-                negated=getattr(outer_condition, "conditionNegated", ()),
-            )
-            if jump_when_true:
-                condition_lines = [f"  {line}" for line in condition.splitlines()]
+            path_conditions: list[str] = []
+            for outer_condition, jump_when_true in outer_match:
+                compiled_condition = compile_combat_condition_group(
+                    outer_condition.conditions,
+                    f"{skill.key}.{hit.skillId}.timelineJump.outerCondition",
+                    target_group_writes=getattr(hit, "localTargetGroupWrites", ()),
+                    root_skill_context=False,
+                    input_target=input_target,
+                    ability_entity_current_target=True,
+                    negated=getattr(outer_condition, "conditionNegated", ()),
+                )
+                if not jump_when_true:
+                    compiled_condition = "\n".join(
+                        [
+                            "{",
+                            "  kind: 'not',",
+                            "  condition:",
+                            *[f"    {line}" for line in compiled_condition.splitlines()],
+                            "}",
+                        ]
+                    )
+                path_conditions.append(compiled_condition)
+            if len(path_conditions) == 1:
+                condition = path_conditions[0]
             else:
-                condition_lines = [
-                    "  not(",
-                    *[f"    {line}" for line in condition.splitlines()],
-                    "  )",
-                ]
+                condition_parts = ["{", "  kind: 'all',", "  conditions: ["]
+                for path_condition in path_conditions:
+                    nested_lines = [f"    {line}" for line in path_condition.splitlines()]
+                    nested_lines[-1] += ","
+                    condition_parts.extend(nested_lines)
+                condition_parts.extend(["  ],", "}"])
+                condition = "\n".join(condition_parts)
+            condition_lines = [f"  {line}" for line in condition.splitlines()]
             condition_lines[-1] += ","
             step_lines = [
                 "branch(",

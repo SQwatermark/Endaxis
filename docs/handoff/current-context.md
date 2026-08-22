@@ -470,3 +470,13 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 换槽目标技能没有被放置时，源/目标两侧都不存在冷却账本属于合法状态；运行时只改变槽位，不伪造冷却。仅一侧账本缺失仍失败关闭，避免错误继承。
 - 当前门禁：庄方宜单干员生成与 `--check`、`npm run type-check:next`、完整 Next Vitest 198 文件 1320/1320，以及基础被动渲染定向 Python 测试通过。完整 Python 聚合仍有既有 15 个错误和 3 个失败的陈旧夹具/断言，不能宣称全绿；`tmp/` 仍未跟踪且不得提交。
 - 下一步继续从已经横向审计完整但尚未成为正式默认仓库产物的干员中选择资产闭合样本，增加“生成定义 → 默认仓库 → 真实时间轴 → 标准模拟回执”的生产回归。梨诺缺失模板保持失败关闭；同时可补庄方宜强化连携与免费 Buff 仅消费一次的第二条生产回归。
+
+### 2026-08-22：Arcane（李芷烟）正式生成与构筑条件闭环
+
+- Arcane 的 11 个技能已从横向审计产物提升为 `arcane.operator.generated.ts` 正式定义，原手写 `arcane.ts` 改为稳定转出生成定义，旧 `arcane.skills.audit.generated.ts` 删除。技能组、终结技/奥义换槽、四个连携能力实体、实体局部跳转、Buff 生命周期和提前结束分支均由同一生成管线提供；`conversionSupport` 为 `complete`。
+- 智识/意志形态不再由角色特判。角色级 `entityBlackboardInitializers` 按最终构筑四维计算 `intellect >= will`，写入 `EntityBB_wisd_greater_will`，根技能、Buff 和能力实体通过动作黑板继承使用同一值。养成项的 `activeCondition + SkillBBModifier` 与条件冷却也使用统一 `BuildCondition`；完整场景从最终面板求值，缺少构筑属性的轻量编译路径遇到条件养成时严格报错。
+- 天赋 1 的 `paramType=2` 与 `paramType=4` 已先在 `combat-spec` 核对。1.4.4 枚举和 IL2CPP 入口证明二者分别是实际 `CoolDown` 与展示用 `CoolDownDisplay`；复刻库提交 `fee864b` 固定该边界。Endaxis 要求两条同目标、同值、同条件后只应用一次实际冷却，避免重复减 6 秒。
+- 腐蚀强化通过 `OnCollectOutputBuffBbValue` 的完整动作结构和 GameplayTag `Skill/Character/Common/SpellStatus/Corrupt`（`-421286163`）投影为通用 `addReactionDuration/addReactionEffectiveness`，潜能对同一隐藏被动黑板的追加也复用该投影。潜能 5 同时修改奥义主动技能与天赋被动，生成器新增严格的混合技能/被动黑板补丁，而不是丢弃其中一侧。
+- `OnBuffEndsEarly` 现在依据结束原因区分主动/提前结束与自然耗尽；提前结束监听不会在正常到期时误触发。纯表现 Buff 仍必须由完整结构证明后才省略，木桩模型无可观察结果的玩家防守侧行为只按显式配置处理。
+- 本轮门禁：Arcane 从 AKEDB 单干员重生成通过；生成器完整 Python 测试 417/417、`npm run type-check:next`、Next Vitest 198 文件 1324/1324、`git diff --check` 通过。此前记录的 15 个 Python 陈旧夹具错误与 3 个旧断言已经按新增可选字段和严格语义更新后清零。`tmp/` 仍未跟踪且不得提交。
+- 下一步优先补 Arcane 默认仓库生产场景，覆盖两种四维关系下的条件冷却/形态黑板、终结技 Buff 换槽与提前结束还原、连携能力实体伤害及腐蚀持续时间/效能；随后继续选择已横向完整的干员正式化。梨诺缺失模板仍保持失败关闭。

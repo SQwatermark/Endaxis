@@ -496,6 +496,68 @@ describe('operator upgrade compilation', () => {
     expect(source.map(skill => skill.cooldownFrames)).toEqual([600, 480]);
   });
 
+  it('applies conditional Blackboard and cooldown patches from final build attributes', () => {
+    const source = [
+      {
+        ...program('combo', 'comboSkill', 'sp', 0),
+        cooldownFrames: 600,
+        initialBlackboard: { rate: 0.1 },
+      },
+    ];
+    const upgrades = [
+      {
+        source: 'talent' as const,
+        level: 1,
+        definition: {
+          key: 'form-patch',
+          levels: 1,
+          modifiers: [
+            {
+              kind: 'patchSkillBlackboard' as const,
+              skillGroupKey: 'comboSkill',
+              blackboardKey: 'rate',
+              operation: 'add' as const,
+              value: 0.06,
+              condition: {
+                kind: 'deckAttributeCompare' as const,
+                left: 'will' as const,
+                operator: 'greater' as const,
+                right: 'intellect' as const,
+              },
+            },
+            {
+              kind: 'addSkillCooldownFrames' as const,
+              skillGroupKey: 'comboSkill',
+              frames: -180,
+              condition: {
+                kind: 'deckAttributeCompare' as const,
+                left: 'intellect' as const,
+                operator: 'greaterOrEqual' as const,
+                right: 'will' as const,
+              },
+            },
+          ],
+        },
+      },
+    ];
+
+    const intellect = applyOperatorUpgradeSkillPatches(source, upgrades, {
+      buildAttributes: { strength: 0, agility: 0, intellect: 20, will: 20 },
+    });
+    const will = applyOperatorUpgradeSkillPatches(source, upgrades, {
+      buildAttributes: { strength: 0, agility: 0, intellect: 19, will: 20 },
+    });
+
+    expect(intellect[0]).toMatchObject({ cooldownFrames: 420, initialBlackboard: { rate: 0.1 } });
+    expect(will[0]).toMatchObject({
+      cooldownFrames: 600,
+      initialBlackboard: { rate: Math.fround(0.16) },
+    });
+    expect(() => applyOperatorUpgradeSkillPatches(source, upgrades)).toThrow(
+      'requires resolved final build attributes',
+    );
+  });
+
   it('patches one keyed elemental reaction without mutating the source program', () => {
     const source = [
       {

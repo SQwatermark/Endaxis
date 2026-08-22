@@ -104,29 +104,49 @@ def render_operator_definition(
     # Project action-scoped replacements once at the operator boundary so the
     # exact same inline Buff definition is used by skills, talents and potentials.
     for relation in skill_slot_replacement_relations:
-        if relation.get("revertMode") != "buffActionEnd":
-            continue
-        buff_id = relation["activatedByBuffId"]
-        definition = definitions_by_id.get(buff_id)
-        if definition is None:
-            raise ValueError(
-                f"{operator['slug']}: missing lifecycle replacement Buff {buff_id!r}"
-            )
-        definitions_by_id[buff_id] = replace(
-            definition,
-            skillReplacements=(),
-            runtimeSkillSlotReplacements=(
-                *definition.runtimeSkillSlotReplacements,
-                {
-                    "skillGroupKey": relation.get("skillGroupKey", relation["baseSkillKey"]),
-                    "targetSkillKey": relation["replacementSkillKey"],
-                    "revertedSkillKey": relation["baseSkillKey"],
-                    "inheritOriginSkillCooldownProgress": relation[
-                        "inheritOriginSkillCooldownProgress"
-                    ],
-                },
-            ),
+        base_skill = next(skill for skill in skills if skill.key == relation["baseSkillKey"])
+        replacement_skill = next(
+            skill for skill in skills if skill.key == relation["replacementSkillKey"]
         )
+        matching_buff_ids = {
+            relation["activatedByBuffId"],
+            *(
+                buff_id
+                for buff_id, definition in definitions_by_id.items()
+                if any(
+                    item.eventSource == "buff"
+                    and item.event == "DuringBuffEnable"
+                    and item.skillSource.targetSource in {"Owner", "Source"}
+                    and not item.skillSource.targetGroupKey
+                    and item.targetSkillId == replacement_skill.skillId
+                    and item.revertedSkillId == base_skill.skillId
+                    and item.lifeTimeType == "FinishByAction"
+                    for item in definition.skillReplacements
+                )
+            ),
+        }
+        for buff_id in matching_buff_ids:
+            definition = definitions_by_id.get(buff_id)
+            if definition is None:
+                raise ValueError(
+                    f"{operator['slug']}: missing lifecycle replacement Buff {buff_id!r}"
+                )
+            runtime_replacement = {
+                "skillGroupKey": relation.get("skillGroupKey", relation["baseSkillKey"]),
+                "targetSkillKey": relation["replacementSkillKey"],
+                "revertedSkillKey": relation["baseSkillKey"],
+                "inheritOriginSkillCooldownProgress": relation[
+                    "inheritOriginSkillCooldownProgress"
+                ],
+            }
+            definitions_by_id[buff_id] = replace(
+                definition,
+                skillReplacements=(),
+                runtimeSkillSlotReplacements=(
+                    *definition.runtimeSkillSlotReplacements,
+                    runtime_replacement,
+                ),
+            )
     buff_definitions = tuple(definitions_by_id.values())
     skill_entries, damage_type_factories = compile_skill_entries(
         operator,
@@ -162,8 +182,21 @@ def render_operator_definition(
         compile_progression_buff_definition,
     )
     base_passive_ids = [str(value) for value in operator.get("basePassiveSkillIds", [])]
+    compile_time_only_base_passive_ids = {
+        str(value) for value in operator.get("compileTimeOnlyBasePassiveSkillIds", [])
+    }
+    unknown_compile_time_ids = compile_time_only_base_passive_ids.difference(base_passive_ids)
+    if unknown_compile_time_ids:
+        raise ValueError(
+            f"{operator['slug']}: compile-time-only base passives are not declared base passives: "
+            f"{sorted(unknown_compile_time_ids)!r}"
+        )
     base_passive_body = render_base_passive_skills(
-        {skill_id: passive_skills[skill_id] for skill_id in base_passive_ids},
+        {
+            skill_id: passive_skills[skill_id]
+            for skill_id in base_passive_ids
+            if skill_id not in compile_time_only_base_passive_ids
+        },
         definitions_by_id,
         compile_progression_buff_definition,
         compile_passive_event_listener,

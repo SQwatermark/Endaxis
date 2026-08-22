@@ -257,9 +257,15 @@ def compile_inline_buff_event_responses(
                     event.event == "OnRemoveAllPendingComboSkill"
                     and event.orderedActionTypes == ("FinishBuffAdvanced",)
                 )
+                or (
+                    event.eventSource == "ability"
+                    and event.event == "OnSquadRepatriate"
+                    and event.orderedActionTypes == ("FinishOwnerAction",)
+                    and all(not sequence.actions for sequence in event.sequences)
+                )
             )
         ):
-            # 标准木桩模拟没有离战或清空候选连携事件；保留审计事实但不伪造触发点。
+            # 标准木桩模拟没有离战、队伍遣返或清空候选连携事件；保留审计事实但不伪造触发点。
             continue
         event_path = f"{path}[{event_index}]"
         event_damage_tags: list[str] = []
@@ -589,8 +595,10 @@ def compile_inline_buff_behaviors(
     invoked_child_trigger_events = tuple(
         event
         for event in source.eventActions
-        if event.eventSource == "buff"
-        and event.event == "OnBuffTrigger"
+        if (
+            (event.eventSource == "buff" and event.event == "OnBuffTrigger")
+            or (event.eventSource == "ability" and event.event == "OnBuffEndsEarly")
+        )
         and any(loop.skillCasts for loop in event.forEachActions)
     )
     enhance_has_other_events = any(
@@ -714,6 +722,83 @@ def compile_inline_buff_behaviors(
         "step('startCurrentAbilityEntityChildSkill', { childSkill: " + child_source + " })",
         8,
     )
+    if event.eventSource == "ability":
+        if (
+            event.event != "OnBuffEndsEarly"
+            or len(event.sequences) != 1
+            or event.contextBuffTagQueries
+            or len(event.contextBuffIdQueries) != 1
+            or not event.contextBuffIdQueries[0]
+            or len(event.createdBuffIds) != 1
+        ):
+            raise ValueError(f"{path}: unsupported AbilityEntity early-end invocation")
+        presentation = buff_definitions.get(event.createdBuffIds[0])
+        presentation_actions_are_cleanup = presentation is not None and all(
+            not sequence.actions
+            or (
+                item.eventSource == "ability"
+                and item.event == "OnOwnerDead"
+                and all(
+                    action.buffFinish is not None
+                    and action.buffFinish.targetSource == "Owner"
+                    and action.buffFinish.buffCheckType == "Environment"
+                    and not action.buffFinish.isFinishedEarly
+                    for action in sequence.actions
+                )
+            )
+            for item in presentation.eventActions
+            for sequence in item.sequences
+        )
+        if (
+            presentation is None
+            or presentation.attributeModifiers
+            or presentation.damageModifiers
+            or presentation.directDamageHits
+            or presentation.inflictions
+            or presentation.conditionalActions
+            or presentation.resourceGains
+            or not presentation_actions_are_cleanup
+            or any(
+                action_type not in {"IfElseAction", "EffectAction", "PlaySoundAction", "FinishBuffAdvanced"}
+                for item in presentation.eventActions
+                for action_type in item.orderedActionTypes
+            )
+        ):
+            raise ValueError(f"{path}: early-end companion Buff is not presentation-only")
+        sequence_priority = event.sequences[0].priority
+        response_lines = [
+            "abilityEventResponses: [",
+            "  {",
+            "    event: 'finishedBuff',",
+            f"    priority: {sequence_priority},",
+            "    sequence: sequence(",
+            "      branch(",
+            "        {",
+            "          kind: 'all',",
+            "          conditions: [",
+            f"            {{ kind: 'eventBuffIdMatch', buffIds: {ts_inline_literal(event.contextBuffIdQueries[0])} }},",
+            "            { kind: 'eventBuffEndedEarly' },",
+            "          ],",
+            "        },",
+            "        sequence(",
+            f"          {find_source},",
+            "          forEachContextTarget(",
+            f"            {ts_inline_literal(write.targetGroupKey)},",
+            "            sequence(",
+            *indent_source(
+                "step('startCurrentAbilityEntityChildSkill', { childSkill: " + child_source + " })",
+                14,
+            ),
+            "            ),",
+            "          ),",
+            "          step('finishCurrentBuff', { reason: 'other' }),",
+            "        ),",
+            "      ),",
+            "    ),",
+            "  },",
+            "],",
+        ]
+        return "\n".join(response_lines)
     lifecycle_fields: list[str] = []
     enable_sequences: list[CompiledNode] = []
     runtime_blackboard_keys = frozenset(item.key for item in source.blackboard)
@@ -1063,7 +1148,7 @@ def compile_inline_buff_scheduled_sequences(
     covered_actions = collect_compilable_conditional_action_types(
         source.conditionalActions
     )
-    if source.presentationOnlySwitchActionIndexes:
+    if getattr(source, "presentationOnlySwitchActionIndexes", ()):
         covered_actions.add("SwitchAction")
     if source.auxiliaryActions:
         covered_actions.add("CreateBuffAction")

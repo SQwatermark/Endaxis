@@ -16,6 +16,7 @@ import type {
   UpgradeEvent,
 } from '../../game-data/operatorDefinition';
 import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
+import type { BuffFinishReason } from '../buffs/combatBuffs';
 import { ActionBlackboard } from './actionBlackboard';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 
@@ -38,6 +39,7 @@ export type CombatSemanticEvent =
       readonly targetId: string;
       readonly buffId: string;
       readonly sourceId: string;
+      readonly reason: BuffFinishReason;
     }
   | {
       readonly kind: 'airborneOutput';

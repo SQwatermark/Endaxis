@@ -36,6 +36,7 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       condition.kind !== 'eventSkillTypeIn' &&
       condition.kind !== 'eventSkillIdIn' &&
       condition.kind !== 'eventBuffIdMatch' &&
+      condition.kind !== 'eventBuffEndedEarly' &&
       condition.kind !== 'eventBuffTagsMatch' &&
       condition.kind !== 'eventSourceMatchesBuffSource'
     ) {
@@ -69,6 +70,12 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       return (
         (context.event.kind === 'buffApplied' || context.event.kind === 'buffFinished') &&
         condition.buffIds.includes(context.event.buffId)
+      );
+    }
+    if (condition.kind === 'eventBuffEndedEarly') {
+      return (
+        context.event.kind === 'buffFinished' &&
+        (context.event.reason === 'ignite' || context.event.reason === 'early')
       );
     }
     if (condition.kind === 'eventBuffTagsMatch') {

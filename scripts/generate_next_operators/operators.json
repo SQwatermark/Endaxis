@@ -1107,23 +1107,102 @@
       "slug": "arcane",
       "exportName": "arcaneGeneratedSource",
       "charId": "chr_0032_lizhiyan",
-      "outputStage": "audit",
+      "outputStage": "complete",
       "runtimeReplacementSkillKeys": ["arcana"],
+      "talents": [
+        {
+          "index": 0,
+          "key": "formationEnhancement",
+          "compile": "attachedPassiveWithConditionalCooldown"
+        },
+        { "index": 1, "key": "corrosionMastery", "compile": "attachedPassive" }
+      ],
+      "potentials": [
+        { "key": "strengthenedComboSkill", "compile": "skillBlackboardPatch" },
+        { "key": "attributeAndArtsIntensity", "compile": "staticAttributes" },
+        { "key": "strongerCorrosionMastery", "compile": "passiveBlackboardPatch" },
+        { "key": "reducedUltimateCost", "compile": "multiplyUltimateCost" },
+        {
+          "key": "strengthenedFormTalentAndArcana",
+          "compile": "skillAndPassiveBlackboardPatch"
+        }
+      ],
       "skillGroups": [
+        {
+          "key": "basicAttack",
+          "skillType": "basicAttack",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": [
+            "basicAttack1",
+            "basicAttack2",
+            "basicAttack3",
+            "basicAttack4",
+            "basicAttack5"
+          ]
+        },
+        {
+          "key": "finisher",
+          "skillType": "finisher",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["finisher"]
+        },
+        {
+          "key": "plungingAttack",
+          "skillType": "plungingAttack",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["plungingAttack"]
+        },
+        {
+          "key": "battleSkill",
+          "skillType": "battleSkill",
+          "levelSource": "battleSkill",
+          "nativeGroupType": 1,
+          "skillKeys": ["battleSkill"]
+        },
+        {
+          "key": "comboSkill",
+          "skillType": "comboSkill",
+          "levelSource": "comboSkill",
+          "nativeGroupType": 3,
+          "skillKeys": ["comboSkill"]
+        },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
+          "nativeGroupType": 2,
           "skillKeys": ["ultimate", "arcana"]
         }
       ],
       "basePassiveSkillIds": ["chr_0032_lizhiyan_passive"],
+      "compileTimeOnlyBasePassiveSkillIds": ["chr_0032_lizhiyan_passive"],
+      "progressionActiveConditions": {
+        "lizhiyan_wisd": {
+          "kind": "deckAttributeCompare",
+          "left": "intellect",
+          "operator": "greaterOrEqual",
+          "right": "will"
+        },
+        "lizhiyan_will": {
+          "kind": "deckAttributeCompare",
+          "left": "intellect",
+          "operator": "less",
+          "right": "will"
+        }
+      },
       "skills": [
         {
           "key": "comboSkill",
           "skillType": "comboSkill",
           "source": "chr_0032_lizhiyan_combo_skill.json",
-          "compile": { "kind": "resolvedSequence", "tags": ["comboSkill"] }
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["comboSkill"],
+            "simulationNoEffectBuffIds": ["buff_chr_0032_lizhiyan_combo_skill_precheck"]
+          }
         },
         {
           "key": "basicAttack1",

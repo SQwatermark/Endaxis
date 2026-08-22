@@ -72,6 +72,53 @@ STATIC_DAMAGE_INCREASE_ATTRIBUTE_TYPES: dict[int, StaticDamageIncreaseTarget] = 
     53: "cryo",
 }
 
+# 1.4.4 GameplayTagConfig: Skill/Character/Common/SpellStatus/Corrupt.
+COLLECTED_BUFF_REACTION_TAGS = {-421286163: "corrosion"}
+
+
+def collected_buff_reaction_projection(
+    source: PassiveSkillSource,
+    buff_definitions: dict[str, BuffDefinitionSource],
+) -> tuple[str, str, str] | None:
+    """证明常驻被动只把两个输入黑板值投影为反应持续时间/效能强化。"""
+    if source.passive_type != "AddBuff" or len(source.buffs) != 1:
+        return None
+    application = source.buffs[0]
+    definition = buff_definitions.get(application.buff_id)
+    lifecycle = None if definition is None else getattr(definition, "lifecycle", None)
+    if lifecycle is None or lifecycle.lifeType != "Infinity":
+        return None
+    if (
+        definition.attributeModifiers
+        or definition.damageModifiers
+        or definition.directDamageHits
+        or definition.inflictions
+        or definition.conditionalActions
+        or definition.blackboardCalculations
+        or definition.blackboardMutations
+        or definition.buffFinishes
+        or definition.resourceGains
+        or definition.auraActions
+        or definition.invokedAbilityEntitySkills
+        or len(definition.eventActions) != 1
+    ):
+        return None
+    event = definition.eventActions[0]
+    modifier = event.collectedBuffReactionModifier
+    if modifier is None:
+        return None
+    reaction = COLLECTED_BUFF_REACTION_TAGS.get(modifier.buffTagId)
+    if reaction is None:
+        return None
+    assignments = {item.target_key: item.input_key for item in application.assignments}
+    if len(assignments) != len(application.assignments):
+        return None
+    duration_input = assignments.get(modifier.durationAdditionKey)
+    effectiveness_input = assignments.get(modifier.effectivenessAdditionKey)
+    if duration_input is None or effectiveness_input is None:
+        return None
+    return reaction, duration_input, effectiveness_input
+
 # 名称来自 1.4.4 元数据生成的 AttributeType；semantic 描述该值实际进入的面板或战斗维度。
 ATTRIBUTE_TYPE_SEMANTICS: dict[int, tuple[str, str]] = {
     1: ("MaxHp", "panel.maxHealth"),
@@ -361,6 +408,29 @@ def _render_attached_passive_skills(
     rendered_values: dict[str, int | float | list[int | float]] = {}
     for key, values in values_by_key.items():
         rendered_values[key] = values[0] if len(set(values)) == 1 else values
+    reaction_projection = collected_buff_reaction_projection(source, buff_definitions)
+    if reaction_projection is not None:
+        reaction, duration_key, effectiveness_key = reaction_projection
+        if duration_key not in rendered_values or effectiveness_key not in rendered_values:
+            raise ValueError(
+                f"passive {skill_id!r}: reaction projection inputs are absent from attachSkill"
+            )
+        return "\n".join(
+            [
+                "  modifiers: [",
+                "    {",
+                "      kind: 'addReactionDuration',",
+                f"      reaction: {ts_inline_literal(reaction)},",
+                f"      seconds: {ts_inline_literal(rendered_values[duration_key])},",
+                "    },",
+                "    {",
+                "      kind: 'addReactionEffectiveness',",
+                f"      reaction: {ts_inline_literal(reaction)},",
+                f"      value: {ts_inline_literal(rendered_values[effectiveness_key])},",
+                "    },",
+                "  ],",
+            ]
+        )
     lines = ["  passiveSkills: ["]
     lines.extend(
         _render_passive_skill_entry(
@@ -381,12 +451,31 @@ def _parse_skill_blackboard_patch_entry(
     entry_path: str,
     operator: dict[str, Any],
     skills: list[SkillSource],
-) -> tuple[str, str | None, str, str, float]:
+) -> tuple[str, str | None, str, str, float, str | None, dict[str, Any] | None]:
     """解析只包含 skillBbModifier 的养成条目；目标技能必须能对应到稳定技能组。"""
     payload_kinds = _effect_payload_kinds(entry, entry_path)
-    if payload_kinds != ("skillBbModifier",):
+    if payload_kinds not in (("skillBbModifier",), ("activeCondition", "skillBbModifier")):
         raise ValueError(
             f"{entry_path}: expected only skillBbModifier, got {list(payload_kinds)!r}"
+        )
+    active_conditions = require_list(entry.get("activeCondition"), f"{entry_path}.activeCondition")
+    condition_id: str | None = None
+    condition: dict[str, Any] | None = None
+    if active_conditions:
+        if len(active_conditions) != 1 or not isinstance(active_conditions[0], str):
+            raise ValueError(f"{entry_path}.activeCondition: expected exactly one condition id")
+        condition_id = active_conditions[0]
+        configured = require_dict(
+            operator.get("progressionActiveConditions", {}),
+            "operator.progressionActiveConditions",
+        ).get(condition_id)
+        if configured is None:
+            raise ValueError(
+                f"{entry_path}.activeCondition: missing declared projection for {condition_id!r}"
+            )
+        condition = require_dict(
+            configured,
+            f"operator.progressionActiveConditions.{condition_id}",
         )
     modifier = require_dict(entry.get("skillBbModifier"), f"{entry_path}.skillBbModifier")
     skill_id = modifier.get("skillId")
@@ -404,7 +493,7 @@ def _parse_skill_blackboard_patch_entry(
     value = float(require_number(modifier.get("floatValue"), f"{entry_path}.skillBbModifier.floatValue"))
     if not math.isfinite(value):
         raise ValueError(f"{entry_path}.skillBbModifier.floatValue: expected finite value")
-    return group_key, skill_key, blackboard_key, operation, value
+    return group_key, skill_key, blackboard_key, operation, value, condition_id, condition
 
 
 def _render_skill_blackboard_patch_modifiers(
@@ -418,21 +507,33 @@ def _render_skill_blackboard_patch_modifiers(
     """渲染 patchSkillBlackboard modifiers；multi_level 为 true 时 value 按等级数组展开。"""
     if not entries:
         raise ValueError(f"{path}: expected at least one skillBbModifier entry")
-    order: list[tuple[str, str | None, str, str]] = []
-    values_by_key: dict[tuple[str, str | None, str, str], list[float]] = {}
+    order: list[tuple[str, str | None, str, str, str | None]] = []
+    values_by_key: dict[tuple[str, str | None, str, str, str | None], list[float]] = {}
+    conditions_by_id: dict[str, dict[str, Any]] = {}
     for entry_index, entry in enumerate(entries):
         entry_path = f"{path}[{entry_index}]"
-        group_key, skill_key, blackboard_key, operation, value = _parse_skill_blackboard_patch_entry(
-            entry, entry_path, operator, skills
-        )
-        key = (group_key, skill_key, blackboard_key, operation)
+        (
+            group_key,
+            skill_key,
+            blackboard_key,
+            operation,
+            value,
+            condition_id,
+            condition,
+        ) = _parse_skill_blackboard_patch_entry(entry, entry_path, operator, skills)
+        if condition_id is not None:
+            assert condition is not None
+            previous = conditions_by_id.setdefault(condition_id, condition)
+            if previous != condition:
+                raise ValueError(f"{entry_path}.activeCondition: inconsistent projection")
+        key = (group_key, skill_key, blackboard_key, operation, condition_id)
         if key not in values_by_key:
             values_by_key[key] = []
             order.append(key)
         values_by_key[key].append(value)
     lines = ["  modifiers: ["]
     for key in order:
-        group_key, skill_key, blackboard_key, operation = key
+        group_key, skill_key, blackboard_key, operation, condition_id = key
         values = values_by_key[key]
         rendered_value = values if multi_level else values[0]
         lines.extend(
@@ -444,6 +545,11 @@ def _render_skill_blackboard_patch_modifiers(
                 f"      blackboardKey: {ts_inline_literal(blackboard_key)},",
                 f"      operation: {ts_inline_literal(operation)},",
                 f"      value: {ts_inline_literal(rendered_value)},",
+                *(
+                    []
+                    if condition_id is None
+                    else [f"      condition: {ts_inline_literal(conditions_by_id[condition_id])},"]
+                ),
                 "    },",
             ]
         )
@@ -602,6 +708,109 @@ def _parse_skill_cooldown_add_entry(
     return group_key, skill_key, frames
 
 
+def _render_attached_passive_with_conditional_cooldown(
+    effect_entries: list[tuple[str, list[dict[str, Any]]]],
+    operator: dict[str, Any],
+    skills: list[SkillSource],
+    passive_skills: dict[str, PassiveSkillSource],
+    buff_definitions: dict[str, BuffDefinitionSource],
+    compile_buff_definition: Callable[
+        [BuffDefinitionSource, str, dict[str, BuffDefinitionSource]], str
+    ],
+    compile_event_listener: Callable[
+        [object, str, frozenset[str], str, dict[str, BuffDefinitionSource]], str | None
+    ] | None,
+) -> tuple[str, str]:
+    """严格转换附加被动 + 条件冷却；CoolDownDisplay 只作为同值展示镜像验证。"""
+    attached_levels: list[tuple[str, list[dict[str, Any]]]] = []
+    cooldown_target: tuple[str, str | None] | None = None
+    cooldown_frames: int | None = None
+    condition_id: str | None = None
+    for effect_id, entries in effect_entries:
+        attached = [
+            entry
+            for index, entry in enumerate(entries)
+            if _effect_payload_kinds(entry, f"{effect_id}.dataList[{index}]") == ("attachSkill",)
+        ]
+        parameter_entries = [
+            (index, entry)
+            for index, entry in enumerate(entries)
+            if _effect_payload_kinds(entry, f"{effect_id}.dataList[{index}]")
+            == ("activeCondition", "skillParamModifier")
+        ]
+        if len(attached) != 1 or len(parameter_entries) != 2:
+            raise ValueError(f"{effect_id}: expected one passive and cooldown/runtime-display pair")
+        attached_levels.append((effect_id, attached))
+        parsed: dict[int, tuple[str, str | None, int, str]] = {}
+        for index, entry in parameter_entries:
+            entry_path = f"{effect_id}.dataList[{index}]"
+            active = require_list(entry.get("activeCondition"), f"{entry_path}.activeCondition")
+            if len(active) != 1 or not isinstance(active[0], str):
+                raise ValueError(f"{entry_path}.activeCondition: expected one condition id")
+            modifier = require_dict(entry.get("skillParamModifier"), f"{entry_path}.skillParamModifier")
+            if entry.get("modifyType") != 2 or modifier.get("modifyType") != 1:
+                raise ValueError(f"{entry_path}: expected ChangeSkillParam/Add")
+            param_type = require_non_negative_int(
+                modifier.get("paramType"), f"{entry_path}.skillParamModifier.paramType"
+            )
+            if param_type not in (2, 4):
+                raise ValueError(f"{entry_path}: expected CoolDown or CoolDownDisplay")
+            skill_id = modifier.get("skillId")
+            if not isinstance(skill_id, str) or not skill_id:
+                raise ValueError(f"{entry_path}.skillParamModifier.skillId: expected skill id")
+            group_key, skill_key = skill_patch_target_by_id(operator, skills, skill_id)
+            seconds = float(require_number(modifier.get("paramValue"), f"{entry_path}.paramValue"))
+            frames = round(seconds * 30)
+            if not math.isclose(seconds * 30, frames, abs_tol=1e-6):
+                raise ValueError(f"{entry_path}: cooldown is not representable at 30fps")
+            parsed[param_type] = (group_key, skill_key, frames, active[0])
+        if set(parsed) != {2, 4} or parsed[2] != parsed[4]:
+            raise ValueError(f"{effect_id}: CoolDownDisplay must exactly mirror CoolDown")
+        group_key, skill_key, frames, current_condition_id = parsed[2]
+        current_target = (group_key, skill_key)
+        if cooldown_target is None:
+            cooldown_target = current_target
+            cooldown_frames = frames
+            condition_id = current_condition_id
+        elif (
+            cooldown_target != current_target
+            or cooldown_frames != frames
+            or condition_id != current_condition_id
+        ):
+            raise ValueError(f"{effect_id}: talent levels change conditional cooldown identity")
+    passive_body = _render_attached_passive_skills(
+        attached_levels,
+        passive_skills,
+        buff_definitions,
+        compile_buff_definition,
+        compile_event_listener,
+    )
+    if passive_body is None or cooldown_target is None or cooldown_frames is None or condition_id is None:
+        raise ValueError("conditional cooldown talent did not produce a complete passive")
+    configured = require_dict(
+        require_dict(
+            operator.get("progressionActiveConditions", {}),
+            "operator.progressionActiveConditions",
+        ).get(condition_id),
+        f"operator.progressionActiveConditions.{condition_id}",
+    )
+    group_key, skill_key = cooldown_target
+    modifier_body = "\n".join(
+        [
+            "  modifiers: [",
+            "    {",
+            "      kind: 'addSkillCooldownFrames',",
+            f"      skillGroupKey: {ts_inline_literal(group_key)},",
+            *([] if skill_key is None else [f"      skillKey: {ts_inline_literal(skill_key)},"]),
+            f"      frames: {cooldown_frames},",
+            f"      condition: {ts_inline_literal(configured)},",
+            "    },",
+            "  ],",
+        ]
+    )
+    return modifier_body, passive_body
+
+
 def _render_skill_cooldown_and_blackboard_patch_modifiers(
     entries: list[dict[str, Any]],
     path: str,
@@ -746,6 +955,61 @@ def _render_attached_buff_initialization(
             )
         lines.append("      },")
     lines.extend(["    }),", "  ),"])
+    return "\n".join(lines)
+
+
+def _render_skill_and_passive_blackboard_patch_modifiers(
+    entries: list[dict[str, Any]],
+    path: str,
+    operator: dict[str, Any],
+    skills: list[SkillSource],
+    passive_skills: dict[str, PassiveSkillSource],
+) -> str:
+    """严格拆分同一养成项内对可释放技能与隐藏被动的 Blackboard 修改。"""
+    skill_entries: list[dict[str, Any]] = []
+    passive_entries: list[tuple[int, dict[str, Any], PassiveSkillSource]] = []
+    for index, entry in enumerate(entries):
+        entry_path = f"{path}[{index}]"
+        if _effect_payload_kinds(entry, entry_path) != ("skillBbModifier",):
+            raise ValueError(f"{entry_path}: expected only skillBbModifier")
+        modifier = require_dict(entry.get("skillBbModifier"), f"{entry_path}.skillBbModifier")
+        skill_id = modifier.get("skillId")
+        passive = passive_skills.get(skill_id) if isinstance(skill_id, str) else None
+        if passive is None:
+            skill_entries.append(entry)
+        else:
+            passive_entries.append((index, modifier, passive))
+    if not skill_entries or not passive_entries:
+        raise ValueError(f"{path}: expected both skill and passive Blackboard patches")
+    skill_lines = _render_skill_blackboard_patch_modifiers(
+        skill_entries, path, operator, skills, multi_level=False
+    ).splitlines()
+    lines = skill_lines[:-1]
+    for index, modifier, passive in passive_entries:
+        entry_path = f"{path}[{index}]"
+        if not passive.can_generate_add_buff:
+            raise ValueError(f"{entry_path}: target passive {passive.skill_id!r} is not generated")
+        blackboard_key = modifier.get("bbKey")
+        if blackboard_key not in passive.declared_blackboard_keys:
+            raise ValueError(
+                f"{entry_path}: passive {passive.skill_id!r} has no blackboard {blackboard_key!r}"
+            )
+        operation = SKILL_BB_MODIFIER_OPERATIONS.get(modifier.get("modifyType"))
+        if operation is None:
+            raise ValueError(f"{entry_path}: unsupported passive Blackboard operation")
+        value = float(require_number(modifier.get("floatValue"), f"{entry_path}.floatValue"))
+        lines.extend(
+            [
+                "    {",
+                "      kind: 'patchPassiveBlackboard',",
+                f"      passiveSkillKey: {ts_inline_literal(passive.skill_id)},",
+                f"      blackboardKey: {ts_inline_literal(blackboard_key)},",
+                f"      operation: {ts_inline_literal(operation)},",
+                f"      value: {ts_inline_literal(value)},",
+                "    },",
+            ]
+        )
+    lines.append("  ],")
     return "\n".join(lines)
 
 
@@ -1264,13 +1528,14 @@ def render_talents(
                     f"talent {key}: attached passive did not produce a complete program; "
                     f"facts={facts!r}"
                 )
+            has_modifier_projection = passive_body.lstrip().startswith("modifiers:")
             result.append(
                 "\n".join(
                     [
                         "{",
                         f"  key: {ts_inline_literal(key)},",
                         f"  levels: {len(entries)},",
-                        "  modifiers: [],",
+                        *([] if has_modifier_projection else ["  modifiers: [],"]),
                         passive_body,
                         "}",
                     ]
@@ -1288,6 +1553,30 @@ def render_talents(
                             attach_entries,
                             buff_definitions,
                         ),
+                        "}",
+                    ]
+                )
+            )
+        elif kind == "attachedPassiveWithConditionalCooldown":
+            modifier_body, conditional_passive_body = (
+                _render_attached_passive_with_conditional_cooldown(
+                    attach_entries,
+                    operator,
+                    skills,
+                    passive_skills,
+                    buff_definitions,
+                    compile_buff_definition,
+                    compile_event_listener,
+                )
+            )
+            result.append(
+                "\n".join(
+                    [
+                        "{",
+                        f"  key: {ts_inline_literal(key)},",
+                        f"  levels: {len(entries)},",
+                        modifier_body,
+                        conditional_passive_body,
                         "}",
                     ]
                 )
@@ -1327,19 +1616,25 @@ def render_talents(
             )
         elif kind == "skillBlackboardPatch":
             patch_entries: list[dict[str, Any]] = []
-            expected_keys: set[tuple[str, str | None, str, str]] | None = None
+            expected_keys: set[tuple[str, str | None, str, str, str | None]] | None = None
             for level, effect_id in entries:
                 effect = table_row(effects, effect_id, "PotentialTalentEffectTable")
                 data_list = require_list(effect.get("dataList"), f"{effect_id}.dataList")
-                level_keys: set[tuple[str, str | None, str, str]] = set()
+                level_keys: set[tuple[str, str | None, str, str, str | None]] = set()
                 level_entries: list[dict[str, Any]] = []
                 for index, raw_entry in enumerate(data_list):
                     entry_path = f"{effect_id}.dataList[{index}]"
                     entry = require_dict(raw_entry, entry_path)
-                    group_key, skill_key, blackboard_key, operation, _ = _parse_skill_blackboard_patch_entry(
-                        entry, entry_path, operator, skills
-                    )
-                    patch_key = (group_key, skill_key, blackboard_key, operation)
+                    (
+                        group_key,
+                        skill_key,
+                        blackboard_key,
+                        operation,
+                        _,
+                        condition_id,
+                        _,
+                    ) = _parse_skill_blackboard_patch_entry(entry, entry_path, operator, skills)
+                    patch_key = (group_key, skill_key, blackboard_key, operation, condition_id)
                     if patch_key in level_keys:
                         raise ValueError(f"{entry_path}: duplicate blackboard patch {patch_key!r}")
                     level_keys.add(patch_key)
@@ -1470,6 +1765,7 @@ def render_potentials(
         if kind not in {
             "staticAttributes",
             "skillBlackboardPatch",
+            "skillAndPassiveBlackboardPatch",
             "skillBlackboardPatchAndAttachedBuff",
             "skillCooldownAndBlackboardPatch",
             "multiplyUltimateCost",
@@ -1493,6 +1789,17 @@ def render_potentials(
                 operator,
                 skills,
                 multi_level=False,
+            )
+        elif kind == "skillAndPassiveBlackboardPatch":
+            body = _render_skill_and_passive_blackboard_patch_modifiers(
+                [
+                    require_dict(entry, f"{effect_id}.dataList[{index}]")
+                    for index, entry in enumerate(data_list)
+                ],
+                f"PotentialTalentEffectTable.{effect_id}.dataList",
+                operator,
+                skills,
+                passive_skills,
             )
         elif kind == "skillBlackboardPatchAndAttachedBuff":
             body = _render_skill_blackboard_patch_and_attached_buff(
@@ -1568,6 +1875,36 @@ def render_potentials(
                         f"{entry_path}.skillBbModifier.floatValue",
                     )
                 )
+                reaction_projection = collected_buff_reaction_projection(
+                    passive, buff_definitions
+                )
+                if reaction_projection is not None:
+                    reaction, duration_key, effectiveness_key = reaction_projection
+                    if operation != "add":
+                        raise ValueError(
+                            f"{entry_path}: reaction projection only supports additive patches"
+                        )
+                    if blackboard_key == duration_key:
+                        kind = "addReactionDuration"
+                        value_field = "seconds"
+                    elif blackboard_key == effectiveness_key:
+                        kind = "addReactionEffectiveness"
+                        value_field = "value"
+                    else:
+                        raise ValueError(
+                            f"{entry_path}: blackboard {blackboard_key!r} is not a projected "
+                            "reaction input"
+                        )
+                    lines.extend(
+                        [
+                            "    {",
+                            f"      kind: {ts_inline_literal(kind)},",
+                            f"      reaction: {ts_inline_literal(reaction)},",
+                            f"      {value_field}: {ts_inline_literal(value)},",
+                            "    },",
+                        ]
+                    )
+                    continue
                 lines.extend(
                     [
                         "    {",

@@ -96,6 +96,7 @@ function inspectCondition(
     case 'eventSkillTypeIn':
     case 'eventSkillIdIn':
     case 'eventBuffIdMatch':
+    case 'eventBuffEndedEarly':
     case 'buffStackCompare':
     case 'buffIdStackCompare':
     case 'entityTagMatch':

@@ -36,6 +36,30 @@ describe('EventContextConditionExecutor', () => {
   });
 
   it.each([
+    ['ignite', true],
+    ['early', true],
+    ['absorbed', false],
+    ['other', false],
+  ] as const)('classifies finished Buff reason %s', (reason, expected) => {
+    const executor = new EventContextConditionExecutor(terminal);
+    expect(
+      executor.evaluate(
+        { kind: 'eventBuffEndedEarly' },
+        {
+          blackboard: new ActionBlackboard(),
+          event: {
+            kind: 'buffFinished',
+            targetId: 'enemy',
+            buffId: 'seal',
+            sourceId: 'operator',
+            reason,
+          },
+        },
+      ),
+    ).toBe(expected);
+  });
+
+  it.each([
     ['exact', ['comboSkill'], true],
     ['exact', ['comboSkill', 'powerAttack'], false],
     ['hasAny', ['normalSkill', 'comboSkill'], true],

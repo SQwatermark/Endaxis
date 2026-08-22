@@ -83,7 +83,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -111,7 +113,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -211,7 +215,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -225,7 +231,9 @@ export const arcaneGeneratedSource = {
           "targetGroupWrites": [],
           "sequences": [],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -325,7 +333,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -554,7 +564,9 @@ export const arcaneGeneratedSource = {
               "pickIndexValue": null,
               "pickIndexBlackboardKey": null
             }
-          ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -717,7 +729,9 @@ export const arcaneGeneratedSource = {
               "pickIndexValue": null,
               "pickIndexBlackboardKey": null
             }
-          ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -1695,7 +1709,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -1852,7 +1868,9 @@ export const arcaneGeneratedSource = {
               "pickIndexValue": null,
               "pickIndexBlackboardKey": null
             }
-          ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -2011,7 +2029,9 @@ export const arcaneGeneratedSource = {
               "pickIndexValue": null,
               "pickIndexBlackboardKey": null
             }
-          ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -2176,7 +2196,9 @@ export const arcaneGeneratedSource = {
               "pickIndexValue": null,
               "pickIndexBlackboardKey": null
             }
-          ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -3420,7 +3442,9 @@ export const arcaneGeneratedSource = {
               "pickIndexValue": null,
               "pickIndexBlackboardKey": null
             }
-          ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -4016,7 +4040,9 @@ export const arcaneGeneratedSource = {
               "pickIndexValue": null,
               "pickIndexBlackboardKey": null
             }
-          ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -4137,7 +4163,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -4254,7 +4282,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -4313,7 +4343,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -4599,7 +4631,14 @@ export const arcaneGeneratedSource = {
               "pickIndexValue": null,
               "pickIndexBlackboardKey": null
             }
-          ]
+          ],
+          "contextBuffIdQueries": [
+            [
+              "buff_chr_0032_lizhiyan_combo_skill_seal",
+              "buff_chr_0032_lizhiyan_combo_skill_seal_bunshin_end_listener"
+            ]
+          ],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -7997,7 +8036,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -8437,9 +8478,413 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
+      "buffId": "buff_chr_0032_lizhiyan_passive",
+      "sourceFile": "buff_chr_0032_lizhiyan_passive.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 30.0,
+          "blackboardKey": "duration",
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 3.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "IfElseAction"
+          ],
+          "combatActions": [
+            "IfElseAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "IfElseAction"
+              ],
+              "combatActions": [
+                "IfElseAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "IfElseAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CompareDeckAttr",
+                        "supported": false,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": {
+                          "targetSource": "Owner",
+                          "targetGroupKey": "",
+                          "leftAttribute": "Wisd",
+                          "leftValue": {
+                            "value": 0.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "comparison": "GE",
+                          "rightAttribute": "Will",
+                          "rightValue": {
+                            "value": 0.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          }
+                        },
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "ModifyDynamicBlackboard",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 2,
+                        "blackboardMutation": {
+                          "key": "EntityBB_wisd_greater_will",
+                          "operation": "Assign",
+                          "value": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          }
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      }
+                    ],
+                    "failActions": [
+                      {
+                        "actionType": "ModifyDynamicBlackboard",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 3,
+                        "blackboardMutation": {
+                          "key": "EntityBB_wisd_greater_will",
+                          "operation": "Assign",
+                          "value": {
+                            "value": 0.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          }
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      }
+                    ],
+                    "conditionNegated": [
+                      false
+                    ],
+                    "alwaysNext": true
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        },
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "TagQueryListenerAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "TagQueryListenerAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 5,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "executeAction",
+                "actionData",
+                "[0]"
+              ],
+              "targetGroupKey": "tar",
+              "producerType": "FindTargetAction",
+              "finderType": "InFightEnemyFinder",
+              "finderFactionTarget": null,
+              "finderTargetObjectType": null,
+              "finderCheckAlive": null,
+              "validatorTypes": [],
+              "postProcessorTypes": [],
+              "inputTargets": [],
+              "intervalSeconds": null,
+              "pickIndexValue": null,
+              "pickIndexBlackboardKey": null
+            }
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
+      "buffId": "buff_chr_0032_lizhiyan_talent1",
+      "sourceFile": "buff_chr_0032_lizhiyan_talent1.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 30.0,
+          "blackboardKey": "duration",
+          "levelValues": [
+            10.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 3.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "duration",
+          "value": 10.0,
+          "isDynamic": false
+        },
+        {
+          "key": "enhance_rate",
+          "value": 0.1,
+          "isDynamic": false
+        },
+        {
+          "key": "lv",
+          "value": 2.0,
+          "isDynamic": false
+        },
+        {
+          "key": "spell_vul_rate",
+          "value": 0.1,
+          "isDynamic": false
+        },
+        {
+          "key": "spell_vul_rate_per_will",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "spell_vul_rate_potential",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [],
       "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
@@ -8543,7 +8988,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -8725,7 +9172,302 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
+      "buffId": "buff_chr_0032_lizhiyan_talent2",
+      "sourceFile": "buff_chr_0032_lizhiyan_talent2.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 30.0,
+          "blackboardKey": "duration",
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 3.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "corrupt_rate",
+          "value": 0.1,
+          "isDynamic": false
+        },
+        {
+          "key": "duration_add",
+          "value": 5.0,
+          "isDynamic": false
+        },
+        {
+          "key": "duration_dynamic",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "final_corrupt_rate",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "lv",
+          "value": 1.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "ability",
+          "event": "OnCollectOutputBuffBbValue",
+          "orderedActionTypes": [
+            "CheckBuffIdInContextAdvanced",
+            "SaveCollectedBuffBbValue",
+            "IfElseAction"
+          ],
+          "combatActions": [
+            "IfElseAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckBuffIdInContextAdvanced",
+                "SaveCollectedBuffBbValue",
+                "IfElseAction"
+              ],
+              "combatActions": [
+                "IfElseAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "IfElseAction",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 2,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 2,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[2]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CompareFloat",
+                        "supported": true,
+                        "comparison": "GT",
+                        "left": {
+                          "value": 0.0,
+                          "blackboardKey": "duration_dynamic",
+                          "levelValues": [
+                            0.0
+                          ]
+                        },
+                        "right": {
+                          "value": 0.0,
+                          "blackboardKey": null,
+                          "levelValues": null
+                        },
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "SimpleCalcBBAction",
+                        "actionIndex": 1,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[2]",
+                          "succeedActions",
+                          "actionData",
+                          "[1]"
+                        ],
+                        "serverActionIndex": 5,
+                        "blackboardCalculation": {
+                          "key": "final_corrupt_rate",
+                          "operation": "Add",
+                          "left": {
+                            "value": 0.0,
+                            "blackboardKey": "corrupt_rate",
+                            "levelValues": [
+                              0.1
+                            ]
+                          },
+                          "right": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "addend": null
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      }
+                    ],
+                    "failActions": [
+                      {
+                        "actionType": "SimpleCalcBBAction",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[2]",
+                          "failActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 7,
+                        "blackboardCalculation": {
+                          "key": "final_corrupt_rate",
+                          "operation": "Add",
+                          "left": {
+                            "value": 0.0,
+                            "blackboardKey": "corrupt_rate",
+                            "levelValues": [
+                              0.1
+                            ]
+                          },
+                          "right": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "addend": null
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      }
+                    ],
+                    "conditionNegated": [
+                      false
+                    ],
+                    "alwaysNext": true
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "contextBuffTagQueries": [
+            [
+              "HasAny",
+              [
+                -421286163
+              ]
+            ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": {
+            "buffTagId": -421286163,
+            "durationAdditionKey": "duration_add",
+            "effectivenessAdditionKey": "corrupt_rate"
+          }
         }
       ],
       "igniteEventActions": [],
@@ -8825,7 +9567,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -8995,7 +9739,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -10501,7 +11247,9 @@ export const arcaneGeneratedSource = {
               "pickIndexValue": null,
               "pickIndexBlackboardKey": null
             }
-          ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -10556,7 +11304,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -10744,7 +11494,9 @@ export const arcaneGeneratedSource = {
               "pickIndexValue": null,
               "pickIndexBlackboardKey": null
             }
-          ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -11368,7 +12120,9 @@ export const arcaneGeneratedSource = {
               "pickIndexValue": null,
               "pickIndexBlackboardKey": null
             }
-          ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -11941,7 +12695,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -11969,7 +12725,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -11983,7 +12741,9 @@ export const arcaneGeneratedSource = {
           "targetGroupWrites": [],
           "sequences": [],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -12117,7 +12877,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -12223,7 +12985,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -12632,7 +13396,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -12684,6 +13450,143 @@ export const arcaneGeneratedSource = {
           "revertedSkillId": "chr_0032_lizhiyan_ultimate_skill"
         }
       ],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
+      "buffId": "buff_chr_0032_lizhiyan_ultimate_skill_listener_abilityentity",
+      "sourceFile": "buff_chr_0032_lizhiyan_ultimate_skill_listener_abilityentity.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 30.0,
+          "blackboardKey": "duration",
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffFinish",
+          "orderedActionTypes": [
+            "FinishBuffAdvanced",
+            "FinishOwnerAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "FinishBuffAdvanced",
+                "FinishOwnerAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "FinishBuffAdvanced",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "buffFinish": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Id",
+                    "buffIds": [
+                      "buff_chr_0032_lizhiyan_ultimate_skill_layer"
+                    ],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": [],
+                    "finishAll": true,
+                    "limitSource": false,
+                    "isFinishedEarly": false,
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
       "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
@@ -13091,7 +13994,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -13139,7 +14044,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -13457,7 +14364,9 @@ export const arcaneGeneratedSource = {
               "pickIndexValue": null,
               "pickIndexBlackboardKey": null
             }
-          ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -13608,7 +14517,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -13636,7 +14547,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -14478,7 +15391,9 @@ export const arcaneGeneratedSource = {
               "pickIndexValue": null,
               "pickIndexBlackboardKey": null
             }
-          ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -15021,7 +15936,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -15287,7 +16204,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -15429,7 +16348,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -15457,7 +16378,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -16088,7 +17011,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -16204,7 +17129,9 @@ export const arcaneGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],

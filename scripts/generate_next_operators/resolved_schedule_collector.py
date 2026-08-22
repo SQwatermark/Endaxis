@@ -490,7 +490,7 @@ def collect_projectile_schedule(
                 hit.triggerSkillId,
                 condition.actionIndex,
             ),
-            targetGroupWrites=hit.localTargetGroupWrites,
+            targetGroupWrites=getattr(hit, "localTargetGroupWrites", ()),
         )
         for condition in hit.conditionalActions
         for frame in (condition.executionFrames or (condition.startFrame,))

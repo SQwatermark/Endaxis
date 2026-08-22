@@ -513,7 +513,15 @@ function normalizeBuffAbilityEvent(
     };
   }
   if (event === 'finishedBuff') {
-    if (typeof source.buffId !== 'string') {
+    if (
+      typeof source.buffId !== 'string' ||
+      (source.reason !== 'lifetime' &&
+        source.reason !== 'ignite' &&
+        source.reason !== 'early' &&
+        source.reason !== 'dispelled' &&
+        source.reason !== 'absorbed' &&
+        source.reason !== 'other')
+    ) {
       throw new TypeError(`Buff ability event '${event}' payload has invalid Buff identity`);
     }
     return {
@@ -521,6 +529,7 @@ function normalizeBuffAbilityEvent(
       sourceId: source.sourceId,
       targetId: source.targetId,
       buffId: source.buffId,
+      reason: source.reason,
     };
   }
   if (event === 'beforeCastSkill' || event === 'skillEnd') {

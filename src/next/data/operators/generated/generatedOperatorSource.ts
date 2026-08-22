@@ -1280,6 +1280,14 @@ export interface GeneratedBuffEventActionSource {
   }[];
   /** 事件上下文 Buff 的原生标签查询；只作为严格转换与审计证据。 */
   readonly contextBuffTagQueries?: readonly (readonly [string, readonly number[]])[];
+  /** 事件上下文 Buff 的原生 ID 查询；只作为严格转换与审计证据。 */
+  readonly contextBuffIdQueries?: readonly (readonly string[])[];
+  /** OnCollectOutputBuffBbValue 中已严格识别的反应持续时间/效能投影。 */
+  readonly collectedBuffReactionModifier?: {
+    readonly buffTagId: number;
+    readonly durationAdditionKey: string;
+    readonly effectivenessAdditionKey: string;
+  } | null;
   /** 被消费 Buff 层数的原生比较方式、阈值与写入黑板键。 */
   readonly consumeBuffLayerChecks?: readonly (readonly [string, number, string])[];
 }

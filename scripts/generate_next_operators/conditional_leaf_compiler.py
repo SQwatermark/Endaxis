@@ -418,14 +418,15 @@ def compile_conditional_branch_action(
             and context_action is not None
         ):
             write = resolve_latest_target_group_write_at(
-                read_frame=context_action.startFrame,
+                read_frame=getattr(context_action, "startFrame", 0),
                 read_action_index=(
                     getattr(action, "serverActionIndex", None)
                     if getattr(action, "serverActionIndex", None) is not None
-                    else context_action.actionIndex
+                    else getattr(context_action, "actionIndex", 0)
                 ),
                 read_action_path=(
-                    getattr(action, "actionPath", ()) or context_action.actionPath
+                    getattr(action, "actionPath", ())
+                    or getattr(context_action, "actionPath", ())
                 ),
                 target_group_key=buff_read.targetGroupKey,
                 writes=target_group_writes,
@@ -448,15 +449,19 @@ def compile_conditional_branch_action(
         context_finish_target = None
         if finish.targetSource == "Context" and finish.targetGroupKey:
             write = resolve_latest_target_group_write_at(
-                read_frame=context_action.startFrame if context_action is not None else 0,
+                read_frame=getattr(context_action, "startFrame", 0),
                 read_action_index=(
                     getattr(action, "serverActionIndex", None)
                     if getattr(action, "serverActionIndex", None) is not None
-                    else context_action.actionIndex if context_action is not None else action.actionIndex
+                    else getattr(
+                        context_action,
+                        "actionIndex",
+                        getattr(action, "actionIndex", 0),
+                    )
                 ),
                 read_action_path=(
                     getattr(action, "actionPath", ())
-                    or (context_action.actionPath if context_action is not None else ())
+                    or getattr(context_action, "actionPath", ())
                 ),
                 target_group_key=finish.targetGroupKey,
                 writes=target_group_writes,
@@ -626,15 +631,19 @@ def compile_conditional_branch_action(
             target_role = "controlledOperator"
         elif heal.target.targetSource == "Context" and heal.target.targetGroupKey:
             write = resolve_latest_target_group_write_at(
-                read_frame=context_action.startFrame if context_action is not None else 0,
+                read_frame=getattr(context_action, "startFrame", 0),
                 read_action_index=(
                     getattr(action, "serverActionIndex", None)
                     if getattr(action, "serverActionIndex", None) is not None
-                    else context_action.actionIndex if context_action is not None else action.actionIndex
+                    else getattr(
+                        context_action,
+                        "actionIndex",
+                        getattr(action, "actionIndex", 0),
+                    )
                 ),
                 read_action_path=(
                     getattr(action, "actionPath", ())
-                    or (context_action.actionPath if context_action is not None else ())
+                    or getattr(context_action, "actionPath", ())
                 ),
                 target_group_key=heal.target.targetGroupKey,
                 writes=target_group_writes,
@@ -757,15 +766,19 @@ def compile_conditional_branch_action(
         ability_entity_collection_key = None
         if buff_application.targetSource == "Context":
             write = resolve_latest_target_group_write_at(
-                read_frame=context_action.startFrame if context_action is not None else 0,
+                read_frame=getattr(context_action, "startFrame", 0),
                 read_action_index=(
                     getattr(action, "serverActionIndex", None)
                     if getattr(action, "serverActionIndex", None) is not None
-                    else context_action.actionIndex if context_action is not None else action.actionIndex
+                    else getattr(
+                        context_action,
+                        "actionIndex",
+                        getattr(action, "actionIndex", 0),
+                    )
                 ),
                 read_action_path=(
                     getattr(action, "actionPath", ())
-                    or (context_action.actionPath if context_action is not None else ())
+                    or getattr(context_action, "actionPath", ())
                 ),
                 target_group_key=buff_application.targetGroupKey,
                 writes=target_group_writes,
@@ -811,6 +824,7 @@ def compile_conditional_branch_action(
             buff_owner_target=buff_owner_target,
             current_buff_environment=current_buff_environment,
             current_ability_entity_target=ability_entity_current_target,
+            current_ability_entity_owner=ability_entity_current_target,
             current_event_target=buff_ability_damage_event,
             damage_tags=damage_tags,
         )

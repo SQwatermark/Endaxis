@@ -778,7 +778,18 @@ class BuffEventActionSource:
     runtimeTargetGroupWrites: tuple["TargetGroupWriteSource", ...] = ()
     obtainAtbFilters: tuple["ObtainAtbFilterSource", ...] = ()
     contextBuffTagQueries: tuple[tuple[str, tuple[int, ...]], ...] = ()
+    contextBuffIdQueries: tuple[tuple[str, ...], ...] = ()
     consumeBuffLayerChecks: tuple[tuple[str, float, str], ...] = ()
+    collectedBuffReactionModifier: "CollectedBuffReactionModifierSource | None" = None
+
+
+@dataclass(frozen=True)
+class CollectedBuffReactionModifierSource:
+    """对 OnCollectOutputBuffBbValue 的严格、可归约子集。"""
+
+    buffTagId: int
+    durationAdditionKey: str
+    effectivenessAdditionKey: str
 
 
 @dataclass(frozen=True)

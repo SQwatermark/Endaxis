@@ -789,6 +789,7 @@ export class StandardPlayerDamageEnvironment {
       sourceId: ownerId,
       targetId: ownerId,
       buffId: buff.definition.id,
+      reason,
     });
   }
 

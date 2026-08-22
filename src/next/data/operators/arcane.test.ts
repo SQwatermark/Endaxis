@@ -4,48 +4,26 @@ import { collectSteps, getGroupSkills, getSkill as findSkill } from './testUtils
 
 const getSkill = (key: string) => findSkill(arcane, key);
 
-describe('next Arcane definition', () => {
-  it('keeps the five-hit-chain skills in one ordered basic-attack group', () => {
-    const group = arcane.skillGroups.find(candidate => candidate.key === 'basicAttack');
-    if (!group) throw new Error('missing basic attack group');
-
-    expect(getGroupSkills(group).map(skill => skill.key)).toEqual([
+describe('next generated Arcane definition', () => {
+  it('keeps the native five-hit basic chain and eleven generated skills', () => {
+    const basic = arcane.skillGroups.find(group => group.key === 'basicAttack');
+    if (basic === undefined) throw new Error('missing basic attack group');
+    expect(getGroupSkills(basic).map(skill => skill.key)).toEqual([
       'basicAttack1',
       'basicAttack2',
       'basicAttack3',
       'basicAttack4',
       'basicAttack5',
     ]);
-
-    const finalHit = getSkill('basicAttack5').scheduledSequences[0]!.sequence.steps[0];
-    expect(finalHit).toMatchObject({
-      kind: 'dealDamage',
-      parameters: { tags: ['normalAttack', 'normalAttackLastCombo'], stagger: 17 },
-    });
+    expect(
+      arcane.skillGroups.flatMap(group => [
+        ...getGroupSkills(group),
+        ...(group.replacementSkills ?? []),
+      ]),
+    ).toHaveLength(11);
   });
 
-  it('derives the intellect form on equal deck attributes', () => {
-    const handler = arcane.eventHandlers?.[0];
-    const formBranch = handler?.sequence.steps[0];
-
-    expect(handler?.event).toBe('deckAttributesChanged');
-    expect(formBranch).toMatchObject({
-      kind: 'conditional',
-      parameters: {
-        condition: {
-          kind: 'deckAttributeCompare',
-          left: 'intellect',
-          operator: 'greaterOrEqual',
-          right: 'will',
-        },
-      },
-    });
-    expect(
-      arcane.skillGroups.find(group => group.key === 'battleSkill')?.presentationVariants,
-    ).toEqual([
-      expect.objectContaining({ key: 'intellect' }),
-      expect.objectContaining({ key: 'will' }),
-    ]);
+  it('derives the intellect form on equality without a mutable runtime form selector', () => {
     expect(arcane.entityBlackboardInitializers).toEqual([
       {
         key: 'EntityBB_wisd_greater_will',
@@ -59,159 +37,99 @@ describe('next Arcane definition', () => {
         falseValue: 0,
       },
     ]);
+    expect(arcane.eventHandlers).toBeUndefined();
   });
 
-  it('branches battle-skill damage after applying nature infliction', () => {
-    const steps = getSkill('battleSkill').scheduledSequences[0]!.sequence.steps;
-
-    expect(steps.map(step => step.kind)).toEqual([
-      'applyElementalInfliction',
-      'conditional',
-      'gainSquadUltimateEnergyFromSkillCost',
-    ]);
-    expect(steps[1]).toMatchObject({
-      kind: 'conditional',
-      parameters: {
-        condition: { kind: 'contextFlagEquals', flag: 'arcaneForm', value: 'intellect' },
-      },
+  it('keeps battle-skill pulses on its generated ability entity child', () => {
+    const spawn = collectSteps({
+      steps: getSkill('battleSkill').scheduledSequences.flatMap(item => item.sequence.steps),
+    }).find(step => step.kind === 'spawnAbilityEntity');
+    expect(spawn).toMatchObject({
+      kind: 'spawnAbilityEntity',
+      parameters: { abilityEntityId: 'abilityentity_chr_0032_lizhiyan_normal_skill' },
     });
-  });
-
-  it('uses three form-aware combo-window rules', () => {
-    const registration = arcane.comboSkillRegistrations?.find(
-      item => item.skillKey === 'comboSkill',
+    const child =
+      arcane.abilityEntityDefinitions?.['abilityentity_chr_0032_lizhiyan_normal_skill']?.childSkill;
+    const childSteps = child?.scheduledSequences.flatMap(item => collectSteps(item.sequence)) ?? [];
+    expect(childSteps).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ kind: 'applyElementalInfliction' }),
+        expect.objectContaining({ kind: 'dealDamage' }),
+        expect.objectContaining({ kind: 'gainSquadUltimateEnergyFromSkillCost' }),
+      ]),
     );
-    if (registration === undefined) throw new Error('expected combo activation rules');
-    const rules = registration.rules;
-
-    expect(registration.priority).toBe('default');
-    expect(rules).toHaveLength(3);
-    expect(rules.map(rule => rule.trigger)).toEqual([
-      { kind: 'elementalInflictionApplied', elements: 'nature', scope: 'team' },
-      {
-        kind: 'elementalInflictionApplied',
-        elements: ['heat', 'cryo', 'electric'],
-        scope: 'team',
-      },
-      {
-        kind: 'elementalInflictionApplied',
-        elements: ['heat', 'cryo', 'electric', 'nature'],
-        scope: 'team',
-      },
-    ]);
   });
 
-  it('handles imprisonment expiry and active consumption separately', () => {
-    const handlers = getSkill('comboSkill').eventHandlers ?? [];
-
-    expect(handlers.map(handler => handler.event.kind)).toEqual([
-      'skillHit',
-      'statusExpired',
-      'statusConsumed',
-    ]);
-  });
-
-  it('requires arcana readiness for a second ultimate during the array', () => {
-    const ultimate = getSkill('ultimate');
+  it('owns the arcana slot replacement in Buff lifecycle state', () => {
     const group = arcane.skillGroups.find(candidate => candidate.key === 'ultimate');
-    const arcana = group?.replacementSkills?.[0];
-
-    expect(ultimate.availability).toEqual({
-      kind: 'any',
-      conditions: [
-        {
-          kind: 'not',
-          condition: { kind: 'statusActive', statusKey: 'gloompurgerArray', target: 'caster' },
-        },
-        { kind: 'statusActive', statusKey: 'gloompurgeArcanaReady', target: 'caster' },
-      ],
-    });
-    expect(ultimate.eventHandlers?.slice(0, 2).map(handler => handler.event)).toEqual([
-      { kind: 'damageTagHit', tag: 'normalAttackLastCombo', scope: 'team' },
-      { kind: 'damageTagHit', tag: 'powerAttack', scope: 'team' },
-    ]);
-    expect(ultimate.eventHandlers?.[0]?.scheduledSequences).toBe(
-      ultimate.eventHandlers?.[1]?.scheduledSequences,
+    expect(group?.replacementSkills?.map(skill => skill.key)).toEqual(['arcana']);
+    const replacementDefinitions = Object.values(arcane.buffDefinitions ?? {}).filter(
+      definition => definition.skillSlotReplacements !== undefined,
     );
-    expect(arcana?.key).toBe('arcana');
-    expect(arcana?.availability).toEqual({
-      kind: 'statusActive',
-      statusKey: 'gloompurgeArcanaReady',
-      target: 'caster',
-    });
-    expect(
-      collectSteps({ steps: ultimate.scheduledSequences.flatMap(item => item.sequence.steps) }),
-    ).toContainEqual({
-      kind: 'changeSkillSlot',
-      parameters: { skillGroupKey: 'ultimate', targetSkillKey: 'arcana' },
-    });
-    expect(arcana?.scheduledSequences[0]?.sequence.steps).toEqual([
-      {
-        kind: 'changeSkillSlot',
-        parameters: { skillGroupKey: 'ultimate', targetSkillKey: 'ultimate' },
-      },
-    ]);
-  });
-
-  it('blocks ultimate gain during the array and gives every damage step a stable key', () => {
-    const ultimateGroup = arcane.skillGroups.find(candidate => candidate.key === 'ultimate');
-    const definitions = [getSkill('ultimate'), ...(ultimateGroup?.replacementSkills ?? [])];
-    const steps = definitions.flatMap(skill =>
-      skill.scheduledSequences
-        .flatMap(item => item.sequence.steps)
-        .flatMap(step => collectSteps({ steps: [step] })),
-    );
-
-    expect(steps).toContainEqual({
-      kind: 'applyStatus',
-      parameters: {
-        statusKey: 'gloompurgerArray',
-        target: 'caster',
-        durationFrames: 600,
-        modifiers: [{ kind: 'blockResourceGain', resource: 'ultimateEnergy' }],
-      },
-    });
-    expect(steps.filter(step => step.key !== undefined).map(step => step.key)).toEqual([
-      'ultimate.arrayStrike',
-      'ultimate.arcanaDamage',
-      'ultimate.arcanaDamage',
-    ]);
-  });
-
-  it('keeps form-aware talent and potential patches typed', () => {
-    expect(arcane.talents[0]?.modifiers).toEqual(
+    expect(replacementDefinitions).not.toHaveLength(0);
+    expect(replacementDefinitions).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          kind: 'addSkillCooldownFrames',
-          skillGroupKey: 'comboSkill',
-          frames: -180,
+          skillSlotReplacements: [
+            expect.objectContaining({
+              skillGroupKey: 'ultimate',
+              targetSkillKey: 'arcana',
+              revertedSkillKey: 'ultimate',
+            }),
+          ],
         }),
       ]),
     );
-    expect(arcane.potentials.map(potential => potential.key)).toEqual([
-      'strengthenedComboSkill',
-      'attributeAndArtsIntensity',
-      'strongerCorrosionMastery',
-      'reducedUltimateCost',
-      'strengthenedFormTalentAndArcana',
+  });
+
+  it('keeps form conditions, corrosion upgrades, and passive patches typed', () => {
+    expect(arcane.talents[0]?.modifiers).toContainEqual({
+      kind: 'addSkillCooldownFrames',
+      skillGroupKey: 'comboSkill',
+      frames: -180,
+      condition: {
+        kind: 'deckAttributeCompare',
+        left: 'intellect',
+        operator: 'greaterOrEqual',
+        right: 'will',
+      },
+    });
+    expect(arcane.talents[1]?.modifiers).toEqual([
+      { kind: 'addReactionDuration', reaction: 'corrosion', seconds: [5, 10] },
+      { kind: 'addReactionEffectiveness', reaction: 'corrosion', value: [0.05, 0.1] },
     ]);
+    expect(arcane.potentials[0]?.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'patchSkillBlackboard',
+          blackboardKey: 'atb_return_wisd',
+          condition: expect.objectContaining({ operator: 'greaterOrEqual' }),
+        }),
+        expect.objectContaining({
+          kind: 'patchSkillBlackboard',
+          blackboardKey: 'rate_pre',
+          condition: expect.objectContaining({ operator: 'less' }),
+        }),
+      ]),
+    );
     expect(arcane.potentials[4]?.modifiers).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          kind: 'multiplyStepDamage',
-          stepKey: 'ultimate.arcanaDamage',
-          multiplier: 1.3,
+          kind: 'patchPassiveBlackboard',
+          passiveSkillKey: 'chr_0032_lizhiyan_talent1',
         }),
       ]),
     );
   });
 
-  it('keeps source-only identifiers out while retaining the generated runtime blackboard key', () => {
-    const serialized = JSON.stringify(arcane);
-
-    expect(serialized).not.toContain('chr_0032_lizhiyan');
-    expect(serialized).not.toContain('buff_chr_');
-    expect(serialized.match(/EntityBB_wisd_greater_will/g)).toHaveLength(1);
-    expect(serialized).not.toContain('OnCharDeckAttrChanged');
+  it('is registered as a complete generated operator with stable damage keys', () => {
+    expect(arcane.conversionSupport).toEqual({ completeness: 'complete', missingCapabilities: [] });
+    const rootDamage = arcane.skillGroups
+      .flatMap(group => [...getGroupSkills(group), ...(group.replacementSkills ?? [])])
+      .flatMap(skill => skill.scheduledSequences)
+      .flatMap(item => collectSteps(item.sequence))
+      .filter(step => step.kind === 'dealDamage');
+    expect(rootDamage.length).toBeGreaterThan(0);
+    expect(rootDamage.every(step => step.key !== undefined)).toBe(true);
   });
 });

@@ -40,6 +40,8 @@ import {
   type ResolvedSkillDefinition,
 } from './resolveSkillDefinition';
 import { deriveHitId } from '../combat/timeline/deriveHitId';
+import type { OperatorAttribute } from '../game-data/operatorDefinition';
+import { resolveOperatorPanel } from './resolveOperatorPanel';
 
 function bindChildSkillHitIds(
   childSkill: CompiledAbilityEntityChildSkillProgram,
@@ -313,6 +315,7 @@ interface ResolvedTimelineTrack {
   readonly track: NonNullable<ScenarioDocument['tracks'][number]>;
   readonly operatorInstance: OperatorInstanceDocument;
   readonly operator: OperatorDefinition;
+  readonly buildAttributes?: Readonly<Record<OperatorAttribute, number>>;
 }
 
 function compileResolvedTimelineTracks(
@@ -329,7 +332,7 @@ function compileResolvedTimelineTracks(
   );
   const compiledCommonBuffDefinitions = compiledCommonBuffResources.buffDefinitions;
 
-  for (const { track, operatorInstance, operator } of tracks) {
+  for (const { track, operatorInstance, operator, buildAttributes } of tracks) {
     const duplicateAbilityEntityIds = [
       ...Object.keys(operator.abilityEntityDefinitions ?? {}),
     ].filter(id => id in commonAbilityEntityDefinitions);
@@ -368,6 +371,7 @@ function compileResolvedTimelineTracks(
     // 干员只要有构筑就进入运行时（技能列表可能为空），资源规则与面板解析依赖这份名单。
     const compiledSkills = applyOperatorUpgradeSkillPatches(skills, activeUpgrades, {
       skipUncompiledSkillGroups: true,
+      buildAttributes,
     });
     const compiledOperatorBuffResources = compileOperatorBuffResources(
       operator.buffDefinitions,
@@ -422,6 +426,7 @@ export function compileResolvedScenarioTimeline(
     track: build.track,
     operatorInstance: build.operatorInstance,
     operator: build.operator,
+    buildAttributes: resolveOperatorPanel(build).attributes,
   }));
   return compileResolvedTimelineTracks(
     tracks,

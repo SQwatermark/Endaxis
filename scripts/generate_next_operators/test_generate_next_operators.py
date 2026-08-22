@@ -2355,11 +2355,11 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         source = compile_damage_units_step(
             (unit,),
-            (),
+            ("cryoAbnormal",),
             "fixture.shatter",
         )
 
-        self.assertIn("  tags: [],", source)
+        self.assertIn("  tags: ['cryoAbnormal'],", source)
         self.assertIn("  features: ['shatter'],", source)
 
     def test_damage_compiler_allows_native_final_hit_as_a_basic_attack_specialization(self) -> None:
@@ -2918,8 +2918,8 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             input_target="enemy",
         )
 
-        self.assertEqual(action.succeedActions[0].blackboardCalculation.left.blackboardKey, "maxHealth")
-        self.assertIn("step('calculateActionValue'", compiled)
+        self.assertEqual(action.succeedActions[0].storeAttributeValue.attributeKey, "maxHealth")
+        self.assertIn("step('storeSourceAttributeValue'", compiled)
         self.assertIn("key: 'maxHealth'", compiled)
 
     def test_store_final_agility_preserves_dynamic_multiplier_and_base(self) -> None:
@@ -4756,7 +4756,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             ("buff.child", "buff.parent"),
         )
 
-    def test_operator_buff_definitions_include_promoted_projectile_source_buffs_only(self) -> None:
+    def test_operator_buff_definitions_include_promoted_child_source_buffs(self) -> None:
         application = SimpleNamespace(
             actionType="CreateBuffAction",
             sourceId="buff.projectile",
@@ -4788,7 +4788,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertEqual(
             tuple(definition.buffId for definition in definitions),
-            ("buff.projectile",),
+            ("buff.entity", "buff.projectile"),
         )
 
     def test_operator_buff_definitions_skip_explicitly_omitted_references(self) -> None:
@@ -7846,7 +7846,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         ]
         filtered = parse_conditional_actions(root, "fixture.json", {})[0].conditions[0]
         self.assertFalse(is_guaranteed_single_enemy_condition(filtered))
-        with self.assertRaisesRegex(ValueError, "unsupported condition type"):
+        with self.assertRaisesRegex(ValueError, "event target identity uses a selector"):
             compile_combat_condition_group((filtered,), "fixture.conditions")
 
     def test_root_operator_enemy_distance_uses_zero_distance_model(self) -> None:
@@ -12200,7 +12200,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         hit = SimpleNamespace(conditionalActions=(condition,), localTargetGroupWrites=())
 
         self.assertTrue(timeline_jump_can_compile(jump, hit))
-        self.assertFalse(timeline_jump_can_compile(replace(jump, isOnlyBranchAction=False), hit))
+        self.assertTrue(timeline_jump_can_compile(replace(jump, isOnlyBranchAction=False), hit))
         self.assertTrue(
             timeline_jump_can_compile(
                 replace(jump, actionPath=(*condition_path, "failActions", "actionData", "[0]")),
@@ -13091,7 +13091,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
 
         self.assertIn("buffId: 'replacement_buff'", compiled_base)
-        self.assertIn("targetSkillKey: 'arcana'", compiled_base)
+        self.assertNotIn("targetSkillKey: 'arcana'", compiled_base)
         self.assertIn("scheduled(\n        0,", compiled_replacement)
         self.assertIn("targetSkillKey: 'ultimate'", compiled_replacement)
         self.assertEqual(
@@ -14712,7 +14712,29 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             "LT",
         )
 
-        compiled = compile_conditional_action(parsed[0], "fixture.duration")
+        write = TargetGroupWriteSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=0,
+            actionPath=("timelineActions[0]",),
+            targetGroupKey="swordsForExtend",
+            producerType="FindTargetAction",
+            finderType="OwnerSpawnedEntityFinder",
+            finderFactionTarget=None,
+            finderTargetObjectType=None,
+            finderCheckAlive=None,
+            validatorTypes=("TagValidator",),
+            postProcessorTypes=(),
+            inputTargets=(),
+            intervalSeconds=None,
+            finderSpawnedObjectType="AbilityEntity",
+            validatorTagQueries=(("HasAny", (123,)),),
+        )
+        compiled = compile_conditional_action(
+            parsed[0],
+            "fixture.duration",
+            target_group_writes=(write,),
+        )
         self.assertIn("forEachContextTarget(", compiled)
         self.assertIn("'swordsForExtend'", compiled)
         self.assertIn("kind: 'abilityEntityRemainingDurationCompare'", compiled)

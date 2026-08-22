@@ -105,40 +105,42 @@ SCHEDULE_BEHAVIOR_FIELDS = frozenset(
     }
 )
 
-PRESENTATION_EVENT_ACTION_TYPES = frozenset({"EffectAction"})
+PRESENTATION_EVENT_ACTION_TYPES = frozenset(
+    {
+        "EffectAction",
+        "PlaySoundAction",
+        "IfElseAction",
+        "TogglableAction",
+        "CheckBuffStackNumAdvanced",
+    }
+)
 PRESENTATION_STACK_EFFECT_ACTION_TYPES = frozenset({"EffectAction"})
 
 
 def _event_actions_are_presentation_only(source: BuffDefinitionSource) -> bool:
     if not source.eventActions:
         return True
-    return all(
-        hasattr(event, "orderedActionTypes")
-        and (
-            set(event.orderedActionTypes) <= PRESENTATION_EVENT_ACTION_TYPES
-            # The event parser retains guards around presentation actions in the
-            # audit, but deliberately projects no simulation action for them.
-            # Treat that proven empty projection as presentation-only as well.
-            or (
-                bool(getattr(event, "sequences", ()))
-                and all(
-                    not sequence.actions
-                    for sequence in getattr(event, "sequences", ())
-                )
-            )
+    for event in source.eventActions:
+        projected_empty = all(
+            not sequence.actions for sequence in getattr(event, "sequences", ())
         )
-        and not getattr(event, "combatActions", ())
-        and not getattr(event, "damageUnits", ())
-        and not getattr(event, "buffApplications", ())
-        and not getattr(event, "createdBuffIds", ())
-        and not getattr(event, "forEachActions", ())
-        and not getattr(event, "targetGroupWrites", ())
-        and not getattr(event, "runtimeTargetGroupWrites", ())
-        and not getattr(event, "obtainAtbFilters", ())
-        and not getattr(event, "contextBuffTagQueries", ())
-        and not getattr(event, "consumeBuffLayerChecks", ())
-        for event in source.eventActions
-    )
+        if not hasattr(event, "orderedActionTypes") or not (
+            set(event.orderedActionTypes) <= PRESENTATION_EVENT_ACTION_TYPES
+            and projected_empty
+        ):
+            return False
+        if set(getattr(event, "combatActions", ())) - {"IfElseAction"}:
+            return False
+        if any(
+            getattr(event, field, ())
+            for field in (
+                "damageUnits", "buffApplications", "createdBuffIds", "forEachActions",
+                "targetGroupWrites", "runtimeTargetGroupWrites", "obtainAtbFilters",
+                "contextBuffTagQueries", "contextBuffIdQueries", "consumeBuffLayerChecks",
+            )
+        ):
+            return False
+    return True
 
 
 def _event_actions_are_projected(source: BuffDefinitionSource) -> bool:

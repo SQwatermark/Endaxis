@@ -572,6 +572,8 @@ function validateCombatCondition(
     case 'eventBuffIdMatch':
       validateNonEmptyStringArray(record.buffIds, `${path}.buffIds`, out);
       break;
+    case 'eventBuffEndedEarly':
+      break;
     case 'eventBuffTagsMatch':
       requireEnum(record, 'match', TAG_QUERY_TYPES_SET, path, out);
       validateNonEmptyIntegerArray(record.buffTagIds, `${path}.buffTagIds`, out);

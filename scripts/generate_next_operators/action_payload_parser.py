@@ -597,7 +597,11 @@ def parse_projectile_launch_payload(
         skillTriggers=tuple(triggers),
         assignBlackboard=assign_blackboard,
         entityBlackboardAssignments=parse_entity_blackboard_assignments(action, path),
-        target=parse_target_reference(action.get("targetSettings"), f"{path}.targetSettings"),
+        target=(
+            parse_target_reference(action["targetSettings"], f"{path}.targetSettings")
+            if "targetSettings" in action
+            else None
+        ),
     )
 
 

@@ -103,6 +103,8 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
       return { kind, skillIds: ['custom-skill'] };
     case 'eventBuffIdMatch':
       return { kind, buffIds: ['custom-buff'] };
+    case 'eventBuffEndedEarly':
+      return { kind };
     case 'eventBuffTagsMatch':
       return { kind, match: 'hasAny', buffTagIds: [0] };
     case 'eventSourceMatchesBuffSource':

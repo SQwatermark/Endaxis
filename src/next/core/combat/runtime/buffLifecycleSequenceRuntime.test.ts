@@ -569,7 +569,12 @@ describe('attachBuffLifecycleSequences', () => {
     dispatcher.dispatch(
       {
         event: 'finishedBuff',
-        payload: { sourceId: 'operator', targetId: 'operator', buffId: 'resume-marker' },
+        payload: {
+          sourceId: 'operator',
+          targetId: 'operator',
+          buffId: 'resume-marker',
+          reason: 'other',
+        },
       },
       [],
     );

@@ -382,33 +382,32 @@ def compile_resolved_sequence(
     if buff_definitions is not None:
         projected_definitions = dict(buff_definitions)
         for relation in replacement_relations:
-            if relation.get("revertMode") != "buffActionEnd":
-                continue
             definition = projected_definitions.get(relation["activatedByBuffId"])
             if definition is None:
                 raise ValueError(
                     f"{skill.key}: missing lifecycle replacement Buff "
                     f"{relation['activatedByBuffId']!r}"
                 )
+            runtime_replacements = tuple(
+                replacement
+                for replacement in definition.runtimeSkillSlotReplacements
+                if replacement["targetSkillKey"] != relation["replacementSkillKey"]
+            )
+            runtime_replacements = (
+                *runtime_replacements,
+                {
+                    "skillGroupKey": relation.get("skillGroupKey", relation["baseSkillKey"]),
+                    "targetSkillKey": relation["replacementSkillKey"],
+                    "revertedSkillKey": relation["baseSkillKey"],
+                    "inheritOriginSkillCooldownProgress": relation[
+                        "inheritOriginSkillCooldownProgress"
+                    ],
+                },
+            )
             projected_definitions[relation["activatedByBuffId"]] = replace(
                 definition,
                 skillReplacements=(),
-                runtimeSkillSlotReplacements=(
-                    *(
-                        replacement
-                        for replacement in definition.runtimeSkillSlotReplacements
-                        if replacement["targetSkillKey"]
-                        != relation["replacementSkillKey"]
-                    ),
-                    {
-                        "skillGroupKey": relation.get("skillGroupKey", relation["baseSkillKey"]),
-                        "targetSkillKey": relation["replacementSkillKey"],
-                        "revertedSkillKey": relation["baseSkillKey"],
-                        "inheritOriginSkillCooldownProgress": relation[
-                            "inheritOriginSkillCooldownProgress"
-                        ],
-                    },
-                ),
+                runtimeSkillSlotReplacements=runtime_replacements,
             )
         buff_definitions = projected_definitions
     activation_relations = tuple(
@@ -1267,18 +1266,6 @@ def compile_resolved_sequence(
                         "  ),",
                         ")",
                     ]
-                if (
-                    relation is not None
-                    and relation.get("revertMode", "replacementCast") == "replacementCast"
-                ):
-                    step_lines.extend(
-                        [
-                            "step('changeSkillSlot', {",
-                            f"  skillGroupKey: {ts_inline_literal(relation.get('skillGroupKey', relation['baseSkillKey']))},",
-                            f"  targetSkillKey: {ts_inline_literal(relation['replacementSkillKey'])},",
-                            "})",
-                        ]
-                    )
         elif item.itemType == "skillSlotReplacement":
             relation = next(
                 (

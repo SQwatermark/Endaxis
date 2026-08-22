@@ -18,6 +18,7 @@ from source_models import (
     BuffEventSkillCastSource,
     BuffEventTargetGroupWriteSource,
     BuffSkillReplacementSource,
+    CollectedBuffReactionModifierSource,
     EventBuffApplicationSource,
     ObtainAtbFilterSource,
     SkillEventActionSequenceSource,
@@ -55,6 +56,126 @@ ABILITY_ACTION_PRIORITY_LEVELS = {
     "Default": 0,
     "High": 100,
 }
+
+
+def _constant_scalar(value: Any, path: str, expected: float) -> bool:
+    scalar = require_dict(value, path)
+    return (
+        scalar.get("useBlackboardKey") is False
+        and scalar.get("blackboardKey") == ""
+        and scalar.get("value") == expected
+    )
+
+
+def _blackboard_scalar(value: Any, path: str, key: str) -> bool:
+    scalar = require_dict(value, path)
+    return scalar.get("useBlackboardKey") is True and scalar.get("blackboardKey") == key
+
+
+def _walk_serialized_actions(value: Any) -> list[dict[str, Any]]:
+    result: list[dict[str, Any]] = []
+    if isinstance(value, dict):
+        if isinstance(value.get("$type"), str):
+            result.append(value)
+        for child in value.values():
+            result.extend(_walk_serialized_actions(child))
+    elif isinstance(value, list):
+        for child in value:
+            result.extend(_walk_serialized_actions(child))
+    return result
+
+
+def parse_collected_buff_reaction_modifier(
+    event_name: str,
+    actions: list[dict[str, Any]],
+    context_queries: list[tuple[str, tuple[int, ...]]],
+    path: str,
+) -> CollectedBuffReactionModifierSource | None:
+    """识别已由原生复刻确认的“修改即将输出的反应 Buff 黑板”程序。"""
+    if event_name != "OnCollectOutputBuffBbValue":
+        return None
+    if len(context_queries) != 1 or context_queries[0][0] != "HasAny":
+        return None
+    tag_ids = context_queries[0][1]
+    if len(tag_ids) != 1:
+        return None
+
+    by_type: dict[str, list[dict[str, Any]]] = {}
+    for action in actions:
+        by_type.setdefault(action_name(action["$type"]), []).append(action)
+    expected_counts = {
+        "CheckBuffIdInContextAdvanced": 1,
+        "SaveCollectedBuffBbValue": 1,
+        "IfElseAction": 1,
+        "CompareFloat": 1,
+        "ModifyCollectedBuffBbValue": 3,
+        "SimpleCalcBBAction": 2,
+    }
+    if set(by_type) != set(expected_counts) or any(
+        len(by_type[name]) != count for name, count in expected_counts.items()
+    ):
+        return None
+
+    save = by_type["SaveCollectedBuffBbValue"][0]
+    if save.get("blackboardKey") != "duration" or save.get("storeKey") != "duration_dynamic":
+        return None
+    compare = by_type["CompareFloat"][0]
+    if (
+        compare.get("compare") != "GT"
+        or not _blackboard_scalar(compare.get("valueA"), f"{path}.CompareFloat.valueA", "duration_dynamic")
+        or not _constant_scalar(compare.get("valueB"), f"{path}.CompareFloat.valueB", 0.0)
+    ):
+        return None
+
+    duration_key: str | None = None
+    effectiveness_key: str | None = None
+    for action in by_type["ModifyCollectedBuffBbValue"]:
+        if action.get("useDirectValue") is not False:
+            return None
+        output_key = action.get("blackboardKey")
+        if output_key == "duration":
+            addition = require_dict(action.get("addition"), f"{path}.duration.addition")
+            if (
+                not _constant_scalar(action.get("multiplier"), f"{path}.duration.multiplier", 1.0)
+                or addition.get("useBlackboardKey") is not True
+                or not isinstance(addition.get("blackboardKey"), str)
+                or not addition.get("blackboardKey")
+            ):
+                return None
+            duration_key = str(addition["blackboardKey"])
+        elif output_key == "max_def_decrease":
+            multiplier = require_dict(action.get("multiplier"), f"{path}.effect.multiplier")
+            if (
+                multiplier.get("useBlackboardKey") is not True
+                or multiplier.get("blackboardKey") != "final_corrupt_rate"
+                or not _constant_scalar(action.get("addition"), f"{path}.effect.addition", 0.0)
+            ):
+                return None
+        else:
+            return None
+
+    for action in by_type["SimpleCalcBBAction"]:
+        if (
+            action.get("key") != "final_corrupt_rate"
+            or action.get("operation") != "Add"
+            or not _constant_scalar(action.get("value2"), f"{path}.rate.value2", 1.0)
+        ):
+            return None
+        value1 = require_dict(action.get("value1"), f"{path}.rate.value1")
+        if value1.get("useBlackboardKey") is not True or not value1.get("blackboardKey"):
+            return None
+        current_key = str(value1["blackboardKey"])
+        if effectiveness_key is not None and effectiveness_key != current_key:
+            return None
+        effectiveness_key = current_key
+
+    if duration_key is None or effectiveness_key is None:
+        return None
+    return CollectedBuffReactionModifierSource(
+        buffTagId=tag_ids[0],
+        durationAdditionKey=duration_key,
+        effectivenessAdditionKey=effectiveness_key,
+    )
 
 
 def parse_sequence_action_priority(
@@ -116,6 +237,12 @@ def parse_buff_event_actions(
                 for item in enabled_actions
                 if action_name(item["$type"]) not in projected_action_names
             ]
+            semantic_actions = [
+                item
+                for item in _walk_serialized_actions(actions)
+                if item.get("isEnable") is not False
+                and action_name(item["$type"]) not in projected_action_names
+            ]
             if enabled_actions and not walked_actions:
                 continue
             ordered_action_types = tuple(
@@ -123,13 +250,31 @@ def parse_buff_event_actions(
             )
             obtain_atb_filters: list[ObtainAtbFilterSource] = []
             context_buff_tag_queries: list[tuple[str, tuple[int, ...]]] = []
+            context_buff_id_queries: list[tuple[str, ...]] = []
             consume_buff_layer_checks: list[tuple[str, float, str]] = []
             for item in walked_actions:
                 item_type = action_name(item["$type"])
                 if item_type == "CheckBuffIdInContextAdvanced":
-                    if item.get("checkType") != "Tag" or require_list(
+                    raw_buff_ids = require_list(
                         item.get("buffIdList"), f"{event_path}.buffIdList"
-                    ):
+                    )
+                    if item.get("checkType") == "Id":
+                        buff_ids: list[str] = []
+                        for buff_index, raw_buff_id in enumerate(raw_buff_ids):
+                            buff_path = f"{event_path}.buffIdList[{buff_index}]"
+                            scalar = require_dict(raw_buff_id, buff_path)
+                            if (
+                                scalar.get("useBlackboardKey") is not False
+                                or scalar.get("blackboardKey") != ""
+                                or not isinstance(scalar.get("value"), str)
+                                or not scalar.get("value")
+                            ):
+                                raise ValueError(f"{buff_path}: expected direct Buff id")
+                            buff_ids.append(str(scalar["value"]))
+                        if buff_ids:
+                            context_buff_id_queries.append(tuple(buff_ids))
+                        continue
+                    if item.get("checkType") != "Tag" or raw_buff_ids:
                         continue
                     query = require_dict(item.get("query"), f"{event_path}.query")
                     query_type = query.get("queryType")
@@ -453,7 +598,14 @@ def parse_buff_event_actions(
                     runtimeTargetGroupWrites=tuple(runtime_target_group_writes),
                     obtainAtbFilters=tuple(obtain_atb_filters),
                     contextBuffTagQueries=tuple(context_buff_tag_queries),
+                    contextBuffIdQueries=tuple(context_buff_id_queries),
                     consumeBuffLayerChecks=tuple(consume_buff_layer_checks),
+                    collectedBuffReactionModifier=parse_collected_buff_reaction_modifier(
+                        event_name,
+                        semantic_actions,
+                        context_buff_tag_queries,
+                        event_path,
+                    ),
                 )
             )
     return tuple(result)

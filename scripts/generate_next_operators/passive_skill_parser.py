@@ -104,7 +104,8 @@ def parse_passive_skill(skill_id: str, source_dir: Path) -> PassiveSkillSource:
     reasons: list[str] = []
     if passive_type != "AddBuff":
         reasons.append(f"passive type {passive_type!r} is not supported")
-    if require_list(root.get("toggleBuffs"), f"{source_file}.toggleBuffs"):
+    toggle_buffs = require_list(root.get("toggleBuffs"), f"{source_file}.toggleBuffs")
+    if passive_type == "ToggleBuff" and toggle_buffs:
         reasons.append("toggle Buffs are not supported")
     if not buffs:
         reasons.append("passive has no startup Buff")
