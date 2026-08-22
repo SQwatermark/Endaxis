@@ -105,6 +105,102 @@ def skill_blackboard_entry(
 
 
 class ProgressionRendererTests(unittest.TestCase):
+    def test_renders_akekuri_combo_imbue_from_exact_talent_patches(self) -> None:
+        rendered = render_talents(
+            {
+                "slug": "akekuri",
+                "charId": "chr_0019_karin",
+                "talents": [
+                    {"index": 1, "key": "talent2", "compile": "akekuriComboImbue"}
+                ],
+                "skillGroups": [
+                    {"key": "ultimate", "skillKeys": ["ultimate"]}
+                ],
+            },
+            [SimpleNamespace(key="ultimate", skillId="chr_0019_karin_ultimate_skill")],
+            {
+                "talentNodeMap": {
+                    "node.talent2": {
+                        "passiveSkillNodeInfo": {
+                            "index": 1,
+                            "level": 1,
+                            "talentEffectId": "effect.talent2",
+                        }
+                    }
+                }
+            },
+            {
+                "effect.talent2": {
+                    "dataList": [
+                        skill_blackboard_entry(
+                            skill_id="chr_0019_karin_ultimate_skill",
+                            blackboard_key="combo",
+                            value=1,
+                        ),
+                        skill_blackboard_entry(
+                            skill_id="chr_0019_karin_ultimate_skill",
+                            blackboard_key="imbue_scale",
+                            value=0.2,
+                        ),
+                    ]
+                }
+            },
+        )
+
+        self.assertEqual(len(rendered), 1)
+        self.assertIn("key: 'akekuriComboImbue'", rendered[0])
+        self.assertIn("buff_common_affixes_combo_trigger", rendered[0])
+        self.assertIn("target: 'eventTarget'", rendered[0])
+        self.assertIn("target: 'buffOwner'", rendered[0])
+        self.assertIn("tags: ['normalSkill', 'ultimateSkill']", rendered[0])
+
+    def test_renders_akekuri_potential_five_as_combo_duration_extension(self) -> None:
+        marker = effect_entry(attr_type=0, value=0)
+        marker["attachBuff"] = {
+            "blackboard": [],
+            "buffId": "buff_chr_0019_karin_potential_5",
+        }
+        rendered = render_potentials(
+            {
+                "slug": "akekuri",
+                "charId": "chr_0019_karin",
+                "potentials": [
+                    {
+                        "key": "potential5",
+                        "compile": "akekuriComboImbueExtension",
+                    }
+                ],
+                "skillGroups": [
+                    {"key": "ultimate", "skillKeys": ["ultimate"]}
+                ],
+            },
+            [SimpleNamespace(key="ultimate", skillId="chr_0019_karin_ultimate_skill")],
+            {
+                "chr_0019_karin": {
+                    "potentialUnlockBundle": [
+                        {"level": 5, "potentialEffectId": "effect.potential5"}
+                    ]
+                }
+            },
+            {
+                "effect.potential5": {
+                    "dataList": [
+                        marker,
+                        skill_blackboard_entry(
+                            skill_id="chr_0019_karin_ultimate_skill",
+                            blackboard_key="potential_5_duration",
+                            value=5,
+                        ),
+                    ]
+                }
+            },
+        )
+
+        self.assertEqual(len(rendered), 1)
+        self.assertIn("kind: 'patchPassiveBlackboard'", rendered[0])
+        self.assertIn("passiveSkillKey: 'akekuriComboImbue'", rendered[0])
+        self.assertIn("value: 5", rendered[0])
+
     def test_renders_base_passive_with_skill_blackboard_defaults(self) -> None:
         passive = PassiveSkillSource(
             skill_id="skill.base",

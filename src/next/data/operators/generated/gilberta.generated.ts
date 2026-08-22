@@ -75,7 +75,20 @@ export const gilbertaGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0013_aglina_normal_skill_monitor",
@@ -183,7 +196,20 @@ export const gilbertaGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0013_aglina_talent_0",
@@ -437,7 +463,20 @@ export const gilbertaGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0013_aglina_talent_0_effectbuff",
@@ -664,7 +703,20 @@ export const gilbertaGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0013_aglina_talent_0_effectbuff_Add",
@@ -757,7 +809,20 @@ export const gilbertaGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0013_aglina_ultimate_skill",
@@ -1576,7 +1641,20 @@ export const gilbertaGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": true,
+        "spritePath": "icon_battle_buff_def_down",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0013_aglina_ultimate_spell_vulnerable",
@@ -1724,7 +1802,20 @@ export const gilbertaGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -1837,7 +1928,20 @@ export const gilbertaGeneratedSource = {
       ],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_full_immune_medium",
@@ -1957,7 +2061,20 @@ export const gilbertaGeneratedSource = {
       ],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -2077,7 +2194,20 @@ export const gilbertaGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -2155,7 +2285,20 @@ export const gilbertaGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     }
   ],
   "skills": [

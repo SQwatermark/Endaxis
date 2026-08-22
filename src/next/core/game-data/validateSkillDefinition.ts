@@ -1161,7 +1161,7 @@ function validateCombatStep(
                   const response = asRecord(value, responsePath, out);
                   if (response === null) continue;
                   for (const key of Object.keys(response)) {
-                    if (!['event', 'priority', 'sequence'].includes(key)) {
+                    if (!['event', 'priority', 'samePriorityKey', 'sequence'].includes(key)) {
                       push(out, `${responsePath}.${key}`, 'unknown Buff ability event field');
                     }
                   }
@@ -1169,6 +1169,7 @@ function validateCombatStep(
                     response.event !== 'enterFight' &&
                     response.event !== 'ownerHpZero' &&
                     response.event !== 'beforeTakeDamage' &&
+                    response.event !== 'beforeCalculateDamage' &&
                     response.event !== 'beforeTakePhysicalInfliction' &&
                     response.event !== 'beforeTakeSpellInfliction' &&
                     response.event !== 'beforeTakeInfliction' &&
@@ -1190,6 +1191,12 @@ function validateCombatStep(
                     push(out, `${responsePath}.event`, 'unsupported Buff ability event');
                   }
                   requireInteger(response, 'priority', responsePath, out);
+                  if (
+                    response.samePriorityKey !== undefined &&
+                    (typeof response.samePriorityKey !== 'string' || !response.samePriorityKey)
+                  ) {
+                    push(out, `${responsePath}.samePriorityKey`, 'expected a non-empty string');
+                  }
                   validateActionSequence(response.sequence, `${responsePath}.sequence`, out);
                 }
               }

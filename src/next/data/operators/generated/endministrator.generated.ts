@@ -107,7 +107,20 @@ export const endministratorGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0003_endminf_combo_skill_tutorial_marker",
@@ -179,7 +192,20 @@ export const endministratorGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0003_endminf_potential1",
@@ -257,7 +283,20 @@ export const endministratorGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0003_endminf_potential2",
@@ -335,7 +374,20 @@ export const endministratorGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0003_endminf_potential3",
@@ -413,7 +465,20 @@ export const endministratorGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0003_endminf_potential5",
@@ -688,7 +753,20 @@ export const endministratorGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0003_endminf_potential5_trigger",
@@ -760,7 +838,20 @@ export const endministratorGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0003_endminf_talent_1_tirgger",
@@ -858,7 +949,20 @@ export const endministratorGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": true,
+        "spritePath": "icon_battle_buff_atk_up",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": true,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "LifeTime",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -942,7 +1046,20 @@ export const endministratorGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -1055,7 +1172,20 @@ export const endministratorGeneratedSource = {
       ],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -1175,7 +1305,20 @@ export const endministratorGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_originum_frozen",
@@ -3238,7 +3381,20 @@ export const endministratorGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": true,
+        "spritePath": "icon_skill_endmin_debuff",
+        "showInHeadBarCommon": true,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -3316,7 +3472,20 @@ export const endministratorGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     }
   ],
   "skills": [

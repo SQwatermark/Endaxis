@@ -222,7 +222,20 @@ export const arclightGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": true,
+        "spritePath": "icon_battle_pulse_dmg_up",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": true,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "LifeTime",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0007_ikut_combo_skill_tutorial_marker",
@@ -294,7 +307,20 @@ export const arclightGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0007_ikut_finish_count_p5",
@@ -431,7 +457,20 @@ export const arclightGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0007_ikut_normal_skill_extra_count",
@@ -774,7 +813,20 @@ export const arclightGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": true,
+        "spritePath": "icon_battle_ikut_talent_1",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": true,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -858,7 +910,20 @@ export const arclightGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -971,7 +1036,20 @@ export const arclightGeneratedSource = {
       ],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -1091,7 +1169,20 @@ export const arclightGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -1169,7 +1260,20 @@ export const arclightGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_vfx_char_atk_up",
@@ -1243,7 +1347,20 @@ export const arclightGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     }
   ],
   "skills": [

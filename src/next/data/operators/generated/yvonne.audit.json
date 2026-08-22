@@ -626,7 +626,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_combo_skill_finish",
@@ -1322,7 +1335,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_combo_skill_tutorial_marker",
@@ -1394,7 +1420,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_normal_skill_frozen",
@@ -1495,7 +1534,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_normal_skill_listener",
@@ -1843,7 +1895,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_normal_skill_projectile",
@@ -5162,7 +5227,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_potential_5_cd",
@@ -5476,7 +5554,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_potential_5_effect",
@@ -5580,7 +5671,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_potential_5_new",
@@ -5688,7 +5792,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_power_attack",
@@ -5792,7 +5909,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_talent_0",
@@ -6006,7 +6136,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_talent_1",
@@ -6394,7 +6537,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_talent_1_valid",
@@ -6541,7 +6697,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill",
@@ -7597,7 +7766,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": true,
+        "spritePath": "icon_battle_yvonne_buff",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": true,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "LifeTime",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "AttentionDebuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_camera",
@@ -8157,7 +8339,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_camera_child",
@@ -8419,7 +8614,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_end",
@@ -9708,7 +9916,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": true,
+        "spritePath": "icon_battle_yvonne_buff",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": true,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "LifeTime",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "AttentionDebuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_environment",
@@ -9814,7 +10035,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_full_effect",
@@ -9904,7 +10138,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_layer",
@@ -10089,7 +10336,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": true,
+        "spritePath": "icon_battle_yvonne_buff",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": true,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_layer_effect",
@@ -10187,7 +10447,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_potential4_valid",
@@ -10446,7 +10719,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_robot_end",
@@ -10552,7 +10838,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_shield",
@@ -10650,7 +10949,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_voice",
@@ -10793,7 +11105,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_voice_short",
@@ -10936,7 +11261,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_voice_start",
@@ -11079,7 +11417,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_wepl",
@@ -11183,7 +11534,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0017_yvonne_ultimate_skill_wepr",
@@ -11287,7 +11651,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_cryst_cryst_frozen_triggered",
@@ -11625,7 +12002,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_cryst_cryst_frozen_triggered_do",
@@ -12237,7 +12627,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": true,
+        "spritePath": "icon_battle_frozen",
+        "showInHeadBarCommon": true,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "SpellAbnormal",
+        "abnormalColorType": "Cryst",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "AttachedAndAbnormal"
+      }
     },
     {
       "buffId": "buff_common_cryst_triggered_fx",
@@ -12349,7 +12752,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_cryst_triggered_start",
@@ -12453,7 +12869,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -12537,7 +12966,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -12650,7 +13092,20 @@
       ],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_do_frozen",
@@ -12831,7 +13286,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_frozen",
@@ -13087,7 +13555,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -13165,7 +13646,20 @@
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     }
   ],
   "passiveSkills": [

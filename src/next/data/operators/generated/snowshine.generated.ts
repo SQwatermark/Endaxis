@@ -183,7 +183,20 @@ export const snowshineGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0014_aurora_combo_skill_heal_loop",
@@ -377,7 +390,20 @@ export const snowshineGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0014_aurora_combo_skill_tutorial_marker",
@@ -449,7 +475,20 @@ export const snowshineGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0014_aurora_potential_1",
@@ -561,7 +600,20 @@ export const snowshineGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0014_aurora_potential_1_listener",
@@ -829,7 +881,20 @@ export const snowshineGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0014_aurora_reduce_damage",
@@ -1176,7 +1241,20 @@ export const snowshineGeneratedSource = {
       ],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0014_aurora_reduce_damage_remain",
@@ -1341,7 +1419,20 @@ export const snowshineGeneratedSource = {
       ],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0014_aurora_talent_0",
@@ -1454,7 +1545,20 @@ export const snowshineGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0014_aurora_ultimate_skill_dmg",
@@ -1621,7 +1725,20 @@ export const snowshineGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_chr_0014_aurora_ultimate_skill_frost",
@@ -1953,7 +2070,20 @@ export const snowshineGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_cryst_cryst_frozen_triggered",
@@ -2291,7 +2421,20 @@ export const snowshineGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_cryst_cryst_frozen_triggered_do",
@@ -2903,7 +3046,20 @@ export const snowshineGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": true,
+        "spritePath": "icon_battle_frozen",
+        "showInHeadBarCommon": true,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "SpellAbnormal",
+        "abnormalColorType": "Cryst",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "AttachedAndAbnormal"
+      }
     },
     {
       "buffId": "buff_common_cryst_triggered_fx",
@@ -3015,7 +3171,20 @@ export const snowshineGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_cryst_triggered_start",
@@ -3119,7 +3288,20 @@ export const snowshineGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -3232,7 +3414,20 @@ export const snowshineGeneratedSource = {
       ],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_do_frozen",
@@ -3413,7 +3608,20 @@ export const snowshineGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_frozen",
@@ -3669,7 +3877,20 @@ export const snowshineGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_full_immune_medium",
@@ -3789,7 +4010,20 @@ export const snowshineGeneratedSource = {
       ],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -3909,7 +4143,20 @@ export const snowshineGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -3987,7 +4234,20 @@ export const snowshineGeneratedSource = {
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
       "projectileLaunches": [],
-      "presentationOnlySwitchActionIndexes": []
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
     }
   ],
   "skills": [

@@ -240,7 +240,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       if (context === undefined) {
         throw new Error('readBuffBlackboard requires a combat operation context');
       }
-      const target = this.dependencies.resolveTarget(step.parameters.target);
+      const target = this.#resolveSingleTarget(step.parameters.target, context);
       const buff =
         step.parameters.query.kind === 'tag'
           ? target.findFirstByTags(
@@ -271,7 +271,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         );
         return true;
       }
-      const target = this.dependencies.resolveTarget(step.parameters.target);
+      const target = this.#resolveSingleTarget(step.parameters.target, context);
       const skillCastId = step.parameters.sameSourceSkillCast
         ? this.#requireSkillCastId(context, 'readBuffStackCount')
         : undefined;
@@ -367,6 +367,16 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     target: BuffApplicationTarget,
     context?: Parameters<CombatOperationExecutor['execute']>[1],
   ): readonly BuffOperationTarget[] {
+    if (target === 'buffOwner') {
+      if (context?.buffOwnerId === undefined) {
+        throw new Error('buffOwner Buff application requires a Buff lifecycle context');
+      }
+      const resolve = this.dependencies.resolveEventTarget;
+      if (resolve === undefined) {
+        throw new Error('buffOwner Buff application is not configured');
+      }
+      return [resolve(context.buffOwnerId)];
+    }
     if (target === 'eventTarget') {
       if (context?.event === undefined) {
         throw new Error('eventTarget Buff application requires an event context');
@@ -492,9 +502,19 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
   }
 
   #resolveSingleTarget(
-    target: CombatTarget | 'currentAbilityEntity' | 'eventTarget',
+    target: CombatTarget | 'currentAbilityEntity' | 'eventTarget' | 'buffOwner',
     context: Parameters<CombatOperationExecutor['execute']>[1],
   ): BuffOperationTarget {
+    if (target === 'buffOwner') {
+      if (context?.buffOwnerId === undefined) {
+        throw new Error('buffOwner Buff operation requires a Buff lifecycle context');
+      }
+      const resolve = this.dependencies.resolveEventTarget;
+      if (resolve === undefined) {
+        throw new Error('buffOwner Buff operation is not configured');
+      }
+      return resolve(context.buffOwnerId);
+    }
     if (target === 'eventTarget') {
       if (context?.event === undefined) {
         throw new Error('eventTarget Buff operation requires an event context');

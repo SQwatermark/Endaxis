@@ -156,9 +156,12 @@ export const BUFF_APPLICATION_TARGETS = [
   'casterAndLowestHealthRatioOperatorExceptCaster',
   'currentAbilityEntity',
   'eventTarget',
+  'buffOwner',
 ] as const;
 /** Buff 施加允许面向单体、能力实体，以及由原生队伍选择器严格证明的集合。 */
 export type BuffApplicationTarget = (typeof BUFF_APPLICATION_TARGETS)[number];
+/** 单实例 Buff 操作可使用静态战斗目标，也可沿当前事件或 Buff 生命周期寻址。 */
+export type BuffSingleTarget = CombatTarget | 'currentAbilityEntity' | 'eventTarget' | 'buffOwner';
 
 export const BUFF_APPLICATION_SOURCES = [...COMBAT_TARGETS, 'currentAbilityEntity'] as const;
 /** Buff 来源允许保留能力实体 ActionOwner 的稳定身份。 */
@@ -710,7 +713,7 @@ export interface CombatStepParameters {
   };
   /** 按原生 ID 或标签查询目标的首个有效 Buff，并把其数值黑板写入当前动作黑板。 */
   readBuffBlackboard: {
-    target: CombatTarget;
+    target: BuffSingleTarget;
     query:
       | { kind: 'id'; buffIds: readonly string[] }
       | {
@@ -723,7 +726,7 @@ export interface CombatStepParameters {
   };
   /** 查询匹配 Buff 的累计层数，并写入当前技能实例的动作黑板。 */
   readBuffStackCount: {
-    target: CombatTarget;
+    target: BuffSingleTarget;
     outputKey: string;
     query:
       | { kind: 'id'; buffIds: readonly string[] }
@@ -1145,6 +1148,7 @@ export interface SkillBuffAbilityEventResponse {
     | 'enterFight'
     | 'ownerHpZero'
     | 'beforeTakeDamage'
+    | 'beforeCalculateDamage'
     | 'beforeTakePhysicalInfliction'
     | 'beforeTakeSpellInfliction'
     | 'beforeTakeInfliction'
@@ -1164,6 +1168,8 @@ export interface SkillBuffAbilityEventResponse {
     | 'afterKillEntity';
   /** 原生数据动作优先级；同一事件同优先级的顺序未证明时运行时会拒绝注册。 */
   priority: number;
+  /** 已证明同优先级、同 key 的实例响应可交换时允许并列注册。 */
+  samePriorityKey?: string;
   sequence: ActionSequenceDefinition;
 }
 

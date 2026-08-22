@@ -9,6 +9,10 @@
     "弭弗特殊猛击": {
       "values": [1, 1, 1, 1],
       "enhanceFormulaKey": "Damage"
+    },
+    "连击增伤": {
+      "values": [0.2, 0.15, 0.1333, 0.125],
+      "enhanceFormulaKey": ""
     }
   },
   "formulas": {

@@ -85,8 +85,8 @@ SKILL_PARAMETER_CONVERSION_CANDIDATES: dict[str, dict[str, Any]] = {
 
 # “已转换”表示来源效果已完整进入 OperatorDefinition；“可模拟”还要求该定义类型
 # 已接入标准场景的面板、技能补丁或被动程序编译链。两者必须分开统计。
-TALENT_DEFINITION_COMPILERS = {"attachedPassive", "skillBlackboardPatch", "targetStaggeredDamage", "consumedInflictionVulnerability"}
-TALENT_SIMULATION_COMPILERS = {"attachedPassive", "skillBlackboardPatch", "targetStaggeredDamage", "consumedInflictionVulnerability"}
+TALENT_DEFINITION_COMPILERS = {"attachedPassive", "skillBlackboardPatch", "targetStaggeredDamage", "consumedInflictionVulnerability", "akekuriComboImbue"}
+TALENT_SIMULATION_COMPILERS = {"attachedPassive", "skillBlackboardPatch", "targetStaggeredDamage", "consumedInflictionVulnerability", "akekuriComboImbue"}
 POTENTIAL_DEFINITION_COMPILERS = {
     "attachedBuff",
     "skillSpGainAttackStack",
@@ -101,6 +101,7 @@ POTENTIAL_DEFINITION_COMPILERS = {
     "skillAndPassiveBlackboardPatch",
     "skillCooldownAndBlackboardPatch",
     "staticAttributes",
+    "akekuriComboImbueExtension",
 }
 POTENTIAL_SIMULATION_COMPILERS = {
     "attachedBuff",
@@ -116,6 +117,7 @@ POTENTIAL_SIMULATION_COMPILERS = {
     "skillAndPassiveBlackboardPatch",
     "skillCooldownAndBlackboardPatch",
     "staticAttributes",
+    "akekuriComboImbueExtension",
 }
 
 

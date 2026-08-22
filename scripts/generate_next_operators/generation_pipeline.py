@@ -371,6 +371,7 @@ def run_generation(*, services: GenerationPipelineServices) -> None:
                     "ignoreBuffIds",
                     "simulationNoEffectBuffIds",
                     "unmodeledBuffIds",
+                    "projectedBuffIds",
                 )
                 for value in require_list(
                     compile_config.get(field, []),

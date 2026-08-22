@@ -1552,6 +1552,284 @@ def skill_ids_by_group_key(
     return ids
 
 
+def _render_akekuri_combo_imbue_passive() -> str:
+    """渲染已由 GlobalBuff/SkillAffix 证据闭环的固定队伍投影。"""
+    return """  passiveSkills: [
+    {
+      key: 'akekuriComboImbue',
+      blackboard: { 'duration': 10, 'imbue_scale': 0.2 },
+      enableSequence: sequence(
+        step('applyBuff', {
+          buffId: 'buff_chr_0019_karin_talent_2',
+          target: 'caster',
+          blackboardAssignments: {
+            'duration': { kind: 'blackboard', key: 'duration' },
+            'imbue_scale': { kind: 'blackboard', key: 'imbue_scale' },
+          },
+          definition: {
+            stackingType: 'unique',
+            blackboard: { 'duration': 10, 'imbue_scale': 0.2 },
+            abilityEventResponses: [
+              {
+                event: 'beforeCastSkill',
+                priority: 0,
+                samePriorityKey: 'akekuri-combo-before-cast',
+                sequence: sequence(
+                  branch(
+                    { kind: 'eventSkillTypeIn', skillTypes: ['ultimate'] },
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_common_affixes_combo_trigger',
+                        target: 'party',
+                        blackboardAssignments: {
+                          'duration': { kind: 'blackboard', key: 'duration' },
+                          'imbue_scale': { kind: 'blackboard', key: 'imbue_scale' },
+                        },
+                        definition: {
+                          stackingType: 'stack',
+                          maxStackCount: 4,
+                          durationSeconds: { blackboardKey: 'duration' },
+                          blackboard: { 'duration': 0, 'imbue_scale': 0 },
+                          abilityEventResponses: [
+                            {
+                              event: 'beforeCastSkill',
+                              priority: 0,
+                              samePriorityKey: 'akekuri-combo-before-cast',
+                              sequence: sequence(
+                                branch(
+                                  {
+                                    kind: 'eventSkillTypeIn',
+                                    skillTypes: ['battleSkill', 'ultimate'],
+                                  },
+                                  sequence(
+                                    step('applyBuff', {
+                                      buffId: 'buff_common_affixes_skillimbue',
+                                      target: 'eventTarget',
+                                      inheritSourceSkillCastInfo: true,
+                                      blackboardAssignments: {
+                                        'imbue_scale': {
+                                          kind: 'blackboard',
+                                          key: 'imbue_scale',
+                                        },
+                                      },
+                                      definition: {
+                                        stackingType: 'unlimited',
+                                        blackboard: { 'imbue_scale': 0 },
+                                        lifecycleSequences: {
+                                          enable: sequence(
+                                            step('applyBuff', {
+                                              buffId: 'buff_common_affixes_skillimbue_atk',
+                                              target: 'buffOwner',
+                                              inheritSourceSkillCastInfo: true,
+                                              finishByAction: true,
+                                              blackboardAssignments: {
+                                                'imbue_scale': {
+                                                  kind: 'blackboard',
+                                                  key: 'imbue_scale',
+                                                },
+                                              },
+                                              definition: {
+                                                stackingType: 'unlimited',
+                                                maxStackCount: 4,
+                                                blackboard: {
+                                                  'count': 0,
+                                                  'imbue_scale': 0,
+                                                },
+                                                damageModifiers: [
+                                                  {
+                                                    enabledSide: 'attacker',
+                                                    condition: {
+                                                      kind: 'eventDamageTagsMatch',
+                                                      match: 'hasAny',
+                                                      tags: ['normalSkill', 'ultimateSkill'],
+                                                    },
+                                                    processors: [
+                                                      {
+                                                        kind: 'damageScale',
+                                                        side: 'attacker',
+                                                        zone: 'combo',
+                                                        addition: {
+                                                          blackboardKey: 'imbue_scale',
+                                                        },
+                                                      },
+                                                    ],
+                                                  },
+                                                ],
+                                                abilityEventResponses: [
+                                                  {
+                                                    event: 'beforeCalculateDamage',
+                                                    priority: 0,
+                                                    samePriorityKey: 'skill-affix-combo-scale',
+                                                    sequence: sequence(
+                                                      step('readBuffStackCount', {
+                                                        target: 'buffOwner',
+                                                        outputKey: 'count',
+                                                        query: {
+                                                          kind: 'id',
+                                                          buffIds: [
+                                                            'buff_common_affixes_skillimbue_atk',
+                                                          ],
+                                                        },
+                                                      }),
+                                                      branch(
+                                                        {
+                                                          kind: 'actionValueCompare',
+                                                          left: {
+                                                            kind: 'blackboard',
+                                                            key: 'count',
+                                                          },
+                                                          operator: 'lessOrEqual',
+                                                          right: {
+                                                            kind: 'constant',
+                                                            value: 1,
+                                                          },
+                                                        },
+                                                        sequence(
+                                                          step('modifyActionValue', {
+                                                            key: 'imbue_scale',
+                                                            operation: 'assign',
+                                                            value: {
+                                                              kind: 'constant',
+                                                              value: 0.2,
+                                                            },
+                                                          }),
+                                                        ),
+                                                        sequence(
+                                                          branch(
+                                                            {
+                                                              kind: 'actionValueCompare',
+                                                              left: {
+                                                                kind: 'blackboard',
+                                                                key: 'count',
+                                                              },
+                                                              operator: 'lessOrEqual',
+                                                              right: {
+                                                                kind: 'constant',
+                                                                value: 2,
+                                                              },
+                                                            },
+                                                            sequence(
+                                                              step('modifyActionValue', {
+                                                                key: 'imbue_scale',
+                                                                operation: 'assign',
+                                                                value: {
+                                                                  kind: 'constant',
+                                                                  value: 0.15,
+                                                                },
+                                                              }),
+                                                            ),
+                                                            sequence(
+                                                              branch(
+                                                                {
+                                                                  kind: 'actionValueCompare',
+                                                                  left: {
+                                                                    kind: 'blackboard',
+                                                                    key: 'count',
+                                                                  },
+                                                                  operator: 'lessOrEqual',
+                                                                  right: {
+                                                                    kind: 'constant',
+                                                                    value: 3,
+                                                                  },
+                                                                },
+                                                                sequence(
+                                                                  step('modifyActionValue', {
+                                                                    key: 'imbue_scale',
+                                                                    operation: 'assign',
+                                                                    value: {
+                                                                      kind: 'constant',
+                                                                      value: 0.1333,
+                                                                    },
+                                                                  }),
+                                                                ),
+                                                                sequence(
+                                                                  step('modifyActionValue', {
+                                                                    key: 'imbue_scale',
+                                                                    operation: 'assign',
+                                                                    value: {
+                                                                      kind: 'constant',
+                                                                      value: 0.125,
+                                                                    },
+                                                                  }),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      branch(
+                                                        {
+                                                          kind: 'eventDamageTagsMatch',
+                                                          match: 'hasAll',
+                                                          tags: ['normalSkill'],
+                                                        },
+                                                        sequence(
+                                                          step('modifyActionValue', {
+                                                            key: 'imbue_scale',
+                                                            operation: 'multiply',
+                                                            value: {
+                                                              kind: 'constant',
+                                                              value: 1.5,
+                                                            },
+                                                          }),
+                                                        ),
+                                                        undefined,
+                                                        { alwaysNext: true },
+                                                      ),
+                                                    ),
+                                                  },
+                                                ],
+                                              },
+                                            }),
+                                          ),
+                                        },
+                                        abilityEventResponses: [
+                                          {
+                                            event: 'skillEnd',
+                                            priority: 0,
+                                            samePriorityKey: 'skill-affix-skill-end',
+                                            sequence: sequence(
+                                              branch(
+                                                {
+                                                  kind: 'eventSkillTypeIn',
+                                                  skillTypes: ['battleSkill', 'ultimate'],
+                                                },
+                                                sequence(
+                                                  step('finishCurrentBuff', {
+                                                    reason: 'other',
+                                                  }),
+                                                ),
+                                              ),
+                                            ),
+                                          },
+                                        ],
+                                      },
+                                    }),
+                                    step('finishBuffsById', {
+                                      target: 'party',
+                                      buffIds: ['buff_common_affixes_combo_trigger'],
+                                      reason: 'early',
+                                      count: { kind: 'constant', value: 1 },
+                                    }),
+                                  ),
+                                ),
+                              ),
+                            },
+                          ],
+                        },
+                      }),
+                    ),
+                  ),
+                ),
+              },
+            ],
+          },
+        }),
+      ),
+    },
+  ],"""
+
+
 def render_talents(
     operator: dict[str, Any],
     skills: list[SkillSource],
@@ -1749,6 +2027,49 @@ def render_talents(
                     ]
                 )
             )
+        elif kind == "akekuriComboImbue":
+            if len(entries) != 1:
+                raise ValueError(f"talent {key}: expected one Akekuri combo-imbue level")
+            effect_id = entries[0][1]
+            effect = table_row(effects, effect_id, "PotentialTalentEffectTable")
+            data_list = [
+                require_dict(entry, f"{effect_id}.dataList[{index}]")
+                for index, entry in enumerate(
+                    require_list(effect.get("dataList"), f"{effect_id}.dataList")
+                )
+            ]
+            patches = {
+                (
+                    require_dict(entry.get("skillBbModifier"), "skillBbModifier").get("bbKey"),
+                    float(
+                        require_dict(entry.get("skillBbModifier"), "skillBbModifier").get(
+                            "floatValue", 0
+                        )
+                    ),
+                )
+                for entry in data_list
+            }
+            if patches != {("combo", 1.0), ("imbue_scale", 0.2)}:
+                raise ValueError(f"{effect_id}: unexpected Akekuri combo-imbue patches {patches!r}")
+            modifier_body = _render_skill_blackboard_patch_modifiers(
+                data_list,
+                f"PotentialTalentEffectTable.{effect_id}.dataList",
+                operator,
+                skills,
+                multi_level=False,
+            )
+            result.append(
+                "\n".join(
+                    [
+                        "{",
+                        f"  key: {ts_inline_literal(key)},",
+                        "  levels: 1,",
+                        modifier_body,
+                        _render_akekuri_combo_imbue_passive(),
+                        "}",
+                    ]
+                )
+            )
         elif kind == "skillBlackboardPatch":
             patch_entries: list[dict[str, Any]] = []
             expected_keys: set[tuple[str, str | None, str, str, str | None]] | None = None
@@ -1905,11 +2226,40 @@ def render_potentials(
             "skillCooldownAndBlackboardPatch",
             "multiplyUltimateCost",
             "passiveBlackboardPatch",
+            "akekuriComboImbueExtension",
         }:
             if len(data_list) != 1:
                 raise ValueError(f"{effect_id}: expected one effect entry")
             data = require_dict(data_list[0], f"{effect_id}.dataList[0]")
-        if kind == "staticAttributes":
+        if kind == "akekuriComboImbueExtension":
+            if len(data_list) != 2:
+                raise ValueError(f"{effect_id}: expected attach Buff and duration patch")
+            attached = require_dict(data_list[0].get("attachBuff"), "attachBuff")
+            duration_patch = require_dict(
+                data_list[1].get("skillBbModifier"), "skillBbModifier"
+            )
+            if attached.get("buffId") != "buff_chr_0019_karin_potential_5":
+                raise ValueError(f"{effect_id}: unexpected potential-5 marker Buff")
+            if (
+                duration_patch.get("skillId") != ultimate_skill_id
+                or duration_patch.get("bbKey") != "potential_5_duration"
+                or float(duration_patch.get("floatValue", 0)) != 5.0
+            ):
+                raise ValueError(f"{effect_id}: unexpected potential-5 duration patch")
+            body = "\n".join(
+                [
+                    "  modifiers: [",
+                    "    {",
+                    "      kind: 'patchPassiveBlackboard',",
+                    "      passiveSkillKey: 'akekuriComboImbue',",
+                    "      blackboardKey: 'duration',",
+                    "      operation: 'add',",
+                    "      value: 5,",
+                    "    },",
+                    "  ],",
+                ]
+            )
+        elif kind == "staticAttributes":
             body = _render_static_attribute_modifiers(
                 parse_static_attribute_progression(
                     data_list,

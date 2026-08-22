@@ -665,6 +665,22 @@ export const lifengGeneratedOperator: OperatorDefinition = {
     },
     'buff_chr_0015_lifeng_potential_5_1': {
       stackingType: 'unique',
+      presentation: {
+        visible: true,
+        iconId: 'icon_battle_lifeng_potential_5',
+        iconPath: '/icons/icon_battle_lifeng_potential_5.webp',
+        showInHeadBarCommon: false,
+        showInHeadBarAttached: false,
+        showInSquadIcon: true,
+        onlyShowForMainCharacter: false,
+        iconStyleInSquad: 'Default',
+        abnormalColorType: 'Physical',
+        orderPriority: {
+          useDirectoryValue: false,
+          value: 0,
+          category: 'CommonCharBuff',
+        },
+      },
       priority: 0,
       maxStackCount: 1,
       blackboard: {

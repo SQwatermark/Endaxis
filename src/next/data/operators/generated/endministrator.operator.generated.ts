@@ -1652,6 +1652,22 @@ export const endministratorGeneratedOperator: OperatorDefinition = {
     },
     'buff_chr_0003_endminf_talent_1_tirgger': {
       stackingType: 'stack',
+      presentation: {
+        visible: true,
+        iconId: 'icon_battle_buff_atk_up',
+        iconPath: '/icons/icon_battle_buff_atk_up.webp',
+        showInHeadBarCommon: false,
+        showInHeadBarAttached: false,
+        showInSquadIcon: true,
+        onlyShowForMainCharacter: false,
+        iconStyleInSquad: 'LifeTime',
+        abnormalColorType: 'Physical',
+        orderPriority: {
+          useDirectoryValue: false,
+          value: 0,
+          category: 'CommonCharBuff',
+        },
+      },
       priority: 0,
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration' },

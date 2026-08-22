@@ -420,6 +420,27 @@ def aura_action_fixture() -> dict:
     }
 
 
+def hidden_buff_presentation_fixture() -> dict[str, object]:
+    """补齐真实 BuffData 始终存在的展示字段，避免行为夹具绕过图标解析门禁。"""
+    return {
+        "hasIcon": False,
+        "iconConfig": {
+            "_spritePath": "",
+            "showInHeadBarCommon": False,
+            "showInHeadBarAttached": False,
+            "showInSquadIcon": False,
+            "onlyShowForMainCharacter": False,
+            "iconStyleInSquad": "Default",
+            "abnormalColorType": "Physical",
+            "_orderPriorityConfig": {
+                "useDirectoryValue": False,
+                "priorityValue": 0,
+                "priorityEnum": "CommonCharBuff",
+            },
+        },
+    }
+
+
 def extract_step_key(source: str) -> str | None:
     """从编译产物中提取首个 dealDamage 步骤的 key 参数，供稳定性断言使用。"""
     marker = "step('dealDamage',"
@@ -4660,6 +4681,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
     def test_buff_definitions_do_not_use_application_overrides(self) -> None:
         buff = {
+            **hidden_buff_presentation_fixture(),
             "lifeType": "Limited",
             "duration": {
                 "useBlackboardKey": True,
@@ -4763,6 +4785,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
     def test_buff_definitions_parse_ability_events_and_report_other_root_payloads(self) -> None:
         buff = {
+            **hidden_buff_presentation_fixture(),
             "lifeType": "Infinity",
             "duration": {
                 "useBlackboardKey": False,
@@ -4846,6 +4869,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                     }
                 )
             return {
+                **hidden_buff_presentation_fixture(),
                 "id": buff_id,
                 "lifeType": "Infinity",
                 "duration": {
@@ -5021,6 +5045,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
     def test_buff_definitions_fall_back_to_full_export_directory(self) -> None:
         buff = {
+            **hidden_buff_presentation_fixture(),
             "lifeType": "Limited",
             "duration": {"useBlackboardKey": False, "value": 1, "blackboardKey": ""},
             "triggerInterval": {"useBlackboardKey": False, "value": -1, "blackboardKey": ""},
@@ -10814,6 +10839,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
     def test_buff_event_slots_keep_their_trigger_and_created_buff_references(self) -> None:
         buff = {
+            **hidden_buff_presentation_fixture(),
             "lifeType": "Limited",
             "duration": {
                 "useBlackboardKey": False,
@@ -10989,6 +11015,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
     def test_buff_ability_event_actions_preserve_source_and_order(self) -> None:
         buff = {
+            **hidden_buff_presentation_fixture(),
             "lifeType": "Infinity",
             "duration": {"useBlackboardKey": False, "value": 1, "blackboardKey": ""},
             "triggerInterval": {

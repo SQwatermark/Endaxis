@@ -855,6 +855,22 @@ export const lastRiteGeneratedOperator: OperatorDefinition = {
     },
     'buff_chr_0026_lastrite_normal_skill': {
       stackingType: 'stack',
+      presentation: {
+        visible: true,
+        iconId: 'icon_battle_lastrite_buff',
+        iconPath: '/operators/last-rite/icon_battle_lastrite_buff.webp',
+        showInHeadBarCommon: false,
+        showInHeadBarAttached: false,
+        showInSquadIcon: true,
+        onlyShowForMainCharacter: true,
+        iconStyleInSquad: 'LifeTime',
+        abnormalColorType: 'Physical',
+        orderPriority: {
+          useDirectoryValue: false,
+          value: 0,
+          category: 'CommonCharBuff',
+        },
+      },
       priority: 0,
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration' },

@@ -990,6 +990,22 @@ export const gilbertaGeneratedOperator: OperatorDefinition = {
                 buffId: 'buff_chr_0013_aglina_ultimate_skill',
                 definition: {
                   stackingType: 'stack',
+                  presentation: {
+                    visible: true,
+                    iconId: 'icon_battle_buff_def_down',
+                    iconPath: '/icons/icon_battle_buff_def_down.webp',
+                    showInHeadBarCommon: false,
+                    showInHeadBarAttached: false,
+                    showInSquadIcon: false,
+                    onlyShowForMainCharacter: false,
+                    iconStyleInSquad: 'Default',
+                    abnormalColorType: 'Physical',
+                    orderPriority: {
+                      useDirectoryValue: false,
+                      value: 0,
+                      category: 'CommonCharBuff',
+                    },
+                  },
                   priority: 0,
                   maxStackCount: 1,
                   applyTagIds: [1077554361],

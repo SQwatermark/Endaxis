@@ -32,7 +32,12 @@ export type RuntimeSkillInterruptReason = 'castNextSkill';
 /** Ability 承伤事件进入通用条件执行器前的只读归一化负载。 */
 export interface CombatAbilityDamageEvent {
   readonly kind: 'abilityDamage';
-  readonly event: 'beforeTakeDamage' | 'takeDamage' | 'takeCriticalDamage' | 'outputDamage';
+  readonly event:
+    | 'beforeCalculateDamage'
+    | 'beforeTakeDamage'
+    | 'takeDamage'
+    | 'takeCriticalDamage'
+    | 'outputDamage';
   readonly sourceId: string;
   readonly targetId: string;
   readonly damageType?: import('../../game-data/operatorDefinition').DamageType;

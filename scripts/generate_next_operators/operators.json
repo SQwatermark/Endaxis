@@ -2149,14 +2149,14 @@
       "charId": "chr_0019_karin",
       "talents": [
         { "index": 0, "key": "talent1", "compile": "skillBlackboardPatch" },
-        { "index": 1, "key": "talent2", "compile": "skillBlackboardPatch" }
+        { "index": 1, "key": "talent2", "compile": "akekuriComboImbue" }
       ],
       "potentials": [
         { "key": "potential1", "compile": "skillSpGainAttackStack" },
         { "key": "potential2", "compile": "staticAttributes" },
         { "key": "potential3", "compile": "skillBlackboardPatch" },
         { "key": "potential4" },
-        { "key": "potential5", "compile": "unmodeledPotential" }
+        { "key": "potential5", "compile": "akekuriComboImbueExtension" }
       ],
       "skillGroups": [
         {
@@ -2267,8 +2267,8 @@
             "tags": ["ultimateSkill"],
             "costResource": "ultimateEnergy",
             "usePatchCooldown": true,
-            "unmodeledBuffIds": [
-              "buff_common_damage_immune_ult_skill",
+            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"],
+            "projectedBuffIds": [
               "buff_chr_0019_karin_talent_2",
               "buff_chr_0019_karin_talent_2_combo"
             ]

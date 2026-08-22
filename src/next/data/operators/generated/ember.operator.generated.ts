@@ -732,6 +732,22 @@ export const emberGeneratedOperator: OperatorDefinition = {
   buffDefinitions: {
     'buff_chr_0009_azrila_normal_skill_shelter': {
       stackingType: 'unlimited',
+      presentation: {
+        visible: true,
+        iconId: 'icon_battle_affix_shelter',
+        iconPath: '/icons/icon_battle_affix_shelter.webp',
+        showInHeadBarCommon: false,
+        showInHeadBarAttached: false,
+        showInSquadIcon: false,
+        onlyShowForMainCharacter: false,
+        iconStyleInSquad: 'Default',
+        abnormalColorType: 'Physical',
+        orderPriority: {
+          useDirectoryValue: false,
+          value: 0,
+          category: 'CommonCharBuff',
+        },
+      },
       priority: 0,
       maxStackCount: 0,
       durationSeconds: { blackboardKey: 'duration' },
@@ -768,6 +784,22 @@ export const emberGeneratedOperator: OperatorDefinition = {
     },
     'buff_chr_0009_azrila_ultimate_skill_shield_extraattack': {
       stackingType: 'unlimited',
+      presentation: {
+        visible: true,
+        iconId: 'icon_battle_buff_atk_up',
+        iconPath: '/icons/icon_battle_buff_atk_up.webp',
+        showInHeadBarCommon: false,
+        showInHeadBarAttached: false,
+        showInSquadIcon: true,
+        onlyShowForMainCharacter: false,
+        iconStyleInSquad: 'Default',
+        abnormalColorType: 'Physical',
+        orderPriority: {
+          useDirectoryValue: false,
+          value: 0,
+          category: 'CommonCharBuff',
+        },
+      },
       priority: 0,
       maxStackCount: 0,
       blackboard: {
@@ -788,6 +820,22 @@ export const emberGeneratedOperator: OperatorDefinition = {
     },
     'buff_chr_0009_azrila_ultimateshield': {
       stackingType: 'unlimited',
+      presentation: {
+        visible: true,
+        iconId: 'icon_battle_shield',
+        iconPath: '/icons/icon_battle_shield.webp',
+        showInHeadBarCommon: false,
+        showInHeadBarAttached: false,
+        showInSquadIcon: true,
+        onlyShowForMainCharacter: false,
+        iconStyleInSquad: 'Default',
+        abnormalColorType: 'Physical',
+        orderPriority: {
+          useDirectoryValue: false,
+          value: 0,
+          category: 'CommonCharBuff',
+        },
+      },
       priority: 0,
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration' },
@@ -839,6 +887,22 @@ export const emberGeneratedOperator: OperatorDefinition = {
     },
     'buff_chr_0009_azrila_talent_2_buff': {
       stackingType: 'enhanceAndOverwriteDuration',
+      presentation: {
+        visible: true,
+        iconId: 'icon_battle_buff_atk_up',
+        iconPath: '/icons/icon_battle_buff_atk_up.webp',
+        showInHeadBarCommon: false,
+        showInHeadBarAttached: false,
+        showInSquadIcon: true,
+        onlyShowForMainCharacter: false,
+        iconStyleInSquad: 'Default',
+        abnormalColorType: 'Physical',
+        orderPriority: {
+          useDirectoryValue: false,
+          value: 0,
+          category: 'CommonCharBuff',
+        },
+      },
       priority: 0,
       maxStackCount: 3,
       durationSeconds: { blackboardKey: 'duration' },

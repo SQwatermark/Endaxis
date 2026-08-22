@@ -19,6 +19,13 @@ class SkillSettingCatalogTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "is not recovered"):
             resolve_linear_skill_setting_read("未恢复", 1, "fixture")
 
+    def test_records_recovered_combo_damage_rows(self) -> None:
+        self.assertTrue(has_recovered_skill_setting_data("连击增伤"))
+        self.assertEqual(
+            resolve_linear_skill_setting_read("连击增伤", 3, "fixture"),
+            (0.1333, 0.0),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1009,6 +1009,21 @@ export const snowshineGeneratedOperator: OperatorDefinition = {
                                   buffId: 'buff_common_cryst_cryst_frozen_triggered_do',
                                   definition: {
                                     stackingType: 'stack',
+                                    presentation: {
+                                      visible: true,
+                                      iconId: 'icon_battle_frozen',
+                                      showInHeadBarCommon: true,
+                                      showInHeadBarAttached: false,
+                                      showInSquadIcon: false,
+                                      onlyShowForMainCharacter: false,
+                                      iconStyleInSquad: 'SpellAbnormal',
+                                      abnormalColorType: 'Cryst',
+                                      orderPriority: {
+                                        useDirectoryValue: false,
+                                        value: 0,
+                                        category: 'AttachedAndAbnormal',
+                                      },
+                                    },
                                     stackingKey: 'cryst_triggered',
                                     priority: 0,
                                     maxStackCount: 1,

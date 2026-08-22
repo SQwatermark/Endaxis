@@ -1811,6 +1811,21 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
     },
     'buff_chr_0030_zhuangfy_ult_skill_free': {
       stackingType: 'unique',
+      presentation: {
+        visible: true,
+        iconId: 'icon_battle_zhuangfy_debuff_01',
+        showInHeadBarCommon: false,
+        showInHeadBarAttached: false,
+        showInSquadIcon: true,
+        onlyShowForMainCharacter: false,
+        iconStyleInSquad: 'Default',
+        abnormalColorType: 'Physical',
+        orderPriority: {
+          useDirectoryValue: false,
+          value: 0,
+          category: 'CommonCharBuff',
+        },
+      },
       priority: 1,
       maxStackCount: 0,
       attributeModifiers: [
@@ -1823,6 +1838,22 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
     },
     'buff_chr_0030_zhuangfy_ult_base': {
       stackingType: 'stack',
+      presentation: {
+        visible: true,
+        iconId: 'icon_battle_buff_atk_up',
+        iconPath: '/icons/icon_battle_buff_atk_up.webp',
+        showInHeadBarCommon: false,
+        showInHeadBarAttached: false,
+        showInSquadIcon: false,
+        onlyShowForMainCharacter: false,
+        iconStyleInSquad: 'Default',
+        abnormalColorType: 'Physical',
+        orderPriority: {
+          useDirectoryValue: false,
+          value: 0,
+          category: 'CommonCharBuff',
+        },
+      },
       priority: 1,
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration' },

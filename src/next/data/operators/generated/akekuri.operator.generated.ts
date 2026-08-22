@@ -703,6 +703,32 @@ export const akekuriGeneratedOperator: OperatorDefinition = {
         },
       ],
     },
+    'buff_chr_0019_karin_talent_2': {
+      stackingType: 'unique',
+      blackboard: { 'duration': 10, 'imbue_scale': 0.2 },
+      abilityEventResponses: [
+        {
+          event: 'beforeCastSkill',
+          priority: 0,
+          samePriorityKey: 'akekuri-combo-before-cast',
+          sequence: sequence(
+            branch(
+              { kind: 'eventSkillTypeIn', skillTypes: ['ultimate'] },
+              sequence(
+                step('applyBuff', {
+                  buffId: 'buff_common_affixes_combo_trigger',
+                  target: 'party',
+                  blackboardAssignments: {
+                    'duration': { kind: 'blackboard', key: 'duration' },
+                    'imbue_scale': { kind: 'blackboard', key: 'imbue_scale' },
+                  },
+                }),
+              ),
+            ),
+          ),
+        },
+      ],
+    },
     'buff_chr_0019_karin_potential_1_1': {
       stackingType: 'enhanceAndRefresh',
       presentation: {
@@ -775,14 +801,30 @@ export const akekuriGeneratedOperator: OperatorDefinition = {
           skillGroupKey: 'ultimate',
           blackboardKey: 'combo',
           operation: 'assign',
-          value: [1],
+          value: 1,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'ultimate',
           blackboardKey: 'imbue_scale',
           operation: 'assign',
-          value: [0.2],
+          value: 0.2,
+        },
+      ],
+      passiveSkills: [
+        {
+          key: 'akekuriComboImbue',
+          blackboard: { 'duration': 10, 'imbue_scale': 0.2 },
+          enableSequence: sequence(
+            step('applyBuff', {
+              buffId: 'buff_chr_0019_karin_talent_2',
+              target: 'caster',
+              blackboardAssignments: {
+                'duration': { kind: 'blackboard', key: 'duration' },
+                'imbue_scale': { kind: 'blackboard', key: 'imbue_scale' },
+              },
+            }),
+          ),
         },
       ],
     },
@@ -854,8 +896,16 @@ export const akekuriGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential5',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchPassiveBlackboard',
+          passiveSkillKey: 'akekuriComboImbue',
+          blackboardKey: 'duration',
+          operation: 'add',
+          value: 5,
+        },
+      ],
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'potentialEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['ultimate'] }] },
+  conversionSupport: { completeness: 'complete', missingCapabilities: [] },
 };

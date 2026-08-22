@@ -781,6 +781,22 @@ export const arclightGeneratedOperator: OperatorDefinition = {
   buffDefinitions: {
     'buff_chr_0007_ikut_atk_buff_talent': {
       stackingType: 'stack',
+      presentation: {
+        visible: true,
+        iconId: 'icon_battle_pulse_dmg_up',
+        iconPath: '/icons/icon_battle_pulse_dmg_up.webp',
+        showInHeadBarCommon: false,
+        showInHeadBarAttached: false,
+        showInSquadIcon: true,
+        onlyShowForMainCharacter: false,
+        iconStyleInSquad: 'LifeTime',
+        abnormalColorType: 'Physical',
+        orderPriority: {
+          useDirectoryValue: false,
+          value: 0,
+          category: 'CommonCharBuff',
+        },
+      },
       priority: 0,
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration' },
@@ -799,6 +815,22 @@ export const arclightGeneratedOperator: OperatorDefinition = {
     },
     'buff_chr_0007_ikut_normal_skill_extra_count': {
       stackingType: 'enhance',
+      presentation: {
+        visible: true,
+        iconId: 'icon_battle_ikut_talent_1',
+        iconPath: '/operators/arclight/icon_battle_ikut_talent_1.webp',
+        showInHeadBarCommon: false,
+        showInHeadBarAttached: false,
+        showInSquadIcon: true,
+        onlyShowForMainCharacter: false,
+        iconStyleInSquad: 'Default',
+        abnormalColorType: 'Physical',
+        orderPriority: {
+          useDirectoryValue: false,
+          value: 0,
+          category: 'CommonCharBuff',
+        },
+      },
       priority: 0,
       maxStackCount: 3,
       blackboard: {

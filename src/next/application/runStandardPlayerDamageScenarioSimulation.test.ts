@@ -11,6 +11,7 @@ import { tangtangGeneratedOperator } from '../data/operators/generated/tangtang.
 import { gilbertaGeneratedOperator } from '../data/operators/generated/gilberta.operator.generated';
 import { rossiGeneratedOperator } from '../data/operators/generated/rossi.operator.generated';
 import { mifuGeneratedOperator } from '../data/operators/generated/mifu.operator.generated';
+import { akekuriGeneratedOperator } from '../data/operators/generated/akekuri.operator.generated';
 import { generatedCommonBuffDefinitions } from '../data/operators/generated/commonBuffDefinitions.generated';
 import { elementalAttachments } from '../data/buffs/elementalAttachments';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
@@ -163,6 +164,65 @@ function createGeneratedTeamScenario() {
     (current, placement) => placeSkillGroup({ scenario: current, ids, ...placement }).scenario,
     scenario,
   );
+}
+
+function createGeneratedAkekuriComboImbueScenario(
+  talentEnabled: boolean,
+  potential: number,
+  battleSkillStartFrame = 60,
+) {
+  const scenario = createEmptyScenario(
+    `scenario:akekuri-combo-imbue-${talentEnabled ? 'on' : 'off'}-p${potential}`,
+    '弭弗连击增伤样本',
+  );
+  scenario.battle.resourceRules = {
+    ...scenario.battle.resourceRules,
+    initialSp: 300,
+    spRecoveryPerSecond: 0,
+  };
+  const build = (operatorSlug: string, talentStates: Record<number, number>) => ({
+    operatorSlug,
+    level: 90,
+    promoted: true,
+    potential: operatorSlug === akekuriGeneratedOperator.slug ? potential : 0,
+    trustLevel: 4,
+    skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+    talentStates,
+  });
+  scenario.tracks[0] = {
+    id: 'track:akekuri',
+    operator: build(akekuriGeneratedOperator.slug, talentEnabled ? { 1: 1 } : {}),
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    initialState: { ultimateEnergy: 80 },
+    skillCasts: [],
+  };
+  scenario.tracks[1] = {
+    id: 'track:perlica-imbue',
+    operator: build(perlicaGeneratedOperator.slug, {}),
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    initialState: { ultimateEnergy: 0 },
+    skillCasts: [],
+  };
+  let nextId = 0;
+  const ids = { allocate: (kind: string) => `${kind}:akekuri:${++nextId}` };
+  const withUltimate = placeSkillGroup({
+    scenario,
+    trackIndex: 0,
+    operator: akekuriGeneratedOperator,
+    skillGroupKey: 'ultimate',
+    startFrame: 1,
+    ids,
+  }).scenario;
+  return placeSkillGroup({
+    scenario: withUltimate,
+    trackIndex: 1,
+    operator: perlicaGeneratedOperator,
+    skillGroupKey: 'battleSkill',
+    startFrame: battleSkillStartFrame,
+    ids,
+  }).scenario;
 }
 
 function createGeneratedArclightBattleSkillScenario() {
@@ -1489,6 +1549,59 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         event: 'BuffFinished',
         data: expect.objectContaining({ buffId: 'buff_chr_0015_lifeng_potential_5' }),
       }),
+    );
+  });
+
+  it('projects Akekuri global combo layers onto the party and consumes one layer per skill', () => {
+    const simulate = (talentEnabled: boolean, potential = 0, battleSkillStartFrame = 60) =>
+      runStandardPlayerDamageScenarioSimulation({
+        scenario: createGeneratedAkekuriComboImbueScenario(
+          talentEnabled,
+          potential,
+          battleSkillStartFrame,
+        ),
+        endFrame: battleSkillStartFrame + 120,
+        criticalSamples: new ExplicitCriticalSampleSource(Array(30).fill(1)),
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        elementalInflictionDocument: elementalAttachments,
+        options: {
+          ...standardOptions(),
+          index: {
+            getCommonBuffDefinitions: () => generatedCommonBuffDefinitions,
+            getOperator: slug =>
+              [akekuriGeneratedOperator, perlicaGeneratedOperator].find(
+                operator => operator.slug === slug,
+              ) ?? null,
+            getWeapon: () => null,
+            getGear: () => null,
+            getGearSet: () => null,
+          },
+        },
+      });
+    const perlicaBattleDamage = (result: ReturnType<typeof simulate>) =>
+      result.receiptEntries.find(
+        entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:perlica-imbue',
+      )?.data?.value as number;
+
+    const baseline = simulate(false);
+    const imbued = simulate(true);
+    expect(perlicaBattleDamage(baseline)).toBeGreaterThan(0);
+    expect(perlicaBattleDamage(imbued)).toBeCloseTo(perlicaBattleDamage(baseline) * 1.3);
+    expect(
+      imbued.receiptEntries.filter(
+        entry =>
+          entry.event === 'BuffFinished' &&
+          entry.data?.buffId === 'buff_common_affixes_combo_trigger',
+      ),
+    ).toHaveLength(2);
+
+    expect(perlicaBattleDamage(simulate(true, 0, 360))).toBeCloseTo(perlicaBattleDamage(baseline));
+    expect(perlicaBattleDamage(simulate(true, 5, 360))).toBeCloseTo(
+      perlicaBattleDamage(baseline) * 1.3,
     );
   });
 

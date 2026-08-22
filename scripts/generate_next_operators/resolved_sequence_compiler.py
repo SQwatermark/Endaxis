@@ -318,6 +318,12 @@ def compile_resolved_sequence(
             f"{skill.key}.compile.unmodeledBuffIds",
         )
     )
+    projected_buff_ids = frozenset(
+        require_list(
+            config.get("projectedBuffIds", []),
+            f"{skill.key}.compile.projectedBuffIds",
+        )
+    )
     unmodeled_action_types = frozenset(
         str(value)
         for value in require_list(
@@ -948,7 +954,10 @@ def compile_resolved_sequence(
     overlaps = sorted(
         (ignored_buff_ids & unmodeled_buff_ids)
         | (ignored_buff_ids & simulation_no_effect_buff_ids)
+        | (ignored_buff_ids & projected_buff_ids)
         | (unmodeled_buff_ids & simulation_no_effect_buff_ids)
+        | (unmodeled_buff_ids & projected_buff_ids)
+        | (simulation_no_effect_buff_ids & projected_buff_ids)
     )
     if overlaps:
         raise ValueError(
@@ -968,6 +977,13 @@ def compile_resolved_sequence(
         buff_definitions,
         skill,
     )
+    validate_unmodeled_buff_ids(
+        resolved_schedule,
+        projected_buff_ids,
+        f"{skill.key}.compile.projectedBuffIds",
+        buff_definitions,
+        skill,
+    )
     schedule = tuple(
         item
         for item in resolved_schedule
@@ -981,6 +997,7 @@ def compile_resolved_sequence(
                 or cast(AuxiliaryActionSource, item.payload).sourceId in unmodeled_buff_ids
                 or cast(AuxiliaryActionSource, item.payload).sourceId
                 in simulation_no_effect_buff_ids
+                or cast(AuxiliaryActionSource, item.payload).sourceId in projected_buff_ids
             )
         )
         and not (

@@ -208,6 +208,21 @@ export const generatedCommonBuffDefinitions = {
   },
   'buff_physical_no_guard': {
     stackingType: 'enhanceAndRefresh',
+    presentation: {
+      visible: true,
+      iconId: 'icon_shadow_attribute_penetrate',
+      showInHeadBarCommon: false,
+      showInHeadBarAttached: true,
+      showInSquadIcon: false,
+      onlyShowForMainCharacter: false,
+      iconStyleInSquad: 'Default',
+      abnormalColorType: 'Physical',
+      orderPriority: {
+        useDirectoryValue: false,
+        value: 0,
+        category: 'CommonCharBuff',
+      },
+    },
     priority: 100,
     maxStackCount: 4,
     durationSeconds: { blackboardKey: 'duration' },
@@ -269,6 +284,21 @@ export const generatedCommonBuffDefinitions = {
   },
   'buff_physical_do_fracture': {
     stackingType: 'stack',
+    presentation: {
+      visible: true,
+      iconId: 'icon_battle_fracture',
+      showInHeadBarCommon: true,
+      showInHeadBarAttached: false,
+      showInSquadIcon: false,
+      onlyShowForMainCharacter: false,
+      iconStyleInSquad: 'SpellAbnormal',
+      abnormalColorType: 'Physical',
+      orderPriority: {
+        useDirectoryValue: false,
+        value: 0,
+        category: 'AttachedAndAbnormal',
+      },
+    },
     stackingKey: 'fracture',
     priority: 0,
     maxStackCount: 1,
@@ -456,6 +486,21 @@ export const generatedCommonBuffDefinitions = {
   },
   'buff_common_pulse_pulse_conduct_triggered_do': {
     stackingType: 'stack',
+    presentation: {
+      visible: true,
+      iconId: 'icon_battle_conduct',
+      showInHeadBarCommon: true,
+      showInHeadBarAttached: false,
+      showInSquadIcon: false,
+      onlyShowForMainCharacter: false,
+      iconStyleInSquad: 'SpellAbnormal',
+      abnormalColorType: 'Pulse',
+      orderPriority: {
+        useDirectoryValue: false,
+        value: 0,
+        category: 'AttachedAndAbnormal',
+      },
+    },
     stackingKey: 'pulse_triggered',
     priority: 0,
     maxStackCount: 1,
@@ -626,6 +671,21 @@ export const generatedCommonBuffDefinitions = {
   },
   'buff_common_natural_natural_corrupt_do': {
     stackingType: 'stack',
+    presentation: {
+      visible: true,
+      iconId: 'icon_battle_corrupt',
+      showInHeadBarCommon: true,
+      showInHeadBarAttached: false,
+      showInSquadIcon: false,
+      onlyShowForMainCharacter: false,
+      iconStyleInSquad: 'SpellAbnormal',
+      abnormalColorType: 'Natural',
+      orderPriority: {
+        useDirectoryValue: false,
+        value: 0,
+        category: 'AttachedAndAbnormal',
+      },
+    },
     stackingKey: 'natural_triggered',
     priority: 0,
     maxStackCount: 1,
@@ -831,6 +891,238 @@ export const generatedCommonBuffDefinitions = {
       ),
     },
   },
+  'buff_common_affixes_skillimbue_atk': {
+    stackingType: 'unlimited',
+    maxStackCount: 4,
+    blackboard: {
+      'count': 0,
+      'imbue_scale': 0,
+    },
+    damageModifiers: [
+      {
+        enabledSide: 'attacker',
+        condition: {
+          kind: 'eventDamageTagsMatch',
+          match: 'hasAny',
+          tags: ['normalSkill', 'ultimateSkill'],
+        },
+        processors: [
+          {
+            kind: 'damageScale',
+            side: 'attacker',
+            zone: 'combo',
+            addition: {
+              blackboardKey: 'imbue_scale',
+            },
+          },
+        ],
+      },
+    ],
+    abilityEventResponses: [
+      {
+        event: 'beforeCalculateDamage',
+        priority: 0,
+        samePriorityKey: 'skill-affix-combo-scale',
+        sequence: sequence(
+          step('readBuffStackCount', {
+            target: 'buffOwner',
+            outputKey: 'count',
+            query: {
+              kind: 'id',
+              buffIds: [
+                'buff_common_affixes_skillimbue_atk',
+              ],
+            },
+          }),
+          branch(
+            {
+              kind: 'actionValueCompare',
+              left: {
+                kind: 'blackboard',
+                key: 'count',
+              },
+              operator: 'lessOrEqual',
+              right: {
+                kind: 'constant',
+                value: 1,
+              },
+            },
+            sequence(
+              step('modifyActionValue', {
+                key: 'imbue_scale',
+                operation: 'assign',
+                value: {
+                  kind: 'constant',
+                  value: 0.2,
+                },
+              }),
+            ),
+            sequence(
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: {
+                    kind: 'blackboard',
+                    key: 'count',
+                  },
+                  operator: 'lessOrEqual',
+                  right: {
+                    kind: 'constant',
+                    value: 2,
+                  },
+                },
+                sequence(
+                  step('modifyActionValue', {
+                    key: 'imbue_scale',
+                    operation: 'assign',
+                    value: {
+                      kind: 'constant',
+                      value: 0.15,
+                    },
+                  }),
+                ),
+                sequence(
+                  branch(
+                    {
+                      kind: 'actionValueCompare',
+                      left: {
+                        kind: 'blackboard',
+                        key: 'count',
+                      },
+                      operator: 'lessOrEqual',
+                      right: {
+                        kind: 'constant',
+                        value: 3,
+                      },
+                    },
+                    sequence(
+                      step('modifyActionValue', {
+                        key: 'imbue_scale',
+                        operation: 'assign',
+                        value: {
+                          kind: 'constant',
+                          value: 0.1333,
+                        },
+                      }),
+                    ),
+                    sequence(
+                      step('modifyActionValue', {
+                        key: 'imbue_scale',
+                        operation: 'assign',
+                        value: {
+                          kind: 'constant',
+                          value: 0.125,
+                        },
+                      }),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          branch(
+            {
+              kind: 'eventDamageTagsMatch',
+              match: 'hasAll',
+              tags: ['normalSkill'],
+            },
+            sequence(
+              step('modifyActionValue', {
+                key: 'imbue_scale',
+                operation: 'multiply',
+                value: {
+                  kind: 'constant',
+                  value: 1.5,
+                },
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+      },
+    ],
+  },
+  'buff_common_affixes_skillimbue': {
+    stackingType: 'unlimited',
+    blackboard: { 'imbue_scale': 0 },
+    lifecycleSequences: {
+      enable: sequence(
+        step('applyBuff', {
+          buffId: 'buff_common_affixes_skillimbue_atk',
+          target: 'buffOwner',
+          inheritSourceSkillCastInfo: true,
+          finishByAction: true,
+          blackboardAssignments: {
+            'imbue_scale': {
+              kind: 'blackboard',
+              key: 'imbue_scale',
+            },
+          },
+        }),
+      ),
+    },
+    abilityEventResponses: [
+      {
+        event: 'skillEnd',
+        priority: 0,
+        samePriorityKey: 'skill-affix-skill-end',
+        sequence: sequence(
+          branch(
+            {
+              kind: 'eventSkillTypeIn',
+              skillTypes: ['battleSkill', 'ultimate'],
+            },
+            sequence(
+              step('finishCurrentBuff', {
+                reason: 'other',
+              }),
+            ),
+          ),
+        ),
+      },
+    ],
+  },
+  'buff_common_affixes_combo_trigger': {
+    stackingType: 'stack',
+    maxStackCount: 4,
+    durationSeconds: { blackboardKey: 'duration' },
+    blackboard: { 'duration': 0, 'imbue_scale': 0 },
+    abilityEventResponses: [
+      {
+        event: 'beforeCastSkill',
+        priority: 0,
+        samePriorityKey: 'akekuri-combo-before-cast',
+        sequence: sequence(
+          branch(
+            {
+              kind: 'eventSkillTypeIn',
+              skillTypes: ['battleSkill', 'ultimate'],
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_common_affixes_skillimbue',
+                target: 'eventTarget',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: {
+                  'imbue_scale': {
+                    kind: 'blackboard',
+                    key: 'imbue_scale',
+                  },
+                },
+              }),
+              step('finishBuffsById', {
+                target: 'party',
+                buffIds: ['buff_common_affixes_combo_trigger'],
+                reason: 'early',
+                count: { kind: 'constant', value: 1 },
+              }),
+            ),
+          ),
+        ),
+      },
+    ],
+  },
   'buff_common_affixes_slow': {
     stackingType: 'highPriority',
     priority: { blackboardKey: 'rate' },
@@ -841,6 +1133,22 @@ export const generatedCommonBuffDefinitions = {
   },
   'buff_common_originum_frozen': {
     stackingType: 'stack',
+    presentation: {
+      visible: true,
+      iconId: 'icon_skill_endmin_debuff',
+      iconPath: '/operators/endministrator/icon_skill_endmin_debuff.webp',
+      showInHeadBarCommon: true,
+      showInHeadBarAttached: false,
+      showInSquadIcon: false,
+      onlyShowForMainCharacter: false,
+      iconStyleInSquad: 'Default',
+      abnormalColorType: 'Physical',
+      orderPriority: {
+        useDirectoryValue: false,
+        value: 0,
+        category: 'CommonCharBuff',
+      },
+    },
     priority: 0,
     maxStackCount: 1,
     durationSeconds: { blackboardKey: 'duration' },
@@ -1148,6 +1456,21 @@ export const generatedCommonBuffDefinitions = {
   },
   'buff_common_fire_fire_burning_triggered': {
     stackingType: 'stack',
+    presentation: {
+      visible: true,
+      iconId: 'icon_battle_burning',
+      showInHeadBarCommon: true,
+      showInHeadBarAttached: false,
+      showInSquadIcon: false,
+      onlyShowForMainCharacter: false,
+      iconStyleInSquad: 'SpellAbnormal',
+      abnormalColorType: 'Fire',
+      orderPriority: {
+        useDirectoryValue: false,
+        value: 0,
+        category: 'AttachedAndAbnormal',
+      },
+    },
     stackingKey: 'fire_triggered',
     priority: 0,
     maxStackCount: 1,
@@ -1256,6 +1579,21 @@ export const generatedCommonBuffDefinitions = {
   },
   'buff_common_cryst_cryst_frozen_triggered_do': {
     stackingType: 'stack',
+    presentation: {
+      visible: true,
+      iconId: 'icon_battle_frozen',
+      showInHeadBarCommon: true,
+      showInHeadBarAttached: false,
+      showInSquadIcon: false,
+      onlyShowForMainCharacter: false,
+      iconStyleInSquad: 'SpellAbnormal',
+      abnormalColorType: 'Cryst',
+      orderPriority: {
+        useDirectoryValue: false,
+        value: 0,
+        category: 'AttachedAndAbnormal',
+      },
+    },
     stackingKey: 'cryst_triggered',
     priority: 0,
     maxStackCount: 1,

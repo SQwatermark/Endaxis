@@ -425,6 +425,65 @@ describe('BuffOperationExecutor', () => {
     expect(appliedTo).toEqual(['operator-a', 'operator-b']);
   });
 
+  it('resolves a lifecycle child Buff and query against the current Buff owner', () => {
+    const applied: unknown[] = [];
+    const owner = {
+      ownerId: 'operator-b',
+      apply: (request: unknown) => {
+        applied.push(request);
+        return true;
+      },
+      getCountByIds: () => 3,
+      finishByIds: () => 0,
+      holdByIds: () => ({ release: () => undefined }),
+      getCountByTags: () => 0,
+      matchesEntityTags: () => false,
+      findFirstByIds: () => undefined,
+      findFirstByTags: () => undefined,
+      finishByTags: () => 0,
+    };
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator-a',
+      resolveTarget: () => owner,
+      resolveEventTarget: targetId => {
+        expect(targetId).toBe('operator-b');
+        return owner;
+      },
+      delegate,
+    });
+    const context = {
+      blackboard: new ActionBlackboard({ count: 0 }),
+      buffOwnerId: 'operator-b',
+    };
+
+    expect(
+      executor.execute(
+        {
+          kind: 'applyBuff',
+          parameters: { buffId: 'owner-child', target: 'buffOwner' },
+        },
+        context,
+      ),
+    ).toBe(true);
+    expect(
+      executor.execute(
+        {
+          kind: 'readBuffStackCount',
+          parameters: {
+            target: 'buffOwner',
+            outputKey: 'count',
+            query: { kind: 'id', buffIds: ['owner-child'] },
+          },
+        },
+        context,
+      ),
+    ).toBe(true);
+    expect(applied).toEqual([
+      expect.objectContaining({ buffId: 'owner-child', sourceId: 'operator-a' }),
+    ]);
+    expect(context.blackboard.getNumber('count')).toBe(3);
+  });
+
   it('uses an explicitly selected entity as the Buff source', () => {
     const applied: unknown[] = [];
     const targets = {

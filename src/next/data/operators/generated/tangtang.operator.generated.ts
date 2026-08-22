@@ -8643,6 +8643,21 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   buffId: 'buff_chr_0027_tangtang_comboskill_waterbuff',
                   definition: {
                     stackingType: 'highPriority',
+                    presentation: {
+                      visible: true,
+                      iconId: 'icon_battle_tangtang_speedup',
+                      showInHeadBarCommon: false,
+                      showInHeadBarAttached: false,
+                      showInSquadIcon: false,
+                      onlyShowForMainCharacter: false,
+                      iconStyleInSquad: 'Default',
+                      abnormalColorType: 'Physical',
+                      orderPriority: {
+                        useDirectoryValue: false,
+                        value: 0,
+                        category: 'CommonCharBuff',
+                      },
+                    },
                     priority: { blackboardKey: 'ratio_speed' },
                     maxStackCount: 1,
                     durationSeconds: { blackboardKey: 'duration_waterbuff' },

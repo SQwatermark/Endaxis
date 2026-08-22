@@ -635,6 +635,9 @@ function resolveSkillBuffDefinition(
           abilityEventResponses: abilityEventResponses.map((response, index) => ({
             event: response.event,
             priority: response.priority,
+            ...(response.samePriorityKey === undefined
+              ? {}
+              : { samePriorityKey: response.samePriorityKey }),
             sequence: compileActionSequence(
               response.sequence,
               skillLevel,

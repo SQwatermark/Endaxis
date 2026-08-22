@@ -306,6 +306,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
         {
           readonly event: ResolvedSkillBuffAbilityEventResponse['event'];
           readonly priority: number;
+          readonly samePriorityKey?: string;
           readonly responses: ResolvedSkillBuffAbilityEventResponse[];
         }
       >();
@@ -316,6 +317,9 @@ export function attachBuffLifecycleSequences<Key extends string>(
           responseGroups.set(key, {
             event: response.event,
             priority: response.priority,
+            ...(response.samePriorityKey === undefined
+              ? {}
+              : { samePriorityKey: response.samePriorityKey }),
             responses: [response],
           });
         } else {
@@ -359,7 +363,11 @@ export function attachBuffLifecycleSequences<Key extends string>(
             },
             group.responses.every(response => isCommutativeCurrentBuffTimeResponse(response))
               ? 'current-buff-time-pause'
-              : undefined,
+              : group.responses.every(
+                    response => response.samePriorityKey === group.samePriorityKey,
+                  )
+                ? group.samePriorityKey
+                : undefined,
           ),
         );
       }
@@ -526,6 +534,27 @@ function normalizeBuffAbilityEvent(
       event,
       sourceId: source.sourceId,
       targetId: source.targetId,
+    };
+  }
+  if (event === 'beforeCalculateDamage') {
+    if (
+      !Array.isArray(source.tags) ||
+      !source.tags.every(value => typeof value === 'string') ||
+      !Array.isArray(source.features) ||
+      !source.features.every(value => typeof value === 'string')
+    ) {
+      throw new TypeError(`Buff ability event '${event}' payload has invalid damage properties`);
+    }
+    return {
+      kind: 'abilityDamage',
+      event,
+      sourceId: source.sourceId,
+      targetId: source.targetId,
+      ...(source.damageType === undefined
+        ? {}
+        : { damageType: source.damageType as CombatAbilityDamageEvent['damageType'] }),
+      tags: source.tags as CombatAbilityDamageEvent['tags'],
+      features: source.features as CombatAbilityDamageEvent['features'],
     };
   }
   if (event === 'beforeTakeSpellInfliction' || event === 'beforeTakeInfliction') {
