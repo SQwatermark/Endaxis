@@ -481,6 +481,35 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             "sequence()",
         )
 
+    def test_all_valid_knock_down_only_publishes_for_the_live_dummy(self) -> None:
+        payload = SimpleNamespace(
+            forceKnockDown=True,
+            duration=ScalarSource(1.5, None, None),
+            isExtra=False,
+            source=SimpleNamespace(
+                targetSource="Source",
+                targetGroupKey="",
+                validatorTypes=(),
+                postProcessorTypes=(),
+            ),
+            target=SimpleNamespace(
+                targetSource="Target",
+                targetGroupKey="",
+                validatorTypes=(),
+                postProcessorTypes=(),
+            ),
+            faceDirectionType="TargetToSource",
+            immobilizedTime=0,
+            deadOption="AllValid",
+            returnTrueWhen="Always",
+        )
+
+        compiled = compile_knock_down_output(payload, "fixture.knockDown")
+
+        self.assertIn("kind: 'healthCompare'", compiled)
+        self.assertIn("operator: 'greater'", compiled)
+        self.assertIn("step('outputKnockDown'", compiled)
+
     def test_parses_native_shield_config_strictly(self) -> None:
         scalar = lambda value, key="": {
             "useBlackboardKey": bool(key),

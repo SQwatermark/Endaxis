@@ -4,162 +4,173 @@ import { branch, once, percentages, scheduled, sequence, step, withSkillBlackboa
 
 // prettier-ignore
 export const emberComboSkill: SkillDefinition = withSkillBlackboard(
-  {
-    key: 'comboSkill',
-    sourceSkillId: 'chr_0009_azrila_combo_skill',
-    timelineBlockFrames: 39,
-    cooldownFrames: [570, 570, 570, 570, 570, 570, 570, 570, 570, 570, 570, 540],
-    scheduledSequences: [
-      scheduled(
-        0,
-        sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'blackboard', key: 'talent1' },
-              operator: 'greater',
-              right: { kind: 'constant', value: 0 },
-            },
-            sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'potential_1' },
-                  operator: 'greater',
-                  right: { kind: 'constant', value: 0 },
-                },
-                sequence(
-                  step('modifyActionValue', {
-                    key: 'shelterrate',
-                    operation: 'add',
-                    value: { kind: 'blackboard', key: 'extrashelter' },
-                  }),
+    {
+      key: 'comboSkill',
+      sourceSkillId: 'chr_0009_azrila_combo_skill',
+      timelineBlockFrames: 39,
+      cooldownFrames: [570, 570, 570, 570, 570, 570, 570, 570, 570, 570, 570, 540],
+      scheduledSequences: [
+        scheduled(
+          0,
+          sequence(
+            branch(
+              {
+                kind: 'actionValueCompare',
+                left: { kind: 'blackboard', key: 'talent1' },
+                operator: 'greater',
+                right: { kind: 'constant', value: 0 },
+              },
+              sequence(
+                branch(
+                  {
+                    kind: 'actionValueCompare',
+                    left: { kind: 'blackboard', key: 'potential_1' },
+                    operator: 'greater',
+                    right: { kind: 'constant', value: 0 },
+                  },
+                  sequence(
+                    step('modifyActionValue', {
+                      key: 'shelterrate',
+                      operation: 'add',
+                      value: { kind: 'blackboard', key: 'extrashelter' },
+                    }),
+                  ),
+                  undefined,
+                  { alwaysNext: true },
                 ),
-                undefined,
-                { alwaysNext: true },
+                step('applyBuff', {
+                  buffId: 'buff_chr_0009_azrila_normal_skill_shelter',
+                  target: 'caster',
+                  inheritSourceSkillCastInfo: true,
+                  blackboardAssignments: {
+                    'rate': { kind: 'blackboard', key: 'shelterrate' },
+                    'duration': { kind: 'constant', value: -1 },
+                  },
+                }),
               ),
-              step('applyBuff', {
-                buffId: 'buff_chr_0009_azrila_normal_skill_shelter',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  'rate': { kind: 'blackboard', key: 'shelterrate' },
-                  'duration': { kind: 'constant', value: -1 },
-                },
-              }),
+              undefined,
+              { alwaysNext: true },
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
-      ),
-      scheduled(
-        0,
-        sequence(
-          step('startTimeDilation', {
-            scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.5 },
-            slot: 0,
-            priority: 30,
-            curve: { kind: 'named', key: 'ComboSkill' },
-            finishByAction: false,
-            ignoredTargets: ['caster'],
-            ignoredAbilityEntityTargets: [{ kind: 'ownerSpawned' }],
-          }),
-        ),
-        12,
-      ),
-      scheduled(
-        26,
-        sequence(
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'potential_1' },
-                  operator: 'greater',
-                  right: { kind: 'constant', value: 0 },
-                },
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'talent1' },
-                  operator: 'greater',
-                  right: { kind: 'constant', value: 0 },
-                },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
-            sequence(
-              step('applyBuff', {
-                buffId: 'buff_chr_0009_azrila_normal_skill_shelter',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  'rate': { kind: 'blackboard', key: 'shelterrate' },
-                  'duration': { kind: 'blackboard', key: 'extratime' },
-                },
-              }),
-            ),
-            undefined,
-            { alwaysNext: true },
+        scheduled(
+          0,
+          sequence(
+            step('startTimeDilation', {
+              scope: 'global',
+              durationSeconds: { kind: 'constant', value: 0.5 },
+              slot: 0,
+              priority: 30,
+              curve: { kind: 'named', key: 'ComboSkill' },
+              finishByAction: false,
+              ignoredTargets: ['caster'],
+              ignoredAbilityEntityTargets: [{ kind: 'ownerSpawned' }],
+            }),
           ),
-          step('outputKnockDown', { target: 'enemy' }),
-          step('dealDamage', {
-            damageType: 'physical',
-            attackScale: percentages([102, 112, 122, 133, 143, 153, 163, 173, 184, 196, 212, 230]),
-            tags: ['comboSkill'],
-            features: ['canBreakWeakness'],
-            stagger: 10,
-          }, '10:comboSkill6:direct27:chr_0009_azrila_combo_skill11:actionOrder2:28'),
-          step('heal', {
-            target: 'controlledOperator',
-            alwaysNext: true,
-            attribute: 'will',
-            multiplier: { kind: 'blackboard', key: 'will_additive' },
-            addition: { kind: 'blackboard', key: 'heal_base' },
-            tagIds: [-1517158118],
-          }),
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'blackboard', key: 'potential_3' },
-              operator: 'greater',
-              right: { kind: 'constant', value: 0 },
-            },
-            sequence(
-              step('modifyActionValue', {
-                key: 'will_additive',
-                operation: 'multiply',
-                value: { kind: 'blackboard', key: 'extracure' },
-              }),
-              step('modifyActionValue', {
-                key: 'heal_base',
-                operation: 'multiply',
-                value: { kind: 'blackboard', key: 'extracure' },
-              }),
-              step('heal', {
-                target: 'lowestHealthRatioOperatorExceptControlled',
-                alwaysNext: true,
-                attribute: 'will',
-                multiplier: { kind: 'blackboard', key: 'will_additive' },
-                addition: { kind: 'blackboard', key: 'heal_base' },
-                tagIds: [-1517158118],
-              }),
-            ),
-            undefined,
-            { alwaysNext: true },
-          ),
-          step('changeResourceByActionValue', {
-            resource: 'ultimateEnergy',
-            amount: { kind: 'blackboard', key: 'usp' },
-            recipient: 'caster',
-          }),
+          12,
         ),
-      ),
-    ],
-  },
+        scheduled(
+          26,
+          sequence(
+            branch(
+              {
+                kind: 'all',
+                conditions: [
+                  {
+                    kind: 'actionValueCompare',
+                    left: { kind: 'blackboard', key: 'potential_1' },
+                    operator: 'greater',
+                    right: { kind: 'constant', value: 0 },
+                  },
+                  {
+                    kind: 'actionValueCompare',
+                    left: { kind: 'blackboard', key: 'talent1' },
+                    operator: 'greater',
+                    right: { kind: 'constant', value: 0 },
+                  },
+                  { kind: 'singleEnemyPresent' },
+                ],
+              },
+              sequence(
+                step('applyBuff', {
+                  buffId: 'buff_chr_0009_azrila_normal_skill_shelter',
+                  target: 'caster',
+                  inheritSourceSkillCastInfo: true,
+                  blackboardAssignments: {
+                    'rate': { kind: 'blackboard', key: 'shelterrate' },
+                    'duration': { kind: 'blackboard', key: 'extratime' },
+                  },
+                }),
+              ),
+              undefined,
+              { alwaysNext: true },
+            ),
+            branch(
+    {
+      kind: 'healthCompare',
+      target: 'enemy',
+      valueType: 'current',
+      operator: 'greater',
+      value: { kind: 'constant', value: 0 },
+    },
+    sequence(
+      step('outputKnockDown', { target: 'enemy' }),
+    ),
+  ),
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: percentages([102, 112, 122, 133, 143, 153, 163, 173, 184, 196, 212, 230]),
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: 10,
+            }, '10:comboSkill6:direct27:chr_0009_azrila_combo_skill11:actionOrder2:28'),
+            step('heal', {
+              target: 'controlledOperator',
+              alwaysNext: true,
+              attribute: 'will',
+              multiplier: { kind: 'blackboard', key: 'will_additive' },
+              addition: { kind: 'blackboard', key: 'heal_base' },
+              tagIds: [-1517158118],
+            }),
+            branch(
+              {
+                kind: 'actionValueCompare',
+                left: { kind: 'blackboard', key: 'potential_3' },
+                operator: 'greater',
+                right: { kind: 'constant', value: 0 },
+              },
+              sequence(
+                step('modifyActionValue', {
+                  key: 'will_additive',
+                  operation: 'multiply',
+                  value: { kind: 'blackboard', key: 'extracure' },
+                }),
+                step('modifyActionValue', {
+                  key: 'heal_base',
+                  operation: 'multiply',
+                  value: { kind: 'blackboard', key: 'extracure' },
+                }),
+                step('heal', {
+                  target: 'lowestHealthRatioOperatorExceptControlled',
+                  alwaysNext: true,
+                  attribute: 'will',
+                  multiplier: { kind: 'blackboard', key: 'will_additive' },
+                  addition: { kind: 'blackboard', key: 'heal_base' },
+                  tagIds: [-1517158118],
+                }),
+              ),
+              undefined,
+              { alwaysNext: true },
+            ),
+            step('changeResourceByActionValue', {
+              resource: 'ultimateEnergy',
+              amount: { kind: 'blackboard', key: 'usp' },
+              recipient: 'caster',
+            }),
+          ),
+        ),
+      ],
+    },
   {
     'extracure': 0,
     'extrashelter': 0,
@@ -393,172 +404,183 @@ export const emberPlungingAttack: SkillDefinition = withSkillBlackboard(
 );
 
 export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
-  {
-    key: 'battleSkill',
-    sourceSkillId: 'chr_0009_azrila_normal_skill',
-    timelineBlockFrames: 51,
-    costs: [{ resource: 'sp', value: 100 }],
-    costFrame: 0,
-    scheduledSequences: [
-      scheduled(
-        0,
-        sequence(
-          step('listenForCombatEvents', {
-            responses: [
-                {
-                  key: 'native-event-29-0',
-                  event: { kind: 'operatorHit' },
-                  sequence: sequence(
-                    branch(
-                      {
-                        kind: 'eventDamageFeaturesMatch',
-                        match: 'exceptAny',
-                        features: ['dot', 'remainArea'],
-                      },
-                      sequence(
-                        step('applyBuff', {
-                          buffId: 'buff_chr_0009_azrila_normal_skill_gpsuccess',
-                          target: 'caster',
-                          inheritSourceSkillCastInfo: true,
-                        }),
+    {
+      key: 'battleSkill',
+      sourceSkillId: 'chr_0009_azrila_normal_skill',
+      timelineBlockFrames: 51,
+      costs: [{ resource: 'sp', value: 100 }],
+      costFrame: 0,
+      scheduledSequences: [
+        scheduled(
+          0,
+          sequence(
+            step('listenForCombatEvents', {
+              responses: [
+                  {
+                    key: 'native-event-29-0',
+                    event: { kind: 'operatorHit' },
+                    sequence: sequence(
+                      branch(
+                        {
+                          kind: 'eventDamageFeaturesMatch',
+                          match: 'exceptAny',
+                          features: ['dot', 'remainArea'],
+                        },
+                        sequence(
+                          step('applyBuff', {
+                            buffId: 'buff_chr_0009_azrila_normal_skill_gpsuccess',
+                            target: 'caster',
+                            inheritSourceSkillCastInfo: true,
+                          }),
+                        ),
                       ),
                     ),
-                  ),
-                },
-            ],
-          }),
-        ),
-        38,
-      ),
-      scheduled(
-        0,
-        sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'blackboard', key: 'talent1' },
-              operator: 'greater',
-              right: { kind: 'constant', value: 0 },
-            },
-            sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'potential_1' },
-                  operator: 'greater',
-                  right: { kind: 'constant', value: 0 },
-                },
-                sequence(
-                  step('modifyActionValue', {
-                    key: 'shelterrate',
-                    operation: 'add',
-                    value: { kind: 'blackboard', key: 'extrashelter' },
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
-              step('applyBuff', {
-                buffId: 'buff_chr_0009_azrila_normal_skill_shelter',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  'rate': { kind: 'blackboard', key: 'shelterrate' },
-                  'duration': { kind: 'constant', value: -1 },
-                },
-              }),
-            ),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-      ),
-      scheduled(
-        0,
-        sequence(
-          step('modifyActionValue', {
-            key: 'input_angle',
-            operation: 'assign',
-            value: { kind: 'constant', value: 100 },
-          }),
-        ),
-      ),
-      scheduled(
-        10,
-        sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: percentages([32, 36, 39, 42, 45, 49, 52, 55, 58, 62, 67, 73]),
-            tags: ['normalSkill'],
-            features: ['canBreakWeakness'],
-          }, '11:battleSkill6:direct28:chr_0009_azrila_normal_skill11:actionOrder2:50'),
-        ),
-      ),
-      scheduled(
-        38,
-        sequence(
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'potential_1' },
-                  operator: 'greater',
-                  right: { kind: 'constant', value: 0 },
-                },
-                { kind: 'singleEnemyPresent' },
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'talent1' },
-                  operator: 'greater',
-                  right: { kind: 'constant', value: 0 },
-                },
+                  },
               ],
-            },
-            sequence(
-              step('applyBuff', {
-                buffId: 'buff_chr_0009_azrila_normal_skill_shelter',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  'rate': { kind: 'blackboard', key: 'shelterrate' },
-                  'duration': { kind: 'blackboard', key: 'extratime' },
-                },
-              }),
-            ),
-            undefined,
-            { alwaysNext: true },
+            }),
           ),
-          step('outputKnockDown', { target: 'enemy' }),
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: percentages([141, 155, 169, 183, 197, 211, 226, 240, 254, 271, 292, 317]),
-            tags: ['normalSkill'],
-            features: ['canBreakWeakness'],
-            stagger: 10,
-          }, '11:battleSkill6:direct28:chr_0009_azrila_normal_skill11:actionOrder2:62'),
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0009_azrila_normal_skill_gpsuccess'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(
-              step('dealStagger', {
-                value: 10,
-              }),
-            ),
-            undefined,
-            { alwaysNext: true },
-          ),
-          step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
+          38,
         ),
-      ),
-    ],
-  },
+        scheduled(
+          0,
+          sequence(
+            branch(
+              {
+                kind: 'actionValueCompare',
+                left: { kind: 'blackboard', key: 'talent1' },
+                operator: 'greater',
+                right: { kind: 'constant', value: 0 },
+              },
+              sequence(
+                branch(
+                  {
+                    kind: 'actionValueCompare',
+                    left: { kind: 'blackboard', key: 'potential_1' },
+                    operator: 'greater',
+                    right: { kind: 'constant', value: 0 },
+                  },
+                  sequence(
+                    step('modifyActionValue', {
+                      key: 'shelterrate',
+                      operation: 'add',
+                      value: { kind: 'blackboard', key: 'extrashelter' },
+                    }),
+                  ),
+                  undefined,
+                  { alwaysNext: true },
+                ),
+                step('applyBuff', {
+                  buffId: 'buff_chr_0009_azrila_normal_skill_shelter',
+                  target: 'caster',
+                  inheritSourceSkillCastInfo: true,
+                  blackboardAssignments: {
+                    'rate': { kind: 'blackboard', key: 'shelterrate' },
+                    'duration': { kind: 'constant', value: -1 },
+                  },
+                }),
+              ),
+              undefined,
+              { alwaysNext: true },
+            ),
+          ),
+        ),
+        scheduled(
+          0,
+          sequence(
+            step('modifyActionValue', {
+              key: 'input_angle',
+              operation: 'assign',
+              value: { kind: 'constant', value: 100 },
+            }),
+          ),
+        ),
+        scheduled(
+          10,
+          sequence(
+            step('dealDamage', {
+              damageType: 'heat',
+              attackScale: percentages([32, 36, 39, 42, 45, 49, 52, 55, 58, 62, 67, 73]),
+              tags: ['normalSkill'],
+              features: ['canBreakWeakness'],
+            }, '11:battleSkill6:direct28:chr_0009_azrila_normal_skill11:actionOrder2:50'),
+          ),
+        ),
+        scheduled(
+          38,
+          sequence(
+            branch(
+              {
+                kind: 'all',
+                conditions: [
+                  {
+                    kind: 'actionValueCompare',
+                    left: { kind: 'blackboard', key: 'potential_1' },
+                    operator: 'greater',
+                    right: { kind: 'constant', value: 0 },
+                  },
+                  { kind: 'singleEnemyPresent' },
+                  {
+                    kind: 'actionValueCompare',
+                    left: { kind: 'blackboard', key: 'talent1' },
+                    operator: 'greater',
+                    right: { kind: 'constant', value: 0 },
+                  },
+                ],
+              },
+              sequence(
+                step('applyBuff', {
+                  buffId: 'buff_chr_0009_azrila_normal_skill_shelter',
+                  target: 'caster',
+                  inheritSourceSkillCastInfo: true,
+                  blackboardAssignments: {
+                    'rate': { kind: 'blackboard', key: 'shelterrate' },
+                    'duration': { kind: 'blackboard', key: 'extratime' },
+                  },
+                }),
+              ),
+              undefined,
+              { alwaysNext: true },
+            ),
+            branch(
+    {
+      kind: 'healthCompare',
+      target: 'enemy',
+      valueType: 'current',
+      operator: 'greater',
+      value: { kind: 'constant', value: 0 },
+    },
+    sequence(
+      step('outputKnockDown', { target: 'enemy' }),
+    ),
+  ),
+            step('dealDamage', {
+              damageType: 'heat',
+              attackScale: percentages([141, 155, 169, 183, 197, 211, 226, 240, 254, 271, 292, 317]),
+              tags: ['normalSkill'],
+              features: ['canBreakWeakness'],
+              stagger: 10,
+            }, '11:battleSkill6:direct28:chr_0009_azrila_normal_skill11:actionOrder2:62'),
+            branch(
+              {
+                kind: 'buffIdStackCompare',
+                target: 'caster',
+                buffIds: ['buff_chr_0009_azrila_normal_skill_gpsuccess'],
+                operator: 'greaterOrEqual',
+                value: { kind: 'constant', value: 1 },
+              },
+              sequence(
+                step('dealStagger', {
+                  value: 10,
+                }),
+              ),
+              undefined,
+              { alwaysNext: true },
+            ),
+            step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
+          ),
+        ),
+      ],
+    },
   {
     'extrashelter': 0,
     'potential_1': 0,

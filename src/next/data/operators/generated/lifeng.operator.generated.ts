@@ -315,79 +315,90 @@ export const lifengPlungingAttack: SkillDefinition = withSkillBlackboard(
 );
 
 export const lifengBattleSkill: SkillDefinition = withSkillBlackboard(
-  {
-    key: 'battleSkill',
-    sourceSkillId: 'chr_0015_lifeng_normal_skill',
-    timelineBlockFrames: 67,
-    costs: [{ resource: 'sp', value: 100 }],
-    costFrame: 0,
-    scheduledSequences: [
-      scheduled(
-        7,
-        sequence(
-          step('dealDamage', {
-            damageType: 'physical',
-            attackScale: percentages([38, 42, 46, 50, 53, 57, 61, 65, 69, 73, 79, 86]),
-            tags: ['normalSkill'],
-            features: ['canBreakWeakness'],
-          }, '11:battleSkill6:direct28:chr_0015_lifeng_normal_skill11:actionOrder2:62'),
-        ),
-      ),
-      scheduled(
-        20,
-        sequence(
-          step('dealDamage', {
-            damageType: 'physical',
-            attackScale: percentages([38, 42, 46, 50, 53, 57, 61, 65, 69, 73, 79, 86]),
-            tags: ['normalSkill'],
-            features: ['canBreakWeakness'],
-          }, '11:battleSkill6:direct28:chr_0015_lifeng_normal_skill11:actionOrder2:68'),
-        ),
-      ),
-      scheduled(
-        54,
-        sequence(
-          branch(
-            {
-              kind: 'buffStackCompare',
-              target: 'enemy',
-              tagQueryType: 'hasAny',
-              buffTagIds: [1075718177],
-              operator: 'lessOrEqual',
-              value: { kind: 'blackboard', key: 'num' },
-            },
-            sequence(
-              step('applyBuff', {
-                buffId: 'buff_chr_0015_lifeng_purify',
-                target: 'enemy',
-                inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  'rate': { kind: 'blackboard', key: 'phy_resist_down' },
-                  'duration': { kind: 'blackboard', key: 'duration' },
-                },
-              }),
-            ),
-            undefined,
-            { alwaysNext: true },
+    {
+      key: 'battleSkill',
+      sourceSkillId: 'chr_0015_lifeng_normal_skill',
+      timelineBlockFrames: 67,
+      costs: [{ resource: 'sp', value: 100 }],
+      costFrame: 0,
+      scheduledSequences: [
+        scheduled(
+          7,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: percentages([38, 42, 46, 50, 53, 57, 61, 65, 69, 73, 79, 86]),
+              tags: ['normalSkill'],
+              features: ['canBreakWeakness'],
+            }, '11:battleSkill6:direct28:chr_0015_lifeng_normal_skill11:actionOrder2:62'),
           ),
         ),
-      ),
-      scheduled(
-        54,
-        sequence(
-          step('outputKnockDown', { target: 'enemy' }),
-          step('dealDamage', {
-            damageType: 'physical',
-            attackScale: percentages([119, 131, 143, 155, 167, 178, 190, 202, 214, 229, 247, 268]),
-            tags: ['normalSkill'],
-            features: ['canBreakWeakness'],
-            stagger: 10,
-          }, '11:battleSkill6:direct28:chr_0015_lifeng_normal_skill11:actionOrder2:74'),
-          step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
+        scheduled(
+          20,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: percentages([38, 42, 46, 50, 53, 57, 61, 65, 69, 73, 79, 86]),
+              tags: ['normalSkill'],
+              features: ['canBreakWeakness'],
+            }, '11:battleSkill6:direct28:chr_0015_lifeng_normal_skill11:actionOrder2:68'),
+          ),
         ),
-      ),
-    ],
-  },
+        scheduled(
+          54,
+          sequence(
+            branch(
+              {
+                kind: 'buffStackCompare',
+                target: 'enemy',
+                tagQueryType: 'hasAny',
+                buffTagIds: [1075718177],
+                operator: 'lessOrEqual',
+                value: { kind: 'blackboard', key: 'num' },
+              },
+              sequence(
+                step('applyBuff', {
+                  buffId: 'buff_chr_0015_lifeng_purify',
+                  target: 'enemy',
+                  inheritSourceSkillCastInfo: true,
+                  blackboardAssignments: {
+                    'rate': { kind: 'blackboard', key: 'phy_resist_down' },
+                    'duration': { kind: 'blackboard', key: 'duration' },
+                  },
+                }),
+              ),
+              undefined,
+              { alwaysNext: true },
+            ),
+          ),
+        ),
+        scheduled(
+          54,
+          sequence(
+            branch(
+    {
+      kind: 'healthCompare',
+      target: 'enemy',
+      valueType: 'current',
+      operator: 'greater',
+      value: { kind: 'constant', value: 0 },
+    },
+    sequence(
+      step('outputKnockDown', { target: 'enemy' }),
+    ),
+  ),
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: percentages([119, 131, 143, 155, 167, 178, 190, 202, 214, 229, 247, 268]),
+              tags: ['normalSkill'],
+              features: ['canBreakWeakness'],
+              stagger: 10,
+            }, '11:battleSkill6:direct28:chr_0015_lifeng_normal_skill11:actionOrder2:74'),
+            step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
+          ),
+        ),
+      ],
+    },
   {
     'num': 0,
     'atk_scale': [0.38, 0.42, 0.46, 0.5, 0.53, 0.57, 0.61, 0.65, 0.69, 0.73, 0.79, 0.86],
@@ -799,7 +810,18 @@ export const lifengGeneratedOperator: OperatorDefinition = {
           scheduled(
             6,
             sequence(
-              step('outputKnockDown', { target: 'enemy' }),
+              branch(
+        {
+          kind: 'healthCompare',
+          target: 'enemy',
+          valueType: 'current',
+          operator: 'greater',
+          value: { kind: 'constant', value: 0 },
+        },
+        sequence(
+          step('outputKnockDown', { target: 'enemy' }),
+        ),
+      ),
               step('dealDamage', {
                 damageType: 'physical',
                 attackScale: { kind: 'blackboard', key: 'atk_scale1' },
@@ -812,7 +834,18 @@ export const lifengGeneratedOperator: OperatorDefinition = {
           scheduled(
             66,
             sequence(
-              step('outputKnockDown', { target: 'enemy' }),
+              branch(
+        {
+          kind: 'healthCompare',
+          target: 'enemy',
+          valueType: 'current',
+          operator: 'greater',
+          value: { kind: 'constant', value: 0 },
+        },
+        sequence(
+          step('outputKnockDown', { target: 'enemy' }),
+        ),
+      ),
               step('dealDamage', {
                 damageType: 'physical',
                 attackScale: { kind: 'blackboard', key: 'atk_scale2' },

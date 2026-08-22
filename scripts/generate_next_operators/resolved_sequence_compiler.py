@@ -201,8 +201,9 @@ def compile_knock_down_output(
     # observable consumer in this model.
     if payload.deadOption == "OnlyDead":
         return "sequence()"
-    if payload.deadOption == "AllValid":
-        return output
+    # AllValid also accepts corpses in the native runtime. Endaxis has one
+    # terminal dummy, so its dead branch is deliberately projected away just
+    # like OnlyDead instead of publishing an event with no live consumer.
     return "\n".join(
         [
             "branch(",

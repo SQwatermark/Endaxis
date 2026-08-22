@@ -416,260 +416,271 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
 );
 
 export const daPanUltimate: SkillDefinition = withSkillBlackboard(
-  {
-    key: 'ultimate',
-    sourceSkillId: 'chr_0018_dapan_ultimate_skill',
-    timelineBlockFrames: 86,
-    cooldownFrames: 450,
-    costs: [{ resource: 'ultimateEnergy', value: 90 }],
-    costFrame: 0,
-    scheduledSequences: [
-      scheduled(
-        0,
-        sequence(
-          step('startTimeDilation', {
-            scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 1 },
-            slot: 1464849466,
-            priority: 10,
-            curve: { kind: 'named', key: 'RESETto1' },
-            finishByAction: false,
-            targets: ['caster'],
-          }),
+    {
+      key: 'ultimate',
+      sourceSkillId: 'chr_0018_dapan_ultimate_skill',
+      timelineBlockFrames: 86,
+      cooldownFrames: 450,
+      costs: [{ resource: 'ultimateEnergy', value: 90 }],
+      costFrame: 0,
+      scheduledSequences: [
+        scheduled(
+          0,
+          sequence(
+            step('startTimeDilation', {
+              scope: 'entity',
+              durationSeconds: { kind: 'constant', value: 1 },
+              slot: 1464849466,
+              priority: 10,
+              curve: { kind: 'named', key: 'RESETto1' },
+              finishByAction: false,
+              targets: ['caster'],
+            }),
+          ),
+          1,
         ),
-        1,
-      ),
-      scheduled(
-        0,
-        sequence(
-          step('listenForCombatEvents', {
-            responses: [
-                {
-                  key: 'native-event-9-0',
-                  event: { kind: 'enemyDefeated', scope: 'operator' },
-                  sequence: sequence(
-                    branch(
-                      {
-                        kind: 'any',
-                        conditions: [
-                          {
-                            kind: 'eventDamageTagsMatch',
-                            match: 'hasAny',
-                            tags: ['ultimateSkill'],
-                          },
-                          {
-                            kind: 'eventDamageFeaturesMatch',
-                            match: 'hasAny',
-                            features: ['airborne'],
-                          },
-                        ],
-                      },
-                      sequence(
-                        branch(
-                          {
-                            kind: 'actionValueCompare',
-                            left: { kind: 'blackboard', key: 'potential_1_dmg_up' },
-                            operator: 'greater',
-                            right: { kind: 'constant', value: 0 },
-                          },
-                          sequence(
-                            step('applyBuff', {
-                              buffId: 'buff_chr_0018_dapan_potential_1',
-                              target: 'caster',
-                              inheritSourceSkillCastInfo: true,
-                              blackboardAssignments: {
-                                'dmg_up': { kind: 'blackboard', key: 'potential_1_dmg_up' },
-                                'duration': { kind: 'blackboard', key: 'potential_1_duration' },
-                              },
-                            }),
+        scheduled(
+          0,
+          sequence(
+            step('listenForCombatEvents', {
+              responses: [
+                  {
+                    key: 'native-event-9-0',
+                    event: { kind: 'enemyDefeated', scope: 'operator' },
+                    sequence: sequence(
+                      branch(
+                        {
+                          kind: 'any',
+                          conditions: [
+                            {
+                              kind: 'eventDamageTagsMatch',
+                              match: 'hasAny',
+                              tags: ['ultimateSkill'],
+                            },
+                            {
+                              kind: 'eventDamageFeaturesMatch',
+                              match: 'hasAny',
+                              features: ['airborne'],
+                            },
+                          ],
+                        },
+                        sequence(
+                          branch(
+                            {
+                              kind: 'actionValueCompare',
+                              left: { kind: 'blackboard', key: 'potential_1_dmg_up' },
+                              operator: 'greater',
+                              right: { kind: 'constant', value: 0 },
+                            },
+                            sequence(
+                              step('applyBuff', {
+                                buffId: 'buff_chr_0018_dapan_potential_1',
+                                target: 'caster',
+                                inheritSourceSkillCastInfo: true,
+                                blackboardAssignments: {
+                                  'dmg_up': { kind: 'blackboard', key: 'potential_1_dmg_up' },
+                                  'duration': { kind: 'blackboard', key: 'potential_1_duration' },
+                                },
+                              }),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                },
-            ],
-          }),
-        ),
-        89,
-      ),
-      scheduled(
-        0,
-        sequence(
-          step('startTimeDilation', {
-            scope: 'global',
-            durationSeconds: { kind: 'constant', value: 1.2 },
-            slot: 0,
-            priority: 100,
-            curve: { kind: 'inline', keys: [{ time: 0, value: 0, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0.333333343 }, { time: 1, value: 0, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0.333333343, outWeight: 0 }] },
-            finishByAction: true,
-            ignoredTargets: ['caster'],
-          }),
-        ),
-        36,
-      ),
-      scheduled(
-        42,
-        sequence(
-          step('dealDamage', {
-            damageType: 'physical',
-            attackScale: percentages([22, 24, 26, 29, 31, 33, 35, 37, 40, 42, 46, 50]),
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate6:direct29:chr_0018_dapan_ultimate_skill11:actionOrder2:19'),
-          step('startTimeDilation', {
-            scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.034 },
-            slot: 1464849466,
-            priority: 15,
-            curve: { kind: 'named', key: 'RESETto1' },
-            finishByAction: true,
-            targets: ['caster'],
-          }),
-        ),
-        42,
-      ),
-      scheduled(
-        46,
-        sequence(
-          step('dealDamage', {
-            damageType: 'physical',
-            attackScale: percentages([22, 24, 26, 29, 31, 33, 35, 37, 40, 42, 46, 50]),
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate6:direct29:chr_0018_dapan_ultimate_skill11:actionOrder2:19'),
-          step('startTimeDilation', {
-            scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.034 },
-            slot: 1464849466,
-            priority: 15,
-            curve: { kind: 'named', key: 'RESETto1' },
-            finishByAction: true,
-            targets: ['caster'],
-          }),
-        ),
-        46,
-      ),
-      scheduled(
-        50,
-        sequence(
-          step('dealDamage', {
-            damageType: 'physical',
-            attackScale: percentages([22, 24, 26, 29, 31, 33, 35, 37, 40, 42, 46, 50]),
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate6:direct29:chr_0018_dapan_ultimate_skill11:actionOrder2:19'),
-          step('startTimeDilation', {
-            scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.034 },
-            slot: 1464849466,
-            priority: 15,
-            curve: { kind: 'named', key: 'RESETto1' },
-            finishByAction: true,
-            targets: ['caster'],
-          }),
-        ),
-        50,
-      ),
-      scheduled(
-        54,
-        sequence(
-          step('dealDamage', {
-            damageType: 'physical',
-            attackScale: percentages([22, 24, 26, 29, 31, 33, 35, 37, 40, 42, 46, 50]),
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate6:direct29:chr_0018_dapan_ultimate_skill11:actionOrder2:19'),
-          step('startTimeDilation', {
-            scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.034 },
-            slot: 1464849466,
-            priority: 15,
-            curve: { kind: 'named', key: 'RESETto1' },
-            finishByAction: true,
-            targets: ['caster'],
-          }),
-        ),
-        54,
-      ),
-      scheduled(
-        58,
-        sequence(
-          step('dealDamage', {
-            damageType: 'physical',
-            attackScale: percentages([22, 24, 26, 29, 31, 33, 35, 37, 40, 42, 46, 50]),
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate6:direct29:chr_0018_dapan_ultimate_skill11:actionOrder2:19'),
-          step('startTimeDilation', {
-            scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.034 },
-            slot: 1464849466,
-            priority: 15,
-            curve: { kind: 'named', key: 'RESETto1' },
-            finishByAction: true,
-            targets: ['caster'],
-          }),
-        ),
-        58,
-      ),
-      scheduled(
-        62,
-        sequence(
-          step('dealDamage', {
-            damageType: 'physical',
-            attackScale: percentages([22, 24, 26, 29, 31, 33, 35, 37, 40, 42, 46, 50]),
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate6:direct29:chr_0018_dapan_ultimate_skill11:actionOrder2:19'),
-          step('startTimeDilation', {
-            scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.034 },
-            slot: 1464849466,
-            priority: 15,
-            curve: { kind: 'named', key: 'RESETto1' },
-            finishByAction: true,
-            targets: ['caster'],
-          }),
-        ),
-        62,
-      ),
-      scheduled(
-        80,
-        sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'blackboard', key: 'talent_1' },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-            sequence(
-              step('applyBuff', {
-                buffId: 'buff_chr_0018_dapan_talent_1_preparation',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  'duration': { kind: 'blackboard', key: 'talent_1_duration' },
-                  'max_stack': { kind: 'blackboard', key: 'talent_1_stack' },
-                  'talent_1_cd_reduce': { kind: 'blackboard', key: 'talent_1_cd_reduce' },
-                },
-              }),
-            ),
-            undefined,
-            { alwaysNext: true },
+                  },
+              ],
+            }),
           ),
-          step('outputKnockDown', { target: 'enemy' }),
-          step('dealDamage', {
-            damageType: 'physical',
-            attackScale: percentages([178, 196, 213, 231, 249, 267, 284, 302, 320, 342, 369, 400]),
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate6:direct29:chr_0018_dapan_ultimate_skill11:actionOrder2:26'),
+          89,
         ),
-      ),
-    ],
-  },
+        scheduled(
+          0,
+          sequence(
+            step('startTimeDilation', {
+              scope: 'global',
+              durationSeconds: { kind: 'constant', value: 1.2 },
+              slot: 0,
+              priority: 100,
+              curve: { kind: 'inline', keys: [{ time: 0, value: 0, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0.333333343 }, { time: 1, value: 0, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0.333333343, outWeight: 0 }] },
+              finishByAction: true,
+              ignoredTargets: ['caster'],
+            }),
+          ),
+          36,
+        ),
+        scheduled(
+          42,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: percentages([22, 24, 26, 29, 31, 33, 35, 37, 40, 42, 46, 50]),
+              tags: ['ultimateSkill'],
+              features: ['canBreakWeakness'],
+            }, '8:ultimate6:direct29:chr_0018_dapan_ultimate_skill11:actionOrder2:19'),
+            step('startTimeDilation', {
+              scope: 'entity',
+              durationSeconds: { kind: 'constant', value: 0.034 },
+              slot: 1464849466,
+              priority: 15,
+              curve: { kind: 'named', key: 'RESETto1' },
+              finishByAction: true,
+              targets: ['caster'],
+            }),
+          ),
+          42,
+        ),
+        scheduled(
+          46,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: percentages([22, 24, 26, 29, 31, 33, 35, 37, 40, 42, 46, 50]),
+              tags: ['ultimateSkill'],
+              features: ['canBreakWeakness'],
+            }, '8:ultimate6:direct29:chr_0018_dapan_ultimate_skill11:actionOrder2:19'),
+            step('startTimeDilation', {
+              scope: 'entity',
+              durationSeconds: { kind: 'constant', value: 0.034 },
+              slot: 1464849466,
+              priority: 15,
+              curve: { kind: 'named', key: 'RESETto1' },
+              finishByAction: true,
+              targets: ['caster'],
+            }),
+          ),
+          46,
+        ),
+        scheduled(
+          50,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: percentages([22, 24, 26, 29, 31, 33, 35, 37, 40, 42, 46, 50]),
+              tags: ['ultimateSkill'],
+              features: ['canBreakWeakness'],
+            }, '8:ultimate6:direct29:chr_0018_dapan_ultimate_skill11:actionOrder2:19'),
+            step('startTimeDilation', {
+              scope: 'entity',
+              durationSeconds: { kind: 'constant', value: 0.034 },
+              slot: 1464849466,
+              priority: 15,
+              curve: { kind: 'named', key: 'RESETto1' },
+              finishByAction: true,
+              targets: ['caster'],
+            }),
+          ),
+          50,
+        ),
+        scheduled(
+          54,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: percentages([22, 24, 26, 29, 31, 33, 35, 37, 40, 42, 46, 50]),
+              tags: ['ultimateSkill'],
+              features: ['canBreakWeakness'],
+            }, '8:ultimate6:direct29:chr_0018_dapan_ultimate_skill11:actionOrder2:19'),
+            step('startTimeDilation', {
+              scope: 'entity',
+              durationSeconds: { kind: 'constant', value: 0.034 },
+              slot: 1464849466,
+              priority: 15,
+              curve: { kind: 'named', key: 'RESETto1' },
+              finishByAction: true,
+              targets: ['caster'],
+            }),
+          ),
+          54,
+        ),
+        scheduled(
+          58,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: percentages([22, 24, 26, 29, 31, 33, 35, 37, 40, 42, 46, 50]),
+              tags: ['ultimateSkill'],
+              features: ['canBreakWeakness'],
+            }, '8:ultimate6:direct29:chr_0018_dapan_ultimate_skill11:actionOrder2:19'),
+            step('startTimeDilation', {
+              scope: 'entity',
+              durationSeconds: { kind: 'constant', value: 0.034 },
+              slot: 1464849466,
+              priority: 15,
+              curve: { kind: 'named', key: 'RESETto1' },
+              finishByAction: true,
+              targets: ['caster'],
+            }),
+          ),
+          58,
+        ),
+        scheduled(
+          62,
+          sequence(
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: percentages([22, 24, 26, 29, 31, 33, 35, 37, 40, 42, 46, 50]),
+              tags: ['ultimateSkill'],
+              features: ['canBreakWeakness'],
+            }, '8:ultimate6:direct29:chr_0018_dapan_ultimate_skill11:actionOrder2:19'),
+            step('startTimeDilation', {
+              scope: 'entity',
+              durationSeconds: { kind: 'constant', value: 0.034 },
+              slot: 1464849466,
+              priority: 15,
+              curve: { kind: 'named', key: 'RESETto1' },
+              finishByAction: true,
+              targets: ['caster'],
+            }),
+          ),
+          62,
+        ),
+        scheduled(
+          80,
+          sequence(
+            branch(
+              {
+                kind: 'actionValueCompare',
+                left: { kind: 'blackboard', key: 'talent_1' },
+                operator: 'greaterOrEqual',
+                right: { kind: 'constant', value: 1 },
+              },
+              sequence(
+                step('applyBuff', {
+                  buffId: 'buff_chr_0018_dapan_talent_1_preparation',
+                  target: 'caster',
+                  inheritSourceSkillCastInfo: true,
+                  blackboardAssignments: {
+                    'duration': { kind: 'blackboard', key: 'talent_1_duration' },
+                    'max_stack': { kind: 'blackboard', key: 'talent_1_stack' },
+                    'talent_1_cd_reduce': { kind: 'blackboard', key: 'talent_1_cd_reduce' },
+                  },
+                }),
+              ),
+              undefined,
+              { alwaysNext: true },
+            ),
+            branch(
+    {
+      kind: 'healthCompare',
+      target: 'enemy',
+      valueType: 'current',
+      operator: 'greater',
+      value: { kind: 'constant', value: 0 },
+    },
+    sequence(
+      step('outputKnockDown', { target: 'enemy' }),
+    ),
+  ),
+            step('dealDamage', {
+              damageType: 'physical',
+              attackScale: percentages([178, 196, 213, 231, 249, 267, 284, 302, 320, 342, 369, 400]),
+              tags: ['ultimateSkill'],
+              features: ['canBreakWeakness'],
+            }, '8:ultimate6:direct29:chr_0018_dapan_ultimate_skill11:actionOrder2:26'),
+          ),
+        ),
+      ],
+    },
   {
     'talent_1': 0,
     'atk_scale_end': [1.78, 1.96, 2.13, 2.31, 2.49, 2.67, 2.84, 3.02, 3.2, 3.42, 3.69, 4],
