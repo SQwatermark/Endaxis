@@ -288,6 +288,7 @@ export const perlicaGeneratedOperator: OperatorDefinition = {
     {
       key: 'comboRicochetAgainstBrokenEnemy',
       levels: 1,
+      simulationNoEffect: 'uniqueEnemyHasNoAlternateTarget',
       modifiers: [],
     },
   ],
@@ -356,5 +357,5 @@ export const perlicaGeneratedOperator: OperatorDefinition = {
       ],
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }] },
+  conversionSupport: { completeness: 'complete', missingCapabilities: [] },
 };

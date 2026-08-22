@@ -1502,6 +1502,11 @@ export interface OperatorPassiveSkillDefinition {
 export interface OperatorUpgradeDefinition {
   key: string;
   levels: number;
+  /**
+   * 原生效果已经取证，但在 Endaxis 固定模拟模型中没有可观察结果。
+   * 这是完整转换结论，不是尚未建模；保留原因以便模型边界改变时重新审计。
+   */
+  simulationNoEffect?: 'uniqueEnemyHasNoAlternateTarget' | 'enemyDoesNotDealDamage';
   modifiers?: readonly UpgradeModifierDefinition[];
   eventHandlers?: readonly UpgradeEventHandlerDefinition[];
   /** 养成启用后直接安装的初始化行为；不是技能，也不进入可释放技能集合。 */

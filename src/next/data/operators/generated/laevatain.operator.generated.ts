@@ -4341,6 +4341,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
     {
       key: 'talent2',
       levels: 2,
+      simulationNoEffect: 'enemyDoesNotDealDamage',
       modifiers: [],
     },
   ],
@@ -4495,5 +4496,5 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
       ),
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }] },
+  conversionSupport: { completeness: 'complete', missingCapabilities: [] },
 };

@@ -15,16 +15,13 @@ function findSkill(key: string): SkillDefinition {
 }
 
 describe('arclight generated operator', () => {
-  it('has a partial conversion support with declared talent and ultimate buff gaps', () => {
+  it('has partial conversion support only for its remaining talent gap', () => {
     expect(arclightGeneratedOperator.slug).toBe('arclight');
     expect(arclightGeneratedOperator.weaponType).toBe('sword');
     expect(arclightGeneratedOperator.role).toBe('vanguard');
     expect(arclightGeneratedOperator.conversionSupport).toEqual({
       completeness: 'partial',
-      missingCapabilities: [
-        { capability: 'talentEffects' },
-        { capability: 'skillBehavior', skillGroupKeys: ['ultimate'] },
-      ],
+      missingCapabilities: [{ capability: 'talentEffects' }],
     });
   });
 

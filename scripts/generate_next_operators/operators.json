@@ -7,7 +7,11 @@
       "charId": "chr_0004_pelica",
       "talents": [
         { "index": 0, "key": "staggerDamageBonus", "compile": "targetStaggeredDamage" },
-        { "index": 1, "key": "comboRicochetAgainstBrokenEnemy", "compile": "unmodeledMultiTarget" }
+        {
+          "index": 1,
+          "key": "comboRicochetAgainstBrokenEnemy",
+          "compile": "simulationNoEffectUniqueEnemy"
+        }
       ],
       "potentials": [
         { "key": "extendedElectrification", "compile": "multiplyReactionDuration" },
@@ -1601,7 +1605,7 @@
           "compile": {
             "kind": "resolvedSequence",
             "tags": ["ultimateSkill"],
-            "unmodeledBuffIds": ["buff_common_damage_immune_ult_skill"]
+            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"]
           }
         }
       ]
@@ -1700,7 +1704,7 @@
           "compile": {
             "kind": "resolvedSequence",
             "tags": ["normalAttack", "powerAttack"],
-            "unmodeledBuffIds": ["buff_common_full_immune_medium"]
+            "simulationNoEffectBuffIds": ["buff_common_full_immune_medium"]
           }
         },
         {
@@ -1738,7 +1742,7 @@
             "tags": ["ultimateSkill"],
             "costResource": "ultimateEnergy",
             "usePatchCooldown": true,
-            "unmodeledBuffIds": ["buff_common_damage_immune_ult_skill"]
+            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"]
           }
         }
       ]
@@ -1867,7 +1871,7 @@
             "tags": ["ultimateSkill"],
             "costResource": "ultimateEnergy",
             "usePatchCooldown": true,
-            "unmodeledBuffIds": ["buff_common_damage_immune_ult_skill"]
+            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"]
           }
         }
       ]
@@ -1996,7 +2000,7 @@
             "tags": ["ultimateSkill"],
             "costResource": "ultimateEnergy",
             "usePatchCooldown": true,
-            "unmodeledBuffIds": ["buff_common_damage_immune_ult_skill"]
+            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"]
           }
         }
       ]
@@ -2097,7 +2101,7 @@
             "tags": ["normalAttack", "powerAttack"],
             "availability": "targetStaggered",
             "afterDamage": "gainFinisherSp",
-            "unmodeledBuffIds": ["buff_common_full_immune_medium"]
+            "simulationNoEffectBuffIds": ["buff_common_full_immune_medium"]
           }
         },
         {
@@ -2138,7 +2142,7 @@
             "tags": ["ultimateSkill"],
             "costResource": "ultimateEnergy",
             "usePatchCooldown": true,
-            "unmodeledBuffIds": ["buff_common_damage_immune_ult_skill"]
+            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"]
           }
         }
       ]
@@ -2540,7 +2544,7 @@
           "compile": {
             "kind": "resolvedSequence",
             "tags": ["normalAttack", "powerAttack"],
-            "unmodeledBuffIds": ["buff_common_full_immune_medium"]
+            "simulationNoEffectBuffIds": ["buff_common_full_immune_medium"]
           }
         },
         {
@@ -2574,10 +2578,8 @@
             "tags": ["ultimateSkill"],
             "costResource": "ultimateEnergy",
             "usePatchCooldown": true,
-            "unmodeledBuffIds": [
-              "buff_common_damage_immune_ult_skill",
-              "buff_chr_0022_bounda_ultimate_skill"
-            ]
+            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"],
+            "unmodeledBuffIds": ["buff_chr_0022_bounda_ultimate_skill"]
           }
         }
       ]
@@ -2816,7 +2818,7 @@
             "tags": ["ultimateSkill"],
             "costResource": "ultimateEnergy",
             "usePatchCooldown": true,
-            "unmodeledBuffIds": ["buff_common_damage_immune_ult_skill"]
+            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"]
           }
         },
         {
@@ -2828,7 +2830,7 @@
             "tags": ["ultimateSkill"],
             "costResource": "ultimateEnergy",
             "usePatchCooldown": true,
-            "unmodeledBuffIds": ["buff_common_damage_immune_ult_skill"]
+            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"]
           }
         }
       ]
@@ -2962,7 +2964,7 @@
             "tags": ["ultimateSkill"],
             "costResource": "ultimateEnergy",
             "usePatchCooldown": true,
-            "unmodeledBuffIds": ["buff_common_damage_immune_ult_skill"]
+            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"]
           }
         }
       ]
@@ -2974,7 +2976,7 @@
       "runtimeReplacementSkillKeys": ["battleSkillDuringUltimate"],
       "talents": [
         { "index": 0, "key": "talent1", "compile": "attachedBuff" },
-        { "index": 1, "key": "talent2", "compile": "unmodeledTalent" }
+        { "index": 1, "key": "talent2", "compile": "simulationNoEffectOnTakeDamage" }
       ],
       "potentials": [
         { "key": "potential1", "compile": "skillBlackboardPatch" },

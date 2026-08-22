@@ -167,9 +167,14 @@ python scripts/generate_next_operators/audit_operator_progression.py `
 报告的 `summary.configuredProgression` 以正式 manifest 的天赋/潜能槽位为单位，分别给出
 `definitionConvertedCount` 与 `standardSimulationCompileReadyCount`。后者只表示面板、技能补丁或常驻
 被动程序已经能进入标准场景编译，不等于所有触发条件都能在某条具体时间轴中发生，也不替代技能主体
-和 Buff 闭包审计。当前基线为 22 名正式生成干员：天赋 34/44 已转换、34/44 可进入模拟编译；潜能
+和 Buff 闭包审计。当前基线为 22 名正式生成干员：天赋 37/44 已转换、37/44 可进入模拟编译；潜能
 110/110 已转换、110/110 可进入模拟编译。当前所有已经完整写入定义的养成槽位都已有标准模拟消费链；
 后续重点转为扩大可无损转换的来源效果集合。
+
+原生效果若已严格取证，并且只能依赖 Endaxis 模型明确不存在的事实，则使用显式
+`simulationNoEffect` 结论计为完整转换：例如唯一敌人模型没有可供佩里卡额外弹射的第二目标，固定木桩
+也不会主动伤害莱万汀从而触发其低血量治疗/庇护。此类条目保留稳定原因供模型边界变化时复审，但不进入
+`conversionSupport.missingCapabilities`；未知行为或仍会改变对敌输出的缺口不得借用该分类。
 
 `skillSpGainAttackStack` 严格转换秋栗潜能 1 的 `OnObtainAtb` 监听器：仅接受原生
 `CheckObtainAtbType(Skill, Gain)`，并保留“实际通过技能恢复技力后，施加 10 秒、每层 +10% Atk、

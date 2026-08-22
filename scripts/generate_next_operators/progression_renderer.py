@@ -2091,7 +2091,7 @@ def render_talents(
             compile_buff_definition,
             compile_event_listener,
         )
-        if isinstance(kind, str) and kind.startswith("unmodeled") and kind != "unmodeledMultiTarget":
+        if isinstance(kind, str) and kind.startswith("unmodeled"):
             # 显式未建模天赋：保留稳定身份和等级数，不生成无证据的 modifiers；
             # conversionSupport 会依据 unmodeled 前缀自动标记 talentEffects 缺口。
             result.append(
@@ -2336,7 +2336,7 @@ def render_talents(
                     ]
                 )
             )
-        elif kind == "unmodeledMultiTarget":
+        elif kind == "simulationNoEffectUniqueEnemy":
             if len(entries) != 1:
                 raise ValueError(f"talent {key}: expected one source level")
             effect = table_row(effects, entries[0][1], "PotentialTalentEffectTable")
@@ -2354,6 +2354,96 @@ def render_talents(
                         "{",
                         f"  key: {ts_inline_literal(key)},",
                         "  levels: 1,",
+                        "  simulationNoEffect: 'uniqueEnemyHasNoAlternateTarget',",
+                        "  modifiers: [],",
+                        "}",
+                    ]
+                )
+            )
+        elif kind == "simulationNoEffectOnTakeDamage":
+            expected_values = [
+                {
+                    "hp_threshold": 0.4,
+                    "heal_max_hp": 0.05,
+                    "shelter": 0.9,
+                    "duration": 4.0,
+                    "cd": 120.0,
+                    "shelter_real": 0.9,
+                },
+                {
+                    "hp_threshold": 0.4,
+                    "heal_max_hp": 0.05,
+                    "shelter": 0.9,
+                    "duration": 8.0,
+                    "cd": 120.0,
+                    "shelter_real": 0.9,
+                },
+            ]
+            if key != "talent2" or len(attach_entries) != len(expected_values):
+                raise ValueError(f"talent {key}: unexpected OnTakeDamage no-effect levels")
+            for level_index, ((effect_id, level_entries), expected) in enumerate(
+                zip(attach_entries, expected_values, strict=True)
+            ):
+                if len(level_entries) != 1:
+                    raise ValueError(f"{effect_id}: expected one source entry")
+                entry_path = f"{effect_id}.dataList[0]"
+                entry = level_entries[0]
+                if _effect_payload_kinds(entry, entry_path) != ("attachBuff",) or entry.get("modifyType") != 5:
+                    raise ValueError(f"{entry_path}: expected only attachBuff with modifyType=5")
+                attach = require_dict(entry.get("attachBuff"), f"{entry_path}.attachBuff")
+                if attach.get("buffId") != "buff_chr_0016_laevat_talent_2_0":
+                    raise ValueError(f"{entry_path}.attachBuff.buffId: unexpected Buff")
+                values = {
+                    str(item["key"]): float(item["value"])
+                    for item in (
+                        require_dict(raw, f"{entry_path}.attachBuff.blackboard[{index}]")
+                        for index, raw in enumerate(
+                            require_list(attach.get("blackboard"), f"{entry_path}.attachBuff.blackboard")
+                        )
+                    )
+                }
+                if values != expected:
+                    raise ValueError(
+                        f"{entry_path}.attachBuff.blackboard: unexpected level {level_index + 1} values"
+                    )
+            root = buff_definitions.get("buff_chr_0016_laevat_talent_2_0")
+            if root is None or not root.sourceAvailable:
+                raise ValueError("buff_chr_0016_laevat_talent_2_0: missing source definition")
+            if (
+                len(root.eventActions) != 1
+                or root.eventActions[0].eventSource != "ability"
+                or root.eventActions[0].event != "OnTakeDamage"
+                or root.attributeModifiers
+                or root.damageModifiers
+                or root.healModifiers
+                or root.directDamageHits
+                or root.inflictions
+                or root.conditionalActions
+                or root.blackboardCalculations
+                or root.blackboardMutations
+                or root.buffBlackboardReads
+                or root.buffFinishes
+                or root.resourceGains
+                or root.auraActions
+                or root.abilityEntityHits
+                or root.invokedAbilityEntitySkills
+                or root.skillReplacements
+                or root.shields
+                or root.sustainedProtections
+                or root.intervalDamageHits
+                or root.applyTagIds
+                or root.extendTagIds
+            ):
+                raise ValueError(
+                    "buff_chr_0016_laevat_talent_2_0: expected an otherwise inert OnTakeDamage listener"
+                )
+            result.append(
+                "\n".join(
+                    [
+                        "{",
+                        f"  key: {ts_inline_literal(key)},",
+                        f"  levels: {len(entries)},",
+                        "  simulationNoEffect: 'enemyDoesNotDealDamage',",
                         "  modifiers: [],",
                         "}",
                     ]

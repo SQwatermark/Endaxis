@@ -1301,5 +1301,5 @@ export const lastRiteGeneratedOperator: OperatorDefinition = {
       ],
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'skillBehavior', skillGroupKeys: ['ultimate'] }] },
+  conversionSupport: { completeness: 'complete', missingCapabilities: [] },
 };

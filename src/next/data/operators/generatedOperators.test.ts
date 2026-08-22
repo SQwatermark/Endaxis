@@ -61,7 +61,8 @@ function hasUpgradeBehavior(
     (upgrade.modifiers?.length ?? 0) > 0 ||
     (upgrade.eventHandlers?.length ?? 0) > 0 ||
     (upgrade.passiveSkills?.length ?? 0) > 0 ||
-    upgrade.initializationSequence !== undefined
+    upgrade.initializationSequence !== undefined ||
+    upgrade.simulationNoEffect !== undefined
   );
 }
 

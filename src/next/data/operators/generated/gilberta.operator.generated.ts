@@ -1322,5 +1322,5 @@ export const gilbertaGeneratedOperator: OperatorDefinition = {
       ],
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'skillBehavior', skillGroupKeys: ['finisher', 'ultimate'] }] },
+  conversionSupport: { completeness: 'complete', missingCapabilities: [] },
 };

@@ -94,8 +94,8 @@ describe('projectTimelineEditor', () => {
     expect(viewModel.tracks[0]?.operatorSlug).toBe('perlica');
     expect(viewModel.tracks[0]?.operatorAssetSlug).toBe('perlica');
     expect(viewModel.tracks[0]?.operatorSupport).toEqual({
-      completeness: 'partial',
-      missingCapabilities: [{ capability: 'talentEffects' }],
+      completeness: 'complete',
+      missingCapabilities: [],
     });
     expect(viewModel.tracks[0]?.initialUltimateEnergy).toBe(0);
     expect(viewModel.tracks[0]?.maxUltimateEnergy).toBe(80);

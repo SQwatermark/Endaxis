@@ -2988,5 +2988,5 @@ export const endministratorGeneratedOperator: OperatorDefinition = {
       ),
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'skillBehavior', skillGroupKeys: ['ultimate', 'ultimateFemale'] }] },
+  conversionSupport: { completeness: 'complete', missingCapabilities: [] },
 };

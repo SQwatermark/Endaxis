@@ -2461,6 +2461,7 @@ def resolve_progression_buff_definitions(
             "consumedInflictionVulnerability",
             "consumedNoGuardPhysicalDamage",
             "attachedBuff",
+            "simulationNoEffectOnTakeDamage",
         }:
             continue
         effect = table_row(effects, str(effect_id), "PotentialTalentEffectTable")

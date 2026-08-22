@@ -255,6 +255,12 @@ class ProgressionRendererTests(unittest.TestCase):
             compiler="unmodeledTalent",
             effect_ids=("talent.unknown",),
         )
+        no_effect = progression_conversion_item(
+            source="talent",
+            key="model-boundary",
+            compiler="simulationNoEffectOnTakeDamage",
+            effect_ids=("talent.model-boundary",),
+        )
 
         self.assertTrue(reaction_event["definitionConverted"])
         self.assertTrue(reaction_event["standardSimulationCompileReady"])
@@ -266,6 +272,8 @@ class ProgressionRendererTests(unittest.TestCase):
         self.assertTrue(mixed_blackboard["standardSimulationCompileReady"])
         self.assertFalse(unmodeled["definitionConverted"])
         self.assertEqual(unmodeled["blocker"], "unmodeled-source-effect")
+        self.assertTrue(no_effect["definitionConverted"])
+        self.assertTrue(no_effect["standardSimulationCompileReady"])
 
     def test_configured_progression_audit_infers_ultimate_cost_consumer(self) -> None:
         growth = {

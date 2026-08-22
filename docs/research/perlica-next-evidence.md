@@ -112,7 +112,8 @@ Next 资源账本已按上述输入建立可执行闭环并生成逐成员 recei
 | 连携窗口 `150` 帧                    | derived | 五秒窗口乘以 30 FPS                                                                                   |
 | `finalBasicAttackHit`、团队范围      | derived | 当前配置与技能描述一致，仍需从同版本 SkillDataBundle 完整复核入口                                     |
 
-额外弹射明确排除当前目标。在 Endaxis 单敌人场景中，它不会增加当前目标伤害，因此只记录证据，不进入可执行定义。
+额外弹射明确排除当前目标。在 Endaxis 单敌人场景中，它不会增加当前目标伤害，因此不生成运行时动作，
+但以 `simulationNoEffect: uniqueEnemyHasNoAlternateTarget` 保留模型边界并计为完整转换。
 
 ## 终结技
 
