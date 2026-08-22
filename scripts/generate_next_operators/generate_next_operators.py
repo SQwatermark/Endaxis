@@ -489,7 +489,13 @@ def serialize_audit_value(value: Any) -> Any:
                 field.name: getattr(value, field.name)
                 for field in fields(value)
                 if not (
-                    field.name in {"intervalDamageHits", "comboQteActions", "pauseTimeActions"}
+                    field.name
+                    in {
+                        "intervalDamageHits",
+                        "comboQteActions",
+                        "pauseTimeActions",
+                        "healModifiers",
+                    }
                     and not getattr(value, field.name)
                 )
             }

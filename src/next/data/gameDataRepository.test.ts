@@ -18,6 +18,7 @@ import {
   perlica,
   pogranichnik,
   rossi,
+  snowshine,
   tangtang,
   yvonne,
   zhuangFangyi,
@@ -62,6 +63,7 @@ describe('gameDataRepository', () => {
       laevatain,
       mifu,
       yvonne,
+      snowshine,
     ]);
     expect(nextGameDataRepository.getOperator(perlica.slug)).toBe(perlica);
     expect(nextGameDataRepository.getOperator(arcane.slug)).toBe(arcane);
@@ -84,6 +86,7 @@ describe('gameDataRepository', () => {
     expect(nextGameDataRepository.getOperator(mifu.slug)).toBe(mifu);
     expect(nextGameDataRepository.getOperator(yvonne.slug)).toBe(yvonne);
     expect(nextGameDataRepository.getOperator(pogranichnik.slug)).toBe(pogranichnik);
+    expect(nextGameDataRepository.getOperator(snowshine.slug)).toBe(snowshine);
     expect(nextGameDataRepository.getOperator('missing')).toBeNull();
   });
 

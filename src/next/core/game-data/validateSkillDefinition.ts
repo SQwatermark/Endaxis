@@ -1147,8 +1147,14 @@ function validateCombatStep(
                     response.event !== 'enterFight' &&
                     response.event !== 'ownerHpZero' &&
                     response.event !== 'beforeTakeDamage' &&
+                    response.event !== 'beforeTakePhysicalInfliction' &&
+                    response.event !== 'beforeTakeSpellInfliction' &&
+                    response.event !== 'takeDamage' &&
                     response.event !== 'takeCriticalDamage' &&
                     response.event !== 'outputDamage' &&
+                    response.event !== 'outputHeal' &&
+                    response.event !== 'receiveHeal' &&
+                    response.event !== 'poiseZero' &&
                     response.event !== 'beforeCastSkill' &&
                     response.event !== 'skillEnd' &&
                     response.event !== 'beforeOutputBuff' &&

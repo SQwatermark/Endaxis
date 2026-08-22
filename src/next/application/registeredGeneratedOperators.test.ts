@@ -12,7 +12,9 @@ import {
   camille,
   ember,
   laevatain,
+  perlica,
   pogranichnik,
+  snowshine,
   yvonne,
   zhuangFangyi,
 } from '../data/operators';
@@ -614,5 +616,89 @@ describe('registered generated operators', () => {
         entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:zhuang-fangyi',
       ),
     ).toBe(true);
+  });
+
+  it('runs Snowshine combo ability entity and records full-health healing', () => {
+    const scenario = createEmptyScenario('scenario:snowshine:registered', '雪绒默认仓库回归');
+    scenario.battle.durationFrames = 150;
+    scenario.tracks[0] = {
+      id: 'track:snowshine',
+      operator: {
+        operatorSlug: snowshine.slug,
+        level: 90,
+        promoted: true,
+        potential: 5,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 2, 1: 2 },
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    scenario.tracks[1] = {
+      id: 'track:perlica',
+      operator: {
+        operatorSlug: perlica.slug,
+        level: 90,
+        promoted: true,
+        potential: 5,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 1, 1: 1 },
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    const placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: snowshine,
+      skillGroupKey: 'comboSkill',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:snowshine` },
+    }).scenario;
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      endFrame: 150,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+      elementalInflictionDocument: elementalAttachments,
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+          ultimateEnergySystemUnlocked: false,
+        },
+      },
+    });
+
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'AbilityEntitySpawned',
+        sourceId: 'track:snowshine',
+        data: expect.objectContaining({
+          abilityEntityId: 'abilityentity_chr_0014_aurora_combo_skill',
+        }),
+      }),
+    );
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'HealingApplied',
+        sourceId: 'track:snowshine',
+        targetId: 'track:perlica',
+        data: expect.objectContaining({ actualHealing: 0 }),
+      }),
+    );
   });
 });

@@ -110,7 +110,10 @@ describe('BuffDefinitionOperationTarget', () => {
   it('rejects an unknown identity instead of creating an empty definition', () => {
     const target = new BuffDefinitionOperationTarget(
       new CombatBuffContainer('operator', new CombatAttributeSet()),
-      { get: () => undefined },
+      {
+        get: () => undefined,
+        compile: entry => ({ id: entry.id, stackingType: entry.stackingType }),
+      },
     );
 
     expect(() =>
@@ -370,6 +373,63 @@ describe('BuffDefinitionOperationTarget', () => {
       }),
     ).toBe(true);
     expect(execute).toHaveBeenCalledOnce();
+  });
+
+  it('preserves the dormant character-side spell-infliction response as its own event', () => {
+    let handleInfliction: ((payload: unknown) => void) | undefined;
+    const execute = vi.fn(() => true);
+    const target = new BuffDefinitionOperationTarget(
+      new CombatBuffContainer('operator', new CombatAttributeSet()),
+      {
+        get: () => undefined,
+        compile: entry => ({ id: entry.id, stackingType: entry.stackingType }),
+      },
+      undefined,
+      (event, _priority, handle) => {
+        expect(event).toBe('beforeTakeSpellInfliction');
+        handleInfliction = handle;
+        return { dispose: vi.fn() };
+      },
+    );
+    target.configureLifecycleOperations(() => ({ execute, evaluate: () => true }));
+
+    expect(
+      target.apply({
+        buffId: 'spell-infliction-listener',
+        sourceId: 'operator',
+        blackboardValues: {},
+        definition: {
+          stackingType: 'unique',
+          abilityEventResponses: [
+            {
+              event: 'beforeTakeSpellInfliction',
+              priority: 0,
+              sequence: {
+                steps: [
+                  {
+                    kind: 'setContextFlag',
+                    parameters: { flag: 'inflicted', value: true, target: 'caster' },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      }),
+    ).toBe(true);
+
+    handleInfliction?.({ sourceId: 'enemy', targetId: 'operator' });
+    expect(execute).toHaveBeenCalledWith(
+      expect.objectContaining({ kind: 'setContextFlag' }),
+      expect.objectContaining({
+        event: {
+          kind: 'abilitySpellInfliction',
+          event: 'beforeTakeSpellInfliction',
+          sourceId: 'enemy',
+          targetId: 'operator',
+        },
+      }),
+    );
   });
 
   it('rejects configuring lifecycle operations more than once', () => {

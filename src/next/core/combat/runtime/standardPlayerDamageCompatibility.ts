@@ -195,7 +195,9 @@ function inspectSequence(
       case 'heal':
         if (
           !flags.operatorVitals ||
-          (step.parameters.target !== 'caster' && step.parameters.target !== 'buffSource')
+          (step.parameters.target !== 'caster' &&
+            step.parameters.target !== 'buffSource' &&
+            step.parameters.target !== 'buffOwner')
         ) {
           report(
             collect,

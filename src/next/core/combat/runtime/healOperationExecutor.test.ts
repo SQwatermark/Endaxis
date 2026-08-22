@@ -31,7 +31,7 @@ describe('HealOperationExecutor', () => {
       sourceOperatorId: 'operator:healer',
       clock: new CombatClock(),
       receipt,
-      resolveSourceAttribute: attribute => (attribute === 'will' ? 100 : 0),
+      resolveSourceAttribute: (_sourceId, attribute) => (attribute === 'will' ? 100 : 0),
       resolveTarget: () => ({ operatorId: 'operator:target', vitals: target }),
       delegate: terminal,
     });
@@ -111,7 +111,7 @@ describe('HealOperationExecutor', () => {
       sourceOperatorId: 'operator:healer',
       clock: new CombatClock(),
       receipt,
-      resolveSourceAttribute: attribute => (attribute === 'maxHealth' ? 1800 : 0),
+      resolveSourceAttribute: (_sourceId, attribute) => (attribute === 'maxHealth' ? 1800 : 0),
       resolveTarget: () => ({ operatorId: 'operator:target', vitals: target }),
       delegate: terminal,
     });
@@ -173,6 +173,81 @@ describe('HealOperationExecutor', () => {
 
     expect(reached).toEqual([['buffSource', 'operator:original-source']]);
     expect(target.health).toBe(900);
+  });
+
+  it('passes the current Buff owner identity to a buffOwner heal target', () => {
+    const target = vitals(800);
+    const reached: Array<[string, string | undefined, string | undefined]> = [];
+    const receipt = new CombatReceiptCollector();
+    const executor = new HealOperationExecutor({
+      sourceOperatorId: 'operator:runtime',
+      clock: new CombatClock(),
+      receipt,
+      resolveSourceAttribute: sourceId => (sourceId === 'operator:source' ? 100 : 1),
+      resolveTarget: (role, buffSourceId, buffOwnerId) => {
+        reached.push([role, buffSourceId, buffOwnerId]);
+        return { operatorId: buffOwnerId ?? '<missing>', vitals: target };
+      },
+      delegate: terminal,
+    });
+
+    executor.execute(
+      {
+        kind: 'heal',
+        parameters: {
+          target: 'buffOwner',
+          attribute: 'will',
+          multiplier: 1,
+          addition: 0,
+          alwaysNext: false,
+          tagIds: [],
+        },
+      },
+      {
+        blackboard: new ActionBlackboard(),
+        buffSourceId: 'operator:source',
+        buffOwnerId: 'operator:aura-recipient',
+      },
+    );
+
+    expect(reached).toEqual([['buffOwner', 'operator:source', 'operator:aura-recipient']]);
+    expect(target.health).toBe(900);
+    expect(receipt.entries[0]).toMatchObject({
+      sourceId: 'operator:source',
+      targetId: 'operator:aura-recipient',
+    });
+  });
+
+  it('applies both heal-modifier sides before writing the health ledger', () => {
+    const target = vitals(700);
+    const stages: string[] = [];
+    const executor = new HealOperationExecutor({
+      sourceOperatorId: 'operator:healer',
+      clock: new CombatClock(),
+      receipt: new CombatReceiptCollector(),
+      resolveSourceAttribute: () => 100,
+      resolveTarget: () => ({ operatorId: 'operator:target', vitals: target }),
+      applyHealModifiers: (_timing, side, context) => {
+        stages.push(side);
+        context.value *= side === 'healer' ? 1.1 : 1.2;
+      },
+      delegate: terminal,
+    });
+
+    executor.execute({
+      kind: 'heal',
+      parameters: {
+        target: 'caster',
+        attribute: 'will',
+        multiplier: 1,
+        addition: 0,
+        alwaysNext: true,
+        tagIds: [],
+      },
+    });
+
+    expect(stages).toEqual(['healer', 'receiver']);
+    expect(target.health).toBeCloseTo(832);
   });
 
   it('applies a definite blackboard amount without reading an attribute', () => {

@@ -607,6 +607,17 @@ def compile_conditional_branch_action(
         target_role: str | None = None
         if (
             current_buff_environment
+            and buff_owner_target is not None
+            and heal.target.targetSource == "Owner"
+            and not heal.target.targetGroupKey
+            and heal.target.finderType is None
+            and not heal.target.validatorTypes
+            and not heal.target.postProcessorTypes
+        ):
+            # Buff Owner 是每个实例的实际宿主；集合 Aura 不能静态折叠为施法者。
+            target_role = "buffOwner"
+        elif (
+            current_buff_environment
             and heal.target.targetSource == "Source"
             and not heal.target.targetGroupKey
             and heal.target.finderType is None

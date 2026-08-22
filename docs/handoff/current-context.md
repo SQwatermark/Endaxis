@@ -15,7 +15,7 @@
 
 - 当前台式机仓库：`D:\Projects\Endaxis`（本文其他位置所称“远程”即当前环境）
 - 当前工作分支：`codex/time-dilation-curve-editor`（后续整合目标仍为 `feature/next`）。
-- 本轮开发前的 HEAD：`db1a7b70 feat(next): refresh complete operator generation`；实际 HEAD 始终以 `git log` 为准。
+- 本轮开发前的 HEAD：`aba563b4 fix(next): project hits for replacement skills`；实际 HEAD 始终以 `git log` 为准。
 - `tmp/` 是未跟踪临时目录，绝对不要提交。
 - 工作树可能含用户改动；始终先运行 `git status --short`，不要重置或回退不属于当前任务的内容。
 
@@ -73,6 +73,14 @@ step('spawnAbilityEntity', {
 - `type-check:next`、默认定义严格校验、三语言资源与组件接线测试已覆盖。默认 Next 项目第二轨放置并选中 Arclight 终结技，直接引用当前生成定义；其 5 秒能力实体包含局部第 7、63 帧两段真实子时间线，可直接进入“编辑逻辑”验收。此前零倍率终结技造成的时间线停滞已经修复；当前真实阻塞改为 `Pulse` 法术爆发缺少原生 `SkillSetting` / `spellInflictionSettings` 数据，现有本地 AKEDB 与版本化证据均没有可注入内容，不能猜造。
 
 ## 4. 本轮已经完成
+
+### 雪绒治疗链与治疗修正闭环（2026-08-22）
+
+- 雪绒 `chr_0014_aurora` 的 8 个 SkillData 已严格生成并注册为 `conversionSupport: complete`。正式双轨场景覆盖连携能力实体、Aura 向队友施加内联 Buff、Buff 宿主治疗和满血治疗回执。
+- Buff 生命周期中的原生 `HealAction TargetSource.Owner` 现在明确编译为 `buffOwner`。Buff 在接受者容器内执行时，治疗来源、四维属性和治疗者侧修正仍取 Buff 的原始来源，不能误归因给接受者；接受者侧修正则读取真实治疗目标的 Buff 容器。
+- 已从雪绒天赋 Buff 数据和本机 `GameAssembly.dll` 1.4.4 静态反汇编恢复 `ModifyHealCalcResult`：处理时点为 `AfterCalculation`，最终治疗值乘以 `1 + baseMultiplier * multiplierCount`。Next 已接入 healer/receiver 两侧注册生命周期、目标生命比例与 Buff 黑板条件、严格定义编译和回归测试。
+- 复刻库 `D:\Projects\combat-spec` 已先行补齐同一机制并提交 `9b782df feat: model heal calculation modifiers`。定向测试通过；其全量测试仅因本地仓库缺少既有 artifacts 目录产生 17 个环境性失败，1092 项通过。
+- 角色承受元素积蓄前事件已新增独立 `beforeTakeSpellInfliction` 语义。它不会由玩家攻击木桩的现有元素积蓄路径伪造触发；在永久木桩边界下保持休眠，直到外部受击事实或其他有证据的正常入口产生该角色侧事件。
 
 ### 卡缪变身战技的跨组路由替换闭环（2026-08-22）
 
@@ -171,11 +179,11 @@ step('spawnAbilityEntity', {
 
 当前验证结果：
 
-- Python 生成器规则测试最近基线：327 项通过；敌人 rank 提取器测试：2 项通过；能力实体提取器测试：2 项通过；
+- Python 生成器规则测试最近基线：434 项通过；敌人 rank 提取器测试：2 项通过；能力实体提取器测试：2 项通过；
 - 桌面已从 AKEDB 下载当前 `1.4.4@9433094-12` 五张 TableCfg，以及 2026-08-15 `sharedRevision` 公开清单中的 2459 个 SkillData、2678 个 BuffData；两者与 manifest `latest` 配对。当前严格全量审计基线为 30 名、320 个入口、317 个可解析、281 个可编译，零专用声明直转 11 名。诀（`arcane`）已作为 `outputStage: audit` 的 11 技能样本生成三份审计产物，但尚未生成或注册正式 `OperatorDefinition`。`seal_total -> seal/listener -> 隐藏结束技能` 的 Buff 所有权、事件响应和本地时间线已经闭环；当前无敌方主动行为模型中 `InterruptAction` 归约为不阻断后续动作的零效果。`EntityBB_wisd_greater_will` 面板桥也已由基础被动自动生成并接入共享实体黑板。两个原生终结技入口的稳定身份也已有严格证据：首段 Buff 把 `UltimateSkill` 换成二段，二段第 0 帧换回首段；诀在 manifest 明确声明 `arcana` 为运行时替换形态后，生成器才把闭环关系渲染为双向 `changeSkillSlot` 并在正式技能组使用 `replacementSkills`。普通/强化技能默认仍是可直接拖放的独立稳定技能组，不能从原生换技动作自动推断为不可放置形态。当前诀的干员级阻塞转为形态展示、形态感知连携注册与天赋潜能对照。
 - `npm.cmd run type-check:next`：通过；
 - 能力实体模板、目录、操作执行器和场景装配聚焦测试通过；新增步骤引起的庄方宜契约与三语言帮助文本回归已覆盖。
-- 本文更新前 `npm run type-check:next` 通过；Next 全量 Vitest 为 178 个文件、1126 项全部通过。新增回归覆盖对象局部时间推导的技能实际宽度与命中点、块外延迟命中、命中详情稳定身份与旧版式结构、未决宽度判定、零宽展示技能边界、时间膨胀实际区间裁剪，以及既有 Buff、资源、状态、能力实体和干员转换链。
+- 本文更新前 `npm run type-check:next` 通过；Next 全量 Vitest 为 201 个文件、1361 项全部通过，生成器全目录 `--check` 通过。新增回归覆盖雪绒能力实体 Aura、Buff 来源/宿主分离、满血治疗回执、治疗修正注册生命周期，以及既有 Buff、资源、状态、能力实体和干员转换链。
 - 全仓 `npm test -- --run`：249 个文件中 244 个、1536 项中 1528 项通过。8 项失败均位于旧版：`TimelineEditor.structure` 3 项、`SimLogPanel.structure` 1 项、`statusOptions` 1 项、`patchSkillLeveledCap` 2 项、`simulator` 1 项；本轮没有为通过这些断言而修改旧版代码。Next 全量通过不能替代这条全仓结论。
 
 测试数量只代表既有断言通过，不代表所有游戏机制已经得到证明。

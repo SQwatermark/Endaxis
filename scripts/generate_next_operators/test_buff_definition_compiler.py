@@ -38,6 +38,7 @@ def definition(**overrides):
         "extendTagIds": (),
         "attributeModifiers": (),
         "damageModifiers": (),
+        "healModifiers": (),
         "directDamageHits": (),
         "inflictions": (),
         "conditionalActions": (),
@@ -65,6 +66,32 @@ def definition(**overrides):
 
 
 class BuffDefinitionCompilerTests(unittest.TestCase):
+    def test_compiles_conditional_healer_result_multiplier(self) -> None:
+        source = definition(
+            healModifiers=(
+                SimpleNamespace(
+                    enabledSide="Healer",
+                    targetHealthComparison=SimpleNamespace(
+                        targetSource="Target",
+                        targetGroupKey="",
+                        comparison="LE",
+                        isRatio=True,
+                        value=scalar(0.5, "rate"),
+                    ),
+                    baseMultiplier=scalar(0.1, "heal_up"),
+                    multiplierCount=scalar(1),
+                ),
+            ),
+        )
+
+        compiled = compile_inline_buff_definition(source, "skill.buff")
+
+        self.assertIn("healModifiers: [", compiled)
+        self.assertIn("enabledSide: 'healer'", compiled)
+        self.assertIn("kind: 'targetHealthCompare'", compiled)
+        self.assertIn("operator: 'lessOrEqual'", compiled)
+        self.assertIn("blackboardKey: 'heal_up'", compiled)
+
     def test_ignores_strictly_presentation_only_stack_effects(self) -> None:
         lifecycle = vars(definition().lifecycle) | {
             "hasStackEffects": True,

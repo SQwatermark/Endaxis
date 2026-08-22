@@ -28,6 +28,7 @@ from source_models import (
     BuffDamageNumberComparisonSource,
     BuffDamageScaleProcessorSource,
     BuffDamageTagConditionSource,
+    BuffHealModifierSource,
     BuffInstantAttributeProcessorSource,
     BuffDefinitionSource,
     BuffLifecycleSource,
@@ -1004,9 +1005,76 @@ def parse_buff_start_vulnerability(
 
 UNPARSED_BUFF_PAYLOAD_FIELDS = (
     "globalModifier",
-    "healModifier",
     "poiseModifier",
 )
+
+
+def parse_buff_heal_modifiers(
+    buff: dict[str, Any], source_name: str, blackboard: Mapping[str, tuple[float, ...]]
+) -> tuple[BuffHealModifierSource, ...]:
+    result: list[BuffHealModifierSource] = []
+    raw_modifiers = require_list(buff.get("healModifier", []), f"{source_name}.healModifier")
+    for index, raw_modifier in enumerate(raw_modifiers):
+        path = f"{source_name}.healModifier[{index}]"
+        modifier = require_dict(raw_modifier, path)
+        processors = require_list(modifier.get("healProcessors"), f"{path}.healProcessors")
+        if len(processors) != 1:
+            raise ValueError(f"{path}.healProcessors: expected exactly one processor")
+        processor = require_dict(processors[0], f"{path}.healProcessors[0]")
+        if (
+            processor.get("$type")
+            != "Beyond.Gameplay.Core.ModifyHealCalcResult, Gameplay.Beyond"
+            or processor.get("modifyType") != "Multiply"
+        ):
+            raise ValueError(f"{path}.healProcessors[0]: unsupported heal processor")
+        condition_root = require_dict(modifier.get("condition"), f"{path}.condition")
+        actions = require_list(condition_root.get("actionData"), f"{path}.condition.actionData")
+        enabled_actions = [
+            require_dict(item, f"{path}.condition.actionData[{action_index}]")
+            for action_index, item in enumerate(actions)
+            if require_dict(item, f"{path}.condition.actionData[{action_index}]").get("isEnable")
+            is True
+        ]
+        condition: HealthConditionSource | None = None
+        if enabled_actions:
+            if len(enabled_actions) != 1:
+                raise ValueError(f"{path}.condition.actionData: expected one enabled condition")
+            action = enabled_actions[0]
+            if action_name(str(action.get("$type"))) != "CheckHp":
+                raise ValueError(f"{path}.condition.actionData[0]: unsupported heal condition")
+            target = parse_target_reference(
+                action.get("hpOwner"), f"{path}.condition.actionData[0].hpOwner"
+            )
+            condition = HealthConditionSource(
+                targetSource=target.targetSource,
+                targetGroupKey=target.targetGroupKey,
+                comparison=str(action.get("compare")),
+                isRatio=require_bool(
+                    action.get("isRatio"), f"{path}.condition.actionData[0].isRatio"
+                ),
+                value=parse_scalar(
+                    action.get("value"),
+                    f"{path}.condition.actionData[0].value",
+                    blackboard,
+                ),
+            )
+        result.append(
+            BuffHealModifierSource(
+                enabledSide=str(modifier.get("enableSide")),
+                targetHealthComparison=condition,
+                baseMultiplier=parse_scalar(
+                    processor.get("baseMultiplier"),
+                    f"{path}.healProcessors[0].baseMultiplier",
+                    blackboard,
+                ),
+                multiplierCount=parse_scalar(
+                    processor.get("multiplierCnt"),
+                    f"{path}.healProcessors[0].multiplierCnt",
+                    blackboard,
+                ),
+            )
+        )
+    return tuple(result)
 
 
 def collect_unparsed_buff_payloads(
@@ -1435,6 +1503,7 @@ def resolve_buff_definitions(
                 buff, source_file, blackboard
             ),
             damageModifiers=damage_modifiers,
+            healModifiers=parse_buff_heal_modifiers(buff, source_file, blackboard),
             directDamageHits=parse_direct_damage_hits(adapted_root, source_file, blackboard),
             intervalDamageHits=parse_interval_damage_hits(
                 adapted_root, source_file, blackboard

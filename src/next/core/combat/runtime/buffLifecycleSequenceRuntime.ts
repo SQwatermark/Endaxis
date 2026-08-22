@@ -27,6 +27,7 @@ import type { AbilityEventRegistration } from '../events/abilityEventDispatcher'
 import type {
   CombatAbilityDamageEvent,
   CombatAbilityPhysicalInflictionEvent,
+  CombatAbilitySpellInflictionEvent,
   CombatAbilityHealEvent,
   CombatAbilityPoiseEvent,
   CombatAbilityLifecycleEvent,
@@ -484,6 +485,7 @@ function normalizeBuffAbilityEvent(
   | CombatSemanticEvent
   | CombatAbilityDamageEvent
   | CombatAbilityPhysicalInflictionEvent
+  | CombatAbilitySpellInflictionEvent
   | CombatAbilityPoiseEvent
   | CombatAbilityHealEvent
   | CombatAbilitySkillEvent
@@ -506,6 +508,14 @@ function normalizeBuffAbilityEvent(
   if (event === 'beforeTakePhysicalInfliction') {
     return {
       kind: 'abilityPhysicalInfliction',
+      event,
+      sourceId: source.sourceId,
+      targetId: source.targetId,
+    };
+  }
+  if (event === 'beforeTakeSpellInfliction') {
+    return {
+      kind: 'abilitySpellInfliction',
       event,
       sourceId: source.sourceId,
       targetId: source.targetId,

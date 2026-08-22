@@ -568,6 +568,7 @@ class BuffDefinitionSource:
     resourceGains: tuple[TimedResourceGainSource, ...]
     combatActions: tuple[str, ...]
     unparsedPayloads: tuple["UnparsedBuffPayloadSource", ...]
+    healModifiers: tuple["BuffHealModifierSource", ...] = ()
     auraActions: tuple["AuraActionSource", ...] = ()
     abilityEntityHits: tuple[AbilityEntityHitSource, ...] = ()
     invokedAbilityEntitySkills: tuple[AbilityEntityHitSource, ...] = ()
@@ -763,6 +764,14 @@ class BuffDamageModifierSource:
     numberComparisons: tuple[BuffDamageNumberComparisonSource, ...] = ()
     healthComparisons: tuple["HealthConditionSource", ...] = ()
     buffCountComparisons: tuple[BuffDamageBuffCountConditionSource, ...] = ()
+
+
+@dataclass(frozen=True)
+class BuffHealModifierSource:
+    enabledSide: str
+    targetHealthComparison: "HealthConditionSource | None"
+    baseMultiplier: ScalarSource
+    multiplierCount: ScalarSource
 
 
 @dataclass(frozen=True)

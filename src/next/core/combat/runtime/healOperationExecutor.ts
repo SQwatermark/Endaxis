@@ -7,6 +7,11 @@ import type { CombatClock } from './combatClock';
 import type { CombatVitals } from './combatVitals';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import type { CombatAbilityHealEvent } from './skillRuntime';
+import {
+  HealCalculationContext,
+  type HealModifierSide,
+  type HealProcessTiming,
+} from '../heal/healModifiers';
 
 type HealStep = Extract<ResolvedCombatOperationStep, { kind: 'heal' }>;
 
@@ -19,8 +24,20 @@ export interface HealOperationDependencies {
   readonly sourceOperatorId: string;
   readonly clock: CombatClock;
   readonly receipt: CombatReceiptSink;
-  readonly resolveSourceAttribute: (attribute: HealCalculationAttribute) => number;
-  readonly resolveTarget: (target: HealTarget, buffSourceId?: string) => ResolvedHealTarget;
+  readonly resolveSourceAttribute: (
+    sourceOperatorId: string,
+    attribute: HealCalculationAttribute,
+  ) => number;
+  readonly resolveTarget: (
+    target: HealTarget,
+    buffSourceId?: string,
+    buffOwnerId?: string,
+  ) => ResolvedHealTarget;
+  readonly applyHealModifiers?: (
+    timing: HealProcessTiming,
+    side: HealModifierSide,
+    context: HealCalculationContext,
+  ) => void;
   /** 原生 Modifier 成功后固定先 output、再 receive；满血治疗也必须调用。 */
   readonly emitSuccessfulHeal?: (event: CombatAbilityHealEvent) => void;
   readonly delegate: CombatOperationExecutor;
@@ -31,7 +48,14 @@ export class HealOperationExecutor implements CombatOperationExecutor {
 
   execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean {
     if (step.kind !== 'heal') return this.dependencies.delegate.execute(step, context);
-    const target = this.dependencies.resolveTarget(step.parameters.target, context?.buffSourceId);
+    const target = this.dependencies.resolveTarget(
+      step.parameters.target,
+      context?.buffSourceId,
+      context?.buffOwnerId,
+    );
+    // Buff 生命周期运行在宿主的执行器上，但治疗者仍是创建该 Buff 的来源。
+    // 直接技能没有 Buff 上下文，继续使用当前技能所属干员。
+    const sourceOperatorId = context?.buffSourceId ?? this.dependencies.sourceOperatorId;
     const definiteAmount = step.parameters.amount;
     const attribute = definiteAmount === undefined ? step.parameters.attribute : undefined;
     const multiplier =
@@ -43,14 +67,24 @@ export class HealOperationExecutor implements CombatOperationExecutor {
         ? this.#resolveValue(step.parameters.addition, context, step)
         : this.#resolveValue(definiteAmount, context, step);
     const attributeValue =
-      attribute === undefined ? 0 : this.dependencies.resolveSourceAttribute(attribute);
-    const requested = Math.max(0, Math.fround(Math.fround(attributeValue * multiplier) + addition));
+      attribute === undefined
+        ? 0
+        : this.dependencies.resolveSourceAttribute(sourceOperatorId, attribute);
+    const calculation = new HealCalculationContext(
+      sourceOperatorId,
+      target.operatorId,
+      target.vitals,
+      Math.fround(Math.fround(attributeValue * multiplier) + addition),
+    );
+    this.dependencies.applyHealModifiers?.('afterCalculation', 'healer', calculation);
+    this.dependencies.applyHealModifiers?.('afterCalculation', 'receiver', calculation);
+    const requested = Math.max(0, calculation.value);
     const result = target.vitals.heal(requested);
     this.dependencies.receipt.record({
       frame: this.dependencies.clock.frame,
       time: this.dependencies.clock.time,
       event: 'HealingApplied',
-      sourceId: this.dependencies.sourceOperatorId,
+      sourceId: sourceOperatorId,
       targetId: target.operatorId,
       data: {
         attribute: attribute ?? 'definite',
@@ -67,7 +101,7 @@ export class HealOperationExecutor implements CombatOperationExecutor {
     });
     const eventBase = {
       kind: 'abilityHeal' as const,
-      sourceId: this.dependencies.sourceOperatorId,
+      sourceId: sourceOperatorId,
       targetId: target.operatorId,
       requestedHealing: result.requestedHealing,
       actualHealing: result.actualHealing,

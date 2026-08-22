@@ -26,6 +26,7 @@ import {
   mifu,
   pogranichnik,
   rossi,
+  snowshine,
   tangtang,
   yvonne,
   zhuangFangyi,
@@ -50,6 +51,7 @@ const generatedOperators: readonly [OperatorDefinition, number][] = [
   [yvonne, 16],
   [zhuangFangyi, 13],
   [pogranichnik, 10],
+  [snowshine, 8],
 ];
 
 function hasUpgradeBehavior(

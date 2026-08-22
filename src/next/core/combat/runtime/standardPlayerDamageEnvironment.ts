@@ -58,6 +58,7 @@ import { HealOperationExecutor, type ResolvedHealTarget } from './healOperationE
 import { compareCombatNumbers } from './numericComparison';
 import type { RegisterBuffAbilityEventAction } from './buffLifecycleSequenceRuntime';
 import type { CombatResources } from './combatResources';
+import type { HealModifierSide } from '../heal/healModifiers';
 
 type DamageStep = Extract<ResolvedCombatStep, { kind: 'dealDamage' | 'dealFixedDamage' }>;
 type EnvironmentOptions = Pick<
@@ -84,6 +85,7 @@ export type StandardPlayerDamageEvent =
   | 'beforeCalculateDamage'
   | 'beforeTakeDamage'
   | 'beforeTakePhysicalInfliction'
+  | 'beforeTakeSpellInfliction'
   | 'beforeOutputDamage'
   | 'beforeKillEntity'
   | 'afterKillEntity'
@@ -359,24 +361,25 @@ export class StandardPlayerDamageEnvironment {
       sourceOperatorId: context.program.operatorId,
       clock: context.clock,
       receipt: context.receipt,
-      resolveSourceAttribute: attribute => {
-        if (attribute === 'maxHealth') {
-          return this.#requireOperatorVitals(context.program.operatorId).maxHealth;
-        }
-        if (context.panel === undefined) {
-          throw new Error(
-            `operator '${context.program.operatorId}' requires a resolved panel for healing`,
-          );
-        }
-        return context.panel.attributes[attribute];
-      },
-      resolveTarget: (target, buffSourceId) =>
+      resolveSourceAttribute: (sourceOperatorId, attribute) =>
+        this.#readSourceAttributeValue(sourceOperatorId, {
+          attribute: { kind: 'specific', key: attribute },
+          stage: 'finalNonConverted',
+        }),
+      resolveTarget: (target, buffSourceId, buffOwnerId) =>
         this.#resolveHealTarget(
           target,
           context.program.operatorId,
           context.clock.frame,
           buffSourceId,
+          buffOwnerId,
         ),
+      applyHealModifiers: (timing, side, healContext) =>
+        this.#healBuffContainer(
+          side,
+          healContext.healerId,
+          healContext.receiverId,
+        ).applyHealModifiers(timing, side, healContext),
       emitSuccessfulHeal: event => {
         if (event.event === 'outputHeal') {
           this.#emit(event.sourceId, event.event, event);
@@ -538,6 +541,7 @@ export class StandardPlayerDamageEnvironment {
     sourceOperatorId: string,
     frame: number,
     buffSourceId?: string,
+    buffOwnerId?: string,
   ): ResolvedHealTarget {
     if (target === 'buffSource') {
       if (buffSourceId === undefined) {
@@ -546,6 +550,15 @@ export class StandardPlayerDamageEnvironment {
       return {
         operatorId: buffSourceId,
         vitals: this.#requireOperatorVitals(buffSourceId),
+      };
+    }
+    if (target === 'buffOwner') {
+      if (buffOwnerId === undefined) {
+        throw new Error("heal target 'buffOwner' requires a Buff lifecycle owner");
+      }
+      return {
+        operatorId: buffOwnerId,
+        vitals: this.#requireOperatorVitals(buffOwnerId),
       };
     }
     if (target === 'caster') {
@@ -828,6 +841,15 @@ export class StandardPlayerDamageEnvironment {
     operatorBuffs: CombatBuffContainer<string>,
   ): CombatBuffContainer<string> {
     return side === 'attacker' ? operatorBuffs : this.#enemyBuffs;
+  }
+
+  #healBuffContainer(
+    side: HealModifierSide,
+    healerId: string,
+    receiverId: string,
+  ): CombatBuffContainer<string> {
+    const operatorId = side === 'healer' ? healerId : receiverId;
+    return this.#operatorBuffRuntime(operatorId, this.#operatorPanels.get(operatorId)).container;
   }
 
   #emit(entityId: string, event: StandardPlayerDamageEvent, payload: unknown): void {

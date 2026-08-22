@@ -1143,4 +1143,149 @@ export const generatedCommonBuffDefinitions = {
       ),
     },
   },
+  'buff_common_do_frozen': {
+    stackingType: 'stack',
+    priority: 0,
+    maxStackCount: 1,
+    durationSeconds: { blackboardKey: 'duration' },
+    applyTagIds: [-717418722, 889346577],
+    blackboard: {
+      'duration': 9999,
+    },
+    lifecycleSequences: {
+      enable: sequence(
+        step('startTimeDilation', {
+          scope: 'entity',
+          durationSeconds: { kind: 'blackboard', key: 'duration' },
+          slot: -1855252810,
+          priority: 50,
+          curve: { kind: 'inline', keys: [{ time: 0, value: 0, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0.333333343 }, { time: 1, value: 0, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0.333333343, outWeight: 0 }] },
+          finishByAction: true,
+          targets: ['caster'],
+        }),
+      ),
+    },
+  },
+  'buff_common_frozen': {
+    stackingType: 'stack',
+    priority: 0,
+    maxStackCount: 1,
+    durationSeconds: { blackboardKey: 'duration' },
+    blackboard: {
+      'duration': 9999,
+    },
+    lifecycleSequences: {
+      enable: sequence(
+        step('applyBuff', {
+          buffId: 'buff_common_do_frozen',
+          target: 'enemy',
+          inheritSourceSkillCastInfo: true,
+          blackboardAssignments: {
+            'duration': { kind: 'blackboard', key: 'duration' },
+          },
+        }),
+      ),
+    },
+  },
+  'buff_common_cryst_triggered_start': {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 1,
+    durationSeconds: 3,
+    triggerIntervalSeconds: 0,
+    waitFirstTriggerInterval: false,
+    maxTriggerCount: 1,
+  },
+  'buff_common_cryst_triggered_fx': {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 0,
+    durationSeconds: 5,
+    triggerIntervalSeconds: 0,
+    waitFirstTriggerInterval: true,
+    maxTriggerCount: 1,
+  },
+  'buff_common_cryst_cryst_frozen_triggered_do': {
+    stackingType: 'stack',
+    stackingKey: 'cryst_triggered',
+    priority: 0,
+    maxStackCount: 1,
+    durationSeconds: { blackboardKey: 'duration' },
+    triggerIntervalSeconds: 1,
+    waitFirstTriggerInterval: true,
+    maxTriggerCount: 1,
+    applyTagIds: [1535684437],
+    blackboard: {
+      'count': 1,
+      'duration': 5,
+      'final_phy_dmg_up': 0,
+      'phy_dmg_up': 0.2,
+    },
+    lifecycleSequences: {
+      enable: sequence(
+        step('applyBuff', {
+          buffId: 'buff_common_frozen',
+          target: 'enemy',
+          inheritSourceSkillCastInfo: true,
+          blackboardAssignments: {
+            'duration': { kind: 'blackboard', key: 'duration' },
+          },
+        }),
+      ),
+      start: sequence(
+        step('applyBuff', {
+          buffId: 'buff_common_cryst_triggered_start',
+          target: 'enemy',
+          inheritSourceSkillCastInfo: true,
+        }),
+        step('storeSourceAttributeValue', {
+          attribute: { kind: 'specific', key: 'cryoAbnormalDamageIncrease' },
+          stage: 'finalNonConverted',
+          useFloor: false,
+          divisor: { kind: 'constant', value: 1 },
+          multiplier: { kind: 'blackboard', key: 'phy_dmg_up' },
+          base: { kind: 'blackboard', key: 'phy_dmg_up' },
+          targetKey: 'final_phy_dmg_up',
+        }),
+        step('applyBuff', {
+          buffId: 'buff_common_cryst_triggered_fx',
+          target: 'enemy',
+          inheritSourceSkillCastInfo: true,
+        }),
+      ),
+    },
+  },
+  'buff_common_cryst_cryst_frozen_triggered': {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 1,
+    durationSeconds: 3,
+    blackboard: {
+      'consumed_layer': 0,
+      'consumed_type': 2,
+      'count': 1,
+      'duration': 0,
+      'extra_duration': 0,
+    },
+    lifecycleSequences: {
+      start: sequence(
+        step('modifyActionValue', {
+          key: 'duration',
+          operation: 'add',
+          value: { kind: 'blackboard', key: 'extra_duration' },
+        }),
+        step('applyBuff', {
+          buffId: 'buff_common_cryst_cryst_frozen_triggered_do',
+          target: 'enemy',
+          inheritSourceSkillCastInfo: true,
+          blackboardAssignments: {
+            'count': { kind: 'blackboard', key: 'count' },
+            'duration': { kind: 'blackboard', key: 'duration' },
+            'consumed_type': { kind: 'blackboard', key: 'consumed_type' },
+            'consumed_layer': { kind: 'blackboard', key: 'consumed_layer' },
+          },
+        }),
+      ),
+    },
+  },
 } satisfies OperatorBuffDefinitions;

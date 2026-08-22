@@ -210,6 +210,7 @@ from buff_definition_parser import (
     parse_buff_pause_time_actions,
     parse_buff_shields,
     parse_buff_sustained_protections,
+    parse_buff_heal_modifiers,
 )
 from resolved_sequence_compiler import (
     ability_entity_child_is_inert,
@@ -2632,6 +2633,59 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
         self.assertIn("target: 'controlledOperator'", source_selector_compiled)
 
+    def test_buff_heal_modifier_preserves_target_health_gate_and_blackboard_formula(self) -> None:
+        buff = {
+            "healModifier": [
+                {
+                    "enableSide": "Healer",
+                    "condition": {
+                        "actionData": [
+                            {
+                                "$type": "Beyond.Gameplay.Core.Conditions.CheckHp+Data, Gameplay.Beyond",
+                                "isEnable": True,
+                                "hpOwner": target_settings_fixture("Target"),
+                                "compare": "LE",
+                                "isRatio": True,
+                                "value": {
+                                    "useBlackboardKey": True,
+                                    "value": 0.5,
+                                    "blackboardKey": "rate",
+                                },
+                            }
+                        ]
+                    },
+                    "healProcessors": [
+                        {
+                            "$type": "Beyond.Gameplay.Core.ModifyHealCalcResult, Gameplay.Beyond",
+                            "modifyType": "Multiply",
+                            "baseMultiplier": {
+                                "useBlackboardKey": True,
+                                "value": 0.0,
+                                "blackboardKey": "heal_up",
+                            },
+                            "multiplierCnt": {
+                                "useBlackboardKey": False,
+                                "value": 1.0,
+                                "blackboardKey": "",
+                            },
+                        }
+                    ],
+                }
+            ]
+        }
+
+        (modifier,) = parse_buff_heal_modifiers(
+            buff,
+            "fixture",
+            {"rate": (0.5,), "heal_up": (0.1,)},
+        )
+
+        self.assertEqual(modifier.enabledSide, "Healer")
+        self.assertEqual(modifier.targetHealthComparison.targetSource, "Target")
+        self.assertEqual(modifier.targetHealthComparison.comparison, "LE")
+        self.assertEqual(modifier.baseMultiplier.blackboardKey, "heal_up")
+        self.assertEqual(modifier.multiplierCount.value, 1.0)
+
     def test_heal_payload_compiles_definite_blackboard_value(self) -> None:
         action = {
             "$type": "Example.HealAction+Data, Example",
@@ -2676,6 +2730,49 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("target: 'controlledOperator'", compiled)
         self.assertIn("amount: { kind: 'blackboard', key: 'final_heal_value' }", compiled)
         self.assertNotIn("attribute:", compiled)
+
+    def test_buff_owner_heal_keeps_the_runtime_instance_owner(self) -> None:
+        action = {
+            "$type": "Example.HealAction+Data, Example",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 7,
+            "alwaysNext": True,
+            "healType": "Normal",
+            "healer": "ActionSource",
+            "contextKey": "",
+            "target": target_settings_fixture("Owner"),
+            "healCalculation": {
+                "$type": "Example.DefiniteValueCalculation, Example",
+                "value": {
+                    "useBlackboardKey": False,
+                    "value": 10,
+                    "blackboardKey": "",
+                },
+                "applyScale": False,
+                "valueScale": {
+                    "useBlackboardKey": False,
+                    "value": 0,
+                    "blackboardKey": "",
+                },
+            },
+            "showHealText": True,
+            "playHealEffect": True,
+            "effectData": {},
+            "onlyPlayEffectOnActualHeal": False,
+            "useHealTags": False,
+            "healTags": {"predefinedTag": []},
+        }
+        payload = parse_heal_payload(action, "fixture.heal", {})
+        compiled = compile_conditional_branch_action(
+            ConditionalBranchActionSource("HealAction", 0, heal=payload),
+            "fixture.heal",
+            current_buff_environment=True,
+            buff_owner_target="caster",
+        )
+
+        self.assertIn("target: 'buffOwner'", compiled)
 
     def test_legacy_buff_finish_compiles_in_root_skill_context(self) -> None:
         source = parse_target_reference(target_settings_fixture("Source"), "fixture.source")
@@ -15419,6 +15516,51 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertIn("event: 'takeDamage'", compiled)
         self.assertNotIn("event: 'beforeTakeDamage'", compiled)
+
+    def test_character_before_take_spell_infliction_stays_a_defensive_event(self) -> None:
+        finish = ConditionalBranchActionSource(
+            actionType="FinishBuffAdvanced",
+            actionIndex=0,
+            buffFinish=BuffFinishPayload(
+                targetSource="Owner",
+                targetGroupKey="",
+                buffCheckType="Environment",
+                buffIds=(),
+                tagQueryType="hasAny",
+                buffTagIds=(),
+                finishAll=True,
+                limitSource=False,
+                isFinishedEarly=True,
+                isAbsorbed=False,
+            ),
+        )
+        event = SimpleNamespace(
+            eventSource="ability",
+            event="OnCharBeforeTakeSpellInfliction",
+            damageUnits=(),
+            sequences=(
+                SkillEventActionSequenceSource(
+                    onlyMainOperator=False,
+                    onlyGuard=False,
+                    orderedActionTypes=("FinishBuffAdvanced",),
+                    combatActions=(),
+                    buffApplications=(),
+                    actions=(finish,),
+                    priority=0,
+                ),
+            ),
+        )
+        source = SimpleNamespace(buffId="listener", blackboard=(), eventActions=(event,))
+
+        compiled = compile_inline_buff_event_responses(
+            source,
+            "listener.eventActions",
+            buff_owner_target="caster",
+            buff_definitions={},
+        )
+
+        self.assertIn("event: 'beforeTakeSpellInfliction'", compiled)
+        self.assertNotIn("event: 'beforeTakeInfliction'", compiled)
 
     def test_buff_start_damage_compiles_as_a_lifecycle_sequence(self) -> None:
         damage = DamageUnitSource(

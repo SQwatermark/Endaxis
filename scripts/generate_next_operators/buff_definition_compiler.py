@@ -199,6 +199,7 @@ def is_strictly_presentation_only_buff(source: BuffDefinitionSource) -> bool:
             source.extendTagIds,
             source.attributeModifiers,
             source.damageModifiers,
+            getattr(source, "healModifiers", ()),
             source.directDamageHits,
             source.inflictions,
             source.conditionalActions,
@@ -565,6 +566,49 @@ def compile_inline_buff_definition(
                     ]
                 )
             fields.extend(["    ],", "  },"])
+        fields.append("],")
+    if getattr(source, "healModifiers", ()):
+        fields.append("healModifiers: [")
+        for modifier in source.healModifiers:
+            side = {"Healer": "healer", "HealReceiver": "receiver"}.get(
+                modifier.enabledSide
+            )
+            if side is None:
+                raise ValueError(
+                    f"{path}: Buff {source.buffId!r} uses unsupported heal side "
+                    f"{modifier.enabledSide!r}"
+                )
+            fields.extend(["  {", f"    enabledSide: {ts_inline_literal(side)},"])
+            condition = modifier.targetHealthComparison
+            if condition is not None:
+                operator = COMPARISON_OPERATORS.get(condition.comparison)
+                if (
+                    operator is None
+                    or condition.targetSource != "Target"
+                    or condition.targetGroupKey
+                ):
+                    raise ValueError(
+                        f"{path}: Buff {source.buffId!r} uses unsupported heal condition"
+                    )
+                fields.extend([
+                    "    condition: {",
+                    "      kind: 'targetHealthCompare',",
+                    f"      valueType: {ts_inline_literal('ratio' if condition.isRatio else 'current')},",
+                    f"      operator: {ts_inline_literal(operator)},",
+                    f"      value: {_compile_scalar(condition.value)},",
+                    "    },",
+                ])
+            fields.extend([
+                "    processors: [",
+                "      {",
+                "        kind: 'modifyCalculationResult',",
+                "        timing: 'afterCalculation',",
+                f"        baseMultiplier: {_compile_scalar(modifier.baseMultiplier)},",
+                f"        multiplierCount: {_compile_scalar(modifier.multiplierCount)},",
+                "      },",
+                "    ],",
+                "  },",
+            ])
         fields.append("],")
     if source_death_finish is not None:
         fields.extend(

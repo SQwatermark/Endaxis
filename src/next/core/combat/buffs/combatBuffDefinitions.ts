@@ -45,6 +45,7 @@ import type {
 } from '../damage/damageModifiers';
 import { DAMAGE_SCALE_SIDES, DAMAGE_SCALE_ZONES } from '../damage/damageScale';
 import { DAMAGE_MODIFIER_SIDES } from '../damage/playerDamageContext';
+import type { HealModifierDefinition } from '../heal/healModifiers';
 
 export const COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION = 1 as const;
 
@@ -192,6 +193,7 @@ export interface CombatBuffDefinitionEntry {
   readonly blackboard?: Readonly<Record<string, ActionBlackboardValue>>;
   readonly attributeModifiers?: readonly CombatBuffDefinitionAttributeModifier[];
   readonly damageModifiers?: readonly CombatBuffDefinitionDamageModifier[];
+  readonly healModifiers?: readonly HealModifierDefinition[];
   readonly shields?: readonly BuffShieldDefinition[];
   readonly sustainedProtection?: BuffSustainedProtectionDefinition;
   readonly role?: CombatBuffSemanticRole;
@@ -311,6 +313,7 @@ export class CompiledCombatBuffDefinitions<
             : ATTRIBUTE_MODIFIER_SOURCES.buff,
       })),
       damageModifiers: entry.damageModifiers,
+      healModifiers: entry.healModifiers,
       shields: entry.shields,
       sustainedProtection: entry.sustainedProtection,
       actions: compileLifecycleActions(entry, ports),
@@ -415,6 +418,7 @@ export function parseCombatBuffDefinitionEntry(
     'blackboard',
     'attributeModifiers',
     'damageModifiers',
+    'healModifiers',
     'shields',
     'sustainedProtection',
     'role',
@@ -446,6 +450,7 @@ export function parseCombatBuffDefinitionEntry(
     ...parseOptionalBlackboard(entry, path),
     ...parseOptionalAttributeModifiers(entry, path),
     ...parseOptionalDamageModifiers(entry, path),
+    ...parseOptionalHealModifiers(entry, path),
     ...parseOptionalShields(entry, path),
     ...parseOptionalSustainedProtection(entry, path),
     ...parseOptionalRole(entry, path),
@@ -577,6 +582,100 @@ function parseOptionalDamageModifiers(
       };
     }),
   };
+}
+
+function parseOptionalHealModifiers(
+  entry: Readonly<Record<string, unknown>>,
+  path: string,
+): { healModifiers?: readonly HealModifierDefinition[] } {
+  if (entry.healModifiers === undefined) return {};
+  if (!Array.isArray(entry.healModifiers)) {
+    throw new Error(`${path}.healModifiers: expected array`);
+  }
+  return {
+    healModifiers: entry.healModifiers.map((input, index) => {
+      const modifierPath = `${path}.healModifiers[${index}]`;
+      const modifier = requireObject(input, modifierPath);
+      requireOnlyKeys(modifier, modifierPath, ['enabledSide', 'condition', 'processors']);
+      if (!Array.isArray(modifier.processors) || modifier.processors.length === 0) {
+        throw new Error(`${modifierPath}.processors: expected non-empty array`);
+      }
+      return {
+        enabledSide: requireEnum(
+          modifier.enabledSide,
+          ['healer', 'receiver'] as const,
+          `${modifierPath}.enabledSide`,
+        ),
+        ...(modifier.condition === undefined
+          ? {}
+          : {
+              condition: parseHealModifierCondition(
+                modifier.condition,
+                `${modifierPath}.condition`,
+              ),
+            }),
+        processors: modifier.processors.map((inputProcessor, processorIndex) => {
+          const processorPath = `${modifierPath}.processors[${processorIndex}]`;
+          const processor = requireObject(inputProcessor, processorPath);
+          requireOnlyKeys(processor, processorPath, [
+            'kind',
+            'timing',
+            'baseMultiplier',
+            'multiplierCount',
+          ]);
+          if (processor.kind !== 'modifyCalculationResult') {
+            throw new Error(`${processorPath}.kind: unsupported heal processor`);
+          }
+          return {
+            kind: 'modifyCalculationResult' as const,
+            timing: requireEnum(
+              processor.timing,
+              ['afterCalculation'] as const,
+              `${processorPath}.timing`,
+            ),
+            baseMultiplier: parseDefinitionNumberOperand(
+              processor.baseMultiplier,
+              `${processorPath}.baseMultiplier`,
+            ),
+            multiplierCount: parseDefinitionNumberOperand(
+              processor.multiplierCount,
+              `${processorPath}.multiplierCount`,
+            ),
+          };
+        }),
+      };
+    }),
+  };
+}
+
+function parseHealModifierCondition(
+  input: unknown,
+  path: string,
+): NonNullable<HealModifierDefinition['condition']> {
+  const condition = requireObject(input, path);
+  if (condition.kind === 'targetHealthCompare') {
+    requireOnlyKeys(condition, path, ['kind', 'valueType', 'operator', 'value']);
+    return {
+      kind: 'targetHealthCompare',
+      valueType: requireEnum(
+        condition.valueType,
+        ['current', 'ratio'] as const,
+        `${path}.valueType`,
+      ),
+      operator: requireEnum(condition.operator, COMPARISON_OPERATORS, `${path}.operator`),
+      value: parseDefinitionNumberOperand(condition.value, `${path}.value`),
+    };
+  }
+  if (condition.kind === 'buffBlackboardCompare') {
+    requireOnlyKeys(condition, path, ['kind', 'left', 'operator', 'right']);
+    return {
+      kind: 'buffBlackboardCompare',
+      left: parseDefinitionNumberOperand(condition.left, `${path}.left`),
+      operator: requireEnum(condition.operator, COMPARISON_OPERATORS, `${path}.operator`),
+      right: parseDefinitionNumberOperand(condition.right, `${path}.right`),
+    };
+  }
+  throw new Error(`${path}.kind: unsupported heal modifier condition '${String(condition.kind)}'`);
 }
 
 function parseDamageModifierCondition(input: unknown, path: string): DamageModifierCondition {

@@ -27,6 +27,14 @@ import { ActionBlackboard, type ActionBlackboardValue } from '../runtime/actionB
 import type { CombatSkillCastInfo } from '../runtime/skillCastInfo';
 import type { DamageType } from '../../game-data/operatorDefinition';
 import {
+  HealModifier,
+  type HealCalculationContext,
+  type HealModifierDefinition,
+  type HealModifierNumber,
+  type HealModifierSide,
+  type HealProcessTiming,
+} from '../heal/healModifiers';
+import {
   SharedSpGainModifier,
   type SharedSpGainAttribute,
   type SharedSpGainModifierOperation,
@@ -185,6 +193,7 @@ export interface CombatBuffDefinition<Key extends string> {
   readonly maxTriggerCount?: BuffTriggerCount;
   readonly blackboard?: Readonly<Record<string, ActionBlackboardValue>>;
   readonly damageModifiers?: readonly DamageModifierDefinition[];
+  readonly healModifiers?: readonly HealModifierDefinition[];
   readonly attributeModifiers?: readonly BuffAttributeModifierDefinition<Key>[];
   /**
    * 共享 SP 修正属于战斗级状态，但其注册生命周期归当前 Buff 实例所有。
@@ -208,6 +217,7 @@ export interface CombatBuffAddOptions {
 /** 一个实体上某项 Buff 的独立运行时实例。 */
 export class CombatBuff<Key extends string> {
   readonly damageModifiers: readonly DamageModifier[];
+  readonly healModifiers: readonly HealModifier[];
   readonly blackboard: ActionBlackboard;
   readonly priority: number;
   readonly sourceActionId: string;
@@ -263,6 +273,9 @@ export class CombatBuff<Key extends string> {
     this.damageModifiers = (definition.damageModifiers ?? []).map(
       modifier =>
         new DamageModifier(owner.ownerId, modifier, value => this.resolveDamageNumber(value)),
+    );
+    this.healModifiers = (definition.healModifiers ?? []).map(
+      modifier => new HealModifier(owner.ownerId, modifier, value => this.resolveHealNumber(value)),
     );
     this.#attributeModifiers = this.createAttributeModifiers();
     this.#sharedSpGainModifiers = (definition.sharedSpGainModifiers ?? []).map(
@@ -334,6 +347,17 @@ export class CombatBuff<Key extends string> {
     return resolved;
   }
 
+  private resolveHealNumber(value: HealModifierNumber): number {
+    if (typeof value === 'number') return value;
+    const resolved = this.blackboard.getNumber(value.blackboardKey);
+    if (resolved === undefined) {
+      throw new Error(
+        `buff '${this.definition.id}' heal modifier blackboard value '${value.blackboardKey}' is missing`,
+      );
+    }
+    return resolved;
+  }
+
   /** 按原生 Buff.ContainsTag 语义查询定义携带的 applyTags。 */
   containsTag(tag: GameplayTagId, exact = false): boolean {
     return (this.definition.applyTags ?? []).some(candidate =>
@@ -352,6 +376,7 @@ export class CombatBuff<Key extends string> {
 
     try {
       this.owner.registerDamageModifiers(this.damageModifiers);
+      this.owner.registerHealModifiers(this.healModifiers);
       this.owner.registerShields(this.shields);
       this.owner.registerSustainedProtection(this);
       for (const modifier of this.attributeModifiers) {
@@ -362,6 +387,7 @@ export class CombatBuff<Key extends string> {
       this.unregisterSharedSpGainModifiers();
       this.removeAttributeModifiers();
       this.owner.unregisterDamageModifiers(this.damageModifiers);
+      this.owner.unregisterHealModifiers(this.healModifiers);
       this.owner.unregisterShields(this.shields);
       this.owner.unregisterSustainedProtection(this);
       this.#enabled = false;
@@ -376,6 +402,7 @@ export class CombatBuff<Key extends string> {
     this.definition.actions?.disable?.(this);
     this.endDuringEnableAction();
     this.owner.unregisterDamageModifiers(this.damageModifiers);
+    this.owner.unregisterHealModifiers(this.healModifiers);
     this.owner.unregisterShields(this.shields);
     this.owner.unregisterSustainedProtection(this);
     this.removeAttributeModifiers();
@@ -399,6 +426,7 @@ export class CombatBuff<Key extends string> {
     this.#stackingGroup?.refreshAfterFinish();
     if (hadRegisteredModifiers) {
       this.owner.unregisterDamageModifiers(this.damageModifiers);
+      this.owner.unregisterHealModifiers(this.healModifiers);
       this.owner.unregisterShields(this.shields);
       this.owner.unregisterSustainedProtection(this);
       this.removeAttributeModifiers();
@@ -659,6 +687,7 @@ export class CombatShield<Key extends string> {
 export class CombatBuffContainer<Key extends string> {
   readonly #buffs: CombatBuff<Key>[] = [];
   readonly #damageModifiers: DamageModifier[] = [];
+  readonly #healModifiers: HealModifier[] = [];
   readonly #stackingGroups = new Map<string, BuffStackingGroup<Key>>();
   readonly #entityTagCounts = new Map<GameplayTagId, number>();
   readonly #shields: CombatShield<Key>[] = [];
@@ -905,6 +934,14 @@ export class CombatBuffContainer<Key extends string> {
     }
   }
 
+  applyHealModifiers(
+    timing: HealProcessTiming,
+    side: HealModifierSide,
+    context: HealCalculationContext,
+  ): void {
+    for (const modifier of this.#healModifiers) modifier.apply(timing, side, context);
+  }
+
   tick(deltaTime: number | BuffTickDeltas): void {
     for (const buff of this.#buffs) buff.tick(deltaTime);
   }
@@ -917,6 +954,17 @@ export class CombatBuffContainer<Key extends string> {
     for (const modifier of modifiers) {
       const index = this.#damageModifiers.indexOf(modifier);
       if (index >= 0) this.#damageModifiers.splice(index, 1);
+    }
+  }
+
+  registerHealModifiers(modifiers: readonly HealModifier[]): void {
+    this.#healModifiers.push(...modifiers);
+  }
+
+  unregisterHealModifiers(modifiers: readonly HealModifier[]): void {
+    for (const modifier of modifiers) {
+      const index = this.#healModifiers.indexOf(modifier);
+      if (index >= 0) this.#healModifiers.splice(index, 1);
     }
   }
 

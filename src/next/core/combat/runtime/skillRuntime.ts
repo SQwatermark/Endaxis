@@ -47,6 +47,14 @@ export interface CombatAbilityPhysicalInflictionEvent {
   readonly targetId: string;
 }
 
+/** AbilitySystem 即将承受元素附着时的同步事件；当前木桩模型不会自行产生角色承术事件。 */
+export interface CombatAbilitySpellInflictionEvent {
+  readonly kind: 'abilitySpellInfliction';
+  readonly event: 'beforeTakeSpellInfliction';
+  readonly sourceId: string;
+  readonly targetId: string;
+}
+
 /** AbilitySystem 的失衡归零同步事件；保留本次失衡来源与目标身份。 */
 export interface CombatAbilityPoiseEvent {
   readonly kind: 'abilityPoise';
@@ -100,6 +108,7 @@ export interface CombatOperationContext {
     | CombatSemanticEvent
     | CombatAbilityDamageEvent
     | CombatAbilityPhysicalInflictionEvent
+    | CombatAbilitySpellInflictionEvent
     | CombatAbilityPoiseEvent
     | CombatAbilityHealEvent
     | CombatAbilitySkillEvent

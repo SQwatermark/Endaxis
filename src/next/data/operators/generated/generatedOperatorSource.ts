@@ -354,6 +354,8 @@ export interface GeneratedBuffDefinitionSource {
   readonly attributeModifiersConverted?: boolean;
   /** Buff 启用期间注册的原生伤害修正；条件与计算区仍保留数据源身份。 */
   readonly damageModifiers: readonly GeneratedBuffDamageModifierSource[];
+  /** Buff 启用期间注册到治疗包两侧的原生治疗结果修正。 */
+  readonly healModifiers?: readonly GeneratedBuffHealModifierSource[];
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
   readonly intervalDamageHits?: readonly GeneratedTimedIntervalDamageSource[];
   readonly inflictions: readonly GeneratedTimedInflictionSource[];
@@ -501,6 +503,13 @@ export interface GeneratedBuffAttributeModifierSource {
     | 'BaseFinalAddition'
     | 'BaseFinalMultiplier';
   readonly value: GeneratedScalarSource;
+}
+
+export interface GeneratedBuffHealModifierSource {
+  readonly enabledSide: 'Healer' | 'HealReceiver';
+  readonly targetHealthComparison: GeneratedHealthConditionSource | null;
+  readonly baseMultiplier: GeneratedScalarSource;
+  readonly multiplierCount: GeneratedScalarSource;
 }
 
 /** 原生 DamageScaleProcessor；正式 DSL 编译时才把 side 与 zone 映射为 Next 枚举。 */

@@ -532,7 +532,7 @@ describe('validateSkillDefinition', () => {
         abilityEventResponses: Array<Record<string, unknown>>;
       }
     ).abilityEventResponses[0]!;
-    response.event = 'takeDamage';
+    response.event = 'unknownEvent';
     response.priority = 0.5;
     response.unknown = true;
     const issues = validateSkillDefinition(skill);

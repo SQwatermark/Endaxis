@@ -492,6 +492,7 @@ export type ResourceRecipient = (typeof RESOURCE_RECIPIENTS)[number];
 export const HEAL_TARGETS = [
   'caster',
   'buffSource',
+  'buffOwner',
   'controlledOperator',
   'lowestHealthRatioOperator',
   'lowestHealthRatioOperatorExceptControlled',
@@ -1132,6 +1133,7 @@ export interface SkillBuffAbilityEventResponse {
     | 'ownerHpZero'
     | 'beforeTakeDamage'
     | 'beforeTakePhysicalInfliction'
+    | 'beforeTakeSpellInfliction'
     | 'takeDamage'
     | 'takeCriticalDamage'
     | 'outputDamage'

@@ -23,3 +23,4 @@ export { laevatain } from './laevatain';
 export { mifu } from './mifu';
 export { yvonne } from './yvonne';
 export { ember } from './ember';
+export { snowshine } from './snowshine';
