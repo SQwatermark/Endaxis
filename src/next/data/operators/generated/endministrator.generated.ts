@@ -854,6 +854,411 @@ export const endministratorGeneratedSource = {
       }
     },
     {
+      "buffId": "buff_chr_0003_endminf_talent_0",
+      "sourceFile": "buff_chr_0003_endminf_talent_0.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 10.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "dmg",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [
+        {
+          "enabledSide": "Attacker",
+          "targetSource": "",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [],
+          "processors": [
+            {
+              "side": "Defender",
+              "zone": "NormalCalcZone",
+              "addition": {
+                "value": 0.0,
+                "blackboardKey": "dmg",
+                "levelValues": [
+                  0.0
+                ]
+              }
+            }
+          ],
+          "tagConditions": [],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "damageTypes": [
+            "physical"
+          ],
+          "numberComparisons": [],
+          "healthComparisons": [],
+          "buffCountComparisons": [
+            {
+              "targetSource": "Target",
+              "targetGroupKey": "",
+              "buffIds": [
+                "buff_common_originum_frozen"
+              ],
+              "comparison": "GE",
+              "value": {
+                "value": 1.0,
+                "blackboardKey": null,
+                "levelValues": null
+              }
+            }
+          ]
+        }
+      ],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
+    },
+    {
+      "buffId": "buff_chr_0003_endminf_talent_0_aura",
+      "sourceFile": "buff_chr_0003_endminf_talent_0_aura.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 10.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "dmg",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "AuraAction"
+          ],
+          "combatActions": [
+            "AuraAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [
+            "buff_chr_0003_endminf_talent_0"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "AuraAction"
+              ],
+              "combatActions": [
+                "AuraAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "AuraAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [
+        {
+          "startFrame": null,
+          "endFrame": null,
+          "actionIndex": 0,
+          "sourceFile": "buff_chr_0003_endminf_talent_0_aura.json",
+          "activationSource": "buffEvent",
+          "activationEvent": "DuringBuffEnable",
+          "actionPath": [
+            "buffEventAction[0]",
+            "actions[0]",
+            "actionData",
+            "[0]"
+          ],
+          "priorityLevel": "Default",
+          "priorityOffset": 0,
+          "debugName": "对封印敌人物理增伤",
+          "auraType": "GlobalAura",
+          "root": {
+            "targetSource": "Owner",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "fixedWhenStart": false,
+          "shape": {
+            "shapeType": "Box",
+            "rotationOffset": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "useExtentKeys": false,
+            "extent": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "extentKeys": [
+              "",
+              "",
+              ""
+            ],
+            "useCenterKeys": false,
+            "center": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "centerKeys": [
+              "",
+              "",
+              ""
+            ],
+            "height": 0.0,
+            "heightKey": "",
+            "radius": 0.0,
+            "radiusKey": ""
+          },
+          "excludeColliderOptions": 0,
+          "targetObjectType": "Character",
+          "targetFilter": {
+            "checkAlive": true,
+            "autoSetTargetFaction": true,
+            "factionTarget": "Ally",
+            "factionTargetType": 0,
+            "filterObjectType": false,
+            "objectType": "All",
+            "filterSlot": false,
+            "slotIndex": 0,
+            "filterGameplayTag": false,
+            "tagQueryType": "HasAny",
+            "tagIds": []
+          },
+          "excludeOwner": false,
+          "includeUnmarkable": false,
+          "limitInfluenceCountPerTarget": false,
+          "maxInfluenceCountPerTarget": 1,
+          "buffSource": "ActionSource",
+          "buffs": [
+            {
+              "buffId": "buff_chr_0003_endminf_talent_0",
+              "classification": null,
+              "blackboardAssignments": {
+                "dmg": {
+                  "value": 0.0,
+                  "blackboardKey": "dmg",
+                  "levelValues": [
+                    0.0
+                  ]
+                }
+              }
+            }
+          ],
+          "overrideBuffIconDuration": false,
+          "buffIconDurationSourceType": "AbilityEntity",
+          "buffIconDurationTimedMarkerId": "",
+          "inheritSourceSkillCastId": false,
+          "actionInAuraOnlyMainOperator": false,
+          "actionInAuraOnlyGuard": false,
+          "actionInAuraTypes": [],
+          "actionWhenExitAuraOnlyMainOperator": false,
+          "actionWhenExitAuraOnlyGuard": false,
+          "actionWhenExitAuraTypes": [],
+          "nestedCombatActions": [],
+          "airborneOutputs": [],
+          "actionInAuraBuffFinishes": [],
+          "actionWhenExitAuraBuffFinishes": [],
+          "actionWhenExitAuraBuffApplications": []
+        }
+      ],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
+    },
+    {
       "buffId": "buff_chr_0003_endminf_talent_1",
       "sourceFile": "buff_chr_0003_endminf_talent_1.json",
       "sourceAvailable": true,

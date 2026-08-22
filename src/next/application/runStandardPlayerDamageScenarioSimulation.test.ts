@@ -1461,6 +1461,49 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     expect(basicDamage(level2)).toBeGreaterThan(basicDamage(level1) ?? 0);
   });
 
+  it('applies Endministrator talent 2 only to physical damage against frozen', () => {
+    const run = (talent2Level: 1 | 2) => {
+      const scenario = createGeneratedEndministratorIgniteScenario();
+      const track = scenario.tracks[0];
+      if (track?.operator == null) throw new Error('missing Endministrator track');
+      track.operator.talentStates = { 1: talent2Level };
+      return runStandardPlayerDamageScenarioSimulation({
+        scenario,
+        endFrame: 220,
+        criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        options: {
+          ...standardOptions(),
+          index: {
+            getCommonBuffDefinitions: () => generatedCommonBuffDefinitions,
+            getOperator: slug =>
+              slug === endministratorGeneratedOperator.slug
+                ? endministratorGeneratedOperator
+                : null,
+            getWeapon: () => null,
+            getGear: () => null,
+            getGearSet: () => null,
+          },
+        },
+      });
+    };
+
+    const level1 = run(1);
+    const level2 = run(2);
+    const firstUltimateDamage = (result: typeof level1) =>
+      result.receiptEntries.find(
+        entry => entry.event === 'DamageApplied' && entry.data?.castId === 'skillCast:2',
+      );
+    expect(firstUltimateDamage(level1)?.data?.damageType).toBe('physical');
+    expect(firstUltimateDamage(level2)?.data?.value as number).toBeGreaterThan(
+      firstUltimateDamage(level1)?.data?.value as number,
+    );
+  });
+
   it('ends generated Arclight ultimate time freeze within the fixed actual-time range', () => {
     const result = runStandardPlayerDamageScenarioSimulation({
       scenario: createGeneratedArclightUltimateScenario(),

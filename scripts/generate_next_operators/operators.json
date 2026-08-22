@@ -2588,7 +2588,7 @@
       "charId": "chr_9000_endmin",
       "talents": [
         { "index": 0, "key": "talent1", "compile": "attachedBuff" },
-        { "index": 1, "key": "talent2", "compile": "unmodeledTalent" }
+        { "index": 1, "key": "talent2", "compile": "attachedPassive" }
       ],
       "potentials": [
         { "key": "potential1", "compile": "attachedBuff" },

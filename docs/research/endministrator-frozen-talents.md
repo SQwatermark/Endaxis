@@ -25,9 +25,18 @@ Next 不另写管理员专用触发器：公共冻结定义已经严格生成检
 `buff_chr_0003_endminf_talent_0`；后者只在目标持有
 `buff_common_originum_frozen` 且本次伤害类型为 `Physical` 时进入 `NormalCalcZone` 增伤。
 
-该语义明确会影响对敌伤害，但当前通用 `attachedPassive` 收集结果尚不能生成完整程序，门禁返回
-空事实。现阶段继续保留 `unmodeledTalent`，下一步应查清 Aura 隐藏被动为何未进入收集结果，并在
-公共被动/Aura 编译层修复；不得把它近似成管理员个人常驻物理增伤，也不得忽略冻结条件。
+最初的严格门禁把这棵被动判为不完整，原因不是共享角色 ID 或 Aura 丢失，而是 Buff 伤害修正
+解析器只分别支持 `CheckBuffStackNumAdvanced` 与 `CheckDamageType`，没有接受两者按原生顺序
+组成的合取。公共解析器现把该精确形状转换为：
+
+- `buffIdCountCompare(enemy, buff_common_originum_frozen, >= 1)`；
+- `eventDamageTypesMatch(['physical'])`；
+- 两者放在同一个 `all` 条件中；
+- `DamageScaleProcessor(Defender, NormalCalcZone, dmg)` 原样保留。
+
+隐藏被动由统一 `attachedPassive` 装配，一级/二级 `dmg` 分别为 `0.1/0.2`。生产场景在同一连携
+冻结与终结技时间轴上比较两个等级，二级对冻结目标的首个物理伤害严格高于一级。没有把效果
+近似成管理员个人常驻物理增伤，也没有删除冻结或物理伤害任一条件。
 
 ## 来源
 

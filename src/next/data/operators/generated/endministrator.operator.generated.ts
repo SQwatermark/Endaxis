@@ -1698,6 +1698,64 @@ export const endministratorGeneratedOperator: OperatorDefinition = {
         'duration': 15,
       },
     },
+    'buff_chr_0003_endminf_talent_0': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      blackboard: {
+        'dmg': 0,
+      },
+      damageModifiers: [
+        {
+          enabledSide: 'attacker',
+          condition: {
+            kind: 'all',
+            conditions: [
+              {
+                kind: 'eventDamageTypesMatch',
+                damageTypes: ['physical'],
+              },
+              {
+                kind: 'buffIdCountCompare',
+                target: 'enemy',
+                buffIds: ['buff_common_originum_frozen'],
+                operator: 'greaterOrEqual',
+                value: 1,
+              },
+            ],
+          },
+          processors: [
+            {
+              kind: 'damageScale',
+              side: 'defender',
+              zone: 'normal',
+              addition: { blackboardKey: 'dmg' },
+            },
+          ],
+        },
+      ],
+    },
+    'buff_chr_0003_endminf_talent_0_aura': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      blackboard: {
+        'dmg': 0,
+      },
+      lifecycleSequences: {
+        enable: sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0003_endminf_talent_0',
+            target: 'party',
+            inheritSourceSkillCastInfo: false,
+            finishByAction: true,
+            blackboardAssignments: {
+              'dmg': { kind: 'blackboard', key: 'dmg' },
+            },
+          }),
+        ),
+      },
+    },
     'buff_chr_0003_endminf_potential1': {
       stackingType: 'unique',
       priority: 0,
@@ -1792,6 +1850,24 @@ export const endministratorGeneratedOperator: OperatorDefinition = {
       key: 'talent2',
       levels: 2,
       modifiers: [],
+      passiveSkills: [
+        {
+          key: 'chr_0003_endminf_talent_0',
+          blackboard: {
+            'dmg': [0.1, 0.2],
+          },
+          enableSequence: sequence(
+            step('applyBuff', {
+              buffId: 'buff_chr_0003_endminf_talent_0_aura',
+              target: 'caster',
+              inheritSourceSkillCastInfo: false,
+              blackboardAssignments: {
+                'dmg': { kind: 'blackboard', key: 'dmg' },
+              },
+            }),
+          ),
+        },
+      ],
     },
   ],
   potentials: [
@@ -1864,5 +1940,5 @@ export const endministratorGeneratedOperator: OperatorDefinition = {
       ),
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['ultimate', 'ultimateFemale'] }] },
+  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'skillBehavior', skillGroupKeys: ['ultimate', 'ultimateFemale'] }] },
 };

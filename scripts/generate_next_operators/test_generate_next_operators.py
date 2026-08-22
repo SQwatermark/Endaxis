@@ -7084,6 +7084,71 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(modifiers[0].damageTypes, ("heat",))
         self.assertEqual(modifiers[0].processors[0].zone, "NormalCalcZone")
 
+    def test_buff_damage_modifier_preserves_buff_count_and_damage_type_conjunction(self) -> None:
+        modifiers, unsupported = parse_buff_damage_modifiers(
+            {
+                "damageModifier": [
+                    {
+                        "enableSide": "Attacker",
+                        "condition": {
+                            "actionData": [
+                                {
+                                    "$type": "Example.CheckBuffStackNumAdvanced+Data, Example",
+                                    "isEnable": True,
+                                    "priorityLevel": "Default",
+                                    "priorityOffset": 0,
+                                    "serverActionIndex": 0,
+                                    "checkTarget": target_settings_fixture("Target"),
+                                    "buffSettings": {
+                                        "checkType": "Id",
+                                        "buffIdList": ["buff.frozen"],
+                                        "tagQuery": {"queryType": "HasAny", "tags": []},
+                                    },
+                                    "buffStackNumType": "BuffCount",
+                                    "compareType": "GE",
+                                    "value": {
+                                        "useBlackboardKey": False,
+                                        "value": 1,
+                                        "blackboardKey": "",
+                                    },
+                                    "limitSkillCastId": False,
+                                },
+                                {
+                                    "$type": "Example.CheckDamageType+Data, Example",
+                                    "isEnable": True,
+                                    "priorityLevel": "Default",
+                                    "priorityOffset": 0,
+                                    "serverActionIndex": 1,
+                                    "damageType": "Physical",
+                                },
+                            ],
+                            "onlyExecuteWhenSourceIsMainChar": False,
+                            "onlyExecuteWhenSourceIsGuard": False,
+                        },
+                        "damageProcessors": [
+                            {
+                                "$type": "Example.DamageScaleProcessor, Example",
+                                "side": "Defender",
+                                "zoneName": "NormalCalcZone",
+                                "addition": {
+                                    "useBlackboardKey": True,
+                                    "value": 0,
+                                    "blackboardKey": "damage_up",
+                                },
+                            }
+                        ],
+                    }
+                ]
+            },
+            "buff.test",
+            {"damage_up": (0.2,)},
+        )
+
+        self.assertEqual(unsupported, 0)
+        self.assertEqual(modifiers[0].damageTypes, ("physical",))
+        self.assertEqual(modifiers[0].buffCountComparisons[0].buffIds, ("buff.frozen",))
+        self.assertEqual(modifiers[0].buffCountComparisons[0].targetSource, "Target")
+
     def test_buff_damage_mask_instant_attribute_modifier_is_preserved(self) -> None:
         modifiers, unsupported = parse_buff_damage_modifiers(
             {

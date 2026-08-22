@@ -742,6 +742,86 @@ def parse_buff_damage_modifiers(
                 raise ValueError(f"{mask_path}.mask: expected non-negative integer")
             damage_tags, damage_features = decode_damage_decorate_mask(mask, mask_path)
             damage_feature_match = damage_tag_match if damage_features else None
+        elif condition_types == ("CheckBuffStackNumAdvanced", "CheckDamageType"):
+            count_path = f"{path}.condition.actionData[0]"
+            count_condition = require_dict(condition_actions[0], count_path)
+            if set(count_condition) != {
+                "$type", "isEnable", "priorityLevel", "priorityOffset",
+                "serverActionIndex", "checkTarget", "buffSettings",
+                "buffStackNumType", "compareType", "value", "limitSkillCastId",
+            } or count_condition.get("isEnable") is not True:
+                raise ValueError(f"{count_path}: unsupported Buff-count condition shape")
+            count_target = parse_target_reference(
+                count_condition.get("checkTarget"), f"{count_path}.checkTarget"
+            )
+            if (
+                count_target.targetSource not in {"Source", "Target"}
+                or count_target.targetGroupKey
+                or not services.target_reference_is_plain(count_target)
+            ):
+                raise ValueError(f"{count_path}.checkTarget: expected plain Source or Target")
+            settings = require_dict(
+                count_condition.get("buffSettings"), f"{count_path}.buffSettings"
+            )
+            if set(settings) != {"checkType", "buffIdList", "tagQuery"}:
+                raise ValueError(
+                    f"{count_path}.buffSettings: unexpected fields {sorted(settings)}"
+                )
+            if settings.get("checkType") != "Id":
+                raise ValueError(f"{count_path}.buffSettings.checkType: expected 'Id'")
+            buff_ids = tuple(
+                str(value)
+                for value in require_list(
+                    settings.get("buffIdList"), f"{count_path}.buffSettings.buffIdList"
+                )
+                if isinstance(value, str) and value
+            )
+            if len(buff_ids) != len(settings.get("buffIdList", ())) or not buff_ids:
+                raise ValueError(f"{count_path}.buffSettings.buffIdList: expected Buff IDs")
+            tag_query = require_dict(
+                settings.get("tagQuery"), f"{count_path}.buffSettings.tagQuery"
+            )
+            if set(tag_query) != {"queryType", "tags"} or require_list(
+                tag_query.get("tags"), f"{count_path}.buffSettings.tagQuery.tags"
+            ):
+                raise ValueError(f"{count_path}.buffSettings.tagQuery: expected empty tag query")
+            if count_condition.get("buffStackNumType") != "BuffCount":
+                raise ValueError(f"{count_path}.buffStackNumType: expected 'BuffCount'")
+            comparison = count_condition.get("compareType")
+            if comparison not in COMPARISON_OPERATOR_MAP:
+                raise ValueError(f"{count_path}.compareType: unsupported value {comparison!r}")
+            if require_bool(
+                count_condition.get("limitSkillCastId"), f"{count_path}.limitSkillCastId"
+            ):
+                raise ValueError(f"{count_path}.limitSkillCastId: expected false")
+            buff_count_comparisons = (
+                BuffDamageBuffCountConditionSource(
+                    targetSource=count_target.targetSource,
+                    targetGroupKey=count_target.targetGroupKey,
+                    buffIds=buff_ids,
+                    comparison=str(comparison),
+                    value=parse_scalar(
+                        count_condition.get("value"), f"{count_path}.value", blackboard
+                    ),
+                ),
+            )
+
+            damage_type_path = f"{path}.condition.actionData[1]"
+            damage_type_condition = require_dict(condition_actions[1], damage_type_path)
+            if set(damage_type_condition) != {
+                "$type", "isEnable", "priorityLevel", "priorityOffset",
+                "serverActionIndex", "damageType",
+            } or damage_type_condition.get("isEnable") is not True:
+                raise ValueError(
+                    f"{damage_type_path}: unsupported damage-type condition shape"
+                )
+            native_damage_type = damage_type_condition.get("damageType")
+            mapped_damage_type = services.damage_type_map.get(str(native_damage_type))
+            if mapped_damage_type is None:
+                raise ValueError(
+                    f"{damage_type_path}.damageType: unsupported value {native_damage_type!r}"
+                )
+            damage_types = (mapped_damage_type,)
         elif condition_types == ("CheckDamageType",):
             damage_type_path = f"{path}.condition.actionData[0]"
             damage_type_condition = require_dict(condition_actions[0], damage_type_path)
