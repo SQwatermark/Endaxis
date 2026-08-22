@@ -89,7 +89,7 @@ def skill_cooldown_add_entry(*, skill_id: str, seconds: float) -> dict[str, obje
 
 
 def skill_blackboard_entry(
-    *, skill_id: str, blackboard_key: str, value: float
+    *, skill_id: str, blackboard_key: str, value: float, modify_type: int = 1
 ) -> dict[str, object]:
     """构造只修改一个技能黑板值的原生养成效果。"""
     entry = effect_entry(attr_type=0, value=0)
@@ -97,7 +97,7 @@ def skill_blackboard_entry(
     entry["skillBbModifier"] = {
         "bbKey": blackboard_key,
         "floatValue": value,
-        "modifyType": 1,
+        "modifyType": modify_type,
         "skillId": skill_id,
         "stringValue": "",
     }
@@ -105,6 +105,161 @@ def skill_blackboard_entry(
 
 
 class ProgressionRendererTests(unittest.TestCase):
+    def test_talent_sparse_assign_flags_use_declared_skill_defaults(self) -> None:
+        growth = {
+            "talentNodeMap": {
+                "level.1": {
+                    "passiveSkillNodeInfo": {
+                        "index": 0,
+                        "level": 1,
+                        "talentEffectId": "effect.level1",
+                    }
+                },
+                "level.2": {
+                    "passiveSkillNodeInfo": {
+                        "index": 0,
+                        "level": 2,
+                        "talentEffectId": "effect.level2",
+                    }
+                },
+            }
+        }
+        skills = [
+            SimpleNamespace(
+                key="battleSkill",
+                skillId="skill.battle",
+                declaredBlackboard=(
+                    SimpleNamespace(key="talent_1_1", value=0, isDynamic=False),
+                    SimpleNamespace(key="talent_1_2", value=0, isDynamic=False),
+                ),
+            )
+        ]
+        rendered = render_talents(
+            {
+                "slug": "operator",
+                "charId": "char",
+                "talents": [
+                    {"index": 0, "key": "talent1", "compile": "skillBlackboardPatch"}
+                ],
+            },
+            skills,
+            growth,
+            {
+                "effect.level1": {
+                    "dataList": [
+                        skill_blackboard_entry(
+                            skill_id="skill.battle",
+                            blackboard_key="talent_1_1",
+                            value=1,
+                            modify_type=3,
+                        )
+                    ]
+                },
+                "effect.level2": {
+                    "dataList": [
+                        skill_blackboard_entry(
+                            skill_id="skill.battle",
+                            blackboard_key="talent_1_2",
+                            value=1,
+                            modify_type=3,
+                        )
+                    ]
+                },
+            },
+        )
+
+        self.assertIn("blackboardKey: 'talent_1_1'", rendered[0])
+        self.assertIn("value: [1, 0]", rendered[0])
+        self.assertIn("blackboardKey: 'talent_1_2'", rendered[0])
+        self.assertIn("value: [0, 1]", rendered[0])
+
+    def test_talent_sparse_assign_requires_declared_skill_default(self) -> None:
+        growth = {
+            "talentNodeMap": {
+                f"level.{level}": {
+                    "passiveSkillNodeInfo": {
+                        "index": 0,
+                        "level": level,
+                        "talentEffectId": f"effect.level{level}",
+                    }
+                }
+                for level in (1, 2)
+            }
+        }
+        effects = {
+            f"effect.level{level}": {
+                "dataList": [
+                    skill_blackboard_entry(
+                        skill_id="skill.battle",
+                        blackboard_key=f"flag_{level}",
+                        value=1,
+                        modify_type=3,
+                    )
+                ]
+            }
+            for level in (1, 2)
+        }
+
+        with self.assertRaisesRegex(ValueError, "requires declared SkillData default"):
+            render_talents(
+                {
+                    "slug": "operator",
+                    "charId": "char",
+                    "talents": [
+                        {"index": 0, "key": "talent1", "compile": "skillBlackboardPatch"}
+                    ],
+                },
+                [
+                    SimpleNamespace(
+                        key="battleSkill",
+                        skillId="skill.battle",
+                        declaredBlackboard=(),
+                    )
+                ],
+                growth,
+                effects,
+            )
+
+    def test_talent_sparse_non_assign_patch_is_rejected(self) -> None:
+        growth = {
+            "talentNodeMap": {
+                f"level.{level}": {
+                    "passiveSkillNodeInfo": {
+                        "index": 0,
+                        "level": level,
+                        "talentEffectId": f"effect.level{level}",
+                    }
+                }
+                for level in (1, 2)
+            }
+        }
+        effects = {
+            f"effect.level{level}": {
+                "dataList": [
+                    skill_blackboard_entry(
+                        skill_id="skill.battle",
+                        blackboard_key=f"bonus_{level}",
+                        value=0.1,
+                    )
+                ]
+            }
+            for level in (1, 2)
+        }
+
+        with self.assertRaisesRegex(ValueError, "only supported for unconditional assign"):
+            render_talents(
+                {
+                    "slug": "operator",
+                    "charId": "char",
+                    "talents": [
+                        {"index": 0, "key": "talent1", "compile": "skillBlackboardPatch"}
+                    ],
+                },
+                [SimpleNamespace(key="battleSkill", skillId="skill.battle")],
+                growth,
+                effects,
+            )
+
     def test_renders_akekuri_combo_imbue_from_exact_talent_patches(self) -> None:
         rendered = render_talents(
             {

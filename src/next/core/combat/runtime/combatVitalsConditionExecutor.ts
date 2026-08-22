@@ -10,7 +10,10 @@ import { compareCombatNumbers } from './numericComparison';
 
 export interface CombatVitalsConditionDependencies {
   readonly resolveTarget: (
-    target: Extract<CombatCondition, { kind: 'healthCompare' | 'poiseCompare' }>['target'],
+    target: Extract<
+      CombatCondition,
+      { kind: 'healthCompare' | 'poiseCompare' | 'targetStaggered' }
+    >['target'],
     buffSourceId?: string,
   ) => CombatVitals;
   readonly delegate: CombatOperationExecutor;
@@ -37,7 +40,11 @@ export class CombatVitalsConditionExecutor implements CombatOperationExecutor {
   }
 
   evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
-    if (condition.kind !== 'healthCompare' && condition.kind !== 'poiseCompare') {
+    if (
+      condition.kind !== 'healthCompare' &&
+      condition.kind !== 'poiseCompare' &&
+      condition.kind !== 'targetStaggered'
+    ) {
       return context === undefined
         ? this.dependencies.delegate.evaluate(condition)
         : this.dependencies.delegate.evaluate(condition, context);
@@ -45,6 +52,7 @@ export class CombatVitalsConditionExecutor implements CombatOperationExecutor {
     if (context === undefined)
       throw new Error(`${condition.kind} requires a combat operation context`);
     const vitals = this.dependencies.resolveTarget(condition.target, context.buffSourceId);
+    if (condition.kind === 'targetStaggered') return vitals.hasPoiseBrokenTag;
     if (condition.kind === 'poiseCompare') {
       if (!vitals.hasPoise) return condition.returnValueIfMissing;
       return compareCombatNumbers(

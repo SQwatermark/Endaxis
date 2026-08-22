@@ -737,14 +737,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
         35,
         sequence(
           branch(
-            {
-              kind: 'buffStackCompare',
-              target: 'enemy',
-              tagQueryType: 'hasAny',
-              buffTagIds: [1075718177],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
+            { kind: 'targetStaggered', target: 'enemy' },
             sequence(
               step('modifyActionValue', {
                 key: 'FollowAttackTrigger',
@@ -5657,12 +5650,91 @@ export const rossiGeneratedOperator: OperatorDefinition = {
     {
       key: 'talent1',
       levels: 2,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'talent_1_1',
+          operation: 'assign',
+          value: [1, 0],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'atk_scale_bleed',
+          operation: 'assign',
+          value: [0.25, 0.3],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'duration_bleed',
+          operation: 'assign',
+          value: [15, 25],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'damage_up',
+          operation: 'assign',
+          value: [0.06, 0.12],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'talent_1_2',
+          operation: 'assign',
+          value: [0, 1],
+        },
+      ],
     },
     {
       key: 'talent2',
       levels: 2,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'talent_2_1',
+          operation: 'assign',
+          value: [1, 0],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'bleed_critical_damage_scale',
+          operation: 'assign',
+          value: [0.12, 0.24],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'bleed_critical_damage_interval',
+          operation: 'assign',
+          value: [1, 1],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'heal_scale',
+          operation: 'assign',
+          value: [0.04, 0.08],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'talent2_burning_damage_scale',
+          operation: 'assign',
+          value: [1.5, 1.5],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'talent_2_2',
+          operation: 'assign',
+          value: [0, 1],
+        },
+      ],
     },
   ],
   potentials: [
@@ -5811,5 +5883,5 @@ export const rossiGeneratedOperator: OperatorDefinition = {
       ],
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }] },
+  conversionSupport: { completeness: 'complete', missingCapabilities: [] },
 };

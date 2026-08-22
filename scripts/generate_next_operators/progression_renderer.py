@@ -541,6 +541,24 @@ def _render_skill_blackboard_patch_modifiers(
             values_by_key[key] = []
             order.append(key)
         values_by_key[key].append(value)
+    return _render_skill_blackboard_patch_values(
+        order,
+        values_by_key,
+        conditions_by_id,
+        multi_level=multi_level,
+    )
+
+
+def _render_skill_blackboard_patch_values(
+    order: list[tuple[str, str | None, str, str, str | None]],
+    values_by_key: dict[
+        tuple[str, str | None, str, str, str | None], list[float]
+    ],
+    conditions_by_id: dict[str, dict[str, Any]],
+    *,
+    multi_level: bool,
+) -> str:
+    """渲染已经按补丁身份对齐的黑板值。"""
     lines = ["  modifiers: ["]
     for key in order:
         group_key, skill_key, blackboard_key, operation, condition_id = key
@@ -1234,6 +1252,117 @@ def _render_skill_and_passive_blackboard_patch_modifiers(
         )
     lines.append("  ],")
     return "\n".join(lines)
+
+
+def _declared_static_blackboard_default(
+    skills: list[SkillSource],
+    skill_id: str,
+    blackboard_key: str,
+    path: str,
+) -> float:
+    """读取 SkillData 明示的静态初值；绝不为稀疏等级补丁猜默认值。"""
+    matching_skills = [skill for skill in skills if skill.skillId == skill_id]
+    if len(matching_skills) != 1:
+        raise ValueError(f"{path}: expected exactly one target skill {skill_id!r}")
+    declared = [
+        value
+        for value in getattr(matching_skills[0], "declaredBlackboard", ())
+        if value.key == blackboard_key
+    ]
+    if len(declared) != 1:
+        raise ValueError(
+            f"{path}: sparse level patch requires declared SkillData default for "
+            f"{blackboard_key!r}"
+        )
+    value = declared[0]
+    if value.isDynamic or not isinstance(value.value, (int, float)):
+        raise ValueError(
+            f"{path}: sparse level patch requires a static numeric SkillData default for "
+            f"{blackboard_key!r}"
+        )
+    result = float(value.value)
+    if not math.isfinite(result):
+        raise ValueError(f"{path}: SkillData default must be finite")
+    return result
+
+
+def _render_multilevel_skill_blackboard_patch_modifiers(
+    entries_by_level: list[list[dict[str, Any]]],
+    path: str,
+    operator: dict[str, Any],
+    skills: list[SkillSource],
+) -> str:
+    """按等级对齐补丁；稀疏的无条件 assign 严格回落到技能声明初值。"""
+    order: list[tuple[str, str | None, str, str, str | None]] = []
+    parsed_levels: list[
+        dict[tuple[str, str | None, str, str, str | None], tuple[float, str]]
+    ] = []
+    conditions_by_id: dict[str, dict[str, Any]] = {}
+    for level_index, entries in enumerate(entries_by_level):
+        parsed_level: dict[
+            tuple[str, str | None, str, str, str | None], tuple[float, str]
+        ] = {}
+        for entry_index, entry in enumerate(entries):
+            entry_path = f"{path}[{level_index}][{entry_index}]"
+            (
+                group_key,
+                skill_key,
+                blackboard_key,
+                operation,
+                value,
+                condition_id,
+                condition,
+            ) = _parse_skill_blackboard_patch_entry(entry, entry_path, operator, skills)
+            identity = (group_key, skill_key, blackboard_key, operation, condition_id)
+            if identity in parsed_level:
+                raise ValueError(f"{entry_path}: duplicate blackboard patch {identity!r}")
+            if identity not in order:
+                order.append(identity)
+            if condition_id is not None:
+                assert condition is not None
+                previous = conditions_by_id.setdefault(condition_id, condition)
+                if previous != condition:
+                    raise ValueError(f"{entry_path}.activeCondition: inconsistent projection")
+            modifier = require_dict(entry.get("skillBbModifier"), f"{entry_path}.skillBbModifier")
+            parsed_level[identity] = (value, str(modifier["skillId"]))
+        parsed_levels.append(parsed_level)
+
+    values_by_key: dict[
+        tuple[str, str | None, str, str, str | None], list[float]
+    ] = {}
+    for identity in order:
+        _, _, blackboard_key, operation, condition_id = identity
+        exemplars = [level[identity] for level in parsed_levels if identity in level]
+        skill_ids = {skill_id for _, skill_id in exemplars}
+        if len(skill_ids) != 1:
+            raise ValueError(f"{path}: patch identity maps to different source skills")
+        skill_id = next(iter(skill_ids))
+        values: list[float] = []
+        for level_index, parsed_level in enumerate(parsed_levels):
+            present = parsed_level.get(identity)
+            if present is not None:
+                values.append(present[0])
+                continue
+            if operation != "assign" or condition_id is not None:
+                raise ValueError(
+                    f"{path}[{level_index}]: sparse level patch is only supported for "
+                    "unconditional assign operations"
+                )
+            values.append(
+                _declared_static_blackboard_default(
+                    skills,
+                    skill_id,
+                    blackboard_key,
+                    f"{path}[{level_index}]",
+                )
+            )
+        values_by_key[identity] = values
+    return _render_skill_blackboard_patch_values(
+        order,
+        values_by_key,
+        conditions_by_id,
+        multi_level=True,
+    )
 
 
 def _render_skill_sp_gain_attack_stack(
@@ -2313,41 +2442,21 @@ def render_talents(
                 )
             )
         elif kind == "skillBlackboardPatch":
-            patch_entries: list[dict[str, Any]] = []
-            expected_keys: set[tuple[str, str | None, str, str, str | None]] | None = None
+            patch_entries_by_level: list[list[dict[str, Any]]] = []
             for level, effect_id in entries:
                 effect = table_row(effects, effect_id, "PotentialTalentEffectTable")
                 data_list = require_list(effect.get("dataList"), f"{effect_id}.dataList")
-                level_keys: set[tuple[str, str | None, str, str, str | None]] = set()
                 level_entries: list[dict[str, Any]] = []
                 for index, raw_entry in enumerate(data_list):
                     entry_path = f"{effect_id}.dataList[{index}]"
                     entry = require_dict(raw_entry, entry_path)
-                    (
-                        group_key,
-                        skill_key,
-                        blackboard_key,
-                        operation,
-                        _,
-                        condition_id,
-                        _,
-                    ) = _parse_skill_blackboard_patch_entry(entry, entry_path, operator, skills)
-                    patch_key = (group_key, skill_key, blackboard_key, operation, condition_id)
-                    if patch_key in level_keys:
-                        raise ValueError(f"{entry_path}: duplicate blackboard patch {patch_key!r}")
-                    level_keys.add(patch_key)
                     level_entries.append(entry)
-                if expected_keys is None:
-                    expected_keys = level_keys
-                elif expected_keys != level_keys:
-                    raise ValueError(f"{effect_id}: talent levels patch different blackboard keys")
-                patch_entries.extend(level_entries)
-            body = _render_skill_blackboard_patch_modifiers(
-                patch_entries,
+                patch_entries_by_level.append(level_entries)
+            body = _render_multilevel_skill_blackboard_patch_modifiers(
+                patch_entries_by_level,
                 f"CharGrowthTable.talentNodeMap",
                 operator,
                 skills,
-                multi_level=True,
             )
             result.append(
                 "\n".join(

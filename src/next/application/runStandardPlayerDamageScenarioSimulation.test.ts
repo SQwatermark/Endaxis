@@ -669,6 +669,114 @@ function runGeneratedLifengScenario(talentLevel: number) {
 }
 
 describe('runStandardPlayerDamageScenarioSimulation', () => {
+  it('applies both Rossi talent 1 levels to the real battle-skill bleed chain', () => {
+    const run = (talentLevel: 1 | 2) => {
+      const scenario = createEmptyScenario(
+        `scenario:generated-rossi-bleed-talent-${talentLevel}`,
+        '洛茜战技流血天赋',
+      );
+      scenario.battle.durationFrames = 1200;
+      scenario.enemy.editable.stagger = {
+        ...scenario.enemy.editable.stagger,
+        maximum: 1,
+      };
+      scenario.battle.resourceRules = {
+        ...scenario.battle.resourceRules,
+        initialSp: 100,
+        spRecoveryPerSecond: 0,
+      };
+      scenario.tracks[0] = {
+        id: 'track:perlica',
+        operator: {
+          operatorSlug: perlicaGeneratedOperator.slug,
+          level: 90,
+          promoted: true,
+          potential: 0,
+          trustLevel: 4,
+          skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+          talentStates: {},
+        },
+        weapon: null,
+        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+        initialState: { ultimateEnergy: 0 },
+        skillCasts: [],
+      };
+      scenario.tracks[1] = {
+        id: 'track:rossi',
+        operator: {
+          operatorSlug: rossiGeneratedOperator.slug,
+          level: 90,
+          promoted: true,
+          potential: 0,
+          trustLevel: 4,
+          skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+          talentStates: { 0: talentLevel },
+        },
+        weapon: null,
+        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+        initialState: { ultimateEnergy: 0 },
+        skillCasts: [],
+      };
+      let nextId = 0;
+      const ids = {
+        allocate: (kind: string) => `${kind}:rossi-bleed-${talentLevel}:${++nextId}`,
+      };
+      const staggered = placeSkillGroup({
+        scenario,
+        trackIndex: 0,
+        operator: perlicaGeneratedOperator,
+        skillGroupKey: 'battleSkill',
+        startFrame: 1,
+        ids,
+      }).scenario;
+      const placed = placeSkillGroup({
+        scenario: staggered,
+        trackIndex: 1,
+        operator: rossiGeneratedOperator,
+        skillGroupKey: 'battleSkill',
+        startFrame: 20,
+        ids,
+      }).scenario;
+      return runStandardPlayerDamageScenarioSimulation({
+        scenario: placed,
+        endFrame: 1100,
+        criticalSamples: new ExplicitCriticalSampleSource(Array(200).fill(1)),
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        elementalInflictionDocument: elementalAttachments,
+        options: {
+          ...standardOptions(),
+          index: {
+            getOperator: slug =>
+              slug === rossiGeneratedOperator.slug
+                ? rossiGeneratedOperator
+                : slug === perlicaGeneratedOperator.slug
+                  ? perlicaGeneratedOperator
+                  : null,
+            getWeapon: () => null,
+            getGear: () => null,
+            getGearSet: () => null,
+          },
+        },
+      });
+    };
+
+    const bleedDamage = (talentLevel: 1 | 2) =>
+      run(talentLevel).receiptEntries.filter(
+        entry =>
+          entry.event === 'DamageApplied' &&
+          String(entry.data?.stepKey).includes('buff_chr_0028_wulfa_normal_bleed:trigger'),
+      );
+    const level1 = bleedDamage(1);
+    const level2 = bleedDamage(2);
+    expect(level1.length).toBeGreaterThan(0);
+    expect(level2.length).toBeGreaterThan(level1.length);
+    expect(level2[0]?.data?.value as number).toBeGreaterThan(level1[0]?.data?.value as number);
+  });
+
   it('does not run Rossi conditional follow-up without the required enemy Buff tag', () => {
     const scenario = createEmptyScenario('scenario:generated-rossi-claw-mark', '洛茜爪印样本');
     scenario.battle.durationFrames = 300;

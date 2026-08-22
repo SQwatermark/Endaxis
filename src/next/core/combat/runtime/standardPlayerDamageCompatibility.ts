@@ -89,6 +89,7 @@ function inspectCondition(
     case 'enemySuperArmorCompare':
     case 'cameraToTargetAngleCompare':
     case 'poiseCompare':
+    case 'targetStaggered':
     case 'eventSourceMatchesBuffSource':
     case 'eventSourceMatchesBuffSourceEntitySource':
     case 'eventSourceControlled':

@@ -478,12 +478,12 @@
         {
           "index": 0,
           "key": "talent1",
-          "compile": "unmodeledTalent"
+          "compile": "skillBlackboardPatch"
         },
         {
           "index": 1,
           "key": "talent2",
-          "compile": "unmodeledTalent"
+          "compile": "skillBlackboardPatch"
         }
       ],
       "potentials": [

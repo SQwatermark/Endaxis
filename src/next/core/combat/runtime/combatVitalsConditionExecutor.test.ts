@@ -123,4 +123,28 @@ describe('CombatVitalsConditionExecutor', () => {
       ),
     ).toBe(true);
   });
+
+  it('reads the staggered window from the shared enemy vitals ledger', () => {
+    const vitals = new CombatVitals({
+      health: 1000,
+      maxHealth: 1000,
+      maxPoise: 10,
+      poise: 10,
+      poiseRecoveryTime: 1,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    const executor = new CombatVitalsConditionExecutor({
+      resolveTarget: () => vitals,
+      delegate: { execute: vi.fn(() => false), evaluate: vi.fn(() => false) },
+    });
+    const condition = { kind: 'targetStaggered' as const, target: 'enemy' as const };
+    const context = { blackboard: new ActionBlackboard() };
+
+    expect(executor.evaluate(condition, context)).toBe(false);
+    vitals.applyPoiseDelta(-10);
+    vitals.beginPoiseBreakIfZero();
+    expect(executor.evaluate(condition, context)).toBe(true);
+  });
 });

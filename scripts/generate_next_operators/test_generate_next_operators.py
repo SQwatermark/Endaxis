@@ -6898,6 +6898,36 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
         self.assertIn("target: 'enemy'", root_compiled)
 
+    def test_no_guard_tag_query_uses_the_enemy_stagger_state(self) -> None:
+        condition = ConditionSource(
+            sourceType="CheckBuffStackNumByTag",
+            supported=True,
+            comparison=None,
+            left=None,
+            right=None,
+            skillTypes=(),
+            buffStack=SimpleNamespace(
+                targetSource="Target",
+                targetGroupKey="",
+                buffCheckType="Tag",
+                buffIds=(),
+                tagQueryType="hasAny",
+                buffTagIds=(1075718177,),
+                countType="BuffCount",
+                comparison="GE",
+                value=ScalarSource(1, None, None),
+                limitSkillCastId=False,
+            ),
+        )
+
+        compiled = compile_combat_condition_group(
+            (condition,),
+            "fixture.conditions",
+            input_target="enemy",
+        )
+
+        self.assertEqual(compiled, "{ kind: 'targetStaggered', target: 'enemy' }")
+
     def test_single_buff_application_can_use_a_runtime_count(self) -> None:
         arguments = {
             "buff_id": "buff.example",

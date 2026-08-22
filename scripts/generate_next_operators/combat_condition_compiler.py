@@ -13,6 +13,10 @@ from source_models import (
 from source_utils import indent_source, ts_inline_literal
 
 
+# GameplayTagConfig 1.4.4: Skill/Character/Common/NoGuard.
+NO_GUARD_GAMEPLAY_TAG_ID = 1075718177
+
+
 @dataclass(frozen=True)
 class CombatConditionServices:
     """由生成入口注入的目标身份证明和项目规则服务。"""
@@ -967,6 +971,19 @@ def compile_combat_condition(
             and buff.buffTagIds
             and not buff.buffIds
         ):
+            if (
+                target == "enemy"
+                and buff.tagQueryType == "hasAny"
+                and buff.buffTagIds == (NO_GUARD_GAMEPLAY_TAG_ID,)
+                and not buff.limitSkillCastId
+                and operator == "greaterOrEqual"
+                and buff.value.blackboardKey is None
+                and buff.value.levelValues is None
+                and buff.value.value == 1
+            ):
+                # 原生 NoGuard Buff 与敌人失衡窗口是同一状态边界；Next 的敌人
+                # 账本直接维护该窗口，不再制造一份可能漂移的镜像 Buff。
+                return "{ kind: 'targetStaggered', target: 'enemy' }"
             return "\n".join(
                 [
                     "{",
