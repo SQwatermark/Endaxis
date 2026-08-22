@@ -865,6 +865,64 @@ export const gilbertaGeneratedOperator: OperatorDefinition = {
       maxStackCount: 1,
       durationSeconds: 1,
     },
+    'buff_chr_0013_aglina_talent_0_effectbuff_Add': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      applyTagIds: [1298914112],
+      blackboard: {
+        'add': 0,
+      },
+      attributeModifiers: [
+        {
+          attribute: 'UltimateSpGainScalar',
+          slot: 'baseAddition',
+          value: { blackboardKey: 'add' },
+        },
+      ],
+    },
+    'buff_chr_0013_aglina_talent_0_effectbuff': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      applyTagIds: [1298914112],
+      blackboard: {
+        'add': 0,
+      },
+      lifecycleSequences: {
+        start: sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0013_aglina_talent_0_effectbuff_Add',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+            blackboardAssignments: {
+              'add': { kind: 'blackboard', key: 'add' },
+            },
+          }),
+        ),
+      },
+    },
+    'buff_chr_0013_aglina_talent_0': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      blackboard: {
+        'add': 0,
+      },
+      lifecycleSequences: {
+        enable: sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0013_aglina_talent_0_effectbuff',
+            target: 'party',
+            inheritSourceSkillCastInfo: false,
+            finishByAction: true,
+            blackboardAssignments: {
+              'add': { kind: 'blackboard', key: 'add' },
+            },
+          }),
+        ),
+      },
+    },
   },
   abilityEntityDefinitions: {
     'abilityentity_chr_0013_aglina_normal_skill': { lifetime: { kind: 'limited', durationSeconds: 6 }, childSkill: {
@@ -1102,6 +1160,24 @@ export const gilbertaGeneratedOperator: OperatorDefinition = {
       key: 'talent1',
       levels: 2,
       modifiers: [],
+      passiveSkills: [
+        {
+          key: 'chr_0013_aglina_talent_0',
+          blackboard: {
+            'add': [0.04, 0.07],
+          },
+          enableSequence: sequence(
+            step('applyBuff', {
+              buffId: 'buff_chr_0013_aglina_talent_0',
+              target: 'caster',
+              inheritSourceSkillCastInfo: false,
+              blackboardAssignments: {
+                'add': { kind: 'blackboard', key: 'add' },
+              },
+            }),
+          ),
+        },
+      ],
     },
     {
       key: 'talent2',
@@ -1189,7 +1265,15 @@ export const gilbertaGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential3',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchPassiveBlackboard',
+          passiveSkillKey: 'chr_0013_aglina_talent_0',
+          blackboardKey: 'add',
+          operation: 'add',
+          value: 0.05,
+        },
+      ],
     },
     {
       key: 'potential4',
@@ -1222,5 +1306,5 @@ export const gilbertaGeneratedOperator: OperatorDefinition = {
       ],
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }, { capability: 'potentialEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['finisher', 'ultimate'] }] },
+  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'skillBehavior', skillGroupKeys: ['finisher', 'ultimate'] }] },
 };

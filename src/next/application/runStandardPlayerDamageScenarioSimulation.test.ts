@@ -8,6 +8,7 @@ import { lifengGeneratedOperator } from '../data/operators/generated/lifeng.oper
 import { endministratorGeneratedOperator } from '../data/operators/generated/endministrator.operator.generated';
 import { lastRiteGeneratedOperator } from '../data/operators/generated/last-rite.operator.generated';
 import { tangtangGeneratedOperator } from '../data/operators/generated/tangtang.operator.generated';
+import { gilbertaGeneratedOperator } from '../data/operators/generated/gilberta.operator.generated';
 import { rossiGeneratedOperator } from '../data/operators/generated/rossi.operator.generated';
 import { mifuGeneratedOperator } from '../data/operators/generated/mifu.operator.generated';
 import { generatedCommonBuffDefinitions } from '../data/operators/generated/commonBuffDefinitions.generated';
@@ -413,6 +414,42 @@ function createGeneratedTangtangBattleScenario(potential: number) {
     skillGroupKey: 'battleSkill',
     startFrame: 1,
     ids: { allocate: kind => `${kind}:tangtang:p${potential}` },
+  }).scenario;
+}
+
+function createGeneratedGilbertaBattleScenario(talentLevel: 0 | 2, potential: number) {
+  const scenario = createEmptyScenario(
+    `scenario:generated-gilberta-t${talentLevel}-p${potential}`,
+    '吉尔伯塔回能天赋样本',
+  );
+  scenario.battle.resourceRules = {
+    ...scenario.battle.resourceRules,
+    initialSp: 300,
+    spRecoveryPerSecond: 0,
+  };
+  scenario.tracks[0] = {
+    id: 'track:gilberta',
+    operator: {
+      operatorSlug: gilbertaGeneratedOperator.slug,
+      level: 90,
+      promoted: true,
+      potential,
+      trustLevel: 4,
+      skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+      talentStates: talentLevel === 0 ? {} : { 0: talentLevel },
+    },
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    initialState: { ultimateEnergy: 0 },
+    skillCasts: [],
+  };
+  return placeSkillGroup({
+    scenario,
+    trackIndex: 0,
+    operator: gilbertaGeneratedOperator,
+    skillGroupKey: 'battleSkill',
+    startFrame: 1,
+    ids: { allocate: kind => `${kind}:gilberta:t${talentLevel}:p${potential}` },
   }).scenario;
 }
 
@@ -1063,6 +1100,39 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
 
     expect(damage(0)).toBeTypeOf('number');
     expect(damage(3)).toBeGreaterThan(damage(0) as number);
+  });
+
+  it('applies Gilberta talent and potential to the live ultimate-energy gain attribute', () => {
+    const simulate = (talentLevel: 0 | 2, potential: number) =>
+      runStandardPlayerDamageScenarioSimulation({
+        scenario: createGeneratedGilbertaBattleScenario(talentLevel, potential),
+        endFrame: 120,
+        criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        elementalInflictionDocument: elementalAttachments,
+        options: {
+          ...standardOptions(),
+          index: {
+            getOperator: slug =>
+              slug === gilbertaGeneratedOperator.slug ? gilbertaGeneratedOperator : null,
+            getWeapon: () => null,
+            getGear: () => null,
+            getGearSet: () => null,
+          },
+        },
+      });
+    const gained = (talentLevel: 0 | 2, potential: number) =>
+      simulate(talentLevel, potential).receiptEntries.find(
+        entry => entry.event === 'UltimateEnergyChanged' && entry.targetId === 'track:gilberta',
+      )?.data?.actualValue;
+
+    expect(gained(0, 0)).toBeCloseTo(6.5);
+    expect(gained(2, 0)).toBeCloseTo(6.5 * 1.07);
+    expect(gained(2, 3)).toBeCloseTo(6.5 * 1.12);
   });
 
   it('runs generated Mifu shield creation and chained battle-skill replacement', () => {

@@ -32,6 +32,7 @@ export type OperatorRuntimeAttribute =
   | 'PhysicalAndSpellInflictionEnhance'
   | 'AtbCostAddition'
   | 'ComboSkillCooldownRecoveryScalar'
+  | 'UltimateSpGainScalar'
   | 'criticalRate'
   | 'criticalDamageIncrease'
   | 'healOutputIncrease'
@@ -42,6 +43,7 @@ export interface OperatorAttackDerivationInput {
   readonly attackBeforeAttributeScalar: number;
   /** 面板术法强度就是原生 PhysicalAndSpellInflictionEnhance(87) 的构筑期值。 */
   readonly artsIntensity?: number;
+  readonly ultimateEnergyGainEfficiency?: number;
   readonly mainAttribute: OperatorAttribute;
   readonly secondaryAttribute: OperatorAttribute;
   readonly combatModifiers?: readonly {
@@ -100,6 +102,10 @@ export function createOperatorAttackAttributes(
   result.define('AtbCostAddition', 0, {});
   // AttributeMetaTable[93]: default 1, minimum 0, no maximum.
   result.define('ComboSkillCooldownRecoveryScalar', 1, { minimum: 0 });
+  // AttributeMetaTable[44]: 正向终结技能量回复在每次结算时读取该动态属性。
+  result.define('UltimateSpGainScalar', input.ultimateEnergyGainEfficiency ?? 1, {
+    minimum: 0,
+  });
   return result;
 }
 

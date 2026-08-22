@@ -8909,6 +8909,44 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             ),
         )
 
+    def test_zero_space_ally_aura_without_alive_filter_still_targets_active_party(self) -> None:
+        action = aura_action_fixture()
+        action["targetObjectType"] = "Character"
+        action["targetFilter"]["factionTarget"] = "Ally"
+        action["targetFilter"]["checkAlive"] = False
+        action["excludeOwner"] = False
+        action["actionInAura"] = {
+            "actionData": [],
+            "onlyExecuteWhenSourceIsMainChar": False,
+            "onlyExecuteWhenSourceIsGuard": False,
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 0,
+                        "_endFrame": 51,
+                        "_sequenceActionData": {"actionData": [action]},
+                    }
+                ]
+            }
+        }
+        aura = parse_aura_actions(root, "fixture.json", {})[0]
+
+        self.assertEqual(
+            compile_aura_action(aura, "fixture.aura", buff_definitions=None),
+            "\n".join(
+                [
+                    "step('applyBuff', {",
+                    "  buffId: 'buff.fixture',",
+                    "  target: 'party',",
+                    "  inheritSourceSkillCastInfo: true,",
+                    "  finishByAction: true,",
+                    "})",
+                ]
+            ),
+        )
+
     def test_zero_space_ally_aura_can_exclude_caster_and_limit_once(self) -> None:
         action = aura_action_fixture()
         action["targetObjectType"] = "Character"

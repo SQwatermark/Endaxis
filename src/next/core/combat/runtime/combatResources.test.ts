@@ -32,6 +32,24 @@ function createResources() {
 }
 
 describe('CombatResources', () => {
+  it('每次正向回能都重新读取运行时 UltimateSpGainScalar', () => {
+    let multiplier = 1;
+    const resources = new CombatResources(createResources().snapshot(), {
+      ultimateEnergyGainMultiplier: operatorId => {
+        expect(operatorId).toBe('source');
+        return multiplier;
+      },
+    });
+
+    resources.changeUltimateEnergy('source', 10);
+    multiplier = 1.5;
+    const second = resources.changeUltimateEnergy('source', 10);
+
+    expect(second.requestedValue).toBe(15);
+    expect(resources.getUltimateEnergy('source')).toBe(25);
+    expect(resources.changeUltimateEnergy('source', -5).requestedValue).toBe(-5);
+  });
+
   it('exposes the resolved maximum ultimate energy for runtime attribute reads', () => {
     const resources = createResources();
 

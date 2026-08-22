@@ -67,6 +67,7 @@ type EnvironmentOptions = Pick<
   | 'enemyVitalsRuntime'
   | 'createOperatorBuffRuntime'
   | 'createAbilityEntityBuffRuntime'
+  | 'resolveUltimateEnergyGainMultiplier'
   | 'createOperationExecutor'
   | 'emitAbilityEvent'
   | 'createEquipmentEventOperationExecutor'
@@ -203,6 +204,8 @@ export class StandardPlayerDamageEnvironment {
         if (panel !== undefined) this.#ensureOperatorVitals(operatorId, panel);
         return this.#operatorBuffRuntime(operatorId, panel);
       },
+      resolveUltimateEnergyGainMultiplier: operatorId =>
+        this.#operatorBuffRuntime(operatorId).container.attributes.get('UltimateSpGainScalar'),
       createAbilityEntityBuffRuntime: (entityId, entityBlackboard, target) =>
         new BuffDefinitionOperationTarget(
           new CombatBuffContainer(

@@ -850,6 +850,20 @@ describe('operator upgrade compilation', () => {
     expect(combo.initialBlackboard.atk_scale).toBeCloseTo(3.15 * 1.3);
   });
 
+  it('patches Gilberta team ultimate-energy passive after resolving talent level', () => {
+    const operatorBuild = build({
+      operatorSlug: gilbertaGeneratedOperator.slug,
+      talentStates: { 0: 2 },
+      potential: 3,
+    });
+    const active = resolveActiveOperatorUpgrades(operatorBuild, gilbertaGeneratedOperator);
+    const passives = compileOperatorPassivePrograms(active);
+
+    expect(passives).toHaveLength(1);
+    expect(passives[0]).toMatchObject({ key: 'chr_0013_aglina_talent_0' });
+    expect(passives[0]?.initialBlackboard.add).toBeCloseTo(0.12);
+  });
+
   it('targets Camille talent patches to concrete variants inside the combo-skill group', () => {
     const programs = compileOperatorDefinitionSkills(
       'track:camille',

@@ -154,16 +154,16 @@
       "operatorCount": 22,
       "talent": {
         "totalCount": 44,
-        "definitionConvertedCount": 25,
-        "standardSimulationCompileReadyCount": 25
+        "definitionConvertedCount": 26,
+        "standardSimulationCompileReadyCount": 26
       },
       "potential": {
         "totalCount": 110,
-        "definitionConvertedCount": 103,
-        "standardSimulationCompileReadyCount": 103
+        "definitionConvertedCount": 104,
+        "standardSimulationCompileReadyCount": 104
       },
-      "definitionCompleteOperatorCount": 7,
-      "standardSimulationCompileReadyOperatorCount": 7
+      "definitionCompleteOperatorCount": 8,
+      "standardSimulationCompileReadyOperatorCount": 8
     }
   },
   "operators": [
@@ -2059,24 +2059,23 @@
         "slug": "gilberta",
         "talent": {
           "totalCount": 2,
-          "definitionConvertedCount": 1,
-          "standardSimulationCompileReadyCount": 1
+          "definitionConvertedCount": 2,
+          "standardSimulationCompileReadyCount": 2
         },
         "potential": {
           "totalCount": 5,
-          "definitionConvertedCount": 4,
-          "standardSimulationCompileReadyCount": 4
+          "definitionConvertedCount": 5,
+          "standardSimulationCompileReadyCount": 5
         },
-        "definitionComplete": false,
-        "standardSimulationCompileReady": false,
+        "definitionComplete": true,
+        "standardSimulationCompileReady": true,
         "talents": [
           {
             "key": "talent1",
             "sourceEffectIds": ["chr_0013_aglina_talent_1_1", "chr_0013_aglina_talent_1_2"],
-            "compiler": "unmodeledTalent",
-            "definitionConverted": false,
-            "standardSimulationCompileReady": false,
-            "blocker": "unmodeled-source-effect"
+            "compiler": "attachedPassive",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
           },
           {
             "key": "talent2",
@@ -2104,10 +2103,9 @@
           {
             "key": "potential3",
             "sourceEffectIds": ["chr_0013_aglina_potential_3"],
-            "compiler": "unmodeledPotential",
-            "definitionConverted": false,
-            "standardSimulationCompileReady": false,
-            "blocker": "unmodeled-source-effect"
+            "compiler": "passiveBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
           },
           {
             "key": "potential4",

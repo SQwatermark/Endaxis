@@ -408,7 +408,6 @@ def compile_aura_action(
         and not aura.root.validatorTypes
         and not aura.root.postProcessorTypes
         and aura.excludeColliderOptions == 0
-        and target_filter.checkAlive
         and not target_filter.filterSlot
         and not target_filter.filterGameplayTag
         and not target_filter.tagIds

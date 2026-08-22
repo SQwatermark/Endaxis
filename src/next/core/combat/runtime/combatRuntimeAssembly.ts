@@ -208,6 +208,8 @@ export interface CombatRuntimeAssemblyOptions {
     operatorId: string,
     panel?: ResolvedOperatorPanel,
   ) => OperatorBuffRuntime;
+  /** 按每次回能时的 Buff 属性状态解析 UltimateSpGainScalar。 */
+  readonly resolveUltimateEnergyGainMultiplier?: (operatorId: string) => number;
   /** 仅在能力实体首次成为 Buff 目标时创建，返回值必须由该实例独占。 */
   readonly createAbilityEntityBuffRuntime?: (
     entityId: string,
@@ -347,7 +349,9 @@ export class CombatRuntimeAssembly {
 
   constructor(options: CombatRuntimeAssemblyOptions) {
     this.#options = options;
-    this.resources = new CombatResources(options.resources);
+    this.resources = new CombatResources(options.resources, {
+      ultimateEnergyGainMultiplier: options.resolveUltimateEnergyGainMultiplier,
+    });
     this.receipt = options.receipt ?? new CombatReceiptCollector();
     this.timeDilation =
       options.timeDilation === undefined

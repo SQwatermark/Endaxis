@@ -33,6 +33,23 @@ describe('operator attack attributes', () => {
     expect(attributes.get('PhysicalAndSpellInflictionEnhance')).toBe(26);
   });
 
+  it('从面板初始化终结技回能效率并保留 Buff 动态修正', () => {
+    const attributes = createOperatorAttackAttributes({
+      ...input,
+      ultimateEnergyGainEfficiency: 1.2,
+    });
+    attributes.addModifier(
+      new CombatAttributeModifier(
+        'UltimateSpGainScalar',
+        attributeModifierValues('baseAddition', 0.05),
+        ATTRIBUTE_MODIFIER_SOURCES.buff,
+        'runtime',
+      ),
+    );
+
+    expect(attributes.get('UltimateSpGainScalar')).toBeCloseTo(1.25);
+  });
+
   it('按原生主副属性系数计算静态攻击', () => {
     const attributes = createOperatorAttackAttributes(input);
 

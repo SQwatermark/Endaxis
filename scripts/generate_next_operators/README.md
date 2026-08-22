@@ -53,6 +53,8 @@ Aura 对目标的进入、离开和整体结束是实例生命周期，而不是
 
 基础被动技能若出现在 `CharGrowthTable.skillGroupMap` 中，其黑板按该技能组的实际等级从 `SkillPatchTable` 解析；不在任何技能组或没有独立补丁的被动保留 SkillData 声明值。天赋/潜能 `attachSkill` 的运行时输入仍由养成效果传入，不能因为它与基础被动共用解析器就强造等级源。`Limited` Buff 的负持续时间也必须原样保留：它仍是有限生命周期，在首次 Tick 的生命周期阶段结束，不是无限 Buff。证据见 `combat-spec/docs/buff-lifecycle.md`。
 
+全局/范围 Aura 的 `checkAlive` 只是目标过滤位。在 Next 当前“唯一木桩敌人 + 无敌人主动伤害或干员死亡”的模型中，它为 true/false 都不改变实际存在的敌人或队伍实例集合；其他派系、对象类型、Tag、槽位和排除施法者等过滤仍必须严格保留。这一投影允许吉尔伯塔天赋的全队 Aura 进入通用逻辑，不是针对干员 ID 的特例。
+
 逐等级数值只有在等级间确实不同时才生成数组；单值或所有等级相同的数值会压成标量。百分比标量使用 `percentage`，逐等级百分比使用 `percentages`，避免把固定值误解释为“仅第 1 级有值”。
 
 天赋阵列的四次属性加点来自 `CharGrowthTable.talentNodeMap` 中 `nodeType = 3` 的节点，而不是面板成长表。生成器按 `attributeNodeInfo.breakStage` 排序并严格校验四个阶段、属性修正模式和目标属性；与全局 `[10, 15, 15, 20]` 主属性规则一致时省略 `trustAttributeBonus`，存在例外时才把源数据写入定义。全量核对记录见 [trust-attribute-bonus-audit.md](trust-attribute-bonus-audit.md)。

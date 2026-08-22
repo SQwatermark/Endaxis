@@ -1611,13 +1611,13 @@
       "exportName": "gilbertaGeneratedSource",
       "charId": "chr_0013_aglina",
       "talents": [
-        { "index": 0, "key": "talent1", "compile": "unmodeledTalent" },
+        { "index": 0, "key": "talent1", "compile": "attachedPassive" },
         { "index": 1, "key": "talent2", "compile": "skillBlackboardPatch" }
       ],
       "potentials": [
         { "key": "potential1", "compile": "skillBlackboardPatch" },
         { "key": "potential2", "compile": "skillBlackboardPatch" },
-        { "key": "potential3", "compile": "unmodeledPotential" },
+        { "key": "potential3", "compile": "passiveBlackboardPatch" },
         { "key": "potential4" },
         { "key": "potential5", "compile": "skillCooldownAndBlackboardPatch" }
       ],

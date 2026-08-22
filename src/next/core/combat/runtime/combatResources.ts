@@ -105,6 +105,11 @@ interface OperatorResources extends Omit<OperatorResourceSnapshot, 'ultimateEner
   ultimateEnergy: number;
 }
 
+export interface CombatResourceRuntimeResolvers {
+  /** 原生每次正向回能时读取目标当前 UltimateSpGainScalar。 */
+  readonly ultimateEnergyGainMultiplier?: (operatorId: string) => number;
+}
+
 function requireNonNegativeFinite(value: number, path: string): void {
   if (!Number.isFinite(value) || value < 0) {
     throw new RangeError(`${path} must be a non-negative finite number`);
@@ -132,7 +137,10 @@ export class CombatResources {
   /** 一次战斗唯一的共享 SP 获取效率注册表，供 Buff 与资源动作共同使用。 */
   readonly sharedSpGainModifiers: SharedSpGainModifierSet;
 
-  constructor(snapshot: CombatResourceSnapshot) {
+  constructor(
+    snapshot: CombatResourceSnapshot,
+    readonly resolvers: CombatResourceRuntimeResolvers = {},
+  ) {
     requireNonNegativeFinite(snapshot.sp, 'sp');
     requireNonNegativeFinite(snapshot.maxSp, 'maxSp');
     requireNonNegativeFinite(snapshot.returnedSp, 'returnedSp');
@@ -298,7 +306,11 @@ export class CombatResources {
     const operator = this.#requireOperator(operatorId);
     let requestedValue = Math.fround(baseValue);
     if (baseValue > 0 && !options.ignoreGainMultiplier) {
-      requestedValue = Math.fround(requestedValue * operator.ultimateEnergyGainMultiplier);
+      const multiplier =
+        this.resolvers.ultimateEnergyGainMultiplier?.(operatorId) ??
+        operator.ultimateEnergyGainMultiplier;
+      requireFinite(multiplier, `operator '${operatorId}' ultimate energy gain multiplier`);
+      requestedValue = Math.fround(requestedValue * multiplier);
     }
     if (options.isPercentValue) {
       requestedValue = Math.fround(requestedValue * operator.maxUltimateEnergy);

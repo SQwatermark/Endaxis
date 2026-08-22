@@ -193,12 +193,7 @@ function inspectSequence(
         }
         return;
       case 'heal':
-        if (
-          !flags.operatorVitals ||
-          (step.parameters.target !== 'caster' &&
-            step.parameters.target !== 'buffSource' &&
-            step.parameters.target !== 'buffOwner')
-        ) {
+        if (!flags.operatorVitals) {
           report(
             collect,
             'unsupported-step',
