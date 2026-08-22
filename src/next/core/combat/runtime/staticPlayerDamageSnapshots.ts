@@ -9,6 +9,7 @@ import type {
   DamageType,
   UpgradeStaticDamageIncreaseTarget,
 } from '../../game-data/operatorDefinition';
+import type { PlayerDamageDefenderSnapshot } from '../damage/playerActiveDamageInput';
 import {
   DAMAGE_SCALE_ATTRIBUTE_KEYS,
   type DamageScaleAttributeKey,
@@ -16,10 +17,34 @@ import {
 } from '../damage/damageScaleAttributes';
 import type { PlayerDamageAttributeSnapshots } from '../damage/playerDamageContext';
 import type { CombatOperationExecutorContext } from './combatRuntimeAssembly';
-import type { CombatAttributeSet } from '../attributes/combatAttributes';
+import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { resolveOperatorAttack } from '../attributes/operatorAttackAttributes';
 
 type DamageStep = Extract<ResolvedCombatStep, { kind: 'dealDamage' | 'dealFixedDamage' }>;
+
+const ENEMY_RESISTANCE_ATTRIBUTES = {
+  physical: 'PhysicalResistance',
+  heat: 'FireResistance',
+  electric: 'PulseResistance',
+  cryo: 'CrystResistance',
+  nature: 'NaturalResistance',
+  ether: 'EtherResistance',
+} as const;
+
+/** 把场景敌人的静态抗性安装为可被原生 Buff 八槽修改的运行时属性。 */
+export function initializeEnemyResistanceAttributes(
+  attributes: CombatAttributeSet<string>,
+  defender: PlayerDamageDefenderSnapshot,
+): void {
+  for (const [damageType, attribute] of Object.entries(ENEMY_RESISTANCE_ATTRIBUTES) as readonly [
+    keyof typeof ENEMY_RESISTANCE_ATTRIBUTES,
+    (typeof ENEMY_RESISTANCE_ATTRIBUTES)[keyof typeof ENEMY_RESISTANCE_ATTRIBUTES],
+  ][]) {
+    // 当前 1.4.4 AttributeType 已确认这些属性走原生八槽；敌人项目值本身允许为负，
+    // 因而不在 Endaxis 额外猜造上下限。
+    attributes.define(attribute, defender.resistances[damageType].percent, {});
+  }
+}
 
 const DAMAGE_INCREASE_ATTRIBUTE: Partial<Record<DamageType, DamageScaleAttributeKey>> = {
   physical: 'physicalDamageIncrease',
@@ -85,6 +110,7 @@ export function resolveStaticPlayerDamageSnapshots(
   context: CombatOperationExecutorContext,
   step: DamageStep,
   operatorAttributes: CombatAttributeSet<string>,
+  enemyResistanceAttributes?: CombatAttributeSet<string>,
 ): PlayerDamageAttributeSnapshots {
   const panel = context.panel;
   if (panel === undefined) {
@@ -99,7 +125,7 @@ export function resolveStaticPlayerDamageSnapshots(
   ) as Record<DamageScaleAttributeKey, number>;
   attackerDamageScales.damageToStaggeredEnemyIncrease +=
     context.program.statModifiers?.damageToStaggeredEnemyIncrease ?? 0;
-  return {
+  const result: PlayerDamageAttributeSnapshots = {
     attacker: {
       ...attackerDamageScales,
       attack: resolveOperatorAttack(panel, operatorAttributes),
@@ -116,6 +142,22 @@ export function resolveStaticPlayerDamageSnapshots(
     defender: {
       ...emptyDamageScaleSnapshot(),
       ...context.enemy.defenderAttributes,
+      ...(enemyResistanceAttributes === undefined
+        ? {}
+        : {
+            resistances: Object.fromEntries(
+              Object.entries(ENEMY_RESISTANCE_ATTRIBUTES).map(([damageType, attribute]) => [
+                damageType,
+                {
+                  ...context.enemy.defenderAttributes.resistances[
+                    damageType as keyof typeof ENEMY_RESISTANCE_ATTRIBUTES
+                  ],
+                  percent: enemyResistanceAttributes.get(attribute),
+                },
+              ]),
+            ) as PlayerDamageAttributeSnapshots['defender']['resistances'],
+          }),
     },
   };
+  return result;
 }

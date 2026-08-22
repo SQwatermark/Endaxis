@@ -1499,6 +1499,9 @@ function validateCombatStep(
       requireEnum(parameters, 'tagQueryType', TAG_QUERY_TYPES_SET, `${path}.parameters`, out);
       validateNonEmptyIntegerArray(parameters.buffTagIds, `${path}.parameters.buffTagIds`, out);
       requireEnum(parameters, 'reason', BUFF_FINISH_REASONS_SET, `${path}.parameters`, out);
+      if (parameters.count !== undefined) {
+        validateActionValueOperand(parameters.count, `${path}.parameters.count`, out);
+      }
       break;
     case 'finishBuffsById':
       requireEnum(

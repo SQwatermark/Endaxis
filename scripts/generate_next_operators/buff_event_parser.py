@@ -517,6 +517,33 @@ def parse_buff_event_actions(
                 sequence_types = tuple(
                     action_name(item["$type"]) for item in sequence_actions
                 )
+                ordered_actions = ()
+                should_preserve_ordered_tree = (
+                    "ForEachAction" not in sequence_types
+                    or any(
+                        guard in sequence_types
+                        for guard in ("CheckHealTag", "CheckOverHeal")
+                    )
+                    # 固定单敌人模型中，先 FindTarget 再遍历该组的输出伤害响应
+                    # 已有明确目标来源；其循环不能继续只留在 audit facts。
+                    or (
+                        event_name == "OnOutputDamage"
+                        and "FindTargetAction" in sequence_types
+                    )
+                )
+                if should_preserve_ordered_tree:
+                    try:
+                        ordered_actions = parse_ordered_action_sequence(
+                            sequence.get("actionData"),
+                            sequence_path,
+                            blackboard,
+                            include_target_group_provenance=True,
+                        )
+                    except ValueError as error:
+                        # 仍未证明目标集合身份的旧 ForEach 保留 typed audit facts；
+                        # 能证明为固定单敌人的循环必须进入正式有序树。
+                        if "ForEachAction: unsupported target collection" not in str(error):
+                            raise
                 parsed_sequences.append(
                     SkillEventActionSequenceSource(
                         onlyMainOperator=require_bool(
@@ -543,22 +570,9 @@ def parse_buff_event_actions(
                             for item in sequence_actions
                             if action_name(item["$type"]) == "CreateBuffAction"
                         ),
-                        # 纯 ForEach 响应继续由 typed facts 保存；当同一序列还包含
-                        # 已支持的事件短路守卫时，必须保留完整有序树，不能丢掉循环前后的动作。
-                        actions=(
-                            parse_ordered_action_sequence(
-                                sequence.get("actionData"),
-                                sequence_path,
-                                blackboard,
-                                include_target_group_provenance=True,
-                            )
-                            if "ForEachAction" not in sequence_types
-                            or any(
-                                guard in sequence_types
-                                for guard in ("CheckHealTag", "CheckOverHeal")
-                            )
-                            else ()
-                        ),
+                        # 有序树是唯一执行来源；ForEach typed facts只保留审计证据，
+                        # 不能再令纯循环响应在正式 Buff 定义中静默消失。
+                        actions=ordered_actions,
                         priority=parse_sequence_action_priority(
                             sequence_actions, sequence_path
                         ),

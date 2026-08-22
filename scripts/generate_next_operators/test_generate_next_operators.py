@@ -15,7 +15,10 @@ from operator_ability_entity_linker import link_operator_ability_entity_definiti
 from time_dilation_parser import parse_time_dilation_action, parse_time_scale_curve
 from target_group_parser import parse_circular_order_sort
 from target_parser import parse_spawned_entity_selector_identity
-from action_payload_parser import parse_knock_down_output_payload
+from action_payload_parser import (
+    parse_knock_down_output_payload,
+    parse_simple_buff_stack_read_payload,
+)
 
 from generate_next_operators import (
     ELEMENT_TYPE_MAP,
@@ -5464,6 +5467,34 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("step('finishBuffsById'", rendered)
         self.assertIn("count: { kind: 'constant', value: 1 }", rendered)
 
+    def test_finish_buff_advanced_emits_partial_tag_layer_count(self) -> None:
+        finish = BuffFinishSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=1,
+            targetSource="Target",
+            targetGroupKey="",
+            buffCheckType="Tag",
+            buffIds=(),
+            tagQueryType="hasAny",
+            buffTagIds=(-1558844517,),
+            finishAll=False,
+            limitSource=False,
+            isFinishedEarly=True,
+            isAbsorbed=False,
+            finishLayerCount=ScalarSource(1, None, None),
+        )
+
+        rendered = compile_buff_finish(
+            finish,
+            "fixture.finish",
+            input_target="enemy",
+        )
+
+        self.assertIn("step('finishBuffsByTag'", rendered)
+        self.assertIn("buffTagIds: [-1558844517]", rendered)
+        self.assertIn("count: { kind: 'constant', value: 1 }", rendered)
+
     def test_root_skill_owner_buff_finish_targets_the_caster(self) -> None:
         finish = BuffFinishSource(
             startFrame=11,
@@ -5518,6 +5549,31 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("target: 'enemy'", result)
         with self.assertRaisesRegex(ValueError, "unsupported buff finish target"):
             compile_buff_finish(finish, "fixture.finish")
+
+    def test_simple_buff_stack_read_normalizes_direct_id_payload(self) -> None:
+        action = {
+            "$type": "Beyond.Gameplay.Core.SaveBuffStackNum+Data, Gameplay.Beyond",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 0,
+            "checkTarget": {"targetSource": "Owner", "targetGroupKey": ""},
+            "buffId": {"buffId": "buff_chr_0016_laevat_energy"},
+            "key": "count",
+        }
+
+        payload = parse_simple_buff_stack_read_payload(action, "fixture.stack")
+
+        self.assertEqual(payload.outputKey, "count")
+        self.assertEqual(payload.targetSource, "Owner")
+        self.assertEqual(payload.buffIds, ("buff_chr_0016_laevat_energy",))
+        self.assertEqual(payload.tagQueryType, "hasAny")
+        self.assertFalse(payload.limitSkillCastId)
+
+        with self.assertRaisesRegex(ValueError, "unexpected SaveBuffStackNum fields"):
+            parse_simple_buff_stack_read_payload(
+                {**action, "unexpected": True}, "fixture.stack"
+            )
 
     def test_input_target_buff_stack_read_targets_the_enemy(self) -> None:
         read = BuffStackReadPayload(

@@ -287,4 +287,14 @@ export class BuffDefinitionOperationTarget<Key extends string>
   ): number {
     return this.container.finishByTags(tags, type, reason, exact);
   }
+
+  finishCountByTags(
+    tags: readonly GameplayTagId[],
+    type: GameplayTagQueryType,
+    count: number,
+    reason: BuffFinishReason,
+    exact?: boolean,
+  ): number {
+    return this.container.finishCountByTags(tags, type, count, reason, exact);
+  }
 }

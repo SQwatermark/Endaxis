@@ -167,8 +167,8 @@ python scripts/generate_next_operators/audit_operator_progression.py `
 报告的 `summary.configuredProgression` 以正式 manifest 的天赋/潜能槽位为单位，分别给出
 `definitionConvertedCount` 与 `standardSimulationCompileReadyCount`。后者只表示面板、技能补丁或常驻
 被动程序已经能进入标准场景编译，不等于所有触发条件都能在某条具体时间轴中发生，也不替代技能主体
-和 Buff 闭包审计。当前基线为 22 名正式生成干员：天赋 27/44 已转换、27/44 可进入模拟编译；潜能
-108/110 已转换、108/110 可进入模拟编译。当前所有已经完整写入定义的养成槽位都已有标准模拟消费链；
+和 Buff 闭包审计。当前基线为 22 名正式生成干员：天赋 33/44 已转换、33/44 可进入模拟编译；潜能
+110/110 已转换、110/110 可进入模拟编译。当前所有已经完整写入定义的养成槽位都已有标准模拟消费链；
 后续重点转为扩大可无损转换的来源效果集合。
 
 `skillSpGainAttackStack` 严格转换秋栗潜能 1 的 `OnObtainAtb` 监听器：仅接受原生

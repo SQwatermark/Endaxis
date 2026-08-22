@@ -410,6 +410,7 @@ def run_generation(*, services: GenerationPipelineServices) -> None:
             loaded_tables["CharacterPotentialTable.json"],
             loaded_tables["PotentialTalentEffectTable.json"],
             buff_source_dir,
+            args.source,
         )
         audited_buff_definitions_by_id = {
             definition.buffId: definition

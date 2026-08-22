@@ -129,68 +129,72 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
         clearInstantAttributeModifiers: this.dependencies.clearInstantAttributeModifiers,
       },
     });
-    this.dependencies.emitPreparationEvent('beforeDamageAction', context);
-    this.dependencies.emitPreparationEvent('beforeCalculateDamage', context);
-    context.applyModifiers('beforeCalculation');
-    context.setCalculationResult(this.#resolveCalculationResult(step, context, operationContext));
-    injectDamageScaleAttributes(context.damageScales, {
-      damageType: step.parameters.damageType,
-      classifications: classifyDamageTags(step.parameters.tags),
-      attacker: context.attackerAttributes,
-      defender: context.defenderAttributes,
-      defenderStaggered: this.dependencies.targetVitals.hasPoiseBrokenTag,
-    });
-    const finalAttackValue = context.resolveFinalAttackValue();
-    const runtimeSnapshot = this.dependencies.resolveNonRandomRuntimeSnapshot(step);
-    const formulaInput = resolvePlayerActiveDamageInput({
-      step,
-      finalAttackValue,
-      attacker: context.attackerAttributes,
-      defender: context.defenderAttributes,
-      runtime: {
-        ...runtimeSnapshot,
-        appliesPhysicalInflictionDamageMultiplier:
-          runtimeSnapshot.appliesPhysicalInflictionDamageMultiplier ||
-          (step.parameters.features ?? []).includes('physicalInfliction'),
-        criticalSample:
-          context.attackerAttributes.criticalRate > 0.00001
-            ? this.dependencies.criticalSamples.nextCriticalSample()
-            : 0,
-      },
-    });
-    const damageResult = calculatePlayerActiveDamage(formulaInput);
-    executeHealthDamage({
-      sourceId: this.dependencies.sourceOperatorId,
-      targetId: this.dependencies.targetId,
-      damageType: step.parameters.damageType,
-      tags: step.parameters.tags,
-      features: step.parameters.features ?? [],
-      result: damageResult,
-      target: this.dependencies.targetVitals,
-      clock: this.dependencies.clock,
-      receipt: this.dependencies.receipt,
-      ...(this.dependencies.castId === undefined ? {} : { castId: this.dependencies.castId }),
-      ...(step.key === undefined ? {} : { stepKey: step.key }),
-      ...(step.hitId === undefined ? {} : { hitId: step.hitId }),
-      emitSourceEvent: this.dependencies.emitHealthSourceEvent,
-      emitTargetEvent: this.dependencies.emitHealthTargetEvent,
-      ...(this.dependencies.absorbHealthDamage === undefined
-        ? {}
-        : { absorbDamage: this.dependencies.absorbHealthDamage }),
-    });
-    this.dependencies.emitSemanticHit?.(step);
-
-    if (step.parameters.stagger !== undefined) {
-      this.#executePoise(
+    try {
+      this.dependencies.emitPreparationEvent('beforeDamageAction', context);
+      this.dependencies.emitPreparationEvent('beforeCalculateDamage', context);
+      context.applyModifiers('beforeCalculation');
+      context.setCalculationResult(this.#resolveCalculationResult(step, context, operationContext));
+      injectDamageScaleAttributes(context.damageScales, {
+        damageType: step.parameters.damageType,
+        classifications: classifyDamageTags(step.parameters.tags),
+        attacker: context.attackerAttributes,
+        defender: context.defenderAttributes,
+        defenderStaggered: this.dependencies.targetVitals.hasPoiseBrokenTag,
+      });
+      const finalAttackValue = context.resolveFinalAttackValue();
+      const runtimeSnapshot = this.dependencies.resolveNonRandomRuntimeSnapshot(step);
+      const formulaInput = resolvePlayerActiveDamageInput({
         step,
-        this.#resolveActionValue(
-          step.parameters.stagger,
-          operationContext,
-          'dynamic stagger value',
-        ),
-      );
+        finalAttackValue,
+        attacker: context.attackerAttributes,
+        defender: context.defenderAttributes,
+        runtime: {
+          ...runtimeSnapshot,
+          appliesPhysicalInflictionDamageMultiplier:
+            runtimeSnapshot.appliesPhysicalInflictionDamageMultiplier ||
+            (step.parameters.features ?? []).includes('physicalInfliction'),
+          criticalSample:
+            context.attackerAttributes.criticalRate > 0.00001
+              ? this.dependencies.criticalSamples.nextCriticalSample()
+              : 0,
+        },
+      });
+      const damageResult = calculatePlayerActiveDamage(formulaInput);
+      executeHealthDamage({
+        sourceId: this.dependencies.sourceOperatorId,
+        targetId: this.dependencies.targetId,
+        damageType: step.parameters.damageType,
+        tags: step.parameters.tags,
+        features: step.parameters.features ?? [],
+        result: damageResult,
+        target: this.dependencies.targetVitals,
+        clock: this.dependencies.clock,
+        receipt: this.dependencies.receipt,
+        ...(this.dependencies.castId === undefined ? {} : { castId: this.dependencies.castId }),
+        ...(step.key === undefined ? {} : { stepKey: step.key }),
+        ...(step.hitId === undefined ? {} : { hitId: step.hitId }),
+        emitSourceEvent: this.dependencies.emitHealthSourceEvent,
+        emitTargetEvent: this.dependencies.emitHealthTargetEvent,
+        ...(this.dependencies.absorbHealthDamage === undefined
+          ? {}
+          : { absorbDamage: this.dependencies.absorbHealthDamage }),
+      });
+      this.dependencies.emitSemanticHit?.(step);
+
+      if (step.parameters.stagger !== undefined) {
+        this.#executePoise(
+          step,
+          this.#resolveActionValue(
+            step.parameters.stagger,
+            operationContext,
+            'dynamic stagger value',
+          ),
+        );
+      }
+      return true;
+    } finally {
+      context.dispose();
     }
-    return true;
   }
 
   /** 只选择原生基础值计算分支；所有分支完成后仍共享同一伤害修正和最终公式。 */

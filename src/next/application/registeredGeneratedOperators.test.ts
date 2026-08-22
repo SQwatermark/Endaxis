@@ -9,6 +9,7 @@ import { resolveScenarioBuilds } from '../core/compiler/resolveScenarioBuilds';
 import { createEmptyScenario } from '../core/project/createProject';
 import { nextGameDataRepository } from '../data/gameDataRepository';
 import { elementalAttachments } from '../data/buffs/elementalAttachments';
+import { scheduled, sequence, step } from '../data/operators/definitionHelpers';
 import {
   arcane,
   camille,
@@ -172,6 +173,128 @@ describe('registered generated operators', () => {
         entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:laevatain',
       ),
     ).toBe(true);
+  });
+
+  it('activates Laevatain fire-resistance ignore after absorbing four heat attachments', () => {
+    const run = (talentLevel: 1 | 3) => {
+      const scenario = createEmptyScenario(
+        `scenario:laevatain:talent1:${talentLevel}`,
+        '莱万汀天赋一默认仓库回归',
+      );
+      scenario.battle.durationFrames = 180;
+      scenario.enemy.editable.resistances.heat = 50;
+      scenario.tracks[0] = {
+        id: 'track:laevatain',
+        operator: {
+          operatorSlug: laevatain.slug,
+          level: 90,
+          promoted: true,
+          potential: 0,
+          trustLevel: 4,
+          skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+          talentStates: { 0: talentLevel },
+        },
+        weapon: null,
+        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+        initialState: { ultimateEnergy: 0 },
+        skillCasts: [],
+      };
+      const placed = placeSkillGroup({
+        scenario,
+        trackIndex: 0,
+        operator: laevatain,
+        skillGroupKey: 'basicAttack',
+        skillKey: 'basicAttack1',
+        startFrame: 1,
+        ids: { allocate: kind => `${kind}:laevatain:talent1:${talentLevel}` },
+      }).scenario;
+      const cast = placed.tracks[0]?.skillCasts[0];
+      if (cast === undefined) throw new Error('missing Laevatain test cast');
+      const attachmentAndHit = (key: string): SkillDefinition => ({
+        key: 'basicAttack1',
+        sourceSkillId: 'test_laevatain_talent_1_attachment',
+        timelineBlockFrames: 1,
+        scheduledSequences: [
+          scheduled(
+            0,
+            sequence(
+              step('applyElementalInfliction', { element: 'heat', isExtra: false }),
+              step(
+                'dealDamage',
+                {
+                  damageType: 'heat',
+                  attackScale: 1,
+                  tags: ['normalAttack', 'normalAttackLastCombo'],
+                },
+                key,
+              ),
+            ),
+          ),
+        ],
+      });
+      const probe: SkillDefinition = {
+        key: 'basicAttack1',
+        sourceSkillId: 'test_laevatain_talent_1_probe',
+        timelineBlockFrames: 1,
+        scheduledSequences: [
+          scheduled(
+            0,
+            sequence(
+              step(
+                'dealDamage',
+                { damageType: 'heat', attackScale: 1, tags: ['normalAttack'] },
+                'probe',
+              ),
+            ),
+          ),
+        ],
+      };
+      const track = placed.tracks[0];
+      if (track === null) throw new Error('missing Laevatain test track');
+      track.skillCasts = [1, 32, 63, 94].map((startFrame, index) => ({
+        ...cast,
+        id: `skillCast:laevatain:talent1:${talentLevel}:absorb:${index + 1}`,
+        placement: { startFrame },
+        customDefinition: attachmentAndHit(`absorb:${index + 1}`),
+      }));
+      track.skillCasts.push({
+        ...cast,
+        id: `skillCast:laevatain:talent1:${talentLevel}:probe`,
+        placement: { startFrame: 125 },
+        customDefinition: probe,
+      });
+
+      const result = runStandardPlayerDamageScenarioSimulation({
+        scenario: placed,
+        endFrame: 180,
+        criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+        elementalInflictionDocument: elementalAttachments,
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        options: {
+          index: nextGameDataRepository,
+          resources: {
+            sharedSpGain: { baseGainEfficiency: 1 },
+            spRecoveryPauseDuration: 1.5,
+            ultimateEnergySystemUnlocked: true,
+            normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+          },
+        },
+      });
+      const damage = result.receiptEntries.filter(
+        entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:laevatain',
+      );
+      return damage.at(-1)?.data?.value as number | undefined;
+    };
+
+    const level1 = run(1);
+    const level3 = run(3);
+    expect(level1).toBeTypeOf('number');
+    expect(level3).toBeTypeOf('number');
+    expect(level3!).toBeGreaterThan(level1!);
   });
 
   it('runs Yvonne basic attack through the default repository', () => {

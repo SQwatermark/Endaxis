@@ -75,6 +75,13 @@ export interface BuffOperationTarget {
     reason: BuffFinishReason,
     exact?: boolean,
   ): number;
+  finishCountByTags?(
+    tags: readonly GameplayTagId[],
+    type: GameplayTagQueryType,
+    count: number,
+    reason: BuffFinishReason,
+    exact?: boolean,
+  ): number;
 }
 
 export interface BuffAppliedEvent {
@@ -291,7 +298,18 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     if (step.kind === 'finishBuffsByTag') {
       const target = this.#resolveSingleTarget(step.parameters.target, context);
       const tags = step.parameters.buffTagIds.map(gameplayTagId);
-      target.finishByTags(tags, step.parameters.tagQueryType, step.parameters.reason);
+      if (step.parameters.count === undefined) {
+        target.finishByTags(tags, step.parameters.tagQueryType, step.parameters.reason);
+      } else {
+        if (context === undefined) {
+          throw new Error('finishBuffsByTag runtime count requires a combat operation context');
+        }
+        const count = resolveActionValueOperand(step.parameters.count, context.blackboard);
+        if (target.finishCountByTags === undefined) {
+          throw new Error('finishBuffsByTag count requires a count-aware Buff target');
+        }
+        target.finishCountByTags(tags, step.parameters.tagQueryType, count, step.parameters.reason);
+      }
       return true;
     }
 

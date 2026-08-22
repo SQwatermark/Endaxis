@@ -214,6 +214,47 @@ describe('BuffOperationExecutor', () => {
     expect(calls).toEqual([{ ids: ['preparation'], count: 1, reason: 'other' }]);
   });
 
+  it('resolves a partial tag Buff finish count from the current action blackboard', () => {
+    const calls: { tags: readonly number[]; count: number; reason: string }[] = [];
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => ({
+        ownerId: 'enemy',
+        getCountByIds: () => 0,
+        findFirstByIds: () => undefined,
+        finishByIds: () => 0,
+        holdByIds: () => ({ release: () => undefined }),
+        getCountByTags: () => 0,
+        matchesEntityTags: () => false,
+        findFirstByTags: () => undefined,
+        finishByTags: () => 0,
+        finishCountByTags: (tags, _type, count, reason) => {
+          calls.push({ tags, count, reason });
+          return count;
+        },
+      }),
+      delegate,
+    });
+    const tag = gameplayTagIdFromPath('buff/status/fire');
+
+    expect(
+      executor.execute(
+        {
+          kind: 'finishBuffsByTag',
+          parameters: {
+            target: 'enemy',
+            tagQueryType: 'hasAny',
+            buffTagIds: [tag],
+            reason: 'early',
+            count: { kind: 'constant', value: 1 },
+          },
+        },
+        { blackboard: new ActionBlackboard() },
+      ),
+    ).toBe(true);
+    expect(calls).toEqual([{ tags: [tag], count: 1, reason: 'early' }]);
+  });
+
   it('writes a matching Buff stack count to the action blackboard', () => {
     const blackboard = new ActionBlackboard();
     const executor = new BuffOperationExecutor({

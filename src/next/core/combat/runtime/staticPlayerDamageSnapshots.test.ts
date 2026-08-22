@@ -8,13 +8,17 @@ import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { CombatVitals } from './combatVitals';
 import { PlayerDamageOperationExecutor } from './playerDamageOperationExecutor';
 import type { CombatOperationExecutor } from './skillRuntime';
-import { resolveStaticPlayerDamageSnapshots } from './staticPlayerDamageSnapshots';
+import {
+  initializeEnemyResistanceAttributes,
+  resolveStaticPlayerDamageSnapshots,
+} from './staticPlayerDamageSnapshots';
 import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 import { createOperatorAttackAttributes } from '../attributes/operatorAttackAttributes';
 import {
   ATTRIBUTE_MODIFIER_SOURCES,
   attributeModifierValues,
   CombatAttributeModifier,
+  CombatAttributeSet,
 } from '../attributes/combatAttributes';
 
 const enemy: CombatEnemyProgram = {
@@ -124,6 +128,31 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
       defense: 200,
       breakingAttackDamageTakenMultiplier: 1.5,
       resistances: { electric: { percent: 20, damageTakenMultiplier: 1 } },
+    });
+  });
+
+  it('从敌方运行时八槽冻结被 Buff 修改后的元素抗性', () => {
+    const enemyAttributes = new CombatAttributeSet<string>();
+    initializeEnemyResistanceAttributes(enemyAttributes, enemy.defenderAttributes);
+    enemyAttributes.addModifier(
+      new CombatAttributeModifier(
+        'PulseResistance',
+        attributeModifierValues('baseAddition', -15),
+        ATTRIBUTE_MODIFIER_SOURCES.instant,
+        'runtime',
+      ),
+    );
+
+    const snapshots = resolveStaticPlayerDamageSnapshots(
+      createContext(),
+      electricDamage,
+      createOperatorAttackAttributes(panel),
+      enemyAttributes,
+    );
+
+    expect(snapshots.defender.resistances.electric).toEqual({
+      percent: 5,
+      damageTakenMultiplier: 1,
     });
   });
 

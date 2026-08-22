@@ -24,6 +24,7 @@ from action_payload_parser import (
     parse_buff_find_settings,
     parse_buff_finish_payload,
     parse_buff_stack_read_payload,
+    parse_simple_buff_stack_read_payload,
     parse_damage_units,
     parse_global_cooldown_application_payload,
     parse_heal_payload,
@@ -1795,6 +1796,10 @@ def parse_conditional_actions(
                     )
                 elif action_type == "SaveBuffStackNumAdvanced":
                     buff_stack_read = parse_buff_stack_read_payload(action, source_path)
+                elif action_type == "SaveBuffStackNum":
+                    buff_stack_read = parse_simple_buff_stack_read_payload(
+                        action, source_path
+                    )
                 elif action_type == "CreateBuffAction":
                     buff_application = parse_buff_application_payload(
                         action, source_path, inherited_blackboard

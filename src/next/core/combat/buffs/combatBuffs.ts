@@ -526,6 +526,17 @@ export class CombatBuff<Key extends string> {
     this.definition.actions?.enhanceChanged?.(this, sourceId);
   }
 
+  /** 原生 DecreaseEnhanceCnt：增强型 Buff 扣层，扣尽时结束整个实例。 */
+  decreaseEnhanceCount(count: number, reason: BuffFinishReason): boolean {
+    if (this.#finished || count <= 0) return false;
+    if (this.#enhanceCount <= count) return this.finish(reason);
+    this.#enhanceCount -= count;
+    this.definition.actions?.enhanceChanged?.(this, this.sourceId);
+    this.replaceAttributeModifiers(this.createAttributeModifiers());
+    this.#stackingGroup?.refreshAfterEnhanceDecrease();
+    return true;
+  }
+
   executeAfterEnhance(sourceId: string): void {
     this.definition.actions?.afterEnhance?.(this, sourceId);
   }
@@ -812,6 +823,27 @@ export class CombatBuffContainer<Key extends string> {
       throw new RangeError('Buff finish count must be a finite non-negative number');
     }
     const accepted = new Set(ids);
+    const firstMatch = this.#buffs.find(
+      buff => !buff.isFinished && accepted.has(buff.definition.id),
+    );
+    if (
+      firstMatch !== undefined &&
+      ['enhance', 'enhanceAndRefresh', 'enhanceAndOverwriteDuration'].includes(
+        firstMatch.definition.stackingType,
+      )
+    ) {
+      let changed = 0;
+      for (const buff of this.#buffs) {
+        if (
+          !buff.isFinished &&
+          accepted.has(buff.definition.id) &&
+          buff.decreaseEnhanceCount(count, reason)
+        ) {
+          changed += 1;
+        }
+      }
+      return changed;
+    }
     let finished = 0;
     for (const buff of this.#buffs) {
       if (finished >= count) break;
@@ -936,6 +968,29 @@ export class CombatBuffContainer<Key extends string> {
       }
     }
     return count;
+  }
+
+  /** 原生 FinishBuffByTag 限层路径：先快照匹配实例 ID，再逐项复用 ID 扣层入口。 */
+  finishCountByTags(
+    tags: readonly GameplayTagId[],
+    type: GameplayTagQueryType,
+    count: number,
+    reason: BuffFinishReason,
+    exact = false,
+  ): number {
+    if (!Number.isFinite(count) || count < 0) {
+      throw new RangeError('Buff finish count must be a finite non-negative number');
+    }
+    const matchingIds = this.#buffs
+      .filter(
+        buff =>
+          !buff.isFinished &&
+          this.tagRegistry.query(buff.definition.applyTags ?? [], tags, type, exact),
+      )
+      .map(buff => buff.definition.id);
+    let changed = 0;
+    for (const id of matchingIds) changed += this.finishCountByIds([id], count, reason);
+    return changed;
   }
 
   findFirst(predicate: (buff: CombatBuff<Key>) => boolean): CombatBuff<Key> | undefined {
@@ -1134,6 +1189,12 @@ class BuffStackingGroup<Key extends string> {
     if (this.stackingType === 'highPriority' || this.stackingType === 'highPriorityWithMaxStack') {
       this.refreshPriority();
     }
+  }
+
+  refreshAfterEnhanceDecrease(): void {
+    this.#currentStackCount = this.#buffs
+      .filter(buff => !buff.isFinished)
+      .reduce((count, buff) => count + buff.enhanceCount, 0);
   }
 
   private allocate(

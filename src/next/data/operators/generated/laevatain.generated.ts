@@ -6,6 +6,240 @@ export const laevatainGeneratedSource = {
   "slug": "laevatain",
   "buffDefinitions": [
     {
+      "buffId": "buff_chr_0016_laevat_absorb_fire_inflict",
+      "sourceFile": "buff_chr_0016_laevat_absorb_fire_inflict.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 3.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": 0.5,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "CheckBuffStackNumAdvanced",
+            "FinishBuffAdvanced",
+            "LaunchProjectile"
+          ],
+          "combatActions": [
+            "LaunchProjectile"
+          ],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckBuffStackNumAdvanced",
+                "FinishBuffAdvanced",
+                "LaunchProjectile"
+              ],
+              "combatActions": [
+                "LaunchProjectile"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "FinishBuffAdvanced",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 1,
+                  "buffFinish": {
+                    "targetSource": "Target",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Tag",
+                    "buffIds": [],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": [
+                      -1558844517
+                    ],
+                    "finishAll": false,
+                    "limitSource": false,
+                    "isFinishedEarly": true,
+                    "isAbsorbed": false,
+                    "finishLayerCount": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "LaunchProjectile",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 2,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "projectileLaunch": {
+                    "projectileId": "projectile_chr_0016_laevat_absorb",
+                    "skillTriggers": [
+                      {
+                        "event": "hit",
+                        "skillId": "chr_0016_laevat_absorb_projhit"
+                      }
+                    ],
+                    "assignBlackboard": true,
+                    "entityBlackboardAssignments": [],
+                    "target": {
+                      "targetSource": "Source",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "projectileTriggeredSkills": [
+                    {
+                      "launchFrame": 0,
+                      "actionOrder": [
+                        0,
+                        0,
+                        0,
+                        2
+                      ],
+                      "assumedTravelFrames": 0,
+                      "projectileId": "projectile_chr_0016_laevat_absorb",
+                      "triggerEvent": "hit",
+                      "triggerSkillId": "chr_0016_laevat_absorb_projhit",
+                      "excludedByPrimaryTargetMarker": false,
+                      "sourceFile": "chr_0016_laevat_absorb_projhit.json",
+                      "damageUnits": [],
+                      "directDamageHits": [],
+                      "conditionalActions": [],
+                      "auxiliaryActions": [],
+                      "resourceGains": [],
+                      "inflictions": [],
+                      "combatActions": [],
+                      "cycleTruncated": false,
+                      "nestedProjectileTriggeredSkills": [],
+                      "abilityEntityHits": [],
+                      "auraActions": []
+                    }
+                  ]
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
+    },
+    {
       "buffId": "buff_chr_0016_laevat_combo_skill_hit",
       "sourceFile": "buff_chr_0016_laevat_combo_skill_hit.json",
       "sourceAvailable": true,
@@ -1453,6 +1687,36 @@ export const laevatainGeneratedSource = {
               "buffApplications": [],
               "actions": [
                 {
+                  "actionType": "SaveBuffStackNum",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffStackRead": {
+                    "outputKey": "count",
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Id",
+                    "buffIds": [
+                      "buff_chr_0016_laevat_energy"
+                    ],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": [],
+                    "countType": "BuffCount",
+                    "limitSkillCastId": false
+                  }
+                },
+                {
                   "actionType": "SwitchAction",
                   "actionIndex": 2,
                   "actionPath": [
@@ -2668,6 +2932,3082 @@ export const laevatainGeneratedSource = {
         "showInSquadIcon": true,
         "onlyShowForMainCharacter": false,
         "iconStyleInSquad": "LifeTime",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
+    },
+    {
+      "buffId": "buff_chr_0016_laevat_passive",
+      "sourceFile": "buff_chr_0016_laevat_passive.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 3.1,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "ignore_fire_resist",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "ignore_fire_resist_duration",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "max_stack",
+          "value": 4.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "AuraAction",
+            "AuraAction"
+          ],
+          "combatActions": [
+            "AuraAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [
+            "buff_chr_0016_laevat_passive_enemy",
+            "buff_chr_0016_laevat_passive_teammate"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "AuraAction"
+              ],
+              "combatActions": [
+                "AuraAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "AuraAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "AuraAction"
+              ],
+              "combatActions": [
+                "AuraAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "AuraAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 1,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        },
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        },
+        {
+          "eventSource": "ability",
+          "event": "OnAddedBuff",
+          "orderedActionTypes": [],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [
+        {
+          "startFrame": null,
+          "endFrame": null,
+          "actionIndex": 0,
+          "sourceFile": "buff_chr_0016_laevat_passive.json",
+          "activationSource": "buffEvent",
+          "activationEvent": "DuringBuffEnable",
+          "actionPath": [
+            "buffEventAction[0]",
+            "actions[0]",
+            "actionData",
+            "[0]"
+          ],
+          "priorityLevel": "Default",
+          "priorityOffset": 0,
+          "debugName": "",
+          "auraType": "GlobalAura",
+          "root": {
+            "targetSource": "Owner",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "fixedWhenStart": false,
+          "shape": {
+            "shapeType": "Box",
+            "rotationOffset": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "useExtentKeys": false,
+            "extent": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "extentKeys": [
+              "",
+              "",
+              ""
+            ],
+            "useCenterKeys": false,
+            "center": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "centerKeys": [
+              "",
+              "",
+              ""
+            ],
+            "height": 0.0,
+            "heightKey": "",
+            "radius": 0.0,
+            "radiusKey": ""
+          },
+          "excludeColliderOptions": 0,
+          "targetObjectType": "Enemy",
+          "targetFilter": {
+            "checkAlive": true,
+            "autoSetTargetFaction": true,
+            "factionTarget": "Anti",
+            "factionTargetType": 0,
+            "filterObjectType": false,
+            "objectType": "All",
+            "filterSlot": false,
+            "slotIndex": 0,
+            "filterGameplayTag": false,
+            "tagQueryType": "HasAny",
+            "tagIds": []
+          },
+          "excludeOwner": false,
+          "includeUnmarkable": false,
+          "limitInfluenceCountPerTarget": false,
+          "maxInfluenceCountPerTarget": 1,
+          "buffSource": "ActionSource",
+          "buffs": [
+            {
+              "buffId": "buff_chr_0016_laevat_passive_enemy",
+              "classification": null,
+              "blackboardAssignments": {}
+            }
+          ],
+          "overrideBuffIconDuration": false,
+          "buffIconDurationSourceType": "AbilityEntity",
+          "buffIconDurationTimedMarkerId": "",
+          "inheritSourceSkillCastId": false,
+          "actionInAuraOnlyMainOperator": false,
+          "actionInAuraOnlyGuard": false,
+          "actionInAuraTypes": [],
+          "actionWhenExitAuraOnlyMainOperator": false,
+          "actionWhenExitAuraOnlyGuard": false,
+          "actionWhenExitAuraTypes": [],
+          "nestedCombatActions": [],
+          "airborneOutputs": [],
+          "actionInAuraBuffFinishes": [],
+          "actionWhenExitAuraBuffFinishes": [],
+          "actionWhenExitAuraBuffApplications": []
+        },
+        {
+          "startFrame": null,
+          "endFrame": null,
+          "actionIndex": 1,
+          "sourceFile": "buff_chr_0016_laevat_passive.json",
+          "activationSource": "buffEvent",
+          "activationEvent": "DuringBuffEnable",
+          "actionPath": [
+            "buffEventAction[0]",
+            "actions[1]",
+            "actionData",
+            "[0]"
+          ],
+          "priorityLevel": "Default",
+          "priorityOffset": 0,
+          "debugName": "",
+          "auraType": "GlobalAura",
+          "root": {
+            "targetSource": "Owner",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "fixedWhenStart": false,
+          "shape": {
+            "shapeType": "Box",
+            "rotationOffset": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "useExtentKeys": false,
+            "extent": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "extentKeys": [
+              "",
+              "",
+              ""
+            ],
+            "useCenterKeys": false,
+            "center": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "centerKeys": [
+              "",
+              "",
+              ""
+            ],
+            "height": 0.0,
+            "heightKey": "",
+            "radius": 0.0,
+            "radiusKey": ""
+          },
+          "excludeColliderOptions": 0,
+          "targetObjectType": "Character",
+          "targetFilter": {
+            "checkAlive": true,
+            "autoSetTargetFaction": true,
+            "factionTarget": "Ally",
+            "factionTargetType": 0,
+            "filterObjectType": false,
+            "objectType": "All",
+            "filterSlot": false,
+            "slotIndex": 0,
+            "filterGameplayTag": false,
+            "tagQueryType": "HasAny",
+            "tagIds": []
+          },
+          "excludeOwner": false,
+          "includeUnmarkable": false,
+          "limitInfluenceCountPerTarget": false,
+          "maxInfluenceCountPerTarget": 1,
+          "buffSource": "ActionSource",
+          "buffs": [
+            {
+              "buffId": "buff_chr_0016_laevat_passive_teammate",
+              "classification": null,
+              "blackboardAssignments": {
+                "max_stack": {
+                  "value": 0.0,
+                  "blackboardKey": "max_stack",
+                  "levelValues": [
+                    4.0
+                  ]
+                }
+              }
+            }
+          ],
+          "overrideBuffIconDuration": false,
+          "buffIconDurationSourceType": "AbilityEntity",
+          "buffIconDurationTimedMarkerId": "",
+          "inheritSourceSkillCastId": false,
+          "actionInAuraOnlyMainOperator": false,
+          "actionInAuraOnlyGuard": false,
+          "actionInAuraTypes": [],
+          "actionWhenExitAuraOnlyMainOperator": false,
+          "actionWhenExitAuraOnlyGuard": false,
+          "actionWhenExitAuraTypes": [],
+          "nestedCombatActions": [],
+          "airborneOutputs": [],
+          "actionInAuraBuffFinishes": [],
+          "actionWhenExitAuraBuffFinishes": [],
+          "actionWhenExitAuraBuffApplications": []
+        }
+      ],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
+    },
+    {
+      "buffId": "buff_chr_0016_laevat_passive_enemy",
+      "sourceFile": "buff_chr_0016_laevat_passive_enemy.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 3.1,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "count",
+          "value": 0.0,
+          "isDynamic": true
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "ability",
+          "event": "OnEnemyBeforeTakeSpellInfliction",
+          "orderedActionTypes": [
+            "CheckSpellInflictionType"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckSpellInflictionType"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        },
+        {
+          "eventSource": "ability",
+          "event": "OnOwnerHpZero",
+          "orderedActionTypes": [
+            "SaveBuffStackNumAdvanced",
+            "CreateBuffAction",
+            "CreateBuffAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 8,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0016_laevat_absorb_fire_inflict",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            },
+            {
+              "actionIndex": 9,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0016_laevat_energy",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": "count",
+                  "levelValues": [
+                    0.0
+                  ]
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_chr_0016_laevat_absorb_fire_inflict",
+            "buff_chr_0016_laevat_energy"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "SaveBuffStackNumAdvanced",
+                "CreateBuffAction",
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction",
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 8,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0016_laevat_absorb_fire_inflict",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                },
+                {
+                  "actionIndex": 9,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0016_laevat_energy",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": "count",
+                      "levelValues": [
+                        0.0
+                      ]
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "SaveBuffStackNumAdvanced",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 6,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffStackRead": {
+                    "outputKey": "count",
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Tag",
+                    "buffIds": [],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": [
+                      -1558844517
+                    ],
+                    "countType": "BuffCount",
+                    "limitSkillCastId": false
+                  }
+                },
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 8,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0016_laevat_absorb_fire_inflict",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                },
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 3,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[3]"
+                  ],
+                  "serverActionIndex": 9,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0016_laevat_energy",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": "count",
+                      "levelValues": [
+                        0.0
+                      ]
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        },
+        {
+          "eventSource": "ability",
+          "event": "OnFinishedBuff",
+          "orderedActionTypes": [],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        },
+        {
+          "eventSource": "ability",
+          "event": "OnAddedBuff",
+          "orderedActionTypes": [
+            "CheckBuffIdInContext"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckBuffIdInContext"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
+    },
+    {
+      "buffId": "buff_chr_0016_laevat_passive_teammate",
+      "sourceFile": "buff_chr_0016_laevat_passive_teammate.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 3.1,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "count",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "curve_rate",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "distance",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "max_stack",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "speed",
+          "value": 0.0,
+          "isDynamic": true
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "ability",
+          "event": "OnOutputDamage",
+          "orderedActionTypes": [
+            "CheckDamageDecorateMask",
+            "CheckMainCharacterCondition",
+            "CheckBuffStackNumAdvanced",
+            "CheckBuffStackNumAdvanced",
+            "CreateBuffAction",
+            "FindTargetAction",
+            "SaveTargetDistanceAction",
+            "CurveEvaluateFloat",
+            "CurveEvaluateFloat",
+            "ForEachAction"
+          ],
+          "combatActions": [
+            "CheckMainCharacterCondition",
+            "CreateBuffAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 5,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0016_laevat_passive_teammate_cd",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_chr_0016_laevat_energy",
+            "buff_chr_0016_laevat_passive_teammate_cd"
+          ],
+          "forEachActions": [
+            {
+              "actionIndex": 10,
+              "target": {
+                "targetSource": "Context",
+                "targetGroupKey": "fire_inflicted",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "spawnedObjectType": null,
+              "tagQueries": [],
+              "orderedActionTypes": [
+                "SaveBuffStackNumAdvanced",
+                "SwitchAction"
+              ],
+              "buffApplications": [],
+              "skillCasts": []
+            }
+          ],
+          "targetGroupWrites": [
+            {
+              "actionIndex": 6,
+              "targetGroupKey": "fire_inflicted",
+              "finderType": "HitBoxFinder",
+              "finderFactionTarget": "Anti",
+              "finderTargetObjectType": "Normal",
+              "finderCheckAlive": true,
+              "validatorTypes": [
+                "TagValidator"
+              ],
+              "postProcessorTypes": [
+                "PriorityFilter"
+              ],
+              "spawnedObjectType": null,
+              "tagQueries": [
+                [
+                  "HasAny",
+                  [
+                    -1558844517
+                  ]
+                ]
+              ],
+              "center": "InputTarget",
+              "selectorOwner": "ActionOwner"
+            }
+          ],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckDamageDecorateMask",
+                "CheckMainCharacterCondition",
+                "CheckBuffStackNumAdvanced",
+                "CheckBuffStackNumAdvanced",
+                "CreateBuffAction",
+                "FindTargetAction",
+                "SaveTargetDistanceAction",
+                "CurveEvaluateFloat",
+                "CurveEvaluateFloat",
+                "ForEachAction"
+              ],
+              "combatActions": [
+                "CheckMainCharacterCondition",
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 5,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0016_laevat_passive_teammate_cd",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CheckDamageDecorateMask",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckDamageDecorateMask",
+                        "supported": false,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "damageDecorateMask": {
+                          "checkType": "HasAny",
+                          "mask": 2097156
+                        },
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CheckMainCharacterCondition",
+                        "actionIndex": 1,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[1]"
+                        ],
+                        "serverActionIndex": 1,
+                        "nestedCondition": {
+                          "startFrame": 0,
+                          "endFrame": 0,
+                          "actionIndex": 1,
+                          "actionPath": [
+                            "timelineActions[0]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "CheckMainCharacterCondition",
+                              "supported": true,
+                              "comparison": null,
+                              "left": null,
+                              "right": null,
+                              "skillTypes": [],
+                              "poise": null,
+                              "mainOperator": {
+                                "targetSource": "Owner",
+                                "targetGroupKey": "tri"
+                              },
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
+                              "targetAngle": null,
+                              "damageDecorateMask": null,
+                              "contextBuffId": null,
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "CreateBuffAction",
+                              "actionIndex": 5,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[5]"
+                              ],
+                              "serverActionIndex": 5,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
+                              "buffApplication": {
+                                "buffs": [
+                                  {
+                                    "buffId": "buff_chr_0016_laevat_passive_teammate_cd",
+                                    "classification": null,
+                                    "blackboardAssignments": {}
+                                  }
+                                ],
+                                "targetSource": "Owner",
+                                "targetGroupKey": "",
+                                "count": {
+                                  "value": 1.0,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "buffSource": "ActionSource",
+                                "buffSourceContextKey": "",
+                                "inheritSourceSkillCastInfo": true
+                              }
+                            },
+                            {
+                              "actionType": "FindTargetAction",
+                              "actionIndex": 6,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[6]"
+                              ],
+                              "serverActionIndex": 6,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null
+                            },
+                            {
+                              "actionType": "SaveBuffStackNumAdvanced",
+                              "actionIndex": 0,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[10]",
+                                "action",
+                                "actionData",
+                                "[0]"
+                              ],
+                              "serverActionIndex": 11,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
+                              "buffStackRead": {
+                                "outputKey": "count",
+                                "targetSource": "Target",
+                                "targetGroupKey": "",
+                                "buffCheckType": "Tag",
+                                "buffIds": [],
+                                "tagQueryType": "hasAny",
+                                "buffTagIds": [
+                                  -1558844517
+                                ],
+                                "countType": "BuffCount",
+                                "limitSkillCastId": false
+                              }
+                            },
+                            {
+                              "actionType": "SwitchAction",
+                              "actionIndex": 1,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[10]",
+                                "action",
+                                "actionData",
+                                "[1]"
+                              ],
+                              "serverActionIndex": 12,
+                              "nestedCondition": {
+                                "startFrame": 0,
+                                "endFrame": 0,
+                                "actionIndex": 12,
+                                "actionPath": [
+                                  "timelineActions[0]",
+                                  "_sequenceActionData",
+                                  "actionData",
+                                  "[0]",
+                                  "succeedActions",
+                                  "actionData",
+                                  "[10]",
+                                  "action",
+                                  "actionData",
+                                  "[1]",
+                                  "options",
+                                  "[0]"
+                                ],
+                                "conditions": [
+                                  {
+                                    "sourceType": "CompareFloat",
+                                    "supported": true,
+                                    "comparison": "Equals",
+                                    "left": {
+                                      "value": 0.0,
+                                      "blackboardKey": "count",
+                                      "levelValues": [
+                                        0.0
+                                      ]
+                                    },
+                                    "right": {
+                                      "value": 1.0,
+                                      "blackboardKey": null,
+                                      "levelValues": null
+                                    },
+                                    "skillTypes": [],
+                                    "poise": null,
+                                    "superArmor": null,
+                                    "twoDirectionAngle": null,
+                                    "targetAngle": null,
+                                    "damageDecorateMask": null,
+                                    "contextBuffId": null,
+                                    "objectTypeMatch": null,
+                                    "deckAttributeCompare": null,
+                                    "probability": null,
+                                    "anyConditionGroups": [],
+                                    "anyConditionNegated": []
+                                  }
+                                ],
+                                "succeedActions": [
+                                  {
+                                    "actionType": "FinishBuffAdvanced",
+                                    "actionIndex": 1,
+                                    "actionPath": [
+                                      "timelineActions[0]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[0]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[10]",
+                                      "action",
+                                      "actionData",
+                                      "[1]",
+                                      "options",
+                                      "[0]",
+                                      "actionData",
+                                      "actionData",
+                                      "[1]"
+                                    ],
+                                    "serverActionIndex": 14,
+                                    "buffFinish": {
+                                      "targetSource": "Target",
+                                      "targetGroupKey": "",
+                                      "buffCheckType": "Tag",
+                                      "buffIds": [],
+                                      "tagQueryType": "hasAny",
+                                      "buffTagIds": [
+                                        -1558844517
+                                      ],
+                                      "finishAll": true,
+                                      "limitSource": false,
+                                      "isFinishedEarly": false,
+                                      "isAbsorbed": true,
+                                      "finishLayerCount": null
+                                    },
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null
+                                  },
+                                  {
+                                    "actionType": "CreateBuffAction",
+                                    "actionIndex": 2,
+                                    "actionPath": [
+                                      "timelineActions[0]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[0]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[10]",
+                                      "action",
+                                      "actionData",
+                                      "[1]",
+                                      "options",
+                                      "[0]",
+                                      "actionData",
+                                      "actionData",
+                                      "[2]"
+                                    ],
+                                    "serverActionIndex": 15,
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null,
+                                    "buffApplication": {
+                                      "buffs": [
+                                        {
+                                          "buffId": "buff_chr_0016_laevat_energy",
+                                          "classification": null,
+                                          "blackboardAssignments": {}
+                                        }
+                                      ],
+                                      "targetSource": "Source",
+                                      "targetGroupKey": "",
+                                      "count": {
+                                        "value": 1.0,
+                                        "blackboardKey": null,
+                                        "levelValues": null
+                                      },
+                                      "buffSource": "ActionSource",
+                                      "buffSourceContextKey": "",
+                                      "inheritSourceSkillCastInfo": true
+                                    }
+                                  },
+                                  {
+                                    "actionType": "LaunchProjectile",
+                                    "actionIndex": 3,
+                                    "actionPath": [
+                                      "timelineActions[0]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[0]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[10]",
+                                      "action",
+                                      "actionData",
+                                      "[1]",
+                                      "options",
+                                      "[0]",
+                                      "actionData",
+                                      "actionData",
+                                      "[3]"
+                                    ],
+                                    "serverActionIndex": 16,
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null,
+                                    "projectileLaunch": {
+                                      "projectileId": "projectile_chr_0016_laevat_absorb",
+                                      "skillTriggers": [
+                                        {
+                                          "event": "hit",
+                                          "skillId": "chr_0016_laevat_absorb_projhit"
+                                        }
+                                      ],
+                                      "assignBlackboard": true,
+                                      "entityBlackboardAssignments": [
+                                        {
+                                          "targetKey": "EntityBB_curve_rate",
+                                          "valueType": "Numeric",
+                                          "numericValue": 0.0,
+                                          "stringValue": "",
+                                          "useDirectValue": false,
+                                          "inputValueKey": "curve_rate"
+                                        },
+                                        {
+                                          "targetKey": "EntityBB_speed",
+                                          "valueType": "Numeric",
+                                          "numericValue": 0.0,
+                                          "stringValue": "",
+                                          "useDirectValue": false,
+                                          "inputValueKey": "speed"
+                                        }
+                                      ],
+                                      "target": {
+                                        "targetSource": "Source",
+                                        "targetGroupKey": "",
+                                        "selectorOwner": "ActionOwner",
+                                        "ownerContextKey": "",
+                                        "centerType": "ActionSource",
+                                        "centerContextKey": "",
+                                        "centerToGround": false,
+                                        "target": "ActionSource",
+                                        "targetContextKey": "",
+                                        "enableAdvancedDirection": false,
+                                        "selectorDirection": "SourceForward",
+                                        "finderType": null,
+                                        "validatorTypes": [],
+                                        "postProcessorTypes": []
+                                      }
+                                    },
+                                    "projectileTriggeredSkills": [
+                                      {
+                                        "launchFrame": 0,
+                                        "actionOrder": [
+                                          0,
+                                          0,
+                                          0,
+                                          0,
+                                          0,
+                                          1,
+                                          1,
+                                          1,
+                                          12,
+                                          3
+                                        ],
+                                        "assumedTravelFrames": 0,
+                                        "projectileId": "projectile_chr_0016_laevat_absorb",
+                                        "triggerEvent": "hit",
+                                        "triggerSkillId": "chr_0016_laevat_absorb_projhit",
+                                        "excludedByPrimaryTargetMarker": false,
+                                        "sourceFile": "chr_0016_laevat_absorb_projhit.json",
+                                        "damageUnits": [],
+                                        "directDamageHits": [],
+                                        "conditionalActions": [],
+                                        "auxiliaryActions": [],
+                                        "resourceGains": [],
+                                        "inflictions": [],
+                                        "combatActions": [],
+                                        "cycleTruncated": false,
+                                        "nestedProjectileTriggeredSkills": [],
+                                        "abilityEntityHits": [],
+                                        "auraActions": []
+                                      }
+                                    ]
+                                  }
+                                ],
+                                "failActions": [
+                                  {
+                                    "actionType": "SwitchAction",
+                                    "actionIndex": 0,
+                                    "actionPath": [
+                                      "timelineActions[0]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[0]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[10]",
+                                      "action",
+                                      "actionData",
+                                      "[1]",
+                                      "options",
+                                      "[1]"
+                                    ],
+                                    "serverActionIndex": 12,
+                                    "nestedCondition": {
+                                      "startFrame": 0,
+                                      "endFrame": 0,
+                                      "actionIndex": 12,
+                                      "actionPath": [
+                                        "timelineActions[0]",
+                                        "_sequenceActionData",
+                                        "actionData",
+                                        "[0]",
+                                        "succeedActions",
+                                        "actionData",
+                                        "[10]",
+                                        "action",
+                                        "actionData",
+                                        "[1]",
+                                        "options",
+                                        "[1]"
+                                      ],
+                                      "conditions": [
+                                        {
+                                          "sourceType": "CompareFloat",
+                                          "supported": true,
+                                          "comparison": "Equals",
+                                          "left": {
+                                            "value": 0.0,
+                                            "blackboardKey": "count",
+                                            "levelValues": [
+                                              0.0
+                                            ]
+                                          },
+                                          "right": {
+                                            "value": 2.0,
+                                            "blackboardKey": null,
+                                            "levelValues": null
+                                          },
+                                          "skillTypes": [],
+                                          "poise": null,
+                                          "superArmor": null,
+                                          "twoDirectionAngle": null,
+                                          "targetAngle": null,
+                                          "damageDecorateMask": null,
+                                          "contextBuffId": null,
+                                          "objectTypeMatch": null,
+                                          "deckAttributeCompare": null,
+                                          "probability": null,
+                                          "anyConditionGroups": [],
+                                          "anyConditionNegated": []
+                                        }
+                                      ],
+                                      "succeedActions": [
+                                        {
+                                          "actionType": "FinishBuffAdvanced",
+                                          "actionIndex": 1,
+                                          "actionPath": [
+                                            "timelineActions[0]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[10]",
+                                            "action",
+                                            "actionData",
+                                            "[1]",
+                                            "options",
+                                            "[1]",
+                                            "actionData",
+                                            "actionData",
+                                            "[1]"
+                                          ],
+                                          "serverActionIndex": 18,
+                                          "buffFinish": {
+                                            "targetSource": "Target",
+                                            "targetGroupKey": "",
+                                            "buffCheckType": "Tag",
+                                            "buffIds": [],
+                                            "tagQueryType": "hasAny",
+                                            "buffTagIds": [
+                                              -1558844517
+                                            ],
+                                            "finishAll": false,
+                                            "limitSource": false,
+                                            "isFinishedEarly": false,
+                                            "isAbsorbed": true,
+                                            "finishLayerCount": {
+                                              "value": 1.0,
+                                              "blackboardKey": null,
+                                              "levelValues": null
+                                            }
+                                          },
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null
+                                        },
+                                        {
+                                          "actionType": "CreateBuffAction",
+                                          "actionIndex": 2,
+                                          "actionPath": [
+                                            "timelineActions[0]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[10]",
+                                            "action",
+                                            "actionData",
+                                            "[1]",
+                                            "options",
+                                            "[1]",
+                                            "actionData",
+                                            "actionData",
+                                            "[2]"
+                                          ],
+                                          "serverActionIndex": 19,
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null,
+                                          "buffApplication": {
+                                            "buffs": [
+                                              {
+                                                "buffId": "buff_chr_0016_laevat_energy",
+                                                "classification": null,
+                                                "blackboardAssignments": {}
+                                              }
+                                            ],
+                                            "targetSource": "Source",
+                                            "targetGroupKey": "",
+                                            "count": {
+                                              "value": 1.0,
+                                              "blackboardKey": null,
+                                              "levelValues": null
+                                            },
+                                            "buffSource": "ActionSource",
+                                            "buffSourceContextKey": "",
+                                            "inheritSourceSkillCastInfo": true
+                                          }
+                                        },
+                                        {
+                                          "actionType": "LaunchProjectile",
+                                          "actionIndex": 3,
+                                          "actionPath": [
+                                            "timelineActions[0]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[10]",
+                                            "action",
+                                            "actionData",
+                                            "[1]",
+                                            "options",
+                                            "[1]",
+                                            "actionData",
+                                            "actionData",
+                                            "[3]"
+                                          ],
+                                          "serverActionIndex": 20,
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null,
+                                          "projectileLaunch": {
+                                            "projectileId": "projectile_chr_0016_laevat_absorb",
+                                            "skillTriggers": [
+                                              {
+                                                "event": "hit",
+                                                "skillId": "chr_0016_laevat_absorb_projhit"
+                                              }
+                                            ],
+                                            "assignBlackboard": true,
+                                            "entityBlackboardAssignments": [
+                                              {
+                                                "targetKey": "EntityBB_curve_rate",
+                                                "valueType": "Numeric",
+                                                "numericValue": 0.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "curve_rate"
+                                              },
+                                              {
+                                                "targetKey": "EntityBB_speed",
+                                                "valueType": "Numeric",
+                                                "numericValue": 0.0,
+                                                "stringValue": "",
+                                                "useDirectValue": false,
+                                                "inputValueKey": "speed"
+                                              }
+                                            ],
+                                            "target": {
+                                              "targetSource": "Source",
+                                              "targetGroupKey": "",
+                                              "selectorOwner": "ActionOwner",
+                                              "ownerContextKey": "",
+                                              "centerType": "ActionSource",
+                                              "centerContextKey": "",
+                                              "centerToGround": false,
+                                              "target": "ActionSource",
+                                              "targetContextKey": "",
+                                              "enableAdvancedDirection": false,
+                                              "selectorDirection": "SourceForward",
+                                              "finderType": null,
+                                              "validatorTypes": [],
+                                              "postProcessorTypes": []
+                                            }
+                                          },
+                                          "projectileTriggeredSkills": [
+                                            {
+                                              "launchFrame": 0,
+                                              "actionOrder": [
+                                                0,
+                                                0,
+                                                0,
+                                                0,
+                                                0,
+                                                1,
+                                                1,
+                                                1,
+                                                12,
+                                                0,
+                                                12,
+                                                3
+                                              ],
+                                              "assumedTravelFrames": 0,
+                                              "projectileId": "projectile_chr_0016_laevat_absorb",
+                                              "triggerEvent": "hit",
+                                              "triggerSkillId": "chr_0016_laevat_absorb_projhit",
+                                              "excludedByPrimaryTargetMarker": false,
+                                              "sourceFile": "chr_0016_laevat_absorb_projhit.json",
+                                              "damageUnits": [],
+                                              "directDamageHits": [],
+                                              "conditionalActions": [],
+                                              "auxiliaryActions": [],
+                                              "resourceGains": [],
+                                              "inflictions": [],
+                                              "combatActions": [],
+                                              "cycleTruncated": false,
+                                              "nestedProjectileTriggeredSkills": [],
+                                              "abilityEntityHits": [],
+                                              "auraActions": []
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "actionType": "FinishBuffAdvanced",
+                                          "actionIndex": 5,
+                                          "actionPath": [
+                                            "timelineActions[0]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[10]",
+                                            "action",
+                                            "actionData",
+                                            "[1]",
+                                            "options",
+                                            "[1]",
+                                            "actionData",
+                                            "actionData",
+                                            "[5]"
+                                          ],
+                                          "serverActionIndex": 22,
+                                          "buffFinish": {
+                                            "targetSource": "Target",
+                                            "targetGroupKey": "",
+                                            "buffCheckType": "Tag",
+                                            "buffIds": [],
+                                            "tagQueryType": "hasAny",
+                                            "buffTagIds": [
+                                              -1558844517
+                                            ],
+                                            "finishAll": false,
+                                            "limitSource": false,
+                                            "isFinishedEarly": false,
+                                            "isAbsorbed": true,
+                                            "finishLayerCount": {
+                                              "value": 1.0,
+                                              "blackboardKey": null,
+                                              "levelValues": null
+                                            }
+                                          },
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null
+                                        },
+                                        {
+                                          "actionType": "CreateBuffAction",
+                                          "actionIndex": 6,
+                                          "actionPath": [
+                                            "timelineActions[0]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[10]",
+                                            "action",
+                                            "actionData",
+                                            "[1]",
+                                            "options",
+                                            "[1]",
+                                            "actionData",
+                                            "actionData",
+                                            "[6]"
+                                          ],
+                                          "serverActionIndex": 23,
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null,
+                                          "buffApplication": {
+                                            "buffs": [
+                                              {
+                                                "buffId": "buff_chr_0016_laevat_energy",
+                                                "classification": null,
+                                                "blackboardAssignments": {}
+                                              }
+                                            ],
+                                            "targetSource": "Source",
+                                            "targetGroupKey": "",
+                                            "count": {
+                                              "value": 1.0,
+                                              "blackboardKey": null,
+                                              "levelValues": null
+                                            },
+                                            "buffSource": "ActionSource",
+                                            "buffSourceContextKey": "",
+                                            "inheritSourceSkillCastInfo": true
+                                          }
+                                        }
+                                      ],
+                                      "failActions": [
+                                        {
+                                          "actionType": "SwitchAction",
+                                          "actionIndex": 1,
+                                          "actionPath": [
+                                            "timelineActions[0]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[10]",
+                                            "action",
+                                            "actionData",
+                                            "[1]",
+                                            "options",
+                                            "[2]"
+                                          ],
+                                          "serverActionIndex": 12,
+                                          "nestedCondition": {
+                                            "startFrame": 0,
+                                            "endFrame": 0,
+                                            "actionIndex": 12,
+                                            "actionPath": [
+                                              "timelineActions[0]",
+                                              "_sequenceActionData",
+                                              "actionData",
+                                              "[0]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[10]",
+                                              "action",
+                                              "actionData",
+                                              "[1]",
+                                              "options",
+                                              "[2]"
+                                            ],
+                                            "conditions": [
+                                              {
+                                                "sourceType": "CompareFloat",
+                                                "supported": true,
+                                                "comparison": "Equals",
+                                                "left": {
+                                                  "value": 0.0,
+                                                  "blackboardKey": "count",
+                                                  "levelValues": [
+                                                    0.0
+                                                  ]
+                                                },
+                                                "right": {
+                                                  "value": 3.0,
+                                                  "blackboardKey": null,
+                                                  "levelValues": null
+                                                },
+                                                "skillTypes": [],
+                                                "poise": null,
+                                                "superArmor": null,
+                                                "twoDirectionAngle": null,
+                                                "targetAngle": null,
+                                                "damageDecorateMask": null,
+                                                "contextBuffId": null,
+                                                "objectTypeMatch": null,
+                                                "deckAttributeCompare": null,
+                                                "probability": null,
+                                                "anyConditionGroups": [],
+                                                "anyConditionNegated": []
+                                              }
+                                            ],
+                                            "succeedActions": [
+                                              {
+                                                "actionType": "FinishBuffAdvanced",
+                                                "actionIndex": 1,
+                                                "actionPath": [
+                                                  "timelineActions[0]",
+                                                  "_sequenceActionData",
+                                                  "actionData",
+                                                  "[0]",
+                                                  "succeedActions",
+                                                  "actionData",
+                                                  "[10]",
+                                                  "action",
+                                                  "actionData",
+                                                  "[1]",
+                                                  "options",
+                                                  "[2]",
+                                                  "actionData",
+                                                  "actionData",
+                                                  "[1]"
+                                                ],
+                                                "serverActionIndex": 25,
+                                                "buffFinish": {
+                                                  "targetSource": "Target",
+                                                  "targetGroupKey": "",
+                                                  "buffCheckType": "Tag",
+                                                  "buffIds": [],
+                                                  "tagQueryType": "hasAny",
+                                                  "buffTagIds": [
+                                                    -1558844517
+                                                  ],
+                                                  "finishAll": false,
+                                                  "limitSource": false,
+                                                  "isFinishedEarly": false,
+                                                  "isAbsorbed": true,
+                                                  "finishLayerCount": {
+                                                    "value": 1.0,
+                                                    "blackboardKey": null,
+                                                    "levelValues": null
+                                                  }
+                                                },
+                                                "legacyBuffFinish": null,
+                                                "skillCooldownAdjustment": null,
+                                                "buffIgnite": null
+                                              },
+                                              {
+                                                "actionType": "CreateBuffAction",
+                                                "actionIndex": 2,
+                                                "actionPath": [
+                                                  "timelineActions[0]",
+                                                  "_sequenceActionData",
+                                                  "actionData",
+                                                  "[0]",
+                                                  "succeedActions",
+                                                  "actionData",
+                                                  "[10]",
+                                                  "action",
+                                                  "actionData",
+                                                  "[1]",
+                                                  "options",
+                                                  "[2]",
+                                                  "actionData",
+                                                  "actionData",
+                                                  "[2]"
+                                                ],
+                                                "serverActionIndex": 26,
+                                                "legacyBuffFinish": null,
+                                                "skillCooldownAdjustment": null,
+                                                "buffIgnite": null,
+                                                "buffApplication": {
+                                                  "buffs": [
+                                                    {
+                                                      "buffId": "buff_chr_0016_laevat_energy",
+                                                      "classification": null,
+                                                      "blackboardAssignments": {}
+                                                    }
+                                                  ],
+                                                  "targetSource": "Source",
+                                                  "targetGroupKey": "",
+                                                  "count": {
+                                                    "value": 1.0,
+                                                    "blackboardKey": null,
+                                                    "levelValues": null
+                                                  },
+                                                  "buffSource": "ActionSource",
+                                                  "buffSourceContextKey": "",
+                                                  "inheritSourceSkillCastInfo": true
+                                                }
+                                              },
+                                              {
+                                                "actionType": "LaunchProjectile",
+                                                "actionIndex": 3,
+                                                "actionPath": [
+                                                  "timelineActions[0]",
+                                                  "_sequenceActionData",
+                                                  "actionData",
+                                                  "[0]",
+                                                  "succeedActions",
+                                                  "actionData",
+                                                  "[10]",
+                                                  "action",
+                                                  "actionData",
+                                                  "[1]",
+                                                  "options",
+                                                  "[2]",
+                                                  "actionData",
+                                                  "actionData",
+                                                  "[3]"
+                                                ],
+                                                "serverActionIndex": 27,
+                                                "legacyBuffFinish": null,
+                                                "skillCooldownAdjustment": null,
+                                                "buffIgnite": null,
+                                                "projectileLaunch": {
+                                                  "projectileId": "projectile_chr_0016_laevat_absorb",
+                                                  "skillTriggers": [
+                                                    {
+                                                      "event": "hit",
+                                                      "skillId": "chr_0016_laevat_absorb_projhit"
+                                                    }
+                                                  ],
+                                                  "assignBlackboard": true,
+                                                  "entityBlackboardAssignments": [
+                                                    {
+                                                      "targetKey": "EntityBB_curve_rate",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 0.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "curve_rate"
+                                                    },
+                                                    {
+                                                      "targetKey": "EntityBB_speed",
+                                                      "valueType": "Numeric",
+                                                      "numericValue": 0.0,
+                                                      "stringValue": "",
+                                                      "useDirectValue": false,
+                                                      "inputValueKey": "speed"
+                                                    }
+                                                  ],
+                                                  "target": {
+                                                    "targetSource": "Source",
+                                                    "targetGroupKey": "",
+                                                    "selectorOwner": "ActionOwner",
+                                                    "ownerContextKey": "",
+                                                    "centerType": "ActionSource",
+                                                    "centerContextKey": "",
+                                                    "centerToGround": false,
+                                                    "target": "ActionSource",
+                                                    "targetContextKey": "",
+                                                    "enableAdvancedDirection": false,
+                                                    "selectorDirection": "SourceForward",
+                                                    "finderType": null,
+                                                    "validatorTypes": [],
+                                                    "postProcessorTypes": []
+                                                  }
+                                                },
+                                                "projectileTriggeredSkills": [
+                                                  {
+                                                    "launchFrame": 0,
+                                                    "actionOrder": [
+                                                      0,
+                                                      0,
+                                                      0,
+                                                      0,
+                                                      0,
+                                                      1,
+                                                      1,
+                                                      1,
+                                                      12,
+                                                      0,
+                                                      12,
+                                                      1,
+                                                      12,
+                                                      3
+                                                    ],
+                                                    "assumedTravelFrames": 0,
+                                                    "projectileId": "projectile_chr_0016_laevat_absorb",
+                                                    "triggerEvent": "hit",
+                                                    "triggerSkillId": "chr_0016_laevat_absorb_projhit",
+                                                    "excludedByPrimaryTargetMarker": false,
+                                                    "sourceFile": "chr_0016_laevat_absorb_projhit.json",
+                                                    "damageUnits": [],
+                                                    "directDamageHits": [],
+                                                    "conditionalActions": [],
+                                                    "auxiliaryActions": [],
+                                                    "resourceGains": [],
+                                                    "inflictions": [],
+                                                    "combatActions": [],
+                                                    "cycleTruncated": false,
+                                                    "nestedProjectileTriggeredSkills": [],
+                                                    "abilityEntityHits": [],
+                                                    "auraActions": []
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "actionType": "FinishBuffAdvanced",
+                                                "actionIndex": 5,
+                                                "actionPath": [
+                                                  "timelineActions[0]",
+                                                  "_sequenceActionData",
+                                                  "actionData",
+                                                  "[0]",
+                                                  "succeedActions",
+                                                  "actionData",
+                                                  "[10]",
+                                                  "action",
+                                                  "actionData",
+                                                  "[1]",
+                                                  "options",
+                                                  "[2]",
+                                                  "actionData",
+                                                  "actionData",
+                                                  "[5]"
+                                                ],
+                                                "serverActionIndex": 29,
+                                                "buffFinish": {
+                                                  "targetSource": "Target",
+                                                  "targetGroupKey": "",
+                                                  "buffCheckType": "Tag",
+                                                  "buffIds": [],
+                                                  "tagQueryType": "hasAny",
+                                                  "buffTagIds": [
+                                                    -1558844517
+                                                  ],
+                                                  "finishAll": false,
+                                                  "limitSource": false,
+                                                  "isFinishedEarly": false,
+                                                  "isAbsorbed": true,
+                                                  "finishLayerCount": {
+                                                    "value": 1.0,
+                                                    "blackboardKey": null,
+                                                    "levelValues": null
+                                                  }
+                                                },
+                                                "legacyBuffFinish": null,
+                                                "skillCooldownAdjustment": null,
+                                                "buffIgnite": null
+                                              },
+                                              {
+                                                "actionType": "CreateBuffAction",
+                                                "actionIndex": 6,
+                                                "actionPath": [
+                                                  "timelineActions[0]",
+                                                  "_sequenceActionData",
+                                                  "actionData",
+                                                  "[0]",
+                                                  "succeedActions",
+                                                  "actionData",
+                                                  "[10]",
+                                                  "action",
+                                                  "actionData",
+                                                  "[1]",
+                                                  "options",
+                                                  "[2]",
+                                                  "actionData",
+                                                  "actionData",
+                                                  "[6]"
+                                                ],
+                                                "serverActionIndex": 30,
+                                                "legacyBuffFinish": null,
+                                                "skillCooldownAdjustment": null,
+                                                "buffIgnite": null,
+                                                "buffApplication": {
+                                                  "buffs": [
+                                                    {
+                                                      "buffId": "buff_chr_0016_laevat_energy",
+                                                      "classification": null,
+                                                      "blackboardAssignments": {}
+                                                    }
+                                                  ],
+                                                  "targetSource": "Source",
+                                                  "targetGroupKey": "",
+                                                  "count": {
+                                                    "value": 1.0,
+                                                    "blackboardKey": null,
+                                                    "levelValues": null
+                                                  },
+                                                  "buffSource": "ActionSource",
+                                                  "buffSourceContextKey": "",
+                                                  "inheritSourceSkillCastInfo": true
+                                                }
+                                              },
+                                              {
+                                                "actionType": "FinishBuffAdvanced",
+                                                "actionIndex": 8,
+                                                "actionPath": [
+                                                  "timelineActions[0]",
+                                                  "_sequenceActionData",
+                                                  "actionData",
+                                                  "[0]",
+                                                  "succeedActions",
+                                                  "actionData",
+                                                  "[10]",
+                                                  "action",
+                                                  "actionData",
+                                                  "[1]",
+                                                  "options",
+                                                  "[2]",
+                                                  "actionData",
+                                                  "actionData",
+                                                  "[8]"
+                                                ],
+                                                "serverActionIndex": 32,
+                                                "buffFinish": {
+                                                  "targetSource": "Target",
+                                                  "targetGroupKey": "",
+                                                  "buffCheckType": "Tag",
+                                                  "buffIds": [],
+                                                  "tagQueryType": "hasAny",
+                                                  "buffTagIds": [
+                                                    -1558844517
+                                                  ],
+                                                  "finishAll": false,
+                                                  "limitSource": false,
+                                                  "isFinishedEarly": false,
+                                                  "isAbsorbed": true,
+                                                  "finishLayerCount": {
+                                                    "value": 1.0,
+                                                    "blackboardKey": null,
+                                                    "levelValues": null
+                                                  }
+                                                },
+                                                "legacyBuffFinish": null,
+                                                "skillCooldownAdjustment": null,
+                                                "buffIgnite": null
+                                              },
+                                              {
+                                                "actionType": "CreateBuffAction",
+                                                "actionIndex": 9,
+                                                "actionPath": [
+                                                  "timelineActions[0]",
+                                                  "_sequenceActionData",
+                                                  "actionData",
+                                                  "[0]",
+                                                  "succeedActions",
+                                                  "actionData",
+                                                  "[10]",
+                                                  "action",
+                                                  "actionData",
+                                                  "[1]",
+                                                  "options",
+                                                  "[2]",
+                                                  "actionData",
+                                                  "actionData",
+                                                  "[9]"
+                                                ],
+                                                "serverActionIndex": 33,
+                                                "legacyBuffFinish": null,
+                                                "skillCooldownAdjustment": null,
+                                                "buffIgnite": null,
+                                                "buffApplication": {
+                                                  "buffs": [
+                                                    {
+                                                      "buffId": "buff_chr_0016_laevat_energy",
+                                                      "classification": null,
+                                                      "blackboardAssignments": {}
+                                                    }
+                                                  ],
+                                                  "targetSource": "Source",
+                                                  "targetGroupKey": "",
+                                                  "count": {
+                                                    "value": 1.0,
+                                                    "blackboardKey": null,
+                                                    "levelValues": null
+                                                  },
+                                                  "buffSource": "ActionSource",
+                                                  "buffSourceContextKey": "",
+                                                  "inheritSourceSkillCastInfo": true
+                                                }
+                                              }
+                                            ],
+                                            "failActions": [
+                                              {
+                                                "actionType": "SwitchAction",
+                                                "actionIndex": 2,
+                                                "actionPath": [
+                                                  "timelineActions[0]",
+                                                  "_sequenceActionData",
+                                                  "actionData",
+                                                  "[0]",
+                                                  "succeedActions",
+                                                  "actionData",
+                                                  "[10]",
+                                                  "action",
+                                                  "actionData",
+                                                  "[1]",
+                                                  "options",
+                                                  "[3]"
+                                                ],
+                                                "serverActionIndex": 12,
+                                                "nestedCondition": {
+                                                  "startFrame": 0,
+                                                  "endFrame": 0,
+                                                  "actionIndex": 12,
+                                                  "actionPath": [
+                                                    "timelineActions[0]",
+                                                    "_sequenceActionData",
+                                                    "actionData",
+                                                    "[0]",
+                                                    "succeedActions",
+                                                    "actionData",
+                                                    "[10]",
+                                                    "action",
+                                                    "actionData",
+                                                    "[1]",
+                                                    "options",
+                                                    "[3]"
+                                                  ],
+                                                  "conditions": [
+                                                    {
+                                                      "sourceType": "CompareFloat",
+                                                      "supported": true,
+                                                      "comparison": "Equals",
+                                                      "left": {
+                                                        "value": 0.0,
+                                                        "blackboardKey": "count",
+                                                        "levelValues": [
+                                                          0.0
+                                                        ]
+                                                      },
+                                                      "right": {
+                                                        "value": 4.0,
+                                                        "blackboardKey": null,
+                                                        "levelValues": null
+                                                      },
+                                                      "skillTypes": [],
+                                                      "poise": null,
+                                                      "superArmor": null,
+                                                      "twoDirectionAngle": null,
+                                                      "targetAngle": null,
+                                                      "damageDecorateMask": null,
+                                                      "contextBuffId": null,
+                                                      "objectTypeMatch": null,
+                                                      "deckAttributeCompare": null,
+                                                      "probability": null,
+                                                      "anyConditionGroups": [],
+                                                      "anyConditionNegated": []
+                                                    }
+                                                  ],
+                                                  "succeedActions": [
+                                                    {
+                                                      "actionType": "FinishBuffAdvanced",
+                                                      "actionIndex": 1,
+                                                      "actionPath": [
+                                                        "timelineActions[0]",
+                                                        "_sequenceActionData",
+                                                        "actionData",
+                                                        "[0]",
+                                                        "succeedActions",
+                                                        "actionData",
+                                                        "[10]",
+                                                        "action",
+                                                        "actionData",
+                                                        "[1]",
+                                                        "options",
+                                                        "[3]",
+                                                        "actionData",
+                                                        "actionData",
+                                                        "[1]"
+                                                      ],
+                                                      "serverActionIndex": 35,
+                                                      "buffFinish": {
+                                                        "targetSource": "Target",
+                                                        "targetGroupKey": "",
+                                                        "buffCheckType": "Tag",
+                                                        "buffIds": [],
+                                                        "tagQueryType": "hasAny",
+                                                        "buffTagIds": [
+                                                          -1558844517
+                                                        ],
+                                                        "finishAll": false,
+                                                        "limitSource": false,
+                                                        "isFinishedEarly": false,
+                                                        "isAbsorbed": true,
+                                                        "finishLayerCount": {
+                                                          "value": 1.0,
+                                                          "blackboardKey": null,
+                                                          "levelValues": null
+                                                        }
+                                                      },
+                                                      "legacyBuffFinish": null,
+                                                      "skillCooldownAdjustment": null,
+                                                      "buffIgnite": null
+                                                    },
+                                                    {
+                                                      "actionType": "CreateBuffAction",
+                                                      "actionIndex": 2,
+                                                      "actionPath": [
+                                                        "timelineActions[0]",
+                                                        "_sequenceActionData",
+                                                        "actionData",
+                                                        "[0]",
+                                                        "succeedActions",
+                                                        "actionData",
+                                                        "[10]",
+                                                        "action",
+                                                        "actionData",
+                                                        "[1]",
+                                                        "options",
+                                                        "[3]",
+                                                        "actionData",
+                                                        "actionData",
+                                                        "[2]"
+                                                      ],
+                                                      "serverActionIndex": 36,
+                                                      "legacyBuffFinish": null,
+                                                      "skillCooldownAdjustment": null,
+                                                      "buffIgnite": null,
+                                                      "buffApplication": {
+                                                        "buffs": [
+                                                          {
+                                                            "buffId": "buff_chr_0016_laevat_energy",
+                                                            "classification": null,
+                                                            "blackboardAssignments": {}
+                                                          }
+                                                        ],
+                                                        "targetSource": "Source",
+                                                        "targetGroupKey": "",
+                                                        "count": {
+                                                          "value": 1.0,
+                                                          "blackboardKey": null,
+                                                          "levelValues": null
+                                                        },
+                                                        "buffSource": "ActionSource",
+                                                        "buffSourceContextKey": "",
+                                                        "inheritSourceSkillCastInfo": true
+                                                      }
+                                                    },
+                                                    {
+                                                      "actionType": "LaunchProjectile",
+                                                      "actionIndex": 3,
+                                                      "actionPath": [
+                                                        "timelineActions[0]",
+                                                        "_sequenceActionData",
+                                                        "actionData",
+                                                        "[0]",
+                                                        "succeedActions",
+                                                        "actionData",
+                                                        "[10]",
+                                                        "action",
+                                                        "actionData",
+                                                        "[1]",
+                                                        "options",
+                                                        "[3]",
+                                                        "actionData",
+                                                        "actionData",
+                                                        "[3]"
+                                                      ],
+                                                      "serverActionIndex": 37,
+                                                      "legacyBuffFinish": null,
+                                                      "skillCooldownAdjustment": null,
+                                                      "buffIgnite": null,
+                                                      "projectileLaunch": {
+                                                        "projectileId": "projectile_chr_0016_laevat_absorb",
+                                                        "skillTriggers": [
+                                                          {
+                                                            "event": "hit",
+                                                            "skillId": "chr_0016_laevat_absorb_projhit"
+                                                          }
+                                                        ],
+                                                        "assignBlackboard": true,
+                                                        "entityBlackboardAssignments": [
+                                                          {
+                                                            "targetKey": "EntityBB_curve_rate",
+                                                            "valueType": "Numeric",
+                                                            "numericValue": 0.0,
+                                                            "stringValue": "",
+                                                            "useDirectValue": false,
+                                                            "inputValueKey": "curve_rate"
+                                                          },
+                                                          {
+                                                            "targetKey": "EntityBB_speed",
+                                                            "valueType": "Numeric",
+                                                            "numericValue": 0.0,
+                                                            "stringValue": "",
+                                                            "useDirectValue": false,
+                                                            "inputValueKey": "speed"
+                                                          }
+                                                        ],
+                                                        "target": {
+                                                          "targetSource": "Source",
+                                                          "targetGroupKey": "",
+                                                          "selectorOwner": "ActionOwner",
+                                                          "ownerContextKey": "",
+                                                          "centerType": "ActionSource",
+                                                          "centerContextKey": "",
+                                                          "centerToGround": false,
+                                                          "target": "ActionSource",
+                                                          "targetContextKey": "",
+                                                          "enableAdvancedDirection": false,
+                                                          "selectorDirection": "SourceForward",
+                                                          "finderType": null,
+                                                          "validatorTypes": [],
+                                                          "postProcessorTypes": []
+                                                        }
+                                                      },
+                                                      "projectileTriggeredSkills": [
+                                                        {
+                                                          "launchFrame": 0,
+                                                          "actionOrder": [
+                                                            0,
+                                                            0,
+                                                            0,
+                                                            0,
+                                                            0,
+                                                            1,
+                                                            1,
+                                                            1,
+                                                            12,
+                                                            0,
+                                                            12,
+                                                            1,
+                                                            12,
+                                                            2,
+                                                            12,
+                                                            3
+                                                          ],
+                                                          "assumedTravelFrames": 0,
+                                                          "projectileId": "projectile_chr_0016_laevat_absorb",
+                                                          "triggerEvent": "hit",
+                                                          "triggerSkillId": "chr_0016_laevat_absorb_projhit",
+                                                          "excludedByPrimaryTargetMarker": false,
+                                                          "sourceFile": "chr_0016_laevat_absorb_projhit.json",
+                                                          "damageUnits": [],
+                                                          "directDamageHits": [],
+                                                          "conditionalActions": [],
+                                                          "auxiliaryActions": [],
+                                                          "resourceGains": [],
+                                                          "inflictions": [],
+                                                          "combatActions": [],
+                                                          "cycleTruncated": false,
+                                                          "nestedProjectileTriggeredSkills": [],
+                                                          "abilityEntityHits": [],
+                                                          "auraActions": []
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "actionType": "FinishBuffAdvanced",
+                                                      "actionIndex": 5,
+                                                      "actionPath": [
+                                                        "timelineActions[0]",
+                                                        "_sequenceActionData",
+                                                        "actionData",
+                                                        "[0]",
+                                                        "succeedActions",
+                                                        "actionData",
+                                                        "[10]",
+                                                        "action",
+                                                        "actionData",
+                                                        "[1]",
+                                                        "options",
+                                                        "[3]",
+                                                        "actionData",
+                                                        "actionData",
+                                                        "[5]"
+                                                      ],
+                                                      "serverActionIndex": 39,
+                                                      "buffFinish": {
+                                                        "targetSource": "Target",
+                                                        "targetGroupKey": "",
+                                                        "buffCheckType": "Tag",
+                                                        "buffIds": [],
+                                                        "tagQueryType": "hasAny",
+                                                        "buffTagIds": [
+                                                          -1558844517
+                                                        ],
+                                                        "finishAll": false,
+                                                        "limitSource": false,
+                                                        "isFinishedEarly": false,
+                                                        "isAbsorbed": true,
+                                                        "finishLayerCount": {
+                                                          "value": 1.0,
+                                                          "blackboardKey": null,
+                                                          "levelValues": null
+                                                        }
+                                                      },
+                                                      "legacyBuffFinish": null,
+                                                      "skillCooldownAdjustment": null,
+                                                      "buffIgnite": null
+                                                    },
+                                                    {
+                                                      "actionType": "CreateBuffAction",
+                                                      "actionIndex": 6,
+                                                      "actionPath": [
+                                                        "timelineActions[0]",
+                                                        "_sequenceActionData",
+                                                        "actionData",
+                                                        "[0]",
+                                                        "succeedActions",
+                                                        "actionData",
+                                                        "[10]",
+                                                        "action",
+                                                        "actionData",
+                                                        "[1]",
+                                                        "options",
+                                                        "[3]",
+                                                        "actionData",
+                                                        "actionData",
+                                                        "[6]"
+                                                      ],
+                                                      "serverActionIndex": 40,
+                                                      "legacyBuffFinish": null,
+                                                      "skillCooldownAdjustment": null,
+                                                      "buffIgnite": null,
+                                                      "buffApplication": {
+                                                        "buffs": [
+                                                          {
+                                                            "buffId": "buff_chr_0016_laevat_energy",
+                                                            "classification": null,
+                                                            "blackboardAssignments": {}
+                                                          }
+                                                        ],
+                                                        "targetSource": "Source",
+                                                        "targetGroupKey": "",
+                                                        "count": {
+                                                          "value": 1.0,
+                                                          "blackboardKey": null,
+                                                          "levelValues": null
+                                                        },
+                                                        "buffSource": "ActionSource",
+                                                        "buffSourceContextKey": "",
+                                                        "inheritSourceSkillCastInfo": true
+                                                      }
+                                                    },
+                                                    {
+                                                      "actionType": "FinishBuffAdvanced",
+                                                      "actionIndex": 8,
+                                                      "actionPath": [
+                                                        "timelineActions[0]",
+                                                        "_sequenceActionData",
+                                                        "actionData",
+                                                        "[0]",
+                                                        "succeedActions",
+                                                        "actionData",
+                                                        "[10]",
+                                                        "action",
+                                                        "actionData",
+                                                        "[1]",
+                                                        "options",
+                                                        "[3]",
+                                                        "actionData",
+                                                        "actionData",
+                                                        "[8]"
+                                                      ],
+                                                      "serverActionIndex": 42,
+                                                      "buffFinish": {
+                                                        "targetSource": "Target",
+                                                        "targetGroupKey": "",
+                                                        "buffCheckType": "Tag",
+                                                        "buffIds": [],
+                                                        "tagQueryType": "hasAny",
+                                                        "buffTagIds": [
+                                                          -1558844517
+                                                        ],
+                                                        "finishAll": false,
+                                                        "limitSource": false,
+                                                        "isFinishedEarly": false,
+                                                        "isAbsorbed": true,
+                                                        "finishLayerCount": {
+                                                          "value": 1.0,
+                                                          "blackboardKey": null,
+                                                          "levelValues": null
+                                                        }
+                                                      },
+                                                      "legacyBuffFinish": null,
+                                                      "skillCooldownAdjustment": null,
+                                                      "buffIgnite": null
+                                                    },
+                                                    {
+                                                      "actionType": "CreateBuffAction",
+                                                      "actionIndex": 9,
+                                                      "actionPath": [
+                                                        "timelineActions[0]",
+                                                        "_sequenceActionData",
+                                                        "actionData",
+                                                        "[0]",
+                                                        "succeedActions",
+                                                        "actionData",
+                                                        "[10]",
+                                                        "action",
+                                                        "actionData",
+                                                        "[1]",
+                                                        "options",
+                                                        "[3]",
+                                                        "actionData",
+                                                        "actionData",
+                                                        "[9]"
+                                                      ],
+                                                      "serverActionIndex": 43,
+                                                      "legacyBuffFinish": null,
+                                                      "skillCooldownAdjustment": null,
+                                                      "buffIgnite": null,
+                                                      "buffApplication": {
+                                                        "buffs": [
+                                                          {
+                                                            "buffId": "buff_chr_0016_laevat_energy",
+                                                            "classification": null,
+                                                            "blackboardAssignments": {}
+                                                          }
+                                                        ],
+                                                        "targetSource": "Source",
+                                                        "targetGroupKey": "",
+                                                        "count": {
+                                                          "value": 1.0,
+                                                          "blackboardKey": null,
+                                                          "levelValues": null
+                                                        },
+                                                        "buffSource": "ActionSource",
+                                                        "buffSourceContextKey": "",
+                                                        "inheritSourceSkillCastInfo": true
+                                                      }
+                                                    },
+                                                    {
+                                                      "actionType": "FinishBuffAdvanced",
+                                                      "actionIndex": 11,
+                                                      "actionPath": [
+                                                        "timelineActions[0]",
+                                                        "_sequenceActionData",
+                                                        "actionData",
+                                                        "[0]",
+                                                        "succeedActions",
+                                                        "actionData",
+                                                        "[10]",
+                                                        "action",
+                                                        "actionData",
+                                                        "[1]",
+                                                        "options",
+                                                        "[3]",
+                                                        "actionData",
+                                                        "actionData",
+                                                        "[11]"
+                                                      ],
+                                                      "serverActionIndex": 45,
+                                                      "buffFinish": {
+                                                        "targetSource": "Target",
+                                                        "targetGroupKey": "",
+                                                        "buffCheckType": "Tag",
+                                                        "buffIds": [],
+                                                        "tagQueryType": "hasAny",
+                                                        "buffTagIds": [
+                                                          -1558844517
+                                                        ],
+                                                        "finishAll": false,
+                                                        "limitSource": false,
+                                                        "isFinishedEarly": false,
+                                                        "isAbsorbed": true,
+                                                        "finishLayerCount": {
+                                                          "value": 1.0,
+                                                          "blackboardKey": null,
+                                                          "levelValues": null
+                                                        }
+                                                      },
+                                                      "legacyBuffFinish": null,
+                                                      "skillCooldownAdjustment": null,
+                                                      "buffIgnite": null
+                                                    },
+                                                    {
+                                                      "actionType": "CreateBuffAction",
+                                                      "actionIndex": 12,
+                                                      "actionPath": [
+                                                        "timelineActions[0]",
+                                                        "_sequenceActionData",
+                                                        "actionData",
+                                                        "[0]",
+                                                        "succeedActions",
+                                                        "actionData",
+                                                        "[10]",
+                                                        "action",
+                                                        "actionData",
+                                                        "[1]",
+                                                        "options",
+                                                        "[3]",
+                                                        "actionData",
+                                                        "actionData",
+                                                        "[12]"
+                                                      ],
+                                                      "serverActionIndex": 46,
+                                                      "legacyBuffFinish": null,
+                                                      "skillCooldownAdjustment": null,
+                                                      "buffIgnite": null,
+                                                      "buffApplication": {
+                                                        "buffs": [
+                                                          {
+                                                            "buffId": "buff_chr_0016_laevat_energy",
+                                                            "classification": null,
+                                                            "blackboardAssignments": {}
+                                                          }
+                                                        ],
+                                                        "targetSource": "Source",
+                                                        "targetGroupKey": "",
+                                                        "count": {
+                                                          "value": 1.0,
+                                                          "blackboardKey": null,
+                                                          "levelValues": null
+                                                        },
+                                                        "buffSource": "ActionSource",
+                                                        "buffSourceContextKey": "",
+                                                        "inheritSourceSkillCastInfo": true
+                                                      }
+                                                    }
+                                                  ],
+                                                  "failActions": [],
+                                                  "conditionNegated": [],
+                                                  "alwaysNext": false
+                                                },
+                                                "legacyBuffFinish": null,
+                                                "skillCooldownAdjustment": null,
+                                                "buffIgnite": null
+                                              }
+                                            ],
+                                            "conditionNegated": [],
+                                            "alwaysNext": false
+                                          },
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null
+                                        }
+                                      ],
+                                      "conditionNegated": [],
+                                      "alwaysNext": false
+                                    },
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null
+                                  }
+                                ],
+                                "conditionNegated": [],
+                                "alwaysNext": true
+                              },
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null
+                            }
+                          ],
+                          "failActions": [],
+                          "conditionNegated": [],
+                          "alwaysNext": false
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      }
+                    ],
+                    "failActions": [],
+                    "conditionNegated": [],
+                    "alwaysNext": false
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [
+            {
+              "startFrame": 0,
+              "endFrame": 0,
+              "actionIndex": 6,
+              "actionPath": [
+                "timelineActions[0]",
+                "_sequenceActionData",
+                "actionData",
+                "[6]"
+              ],
+              "targetGroupKey": "fire_inflicted",
+              "producerType": "FindTargetAction",
+              "finderType": "HitBoxFinder",
+              "finderFactionTarget": "Anti",
+              "finderTargetObjectType": "Normal",
+              "finderCheckAlive": true,
+              "validatorTypes": [
+                "TagValidator"
+              ],
+              "postProcessorTypes": [
+                "PriorityFilter"
+              ],
+              "inputTargets": [],
+              "intervalSeconds": null,
+              "validatorTagQueries": [
+                [
+                  "HasAny",
+                  [
+                    -1558844517
+                  ]
+                ]
+              ],
+              "pickIndexValue": null,
+              "pickIndexBlackboardKey": null
+            }
+          ],
+          "obtainAtbValueKeys": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
+    },
+    {
+      "buffId": "buff_chr_0016_laevat_passive_teammate_cd",
+      "sourceFile": "buff_chr_0016_laevat_passive_teammate_cd.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
         "abnormalColorType": "Physical",
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,

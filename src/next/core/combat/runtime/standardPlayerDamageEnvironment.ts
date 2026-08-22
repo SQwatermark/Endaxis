@@ -52,7 +52,10 @@ import { CombatVitalsRuntime } from './combatVitalsRuntime';
 import { PlayerDamageOperationExecutor } from './playerDamageOperationExecutor';
 import type { CombatOperationExecutor } from './skillRuntime';
 import type { FrameRuntime } from './combatSimulation';
-import { resolveStaticPlayerDamageSnapshots } from './staticPlayerDamageSnapshots';
+import {
+  initializeEnemyResistanceAttributes,
+  resolveStaticPlayerDamageSnapshots,
+} from './staticPlayerDamageSnapshots';
 import { gameplayTagId, type GameplayTagRegistry } from '../tags/gameplayTags';
 import { HealOperationExecutor, type ResolvedHealTarget } from './healOperationExecutor';
 import { compareCombatNumbers } from './numericComparison';
@@ -151,6 +154,7 @@ const strictTerminal: CombatOperationExecutor = {
 export class StandardPlayerDamageEnvironment {
   readonly runtimeOptions: EnvironmentOptions;
   readonly #events = new Map<string, AbilityEventDispatcher<StandardPlayerDamageEvent, unknown>>();
+  readonly #enemyResistanceAttributes: CombatAttributeSet<string>;
   readonly #enemyBuffs: CombatBuffContainer<string>;
   readonly #enemyBuffRuntime: BuffDefinitionOperationTarget<string>;
   readonly #operatorBuffRuntimes = new Map<string, BuffDefinitionOperationTarget<string>>();
@@ -168,9 +172,11 @@ export class StandardPlayerDamageEnvironment {
   #resources: CombatResources | null = null;
 
   constructor(readonly options: StandardPlayerDamageEnvironmentOptions) {
+    const enemyAttributes = new CombatAttributeSet<string>();
+    this.#enemyResistanceAttributes = enemyAttributes;
     this.#enemyBuffs = new CombatBuffContainer(
       'enemy',
-      new CombatAttributeSet<string>(),
+      enemyAttributes,
       options.tagRegistry,
       null,
       undefined,
@@ -291,7 +297,12 @@ export class StandardPlayerDamageEnvironment {
       clock: context.clock,
       receipt: context.receipt,
       captureAttributeSnapshots: step =>
-        resolveStaticPlayerDamageSnapshots(context, step, operatorBuffs.attributes),
+        resolveStaticPlayerDamageSnapshots(
+          context,
+          step,
+          operatorBuffs.attributes,
+          this.#enemyResistanceAttributes,
+        ),
       criticalSamples: this.options.criticalSamples,
       resolveNonRandomRuntimeSnapshot: step =>
         this.options.resolveNonRandomRuntimeSnapshot(context, step),
@@ -515,6 +526,12 @@ export class StandardPlayerDamageEnvironment {
       throw new Error('standard player damage environment cannot be shared across enemies');
     }
     this.#enemyIdentity = context.enemy;
+    if (!this.#enemyResistanceAttributes.has('FireResistance')) {
+      initializeEnemyResistanceAttributes(
+        this.#enemyResistanceAttributes,
+        context.enemy.defenderAttributes,
+      );
+    }
     if (this.#enemyVitalsRuntime !== null) return;
     // 生命账本在场景装配层创建；这里只按本场时钟与回执把它的逐帧推进器接入运行时。
     this.#enemyVitalsRuntime = new CombatVitalsRuntime({

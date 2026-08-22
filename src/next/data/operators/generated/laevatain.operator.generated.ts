@@ -2057,6 +2057,11 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
           }),
         ),
         enhanceChanged: sequence(
+          step('readBuffStackCount', {
+            target: 'caster',
+            outputKey: 'count',
+            query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
+          }),
           branch(
             {
               kind: 'actionValueCompare',
@@ -2267,6 +2272,305 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
       priority: 0,
       maxStackCount: 1,
     },
+    'buff_chr_0016_laevat_absorb_fire_inflict': {
+      stackingType: 'unlimited',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: 3,
+      triggerIntervalSeconds: 0.5,
+      waitFirstTriggerInterval: false,
+      maxTriggerCount: 1,
+      lifecycleSequences: {
+        start: sequence(
+          step('finishBuffsByTag', {
+            target: 'enemy',
+            tagQueryType: 'hasAny',
+            buffTagIds: [-1558844517],
+            reason: 'early',
+            count: { kind: 'constant', value: 1 },
+          }),
+        ),
+      },
+    },
+    'buff_chr_0016_laevat_passive_enemy': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      blackboard: {
+        'count': 0,
+      },
+      abilityEventResponses: [
+        {
+          event: 'ownerHpZero',
+          priority: 0,
+          sequence:
+            sequence(
+              step('readBuffStackCount', {
+                target: 'enemy',
+                outputKey: 'count',
+                query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [-1558844517] },
+              }),
+              step('applyBuff', {
+                buffId: 'buff_chr_0016_laevat_absorb_fire_inflict',
+                target: 'enemy',
+                inheritSourceSkillCastInfo: true,
+              }),
+              step('applyBuff', {
+                buffId: 'buff_chr_0016_laevat_energy',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                count: { kind: 'blackboard', key: 'count' },
+              }),
+            ),
+        },
+      ],
+    },
+    'buff_chr_0016_laevat_passive_teammate_cd': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: 1,
+    },
+    'buff_chr_0016_laevat_passive_teammate': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      blackboard: {
+        'count': 0,
+        'curve_rate': 0,
+        'distance': 0,
+        'max_stack': 0,
+        'speed': 0,
+      },
+      abilityEventResponses: [
+        {
+          event: 'outputDamage',
+          priority: 0,
+          sequence:
+            sequence(
+              branch(
+                {
+                  kind: 'eventDamageTagsMatch',
+                  match: 'hasAny',
+                  tags: ['powerAttack', 'normalAttackLastCombo'],
+                },
+                sequence(
+                  branch(
+                    { kind: 'casterControlled' },
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_chr_0016_laevat_passive_teammate_cd',
+                        target: 'caster',
+                        inheritSourceSkillCastInfo: true,
+                      }),
+                      step('readBuffStackCount', {
+                        target: 'enemy',
+                        outputKey: 'count',
+                        query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [-1558844517] },
+                      }),
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'count' },
+                          operator: 'equal',
+                          right: { kind: 'constant', value: 1 },
+                        },
+                        sequence(
+                          step('finishBuffsByTag', {
+                            target: 'enemy',
+                            tagQueryType: 'hasAny',
+                            buffTagIds: [-1558844517],
+                            reason: 'absorbed',
+                          }),
+                          step('applyBuff', {
+                            buffId: 'buff_chr_0016_laevat_energy',
+                            target: 'caster',
+                            inheritSourceSkillCastInfo: true,
+                          }),
+                        ),
+                        sequence(
+                          branch(
+                            {
+                              kind: 'actionValueCompare',
+                              left: { kind: 'blackboard', key: 'count' },
+                              operator: 'equal',
+                              right: { kind: 'constant', value: 2 },
+                            },
+                            sequence(
+                              step('finishBuffsByTag', {
+                                target: 'enemy',
+                                tagQueryType: 'hasAny',
+                                buffTagIds: [-1558844517],
+                                reason: 'absorbed',
+                                count: { kind: 'constant', value: 1 },
+                              }),
+                              step('applyBuff', {
+                                buffId: 'buff_chr_0016_laevat_energy',
+                                target: 'caster',
+                                inheritSourceSkillCastInfo: true,
+                              }),
+                              step('finishBuffsByTag', {
+                                target: 'enemy',
+                                tagQueryType: 'hasAny',
+                                buffTagIds: [-1558844517],
+                                reason: 'absorbed',
+                                count: { kind: 'constant', value: 1 },
+                              }),
+                              step('applyBuff', {
+                                buffId: 'buff_chr_0016_laevat_energy',
+                                target: 'caster',
+                                inheritSourceSkillCastInfo: true,
+                              }),
+                            ),
+                            sequence(
+                              branch(
+                                {
+                                  kind: 'actionValueCompare',
+                                  left: { kind: 'blackboard', key: 'count' },
+                                  operator: 'equal',
+                                  right: { kind: 'constant', value: 3 },
+                                },
+                                sequence(
+                                  step('finishBuffsByTag', {
+                                    target: 'enemy',
+                                    tagQueryType: 'hasAny',
+                                    buffTagIds: [-1558844517],
+                                    reason: 'absorbed',
+                                    count: { kind: 'constant', value: 1 },
+                                  }),
+                                  step('applyBuff', {
+                                    buffId: 'buff_chr_0016_laevat_energy',
+                                    target: 'caster',
+                                    inheritSourceSkillCastInfo: true,
+                                  }),
+                                  step('finishBuffsByTag', {
+                                    target: 'enemy',
+                                    tagQueryType: 'hasAny',
+                                    buffTagIds: [-1558844517],
+                                    reason: 'absorbed',
+                                    count: { kind: 'constant', value: 1 },
+                                  }),
+                                  step('applyBuff', {
+                                    buffId: 'buff_chr_0016_laevat_energy',
+                                    target: 'caster',
+                                    inheritSourceSkillCastInfo: true,
+                                  }),
+                                  step('finishBuffsByTag', {
+                                    target: 'enemy',
+                                    tagQueryType: 'hasAny',
+                                    buffTagIds: [-1558844517],
+                                    reason: 'absorbed',
+                                    count: { kind: 'constant', value: 1 },
+                                  }),
+                                  step('applyBuff', {
+                                    buffId: 'buff_chr_0016_laevat_energy',
+                                    target: 'caster',
+                                    inheritSourceSkillCastInfo: true,
+                                  }),
+                                ),
+                                sequence(
+                                  branch(
+                                    {
+                                      kind: 'actionValueCompare',
+                                      left: { kind: 'blackboard', key: 'count' },
+                                      operator: 'equal',
+                                      right: { kind: 'constant', value: 4 },
+                                    },
+                                    sequence(
+                                      step('finishBuffsByTag', {
+                                        target: 'enemy',
+                                        tagQueryType: 'hasAny',
+                                        buffTagIds: [-1558844517],
+                                        reason: 'absorbed',
+                                        count: { kind: 'constant', value: 1 },
+                                      }),
+                                      step('applyBuff', {
+                                        buffId: 'buff_chr_0016_laevat_energy',
+                                        target: 'caster',
+                                        inheritSourceSkillCastInfo: true,
+                                      }),
+                                      step('finishBuffsByTag', {
+                                        target: 'enemy',
+                                        tagQueryType: 'hasAny',
+                                        buffTagIds: [-1558844517],
+                                        reason: 'absorbed',
+                                        count: { kind: 'constant', value: 1 },
+                                      }),
+                                      step('applyBuff', {
+                                        buffId: 'buff_chr_0016_laevat_energy',
+                                        target: 'caster',
+                                        inheritSourceSkillCastInfo: true,
+                                      }),
+                                      step('finishBuffsByTag', {
+                                        target: 'enemy',
+                                        tagQueryType: 'hasAny',
+                                        buffTagIds: [-1558844517],
+                                        reason: 'absorbed',
+                                        count: { kind: 'constant', value: 1 },
+                                      }),
+                                      step('applyBuff', {
+                                        buffId: 'buff_chr_0016_laevat_energy',
+                                        target: 'caster',
+                                        inheritSourceSkillCastInfo: true,
+                                      }),
+                                      step('finishBuffsByTag', {
+                                        target: 'enemy',
+                                        tagQueryType: 'hasAny',
+                                        buffTagIds: [-1558844517],
+                                        reason: 'absorbed',
+                                        count: { kind: 'constant', value: 1 },
+                                      }),
+                                      step('applyBuff', {
+                                        buffId: 'buff_chr_0016_laevat_energy',
+                                        target: 'caster',
+                                        inheritSourceSkillCastInfo: true,
+                                      }),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        { alwaysNext: true },
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        },
+      ],
+    },
+    'buff_chr_0016_laevat_passive': {
+      stackingType: 'unlimited',
+      priority: 0,
+      maxStackCount: 1,
+      blackboard: {
+        'ignore_fire_resist': 0,
+        'ignore_fire_resist_duration': 0,
+        'max_stack': 4,
+      },
+      lifecycleSequences: {
+        enable: sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0016_laevat_passive_enemy',
+            target: 'enemy',
+            inheritSourceSkillCastInfo: false,
+            finishByAction: true,
+          }),
+          step('applyBuff', {
+            buffId: 'buff_chr_0016_laevat_passive_teammate',
+            target: 'party',
+            inheritSourceSkillCastInfo: false,
+            finishByAction: true,
+            blackboardAssignments: {
+              'max_stack': { kind: 'blackboard', key: 'max_stack' },
+            },
+          }),
+        ),
+      },
+    },
     'buff_chr_0016_laevat_potential_5': {
       stackingType: 'unique',
       priority: 0,
@@ -2398,6 +2702,11 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                       }),
                     ),
                     enhanceChanged: sequence(
+                      step('readBuffStackCount', {
+                        target: 'caster',
+                        outputKey: 'count',
+                        query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
+                      }),
                       branch(
                         {
                           kind: 'actionValueCompare',
@@ -2548,6 +2857,11 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                       }),
                     ),
                     enhanceChanged: sequence(
+                      step('readBuffStackCount', {
+                        target: 'caster',
+                        outputKey: 'count',
+                        query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
+                      }),
                       branch(
                         {
                           kind: 'actionValueCompare',
@@ -2693,6 +3007,11 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                       }),
                     ),
                     enhanceChanged: sequence(
+                      step('readBuffStackCount', {
+                        target: 'caster',
+                        outputKey: 'count',
+                        query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
+                      }),
                       branch(
                         {
                           kind: 'actionValueCompare',
@@ -2838,6 +3157,11 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                       }),
                     ),
                     enhanceChanged: sequence(
+                      step('readBuffStackCount', {
+                        target: 'caster',
+                        outputKey: 'count',
+                        query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
+                      }),
                       branch(
                         {
                           kind: 'actionValueCompare',
@@ -2983,6 +3307,11 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                       }),
                     ),
                     enhanceChanged: sequence(
+                      step('readBuffStackCount', {
+                        target: 'caster',
+                        outputKey: 'count',
+                        query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
+                      }),
                       branch(
                         {
                           kind: 'actionValueCompare',
@@ -3128,6 +3457,11 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                       }),
                     ),
                     enhanceChanged: sequence(
+                      step('readBuffStackCount', {
+                        target: 'caster',
+                        outputKey: 'count',
+                        query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
+                      }),
                       branch(
                         {
                           kind: 'actionValueCompare',
@@ -3273,6 +3607,11 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                       }),
                     ),
                     enhanceChanged: sequence(
+                      step('readBuffStackCount', {
+                        target: 'caster',
+                        outputKey: 'count',
+                        query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
+                      }),
                       branch(
                         {
                           kind: 'actionValueCompare',
@@ -3418,6 +3757,11 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                       }),
                     ),
                     enhanceChanged: sequence(
+                      step('readBuffStackCount', {
+                        target: 'caster',
+                        outputKey: 'count',
+                        query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
+                      }),
                       branch(
                         {
                           kind: 'actionValueCompare',
@@ -3563,6 +3907,11 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                       }),
                     ),
                     enhanceChanged: sequence(
+                      step('readBuffStackCount', {
+                        target: 'caster',
+                        outputKey: 'count',
+                        query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
+                      }),
                       branch(
                         {
                           kind: 'actionValueCompare',
@@ -3708,6 +4057,11 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                       }),
                     ),
                     enhanceChanged: sequence(
+                      step('readBuffStackCount', {
+                        target: 'caster',
+                        outputKey: 'count',
+                        query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
+                      }),
                       branch(
                         {
                           kind: 'actionValueCompare',
@@ -3853,6 +4207,11 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                       }),
                     ),
                     enhanceChanged: sequence(
+                      step('readBuffStackCount', {
+                        target: 'caster',
+                        outputKey: 'count',
+                        query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
+                      }),
                       branch(
                         {
                           kind: 'actionValueCompare',
@@ -3956,6 +4315,28 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
       key: 'talent1',
       levels: 3,
       modifiers: [],
+      passiveSkills: [
+        {
+          key: 'buff_chr_0016_laevat_passive',
+          blackboard: {
+            'ignore_fire_resist': [-10, -15, -20],
+            'ignore_fire_resist_duration': [20, 20, 20],
+            'max_stack': [4, 4, 4],
+          },
+          enableSequence: sequence(
+            step('applyBuff', {
+              buffId: 'buff_chr_0016_laevat_passive',
+              target: 'caster',
+              inheritSourceSkillCastInfo: false,
+              blackboardAssignments: {
+                'ignore_fire_resist': { kind: 'blackboard', key: 'ignore_fire_resist' },
+                'ignore_fire_resist_duration': { kind: 'blackboard', key: 'ignore_fire_resist_duration' },
+                'max_stack': { kind: 'blackboard', key: 'max_stack' },
+              },
+            }),
+          ),
+        },
+      ],
     },
     {
       key: 'talent2',

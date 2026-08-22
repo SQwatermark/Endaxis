@@ -336,7 +336,7 @@ describe('CombatBuffContainer', () => {
     expect(container.getCountById('buff.attack')).toBe(0);
   });
 
-  it('captures instant attribute modifiers for one stage and clears them afterward', () => {
+  it('keeps the instant stage snapshot for the final hit and clears the live modifier', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
     const container = new CombatBuffContainer('operator', attributes);
@@ -364,6 +364,10 @@ describe('CombatBuffContainer', () => {
 
     const context = createDamageContext(attributes, container);
     context.applyModifiers('beforeCalculation');
+    expect(context.attackerAttributes.attack).toBe(150);
+    expect(attributes.get('attack')).toBe(100);
+    context.setCalculationResult(150);
+    context.resolveFinalAttackValue();
     expect(context.attackerAttributes.attack).toBe(150);
     expect(attributes.get('attack')).toBe(100);
 
@@ -1846,6 +1850,29 @@ describe('CombatBuffContainer', () => {
 
     expect(container.finishCountByIds([definition.id], 1, 'other')).toBe(1);
     expect(finished).toEqual([first.instanceId]);
+    expect(container.getCountById(definition.id)).toBe(2);
+  });
+
+  it('decreases one enhance layer through a limited tag finish', () => {
+    const tagPath = 'buff/status/fire';
+    const tag = gameplayTagIdFromPath(tagPath);
+    const container = new CombatBuffContainer(
+      'enemy',
+      new CombatAttributeSet<Attribute>(),
+      new GameplayTagRegistry([tagPath]),
+    );
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'fire-infliction',
+      stackingType: 'enhance',
+      maxStackCount: 4,
+      applyTags: [tag],
+    };
+    container.add(definition, 'operator');
+    container.add(definition, 'operator');
+    container.add(definition, 'operator');
+
+    expect(container.getCountById(definition.id)).toBe(3);
+    expect(container.finishCountByTags([tag], 'hasAny', 1, 'early')).toBe(1);
     expect(container.getCountById(definition.id)).toBe(2);
   });
 

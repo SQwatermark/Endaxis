@@ -468,7 +468,9 @@ def compile_inline_buff_event_responses(
                 ),
                 input_target=(
                     "enemy"
-                    if event.eventSource == "buff" and buff_owner_target == "enemy"
+                    if (event.eventSource == "buff" and buff_owner_target == "enemy")
+                    or is_output_damage
+                    or is_enemy_before_take_spell_infliction
                     else None
                 ),
                 step_key_prefix=f"{source.buffId}:{step_key_event}:{sequence_index}",

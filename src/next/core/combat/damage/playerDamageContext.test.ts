@@ -68,6 +68,7 @@ describe('PlayerDamageContext', () => {
     expect(context.baseValue).toBe(480);
     expect(context.value).toBe(720);
     expect(context.resolveFinalAttackValue()).toBe(1440);
+    expect(context.attackerAttributes.attack).toBe(120);
     expect(order).toEqual([
       'beforeCalculation:attacker',
       'beforeCalculation:defender',
@@ -99,5 +100,63 @@ describe('PlayerDamageContext', () => {
 
     expect(() => context.applyModifiers('beforeCalculation')).toThrow('modifier failed');
     expect(clear.mock.calls).toEqual([['attacker'], ['defender']]);
+  });
+
+  it('keeps before-calculation instant attributes through the final snapshot, then clears them', () => {
+    let instantResistance = false;
+    const clear = vi.fn(() => {
+      instantResistance = false;
+    });
+    const context = new PlayerDamageContext({
+      sourceId: 'operator',
+      targetId: 'enemy',
+      damageType: 'heat',
+      targetHealthType: 'normal',
+      ports: {
+        captureAttributeSnapshots: () => {
+          const snapshots = createSnapshots(100);
+          return {
+            ...snapshots,
+            defender: {
+              ...snapshots.defender,
+              resistances: {
+                ...snapshots.defender.resistances,
+                heat: { percent: instantResistance ? 30 : 50, damageTakenMultiplier: 1 },
+              },
+            },
+          };
+        },
+        applyModifiers: (timing, side, damageContext) => {
+          if (timing === 'beforeCalculation' && side === 'attacker') {
+            damageContext.addInstantAttributeModifier('defender', {
+              attribute: 'FireResistance',
+              values: {
+                addition: 0,
+                multiplier: 0,
+                finalAddition: 0,
+                finalMultiplier: 1,
+                baseAddition: -20,
+                baseMultiplier: 0,
+                baseFinalAddition: 0,
+                baseFinalMultiplier: 1,
+              },
+              timing: 'runtime',
+            });
+          }
+        },
+        addInstantAttributeModifier: () => {
+          instantResistance = true;
+        },
+        clearInstantAttributeModifiers: clear,
+      },
+    });
+
+    context.applyModifiers('beforeCalculation');
+    context.setCalculationResult(100);
+    context.resolveFinalAttackValue();
+
+    expect(context.defenderAttributes.resistances.heat.percent).toBe(30);
+    expect(instantResistance).toBe(false);
+    expect(clear.mock.calls).toEqual([['attacker'], ['defender'], ['attacker'], ['defender']]);
   });
 });

@@ -738,7 +738,7 @@ export interface CombatStepParameters {
         };
     sameSourceSkillCast?: boolean;
   };
-  /** 按原生标签查询结束目标身上所有匹配的 Buff。 */
+  /** 按原生标签查询结束目标身上的匹配 Buff；count 缺省时结束全部。 */
   finishBuffsByTag: {
     target: Exclude<
       BuffApplicationTarget,
@@ -750,6 +750,7 @@ export interface CombatStepParameters {
     tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
     buffTagIds: readonly number[];
     reason: 'early' | 'absorbed' | 'other';
+    count?: ActionValueOperand;
   };
   /** 按 Buff 定义身份结束目标身上的匹配实例；count 缺省时结束全部。 */
   finishBuffsById: {

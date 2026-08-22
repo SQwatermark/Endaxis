@@ -396,6 +396,37 @@ def parse_buff_stack_read_payload(action: dict[str, Any], path: str) -> BuffStac
     )
 
 
+def parse_simple_buff_stack_read_payload(
+    action: dict[str, Any], path: str
+) -> BuffStackReadPayload:
+    """解析原生 SaveBuffStackNum：固定 Buff ID 的累计层数写入动作黑板。"""
+    expected_fields = {
+        "$type", "isEnable", "priorityLevel", "priorityOffset", "serverActionIndex",
+        "checkTarget", "buffId", "key",
+    }
+    if set(action) != expected_fields:
+        raise ValueError(f"{path}: unexpected SaveBuffStackNum fields {sorted(action)}")
+    output_key = action.get("key")
+    if not isinstance(output_key, str) or not output_key:
+        raise ValueError(f"{path}.key: expected non-empty string")
+    target = require_dict(action.get("checkTarget"), f"{path}.checkTarget")
+    buff = require_dict(action.get("buffId"), f"{path}.buffId")
+    buff_id = buff.get("buffId")
+    if set(buff) != {"buffId"} or not isinstance(buff_id, str) or not buff_id:
+        raise ValueError(f"{path}.buffId.buffId: expected direct non-empty id")
+    return BuffStackReadPayload(
+        outputKey=output_key,
+        targetSource=str(target.get("targetSource", "")),
+        targetGroupKey=str(target.get("targetGroupKey", "")),
+        buffCheckType="Id",
+        buffIds=(buff_id,),
+        tagQueryType="hasAny",
+        buffTagIds=(),
+        countType="BuffCount",
+        limitSkillCastId=False,
+    )
+
+
 def parse_buff_application_entries(
     value: Any,
     path: str,

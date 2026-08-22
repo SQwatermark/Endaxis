@@ -2430,6 +2430,7 @@ def resolve_progression_buff_definitions(
     potential_table: dict[str, Any],
     effects: dict[str, Any],
     buff_source_dir: Path,
+    skill_source_dir: Path,
 ) -> tuple[BuffDefinitionSource, ...]:
     """只解析 manifest 明确启用的 AddBuff 养成；复杂未建模 Buff 不污染正式生成。"""
     buff_ids: set[str] = set()
@@ -2519,6 +2520,7 @@ def resolve_progression_buff_definitions(
     return resolve_buff_definitions(
         tuple(sorted(buff_ids)),
         (buff_source_dir, buff_source_dir.parent / "buff-data-current"),
+        skill_source_dir,
     )
 
 
@@ -4328,12 +4330,10 @@ def compile_buff_finish(
             context_target_is_enemy=context_target_is_enemy,
         )
     )
-    if (
-        target is not None
-        and finish.finishAll
-        and finish.buffCheckType == "Tag"
-        and finish.buffTagIds
-    ):
+    if target is not None and finish.buffCheckType == "Tag" and finish.buffTagIds:
+        count = getattr(finish, "finishLayerCount", None)
+        if not finish.finishAll and count is None:
+            raise ValueError(f"{path}: partial Buff finish has no layer count")
         return "\n".join(
             [
                 "step('finishBuffsByTag', {",
@@ -4341,6 +4341,11 @@ def compile_buff_finish(
                 f"  tagQueryType: {ts_inline_literal(finish.tagQueryType)},",
                 f"  buffTagIds: {ts_inline_literal(finish.buffTagIds)},",
                 f"  reason: {ts_inline_literal(reason)},",
+                *(
+                    []
+                    if finish.finishAll
+                    else [f"  count: {compile_condition_operand(count, f'{path}.finishLayerCount')},"]
+                ),
                 "})",
             ]
         )
@@ -5138,6 +5143,32 @@ def projectile_children_are_immediate(
     return bool(expected_actions) and set(hit.combatActions) == expected_actions
 
 
+def projectile_children_are_presentation_only(
+    triggered_skills: tuple[ProjectileTriggeredSkillSource, ...],
+) -> bool:
+    """确认已解析的投射物子技能只含表现动作，不把未知子技能静默归零。"""
+    required_fields = (
+        "cycleTruncated",
+        "damageUnits",
+        "directDamageHits",
+        "conditionalActions",
+        "auxiliaryActions",
+        "resourceGains",
+        "inflictions",
+        "nestedProjectileTriggeredSkills",
+        "abilityEntityHits",
+        "auraActions",
+        "keywordActions",
+        "knockDownOutputs",
+        "combatActions",
+    )
+    return bool(triggered_skills) and all(
+        all(hasattr(hit, field) for field in required_fields)
+        and all(not getattr(hit, field) for field in required_fields)
+        for hit in triggered_skills
+    )
+
+
 def projectile_children_are_inline_conditional(
     triggered_skills: tuple[ProjectileTriggeredSkillSource, ...],
 ) -> bool:
@@ -5196,6 +5227,8 @@ def compile_immediate_projectile_children(
 ) -> str | None:
     """编译命中帧同步完成的投射物子技能；延迟、递归与实体生成继续留给调度层。"""
 
+    if projectile_children_are_presentation_only(triggered_skills):
+        return "sequence()"
     if projectile_children_are_inline_conditional(triggered_skills):
         projectile_target = None if projectile_launch is None else projectile_launch.target
         input_target = (

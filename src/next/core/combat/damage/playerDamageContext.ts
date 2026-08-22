@@ -78,6 +78,8 @@ export class PlayerDamageContext {
   #value = 0;
   #pendingCalculationScale = 1;
   #hasCalculationResult = false;
+  readonly #instantModifiedSides = new Set<DamageModifierSide>();
+  #beforeCalculationInstantSnapshots: Partial<PlayerDamageAttributeSnapshots> = {};
   #snapshots: PlayerDamageAttributeSnapshots;
 
   constructor(input: PlayerDamageContextInput) {
@@ -120,17 +122,46 @@ export class PlayerDamageContext {
     request: InstantAttributeModifierRequest,
   ): void {
     this.#ports.addInstantAttributeModifier(side, request);
+    this.#instantModifiedSides.add(side);
   }
 
   applyModifiers(timing: DamageProcessTiming): void {
     try {
       this.#ports.applyModifiers(timing, 'attacker', this);
       this.#ports.applyModifiers(timing, 'defender', this);
-      this.#snapshots = this.#ports.captureAttributeSnapshots();
+      const captured = this.#ports.captureAttributeSnapshots();
+      if (timing === 'beforeCalculation') {
+        this.#beforeCalculationInstantSnapshots = {
+          ...(this.#instantModifiedSides.has('attacker') ? { attacker: captured.attacker } : {}),
+          ...(this.#instantModifiedSides.has('defender') ? { defender: captured.defender } : {}),
+        };
+        this.#snapshots = captured;
+      } else {
+        // 原生在每个处理阶段重采样后立即清理 Instant 修正。最终公式仍须使用
+        // BeforeCalculation 为被修改一侧冻结的包内副本；另一侧继续接收后阶段快照。
+        this.#snapshots = {
+          attacker: this.#beforeCalculationInstantSnapshots.attacker ?? captured.attacker,
+          defender: this.#beforeCalculationInstantSnapshots.defender ?? captured.defender,
+        };
+        this.#beforeCalculationInstantSnapshots = {};
+        this.#instantModifiedSides.clear();
+      }
+    } catch (error) {
+      this.#beforeCalculationInstantSnapshots = {};
+      this.#instantModifiedSides.clear();
+      throw error;
     } finally {
       this.#ports.clearInstantAttributeModifiers('attacker');
       this.#ports.clearInstantAttributeModifiers('defender');
     }
+  }
+
+  dispose(): void {
+    if (this.#instantModifiedSides.size === 0) return;
+    this.#ports.clearInstantAttributeModifiers('attacker');
+    this.#ports.clearInstantAttributeModifiers('defender');
+    this.#beforeCalculationInstantSnapshots = {};
+    this.#instantModifiedSides.clear();
   }
 
   setCalculationResult(value: number): void {
