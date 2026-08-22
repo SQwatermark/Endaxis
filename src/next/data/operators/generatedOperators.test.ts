@@ -184,7 +184,7 @@ describe('新增的完整技能转换干员', () => {
     ).toEqual([]);
   });
 
-  it.each(generatedOperators)('养成缺口与尚无可执行行为的定义保持一致', operator => {
+  it.each(generatedOperators)('尚无可执行行为的养成定义必须保留对应缺口', operator => {
     const capabilities = new Set(
       operator.conversionSupport?.missingCapabilities.map(item => item.capability),
     );
@@ -193,12 +193,12 @@ describe('新增的完整技能转换干员', () => {
       capabilities.size === 0 ? 'complete' : 'partial',
     );
 
-    expect(capabilities.has('talentEffects')).toBe(
-      operator.talents.some(talent => !hasUpgradeBehavior(talent)),
-    );
-    expect(capabilities.has('potentialEffects')).toBe(
-      operator.potentials.some(potential => !hasUpgradeBehavior(potential)),
-    );
+    if (operator.talents.some(talent => !hasUpgradeBehavior(talent))) {
+      expect(capabilities.has('talentEffects')).toBe(true);
+    }
+    if (operator.potentials.some(potential => !hasUpgradeBehavior(potential))) {
+      expect(capabilities.has('potentialEffects')).toBe(true);
+    }
   });
 
   it.each(generatedOperators)('所有技能等级都能编译为运行时程序', operator => {

@@ -688,6 +688,9 @@ export class StandardPlayerDamageEnvironment {
       }
       return this.#resources.getMaxUltimateEnergy(sourceId);
     }
+    if (request.attribute.kind === 'specific' && request.attribute.key === 'maxHealth') {
+      return this.#requireOperatorVitals(sourceId).maxHealth;
+    }
     const panel = this.#operatorPanels.get(sourceId);
     if (panel === undefined) {
       throw new Error(`combat attribute source operator '${sourceId}' has no resolved panel`);

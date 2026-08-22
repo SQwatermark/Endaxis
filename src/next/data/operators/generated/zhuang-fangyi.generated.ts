@@ -89,7 +89,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -98,6 +100,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -201,7 +204,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -229,7 +234,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -238,6 +245,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -700,7 +708,9 @@ export const zhuangFangyiGeneratedSource = {
               "pickIndexValue": null,
               "pickIndexBlackboardKey": null
             }
-          ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -1095,7 +1105,9 @@ export const zhuangFangyiGeneratedSource = {
               "pickIndexValue": 0.0,
               "pickIndexBlackboardKey": "swordIndex"
             }
-          ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -1214,7 +1226,9 @@ export const zhuangFangyiGeneratedSource = {
               "pickIndexValue": null,
               "pickIndexBlackboardKey": null
             }
-          ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -1223,6 +1237,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -1316,7 +1331,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -1437,7 +1454,9 @@ export const zhuangFangyiGeneratedSource = {
               "pickIndexValue": null,
               "pickIndexBlackboardKey": null
             }
-          ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -1727,7 +1746,9 @@ export const zhuangFangyiGeneratedSource = {
               "pickIndexValue": null,
               "pickIndexBlackboardKey": null
             }
-          ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -1736,6 +1757,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -1951,7 +1973,9 @@ export const zhuangFangyiGeneratedSource = {
               "pickIndexValue": null,
               "pickIndexBlackboardKey": null
             }
-          ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -1960,6 +1984,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -2140,7 +2165,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -2149,6 +2176,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -2273,7 +2301,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -2336,7 +2366,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -2345,6 +2377,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -2468,6 +2501,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -2559,7 +2593,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -2568,6 +2604,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -3277,6 +3314,7 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [
         {
@@ -3583,6 +3621,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -3692,7 +3731,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -3701,6 +3742,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -3772,6 +3814,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -3933,7 +3976,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -3942,6 +3987,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -4065,7 +4111,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -4192,7 +4240,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -4222,7 +4272,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -4355,7 +4407,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -4438,7 +4492,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -4555,7 +4611,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -4564,6 +4622,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -4764,7 +4823,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -5013,7 +5074,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -5022,6 +5085,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -5115,7 +5179,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -5124,6 +5190,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -5215,7 +5282,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -5224,6 +5293,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -5404,7 +5474,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -5413,6 +5485,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -5495,6 +5568,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -5578,6 +5652,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -5681,7 +5756,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -5690,6 +5767,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -5802,6 +5880,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -5938,7 +6017,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -5947,6 +6028,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -6024,6 +6106,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -6447,7 +6530,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -6456,6 +6541,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -6722,7 +6808,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -6839,7 +6927,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -7035,7 +7125,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -7063,7 +7155,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -7091,7 +7185,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -7100,6 +7196,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -7199,7 +7296,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -7208,6 +7307,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -7299,7 +7399,9 @@ export const zhuangFangyiGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -7308,6 +7410,7 @@ export const zhuangFangyiGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -54261,7 +54364,8 @@ export const zhuangFangyiGeneratedSource = {
                 "selectorDirection": "SourceForward",
                 "finderType": "OwnerSpawnedEntityFinder",
                 "validatorTypes": [],
-                "postProcessorTypes": []
+                "postProcessorTypes": [],
+                "finderSpawnedObjectType": "AbilityEntity"
               },
               "spawnedObjectType": "AbilityEntity",
               "tagQueries": []
@@ -55779,7 +55883,8 @@ export const zhuangFangyiGeneratedSource = {
                 "selectorDirection": "SourceForward",
                 "finderType": "OwnerSpawnedEntityFinder",
                 "validatorTypes": [],
-                "postProcessorTypes": []
+                "postProcessorTypes": [],
+                "finderSpawnedObjectType": "AbilityEntity"
               },
               "spawnedObjectType": "AbilityEntity",
               "tagQueries": []

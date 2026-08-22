@@ -1525,6 +1525,11 @@ def compile_progression_buff_definition(
     buff_definitions: dict[str, BuffDefinitionSource],
 ) -> str:
     """编译施法者养成 Buff，并复用统一的内联生命周期动作链。"""
+    presentation_only_buff_ids = frozenset(
+        buff_id
+        for buff_id, definition in buff_definitions.items()
+        if is_strictly_presentation_only_buff(definition)
+    )
     has_event_sequences = bool(getattr(source, "comboQteActions", ())) or any(
         sequence.actions
         for event in source.eventActions
@@ -1539,6 +1544,7 @@ def compile_progression_buff_definition(
                 event_path,
                 buff_owner_target="caster",
                 buff_definitions=buff_definitions,
+                ignored_buff_ids=presentation_only_buff_ids,
             )
             if has_event_sequences
             else None

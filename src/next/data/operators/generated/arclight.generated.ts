@@ -198,7 +198,9 @@ export const arclightGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -207,12 +209,19 @@ export const arclightGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": true,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0007_ikut_combo_skill_tutorial_marker",
@@ -272,12 +281,19 @@ export const arclightGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0007_ikut_finish_count_p5",
@@ -390,7 +406,9 @@ export const arclightGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -399,12 +417,19 @@ export const arclightGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0007_ikut_normal_skill_extra_count",
@@ -604,22 +629,31 @@ export const arclightGeneratedSource = {
                     "[1]"
                   ],
                   "serverActionIndex": 1,
-                  "blackboardCalculation": {
-                    "key": "final_pulse_up",
-                    "operation": "Multiply",
-                    "left": {
-                      "value": 0,
-                      "blackboardKey": "intellect",
+                  "storeAttributeValue": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "attributeKind": "specific",
+                    "attributeKey": "intellect",
+                    "stage": "finalNonConverted",
+                    "useFloor": false,
+                    "divisor": {
+                      "value": 1.0,
+                      "blackboardKey": null,
                       "levelValues": null
                     },
-                    "right": {
+                    "multiplier": {
                       "value": 1.0,
                       "blackboardKey": "pulse_up",
                       "levelValues": [
                         0.0
                       ]
                     },
-                    "addend": null
+                    "base": {
+                      "value": 0.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "outputKey": "final_pulse_up"
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -714,7 +748,9 @@ export const arclightGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -723,12 +759,19 @@ export const arclightGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -800,12 +843,19 @@ export const arclightGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -870,48 +920,55 @@ export const arclightGeneratedSource = {
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
-      "eventActions": [
-        {
-          "eventSource": "buff",
-          "event": "DuringBuffEnable",
-          "orderedActionTypes": [
-            "SetSuperArmorAction"
-          ],
-          "combatActions": [],
-          "damageUnits": [],
-          "buffApplications": [],
-          "createdBuffIds": [],
-          "forEachActions": [],
-          "targetGroupWrites": [],
-          "sequences": [
-            {
-              "onlyMainOperator": false,
-              "onlyGuard": false,
-              "orderedActionTypes": [
-                "SetSuperArmorAction"
-              ],
-              "combatActions": [],
-              "buffApplications": [],
-              "actions": [],
-              "priority": 0
-            }
-          ],
-          "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
-        }
-      ],
+      "eventActions": [],
       "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [
+        {
+          "target": {
+            "targetSource": "Owner",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "superArmor": {
+            "value": 50.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "impactResistance": {
+            "value": 100.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -1007,7 +1064,9 @@ export const arclightGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -1016,12 +1075,19 @@ export const arclightGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -1087,12 +1153,19 @@ export const arclightGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_vfx_char_atk_up",
@@ -1154,12 +1227,19 @@ export const arclightGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     }
   ],
   "skills": [
@@ -1367,13 +1447,21 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -1428,7 +1516,11 @@ export const arclightGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -1592,7 +1684,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -1614,13 +1708,21 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -1675,7 +1777,11 @@ export const arclightGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -1884,13 +1990,21 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -1945,7 +2059,11 @@ export const arclightGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -2109,7 +2227,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -2131,13 +2251,21 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -2192,7 +2320,11 @@ export const arclightGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -2499,13 +2631,21 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -2560,7 +2700,11 @@ export const arclightGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 13,
@@ -2580,13 +2724,21 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -2641,7 +2793,11 @@ export const arclightGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -2828,7 +2984,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 13,
@@ -2849,7 +3007,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -2871,13 +3031,21 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -2932,7 +3100,11 @@ export const arclightGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 13,
@@ -2952,13 +3124,21 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -3013,7 +3193,11 @@ export const arclightGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -3452,13 +3636,21 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -3513,7 +3705,11 @@ export const arclightGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 6,
@@ -3533,13 +3729,21 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -3594,7 +3798,11 @@ export const arclightGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 7,
@@ -3614,13 +3822,21 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -3675,7 +3891,11 @@ export const arclightGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -3862,7 +4082,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 6,
@@ -3883,7 +4105,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 7,
@@ -3904,7 +4128,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 8,
@@ -3925,7 +4151,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 9,
@@ -3946,7 +4174,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 10,
@@ -3967,7 +4197,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 11,
@@ -3988,7 +4220,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 12,
@@ -4009,7 +4243,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 13,
@@ -4030,7 +4266,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 14,
@@ -4051,7 +4289,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 15,
@@ -4072,7 +4312,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 16,
@@ -4093,7 +4335,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 17,
@@ -4114,7 +4358,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 18,
@@ -4135,7 +4381,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 19,
@@ -4156,7 +4404,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -4178,13 +4428,21 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -4239,7 +4497,11 @@ export const arclightGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 6,
@@ -4259,13 +4521,21 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -4320,7 +4590,11 @@ export const arclightGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 7,
@@ -4340,13 +4614,21 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -4401,7 +4683,11 @@ export const arclightGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -4678,13 +4964,21 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Source",
                 "targetGroupKey": "tar"
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -4739,7 +5033,11 @@ export const arclightGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -4932,7 +5230,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -4954,13 +5254,21 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Source",
                 "targetGroupKey": "tar"
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -5015,7 +5323,11 @@ export const arclightGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -5752,13 +6064,21 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Source",
                 "targetGroupKey": "tar"
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -5813,7 +6133,11 @@ export const arclightGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -5977,7 +6301,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -5999,13 +6325,21 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Source",
                 "targetGroupKey": "tar"
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -6060,7 +6394,11 @@ export const arclightGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -6925,6 +7263,10 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "distance": {
                 "source": {
                   "targetSource": "Owner",
@@ -6965,7 +7307,11 @@ export const arclightGeneratedSource = {
               },
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -7056,6 +7402,10 @@ export const arclightGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "entityTag": {
                       "targetSource": "Context",
                       "targetGroupKey": "smart_target",
@@ -7066,7 +7416,11 @@ export const arclightGeneratedSource = {
                     },
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -7131,9 +7485,17 @@ export const arclightGeneratedSource = {
                             "levelValues": null
                           },
                           "skillTypes": [],
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -7235,7 +7597,11 @@ export const arclightGeneratedSource = {
                           }
                         }
                       ],
-                      "failActions": []
+                      "failActions": [],
+                      "conditionNegated": [
+                        false
+                      ],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -7752,7 +8118,11 @@ export const arclightGeneratedSource = {
                       "inheritSourceSkillCastInfo": true
                     }
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -7842,7 +8212,11 @@ export const arclightGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -7862,6 +8236,10 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "entityTag": {
                 "targetSource": "Context",
                 "targetGroupKey": "smart_target",
@@ -7872,7 +8250,11 @@ export const arclightGeneratedSource = {
               },
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -7903,7 +8285,11 @@ export const arclightGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -8350,7 +8736,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 24,
@@ -8371,7 +8759,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 112,
@@ -8392,7 +8782,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 118,
@@ -8413,7 +8805,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 136,
@@ -8436,7 +8830,9 @@ export const arclightGeneratedSource = {
             "ExcludeTarget"
           ],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -8458,6 +8854,10 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "distance": {
                 "source": {
                   "targetSource": "Owner",
@@ -8498,7 +8898,11 @@ export const arclightGeneratedSource = {
               },
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -8589,6 +8993,10 @@ export const arclightGeneratedSource = {
                     "left": null,
                     "right": null,
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "entityTag": {
                       "targetSource": "Context",
                       "targetGroupKey": "smart_target",
@@ -8599,7 +9007,11 @@ export const arclightGeneratedSource = {
                     },
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -8664,9 +9076,17 @@ export const arclightGeneratedSource = {
                             "levelValues": null
                           },
                           "skillTypes": [],
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -8768,7 +9188,11 @@ export const arclightGeneratedSource = {
                           }
                         }
                       ],
-                      "failActions": []
+                      "failActions": [],
+                      "conditionNegated": [
+                        false
+                      ],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
@@ -9285,7 +9709,11 @@ export const arclightGeneratedSource = {
                       "inheritSourceSkillCastInfo": true
                     }
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -9375,7 +9803,11 @@ export const arclightGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -9395,6 +9827,10 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "entityTag": {
                 "targetSource": "Context",
                 "targetGroupKey": "smart_target",
@@ -9405,7 +9841,11 @@ export const arclightGeneratedSource = {
               },
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -9436,7 +9876,11 @@ export const arclightGeneratedSource = {
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -9475,9 +9919,17 @@ export const arclightGeneratedSource = {
                 "levelValues": null
               },
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "directConditionNegated": [
@@ -10487,7 +10939,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -10511,7 +10965,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -10535,7 +10991,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -10561,7 +11019,10 @@ export const arclightGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -10585,7 +11046,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -10611,7 +11074,10 @@ export const arclightGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 17,
@@ -10632,7 +11098,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 21,
@@ -10653,7 +11121,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 25,
@@ -10674,7 +11144,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -10696,13 +11168,21 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -10793,7 +11273,11 @@ export const arclightGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -10813,13 +11297,21 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [],
@@ -10841,7 +11333,11 @@ export const arclightGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -10885,7 +11381,8 @@ export const arclightGeneratedSource = {
                 "selectorDirection": "SourceForward",
                 "finderType": "OwnerSpawnedEntityFinder",
                 "validatorTypes": [],
-                "postProcessorTypes": []
+                "postProcessorTypes": [],
+                "finderSpawnedObjectType": "AbilityEntity"
               },
               "spawnedObjectType": "AbilityEntity",
               "tagQueries": []
@@ -11211,13 +11708,21 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Source",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             },
             {
               "sourceType": "CheckSkillCameraMotionFree",
@@ -11226,9 +11731,17 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [],
@@ -11259,7 +11772,12 @@ export const arclightGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "conditionNegated": [
+            false,
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -11535,7 +12053,8 @@ export const arclightGeneratedSource = {
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         }
       ],
       "referencedBuffIds": [
@@ -11773,7 +12292,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -11800,7 +12321,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -11827,7 +12350,9 @@ export const arclightGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -11849,13 +12374,21 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Source",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -11902,9 +12435,17 @@ export const arclightGeneratedSource = {
                       "excludeDeadEntity": false,
                       "storeKey": ""
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -11950,14 +12491,22 @@ export const arclightGeneratedSource = {
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -11977,13 +12526,21 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Source",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             },
             {
               "sourceType": "CheckSkillCameraMotionFree",
@@ -11992,9 +12549,17 @@ export const arclightGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [],
@@ -12025,7 +12590,12 @@ export const arclightGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "conditionNegated": [
+            false,
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],

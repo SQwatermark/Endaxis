@@ -125,7 +125,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -134,6 +136,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -144,7 +147,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_atkup_owner",
@@ -257,7 +261,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -266,6 +272,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -276,7 +283,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_buff_atkup",
@@ -513,7 +521,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -527,7 +537,9 @@
           "targetGroupWrites": [],
           "sequences": [],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -536,6 +548,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -546,7 +559,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_end",
@@ -614,6 +628,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -624,7 +639,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_endtag_finish",
@@ -743,7 +759,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -752,6 +770,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -762,7 +781,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_animation_hitl",
@@ -858,6 +878,7 @@
       ],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [
@@ -880,7 +901,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 24,
@@ -901,7 +924,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 32,
@@ -922,7 +947,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 25,
@@ -943,7 +970,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 33,
@@ -964,7 +993,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 28,
@@ -985,7 +1016,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 29,
@@ -1006,7 +1039,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "runtimeSkillSlotReplacements": [],
@@ -1126,7 +1161,8 @@
           "assignBlackboard": true,
           "entityBlackboardAssignments": []
         }
-      ]
+      ],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_animation_hitr",
@@ -1222,6 +1258,7 @@
       ],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [
@@ -1244,7 +1281,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 24,
@@ -1265,7 +1304,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 32,
@@ -1286,7 +1327,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 25,
@@ -1307,7 +1350,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 33,
@@ -1328,7 +1373,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 28,
@@ -1349,7 +1396,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 29,
@@ -1370,7 +1419,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "runtimeSkillSlotReplacements": [],
@@ -1490,7 +1541,8 @@
           "assignBlackboard": true,
           "entityBlackboardAssignments": []
         }
-      ]
+      ],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_animation_musicloop",
@@ -1583,7 +1635,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -1642,7 +1696,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -1651,6 +1707,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -1661,7 +1718,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_cd_uishow",
@@ -1741,7 +1799,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -1750,6 +1810,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -1800,7 +1861,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_cry_vfx",
@@ -1880,7 +1942,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -1889,6 +1953,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -1899,7 +1964,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_damage",
@@ -2099,6 +2165,7 @@
                               "poise": null,
                               "superArmor": null,
                               "twoDirectionAngle": null,
+                              "targetAngle": null,
                               "damageDecorateMask": null,
                               "contextBuffId": null,
                               "objectTypeMatch": {
@@ -2140,28 +2207,33 @@
                                 "[0]"
                               ],
                               "serverActionIndex": 2,
-                              "blackboardCalculation": {
-                                "key": "final_heal_value",
-                                "operation": "Multiply",
-                                "left": {
-                                  "value": 0,
-                                  "blackboardKey": "agility",
+                              "storeAttributeValue": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "attributeKind": "specific",
+                                "attributeKey": "agility",
+                                "stage": "finalNonConverted",
+                                "useFloor": false,
+                                "divisor": {
+                                  "value": 1.0,
+                                  "blackboardKey": null,
                                   "levelValues": null
                                 },
-                                "right": {
+                                "multiplier": {
                                   "value": 1.0,
                                   "blackboardKey": "heal_value",
                                   "levelValues": [
                                     0.0
                                   ]
                                 },
-                                "addend": {
+                                "base": {
                                   "value": 0.0,
                                   "blackboardKey": "heal_rate",
                                   "levelValues": [
                                     0.0
                                   ]
-                                }
+                                },
+                                "outputKey": "final_heal_value"
                               },
                               "legacyBuffFinish": null,
                               "skillCooldownAdjustment": null,
@@ -2259,6 +2331,9 @@
                                 "inheritSourceSkillCastInfo": true
                               }
                             }
+                          ],
+                          "conditionNegated": [
+                            false
                           ],
                           "alwaysNext": true
                         }
@@ -2375,6 +2450,7 @@
                               "poise": null,
                               "superArmor": null,
                               "twoDirectionAngle": null,
+                              "targetAngle": null,
                               "damageDecorateMask": null,
                               "contextBuffId": null,
                               "objectTypeMatch": {
@@ -2416,28 +2492,33 @@
                                 "[0]"
                               ],
                               "serverActionIndex": 2,
-                              "blackboardCalculation": {
-                                "key": "final_heal_value",
-                                "operation": "Multiply",
-                                "left": {
-                                  "value": 0,
-                                  "blackboardKey": "agility",
+                              "storeAttributeValue": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "attributeKind": "specific",
+                                "attributeKey": "agility",
+                                "stage": "finalNonConverted",
+                                "useFloor": false,
+                                "divisor": {
+                                  "value": 1.0,
+                                  "blackboardKey": null,
                                   "levelValues": null
                                 },
-                                "right": {
+                                "multiplier": {
                                   "value": 1.0,
                                   "blackboardKey": "heal_value",
                                   "levelValues": [
                                     0.0
                                   ]
                                 },
-                                "addend": {
+                                "base": {
                                   "value": 0.0,
                                   "blackboardKey": "heal_rate",
                                   "levelValues": [
                                     0.0
                                   ]
-                                }
+                                },
+                                "outputKey": "final_heal_value"
                               },
                               "legacyBuffFinish": null,
                               "skillCooldownAdjustment": null,
@@ -2536,6 +2617,9 @@
                               }
                             }
                           ],
+                          "conditionNegated": [
+                            false
+                          ],
                           "alwaysNext": true
                         }
                       ],
@@ -2559,7 +2643,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -2568,6 +2654,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -2578,7 +2665,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_smile_vfx",
@@ -2658,7 +2746,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -2667,6 +2757,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -2677,7 +2768,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_tag",
@@ -3029,6 +3121,7 @@
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
                         "objectTypeMatch": null,
@@ -3058,6 +3151,7 @@
                       }
                     ],
                     "failActions": [],
+                    "conditionNegated": [],
                     "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
@@ -3069,7 +3163,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -3186,7 +3282,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -3271,9 +3369,13 @@
               "validatorTypes": [],
               "postProcessorTypes": [],
               "inputTargets": [],
-              "intervalSeconds": null
+              "intervalSeconds": null,
+              "pickIndexValue": null,
+              "pickIndexBlackboardKey": null
             }
-          ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -3592,6 +3694,7 @@
           ]
         }
       ],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -3602,7 +3705,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_vfx",
@@ -3705,7 +3809,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -3822,7 +3928,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -3885,7 +3993,14 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [
+            [
+              "buff_chr_0035_liino_normalskill_music_animation_hitl",
+              "buff_chr_0035_liino_normalskill_music_animation_hitr"
+            ]
+          ],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -4004,7 +4119,14 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [
+            [
+              "buff_chr_0035_liino_normalskill_music_animation_hitl",
+              "buff_chr_0035_liino_normalskill_music_animation_hitr"
+            ]
+          ],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -4013,6 +4135,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -4023,7 +4146,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_vfx_airflow",
@@ -4103,7 +4227,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -4112,6 +4238,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -4122,7 +4249,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_spelllnfliction_check",
@@ -4308,6 +4436,7 @@
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": {
                           "checkType": "Tag",
@@ -4397,6 +4526,7 @@
                       }
                     ],
                     "failActions": [],
+                    "conditionNegated": [],
                     "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
@@ -4408,7 +4538,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -4417,6 +4549,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -4427,7 +4560,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_spelllnfliction_extraattack",
@@ -4654,6 +4788,7 @@
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "distance": {
                           "source": {
                             "targetSource": "Source",
@@ -4739,6 +4874,7 @@
                               "poise": null,
                               "superArmor": null,
                               "twoDirectionAngle": null,
+                              "targetAngle": null,
                               "timedMarker": {
                                 "targetSource": "Owner",
                                 "targetGroupKey": "",
@@ -4891,6 +5027,7 @@
                                     "poise": null,
                                     "superArmor": null,
                                     "twoDirectionAngle": null,
+                                    "targetAngle": null,
                                     "damageDecorateMask": null,
                                     "contextBuffId": null,
                                     "objectTypeMatch": null,
@@ -5114,6 +5251,9 @@
                                     }
                                   }
                                 ],
+                                "conditionNegated": [
+                                  false
+                                ],
                                 "alwaysNext": true
                               },
                               "legacyBuffFinish": null,
@@ -5122,6 +5262,7 @@
                             }
                           ],
                           "failActions": [],
+                          "conditionNegated": [],
                           "alwaysNext": false
                         },
                         "legacyBuffFinish": null,
@@ -5130,6 +5271,7 @@
                       }
                     ],
                     "failActions": [],
+                    "conditionNegated": [],
                     "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
@@ -5161,9 +5303,13 @@
               "validatorTypes": [],
               "postProcessorTypes": [],
               "inputTargets": [],
-              "intervalSeconds": null
+              "intervalSeconds": null,
+              "pickIndexValue": null,
+              "pickIndexBlackboardKey": null
             }
-          ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -5172,6 +5318,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -5182,7 +5329,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_spelllnfliction_hit",
@@ -5250,6 +5398,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -5260,7 +5409,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_ui_vfx",
@@ -5381,7 +5531,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -5409,7 +5561,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -5503,6 +5657,7 @@
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
                         "objectTypeMatch": null,
@@ -5588,6 +5743,7 @@
                               "poise": null,
                               "superArmor": null,
                               "twoDirectionAngle": null,
+                              "targetAngle": null,
                               "damageDecorateMask": null,
                               "contextBuffId": null,
                               "objectTypeMatch": null,
@@ -5653,6 +5809,7 @@
                                     "poise": null,
                                     "superArmor": null,
                                     "twoDirectionAngle": null,
+                                    "targetAngle": null,
                                     "damageDecorateMask": null,
                                     "contextBuffId": null,
                                     "objectTypeMatch": null,
@@ -5741,6 +5898,9 @@
                                     "skillCooldownAdjustment": null,
                                     "buffIgnite": null
                                   }
+                                ],
+                                "conditionNegated": [
+                                  false
                                 ],
                                 "alwaysNext": true
                               },
@@ -5847,6 +6007,9 @@
                             }
                           ],
                           "failActions": [],
+                          "conditionNegated": [
+                            false
+                          ],
                           "alwaysNext": true
                         },
                         "legacyBuffFinish": null,
@@ -5881,6 +6044,7 @@
                       }
                     ],
                     "failActions": [],
+                    "conditionNegated": [],
                     "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
@@ -5892,7 +6056,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -6005,7 +6171,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -6033,7 +6201,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -6061,7 +6231,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -6070,6 +6242,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -6080,7 +6253,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_potential",
@@ -6251,7 +6425,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -6312,7 +6488,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -6321,6 +6499,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -6331,7 +6510,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_potential_enterfight",
@@ -6391,6 +6571,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -6401,7 +6582,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide",
@@ -6483,7 +6665,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -6511,7 +6695,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -6539,7 +6725,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -6656,7 +6844,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -6665,6 +6855,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -6675,7 +6866,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_attack",
@@ -6757,7 +6949,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -6785,7 +6979,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -6813,7 +7009,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -6930,7 +7128,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -6939,6 +7139,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -6949,7 +7150,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_audio",
@@ -7031,7 +7233,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -7059,7 +7263,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -7087,7 +7293,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -7204,7 +7412,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -7213,6 +7423,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -7223,7 +7434,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_audio_finish",
@@ -7303,7 +7515,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -7331,7 +7545,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -7340,6 +7556,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -7350,7 +7567,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_audio_fire",
@@ -7436,7 +7654,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -7445,6 +7665,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -7455,7 +7676,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_audio_ultskill",
@@ -7535,7 +7757,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -7544,6 +7768,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -7554,7 +7779,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_finish",
@@ -7634,7 +7860,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -7662,7 +7890,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -7671,6 +7901,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -7681,7 +7912,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_fire",
@@ -7763,7 +7995,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -7797,7 +8031,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -7806,6 +8042,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -7816,7 +8053,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_ultskill",
@@ -7896,7 +8134,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -8013,7 +8253,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -8022,6 +8264,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -8032,7 +8275,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_spellenhance",
@@ -8134,7 +8378,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -8143,6 +8389,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -8153,7 +8400,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_talent_shelter",
@@ -8254,6 +8502,7 @@
               }
             }
           ],
+          "tagConditions": [],
           "ownerControlled": false,
           "damageTagMatch": null,
           "damageTags": [],
@@ -8261,7 +8510,8 @@
           "damageFeatures": [],
           "damageTypes": [],
           "numberComparisons": [],
-          "healthComparisons": []
+          "healthComparisons": [],
+          "buffCountComparisons": []
         }
       ],
       "directDamageHits": [],
@@ -8278,6 +8528,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -8288,7 +8539,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_talent_shelter_finishtime",
@@ -8389,6 +8641,7 @@
               }
             }
           ],
+          "tagConditions": [],
           "ownerControlled": false,
           "damageTagMatch": null,
           "damageTags": [],
@@ -8396,7 +8649,8 @@
           "damageFeatures": [],
           "damageTypes": [],
           "numberComparisons": [],
-          "healthComparisons": []
+          "healthComparisons": [],
+          "buffCountComparisons": []
         }
       ],
       "directDamageHits": [],
@@ -8413,6 +8667,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -8423,7 +8678,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_talent_shelter_finishtime_normalskill",
@@ -8662,7 +8918,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -8671,6 +8929,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -8681,7 +8940,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_talent_shelter_finishtime_ultskill",
@@ -8920,7 +9180,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -8929,6 +9191,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -8939,7 +9202,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_talent_shelter_normalskill",
@@ -9176,7 +9440,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -9185,6 +9451,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -9195,7 +9462,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_talent_shelter_ultskill",
@@ -9432,7 +9700,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -9441,6 +9711,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -9451,7 +9722,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_buff_atkup",
@@ -9691,7 +9963,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -9705,7 +9979,9 @@
           "targetGroupWrites": [],
           "sequences": [],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -9714,6 +9990,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -9724,7 +10001,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_music_damage",
@@ -9933,6 +10211,7 @@
                               "poise": null,
                               "superArmor": null,
                               "twoDirectionAngle": null,
+                              "targetAngle": null,
                               "damageDecorateMask": null,
                               "contextBuffId": null,
                               "objectTypeMatch": {
@@ -9974,28 +10253,33 @@
                                 "[0]"
                               ],
                               "serverActionIndex": 2,
-                              "blackboardCalculation": {
-                                "key": "final_heal_value",
-                                "operation": "Multiply",
-                                "left": {
-                                  "value": 0,
-                                  "blackboardKey": "agility",
+                              "storeAttributeValue": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "attributeKind": "specific",
+                                "attributeKey": "agility",
+                                "stage": "finalNonConverted",
+                                "useFloor": false,
+                                "divisor": {
+                                  "value": 1.0,
+                                  "blackboardKey": null,
                                   "levelValues": null
                                 },
-                                "right": {
+                                "multiplier": {
                                   "value": 1.0,
                                   "blackboardKey": "ultheal_value",
                                   "levelValues": [
                                     0.0
                                   ]
                                 },
-                                "addend": {
+                                "base": {
                                   "value": 0.0,
                                   "blackboardKey": "ultheal_rate",
                                   "levelValues": [
                                     0.0
                                   ]
-                                }
+                                },
+                                "outputKey": "final_heal_value"
                               },
                               "legacyBuffFinish": null,
                               "skillCooldownAdjustment": null,
@@ -10094,6 +10378,7 @@
                                     "poise": null,
                                     "superArmor": null,
                                     "twoDirectionAngle": null,
+                                    "targetAngle": null,
                                     "damageDecorateMask": null,
                                     "contextBuffId": null,
                                     "objectTypeMatch": {
@@ -10218,12 +10503,18 @@
                                   }
                                 ],
                                 "failActions": [],
+                                "conditionNegated": [
+                                  false
+                                ],
                                 "alwaysNext": true
                               },
                               "legacyBuffFinish": null,
                               "skillCooldownAdjustment": null,
                               "buffIgnite": null
                             }
+                          ],
+                          "conditionNegated": [
+                            false
                           ],
                           "alwaysNext": true
                         }
@@ -10349,6 +10640,7 @@
                               "poise": null,
                               "superArmor": null,
                               "twoDirectionAngle": null,
+                              "targetAngle": null,
                               "damageDecorateMask": null,
                               "contextBuffId": null,
                               "objectTypeMatch": {
@@ -10390,28 +10682,33 @@
                                 "[0]"
                               ],
                               "serverActionIndex": 2,
-                              "blackboardCalculation": {
-                                "key": "final_heal_value",
-                                "operation": "Multiply",
-                                "left": {
-                                  "value": 0,
-                                  "blackboardKey": "agility",
+                              "storeAttributeValue": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "attributeKind": "specific",
+                                "attributeKey": "agility",
+                                "stage": "finalNonConverted",
+                                "useFloor": false,
+                                "divisor": {
+                                  "value": 1.0,
+                                  "blackboardKey": null,
                                   "levelValues": null
                                 },
-                                "right": {
+                                "multiplier": {
                                   "value": 1.0,
                                   "blackboardKey": "ultheal_value",
                                   "levelValues": [
                                     0.0
                                   ]
                                 },
-                                "addend": {
+                                "base": {
                                   "value": 0.0,
                                   "blackboardKey": "ultheal_rate",
                                   "levelValues": [
                                     0.0
                                   ]
-                                }
+                                },
+                                "outputKey": "final_heal_value"
                               },
                               "legacyBuffFinish": null,
                               "skillCooldownAdjustment": null,
@@ -10510,6 +10807,7 @@
                                     "poise": null,
                                     "superArmor": null,
                                     "twoDirectionAngle": null,
+                                    "targetAngle": null,
                                     "damageDecorateMask": null,
                                     "contextBuffId": null,
                                     "objectTypeMatch": {
@@ -10634,12 +10932,18 @@
                                   }
                                 ],
                                 "failActions": [],
+                                "conditionNegated": [
+                                  false
+                                ],
                                 "alwaysNext": true
                               },
                               "legacyBuffFinish": null,
                               "skillCooldownAdjustment": null,
                               "buffIgnite": null
                             }
+                          ],
+                          "conditionNegated": [
+                            false
                           ],
                           "alwaysNext": true
                         }
@@ -10688,7 +10992,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -10697,6 +11003,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -10707,7 +11014,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_music_heal",
@@ -10815,7 +11123,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -10860,28 +11170,33 @@
                     "[1]"
                   ],
                   "serverActionIndex": 2,
-                  "blackboardCalculation": {
-                    "key": "final_heal_value",
-                    "operation": "Multiply",
-                    "left": {
-                      "value": 0,
-                      "blackboardKey": "agility",
+                  "storeAttributeValue": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "attributeKind": "specific",
+                    "attributeKey": "agility",
+                    "stage": "finalNonConverted",
+                    "useFloor": false,
+                    "divisor": {
+                      "value": 1.0,
+                      "blackboardKey": null,
                       "levelValues": null
                     },
-                    "right": {
+                    "multiplier": {
                       "value": 1.0,
                       "blackboardKey": "heal_value",
                       "levelValues": [
                         0.2
                       ]
                     },
-                    "addend": {
+                    "base": {
                       "value": 0.0,
                       "blackboardKey": "heal_rate",
                       "levelValues": [
                         500.0
                       ]
-                    }
+                    },
+                    "outputKey": "final_heal_value"
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -10946,7 +11261,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -10955,6 +11272,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -10965,7 +11283,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_music_heal_start",
@@ -11090,28 +11409,33 @@
                     "[1]"
                   ],
                   "serverActionIndex": 1,
-                  "blackboardCalculation": {
-                    "key": "final_heal_value",
-                    "operation": "Multiply",
-                    "left": {
-                      "value": 0,
-                      "blackboardKey": "agility",
+                  "storeAttributeValue": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "attributeKind": "specific",
+                    "attributeKey": "agility",
+                    "stage": "finalNonConverted",
+                    "useFloor": false,
+                    "divisor": {
+                      "value": 1.0,
+                      "blackboardKey": null,
                       "levelValues": null
                     },
-                    "right": {
+                    "multiplier": {
                       "value": 1.0,
                       "blackboardKey": "heal_value",
                       "levelValues": [
                         0.2
                       ]
                     },
-                    "addend": {
+                    "base": {
                       "value": 0.0,
                       "blackboardKey": "heal_rate",
                       "levelValues": [
                         500.0
                       ]
-                    }
+                    },
+                    "outputKey": "final_heal_value"
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -11176,7 +11500,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -11185,6 +11511,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -11195,7 +11522,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_music_tag",
@@ -11676,6 +12004,7 @@
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
                         "objectTypeMatch": null,
@@ -11705,6 +12034,7 @@
                       }
                     ],
                     "failActions": [],
+                    "conditionNegated": [],
                     "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
@@ -11716,7 +12046,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -12078,6 +12410,7 @@
           ]
         }
       ],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -12088,7 +12421,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_music_vfx",
@@ -12188,7 +12522,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -12271,9 +12607,13 @@
               "validatorTypes": [],
               "postProcessorTypes": [],
               "inputTargets": [],
-              "intervalSeconds": null
+              "intervalSeconds": null,
+              "pickIndexValue": null,
+              "pickIndexBlackboardKey": null
             }
-          ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -12282,6 +12622,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -12292,7 +12633,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_refrainobtainusp",
@@ -12380,7 +12722,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -12389,6 +12733,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -12399,7 +12744,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_weaponvisible",
@@ -12499,7 +12845,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -12558,7 +12906,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -12567,6 +12917,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -12577,7 +12928,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_weaponvisible_show",
@@ -12677,7 +13029,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -12736,7 +13090,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -12745,6 +13101,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -12755,7 +13112,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -12827,6 +13185,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -12837,7 +13196,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -12933,7 +13293,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -12942,6 +13304,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -12952,7 +13315,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -13018,6 +13382,7 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -13028,670 +13393,8 @@
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
-    },
-    {
-      "buffId": "buff_physical_no_guard",
-      "sourceFile": "buff_physical_no_guard.json",
-      "sourceAvailable": true,
-      "lifecycle": {
-        "lifeType": "Limited",
-        "duration": {
-          "value": 20.0,
-          "blackboardKey": "duration",
-          "levelValues": [
-            20.0
-          ]
-        },
-        "triggerInterval": {
-          "value": -1.0,
-          "blackboardKey": null,
-          "levelValues": null
-        },
-        "waitFirstTriggerInterval": true,
-        "maxTriggerCount": {
-          "value": 0.0,
-          "blackboardKey": null,
-          "levelValues": null
-        },
-        "stackingIdentifierType": "Id",
-        "stackingType": "EnhanceAndRefresh",
-        "stackingKey": "common_debuff",
-        "priority": {
-          "value": 100.0,
-          "blackboardKey": null,
-          "levelValues": null
-        },
-        "negatePriority": false,
-        "maxStackCount": {
-          "value": 4.0,
-          "blackboardKey": null,
-          "levelValues": null
-        },
-        "hasStackEffects": false,
-        "stackEffectActionTypes": []
-      },
-      "blackboard": [
-        {
-          "key": "atk_scale",
-          "value": 0.0,
-          "isDynamic": true
-        },
-        {
-          "key": "count",
-          "value": 0.0,
-          "isDynamic": true
-        },
-        {
-          "key": "duration",
-          "value": 20.0,
-          "isDynamic": false
-        },
-        {
-          "key": "skip_handle_cryst_break",
-          "value": 0.0,
-          "isDynamic": false
-        }
-      ],
-      "applyTagIds": [
-        1075718177
-      ],
-      "extendTagIds": [],
-      "attributeModifiers": [],
-      "damageModifiers": [],
-      "directDamageHits": [],
-      "inflictions": [],
-      "conditionalActions": [],
-      "blackboardCalculations": [],
-      "blackboardMutations": [],
-      "buffBlackboardReads": [],
-      "buffFinishes": [],
-      "eventActions": [
-        {
-          "eventSource": "buff",
-          "event": "OnBuffStart",
-          "orderedActionTypes": [
-            "CompareFloat",
-            "CreateBuffAction"
-          ],
-          "combatActions": [
-            "CreateBuffAction"
-          ],
-          "damageUnits": [],
-          "buffApplications": [
-            {
-              "actionIndex": 1,
-              "payload": {
-                "buffs": [
-                  {
-                    "buffId": "buff_physical_handle_cryst_break",
-                    "classification": null,
-                    "blackboardAssignments": {}
-                  }
-                ],
-                "targetSource": "Owner",
-                "targetGroupKey": "",
-                "count": {
-                  "value": 1.0,
-                  "blackboardKey": null,
-                  "levelValues": null
-                },
-                "buffSource": "ActionSource",
-                "buffSourceContextKey": "",
-                "inheritSourceSkillCastInfo": true
-              }
-            }
-          ],
-          "createdBuffIds": [
-            "buff_physical_handle_cryst_break"
-          ],
-          "forEachActions": [],
-          "targetGroupWrites": [],
-          "sequences": [
-            {
-              "onlyMainOperator": false,
-              "onlyGuard": false,
-              "orderedActionTypes": [
-                "CompareFloat",
-                "CreateBuffAction"
-              ],
-              "combatActions": [
-                "CreateBuffAction"
-              ],
-              "buffApplications": [
-                {
-                  "actionIndex": 1,
-                  "payload": {
-                    "buffs": [
-                      {
-                        "buffId": "buff_physical_handle_cryst_break",
-                        "classification": null,
-                        "blackboardAssignments": {}
-                      }
-                    ],
-                    "targetSource": "Owner",
-                    "targetGroupKey": "",
-                    "count": {
-                      "value": 1.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "buffSource": "ActionSource",
-                    "buffSourceContextKey": "",
-                    "inheritSourceSkillCastInfo": true
-                  }
-                }
-              ],
-              "actions": [
-                {
-                  "actionType": "CompareFloat",
-                  "actionIndex": 0,
-                  "actionPath": [
-                    "timelineActions[0]",
-                    "_sequenceActionData",
-                    "actionData",
-                    "[0]",
-                    "succeedActions",
-                    "actionData",
-                    "[0]"
-                  ],
-                  "serverActionIndex": 0,
-                  "nestedCondition": {
-                    "startFrame": 0,
-                    "endFrame": 0,
-                    "actionIndex": 0,
-                    "actionPath": [
-                      "timelineActions[0]",
-                      "_sequenceActionData",
-                      "actionData",
-                      "[0]",
-                      "succeedActions",
-                      "actionData",
-                      "[0]"
-                    ],
-                    "conditions": [
-                      {
-                        "sourceType": "CompareFloat",
-                        "supported": true,
-                        "comparison": "Equals",
-                        "left": {
-                          "value": 0.0,
-                          "blackboardKey": "skip_handle_cryst_break",
-                          "levelValues": [
-                            0.0
-                          ]
-                        },
-                        "right": {
-                          "value": 0.0,
-                          "blackboardKey": null,
-                          "levelValues": null
-                        },
-                        "skillTypes": [],
-                        "poise": null,
-                        "superArmor": null,
-                        "twoDirectionAngle": null,
-                        "damageDecorateMask": null,
-                        "contextBuffId": null,
-                        "objectTypeMatch": null,
-                        "deckAttributeCompare": null,
-                        "probability": null,
-                        "anyConditionGroups": [],
-                        "anyConditionNegated": []
-                      }
-                    ],
-                    "succeedActions": [
-                      {
-                        "actionType": "CreateBuffAction",
-                        "actionIndex": 1,
-                        "actionPath": [
-                          "timelineActions[0]",
-                          "_sequenceActionData",
-                          "actionData",
-                          "[0]",
-                          "succeedActions",
-                          "actionData",
-                          "[1]"
-                        ],
-                        "serverActionIndex": 1,
-                        "legacyBuffFinish": null,
-                        "skillCooldownAdjustment": null,
-                        "buffIgnite": null,
-                        "buffApplication": {
-                          "buffs": [
-                            {
-                              "buffId": "buff_physical_handle_cryst_break",
-                              "classification": null,
-                              "blackboardAssignments": {}
-                            }
-                          ],
-                          "targetSource": "Owner",
-                          "targetGroupKey": "",
-                          "count": {
-                            "value": 1.0,
-                            "blackboardKey": null,
-                            "levelValues": null
-                          },
-                          "buffSource": "ActionSource",
-                          "buffSourceContextKey": "",
-                          "inheritSourceSkillCastInfo": true
-                        }
-                      }
-                    ],
-                    "failActions": [],
-                    "alwaysNext": false
-                  },
-                  "legacyBuffFinish": null,
-                  "skillCooldownAdjustment": null,
-                  "buffIgnite": null
-                }
-              ],
-              "priority": 0
-            }
-          ],
-          "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
-        },
-        {
-          "eventSource": "buff",
-          "event": "OnBuffFinish",
-          "orderedActionTypes": [
-            "CreateBuffAction"
-          ],
-          "combatActions": [
-            "CreateBuffAction"
-          ],
-          "damageUnits": [],
-          "buffApplications": [
-            {
-              "actionIndex": 2,
-              "payload": {
-                "buffs": [
-                  {
-                    "buffId": "buff_physical_no_guard_fake",
-                    "classification": null,
-                    "blackboardAssignments": {}
-                  }
-                ],
-                "targetSource": "Owner",
-                "targetGroupKey": "",
-                "count": {
-                  "value": 1.0,
-                  "blackboardKey": null,
-                  "levelValues": null
-                },
-                "buffSource": "ActionSource",
-                "buffSourceContextKey": "",
-                "inheritSourceSkillCastInfo": true
-              }
-            }
-          ],
-          "createdBuffIds": [
-            "buff_physical_no_guard_fake"
-          ],
-          "forEachActions": [],
-          "targetGroupWrites": [],
-          "sequences": [
-            {
-              "onlyMainOperator": false,
-              "onlyGuard": false,
-              "orderedActionTypes": [
-                "CreateBuffAction"
-              ],
-              "combatActions": [
-                "CreateBuffAction"
-              ],
-              "buffApplications": [
-                {
-                  "actionIndex": 2,
-                  "payload": {
-                    "buffs": [
-                      {
-                        "buffId": "buff_physical_no_guard_fake",
-                        "classification": null,
-                        "blackboardAssignments": {}
-                      }
-                    ],
-                    "targetSource": "Owner",
-                    "targetGroupKey": "",
-                    "count": {
-                      "value": 1.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "buffSource": "ActionSource",
-                    "buffSourceContextKey": "",
-                    "inheritSourceSkillCastInfo": true
-                  }
-                }
-              ],
-              "actions": [
-                {
-                  "actionType": "CreateBuffAction",
-                  "actionIndex": 0,
-                  "actionPath": [
-                    "timelineActions[0]",
-                    "_sequenceActionData",
-                    "actionData",
-                    "[0]",
-                    "succeedActions",
-                    "actionData",
-                    "[0]"
-                  ],
-                  "serverActionIndex": 2,
-                  "legacyBuffFinish": null,
-                  "skillCooldownAdjustment": null,
-                  "buffIgnite": null,
-                  "buffApplication": {
-                    "buffs": [
-                      {
-                        "buffId": "buff_physical_no_guard_fake",
-                        "classification": null,
-                        "blackboardAssignments": {}
-                      }
-                    ],
-                    "targetSource": "Owner",
-                    "targetGroupKey": "",
-                    "count": {
-                      "value": 1.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "buffSource": "ActionSource",
-                    "buffSourceContextKey": "",
-                    "inheritSourceSkillCastInfo": true
-                  }
-                }
-              ],
-              "priority": 0
-            }
-          ],
-          "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
-        },
-        {
-          "eventSource": "buff",
-          "event": "OnBuffAfterTryEnhanced",
-          "orderedActionTypes": [
-            "OnPhysicalNoGuardStart",
-            "IgniteAction",
-            "CheckBuffStackNumAdvanced",
-            "CompareFloat",
-            "CreateBuffAction"
-          ],
-          "combatActions": [
-            "CreateBuffAction",
-            "IgniteAction"
-          ],
-          "damageUnits": [],
-          "buffApplications": [
-            {
-              "actionIndex": 7,
-              "payload": {
-                "buffs": [
-                  {
-                    "buffId": "buff_physical_handle_cryst_break",
-                    "classification": null,
-                    "blackboardAssignments": {}
-                  }
-                ],
-                "targetSource": "Owner",
-                "targetGroupKey": "",
-                "count": {
-                  "value": 1.0,
-                  "blackboardKey": null,
-                  "levelValues": null
-                },
-                "buffSource": "ActionSource",
-                "buffSourceContextKey": "",
-                "inheritSourceSkillCastInfo": true
-              }
-            }
-          ],
-          "createdBuffIds": [
-            "buff_physical_handle_cryst_break"
-          ],
-          "forEachActions": [],
-          "targetGroupWrites": [],
-          "sequences": [
-            {
-              "onlyMainOperator": false,
-              "onlyGuard": false,
-              "orderedActionTypes": [
-                "OnPhysicalNoGuardStart"
-              ],
-              "combatActions": [],
-              "buffApplications": [],
-              "actions": [],
-              "priority": 0
-            },
-            {
-              "onlyMainOperator": false,
-              "onlyGuard": false,
-              "orderedActionTypes": [
-                "IgniteAction"
-              ],
-              "combatActions": [
-                "IgniteAction"
-              ],
-              "buffApplications": [],
-              "actions": [
-                {
-                  "actionType": "IgniteAction",
-                  "actionIndex": 0,
-                  "actionPath": [
-                    "timelineActions[0]",
-                    "_sequenceActionData",
-                    "actionData",
-                    "[0]",
-                    "succeedActions",
-                    "actionData",
-                    "[0]"
-                  ],
-                  "serverActionIndex": 4,
-                  "legacyBuffFinish": null,
-                  "skillCooldownAdjustment": null,
-                  "buffIgnite": {
-                    "source": {
-                      "targetSource": "Target",
-                      "targetGroupKey": "",
-                      "selectorOwner": "ActionOwner",
-                      "ownerContextKey": "",
-                      "centerType": "ActionSource",
-                      "centerContextKey": "",
-                      "centerToGround": false,
-                      "target": "ActionSource",
-                      "targetContextKey": "",
-                      "enableAdvancedDirection": false,
-                      "selectorDirection": "SourceForward",
-                      "finderType": null,
-                      "validatorTypes": [],
-                      "postProcessorTypes": []
-                    },
-                    "target": {
-                      "targetSource": "Owner",
-                      "targetGroupKey": "",
-                      "selectorOwner": "ActionOwner",
-                      "ownerContextKey": "",
-                      "centerType": "ActionSource",
-                      "centerContextKey": "",
-                      "centerToGround": false,
-                      "target": "ActionSource",
-                      "targetContextKey": "",
-                      "enableAdvancedDirection": false,
-                      "selectorDirection": "SourceForward",
-                      "finderType": null,
-                      "validatorTypes": [],
-                      "postProcessorTypes": []
-                    },
-                    "igniteType": "NoGuard",
-                    "successTargetContextKey": ""
-                  }
-                }
-              ],
-              "priority": 0
-            },
-            {
-              "onlyMainOperator": false,
-              "onlyGuard": false,
-              "orderedActionTypes": [
-                "CheckBuffStackNumAdvanced",
-                "CompareFloat",
-                "CreateBuffAction"
-              ],
-              "combatActions": [
-                "CreateBuffAction"
-              ],
-              "buffApplications": [
-                {
-                  "actionIndex": 7,
-                  "payload": {
-                    "buffs": [
-                      {
-                        "buffId": "buff_physical_handle_cryst_break",
-                        "classification": null,
-                        "blackboardAssignments": {}
-                      }
-                    ],
-                    "targetSource": "Owner",
-                    "targetGroupKey": "",
-                    "count": {
-                      "value": 1.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "buffSource": "ActionSource",
-                    "buffSourceContextKey": "",
-                    "inheritSourceSkillCastInfo": true
-                  }
-                }
-              ],
-              "actions": [
-                {
-                  "actionType": "CompareFloat",
-                  "actionIndex": 1,
-                  "actionPath": [
-                    "timelineActions[0]",
-                    "_sequenceActionData",
-                    "actionData",
-                    "[0]",
-                    "succeedActions",
-                    "actionData",
-                    "[1]"
-                  ],
-                  "serverActionIndex": 6,
-                  "nestedCondition": {
-                    "startFrame": 0,
-                    "endFrame": 0,
-                    "actionIndex": 6,
-                    "actionPath": [
-                      "timelineActions[0]",
-                      "_sequenceActionData",
-                      "actionData",
-                      "[0]",
-                      "succeedActions",
-                      "actionData",
-                      "[1]"
-                    ],
-                    "conditions": [
-                      {
-                        "sourceType": "CompareFloat",
-                        "supported": true,
-                        "comparison": "Equals",
-                        "left": {
-                          "value": 0.0,
-                          "blackboardKey": "skip_handle_cryst_break",
-                          "levelValues": [
-                            0.0
-                          ]
-                        },
-                        "right": {
-                          "value": 0.0,
-                          "blackboardKey": null,
-                          "levelValues": null
-                        },
-                        "skillTypes": [],
-                        "poise": null,
-                        "superArmor": null,
-                        "twoDirectionAngle": null,
-                        "damageDecorateMask": null,
-                        "contextBuffId": null,
-                        "objectTypeMatch": null,
-                        "deckAttributeCompare": null,
-                        "probability": null,
-                        "anyConditionGroups": [],
-                        "anyConditionNegated": []
-                      }
-                    ],
-                    "succeedActions": [
-                      {
-                        "actionType": "CreateBuffAction",
-                        "actionIndex": 2,
-                        "actionPath": [
-                          "timelineActions[0]",
-                          "_sequenceActionData",
-                          "actionData",
-                          "[0]",
-                          "succeedActions",
-                          "actionData",
-                          "[2]"
-                        ],
-                        "serverActionIndex": 7,
-                        "legacyBuffFinish": null,
-                        "skillCooldownAdjustment": null,
-                        "buffIgnite": null,
-                        "buffApplication": {
-                          "buffs": [
-                            {
-                              "buffId": "buff_physical_handle_cryst_break",
-                              "classification": null,
-                              "blackboardAssignments": {}
-                            }
-                          ],
-                          "targetSource": "Owner",
-                          "targetGroupKey": "",
-                          "count": {
-                            "value": 1.0,
-                            "blackboardKey": null,
-                            "levelValues": null
-                          },
-                          "buffSource": "ActionSource",
-                          "buffSourceContextKey": "",
-                          "inheritSourceSkillCastInfo": true
-                        }
-                      }
-                    ],
-                    "failActions": [],
-                    "alwaysNext": false
-                  },
-                  "legacyBuffFinish": null,
-                  "skillCooldownAdjustment": null,
-                  "buffIgnite": null
-                }
-              ],
-              "priority": 0
-            }
-          ],
-          "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
-        }
-      ],
-      "igniteEventActions": [],
-      "sourceDeathFinish": null,
-      "resourceGains": [],
-      "combatActions": [],
-      "unparsedPayloads": [],
-      "auraActions": [],
-      "invokedAbilityEntitySkills": [],
-      "auxiliaryActions": [],
-      "targetGroupWrites": [],
-      "runtimeSkillSlotReplacements": [],
-      "attributeModifiersConverted": false,
-      "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false,
-      "shields": [],
-      "sustainedProtections": [],
-      "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     }
   ],
   "skills": [
@@ -13873,6 +13576,7 @@
             }
           ],
           "failActions": [],
+          "conditionNegated": [],
           "alwaysNext": false
         },
         {
@@ -13914,6 +13618,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -13962,6 +13667,9 @@
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -14003,6 +13711,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -14050,6 +13759,9 @@
                 "inheritSourceSkillCastInfo": true
               }
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -14682,7 +14394,10 @@
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -14703,7 +14418,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 9,
@@ -14724,7 +14441,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 33,
@@ -14745,7 +14464,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -14771,7 +14492,10 @@
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [
@@ -14814,7 +14538,9 @@
                 "selectorDirection": "SourceForward",
                 "finderType": "OwnerSpawnedEntityFinder",
                 "validatorTypes": [],
-                "postProcessorTypes": []
+                "postProcessorTypes": [],
+                "finderSpawnedObjectType": "AbilityEntity",
+                "validatorTagQueries": []
               },
               "spawnedObjectType": "AbilityEntity",
               "tagQueries": []
@@ -14858,7 +14584,9 @@
                 "selectorDirection": "SourceForward",
                 "finderType": "OwnerSpawnedEntityFinder",
                 "validatorTypes": [],
-                "postProcessorTypes": []
+                "postProcessorTypes": [],
+                "finderSpawnedObjectType": "AbilityEntity",
+                "validatorTagQueries": []
               },
               "spawnedObjectType": "AbilityEntity",
               "tagQueries": []
@@ -15140,7 +14868,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": 0.0333333351
+          "intervalSeconds": 0.0333333351,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 7,
@@ -15161,7 +14891,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [],
@@ -15704,7 +15436,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": 0.0333333351
+          "intervalSeconds": 0.0333333351,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [],
@@ -15800,6 +15534,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -15848,6 +15583,9 @@
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -15889,6 +15627,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -15937,6 +15676,9 @@
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -15978,6 +15720,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -16026,6 +15769,9 @@
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -16067,6 +15813,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -16114,6 +15861,9 @@
                 "inheritSourceSkillCastInfo": true
               }
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -17161,7 +16911,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": 0.0333333351
+          "intervalSeconds": 0.0333333351,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 13,
@@ -17182,7 +16934,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": 0.0333333351
+          "intervalSeconds": 0.0333333351,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 14,
@@ -17203,7 +16957,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": 0.0333333351
+          "intervalSeconds": 0.0333333351,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 15,
@@ -17224,7 +16980,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": 0.0333333351
+          "intervalSeconds": 0.0333333351,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 16,
@@ -17245,7 +17003,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": 0.0333333351
+          "intervalSeconds": 0.0333333351,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 17,
@@ -17266,7 +17026,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": 0.0333333351
+          "intervalSeconds": 0.0333333351,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 18,
@@ -17287,7 +17049,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": 0.0333333351
+          "intervalSeconds": 0.0333333351,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 19,
@@ -17308,7 +17072,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": 0.0333333351
+          "intervalSeconds": 0.0333333351,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [],
@@ -17370,6 +17136,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -17418,6 +17185,9 @@
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -17459,6 +17229,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -17507,6 +17278,9 @@
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -17548,6 +17322,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -17596,6 +17371,9 @@
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -17637,6 +17415,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -17684,6 +17463,9 @@
                 "inheritSourceSkillCastInfo": true
               }
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -19617,6 +19399,7 @@
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -19673,6 +19456,7 @@
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -19738,6 +19522,9 @@
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -19746,6 +19533,9 @@
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -19787,6 +19577,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -19835,6 +19626,9 @@
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -19876,6 +19670,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -19924,6 +19719,9 @@
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -19965,6 +19763,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -20013,6 +19812,9 @@
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -20054,6 +19856,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -20101,6 +19904,9 @@
                 "inheritSourceSkillCastInfo": true
               }
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -20345,7 +20151,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": 0.0333333351
+          "intervalSeconds": 0.0333333351,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [],
@@ -20448,6 +20256,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -20496,6 +20305,9 @@
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -20537,6 +20349,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -20585,6 +20398,9 @@
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -20626,6 +20442,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -20673,6 +20490,9 @@
                 "inheritSourceSkillCastInfo": true
               }
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -21102,6 +20922,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -21150,6 +20971,9 @@
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -21191,6 +21015,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -21238,6 +21063,9 @@
                 "inheritSourceSkillCastInfo": true
               }
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -21609,7 +21437,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": 0.0333333351
+          "intervalSeconds": 0.0333333351,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [],
@@ -21804,6 +21634,7 @@
             }
           ],
           "failActions": [],
+          "conditionNegated": [],
           "alwaysNext": false
         },
         {
@@ -21885,6 +21716,7 @@
             }
           ],
           "failActions": [],
+          "conditionNegated": [],
           "alwaysNext": false
         },
         {
@@ -21926,6 +21758,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -21974,6 +21807,9 @@
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -22015,6 +21851,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -22063,6 +21900,9 @@
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -22104,6 +21944,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -22152,6 +21993,9 @@
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -22193,6 +22037,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -22287,6 +22132,9 @@
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -22961,6 +22809,7 @@
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -23373,6 +23222,9 @@
                     }
                   ]
                 }
+              ],
+              "conditionNegated": [
+                false
               ],
               "alwaysNext": true
             }
@@ -23432,6 +23284,7 @@
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -23844,6 +23697,9 @@
                     }
                   ]
                 }
+              ],
+              "conditionNegated": [
+                false
               ],
               "alwaysNext": true
             }
@@ -23903,6 +23759,7 @@
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -24315,6 +24172,9 @@
                     }
                   ]
                 }
+              ],
+              "conditionNegated": [
+                false
               ],
               "alwaysNext": true
             }
@@ -24374,6 +24234,7 @@
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -24786,6 +24647,9 @@
                     }
                   ]
                 }
+              ],
+              "conditionNegated": [
+                false
               ],
               "alwaysNext": true
             }
@@ -24845,6 +24709,7 @@
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -25257,6 +25122,9 @@
                     }
                   ]
                 }
+              ],
+              "conditionNegated": [
+                false
               ],
               "alwaysNext": true
             }
@@ -25316,6 +25184,7 @@
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -25728,6 +25597,9 @@
                     }
                   ]
                 }
+              ],
+              "conditionNegated": [
+                false
               ],
               "alwaysNext": true
             }
@@ -26864,6 +26736,7 @@
             }
           ],
           "failActions": [],
+          "conditionNegated": [],
           "alwaysNext": false
         },
         {
@@ -26945,6 +26818,7 @@
             }
           ],
           "failActions": [],
+          "conditionNegated": [],
           "alwaysNext": false
         },
         {
@@ -26986,6 +26860,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -27034,6 +26909,9 @@
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -27075,6 +26953,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -27123,6 +27002,9 @@
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -27164,6 +27046,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -27211,6 +27094,9 @@
                 "inheritSourceSkillCastInfo": true
               }
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -27979,6 +27865,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -28341,6 +28228,9 @@
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -28364,6 +28254,7 @@
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "entityTag": {
                 "targetSource": "Owner",
                 "targetGroupKey": "",
@@ -28456,6 +28347,9 @@
                 "inheritSourceSkillCastInfo": true
               }
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -29268,6 +29162,7 @@
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -29833,6 +29728,9 @@
                   ]
                 }
               ],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true
             },
             {
@@ -29865,6 +29763,7 @@
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -30430,6 +30329,9 @@
                   ]
                 }
               ],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true
             },
             {
@@ -30462,6 +30364,7 @@
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -31027,6 +30930,9 @@
                   ]
                 }
               ],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true
             },
             {
@@ -31059,6 +30965,7 @@
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -31624,6 +31531,9 @@
                   ]
                 }
               ],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true
             },
             {
@@ -31656,6 +31566,7 @@
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -32221,6 +32132,9 @@
                   ]
                 }
               ],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true
             },
             {
@@ -32253,6 +32167,7 @@
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -32818,6 +32733,9 @@
                   ]
                 }
               ],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true
             },
             {
@@ -32850,6 +32768,7 @@
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -33415,6 +33334,9 @@
                   ]
                 }
               ],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true
             },
             {
@@ -33447,6 +33369,7 @@
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -33860,6 +33783,9 @@
                   ]
                 }
               ],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true
             },
             {
@@ -33892,6 +33818,7 @@
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -34457,6 +34384,9 @@
                   ]
                 }
               ],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true
             },
             {
@@ -34489,6 +34419,7 @@
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -35054,6 +34985,9 @@
                   ]
                 }
               ],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true
             },
             {
@@ -35086,6 +35020,7 @@
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -35651,6 +35586,9 @@
                   ]
                 }
               ],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true
             }
           ],
@@ -35686,7 +35624,8 @@
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         }
       ],
       "referencedBuffIds": [
@@ -36437,7 +36376,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -36461,7 +36402,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -36487,7 +36430,10 @@
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -36511,7 +36457,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -36535,7 +36483,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 80,
@@ -36556,7 +36506,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 513,
@@ -36577,7 +36529,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [

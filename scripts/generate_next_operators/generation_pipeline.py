@@ -4,10 +4,66 @@ from __future__ import annotations
 
 import json
 from collections import OrderedDict
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any, Callable
 
 from source_utils import require_dict, require_list, table_row
+
+
+def filter_presentation_only_passive_buffs(
+    operator: dict[str, Any], passive_skills: dict[str, Any]
+) -> dict[str, Any]:
+    """按 manifest 的显式证据移除隐藏被动仅用于表现的启动 Buff。"""
+    path = f"{operator['slug']}.presentationOnlyPassiveBuffIds"
+    ignored = tuple(
+        str(value)
+        for value in require_list(operator.get("presentationOnlyPassiveBuffIds", []), path)
+    )
+    if len(ignored) != len(set(ignored)):
+        raise ValueError(f"{path}: duplicate Buff id")
+    referenced = {
+        buff.buff_id for passive in passive_skills.values() for buff in passive.buffs
+    }
+    unknown = sorted(set(ignored).difference(referenced))
+    if unknown:
+        raise ValueError(f"{path}: Buff ids are not passive startup Buffs: {unknown}")
+    ignored_set = set(ignored)
+    return {
+        skill_id: replace(
+            passive,
+            buffs=tuple(buff for buff in passive.buffs if buff.buff_id not in ignored_set),
+        )
+        for skill_id, passive in passive_skills.items()
+    }
+
+
+def mark_explicit_unmodeled_passive_skills(
+    operator: dict[str, Any],
+    passive_skills: dict[str, Any],
+    issues: dict[str, tuple[str, ...]],
+) -> dict[str, tuple[str, ...]]:
+    """把已知不能完整投影的隐藏被动留在审计层，不输出残缺行为。"""
+    path = f"{operator['slug']}.unmodeledPassiveSkillIds"
+    unmodeled = tuple(
+        str(value)
+        for value in require_list(operator.get("unmodeledPassiveSkillIds", []), path)
+    )
+    if len(unmodeled) != len(set(unmodeled)):
+        raise ValueError(f"{path}: duplicate passive skill id")
+    unknown = sorted(set(unmodeled).difference(passive_skills))
+    if unknown:
+        raise ValueError(f"{path}: unknown passive skill ids: {unknown}")
+    result = dict(issues)
+    for skill_id in unmodeled:
+        result[skill_id] = tuple(
+            dict.fromkeys(
+                (
+                    *result.get(skill_id, ()),
+                    "manifest explicitly keeps this passive skill unmodeled",
+                )
+            )
+        )
+    return result
 
 
 @dataclass(frozen=True)
@@ -174,6 +230,7 @@ def run_generation(*, services: GenerationPipelineServices) -> None:
             args.source,
             parse_base_passive_skill_ids(operator),
         )
+        passive_skills = filter_presentation_only_passive_buffs(operator, passive_skills)
         buff_source_dir = args.source.parent / "BuffData"
         skipped_buff_definition_ids: set[str] = set(
             inherited_simulation_no_effect_buff_ids
@@ -247,6 +304,11 @@ def run_generation(*, services: GenerationPipelineServices) -> None:
             passive_skills,
             audited_buff_definitions,
             passive_buff_resolution_issues,
+        )
+        passive_generation_issues = mark_explicit_unmodeled_passive_skills(
+            operator,
+            passive_skills,
+            passive_generation_issues,
         )
         renderable_passive_skills = {
             skill_id: passive

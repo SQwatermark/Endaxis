@@ -69,6 +69,8 @@ export const tangtangBasicAttack2: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -293,6 +295,8 @@ export const tangtangBasicAttack5: SkillDefinition = withSkillBlackboard(
                 ),
               ),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -488,6 +492,8 @@ export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
                         ),
                       ),
                     ),
+                    undefined,
+                    { alwaysNext: true },
                   ),
                 ),
               ),
@@ -525,8 +531,11 @@ export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
                         spGainSource: 'skill',
                       }),
                     ),
+                    undefined,
+                    { alwaysNext: true },
                   ),
                 ),
+                { alwaysNext: true },
               ),
               step('spawnAbilityEntity', {
                 abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_move',
@@ -545,6 +554,7 @@ export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
                 saveToContextKey: 'normalskill_watermove_1',
               }),
             ),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -712,67 +722,331 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                 operation: 'assign',
                 value: { kind: 'constant', value: 1 },
               }),
-              sequence(
-                step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'water_group', abilityEntityIds: ['abilityentity_chr_0027_tangtang_comboskill_water'] }),
-                branch(
-                  {
-                    kind: 'buffIdStackCompare',
-                    target: 'caster',
-                    buffIds: ['buff_chr_0027_tangtang_water'],
-                    operator: 'greater',
-                    value: { kind: 'constant', value: 0 },
-                  },
-                  sequence(
-                    step('spawnAbilityEntity', {
-                      abilityEntityId: 'abilityentity_chr_0027_tangtang_comboskill_water',
-                                            dieWhenSourceDies: false,
-                      inheritActionBlackboard: true,
-                      saveToContextKey: 'water_abilityentity02',
-                    }),
-                    step('applyBuff', {
-                      buffId: 'buff_chr_0027_tangtang_water',
-                      target: 'caster',
-                      inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        'duration_water': { kind: 'blackboard', key: 'duration_water' },
-                      },
-                    }),
-                    branch(
-                      { kind: 'abilityEntityTimedMarkerPresent', markerId: 'tangtang_waterabilityentity01', contextKey: 'water_group' },
-                      sequence(
-                        branch(
-                          { kind: 'abilityEntityTimedMarkerPresent', markerId: 'tangtang_waterabilityentity02', contextKey: 'water_group' },
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'caster',
+                  buffIds: ['buff_chr_0027_tangtang_water'],
+                  operator: 'greater',
+                  value: { kind: 'constant', value: 0 },
+                },
+                sequence(
+                  branch(
+                    { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                    sequence(
+                      branch(
+                        { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                        sequence(
                           sequence(
-                            forEachContextTarget(
-                              'water_abilityentity02',
+                            step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'water_group', abilityEntityIds: ['abilityentity_chr_0027_tangtang_comboskill_water'] }),
+                            branch(
+                              {
+                                kind: 'buffIdStackCompare',
+                                target: 'caster',
+                                buffIds: ['buff_chr_0027_tangtang_water'],
+                                operator: 'greater',
+                                value: { kind: 'constant', value: 0 },
+                              },
                               sequence(
-                                step('createAbilityEntityTimedMarker', {
-                                  markerId: 'tangtang_waterabilityentity03',
-                                  durationSeconds: { kind: 'blackboard', key: 'duration_water' },
-                                  autoFinishByAction: false,
-                                  timeDomain: 'global',
+                                step('spawnAbilityEntity', {
+                                  abilityEntityId: 'abilityentity_chr_0027_tangtang_comboskill_water',
+                                                                    dieWhenSourceDies: false,
+                                  inheritActionBlackboard: true,
+                                  saveToContextKey: 'water_abilityentity02',
                                 }),
+                                step('applyBuff', {
+                                  buffId: 'buff_chr_0027_tangtang_water',
+                                  target: 'caster',
+                                  inheritSourceSkillCastInfo: true,
+                                  blackboardAssignments: {
+                                    'duration_water': { kind: 'blackboard', key: 'duration_water' },
+                                  },
+                                }),
+                                branch(
+                                  { kind: 'abilityEntityTimedMarkerPresent', markerId: 'tangtang_waterabilityentity01', contextKey: 'water_group' },
+                                  sequence(
+                                    branch(
+                                      { kind: 'abilityEntityTimedMarkerPresent', markerId: 'tangtang_waterabilityentity02', contextKey: 'water_group' },
+                                      sequence(
+                                        forEachContextTarget(
+                                          'water_abilityentity02',
+                                          sequence(
+                                            step('createAbilityEntityTimedMarker', {
+                                              markerId: 'tangtang_waterabilityentity03',
+                                              durationSeconds: { kind: 'blackboard', key: 'duration_water' },
+                                              autoFinishByAction: false,
+                                              timeDomain: 'global',
+                                            }),
+                                          ),
+                                        ),
+                                      ),
+                                      sequence(
+                                        forEachContextTarget(
+                                          'water_abilityentity02',
+                                          sequence(
+                                            step('createAbilityEntityTimedMarker', {
+                                              markerId: 'tangtang_waterabilityentity02',
+                                              durationSeconds: { kind: 'blackboard', key: 'duration_water' },
+                                              autoFinishByAction: false,
+                                              timeDomain: 'global',
+                                            }),
+                                          ),
+                                        ),
+                                      ),
+                                      { alwaysNext: true },
+                                    ),
+                                  ),
+                                  sequence(
+                                    forEachContextTarget(
+                                      'water_abilityentity02',
+                                      sequence(
+                                        step('createAbilityEntityTimedMarker', {
+                                          markerId: 'tangtang_waterabilityentity01',
+                                          durationSeconds: { kind: 'blackboard', key: 'duration_water' },
+                                          autoFinishByAction: false,
+                                          timeDomain: 'global',
+                                        }),
+                                      ),
+                                    ),
+                                  ),
+                                  { alwaysNext: true },
+                                ),
                               ),
+                              sequence(
+                                step('spawnAbilityEntity', {
+                                  abilityEntityId: 'abilityentity_chr_0027_tangtang_comboskill_water',
+                                                                    dieWhenSourceDies: false,
+                                  inheritActionBlackboard: true,
+                                  saveToContextKey: 'water_abilityentity01',
+                                }),
+                                step('applyBuff', {
+                                  buffId: 'buff_chr_0027_tangtang_water',
+                                  target: 'caster',
+                                  inheritSourceSkillCastInfo: true,
+                                  blackboardAssignments: {
+                                    'duration_water': { kind: 'blackboard', key: 'duration_water' },
+                                  },
+                                }),
+                                forEachContextTarget(
+                                  'water_abilityentity01',
+                                  sequence(
+                                    step('createAbilityEntityTimedMarker', {
+                                      markerId: 'tangtang_waterabilityentity01',
+                                      durationSeconds: { kind: 'blackboard', key: 'duration_water' },
+                                      autoFinishByAction: false,
+                                      timeDomain: 'global',
+                                    }),
+                                  ),
+                                ),
+                              ),
+                              { alwaysNext: true },
                             ),
-                          ),
-                          sequence(
-                            forEachContextTarget(
-                              'water_abilityentity02',
+                            step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'water_group', abilityEntityIds: ['abilityentity_chr_0027_tangtang_comboskill_water'] }),
+                            branch(
+                              {
+                                kind: 'buffIdStackCompare',
+                                target: 'caster',
+                                buffIds: ['buff_chr_0027_tangtang_water'],
+                                operator: 'greater',
+                                value: { kind: 'constant', value: 0 },
+                              },
                               sequence(
-                                step('createAbilityEntityTimedMarker', {
-                                  markerId: 'tangtang_waterabilityentity02',
-                                  durationSeconds: { kind: 'blackboard', key: 'duration_water' },
-                                  autoFinishByAction: false,
-                                  timeDomain: 'global',
+                                step('spawnAbilityEntity', {
+                                  abilityEntityId: 'abilityentity_chr_0027_tangtang_comboskill_water',
+                                                                    dieWhenSourceDies: false,
+                                  inheritActionBlackboard: true,
+                                  saveToContextKey: 'water_abilityentity02',
                                 }),
+                                step('applyBuff', {
+                                  buffId: 'buff_chr_0027_tangtang_water',
+                                  target: 'caster',
+                                  inheritSourceSkillCastInfo: true,
+                                  blackboardAssignments: {
+                                    'duration_water': { kind: 'blackboard', key: 'duration_water' },
+                                  },
+                                }),
+                                branch(
+                                  { kind: 'abilityEntityTimedMarkerPresent', markerId: 'tangtang_waterabilityentity01', contextKey: 'water_group' },
+                                  sequence(
+                                    branch(
+                                      { kind: 'abilityEntityTimedMarkerPresent', markerId: 'tangtang_waterabilityentity02', contextKey: 'water_group' },
+                                      sequence(
+                                        forEachContextTarget(
+                                          'water_abilityentity02',
+                                          sequence(
+                                            step('createAbilityEntityTimedMarker', {
+                                              markerId: 'tangtang_waterabilityentity03',
+                                              durationSeconds: { kind: 'blackboard', key: 'duration_water' },
+                                              autoFinishByAction: false,
+                                              timeDomain: 'global',
+                                            }),
+                                          ),
+                                        ),
+                                      ),
+                                      sequence(
+                                        forEachContextTarget(
+                                          'water_abilityentity02',
+                                          sequence(
+                                            step('createAbilityEntityTimedMarker', {
+                                              markerId: 'tangtang_waterabilityentity02',
+                                              durationSeconds: { kind: 'blackboard', key: 'duration_water' },
+                                              autoFinishByAction: false,
+                                              timeDomain: 'global',
+                                            }),
+                                          ),
+                                        ),
+                                      ),
+                                      { alwaysNext: true },
+                                    ),
+                                  ),
+                                  sequence(
+                                    forEachContextTarget(
+                                      'water_abilityentity02',
+                                      sequence(
+                                        step('createAbilityEntityTimedMarker', {
+                                          markerId: 'tangtang_waterabilityentity01',
+                                          durationSeconds: { kind: 'blackboard', key: 'duration_water' },
+                                          autoFinishByAction: false,
+                                          timeDomain: 'global',
+                                        }),
+                                      ),
+                                    ),
+                                  ),
+                                  { alwaysNext: true },
+                                ),
                               ),
+                              sequence(
+                                step('spawnAbilityEntity', {
+                                  abilityEntityId: 'abilityentity_chr_0027_tangtang_comboskill_water',
+                                                                    dieWhenSourceDies: false,
+                                  inheritActionBlackboard: true,
+                                  saveToContextKey: 'water_abilityentity01',
+                                }),
+                                step('applyBuff', {
+                                  buffId: 'buff_chr_0027_tangtang_water',
+                                  target: 'caster',
+                                  inheritSourceSkillCastInfo: true,
+                                  blackboardAssignments: {
+                                    'duration_water': { kind: 'blackboard', key: 'duration_water' },
+                                  },
+                                }),
+                                forEachContextTarget(
+                                  'water_abilityentity01',
+                                  sequence(
+                                    step('createAbilityEntityTimedMarker', {
+                                      markerId: 'tangtang_waterabilityentity01',
+                                      durationSeconds: { kind: 'blackboard', key: 'duration_water' },
+                                      autoFinishByAction: false,
+                                      timeDomain: 'global',
+                                    }),
+                                  ),
+                                ),
+                              ),
+                              { alwaysNext: true },
                             ),
                           ),
                         ),
+                        undefined,
+                        { alwaysNext: true },
+                      ),
+                    ),
+                    undefined,
+                    { alwaysNext: true },
+                  ),
+                ),
+                sequence(
+                  sequence(
+                    step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'water_group', abilityEntityIds: ['abilityentity_chr_0027_tangtang_comboskill_water'] }),
+                    branch(
+                      {
+                        kind: 'buffIdStackCompare',
+                        target: 'caster',
+                        buffIds: ['buff_chr_0027_tangtang_water'],
+                        operator: 'greater',
+                        value: { kind: 'constant', value: 0 },
+                      },
+                      sequence(
+                        step('spawnAbilityEntity', {
+                          abilityEntityId: 'abilityentity_chr_0027_tangtang_comboskill_water',
+                                                    dieWhenSourceDies: false,
+                          inheritActionBlackboard: true,
+                          saveToContextKey: 'water_abilityentity02',
+                        }),
+                        step('applyBuff', {
+                          buffId: 'buff_chr_0027_tangtang_water',
+                          target: 'caster',
+                          inheritSourceSkillCastInfo: true,
+                          blackboardAssignments: {
+                            'duration_water': { kind: 'blackboard', key: 'duration_water' },
+                          },
+                        }),
+                        branch(
+                          { kind: 'abilityEntityTimedMarkerPresent', markerId: 'tangtang_waterabilityentity01', contextKey: 'water_group' },
+                          sequence(
+                            branch(
+                              { kind: 'abilityEntityTimedMarkerPresent', markerId: 'tangtang_waterabilityentity02', contextKey: 'water_group' },
+                              sequence(
+                                forEachContextTarget(
+                                  'water_abilityentity02',
+                                  sequence(
+                                    step('createAbilityEntityTimedMarker', {
+                                      markerId: 'tangtang_waterabilityentity03',
+                                      durationSeconds: { kind: 'blackboard', key: 'duration_water' },
+                                      autoFinishByAction: false,
+                                      timeDomain: 'global',
+                                    }),
+                                  ),
+                                ),
+                              ),
+                              sequence(
+                                forEachContextTarget(
+                                  'water_abilityentity02',
+                                  sequence(
+                                    step('createAbilityEntityTimedMarker', {
+                                      markerId: 'tangtang_waterabilityentity02',
+                                      durationSeconds: { kind: 'blackboard', key: 'duration_water' },
+                                      autoFinishByAction: false,
+                                      timeDomain: 'global',
+                                    }),
+                                  ),
+                                ),
+                              ),
+                              { alwaysNext: true },
+                            ),
+                          ),
+                          sequence(
+                            forEachContextTarget(
+                              'water_abilityentity02',
+                              sequence(
+                                step('createAbilityEntityTimedMarker', {
+                                  markerId: 'tangtang_waterabilityentity01',
+                                  durationSeconds: { kind: 'blackboard', key: 'duration_water' },
+                                  autoFinishByAction: false,
+                                  timeDomain: 'global',
+                                }),
+                              ),
+                            ),
+                          ),
+                          { alwaysNext: true },
+                        ),
                       ),
                       sequence(
+                        step('spawnAbilityEntity', {
+                          abilityEntityId: 'abilityentity_chr_0027_tangtang_comboskill_water',
+                                                    dieWhenSourceDies: false,
+                          inheritActionBlackboard: true,
+                          saveToContextKey: 'water_abilityentity01',
+                        }),
+                        step('applyBuff', {
+                          buffId: 'buff_chr_0027_tangtang_water',
+                          target: 'caster',
+                          inheritSourceSkillCastInfo: true,
+                          blackboardAssignments: {
+                            'duration_water': { kind: 'blackboard', key: 'duration_water' },
+                          },
+                        }),
                         forEachContextTarget(
-                          'water_abilityentity02',
+                          'water_abilityentity01',
                           sequence(
                             step('createAbilityEntityTimedMarker', {
                               markerId: 'tangtang_waterabilityentity01',
@@ -783,76 +1057,64 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                           ),
                         ),
                       ),
+                      { alwaysNext: true },
                     ),
-                  ),
-                  sequence(
-                    step('spawnAbilityEntity', {
-                      abilityEntityId: 'abilityentity_chr_0027_tangtang_comboskill_water',
-                                            dieWhenSourceDies: false,
-                      inheritActionBlackboard: true,
-                      saveToContextKey: 'water_abilityentity01',
-                    }),
-                    step('applyBuff', {
-                      buffId: 'buff_chr_0027_tangtang_water',
-                      target: 'caster',
-                      inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        'duration_water': { kind: 'blackboard', key: 'duration_water' },
-                      },
-                    }),
-                    forEachContextTarget(
-                      'water_abilityentity01',
-                      sequence(
-                        step('createAbilityEntityTimedMarker', {
-                          markerId: 'tangtang_waterabilityentity01',
-                          durationSeconds: { kind: 'blackboard', key: 'duration_water' },
-                          autoFinishByAction: false,
-                          timeDomain: 'global',
-                        }),
-                      ),
-                    ),
-                  ),
-                ),
-                step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'water_group', abilityEntityIds: ['abilityentity_chr_0027_tangtang_comboskill_water'] }),
-                branch(
-                  {
-                    kind: 'buffIdStackCompare',
-                    target: 'caster',
-                    buffIds: ['buff_chr_0027_tangtang_water'],
-                    operator: 'greater',
-                    value: { kind: 'constant', value: 0 },
-                  },
-                  sequence(
-                    step('spawnAbilityEntity', {
-                      abilityEntityId: 'abilityentity_chr_0027_tangtang_comboskill_water',
-                                            dieWhenSourceDies: false,
-                      inheritActionBlackboard: true,
-                      saveToContextKey: 'water_abilityentity02',
-                    }),
-                    step('applyBuff', {
-                      buffId: 'buff_chr_0027_tangtang_water',
-                      target: 'caster',
-                      inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        'duration_water': { kind: 'blackboard', key: 'duration_water' },
-                      },
-                    }),
+                    step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'water_group', abilityEntityIds: ['abilityentity_chr_0027_tangtang_comboskill_water'] }),
                     branch(
-                      { kind: 'abilityEntityTimedMarkerPresent', markerId: 'tangtang_waterabilityentity01', contextKey: 'water_group' },
+                      {
+                        kind: 'buffIdStackCompare',
+                        target: 'caster',
+                        buffIds: ['buff_chr_0027_tangtang_water'],
+                        operator: 'greater',
+                        value: { kind: 'constant', value: 0 },
+                      },
                       sequence(
+                        step('spawnAbilityEntity', {
+                          abilityEntityId: 'abilityentity_chr_0027_tangtang_comboskill_water',
+                                                    dieWhenSourceDies: false,
+                          inheritActionBlackboard: true,
+                          saveToContextKey: 'water_abilityentity02',
+                        }),
+                        step('applyBuff', {
+                          buffId: 'buff_chr_0027_tangtang_water',
+                          target: 'caster',
+                          inheritSourceSkillCastInfo: true,
+                          blackboardAssignments: {
+                            'duration_water': { kind: 'blackboard', key: 'duration_water' },
+                          },
+                        }),
                         branch(
-                          { kind: 'abilityEntityTimedMarkerPresent', markerId: 'tangtang_waterabilityentity02', contextKey: 'water_group' },
+                          { kind: 'abilityEntityTimedMarkerPresent', markerId: 'tangtang_waterabilityentity01', contextKey: 'water_group' },
                           sequence(
-                            forEachContextTarget(
-                              'water_abilityentity02',
+                            branch(
+                              { kind: 'abilityEntityTimedMarkerPresent', markerId: 'tangtang_waterabilityentity02', contextKey: 'water_group' },
                               sequence(
-                                step('createAbilityEntityTimedMarker', {
-                                  markerId: 'tangtang_waterabilityentity03',
-                                  durationSeconds: { kind: 'blackboard', key: 'duration_water' },
-                                  autoFinishByAction: false,
-                                  timeDomain: 'global',
-                                }),
+                                forEachContextTarget(
+                                  'water_abilityentity02',
+                                  sequence(
+                                    step('createAbilityEntityTimedMarker', {
+                                      markerId: 'tangtang_waterabilityentity03',
+                                      durationSeconds: { kind: 'blackboard', key: 'duration_water' },
+                                      autoFinishByAction: false,
+                                      timeDomain: 'global',
+                                    }),
+                                  ),
+                                ),
                               ),
+                              sequence(
+                                forEachContextTarget(
+                                  'water_abilityentity02',
+                                  sequence(
+                                    step('createAbilityEntityTimedMarker', {
+                                      markerId: 'tangtang_waterabilityentity02',
+                                      durationSeconds: { kind: 'blackboard', key: 'duration_water' },
+                                      autoFinishByAction: false,
+                                      timeDomain: 'global',
+                                    }),
+                                  ),
+                                ),
+                              ),
+                              { alwaysNext: true },
                             ),
                           ),
                           sequence(
@@ -860,7 +1122,7 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                               'water_abilityentity02',
                               sequence(
                                 step('createAbilityEntityTimedMarker', {
-                                  markerId: 'tangtang_waterabilityentity02',
+                                  markerId: 'tangtang_waterabilityentity01',
                                   durationSeconds: { kind: 'blackboard', key: 'duration_water' },
                                   autoFinishByAction: false,
                                   timeDomain: 'global',
@@ -868,11 +1130,26 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                               ),
                             ),
                           ),
+                          { alwaysNext: true },
                         ),
                       ),
                       sequence(
+                        step('spawnAbilityEntity', {
+                          abilityEntityId: 'abilityentity_chr_0027_tangtang_comboskill_water',
+                                                    dieWhenSourceDies: false,
+                          inheritActionBlackboard: true,
+                          saveToContextKey: 'water_abilityentity01',
+                        }),
+                        step('applyBuff', {
+                          buffId: 'buff_chr_0027_tangtang_water',
+                          target: 'caster',
+                          inheritSourceSkillCastInfo: true,
+                          blackboardAssignments: {
+                            'duration_water': { kind: 'blackboard', key: 'duration_water' },
+                          },
+                        }),
                         forEachContextTarget(
-                          'water_abilityentity02',
+                          'water_abilityentity01',
                           sequence(
                             step('createAbilityEntityTimedMarker', {
                               markerId: 'tangtang_waterabilityentity01',
@@ -883,38 +1160,15 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                  sequence(
-                    step('spawnAbilityEntity', {
-                      abilityEntityId: 'abilityentity_chr_0027_tangtang_comboskill_water',
-                                            dieWhenSourceDies: false,
-                      inheritActionBlackboard: true,
-                      saveToContextKey: 'water_abilityentity01',
-                    }),
-                    step('applyBuff', {
-                      buffId: 'buff_chr_0027_tangtang_water',
-                      target: 'caster',
-                      inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        'duration_water': { kind: 'blackboard', key: 'duration_water' },
-                      },
-                    }),
-                    forEachContextTarget(
-                      'water_abilityentity01',
-                      sequence(
-                        step('createAbilityEntityTimedMarker', {
-                          markerId: 'tangtang_waterabilityentity01',
-                          durationSeconds: { kind: 'blackboard', key: 'duration_water' },
-                          autoFinishByAction: false,
-                          timeDomain: 'global',
-                        }),
-                      ),
+                      { alwaysNext: true },
                     ),
                   ),
                 ),
+                { alwaysNext: true },
               ),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
           step('dealDamage', {
             damageType: 'cryo',
@@ -944,6 +1198,8 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                 value: { kind: 'constant', value: 1 },
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -1052,6 +1308,7 @@ export const tangtangUltimate: SkillDefinition = withSkillBlackboard(
               }),
             ),
             sequence(),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -1214,26 +1471,11 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
     { key: 'comboSkill', skillType: 'comboSkill', levelSource: 'comboSkill', skills: tangtangComboSkill },
   ],
   buffDefinitions: {
-    'buff_chr_0027_tangtang_skillappear_effect': {
-      stackingType: 'stack',
-      priority: 0,
-      maxStackCount: 1,
-      durationSeconds: 1,
-    },
     'buff_chr_0027_tangtang_skillappear': {
       stackingType: 'stack',
       priority: 0,
       maxStackCount: 1,
       durationSeconds: -1,
-      lifecycleSequences: {
-        finish: sequence(
-          step('applyBuff', {
-            buffId: 'buff_chr_0027_tangtang_skillappear_effect',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
-        ),
-      },
     },
     'buff_chr_0027_tangtang_water_wake': {
       stackingType: 'unique',
@@ -1250,6 +1492,58 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
         'duration_water': 30,
         'water_stack': 2,
       },
+    },
+    'buff_chr_0027_tangtang_passive_0': {
+      stackingType: 'stack',
+      priority: 0,
+      maxStackCount: 1,
+      blackboard: {
+        'duration_spellvulnerable': 0,
+        'normalskill_atk_scale01': 0,
+        'normalskill_atk_scale02': 0,
+        'normalskill_atk_scale03': 0,
+        'rate_spellvulnerable': 0,
+        'rate_spellvulnerable_02': 0,
+      },
+      abilityEventResponses: [
+        {
+          event: 'beforeCastSkill',
+          priority: 0,
+          sequence:
+            sequence(
+              step('modifyActionValue', {
+                key: 'EntityBB_abilityentity_water01',
+                operation: 'assign',
+                value: { kind: 'blackboard', key: 'normalskill_atk_scale01' },
+              }),
+              step('modifyActionValue', {
+                key: 'EntityBB_abilityentity_water02',
+                operation: 'assign',
+                value: { kind: 'blackboard', key: 'normalskill_atk_scale02' },
+              }),
+              step('modifyActionValue', {
+                key: 'EntityBB_abilityentity_water03',
+                operation: 'assign',
+                value: { kind: 'blackboard', key: 'normalskill_atk_scale03' },
+              }),
+              step('modifyActionValue', {
+                key: 'EntityBB_abilityentity_rate_spellvulnerable',
+                operation: 'assign',
+                value: { kind: 'blackboard', key: 'rate_spellvulnerable' },
+              }),
+              step('modifyActionValue', {
+                key: 'EntityBB_abilityentity_rate_spellvulnerable_02',
+                operation: 'assign',
+                value: { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+              }),
+              step('modifyActionValue', {
+                key: 'EntityBB_abilityentity_duration_spellvulnerable',
+                operation: 'assign',
+                value: { kind: 'blackboard', key: 'duration_spellvulnerable' },
+              }),
+            ),
+        },
+      ],
     },
   },
   abilityEntityDefinitions: {
@@ -1294,10 +1588,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -1311,6 +1617,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -1319,14 +1655,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '94:abilityentity_chr_0027_tangtang_normal_skill_03:chr_0027_tangtang_normal_skill_water_projhit_211:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -1345,10 +1690,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -1362,6 +1719,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -1370,14 +1757,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '94:abilityentity_chr_0027_tangtang_normal_skill_03:chr_0027_tangtang_normal_skill_water_projhit_211:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -1396,10 +1792,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -1413,6 +1821,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -1421,14 +1859,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '94:abilityentity_chr_0027_tangtang_normal_skill_03:chr_0027_tangtang_normal_skill_water_projhit_211:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -1447,10 +1894,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -1464,6 +1923,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -1472,14 +1961,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '94:abilityentity_chr_0027_tangtang_normal_skill_03:chr_0027_tangtang_normal_skill_water_projhit_211:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -1498,10 +1996,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -1515,6 +2025,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -1523,14 +2063,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '94:abilityentity_chr_0027_tangtang_normal_skill_03:chr_0027_tangtang_normal_skill_water_projhit_211:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -1549,10 +2098,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -1566,6 +2127,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -1574,14 +2165,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '94:abilityentity_chr_0027_tangtang_normal_skill_03:chr_0027_tangtang_normal_skill_water_projhit_211:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -1600,10 +2200,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -1617,6 +2229,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -1625,14 +2267,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '94:abilityentity_chr_0027_tangtang_normal_skill_03:chr_0027_tangtang_normal_skill_water_projhit_211:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -1651,10 +2302,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -1668,6 +2331,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -1676,14 +2369,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '94:abilityentity_chr_0027_tangtang_normal_skill_03:chr_0027_tangtang_normal_skill_water_projhit_211:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -1702,10 +2404,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -1719,6 +2433,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -1727,14 +2471,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '94:abilityentity_chr_0027_tangtang_normal_skill_03:chr_0027_tangtang_normal_skill_water_projhit_211:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -1753,10 +2506,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -1770,6 +2535,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -1778,14 +2573,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '94:abilityentity_chr_0027_tangtang_normal_skill_03:chr_0027_tangtang_normal_skill_water_projhit_211:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -1804,10 +2608,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -1821,6 +2637,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -1829,14 +2675,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '94:abilityentity_chr_0027_tangtang_normal_skill_03:chr_0027_tangtang_normal_skill_water_projhit_211:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -1855,10 +2710,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -1872,6 +2739,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -1880,14 +2777,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '94:abilityentity_chr_0027_tangtang_normal_skill_03:chr_0027_tangtang_normal_skill_water_projhit_211:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -1939,10 +2845,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -1956,6 +2874,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -1964,14 +2912,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_03_02:chr_0027_tangtang_normal_skill_water_projhit_211:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -1990,10 +2947,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -2007,6 +2976,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -2015,14 +3014,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_03_02:chr_0027_tangtang_normal_skill_water_projhit_211:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -2041,10 +3049,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -2058,6 +3078,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -2066,14 +3116,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_03_02:chr_0027_tangtang_normal_skill_water_projhit_211:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -2092,10 +3151,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -2109,6 +3180,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -2117,14 +3218,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_03_02:chr_0027_tangtang_normal_skill_water_projhit_211:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -2143,10 +3253,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -2160,6 +3282,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -2168,14 +3320,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_03_02:chr_0027_tangtang_normal_skill_water_projhit_211:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -2194,10 +3355,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -2211,6 +3384,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -2219,14 +3422,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_03_02:chr_0027_tangtang_normal_skill_water_projhit_211:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -2245,10 +3457,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -2262,6 +3486,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -2270,14 +3524,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_03_02:chr_0027_tangtang_normal_skill_water_projhit_211:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -2296,10 +3559,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -2313,6 +3588,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -2321,14 +3626,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_03_02:chr_0027_tangtang_normal_skill_water_projhit_211:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -2347,10 +3661,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -2364,6 +3690,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -2372,14 +3728,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_03_02:chr_0027_tangtang_normal_skill_water_projhit_211:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -2398,10 +3763,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -2415,6 +3792,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -2423,14 +3830,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_03_02:chr_0027_tangtang_normal_skill_water_projhit_211:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -2449,10 +3865,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -2466,6 +3894,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -2474,14 +3932,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_03_02:chr_0027_tangtang_normal_skill_water_projhit_211:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -2500,10 +3967,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -2517,6 +3996,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -2525,14 +4034,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_03_02:chr_0027_tangtang_normal_skill_water_projhit_211:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -2584,10 +4102,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -2601,6 +4131,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -2609,14 +4169,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_03_03:chr_0027_tangtang_normal_skill_water_projhit_211:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -2635,10 +4204,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -2652,6 +4233,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -2660,14 +4271,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_03_03:chr_0027_tangtang_normal_skill_water_projhit_211:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -2686,10 +4306,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -2703,6 +4335,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -2711,14 +4373,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_03_03:chr_0027_tangtang_normal_skill_water_projhit_211:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -2737,10 +4408,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -2754,6 +4437,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -2762,14 +4475,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_03_03:chr_0027_tangtang_normal_skill_water_projhit_211:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -2788,10 +4510,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -2805,6 +4539,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -2813,14 +4577,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_03_03:chr_0027_tangtang_normal_skill_water_projhit_211:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -2839,10 +4612,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -2856,6 +4641,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -2864,14 +4679,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_03_03:chr_0027_tangtang_normal_skill_water_projhit_211:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -2890,10 +4714,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -2907,6 +4743,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -2915,14 +4781,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_03_03:chr_0027_tangtang_normal_skill_water_projhit_211:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -2941,10 +4816,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -2958,6 +4845,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -2966,14 +4883,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_03_03:chr_0027_tangtang_normal_skill_water_projhit_211:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -2992,10 +4918,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -3009,6 +4947,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -3017,14 +4985,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_03_03:chr_0027_tangtang_normal_skill_water_projhit_211:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -3043,10 +5020,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -3060,6 +5049,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -3068,14 +5087,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_03_03:chr_0027_tangtang_normal_skill_water_projhit_211:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -3094,10 +5122,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -3111,6 +5151,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -3119,14 +5189,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_03_03:chr_0027_tangtang_normal_skill_water_projhit_211:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -3145,10 +5224,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -3162,6 +5253,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -3170,14 +5291,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_03_03:chr_0027_tangtang_normal_skill_water_projhit_211:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -3228,10 +5358,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -3245,6 +5387,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -3253,14 +5425,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '94:abilityentity_chr_0027_tangtang_normal_skill_02:chr_0027_tangtang_normal_skill_water_projhit_111:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -3279,10 +5460,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -3296,6 +5489,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -3304,14 +5527,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '94:abilityentity_chr_0027_tangtang_normal_skill_02:chr_0027_tangtang_normal_skill_water_projhit_111:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -3330,10 +5562,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -3347,6 +5591,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -3355,14 +5629,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '94:abilityentity_chr_0027_tangtang_normal_skill_02:chr_0027_tangtang_normal_skill_water_projhit_111:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -3381,10 +5664,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -3398,6 +5693,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -3406,14 +5731,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '94:abilityentity_chr_0027_tangtang_normal_skill_02:chr_0027_tangtang_normal_skill_water_projhit_111:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -3432,10 +5766,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -3449,6 +5795,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -3457,14 +5833,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '94:abilityentity_chr_0027_tangtang_normal_skill_02:chr_0027_tangtang_normal_skill_water_projhit_111:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -3483,10 +5868,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -3500,6 +5897,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -3508,14 +5935,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '94:abilityentity_chr_0027_tangtang_normal_skill_02:chr_0027_tangtang_normal_skill_water_projhit_111:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -3534,10 +5970,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -3551,6 +5999,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -3559,14 +6037,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '94:abilityentity_chr_0027_tangtang_normal_skill_02:chr_0027_tangtang_normal_skill_water_projhit_111:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -3585,10 +6072,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -3602,6 +6101,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -3610,14 +6139,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '94:abilityentity_chr_0027_tangtang_normal_skill_02:chr_0027_tangtang_normal_skill_water_projhit_111:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -3636,10 +6174,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -3653,6 +6203,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -3661,14 +6241,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '94:abilityentity_chr_0027_tangtang_normal_skill_02:chr_0027_tangtang_normal_skill_water_projhit_111:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -3687,10 +6276,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -3704,6 +6305,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -3712,14 +6343,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '94:abilityentity_chr_0027_tangtang_normal_skill_02:chr_0027_tangtang_normal_skill_water_projhit_111:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -3738,10 +6378,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -3755,6 +6407,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -3763,14 +6445,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '94:abilityentity_chr_0027_tangtang_normal_skill_02:chr_0027_tangtang_normal_skill_water_projhit_111:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -3789,10 +6480,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -3806,6 +6509,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -3814,14 +6547,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '94:abilityentity_chr_0027_tangtang_normal_skill_02:chr_0027_tangtang_normal_skill_water_projhit_111:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -3872,10 +6614,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -3889,6 +6643,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -3897,14 +6681,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_02_02:chr_0027_tangtang_normal_skill_water_projhit_111:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -3923,10 +6716,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -3940,6 +6745,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -3948,14 +6783,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_02_02:chr_0027_tangtang_normal_skill_water_projhit_111:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -3974,10 +6818,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -3991,6 +6847,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -3999,14 +6885,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_02_02:chr_0027_tangtang_normal_skill_water_projhit_111:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -4025,10 +6920,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -4042,6 +6949,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -4050,14 +6987,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_02_02:chr_0027_tangtang_normal_skill_water_projhit_111:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -4076,10 +7022,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -4093,6 +7051,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -4101,14 +7089,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_02_02:chr_0027_tangtang_normal_skill_water_projhit_111:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -4127,10 +7124,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -4144,6 +7153,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -4152,14 +7191,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_02_02:chr_0027_tangtang_normal_skill_water_projhit_111:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -4178,10 +7226,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -4195,6 +7255,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -4203,14 +7293,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_02_02:chr_0027_tangtang_normal_skill_water_projhit_111:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -4229,10 +7328,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -4246,6 +7357,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -4254,14 +7395,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_02_02:chr_0027_tangtang_normal_skill_water_projhit_111:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -4280,10 +7430,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -4297,6 +7459,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -4305,14 +7497,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_02_02:chr_0027_tangtang_normal_skill_water_projhit_111:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -4331,10 +7532,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -4348,6 +7561,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -4356,14 +7599,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_02_02:chr_0027_tangtang_normal_skill_water_projhit_111:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -4382,10 +7634,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -4399,6 +7663,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -4407,14 +7701,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_02_02:chr_0027_tangtang_normal_skill_water_projhit_111:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -4433,10 +7736,22 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
               branch(
                 {
@@ -4450,6 +7765,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                    definition: {
+                      stackingType: 'highPriority',
+                      priority: { blackboardKey: 'rate_spellvulnerable' },
+                      maxStackCount: { blackboardKey: 'cntmax' },
+                      durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
+                      blackboard: {
+                        'cntmax': 1,
+                        'duration_spellvulnerable': 10,
+                        'rate_spellvulnerable': 0.05,
+                        'rate_vul_base': 0,
+                        'real_duration': 0,
+                      },
+                      damageModifiers: [
+                        {
+                          enabledSide: 'defender',
+                          condition: {
+                            kind: 'eventDamageTypesMatch',
+                            damageTypes: ['heat', 'electric', 'cryo', 'nature'],
+                          },
+                          processors: [
+                            {
+                              kind: 'damageScale',
+                              side: 'defender',
+                              zone: 'vulnerable',
+                              addition: { blackboardKey: 'rate_spellvulnerable' },
+                            },
+                          ],
+                        },
+                      ],
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
@@ -4458,14 +7803,23 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '97:abilityentity_chr_0027_tangtang_normal_skill_02_02:chr_0027_tangtang_normal_skill_water_projhit_111:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder2:13'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -4513,18 +7867,37 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '89:abilityentity_chr_0027_tangtang_normal_skill:chr_0027_tangtang_normal_skill_water_projhit11:conditional18:timelineActions[2]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -4543,18 +7916,37 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '89:abilityentity_chr_0027_tangtang_normal_skill:chr_0027_tangtang_normal_skill_water_projhit11:conditional18:timelineActions[3]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -4573,18 +7965,37 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '89:abilityentity_chr_0027_tangtang_normal_skill:chr_0027_tangtang_normal_skill_water_projhit11:conditional18:timelineActions[4]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -4603,18 +8014,37 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '89:abilityentity_chr_0027_tangtang_normal_skill:chr_0027_tangtang_normal_skill_water_projhit11:conditional18:timelineActions[5]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -4633,18 +8063,37 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '89:abilityentity_chr_0027_tangtang_normal_skill:chr_0027_tangtang_normal_skill_water_projhit11:conditional18:timelineActions[6]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -4663,18 +8112,37 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '89:abilityentity_chr_0027_tangtang_normal_skill:chr_0027_tangtang_normal_skill_water_projhit11:conditional18:timelineActions[7]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -4693,18 +8161,37 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '89:abilityentity_chr_0027_tangtang_normal_skill:chr_0027_tangtang_normal_skill_water_projhit11:conditional18:timelineActions[8]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -4723,18 +8210,37 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '89:abilityentity_chr_0027_tangtang_normal_skill:chr_0027_tangtang_normal_skill_water_projhit11:conditional18:timelineActions[9]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -4753,18 +8259,37 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '89:abilityentity_chr_0027_tangtang_normal_skill:chr_0027_tangtang_normal_skill_water_projhit11:conditional19:timelineActions[10]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -4783,18 +8308,37 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '89:abilityentity_chr_0027_tangtang_normal_skill:chr_0027_tangtang_normal_skill_water_projhit11:conditional19:timelineActions[11]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -4813,18 +8357,37 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '89:abilityentity_chr_0027_tangtang_normal_skill:chr_0027_tangtang_normal_skill_water_projhit11:conditional19:timelineActions[12]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -4843,18 +8406,37 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 0,
+                      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                      durationSeconds: { blackboardKey: 'hit_spellduration' },
+                      blackboard: {
+                        'hit_spellduration': 6,
+                        'hit_spelllnflictionmax': 2,
+                      },
+                    },
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                  }, '89:abilityentity_chr_0027_tangtang_normal_skill:chr_0027_tangtang_normal_skill_water_projhit11:conditional19:timelineActions[13]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]11:actionOrder2:10'),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
           ),
           scheduled(
@@ -4941,6 +8523,7 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                         value: { kind: 'constant', value: 0 },
                       }),
                     ),
+                    { alwaysNext: true },
                   ),
                 ),
                 sequence(
@@ -4956,6 +8539,7 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     value: { kind: 'constant', value: 0 },
                   }),
                 ),
+                { alwaysNext: true },
               ),
             ),
           ),
@@ -5170,54 +8754,140 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   ],
                 },
                 sequence(
-                  sequence(
-                    branch(
-                      {
-                        kind: 'buffIdStackCompare',
-                        target: 'enemy',
-                        buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
-                        sameSourceSkillCast: true,
-                        operator: 'less',
-                        value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
-                      },
+                  branch(
+                    { kind: 'abilityEntityTimedMarkerPresent', markerId: 'tangtang_waterabilityentity01' },
+                    sequence(
                       sequence(
                         branch(
                           {
                             kind: 'buffIdStackCompare',
                             target: 'enemy',
-                            buffIds: ['buff_chr_0027_tangtang_comboskill_hit'],
+                            buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
                             sameSourceSkillCast: true,
-                            operator: 'greaterOrEqual',
-                            value: { kind: 'blackboard', key: 'hit_cnt' },
+                            operator: 'less',
+                            value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
                           },
                           sequence(
-                            step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-                            step('applyBuff', {
-                              buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
-                              definition: {
-                                stackingType: 'unlimited',
-                                priority: 0,
-                                maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
-                                durationSeconds: { blackboardKey: 'hit_spellduration' },
-                                blackboard: {
-                                  'hit_spellduration': 6,
-                                  'hit_spelllnflictionmax': 2,
-                                },
+                            branch(
+                              {
+                                kind: 'buffIdStackCompare',
+                                target: 'enemy',
+                                buffIds: ['buff_chr_0027_tangtang_comboskill_hit'],
+                                sameSourceSkillCast: true,
+                                operator: 'greaterOrEqual',
+                                value: { kind: 'blackboard', key: 'hit_cnt' },
                               },
-                              target: 'enemy',
-                              inheritSourceSkillCastInfo: true,
-                            }),
+                              sequence(
+                                step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                                step('applyBuff', {
+                                  buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                                  definition: {
+                                    stackingType: 'unlimited',
+                                    priority: 0,
+                                    maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                                    durationSeconds: { blackboardKey: 'hit_spellduration' },
+                                    blackboard: {
+                                      'hit_spellduration': 6,
+                                      'hit_spelllnflictionmax': 2,
+                                    },
+                                  },
+                                  target: 'enemy',
+                                  inheritSourceSkillCastInfo: true,
+                                }),
+                              ),
+                              undefined,
+                              { alwaysNext: true },
+                            ),
                           ),
+                          undefined,
+                          { alwaysNext: true },
+                        ),
+                        branch(
+                          { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                          sequence(
+                            step('dealDamage', {
+                              damageType: 'cryo',
+                              attackScale: percentage(0),
+                              tags: ['normalSkill'],
+                              features: ['canBreakWeakness'],
+                              stagger: 0,
+                            }, '10:comboSkill11:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder1:9'),
+                          ),
+                          undefined,
+                          { alwaysNext: true },
                         ),
                       ),
                     ),
-                    step('dealDamage', {
-                      damageType: 'cryo',
-                      attackScale: percentage(0),
-                      tags: ['normalSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: 0,
-                    }, '10:comboSkill11:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder1:9'),
+                    sequence(
+                      branch(
+                        { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                        sequence(
+                          sequence(
+                            branch(
+                              {
+                                kind: 'buffIdStackCompare',
+                                target: 'enemy',
+                                buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                                sameSourceSkillCast: true,
+                                operator: 'less',
+                                value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
+                              },
+                              sequence(
+                                branch(
+                                  {
+                                    kind: 'buffIdStackCompare',
+                                    target: 'enemy',
+                                    buffIds: ['buff_chr_0027_tangtang_comboskill_hit'],
+                                    sameSourceSkillCast: true,
+                                    operator: 'greaterOrEqual',
+                                    value: { kind: 'blackboard', key: 'hit_cnt' },
+                                  },
+                                  sequence(
+                                    step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+                                    step('applyBuff', {
+                                      buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                                      definition: {
+                                        stackingType: 'unlimited',
+                                        priority: 0,
+                                        maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
+                                        durationSeconds: { blackboardKey: 'hit_spellduration' },
+                                        blackboard: {
+                                          'hit_spellduration': 6,
+                                          'hit_spelllnflictionmax': 2,
+                                        },
+                                      },
+                                      target: 'enemy',
+                                      inheritSourceSkillCastInfo: true,
+                                    }),
+                                  ),
+                                  undefined,
+                                  { alwaysNext: true },
+                                ),
+                              ),
+                              undefined,
+                              { alwaysNext: true },
+                            ),
+                            branch(
+                              { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                              sequence(
+                                step('dealDamage', {
+                                  damageType: 'cryo',
+                                  attackScale: percentage(0),
+                                  tags: ['normalSkill'],
+                                  features: ['canBreakWeakness'],
+                                  stagger: 0,
+                                }, '10:comboSkill11:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[0]11:actionOrder1:9'),
+                              ),
+                              undefined,
+                              { alwaysNext: true },
+                            ),
+                          ),
+                        ),
+                        undefined,
+                        { alwaysNext: true },
+                      ),
+                    ),
+                    { alwaysNext: true },
                   ),
                   step('finishBuffsById', {
                     target: 'caster',
@@ -5226,6 +8896,8 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     count: { kind: 'constant', value: 1 },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
             ),
           ),
@@ -5239,6 +8911,36 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
     } },
     'abilityentity_chr_0027_tangtang_ultskill': { lifetime: { kind: 'limited', durationSeconds: 10 } },
   },
+  passiveSkills: [
+    {
+      key: 'chr_0027_tangtang_passive_0',
+      blackboard: {
+        'atk_scale_water_ult': 0,
+        'duration_spellvulnerable': 0,
+        'normalskill_atk_scale01': 0,
+        'normalskill_atk_scale02': 0,
+        'normalskill_atk_scale03': 0,
+        'rate_spellvulnerable': 0,
+        'rate_spellvulnerable_02': 0,
+        'talent2': 0,
+      },
+      enableSequence: sequence(
+        step('applyBuff', {
+          buffId: 'buff_chr_0027_tangtang_passive_0',
+          target: 'caster',
+          inheritSourceSkillCastInfo: false,
+          blackboardAssignments: {
+            'normalskill_atk_scale01': { kind: 'blackboard', key: 'normalskill_atk_scale01' },
+            'normalskill_atk_scale02': { kind: 'blackboard', key: 'normalskill_atk_scale02' },
+            'normalskill_atk_scale03': { kind: 'blackboard', key: 'normalskill_atk_scale03' },
+            'rate_spellvulnerable': { kind: 'blackboard', key: 'rate_spellvulnerable' },
+            'rate_spellvulnerable_02': { kind: 'blackboard', key: 'rate_spellvulnerable_02' },
+            'duration_spellvulnerable': { kind: 'blackboard', key: 'duration_spellvulnerable' },
+          },
+        }),
+      ),
+    },
+  ],
   talents: [
     {
       key: 'talent1',

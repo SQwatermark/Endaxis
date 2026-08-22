@@ -519,3 +519,14 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 上述“空查询”已查明不是 ID/Tag 缺失：`buff_chr_0032_lizhiyan_ultimate_skill_layer` 的 `OnBuffEnhanceChanged` 使用 `SaveBuffStackNumAdvanced(Environment + BuffCount)`，原生语义是把正在执行的当前 Buff `enhanceCnt` 写入动作黑板 `count`。`combat-spec` 已先以提交 `f23ec70` 开放适配器和运行时复刻；Endaxis 的 `readBuffStackCount` 新增 `environment` 查询，Buff 生命周期上下文直接提供当前实例层数，缺少 Buff 上下文时失败关闭。
 - Arcane 严格生成继续前移到 `ultimate_skill_inaura` 的距离条件：敌方 Buff Owner 与 `OwnerSpawnedEntityFinder(AbilityEntity, HasAny 464088014)` 的距离小于等于 60；标签证据唯一指向奥义主实体模板。项目距离统一为 0，但生成器的 `TargetReferenceSource` 尚未保存该内联 Finder 的对象类型/标签查询，也没有把当前能力实体 ID 传到条件证明层，因此现阶段不能仅凭 `OwnerSpawnedEntityFinder` 名称判恒真。下一步应先保留该身份并证明查询命中当前奥义实体，再按统一零距离规则折叠。
 - 本阶段追加门禁：`combat-spec` 定向 13/13；Endaxis 生成器 340/340、完整 Next Vitest 198 文件 1330/1330、`type-check:next` 通过。失败 Arcane 生成的半成品已撤回，`tmp/` 未提交。
+
+### 2026-08-22：全量生成产物恢复一致
+
+- 全仓生成已重新执行并通过 `--check`，不再保留“生成器已前进、正式产物仍陈旧”的双重基线。20 名 `complete` 干员输出正式定义；梨诺恢复为 `audit`，12 个技能事实全部保留、其中 11 个输出审计 DSL。其终结技仍因 1.4.4 VFS manifest 缺少 `abilityentity_chr_0035_liino_ult_skill_projhit` 模板而失败关闭，不能用子技能时长猜造实体寿命或组件行为。
+- owner-spawned 选择器现在保留原生数值零掩码：`spawnedObjectType=0` 是合法的未命名默认枚举值，按 `combat-spec` 证据不命中任何非零对象类型；普通 HitBox 等非 owner-spawned Finder 的 `TagValidator` 查询也不再被提前返回误删。莱万汀的实体标签数量条件与唐糖的零掩码被动因此按原始身份生成。
+- 唐糖被动启动的 `buff_chr_0027_tangtang_water_passiveui` 只统计水实体并通知角色被动 UI，现通过严格校验的 `presentationOnlyPassiveBuffIds` 从模拟定义移除；真实水实体被动仍保留。技能与养成 Buff 现在共用“递归纯表现子 Buff 可省略”的边界，Estella Aura 应用目标统一从已证明的 Context 目标传入，不再因 Buff 环境把敌方目标误解析成宿主。
+- 萤石第二天赋的原始承伤响应包含标签、伤害类型和概率三重守卫；这些守卫尚未完整编译，因此不得只输出后半段免伤/加攻。`unmodeledPassiveSkillIds` 会把这类已知不完整的隐藏被动保留在 audit 的 `generationIssues`，正式定义中整段省略；萤石第一天赋和其他已证明行为不受影响。
+- 弭弗护盾的 `StoreAttributeValue(MaxHp, FinalNonConverted)` 现由标准环境读取同一干员生命账本的 `maxHealth`，不再把静态实体黑板当作通用属性来源。养成缺口门禁改为单向约束：完全没有可执行行为的天赋/潜能必须声明缺口，而安全的部分行为允许与明确缺口共存。
+- 当前门禁：生成器 427/427、全量生成 `--check`、Next 198 文件 1336/1336、`type-check:next`、`git diff --check` 全部通过。`tmp/` 仍只作为未跟踪证据/临时目录，不得提交。
+
+下一阶段建议先处理 Camille 奥义 `ult_henshin_state` 的严格技能槽路由和轨道可用性，再补 Arcane/伊冯/庄方宜等正式定义的专项生产模拟。`WeakAction` 继续等待 IFix 方法体证据，梨诺继续等待真实能力实体模板；两者均不为追求统计完整度绕过。

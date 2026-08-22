@@ -71,20 +71,9 @@ export const liinoComboSkill: SkillDefinition = withSkillBlackboard(
                 inheritSourceSkillCastInfo: true,
               }),
             ),
+            { alwaysNext: true },
           ),
         ),
-      ),
-      scheduled(
-        0,
-        sequence(
-          step('applyBuff', {
-            buffId: 'buff_chr_0035_liino_showhide_fire',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-            finishByAction: true,
-          }),
-        ),
-        64,
       ),
       scheduled(
         0,
@@ -105,20 +94,9 @@ export const liinoComboSkill: SkillDefinition = withSkillBlackboard(
                 inheritSourceSkillCastInfo: true,
               }),
             ),
+            { alwaysNext: true },
           ),
         ),
-      ),
-      scheduled(
-        0,
-        sequence(
-          step('applyBuff', {
-            buffId: 'buff_chr_0035_liino_showhide_audio_fire',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-            finishByAction: true,
-          }),
-        ),
-        48,
       ),
       scheduled(
         9,
@@ -266,6 +244,287 @@ export const liinoBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
 );
 
+export const liinoBasicAttack3: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'basicAttack3',
+    sourceSkillId: 'chr_0035_liino_attack3',
+    timelineBlockFrames: 24,
+    scheduledSequences: [
+      scheduled(
+        0,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0035_liino_showhide_attack'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0035_liino_showhide_attack',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+      ),
+      scheduled(
+        0,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0035_liino_showhide_audio'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0035_liino_showhide_audio',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+      ),
+      scheduled(
+        12,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([22, 24, 26, 29, 31, 33, 35, 37, 40, 42, 46, 50]),
+            tags: ['normalAttack'],
+          }, '12:basicAttack36:direct22:chr_0035_liino_attack311:actionOrder2:16'),
+        ),
+      ),
+      scheduled(
+        12,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2]),
+            tags: ['normalAttack'],
+          }, '12:basicAttack310:projectile22:chr_0035_liino_attack330:chr_0035_liino_attack3_projhit11:actionOrder2:211:0'),
+        ),
+      ),
+      scheduled(
+        14,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2]),
+            tags: ['normalAttack'],
+          }, '12:basicAttack310:projectile22:chr_0035_liino_attack330:chr_0035_liino_attack3_projhit11:actionOrder2:221:0'),
+        ),
+      ),
+      scheduled(
+        16,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2]),
+            tags: ['normalAttack'],
+          }, '12:basicAttack310:projectile22:chr_0035_liino_attack330:chr_0035_liino_attack3_projhit11:actionOrder2:231:0'),
+        ),
+      ),
+      scheduled(
+        18,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2]),
+            tags: ['normalAttack'],
+          }, '12:basicAttack310:projectile22:chr_0035_liino_attack330:chr_0035_liino_attack3_projhit11:actionOrder2:241:0'),
+        ),
+      ),
+      scheduled(
+        20,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2]),
+            tags: ['normalAttack'],
+          }, '12:basicAttack310:projectile22:chr_0035_liino_attack330:chr_0035_liino_attack3_projhit11:actionOrder2:251:0'),
+        ),
+      ),
+    ],
+  },
+  {
+    'atk_scale': [0.22, 0.24, 0.26, 0.29, 0.31, 0.33, 0.35, 0.37, 0.4, 0.42, 0.46, 0.5],
+    'atk_scale_2': [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.02, 0.02, 0.02, 0.02, 0.02],
+    'display_atk_scale': [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.45, 0.48, 0.51, 0.56, 0.6],
+  },
+);
+
+export const liinoBasicAttack4: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'basicAttack4',
+    sourceSkillId: 'chr_0035_liino_attack4',
+    timelineBlockFrames: 18,
+    scheduledSequences: [
+      scheduled(
+        0,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0035_liino_showhide_attack'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0035_liino_showhide_attack',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+      ),
+      scheduled(
+        0,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0035_liino_showhide_audio'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0035_liino_showhide_audio',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+      ),
+      scheduled(
+        5,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([3.6, 4, 4.3, 4.7, 5, 5.4, 5.8, 6.1, 6.5, 6.9, 7.5, 8.1]),
+            tags: ['normalAttack'],
+          }, '12:basicAttack410:projectile22:chr_0035_liino_attack430:chr_0035_liino_attack4_projhit11:actionOrder1:31:0'),
+        ),
+      ),
+      scheduled(
+        5,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([3.6, 4, 4.3, 4.7, 5, 5.4, 5.8, 6.1, 6.5, 6.9, 7.5, 8.1]),
+            tags: ['normalAttack'],
+          }, '12:basicAttack410:projectile22:chr_0035_liino_attack430:chr_0035_liino_attack4_projhit11:actionOrder1:81:0'),
+        ),
+      ),
+      scheduled(
+        7,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([3.6, 4, 4.3, 4.7, 5, 5.4, 5.8, 6.1, 6.5, 6.9, 7.5, 8.1]),
+            tags: ['normalAttack'],
+          }, '12:basicAttack410:projectile22:chr_0035_liino_attack430:chr_0035_liino_attack4_projhit11:actionOrder1:41:0'),
+        ),
+      ),
+      scheduled(
+        7,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([3.6, 4, 4.3, 4.7, 5, 5.4, 5.8, 6.1, 6.5, 6.9, 7.5, 8.1]),
+            tags: ['normalAttack'],
+          }, '12:basicAttack410:projectile22:chr_0035_liino_attack430:chr_0035_liino_attack4_projhit11:actionOrder1:91:0'),
+        ),
+      ),
+      scheduled(
+        10,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([3.6, 4, 4.3, 4.7, 5, 5.4, 5.8, 6.1, 6.5, 6.9, 7.5, 8.1]),
+            tags: ['normalAttack'],
+          }, '12:basicAttack410:projectile22:chr_0035_liino_attack430:chr_0035_liino_attack4_projhit11:actionOrder1:51:0'),
+        ),
+      ),
+      scheduled(
+        10,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([3.6, 4, 4.3, 4.7, 5, 5.4, 5.8, 6.1, 6.5, 6.9, 7.5, 8.1]),
+            tags: ['normalAttack'],
+          }, '12:basicAttack410:projectile22:chr_0035_liino_attack430:chr_0035_liino_attack4_projhit11:actionOrder2:101:0'),
+        ),
+      ),
+      scheduled(
+        13,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([3.6, 4, 4.3, 4.7, 5, 5.4, 5.8, 6.1, 6.5, 6.9, 7.5, 8.1]),
+            tags: ['normalAttack'],
+          }, '12:basicAttack410:projectile22:chr_0035_liino_attack430:chr_0035_liino_attack4_projhit11:actionOrder1:61:0'),
+        ),
+      ),
+      scheduled(
+        13,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([3.6, 4, 4.3, 4.7, 5, 5.4, 5.8, 6.1, 6.5, 6.9, 7.5, 8.1]),
+            tags: ['normalAttack'],
+          }, '12:basicAttack410:projectile22:chr_0035_liino_attack430:chr_0035_liino_attack4_projhit11:actionOrder2:111:0'),
+        ),
+      ),
+      scheduled(
+        16,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([3.6, 4, 4.3, 4.7, 5, 5.4, 5.8, 6.1, 6.5, 6.9, 7.5, 8.1]),
+            tags: ['normalAttack'],
+          }, '12:basicAttack410:projectile22:chr_0035_liino_attack430:chr_0035_liino_attack4_projhit11:actionOrder1:71:0'),
+        ),
+      ),
+      scheduled(
+        16,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([3.6, 4, 4.3, 4.7, 5, 5.4, 5.8, 6.1, 6.5, 6.9, 7.5, 8.1]),
+            tags: ['normalAttack'],
+          }, '12:basicAttack410:projectile22:chr_0035_liino_attack430:chr_0035_liino_attack4_projhit11:actionOrder2:121:0'),
+        ),
+      ),
+    ],
+  },
+  {
+    'atk_scale': [0.036, 0.04, 0.043, 0.047, 0.05, 0.054, 0.058, 0.061, 0.065, 0.069, 0.075, 0.081],
+    'display_atk_scale': [0.36, 0.4, 0.43, 0.47, 0.5, 0.54, 0.58, 0.61, 0.65, 0.69, 0.75, 0.81],
+  },
+);
+
 export const liinoBasicAttack5: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack5',
@@ -291,6 +550,7 @@ export const liinoBasicAttack5: SkillDefinition = withSkillBlackboard(
                 inheritSourceSkillCastInfo: true,
               }),
             ),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -313,50 +573,7 @@ export const liinoBasicAttack5: SkillDefinition = withSkillBlackboard(
                 inheritSourceSkillCastInfo: true,
               }),
             ),
-          ),
-        ),
-      ),
-      scheduled(
-        4,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0035_liino_showhide_audio_fire'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            sequence(
-              step('applyBuff', {
-                buffId: 'buff_chr_0035_liino_showhide_audio_fire',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-              }),
-            ),
-          ),
-        ),
-      ),
-      scheduled(
-        5,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0035_liino_showhide_fire'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            sequence(
-              step('applyBuff', {
-                buffId: 'buff_chr_0035_liino_showhide_fire',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-              }),
-            ),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -380,6 +597,8 @@ export const liinoBasicAttack5: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -441,6 +660,7 @@ export const liinoFinisher: SkillDefinition = withSkillBlackboard(
                 inheritSourceSkillCastInfo: true,
               }),
             ),
+            { alwaysNext: true },
           ),
           branch(
             {
@@ -458,6 +678,7 @@ export const liinoFinisher: SkillDefinition = withSkillBlackboard(
                 inheritSourceSkillCastInfo: true,
               }),
             ),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -480,32 +701,9 @@ export const liinoFinisher: SkillDefinition = withSkillBlackboard(
                 inheritSourceSkillCastInfo: true,
               }),
             ),
+            { alwaysNext: true },
           ),
         ),
-      ),
-      scheduled(
-        3,
-        sequence(
-          step('applyBuff', {
-            buffId: 'buff_chr_0035_liino_showhide_fire',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-            finishByAction: true,
-          }),
-        ),
-        49,
-      ),
-      scheduled(
-        3,
-        sequence(
-          step('applyBuff', {
-            buffId: 'buff_chr_0035_liino_showhide_audio_fire',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-            finishByAction: true,
-          }),
-        ),
-        49,
       ),
       scheduled(
         34,
@@ -523,6 +721,87 @@ export const liinoFinisher: SkillDefinition = withSkillBlackboard(
   },
   {
     'atk_scale': [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
+  },
+);
+
+export const liinoPlungingAttack: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'plungingAttack',
+    sourceSkillId: 'chr_0035_liino_plunging_attack_end',
+    timelineBlockFrames: 11,
+    scheduledSequences: [
+      scheduled(
+        0,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0035_liino_showhide_attack'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0035_liino_showhide_attack',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+      ),
+      scheduled(
+        0,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0035_liino_showhide_audio'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0035_liino_showhide_audio',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+      ),
+      scheduled(
+        2,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([64, 70, 77, 83, 90, 96, 102, 109, 115, 123, 133, 144]),
+            tags: ['normalAttack', 'plungingAttack'],
+          }, '14:plungingAttack6:direct34:chr_0035_liino_plunging_attack_end11:actionOrder1:2'),
+        ),
+      ),
+      scheduled(
+        8,
+        sequence(
+          step('dealDamage', {
+            damageType: 'electric',
+            attackScale: percentages([16, 18, 19, 21, 22, 24, 26, 27, 29, 31, 33, 36]),
+            tags: ['normalAttack', 'plungingAttack'],
+          }, '14:plungingAttack6:direct34:chr_0035_liino_plunging_attack_end11:actionOrder1:5'),
+        ),
+      ),
+    ],
+  },
+  {
+    'atk_scale': [0.64, 0.7, 0.77, 0.83, 0.9, 0.96, 1.02, 1.09, 1.15, 1.23, 1.33, 1.44],
+    'atk_scale_2': [0.16, 0.18, 0.19, 0.21, 0.22, 0.24, 0.26, 0.27, 0.29, 0.31, 0.33, 0.36],
+    'display_atk_scale': [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
   },
 );
 
@@ -565,6 +844,7 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
                 inheritSourceSkillCastInfo: true,
               }),
             ),
+            { alwaysNext: true },
           ),
           branch(
             {
@@ -582,6 +862,7 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
                 inheritSourceSkillCastInfo: true,
               }),
             ),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -604,6 +885,7 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
                 inheritSourceSkillCastInfo: true,
               }),
             ),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -632,79 +914,93 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'skill',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
       scheduled(
-        6,
-        sequence(
-          step('applyBuff', {
-            buffId: 'buff_chr_0035_liino_showhide_fire',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-            finishByAction: true,
-          }),
-        ),
-        1804,
-      ),
-      scheduled(
-        6,
-        sequence(
-          step('applyBuff', {
-            buffId: 'buff_chr_0035_liino_showhide_audio_fire',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-            finishByAction: true,
-          }),
-        ),
-        1804,
-      ),
-      scheduled(
         12,
         sequence(
-          step('dealDamage', {
-            damageType: 'electric',
-            attackScale: percentages([18, 20, 21, 23, 25, 27, 28, 30, 32, 34, 37, 40]),
-            tags: ['normalSkill'],
-            features: ['canBreakWeakness'],
-            stagger: 0.5,
-          }, '11:battleSkill10:projectile27:chr_0035_liino_normal_skill41:chr_0035_liino_normal_skill_projhit_start35:chr_0035_liino_normal_skill_projhit11:actionOrder2:171:11:01:3'),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              sequence(
+                step('dealDamage', {
+                  damageType: 'electric',
+                  attackScale: percentages([18, 20, 21, 23, 25, 27, 28, 30, 32, 34, 37, 40]),
+                  tags: ['normalSkill'],
+                  features: ['canBreakWeakness'],
+                  stagger: 0.5,
+                }, '11:battleSkill11:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]35:chr_0035_liino_normal_skill_projhit11:actionOrder1:31:3'),
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         12,
         sequence(
-          step('dealDamage', {
-            damageType: 'electric',
-            attackScale: percentages([18, 20, 21, 23, 25, 27, 28, 30, 32, 34, 37, 40]),
-            tags: ['normalSkill'],
-            features: ['canBreakWeakness'],
-            stagger: 0.5,
-          }, '11:battleSkill10:projectile27:chr_0035_liino_normal_skill41:chr_0035_liino_normal_skill_projhit_start35:chr_0035_liino_normal_skill_projhit11:actionOrder2:181:11:01:3'),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              sequence(
+                step('dealDamage', {
+                  damageType: 'electric',
+                  attackScale: percentages([18, 20, 21, 23, 25, 27, 28, 30, 32, 34, 37, 40]),
+                  tags: ['normalSkill'],
+                  features: ['canBreakWeakness'],
+                  stagger: 0.5,
+                }, '11:battleSkill11:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]35:chr_0035_liino_normal_skill_projhit11:actionOrder1:31:3'),
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         14,
         sequence(
-          step('dealDamage', {
-            damageType: 'electric',
-            attackScale: percentages([18, 20, 21, 23, 25, 27, 28, 30, 32, 34, 37, 40]),
-            tags: ['normalSkill'],
-            features: ['canBreakWeakness'],
-            stagger: 0.5,
-          }, '11:battleSkill10:projectile27:chr_0035_liino_normal_skill47:chr_0035_liino_normal_skill_projhit_start_vfx0235:chr_0035_liino_normal_skill_projhit11:actionOrder2:211:11:01:3'),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              sequence(
+                step('dealDamage', {
+                  damageType: 'electric',
+                  attackScale: percentages([18, 20, 21, 23, 25, 27, 28, 30, 32, 34, 37, 40]),
+                  tags: ['normalSkill'],
+                  features: ['canBreakWeakness'],
+                  stagger: 0.5,
+                }, '11:battleSkill11:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]35:chr_0035_liino_normal_skill_projhit11:actionOrder1:31:3'),
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         14,
         sequence(
-          step('dealDamage', {
-            damageType: 'electric',
-            attackScale: percentages([18, 20, 21, 23, 25, 27, 28, 30, 32, 34, 37, 40]),
-            tags: ['normalSkill'],
-            features: ['canBreakWeakness'],
-            stagger: 0.5,
-          }, '11:battleSkill10:projectile27:chr_0035_liino_normal_skill45:chr_0035_liino_normal_skill_projhit_start_vfx35:chr_0035_liino_normal_skill_projhit11:actionOrder2:221:11:01:3'),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              sequence(
+                step('dealDamage', {
+                  damageType: 'electric',
+                  attackScale: percentages([18, 20, 21, 23, 25, 27, 28, 30, 32, 34, 37, 40]),
+                  tags: ['normalSkill'],
+                  features: ['canBreakWeakness'],
+                  stagger: 0.5,
+                }, '11:battleSkill11:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]35:chr_0035_liino_normal_skill_projhit11:actionOrder1:31:3'),
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
@@ -781,25 +1077,43 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         16,
         sequence(
-          step('dealDamage', {
-            damageType: 'electric',
-            attackScale: percentages([18, 20, 21, 23, 25, 27, 28, 30, 32, 34, 37, 40]),
-            tags: ['normalSkill'],
-            features: ['canBreakWeakness'],
-            stagger: 0.5,
-          }, '11:battleSkill10:projectile27:chr_0035_liino_normal_skill47:chr_0035_liino_normal_skill_projhit_start_vfx0335:chr_0035_liino_normal_skill_projhit11:actionOrder2:191:11:01:3'),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              sequence(
+                step('dealDamage', {
+                  damageType: 'electric',
+                  attackScale: percentages([18, 20, 21, 23, 25, 27, 28, 30, 32, 34, 37, 40]),
+                  tags: ['normalSkill'],
+                  features: ['canBreakWeakness'],
+                  stagger: 0.5,
+                }, '11:battleSkill11:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]35:chr_0035_liino_normal_skill_projhit11:actionOrder1:31:3'),
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         16,
         sequence(
-          step('dealDamage', {
-            damageType: 'electric',
-            attackScale: percentages([18, 20, 21, 23, 25, 27, 28, 30, 32, 34, 37, 40]),
-            tags: ['normalSkill'],
-            features: ['canBreakWeakness'],
-            stagger: 0.5,
-          }, '11:battleSkill10:projectile27:chr_0035_liino_normal_skill47:chr_0035_liino_normal_skill_projhit_start_vfx0435:chr_0035_liino_normal_skill_projhit11:actionOrder2:201:11:01:3'),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              sequence(
+                step('dealDamage', {
+                  damageType: 'electric',
+                  attackScale: percentages([18, 20, 21, 23, 25, 27, 28, 30, 32, 34, 37, 40]),
+                  tags: ['normalSkill'],
+                  features: ['canBreakWeakness'],
+                  stagger: 0.5,
+                }, '11:battleSkill11:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[0]35:chr_0035_liino_normal_skill_projhit11:actionOrder1:31:3'),
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
@@ -847,11 +1161,6 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
                   key: 'native-event-24-0',
                   event: { kind: 'buffApplied' },
                   sequence: sequence(
-                    step('applyBuff', {
-                      buffId: 'buff_chr_0035_liino_normalskill_music_cry_vfx',
-                      target: 'caster',
-                      inheritSourceSkillCastInfo: true,
-                    }),
                     step('finishBuffsById', {
                       target: 'caster',
                       buffIds: ['buff_chr_0035_liino_normalskill_spelllnfliction_extraattack', 'buff_chr_0035_liino_normalskill_music_animation_musicloop', 'buff_chr_0035_liino_normalskill_music_cd_uishow'],
@@ -888,11 +1197,6 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
                   key: 'native-event-30-0',
                   event: { kind: 'buffApplied' },
                   sequence: sequence(
-                    step('applyBuff', {
-                      buffId: 'buff_chr_0035_liino_normalskill_music_smile_vfx',
-                      target: 'caster',
-                      inheritSourceSkillCastInfo: true,
-                    }),
                     step('finishBuffsById', {
                       target: 'caster',
                       buffIds: ['buff_chr_0035_liino_normalskill_spelllnfliction_extraattack', 'buff_chr_0035_liino_normalskill_music_animation_musicloop', 'buff_chr_0035_liino_normalskill_music_cd_uishow'],
@@ -984,11 +1288,6 @@ export const liinoBattleSkillCombo: SkillDefinition = withSkillBlackboard(
                   key: 'native-event-6-0',
                   event: { kind: 'buffApplied' },
                   sequence: sequence(
-                    step('applyBuff', {
-                      buffId: 'buff_chr_0035_liino_normalskill_music_cry_vfx',
-                      target: 'caster',
-                      inheritSourceSkillCastInfo: true,
-                    }),
                     step('finishBuffsById', {
                       target: 'caster',
                       buffIds: ['buff_chr_0035_liino_normalskill_spelllnfliction_extraattack', 'buff_chr_0035_liino_normalskill_music_animation_musicloop', 'buff_chr_0035_liino_normalskill_music_cd_uishow'],
@@ -1025,11 +1324,6 @@ export const liinoBattleSkillCombo: SkillDefinition = withSkillBlackboard(
                   key: 'native-event-12-0',
                   event: { kind: 'buffApplied' },
                   sequence: sequence(
-                    step('applyBuff', {
-                      buffId: 'buff_chr_0035_liino_normalskill_music_smile_vfx',
-                      target: 'caster',
-                      inheritSourceSkillCastInfo: true,
-                    }),
                     step('finishBuffsById', {
                       target: 'caster',
                       buffIds: ['buff_chr_0035_liino_normalskill_spelllnfliction_extraattack', 'buff_chr_0035_liino_normalskill_music_animation_musicloop', 'buff_chr_0035_liino_normalskill_music_cd_uishow'],
@@ -1079,20 +1373,9 @@ export const liinoBattleSkillCombo: SkillDefinition = withSkillBlackboard(
                 inheritSourceSkillCastInfo: true,
               }),
             ),
+            { alwaysNext: true },
           ),
         ),
-      ),
-      scheduled(
-        0,
-        sequence(
-          step('applyBuff', {
-            buffId: 'buff_chr_0035_liino_showhide_fire',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-            finishByAction: true,
-          }),
-        ),
-        1800,
       ),
       scheduled(
         0,
@@ -1113,20 +1396,9 @@ export const liinoBattleSkillCombo: SkillDefinition = withSkillBlackboard(
                 inheritSourceSkillCastInfo: true,
               }),
             ),
+            { alwaysNext: true },
           ),
         ),
-      ),
-      scheduled(
-        0,
-        sequence(
-          step('applyBuff', {
-            buffId: 'buff_chr_0035_liino_showhide_audio_fire',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-            finishByAction: true,
-          }),
-        ),
-        1800,
       ),
       scheduled(
         1800,
@@ -1158,18 +1430,6 @@ export const liinoBattleSkillCombo: SkillDefinition = withSkillBlackboard(
       scheduled(
         1862,
         sequence(
-          step('applyBuff', {
-            buffId: 'buff_chr_0035_liino_showhide_fire',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-            finishByAction: true,
-          }),
-        ),
-        1961,
-      ),
-      scheduled(
-        1862,
-        sequence(
           branch(
             {
               kind: 'buffIdStackCompare',
@@ -1186,20 +1446,9 @@ export const liinoBattleSkillCombo: SkillDefinition = withSkillBlackboard(
                 inheritSourceSkillCastInfo: true,
               }),
             ),
+            { alwaysNext: true },
           ),
         ),
-      ),
-      scheduled(
-        1862,
-        sequence(
-          step('applyBuff', {
-            buffId: 'buff_chr_0035_liino_showhide_audio_fire',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-            finishByAction: true,
-          }),
-        ),
-        1961,
       ),
       scheduled(
         1938,
@@ -1233,3 +1482,5 @@ export const liinoBattleSkillCombo: SkillDefinition = withSkillBlackboard(
     'set_cd': 3,
   },
 );
+
+export const liinoSkillSlotReplacementRelations = [{ skillSlot: 'NormalSkill', baseSkillKey: 'battleSkill', replacementSkillKey: 'battleSkillEnd', activatedByBuffId: 'buff_chr_0035_liino_normalskill_music_cd_uishow', activationEvent: 'DuringBuffEnable', activationActionIndex: 0, inheritOriginSkillCooldownProgress: true, revertMode: 'buffActionEnd', skillGroupKey: 'battleSkill' }] as const;

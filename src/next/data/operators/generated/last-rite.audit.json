@@ -144,7 +144,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -153,12 +155,19 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0026_lastrite_combo_skill_sound",
@@ -238,7 +247,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -319,9 +330,13 @@
               "validatorTypes": [],
               "postProcessorTypes": [],
               "inputTargets": [],
-              "intervalSeconds": null
+              "intervalSeconds": null,
+              "pickIndexValue": null,
+              "pickIndexBlackboardKey": null
             }
-          ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -330,12 +345,19 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": true,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0026_lastrite_normal_skill",
@@ -433,6 +455,7 @@
               }
             }
           ],
+          "tagConditions": [],
           "ownerControlled": true,
           "damageTagMatch": "hasAny",
           "damageTags": [
@@ -458,7 +481,8 @@
               }
             }
           ],
-          "healthComparisons": []
+          "healthComparisons": [],
+          "buffCountComparisons": []
         }
       ],
       "directDamageHits": [],
@@ -495,7 +519,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -600,12 +626,20 @@
                         "left": null,
                         "right": null,
                         "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": {
                           "checkType": "HasAny",
                           "mask": 2097152
                         },
                         "contextBuffId": null,
-                        "deckAttributeCompare": null
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
                       }
                     ],
                     "succeedActions": [
@@ -643,13 +677,21 @@
                               "left": null,
                               "right": null,
                               "skillTypes": [],
+                              "poise": null,
                               "mainOperator": {
                                 "targetSource": "Owner",
                                 "targetGroupKey": ""
                               },
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
+                              "targetAngle": null,
                               "damageDecorateMask": null,
                               "contextBuffId": null,
-                              "deckAttributeCompare": null
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
                             }
                           ],
                           "succeedActions": [
@@ -697,9 +739,17 @@
                                       "levelValues": null
                                     },
                                     "skillTypes": [],
+                                    "poise": null,
+                                    "superArmor": null,
+                                    "twoDirectionAngle": null,
+                                    "targetAngle": null,
                                     "damageDecorateMask": null,
                                     "contextBuffId": null,
-                                    "deckAttributeCompare": null
+                                    "objectTypeMatch": null,
+                                    "deckAttributeCompare": null,
+                                    "probability": null,
+                                    "anyConditionGroups": [],
+                                    "anyConditionNegated": []
                                   }
                                 ],
                                 "succeedActions": [
@@ -743,21 +793,27 @@
                                     ]
                                   }
                                 ],
-                                "failActions": []
+                                "failActions": [],
+                                "conditionNegated": [],
+                                "alwaysNext": false
                               },
                               "legacyBuffFinish": null,
                               "skillCooldownAdjustment": null,
                               "buffIgnite": null
                             }
                           ],
-                          "failActions": []
+                          "failActions": [],
+                          "conditionNegated": [],
+                          "alwaysNext": false
                         },
                         "legacyBuffFinish": null,
                         "skillCooldownAdjustment": null,
                         "buffIgnite": null
                       }
                     ],
-                    "failActions": []
+                    "failActions": [],
+                    "conditionNegated": [],
+                    "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -818,6 +874,10 @@
                         "left": null,
                         "right": null,
                         "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "timedMarker": {
                           "targetSource": "Owner",
                           "targetGroupKey": "",
@@ -828,7 +888,11 @@
                         },
                         "damageDecorateMask": null,
                         "contextBuffId": null,
-                        "deckAttributeCompare": null
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
                       }
                     ],
                     "succeedActions": [
@@ -866,12 +930,20 @@
                               "left": null,
                               "right": null,
                               "skillTypes": [],
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
+                              "targetAngle": null,
                               "damageDecorateMask": {
                                 "checkType": "HasAny",
                                 "mask": 2097152
                               },
                               "contextBuffId": null,
-                              "deckAttributeCompare": null
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
                             }
                           ],
                           "succeedActions": [
@@ -909,13 +981,21 @@
                                     "left": null,
                                     "right": null,
                                     "skillTypes": [],
+                                    "poise": null,
                                     "mainOperator": {
                                       "targetSource": "Owner",
                                       "targetGroupKey": ""
                                     },
+                                    "superArmor": null,
+                                    "twoDirectionAngle": null,
+                                    "targetAngle": null,
                                     "damageDecorateMask": null,
                                     "contextBuffId": null,
-                                    "deckAttributeCompare": null
+                                    "objectTypeMatch": null,
+                                    "deckAttributeCompare": null,
+                                    "probability": null,
+                                    "anyConditionGroups": [],
+                                    "anyConditionNegated": []
                                   }
                                 ],
                                 "succeedActions": [
@@ -953,6 +1033,10 @@
                                           "left": null,
                                           "right": null,
                                           "skillTypes": [],
+                                          "poise": null,
+                                          "superArmor": null,
+                                          "twoDirectionAngle": null,
+                                          "targetAngle": null,
                                           "entityTag": {
                                             "targetSource": "Owner",
                                             "targetGroupKey": "",
@@ -963,7 +1047,11 @@
                                           },
                                           "damageDecorateMask": null,
                                           "contextBuffId": null,
-                                          "deckAttributeCompare": null
+                                          "objectTypeMatch": null,
+                                          "deckAttributeCompare": null,
+                                          "probability": null,
+                                          "anyConditionGroups": [],
+                                          "anyConditionNegated": []
                                         }
                                       ],
                                       "succeedActions": [
@@ -1143,7 +1231,11 @@
                                             "inheritSourceSkillCastInfo": true
                                           }
                                         }
-                                      ]
+                                      ],
+                                      "conditionNegated": [
+                                        false
+                                      ],
+                                      "alwaysNext": true
                                     },
                                     "legacyBuffFinish": null,
                                     "skillCooldownAdjustment": null,
@@ -1179,21 +1271,27 @@
                                     }
                                   }
                                 ],
-                                "failActions": []
+                                "failActions": [],
+                                "conditionNegated": [],
+                                "alwaysNext": false
                               },
                               "legacyBuffFinish": null,
                               "skillCooldownAdjustment": null,
                               "buffIgnite": null
                             }
                           ],
-                          "failActions": []
+                          "failActions": [],
+                          "conditionNegated": [],
+                          "alwaysNext": false
                         },
                         "legacyBuffFinish": null,
                         "skillCooldownAdjustment": null,
                         "buffIgnite": null
                       }
                     ],
-                    "failActions": []
+                    "failActions": [],
+                    "conditionNegated": [],
+                    "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -1204,7 +1302,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -1213,12 +1313,19 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0026_lastrite_normal_skill_main_start",
@@ -1362,6 +1469,7 @@
       ],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [
         {
@@ -1465,12 +1573,20 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0026_lastrite_normal_skill_phantom",
@@ -1599,6 +1715,7 @@
       ],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [
@@ -1621,7 +1738,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -1644,12 +1763,21 @@
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0026_lastrite_normal_skill_phantom_main",
@@ -1783,6 +1911,7 @@
       ],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [
@@ -1805,12 +1934,20 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0026_lastrite_normal_skill_self",
@@ -2187,7 +2324,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -2196,12 +2335,19 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0026_lastrite_normal_skill_tag",
@@ -2499,9 +2645,13 @@
               "validatorTypes": [],
               "postProcessorTypes": [],
               "inputTargets": [],
-              "intervalSeconds": null
+              "intervalSeconds": null,
+              "pickIndexValue": null,
+              "pickIndexBlackboardKey": null
             }
-          ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -2510,12 +2660,19 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0026_lastrite_talent_1",
@@ -2801,13 +2958,15 @@
               ]
             ]
           ],
+          "contextBuffIdQueries": [],
           "consumeBuffLayerChecks": [
             [
               "GE",
               1.0,
               "infliction_num"
             ]
-          ]
+          ],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -2816,12 +2975,19 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0026_lastrite_talent_1_vul",
@@ -2906,6 +3072,7 @@
               }
             }
           ],
+          "tagConditions": [],
           "ownerControlled": false,
           "damageTagMatch": null,
           "damageTags": [],
@@ -2915,7 +3082,8 @@
             "cryo"
           ],
           "numberComparisons": [],
-          "healthComparisons": []
+          "healthComparisons": [],
+          "buffCountComparisons": []
         }
       ],
       "directDamageHits": [],
@@ -2954,7 +3122,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -2963,12 +3133,19 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -3040,12 +3217,19 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -3110,48 +3294,55 @@
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
-      "eventActions": [
-        {
-          "eventSource": "buff",
-          "event": "DuringBuffEnable",
-          "orderedActionTypes": [
-            "SetSuperArmorAction"
-          ],
-          "combatActions": [],
-          "damageUnits": [],
-          "buffApplications": [],
-          "createdBuffIds": [],
-          "forEachActions": [],
-          "targetGroupWrites": [],
-          "sequences": [
-            {
-              "onlyMainOperator": false,
-              "onlyGuard": false,
-              "orderedActionTypes": [
-                "SetSuperArmorAction"
-              ],
-              "combatActions": [],
-              "buffApplications": [],
-              "actions": [],
-              "priority": 0
-            }
-          ],
-          "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
-        }
-      ],
+      "eventActions": [],
       "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [
+        {
+          "target": {
+            "targetSource": "Owner",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "superArmor": {
+            "value": 50.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "impactResistance": {
+            "value": 100.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -3247,7 +3438,9 @@
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -3256,12 +3449,19 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -3327,12 +3527,19 @@
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     }
   ],
   "skills": [
@@ -3402,13 +3609,21 @@
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -3455,9 +3670,17 @@
                       "excludeDeadEntity": false,
                       "storeKey": ""
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -3515,14 +3738,22 @@
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auxiliaryActions": [],
@@ -3665,7 +3896,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [],
@@ -3778,13 +4011,21 @@
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -3831,9 +4072,17 @@
                       "excludeDeadEntity": false,
                       "storeKey": ""
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -3891,14 +4140,22 @@
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 24,
@@ -3918,13 +4175,21 @@
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -3971,9 +4236,17 @@
                       "excludeDeadEntity": false,
                       "storeKey": ""
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -4031,14 +4304,22 @@
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auxiliaryActions": [],
@@ -4261,7 +4542,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 24,
@@ -4282,7 +4565,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [],
@@ -4395,13 +4680,21 @@
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -4448,9 +4741,17 @@
                       "excludeDeadEntity": false,
                       "storeKey": ""
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -4508,14 +4809,22 @@
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auxiliaryActions": [],
@@ -4722,7 +5031,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 26,
@@ -4743,7 +5054,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [],
@@ -4869,9 +5182,17 @@
                 },
                 "limitSkillCastId": false
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             },
             {
               "sourceType": "CheckMainCharacterCondition",
@@ -4880,13 +5201,21 @@
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -4917,7 +5246,12 @@
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false,
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 17,
@@ -4955,9 +5289,17 @@
                 },
                 "limitSkillCastId": false
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             },
             {
               "sourceType": "CheckMainCharacterCondition",
@@ -4966,13 +5308,21 @@
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -5003,7 +5353,12 @@
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false,
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 21,
@@ -5023,13 +5378,21 @@
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -5076,9 +5439,17 @@
                       "excludeDeadEntity": false,
                       "storeKey": ""
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -5136,14 +5507,22 @@
                     }
                   }
                 ],
-                "failActions": []
+                "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auxiliaryActions": [],
@@ -5378,7 +5757,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [],
@@ -5822,7 +6203,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [],
@@ -5866,11 +6249,15 @@
               "entityCount": null,
               "buffStack": null,
               "health": null,
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Source",
                 "targetGroupKey": ""
               },
               "enemyRank": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "targetIdentity": null,
               "distance": null,
               "entityTag": null,
@@ -5879,8 +6266,14 @@
               "skillHasHit": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "healTag": null,
+              "overHeal": null,
               "abilityEntityDuration": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "directConditionNegated": [
@@ -6737,7 +7130,10 @@
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 300,
@@ -6758,7 +7154,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 300,
@@ -6779,7 +7177,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [],
@@ -6958,9 +7358,17 @@
                   "levelValues": null
                 }
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -7041,7 +7449,11 @@
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 2,
@@ -7070,9 +7482,17 @@
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -7113,7 +7533,11 @@
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 63,
@@ -7141,9 +7565,17 @@
                 "levelValues": null
               },
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -7189,9 +7621,17 @@
                       "levelValues": null
                     },
                     "skillTypes": [],
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -7303,14 +7743,22 @@
                       "ignoreUltimateGainScalar": false
                     }
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auxiliaryActions": [
@@ -7917,7 +8365,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 63,
@@ -7938,7 +8388,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -7964,7 +8416,10 @@
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [
@@ -8005,7 +8460,9 @@
                 "selectorDirection": "SourceForward",
                 "finderType": "OwnerSpawnedEntityFinder",
                 "validatorTypes": [],
-                "postProcessorTypes": []
+                "postProcessorTypes": [],
+                "finderSpawnedObjectType": "AbilityEntity",
+                "validatorTagQueries": []
               },
               "spawnedObjectType": "AbilityEntity",
               "tagQueries": []
@@ -8075,9 +8532,17 @@
                 "levelValues": null
               },
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -8237,7 +8702,11 @@
                 }
               ]
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 105,
@@ -8278,9 +8747,17 @@
                 "levelValues": null
               },
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -8440,7 +8917,11 @@
                 }
               ]
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 134,
@@ -8481,9 +8962,17 @@
                 "levelValues": null
               },
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -8643,7 +9132,11 @@
                 }
               ]
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auxiliaryActions": [
@@ -8911,7 +9404,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -8934,7 +9429,10 @@
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -8955,7 +9453,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -8982,7 +9482,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -9009,7 +9511,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 86,
@@ -9030,7 +9534,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 87,
@@ -9051,7 +9557,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 88,
@@ -9072,7 +9580,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 105,
@@ -9093,7 +9603,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 106,
@@ -9114,7 +9626,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 107,
@@ -9135,7 +9649,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 134,
@@ -9156,7 +9672,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 135,
@@ -9177,7 +9695,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 136,
@@ -9198,7 +9718,9 @@
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 86,
@@ -9224,7 +9746,10 @@
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "timeDilations": [
@@ -9313,7 +9838,9 @@
                 "selectorDirection": "SourceForward",
                 "finderType": "OwnerSpawnedEntityFinder",
                 "validatorTypes": [],
-                "postProcessorTypes": []
+                "postProcessorTypes": [],
+                "finderSpawnedObjectType": "AbilityEntity",
+                "validatorTagQueries": []
               },
               "spawnedObjectType": "AbilityEntity",
               "tagQueries": []

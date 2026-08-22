@@ -1,6 +1,6 @@
 /** 由 scripts/generate_next_operators 从解包数据生成；不要手工编辑。 */
 import type { OperatorDefinition, SkillDefinition } from '../../../core/game-data/operatorDefinition';
-import { branch, forEachContextTarget, not, percentages, scheduled, sequence, step, withSkillBlackboard } from '../definitionHelpers';
+import { branch, forEachContextTarget, percentages, scheduled, sequence, step, withSkillBlackboard } from '../definitionHelpers';
 
 // prettier-ignore
 export const zhuangFangyiBasicAttack1: SkillDefinition = withSkillBlackboard(
@@ -1751,15 +1751,63 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
         ),
       },
     },
+    'buff_chr_0030_zhuangfy_ult_hide_model': {
+      stackingType: 'stack',
+      priority: 1,
+      maxStackCount: 1,
+      durationSeconds: 0.1,
+    },
     'buff_chr_0030_zhuangfy_ult_hide_model_holder': {
       stackingType: 'stack',
       priority: 1,
       maxStackCount: 1,
+      lifecycleSequences: {
+        finish: sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0030_zhuangfy_ult_hide_model',
+            target: 'caster',
+            inheritSourceSkillCastInfo: false,
+          }),
+        ),
+      },
+    },
+    'buff_chr_0030_zhuangfy_dash_hide': {
+      stackingType: 'stack',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: 0.2,
     },
     'buff_chr_0030_zhuangfy_ult_body_vfx': {
       stackingType: 'unique',
       priority: 1,
       maxStackCount: 0,
+      abilityEventResponses: [
+        {
+          event: 'addedBuff',
+          priority: 0,
+          sequence:
+            sequence(
+              branch(
+                {
+                  kind: 'eventBuffIdMatch',
+                  buffIds: ['buff_common_dash_immune_teammate'],
+                },
+                sequence(
+                  branch(
+                    { kind: 'casterControlled' },
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_chr_0030_zhuangfy_dash_hide',
+                        target: 'caster',
+                        inheritSourceSkillCastInfo: true,
+                      }),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        },
+      ],
     },
     'buff_chr_0030_zhuangfy_ult_skill_free': {
       stackingType: 'unique',
@@ -2154,14 +2202,16 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
             12,
             sequence(
               branch(
-                not(
-                  {
-                    kind: 'actionValueCompare',
-                    left: { kind: 'blackboard', key: 'tick_index' },
-                    operator: 'less',
-                    right: { kind: 'blackboard', key: 'EntityBB_SwordNum' },
-                  }
-                ),
+                {
+                  kind: 'not',
+                  condition:
+                    {
+                      kind: 'actionValueCompare',
+                      left: { kind: 'blackboard', key: 'tick_index' },
+                      operator: 'less',
+                      right: { kind: 'blackboard', key: 'EntityBB_SwordNum' },
+                    }
+                },
                 sequence(
                   step('jumpTimeline', {
                     destinationFrame: 64,
@@ -2183,6 +2233,12 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0030_zhuangfy_talent1_mark',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 1,
+                      maxStackCount: { blackboardKey: 'max_stack' },
+                      durationSeconds: 0.1,
+                    },
                     target: 'caster',
                     inheritSourceSkillCastInfo: true,
                   }),
@@ -2256,6 +2312,12 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0030_zhuangfy_talent1_mark',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 1,
+                      maxStackCount: { blackboardKey: 'max_stack' },
+                      durationSeconds: 0.1,
+                    },
                     target: 'caster',
                     inheritSourceSkillCastInfo: true,
                   }),
@@ -2329,6 +2391,12 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0030_zhuangfy_talent1_mark',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 1,
+                      maxStackCount: { blackboardKey: 'max_stack' },
+                      durationSeconds: 0.1,
+                    },
                     target: 'caster',
                     inheritSourceSkillCastInfo: true,
                   }),
@@ -2402,6 +2470,12 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0030_zhuangfy_talent1_mark',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 1,
+                      maxStackCount: { blackboardKey: 'max_stack' },
+                      durationSeconds: 0.1,
+                    },
                     target: 'caster',
                     inheritSourceSkillCastInfo: true,
                   }),
@@ -2475,6 +2549,12 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0030_zhuangfy_talent1_mark',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 1,
+                      maxStackCount: { blackboardKey: 'max_stack' },
+                      durationSeconds: 0.1,
+                    },
                     target: 'caster',
                     inheritSourceSkillCastInfo: true,
                   }),
@@ -2548,6 +2628,12 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0030_zhuangfy_talent1_mark',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 1,
+                      maxStackCount: { blackboardKey: 'max_stack' },
+                      durationSeconds: 0.1,
+                    },
                     target: 'caster',
                     inheritSourceSkillCastInfo: true,
                   }),
@@ -2621,6 +2707,12 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0030_zhuangfy_talent1_mark',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 1,
+                      maxStackCount: { blackboardKey: 'max_stack' },
+                      durationSeconds: 0.1,
+                    },
                     target: 'caster',
                     inheritSourceSkillCastInfo: true,
                   }),
@@ -2694,6 +2786,12 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0030_zhuangfy_talent1_mark',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 1,
+                      maxStackCount: { blackboardKey: 'max_stack' },
+                      durationSeconds: 0.1,
+                    },
                     target: 'caster',
                     inheritSourceSkillCastInfo: true,
                   }),
@@ -2767,6 +2865,12 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0030_zhuangfy_talent1_mark',
+                    definition: {
+                      stackingType: 'unlimited',
+                      priority: 1,
+                      maxStackCount: { blackboardKey: 'max_stack' },
+                      durationSeconds: 0.1,
+                    },
                     target: 'caster',
                     inheritSourceSkillCastInfo: true,
                   }),

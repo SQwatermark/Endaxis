@@ -28,6 +28,8 @@ export const rossiBasicAttack1: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -123,6 +125,8 @@ export const rossiBasicAttack3: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -149,6 +153,7 @@ export const rossiBasicAttack4: SkillDefinition = withSkillBlackboard(
             sequence(
               step('jumpTimeline', { destinationFrame: 189 }),
             ),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -178,6 +183,8 @@ export const rossiBasicAttack4: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -201,6 +208,8 @@ export const rossiBasicAttack4: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -224,6 +233,8 @@ export const rossiBasicAttack4: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -247,6 +258,8 @@ export const rossiBasicAttack4: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -270,6 +283,8 @@ export const rossiBasicAttack4: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -305,6 +320,8 @@ export const rossiBasicAttack4: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -328,6 +345,8 @@ export const rossiBasicAttack4: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -351,6 +370,8 @@ export const rossiBasicAttack4: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -374,6 +395,8 @@ export const rossiBasicAttack4: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -397,6 +420,8 @@ export const rossiBasicAttack4: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -434,6 +459,8 @@ export const rossiBasicAttack5: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -455,6 +482,8 @@ export const rossiBasicAttack5: SkillDefinition = withSkillBlackboard(
                 value: { kind: 'constant', value: 1 },
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -513,6 +542,8 @@ export const rossiFinisher: SkillDefinition = withSkillBlackboard(
             sequence(
               step('changeResource', { resource: 'sp', amount: 0, recipient: 'team', spGainKind: 'gain', spGainSource: 'default' }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -531,6 +562,8 @@ export const rossiFinisher: SkillDefinition = withSkillBlackboard(
             sequence(
               step('changeResource', { resource: 'sp', amount: 0, recipient: 'team', spGainKind: 'gain', spGainSource: 'default' }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -578,6 +611,8 @@ export const rossiPlungingAttack: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -600,11 +635,18 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         0,
         sequence(
-          step('modifyActionValue', {
-            key: 'skillimbue',
-            operation: 'assign',
-            value: { kind: 'constant', value: 0 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              step('modifyActionValue', {
+                key: 'skillimbue',
+                operation: 'assign',
+                value: { kind: 'constant', value: 0 },
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
@@ -636,6 +678,8 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                 value: { kind: 'constant', value: 1 },
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -668,6 +712,8 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                 value: { kind: 'constant', value: 1 },
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -732,6 +778,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                 value: { kind: 'constant', value: 1 },
               }),
             ),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -768,6 +815,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                 inheritSourceSkillCastInfo: true,
               }),
             ),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -839,109 +887,12 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
             },
             sequence(
               branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'talent_1_1' },
-                  operator: 'greater',
-                  right: { kind: 'constant', value: 0.5 },
-                },
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
                 sequence(
                   branch(
                     {
                       kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'talent_2_1' },
-                      operator: 'greater',
-                      right: { kind: 'constant', value: 0.5 },
-                    },
-                    sequence(
-                      step('applyBuff', {
-                        buffId: 'buff_chr_0028_wulfa_normal_bleed',
-                        target: 'enemy',
-                        inheritSourceSkillCastInfo: false,
-                        blackboardAssignments: {
-                          'duration': { kind: 'blackboard', key: 'duration_bleed' },
-                          'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
-                          'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
-                          'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
-                          'talent_2': { kind: 'constant', value: 1 },
-                          'damage_up': { kind: 'blackboard', key: 'damage_up' },
-                          'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
-                          'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
-                        },
-                      }),
-                      step('dealDamage', {
-                        damageType: 'heat',
-                        attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
-                        tags: ['normalSkill'],
-                        features: ['canBreakWeakness'],
-                        stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                      }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:15'),
-                    ),
-                    sequence(
-                      branch(
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'blackboard', key: 'talent_2_2' },
-                          operator: 'greater',
-                          right: { kind: 'constant', value: 0.5 },
-                        },
-                        sequence(
-                          step('applyBuff', {
-                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
-                            target: 'enemy',
-                            inheritSourceSkillCastInfo: false,
-                            blackboardAssignments: {
-                              'duration': { kind: 'blackboard', key: 'duration_bleed' },
-                              'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
-                              'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
-                              'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
-                              'talent_2': { kind: 'constant', value: 1 },
-                              'damage_up': { kind: 'blackboard', key: 'damage_up' },
-                              'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
-                              'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
-                            },
-                          }),
-                          step('dealDamage', {
-                            damageType: 'heat',
-                            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
-                            tags: ['normalSkill'],
-                            features: ['canBreakWeakness'],
-                            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:21'),
-                        ),
-                        sequence(
-                          step('applyBuff', {
-                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
-                            target: 'enemy',
-                            inheritSourceSkillCastInfo: false,
-                            blackboardAssignments: {
-                              'duration': { kind: 'blackboard', key: 'duration_bleed' },
-                              'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
-                              'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
-                              'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
-                              'talent_2': { kind: 'constant', value: 0 },
-                              'damage_up': { kind: 'blackboard', key: 'damage_up' },
-                              'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
-                              'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
-                            },
-                          }),
-                          step('dealDamage', {
-                            damageType: 'heat',
-                            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
-                            tags: ['normalSkill'],
-                            features: ['canBreakWeakness'],
-                            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:25'),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                sequence(
-                  branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'talent_1_2' },
+                      left: { kind: 'blackboard', key: 'talent_1_1' },
                       operator: 'greater',
                       right: { kind: 'constant', value: 0.5 },
                     },
@@ -975,7 +926,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                             tags: ['normalSkill'],
                             features: ['canBreakWeakness'],
                             stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:33'),
+                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:15'),
                         ),
                         sequence(
                           branch(
@@ -1007,7 +958,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                                 tags: ['normalSkill'],
                                 features: ['canBreakWeakness'],
                                 stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:39'),
+                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:21'),
                             ),
                             sequence(
                               step('applyBuff', {
@@ -1031,23 +982,133 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                                 tags: ['normalSkill'],
                                 features: ['canBreakWeakness'],
                                 stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:43'),
+                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:25'),
                             ),
+                            { alwaysNext: true },
                           ),
                         ),
+                        { alwaysNext: true },
                       ),
                     ),
                     sequence(
-                      step('dealDamage', {
-                        damageType: 'heat',
-                        attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
-                        tags: ['normalSkill'],
-                        features: ['canBreakWeakness'],
-                        stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                      }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[0]11:actionOrder2:46'),
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'talent_1_2' },
+                          operator: 'greater',
+                          right: { kind: 'constant', value: 0.5 },
+                        },
+                        sequence(
+                          branch(
+                            {
+                              kind: 'actionValueCompare',
+                              left: { kind: 'blackboard', key: 'talent_2_1' },
+                              operator: 'greater',
+                              right: { kind: 'constant', value: 0.5 },
+                            },
+                            sequence(
+                              step('applyBuff', {
+                                buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                target: 'enemy',
+                                inheritSourceSkillCastInfo: false,
+                                blackboardAssignments: {
+                                  'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                                  'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                                  'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                                  'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                                  'talent_2': { kind: 'constant', value: 1 },
+                                  'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                                  'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                                  'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                                },
+                              }),
+                              step('dealDamage', {
+                                damageType: 'heat',
+                                attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                                tags: ['normalSkill'],
+                                features: ['canBreakWeakness'],
+                                stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:33'),
+                            ),
+                            sequence(
+                              branch(
+                                {
+                                  kind: 'actionValueCompare',
+                                  left: { kind: 'blackboard', key: 'talent_2_2' },
+                                  operator: 'greater',
+                                  right: { kind: 'constant', value: 0.5 },
+                                },
+                                sequence(
+                                  step('applyBuff', {
+                                    buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                    target: 'enemy',
+                                    inheritSourceSkillCastInfo: false,
+                                    blackboardAssignments: {
+                                      'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                                      'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                                      'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                                      'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                                      'talent_2': { kind: 'constant', value: 1 },
+                                      'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                                      'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                                      'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                                    },
+                                  }),
+                                  step('dealDamage', {
+                                    damageType: 'heat',
+                                    attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                                    tags: ['normalSkill'],
+                                    features: ['canBreakWeakness'],
+                                    stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                                  }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:39'),
+                                ),
+                                sequence(
+                                  step('applyBuff', {
+                                    buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                    target: 'enemy',
+                                    inheritSourceSkillCastInfo: false,
+                                    blackboardAssignments: {
+                                      'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                                      'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                                      'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                                      'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                                      'talent_2': { kind: 'constant', value: 0 },
+                                      'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                                      'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                                      'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                                    },
+                                  }),
+                                  step('dealDamage', {
+                                    damageType: 'heat',
+                                    attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                                    tags: ['normalSkill'],
+                                    features: ['canBreakWeakness'],
+                                    stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                                  }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:43'),
+                                ),
+                                { alwaysNext: true },
+                              ),
+                            ),
+                            { alwaysNext: true },
+                          ),
+                        ),
+                        sequence(
+                          step('dealDamage', {
+                            damageType: 'heat',
+                            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                            tags: ['normalSkill'],
+                            features: ['canBreakWeakness'],
+                            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[0]11:actionOrder2:46'),
+                        ),
+                        { alwaysNext: true },
+                      ),
                     ),
+                    { alwaysNext: true },
                   ),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
             ),
             sequence(
@@ -1059,6 +1120,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                 stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
               }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]11:failActions10:actionData3:[0]11:actionOrder2:88'),
             ),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -1098,6 +1160,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                 reason: 'early',
               }),
             ),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -1131,109 +1194,12 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
             },
             sequence(
               branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'talent_1_1' },
-                  operator: 'greater',
-                  right: { kind: 'constant', value: 0.5 },
-                },
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
                 sequence(
                   branch(
                     {
                       kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'talent_2_1' },
-                      operator: 'greater',
-                      right: { kind: 'constant', value: 0.5 },
-                    },
-                    sequence(
-                      step('applyBuff', {
-                        buffId: 'buff_chr_0028_wulfa_normal_bleed',
-                        target: 'enemy',
-                        inheritSourceSkillCastInfo: false,
-                        blackboardAssignments: {
-                          'duration': { kind: 'blackboard', key: 'duration_bleed' },
-                          'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
-                          'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
-                          'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
-                          'talent_2': { kind: 'constant', value: 1 },
-                          'damage_up': { kind: 'blackboard', key: 'damage_up' },
-                          'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
-                          'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
-                        },
-                      }),
-                      step('dealDamage', {
-                        damageType: 'heat',
-                        attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
-                        tags: ['normalSkill'],
-                        features: ['canBreakWeakness'],
-                        stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                      }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[4]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:16'),
-                    ),
-                    sequence(
-                      branch(
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'blackboard', key: 'talent_2_2' },
-                          operator: 'greater',
-                          right: { kind: 'constant', value: 0.5 },
-                        },
-                        sequence(
-                          step('applyBuff', {
-                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
-                            target: 'enemy',
-                            inheritSourceSkillCastInfo: false,
-                            blackboardAssignments: {
-                              'duration': { kind: 'blackboard', key: 'duration_bleed' },
-                              'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
-                              'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
-                              'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
-                              'talent_2': { kind: 'constant', value: 1 },
-                              'damage_up': { kind: 'blackboard', key: 'damage_up' },
-                              'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
-                              'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
-                            },
-                          }),
-                          step('dealDamage', {
-                            damageType: 'heat',
-                            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
-                            tags: ['normalSkill'],
-                            features: ['canBreakWeakness'],
-                            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[4]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:22'),
-                        ),
-                        sequence(
-                          step('applyBuff', {
-                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
-                            target: 'enemy',
-                            inheritSourceSkillCastInfo: false,
-                            blackboardAssignments: {
-                              'duration': { kind: 'blackboard', key: 'duration_bleed' },
-                              'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
-                              'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
-                              'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
-                              'talent_2': { kind: 'constant', value: 0 },
-                              'damage_up': { kind: 'blackboard', key: 'damage_up' },
-                              'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
-                              'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
-                            },
-                          }),
-                          step('dealDamage', {
-                            damageType: 'heat',
-                            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
-                            tags: ['normalSkill'],
-                            features: ['canBreakWeakness'],
-                            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[4]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:26'),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                sequence(
-                  branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'talent_1_2' },
+                      left: { kind: 'blackboard', key: 'talent_1_1' },
                       operator: 'greater',
                       right: { kind: 'constant', value: 0.5 },
                     },
@@ -1267,7 +1233,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                             tags: ['normalSkill'],
                             features: ['canBreakWeakness'],
                             stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[4]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:34'),
+                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[4]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:16'),
                         ),
                         sequence(
                           branch(
@@ -1299,7 +1265,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                                 tags: ['normalSkill'],
                                 features: ['canBreakWeakness'],
                                 stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[4]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:40'),
+                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[4]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:22'),
                             ),
                             sequence(
                               step('applyBuff', {
@@ -1323,23 +1289,133 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                                 tags: ['normalSkill'],
                                 features: ['canBreakWeakness'],
                                 stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[4]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:44'),
+                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[4]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:26'),
                             ),
+                            { alwaysNext: true },
                           ),
                         ),
+                        { alwaysNext: true },
                       ),
                     ),
                     sequence(
-                      step('dealDamage', {
-                        damageType: 'heat',
-                        attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
-                        tags: ['normalSkill'],
-                        features: ['canBreakWeakness'],
-                        stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                      }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[4]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[0]11:actionOrder2:47'),
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'talent_1_2' },
+                          operator: 'greater',
+                          right: { kind: 'constant', value: 0.5 },
+                        },
+                        sequence(
+                          branch(
+                            {
+                              kind: 'actionValueCompare',
+                              left: { kind: 'blackboard', key: 'talent_2_1' },
+                              operator: 'greater',
+                              right: { kind: 'constant', value: 0.5 },
+                            },
+                            sequence(
+                              step('applyBuff', {
+                                buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                target: 'enemy',
+                                inheritSourceSkillCastInfo: false,
+                                blackboardAssignments: {
+                                  'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                                  'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                                  'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                                  'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                                  'talent_2': { kind: 'constant', value: 1 },
+                                  'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                                  'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                                  'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                                },
+                              }),
+                              step('dealDamage', {
+                                damageType: 'heat',
+                                attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                                tags: ['normalSkill'],
+                                features: ['canBreakWeakness'],
+                                stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[4]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:34'),
+                            ),
+                            sequence(
+                              branch(
+                                {
+                                  kind: 'actionValueCompare',
+                                  left: { kind: 'blackboard', key: 'talent_2_2' },
+                                  operator: 'greater',
+                                  right: { kind: 'constant', value: 0.5 },
+                                },
+                                sequence(
+                                  step('applyBuff', {
+                                    buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                    target: 'enemy',
+                                    inheritSourceSkillCastInfo: false,
+                                    blackboardAssignments: {
+                                      'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                                      'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                                      'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                                      'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                                      'talent_2': { kind: 'constant', value: 1 },
+                                      'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                                      'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                                      'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                                    },
+                                  }),
+                                  step('dealDamage', {
+                                    damageType: 'heat',
+                                    attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                                    tags: ['normalSkill'],
+                                    features: ['canBreakWeakness'],
+                                    stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                                  }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[4]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:40'),
+                                ),
+                                sequence(
+                                  step('applyBuff', {
+                                    buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                    target: 'enemy',
+                                    inheritSourceSkillCastInfo: false,
+                                    blackboardAssignments: {
+                                      'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                                      'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                                      'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                                      'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                                      'talent_2': { kind: 'constant', value: 0 },
+                                      'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                                      'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                                      'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                                    },
+                                  }),
+                                  step('dealDamage', {
+                                    damageType: 'heat',
+                                    attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                                    tags: ['normalSkill'],
+                                    features: ['canBreakWeakness'],
+                                    stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                                  }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[4]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:44'),
+                                ),
+                                { alwaysNext: true },
+                              ),
+                            ),
+                            { alwaysNext: true },
+                          ),
+                        ),
+                        sequence(
+                          step('dealDamage', {
+                            damageType: 'heat',
+                            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                            tags: ['normalSkill'],
+                            features: ['canBreakWeakness'],
+                            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[4]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[0]11:actionOrder2:47'),
+                        ),
+                        { alwaysNext: true },
+                      ),
                     ),
+                    { alwaysNext: true },
                   ),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
             ),
             sequence(
@@ -1351,6 +1427,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                 stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
               }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[4]11:failActions10:actionData3:[0]11:actionOrder2:89'),
             ),
+            { alwaysNext: true },
           ),
         ),
         230,
@@ -1391,6 +1468,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                 reason: 'early',
               }),
             ),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -1419,109 +1497,12 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
             },
             sequence(
               branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'talent_1_1' },
-                  operator: 'greater',
-                  right: { kind: 'constant', value: 0.5 },
-                },
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
                 sequence(
                   branch(
                     {
                       kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'talent_2_1' },
-                      operator: 'greater',
-                      right: { kind: 'constant', value: 0.5 },
-                    },
-                    sequence(
-                      step('applyBuff', {
-                        buffId: 'buff_chr_0028_wulfa_normal_bleed',
-                        target: 'enemy',
-                        inheritSourceSkillCastInfo: false,
-                        blackboardAssignments: {
-                          'duration': { kind: 'blackboard', key: 'duration_bleed' },
-                          'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
-                          'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
-                          'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
-                          'talent_2': { kind: 'constant', value: 1 },
-                          'damage_up': { kind: 'blackboard', key: 'damage_up' },
-                          'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
-                          'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
-                        },
-                      }),
-                      step('dealDamage', {
-                        damageType: 'heat',
-                        attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
-                        tags: ['normalSkill'],
-                        features: ['canBreakWeakness'],
-                        stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                      }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:15'),
-                    ),
-                    sequence(
-                      branch(
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'blackboard', key: 'talent_2_2' },
-                          operator: 'greater',
-                          right: { kind: 'constant', value: 0.5 },
-                        },
-                        sequence(
-                          step('applyBuff', {
-                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
-                            target: 'enemy',
-                            inheritSourceSkillCastInfo: false,
-                            blackboardAssignments: {
-                              'duration': { kind: 'blackboard', key: 'duration_bleed' },
-                              'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
-                              'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
-                              'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
-                              'talent_2': { kind: 'constant', value: 1 },
-                              'damage_up': { kind: 'blackboard', key: 'damage_up' },
-                              'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
-                              'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
-                            },
-                          }),
-                          step('dealDamage', {
-                            damageType: 'heat',
-                            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
-                            tags: ['normalSkill'],
-                            features: ['canBreakWeakness'],
-                            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:21'),
-                        ),
-                        sequence(
-                          step('applyBuff', {
-                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
-                            target: 'enemy',
-                            inheritSourceSkillCastInfo: false,
-                            blackboardAssignments: {
-                              'duration': { kind: 'blackboard', key: 'duration_bleed' },
-                              'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
-                              'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
-                              'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
-                              'talent_2': { kind: 'constant', value: 0 },
-                              'damage_up': { kind: 'blackboard', key: 'damage_up' },
-                              'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
-                              'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
-                            },
-                          }),
-                          step('dealDamage', {
-                            damageType: 'heat',
-                            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
-                            tags: ['normalSkill'],
-                            features: ['canBreakWeakness'],
-                            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:25'),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                sequence(
-                  branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'talent_1_2' },
+                      left: { kind: 'blackboard', key: 'talent_1_1' },
                       operator: 'greater',
                       right: { kind: 'constant', value: 0.5 },
                     },
@@ -1555,7 +1536,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                             tags: ['normalSkill'],
                             features: ['canBreakWeakness'],
                             stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:33'),
+                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:15'),
                         ),
                         sequence(
                           branch(
@@ -1587,7 +1568,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                                 tags: ['normalSkill'],
                                 features: ['canBreakWeakness'],
                                 stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:39'),
+                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:21'),
                             ),
                             sequence(
                               step('applyBuff', {
@@ -1611,23 +1592,133 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                                 tags: ['normalSkill'],
                                 features: ['canBreakWeakness'],
                                 stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:43'),
+                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:25'),
                             ),
+                            { alwaysNext: true },
                           ),
                         ),
+                        { alwaysNext: true },
                       ),
                     ),
                     sequence(
-                      step('dealDamage', {
-                        damageType: 'heat',
-                        attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
-                        tags: ['normalSkill'],
-                        features: ['canBreakWeakness'],
-                        stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                      }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[0]11:actionOrder2:46'),
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'talent_1_2' },
+                          operator: 'greater',
+                          right: { kind: 'constant', value: 0.5 },
+                        },
+                        sequence(
+                          branch(
+                            {
+                              kind: 'actionValueCompare',
+                              left: { kind: 'blackboard', key: 'talent_2_1' },
+                              operator: 'greater',
+                              right: { kind: 'constant', value: 0.5 },
+                            },
+                            sequence(
+                              step('applyBuff', {
+                                buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                target: 'enemy',
+                                inheritSourceSkillCastInfo: false,
+                                blackboardAssignments: {
+                                  'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                                  'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                                  'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                                  'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                                  'talent_2': { kind: 'constant', value: 1 },
+                                  'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                                  'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                                  'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                                },
+                              }),
+                              step('dealDamage', {
+                                damageType: 'heat',
+                                attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                                tags: ['normalSkill'],
+                                features: ['canBreakWeakness'],
+                                stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:33'),
+                            ),
+                            sequence(
+                              branch(
+                                {
+                                  kind: 'actionValueCompare',
+                                  left: { kind: 'blackboard', key: 'talent_2_2' },
+                                  operator: 'greater',
+                                  right: { kind: 'constant', value: 0.5 },
+                                },
+                                sequence(
+                                  step('applyBuff', {
+                                    buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                    target: 'enemy',
+                                    inheritSourceSkillCastInfo: false,
+                                    blackboardAssignments: {
+                                      'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                                      'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                                      'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                                      'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                                      'talent_2': { kind: 'constant', value: 1 },
+                                      'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                                      'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                                      'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                                    },
+                                  }),
+                                  step('dealDamage', {
+                                    damageType: 'heat',
+                                    attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                                    tags: ['normalSkill'],
+                                    features: ['canBreakWeakness'],
+                                    stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                                  }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:39'),
+                                ),
+                                sequence(
+                                  step('applyBuff', {
+                                    buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                    target: 'enemy',
+                                    inheritSourceSkillCastInfo: false,
+                                    blackboardAssignments: {
+                                      'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                                      'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                                      'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                                      'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                                      'talent_2': { kind: 'constant', value: 0 },
+                                      'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                                      'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                                      'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                                    },
+                                  }),
+                                  step('dealDamage', {
+                                    damageType: 'heat',
+                                    attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                                    tags: ['normalSkill'],
+                                    features: ['canBreakWeakness'],
+                                    stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                                  }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:43'),
+                                ),
+                                { alwaysNext: true },
+                              ),
+                            ),
+                            { alwaysNext: true },
+                          ),
+                        ),
+                        sequence(
+                          step('dealDamage', {
+                            damageType: 'heat',
+                            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                            tags: ['normalSkill'],
+                            features: ['canBreakWeakness'],
+                            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[0]11:actionOrder2:46'),
+                        ),
+                        { alwaysNext: true },
+                      ),
                     ),
+                    { alwaysNext: true },
                   ),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
             ),
             sequence(
@@ -1639,6 +1730,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                 stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
               }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]11:failActions10:actionData3:[0]11:actionOrder2:88'),
             ),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -1678,6 +1770,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                 reason: 'early',
               }),
             ),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -1706,109 +1799,12 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
             },
             sequence(
               branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'talent_1_1' },
-                  operator: 'greater',
-                  right: { kind: 'constant', value: 0.5 },
-                },
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
                 sequence(
                   branch(
                     {
                       kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'talent_2_1' },
-                      operator: 'greater',
-                      right: { kind: 'constant', value: 0.5 },
-                    },
-                    sequence(
-                      step('applyBuff', {
-                        buffId: 'buff_chr_0028_wulfa_normal_bleed',
-                        target: 'enemy',
-                        inheritSourceSkillCastInfo: false,
-                        blackboardAssignments: {
-                          'duration': { kind: 'blackboard', key: 'duration_bleed' },
-                          'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
-                          'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
-                          'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
-                          'talent_2': { kind: 'constant', value: 1 },
-                          'damage_up': { kind: 'blackboard', key: 'damage_up' },
-                          'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
-                          'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
-                        },
-                      }),
-                      step('dealDamage', {
-                        damageType: 'heat',
-                        attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
-                        tags: ['normalSkill'],
-                        features: ['canBreakWeakness'],
-                        stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                      }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:15'),
-                    ),
-                    sequence(
-                      branch(
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'blackboard', key: 'talent_2_2' },
-                          operator: 'greater',
-                          right: { kind: 'constant', value: 0.5 },
-                        },
-                        sequence(
-                          step('applyBuff', {
-                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
-                            target: 'enemy',
-                            inheritSourceSkillCastInfo: false,
-                            blackboardAssignments: {
-                              'duration': { kind: 'blackboard', key: 'duration_bleed' },
-                              'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
-                              'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
-                              'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
-                              'talent_2': { kind: 'constant', value: 1 },
-                              'damage_up': { kind: 'blackboard', key: 'damage_up' },
-                              'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
-                              'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
-                            },
-                          }),
-                          step('dealDamage', {
-                            damageType: 'heat',
-                            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
-                            tags: ['normalSkill'],
-                            features: ['canBreakWeakness'],
-                            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:21'),
-                        ),
-                        sequence(
-                          step('applyBuff', {
-                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
-                            target: 'enemy',
-                            inheritSourceSkillCastInfo: false,
-                            blackboardAssignments: {
-                              'duration': { kind: 'blackboard', key: 'duration_bleed' },
-                              'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
-                              'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
-                              'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
-                              'talent_2': { kind: 'constant', value: 0 },
-                              'damage_up': { kind: 'blackboard', key: 'damage_up' },
-                              'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
-                              'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
-                            },
-                          }),
-                          step('dealDamage', {
-                            damageType: 'heat',
-                            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
-                            tags: ['normalSkill'],
-                            features: ['canBreakWeakness'],
-                            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:25'),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                sequence(
-                  branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'talent_1_2' },
+                      left: { kind: 'blackboard', key: 'talent_1_1' },
                       operator: 'greater',
                       right: { kind: 'constant', value: 0.5 },
                     },
@@ -1842,7 +1838,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                             tags: ['normalSkill'],
                             features: ['canBreakWeakness'],
                             stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:33'),
+                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:15'),
                         ),
                         sequence(
                           branch(
@@ -1874,7 +1870,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                                 tags: ['normalSkill'],
                                 features: ['canBreakWeakness'],
                                 stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:39'),
+                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:21'),
                             ),
                             sequence(
                               step('applyBuff', {
@@ -1898,23 +1894,133 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                                 tags: ['normalSkill'],
                                 features: ['canBreakWeakness'],
                                 stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:43'),
+                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:25'),
                             ),
+                            { alwaysNext: true },
                           ),
                         ),
+                        { alwaysNext: true },
                       ),
                     ),
                     sequence(
-                      step('dealDamage', {
-                        damageType: 'heat',
-                        attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
-                        tags: ['normalSkill'],
-                        features: ['canBreakWeakness'],
-                        stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
-                      }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[0]11:actionOrder2:46'),
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'talent_1_2' },
+                          operator: 'greater',
+                          right: { kind: 'constant', value: 0.5 },
+                        },
+                        sequence(
+                          branch(
+                            {
+                              kind: 'actionValueCompare',
+                              left: { kind: 'blackboard', key: 'talent_2_1' },
+                              operator: 'greater',
+                              right: { kind: 'constant', value: 0.5 },
+                            },
+                            sequence(
+                              step('applyBuff', {
+                                buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                target: 'enemy',
+                                inheritSourceSkillCastInfo: false,
+                                blackboardAssignments: {
+                                  'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                                  'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                                  'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                                  'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                                  'talent_2': { kind: 'constant', value: 1 },
+                                  'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                                  'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                                  'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                                },
+                              }),
+                              step('dealDamage', {
+                                damageType: 'heat',
+                                attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                                tags: ['normalSkill'],
+                                features: ['canBreakWeakness'],
+                                stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:33'),
+                            ),
+                            sequence(
+                              branch(
+                                {
+                                  kind: 'actionValueCompare',
+                                  left: { kind: 'blackboard', key: 'talent_2_2' },
+                                  operator: 'greater',
+                                  right: { kind: 'constant', value: 0.5 },
+                                },
+                                sequence(
+                                  step('applyBuff', {
+                                    buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                    target: 'enemy',
+                                    inheritSourceSkillCastInfo: false,
+                                    blackboardAssignments: {
+                                      'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                                      'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                                      'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                                      'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                                      'talent_2': { kind: 'constant', value: 1 },
+                                      'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                                      'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                                      'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                                    },
+                                  }),
+                                  step('dealDamage', {
+                                    damageType: 'heat',
+                                    attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                                    tags: ['normalSkill'],
+                                    features: ['canBreakWeakness'],
+                                    stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                                  }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:39'),
+                                ),
+                                sequence(
+                                  step('applyBuff', {
+                                    buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                    target: 'enemy',
+                                    inheritSourceSkillCastInfo: false,
+                                    blackboardAssignments: {
+                                      'duration': { kind: 'blackboard', key: 'duration_bleed' },
+                                      'atk_scale': { kind: 'blackboard', key: 'atk_scale_bleed' },
+                                      'extra_atk_scale': { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
+                                      'damage_cd': { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
+                                      'talent_2': { kind: 'constant', value: 0 },
+                                      'damage_up': { kind: 'blackboard', key: 'damage_up' },
+                                      'heal_scale': { kind: 'blackboard', key: 'heal_scale' },
+                                      'talent2_burning_damage_scale': { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+                                    },
+                                  }),
+                                  step('dealDamage', {
+                                    damageType: 'heat',
+                                    attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                                    tags: ['normalSkill'],
+                                    features: ['canBreakWeakness'],
+                                    stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                                  }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[1]11:actionOrder2:43'),
+                                ),
+                                { alwaysNext: true },
+                              ),
+                            ),
+                            { alwaysNext: true },
+                          ),
+                        ),
+                        sequence(
+                          step('dealDamage', {
+                            damageType: 'heat',
+                            attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                            tags: ['normalSkill'],
+                            features: ['canBreakWeakness'],
+                            stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
+                          }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:failActions10:actionData3:[0]11:actionOrder2:46'),
+                        ),
+                        { alwaysNext: true },
+                      ),
                     ),
+                    { alwaysNext: true },
                   ),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
             ),
             sequence(
@@ -1926,6 +2032,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                 stagger: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
               }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[3]11:failActions10:actionData3:[0]11:actionOrder2:88'),
             ),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -1965,6 +2072,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                 reason: 'early',
               }),
             ),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -2123,6 +2231,8 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
                 right: { kind: 'constant', value: 165 },
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -2190,6 +2300,8 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
                 recipient: 'caster',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -2224,6 +2336,8 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
                 },
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -2238,18 +2352,25 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
               right: { kind: 'constant', value: 1 },
             },
             sequence(
-              step('adjustSkillCooldown', {
-                target: 'caster',
-                skill: { kind: 'id', skillId: 'chr_0028_wulfa_combo_2_skill' },
-                operation: 'set',
-                basis: 'absoluteSeconds',
-                value: { kind: 'constant', value: 0 },
-              }),
-              step('applyBuff', {
-                buffId: 'buff_chr_0028_wulfa_combo_usetimer',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-              }),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('adjustSkillCooldown', {
+                    target: 'caster',
+                    skill: { kind: 'id', skillId: 'chr_0028_wulfa_combo_2_skill' },
+                    operation: 'set',
+                    basis: 'absoluteSeconds',
+                    value: { kind: 'constant', value: 0 },
+                  }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0028_wulfa_combo_usetimer',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
             sequence(
               step('finishBuffsById', {
@@ -2258,6 +2379,7 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
                 reason: 'other',
               }),
             ),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -2356,6 +2478,8 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                     right: { kind: 'blackboard', key: 'potential_atk_multiply' },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
             ),
             sequence(
@@ -2371,6 +2495,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
               }),
               step('jumpTimeline', { destinationFrame: 212 }),
             ),
+            { alwaysNext: true },
           ),
           branch(
             {
@@ -2414,6 +2539,8 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                     right: { kind: 'blackboard', key: 'potential_atk_multiply' },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
             ),
             sequence(
@@ -2428,6 +2555,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                 value: { kind: 'constant', value: 0 },
               }),
             ),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -2661,12 +2789,16 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                             value: { kind: 'constant', value: 0 },
                           }),
                         ),
+                        { alwaysNext: true },
                       ),
                     ),
+                    { alwaysNext: true },
                   ),
                 ),
+                { alwaysNext: true },
               ),
             ),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -2681,17 +2813,26 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
               right: { kind: 'constant', value: 1 },
             },
             sequence(
-              step('applyBuff', {
-                buffId: 'buff_physical_no_guard',
-                target: 'enemy',
-                inheritSourceSkillCastInfo: true,
-              }),
-              step('finishBuffsById', {
-                target: 'enemy',
-                buffIds: ['buff_chr_0028_wulfa_combo_hasinflict'],
-                reason: 'other',
-              }),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_physical_no_guard',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                  step('finishBuffsById', {
+                    target: 'enemy',
+                    buffIds: ['buff_chr_0028_wulfa_combo_hasinflict'],
+                    reason: 'other',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -2776,6 +2917,8 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                 recipient: 'caster',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -2803,6 +2946,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                 inheritSourceSkillCastInfo: true,
               }),
             ),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -2824,6 +2968,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                 inheritSourceSkillCastInfo: true,
               }),
             ),
+            { alwaysNext: true },
           ),
           step('applyBuff', {
             buffId: 'buff_chr_0028_wulfa_tut_comboskill_finish',
@@ -3053,12 +3198,16 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                             value: { kind: 'constant', value: 0 },
                           }),
                         ),
+                        { alwaysNext: true },
                       ),
                     ),
+                    { alwaysNext: true },
                   ),
                 ),
+                { alwaysNext: true },
               ),
             ),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -3073,12 +3222,21 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
               right: { kind: 'constant', value: 0 },
             },
             sequence(
-              step('finishBuffsById', {
-                target: 'enemy',
-                buffIds: ['buff_chr_0028_wulfa_combo_hasinflict'],
-                reason: 'other',
-              }),
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('finishBuffsById', {
+                    target: 'enemy',
+                    buffIds: ['buff_chr_0028_wulfa_combo_hasinflict'],
+                    reason: 'other',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -3163,6 +3321,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                 inheritSourceSkillCastInfo: true,
               }),
             ),
+            { alwaysNext: true },
           ),
           step('applyBuff', {
             buffId: 'buff_chr_0028_wulfa_tut_comboskill_finish',
@@ -3289,28 +3448,49 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
       scheduled(
         63,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate11:conditional19:timelineActions[40]19:_sequenceActionData10:actionData3:[0]13:actionOnEvent10:actionData3:[4]14:succeedActions10:actionData3:[0]11:actionOrder3:152'),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              step('dealDamage', {
+                damageType: 'heat',
+                attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
+                tags: ['ultimateSkill'],
+                features: ['canBreakWeakness'],
+              }, '8:ultimate11:conditional19:timelineActions[40]19:_sequenceActionData10:actionData3:[0]13:actionOnEvent10:actionData3:[4]14:succeedActions10:actionData3:[0]11:actionOrder3:152'),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         63,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate11:conditional19:timelineActions[42]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:176'),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
+                    tags: ['ultimateSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '8:ultimate11:conditional19:timelineActions[42]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:176'),
+                  step('modifyActionValue', {
+                    key: 'hit_times',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
@@ -3343,393 +3523,732 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
                     },
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
             ),
+            { alwaysNext: true },
           ),
         ),
       ),
       scheduled(
         65,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate11:conditional19:timelineActions[43]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:229'),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
+                    tags: ['ultimateSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '8:ultimate11:conditional19:timelineActions[43]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:229'),
+                  step('modifyActionValue', {
+                    key: 'hit_times',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         66,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate11:conditional19:timelineActions[44]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:282'),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
+                    tags: ['ultimateSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '8:ultimate11:conditional19:timelineActions[44]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:282'),
+                  step('modifyActionValue', {
+                    key: 'hit_times',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         69,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate11:conditional19:timelineActions[45]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:335'),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
+                    tags: ['ultimateSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '8:ultimate11:conditional19:timelineActions[45]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:335'),
+                  step('modifyActionValue', {
+                    key: 'hit_times',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         71,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate11:conditional19:timelineActions[46]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:388'),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
+                    tags: ['ultimateSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '8:ultimate11:conditional19:timelineActions[46]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:388'),
+                  step('modifyActionValue', {
+                    key: 'hit_times',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         74,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate11:conditional19:timelineActions[47]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:441'),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
+                    tags: ['ultimateSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '8:ultimate11:conditional19:timelineActions[47]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:441'),
+                  step('modifyActionValue', {
+                    key: 'hit_times',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         75,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate11:conditional19:timelineActions[48]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:494'),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
+                    tags: ['ultimateSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '8:ultimate11:conditional19:timelineActions[48]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:494'),
+                  step('modifyActionValue', {
+                    key: 'hit_times',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         77,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate11:conditional19:timelineActions[49]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:547'),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
+                    tags: ['ultimateSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '8:ultimate11:conditional19:timelineActions[49]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:547'),
+                  step('modifyActionValue', {
+                    key: 'hit_times',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         78,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate11:conditional19:timelineActions[50]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:600'),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
+                    tags: ['ultimateSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '8:ultimate11:conditional19:timelineActions[50]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:600'),
+                  step('modifyActionValue', {
+                    key: 'hit_times',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         80,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate11:conditional19:timelineActions[51]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:653'),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
+                    tags: ['ultimateSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '8:ultimate11:conditional19:timelineActions[51]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:653'),
+                  step('modifyActionValue', {
+                    key: 'hit_times',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         83,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate11:conditional19:timelineActions[52]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:706'),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
+                    tags: ['ultimateSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '8:ultimate11:conditional19:timelineActions[52]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:706'),
+                  step('modifyActionValue', {
+                    key: 'hit_times',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         84,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate11:conditional19:timelineActions[53]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:759'),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
+                    tags: ['ultimateSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '8:ultimate11:conditional19:timelineActions[53]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:759'),
+                  step('modifyActionValue', {
+                    key: 'hit_times',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         87,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate11:conditional19:timelineActions[54]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:812'),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
+                    tags: ['ultimateSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '8:ultimate11:conditional19:timelineActions[54]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:812'),
+                  step('modifyActionValue', {
+                    key: 'hit_times',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         88,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate11:conditional19:timelineActions[55]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:865'),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
+                    tags: ['ultimateSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '8:ultimate11:conditional19:timelineActions[55]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:865'),
+                  step('modifyActionValue', {
+                    key: 'hit_times',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         90,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate11:conditional19:timelineActions[56]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:918'),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
+                    tags: ['ultimateSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '8:ultimate11:conditional19:timelineActions[56]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:918'),
+                  step('modifyActionValue', {
+                    key: 'hit_times',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         92,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate11:conditional19:timelineActions[57]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:971'),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
+                    tags: ['ultimateSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '8:ultimate11:conditional19:timelineActions[57]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder3:971'),
+                  step('modifyActionValue', {
+                    key: 'hit_times',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         94,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate11:conditional19:timelineActions[58]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder4:1024'),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
+                    tags: ['ultimateSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '8:ultimate11:conditional19:timelineActions[58]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder4:1024'),
+                  step('modifyActionValue', {
+                    key: 'hit_times',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         96,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate11:conditional19:timelineActions[59]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder4:1077'),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
+                    tags: ['ultimateSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '8:ultimate11:conditional19:timelineActions[59]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder4:1077'),
+                  step('modifyActionValue', {
+                    key: 'hit_times',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         97,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate11:conditional19:timelineActions[60]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder4:1130'),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
+                    tags: ['ultimateSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '8:ultimate11:conditional19:timelineActions[60]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder4:1130'),
+                  step('modifyActionValue', {
+                    key: 'hit_times',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         99,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate11:conditional19:timelineActions[61]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder4:1183'),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
+                    tags: ['ultimateSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '8:ultimate11:conditional19:timelineActions[61]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder4:1183'),
+                  step('modifyActionValue', {
+                    key: 'hit_times',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         102,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate11:conditional19:timelineActions[62]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder4:1236'),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
+                    tags: ['ultimateSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '8:ultimate11:conditional19:timelineActions[62]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder4:1236'),
+                  step('modifyActionValue', {
+                    key: 'hit_times',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         103,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate11:conditional19:timelineActions[63]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder4:1289'),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
+                    tags: ['ultimateSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '8:ultimate11:conditional19:timelineActions[63]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder4:1289'),
+                  step('modifyActionValue', {
+                    key: 'hit_times',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         106,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate11:conditional19:timelineActions[64]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder4:1342'),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
+                    tags: ['ultimateSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '8:ultimate11:conditional19:timelineActions[64]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder4:1342'),
+                  step('modifyActionValue', {
+                    key: 'hit_times',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         108,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate11:conditional19:timelineActions[65]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder4:1395'),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
+                    tags: ['ultimateSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '8:ultimate11:conditional19:timelineActions[65]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder4:1395'),
+                  step('modifyActionValue', {
+                    key: 'hit_times',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
         111,
         sequence(
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-          }, '8:ultimate11:conditional19:timelineActions[66]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder4:1448'),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              branch(
+                { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
+                    tags: ['ultimateSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '8:ultimate11:conditional19:timelineActions[66]19:_sequenceActionData10:actionData3:[1]14:succeedActions10:actionData3:[3]14:succeedActions10:actionData3:[0]11:actionOrder4:1448'),
+                  step('modifyActionValue', {
+                    key: 'hit_times',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
       scheduled(
@@ -3771,19 +4290,26 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
       scheduled(
         131,
         sequence(
-          step('applyElementalInfliction', { element: 'heat', isExtra: false }),
-          step('dealDamage', {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_3' },
-            tags: ['ultimateSkill'],
-            features: ['canBreakWeakness'],
-            stagger: 25,
-          }, '8:ultimate11:conditional19:timelineActions[22]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:84'),
-          step('modifyActionValue', {
-            key: 'hit_num',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
+          branch(
+            { kind: 'actionValueCompare', left: { kind: 'constant', value: 0 }, operator: 'equal', right: { kind: 'constant', value: 0 } },
+            sequence(
+              step('applyElementalInfliction', { element: 'heat', isExtra: false }),
+              step('dealDamage', {
+                damageType: 'heat',
+                attackScale: { kind: 'blackboard', key: 'atk_scale_3' },
+                tags: ['ultimateSkill'],
+                features: ['canBreakWeakness'],
+                stagger: 25,
+              }, '8:ultimate11:conditional19:timelineActions[22]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[1]11:actionOrder2:84'),
+              step('modifyActionValue', {
+                key: 'hit_num',
+                operation: 'add',
+                value: { kind: 'constant', value: 1 },
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
         ),
       ),
     ],
@@ -4224,6 +4750,8 @@ export const rossiGeneratedOperator: OperatorDefinition = {
                       inheritSourceSkillCastInfo: true,
                     }),
                   ),
+                  undefined,
+                  { alwaysNext: true },
                 ),
               ),
               sequence(
@@ -4268,8 +4796,11 @@ export const rossiGeneratedOperator: OperatorDefinition = {
                       inheritSourceSkillCastInfo: true,
                     }),
                   ),
+                  undefined,
+                  { alwaysNext: true },
                 ),
               ),
+              { alwaysNext: true },
             ),
           ),
         ),

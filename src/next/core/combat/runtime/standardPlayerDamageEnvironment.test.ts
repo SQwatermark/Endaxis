@@ -265,6 +265,24 @@ describe('StandardPlayerDamageEnvironment', () => {
     ).toBe(80);
   });
 
+  it('reads MaxHp from the bound operator health ledger', () => {
+    const environment = createEnvironment();
+    const context = createContext();
+    environment.runtimeOptions.createOperationExecutor(context);
+
+    expect(
+      environment.runtimeOptions.readSourceAttributeValue?.('operator', {
+        attribute: { kind: 'specific', key: 'maxHealth' },
+        stage: 'finalNonConverted',
+        useFloor: false,
+        divisor: { kind: 'constant', value: 1 },
+        multiplier: { kind: 'constant', value: 1 },
+        base: { kind: 'constant', value: 0 },
+        targetKey: 'max_hp',
+      }),
+    ).toBe(5000);
+  });
+
   it('reuses one operator Buff runtime for assembly operations and damage modifiers', () => {
     const environment = createEnvironment();
     const createRuntime = environment.runtimeOptions.createOperatorBuffRuntime;

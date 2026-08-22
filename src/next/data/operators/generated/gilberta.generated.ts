@@ -63,12 +63,19 @@ export const gilbertaGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0013_aglina_normal_skill_monitor",
@@ -150,7 +157,9 @@ export const gilbertaGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -161,12 +170,19 @@ export const gilbertaGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0013_aglina_ultimate_skill",
@@ -484,9 +500,17 @@ export const gilbertaGeneratedSource = {
                           },
                           "limitSkillCastId": false
                         },
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
-                        "deckAttributeCompare": null
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
                       }
                     ],
                     "succeedActions": [
@@ -524,7 +548,11 @@ export const gilbertaGeneratedSource = {
                         }
                       }
                     ],
-                    "failActions": []
+                    "failActions": [],
+                    "conditionNegated": [
+                      false
+                    ],
+                    "alwaysNext": true
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -574,9 +602,17 @@ export const gilbertaGeneratedSource = {
                           "levelValues": null
                         },
                         "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
-                        "deckAttributeCompare": null
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
                       }
                     ],
                     "succeedActions": [
@@ -630,9 +666,17 @@ export const gilbertaGeneratedSource = {
                                 "levelValues": null
                               },
                               "skillTypes": [],
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
+                              "targetAngle": null,
                               "damageDecorateMask": null,
                               "contextBuffId": null,
-                              "deckAttributeCompare": null
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
                             }
                           ],
                           "succeedActions": [
@@ -669,7 +713,11 @@ export const gilbertaGeneratedSource = {
                               "buffIgnite": null
                             }
                           ],
-                          "failActions": []
+                          "failActions": [],
+                          "conditionNegated": [
+                            false
+                          ],
+                          "alwaysNext": true
                         },
                         "legacyBuffFinish": null,
                         "skillCooldownAdjustment": null,
@@ -705,7 +753,11 @@ export const gilbertaGeneratedSource = {
                         "buffIgnite": null
                       }
                     ],
-                    "failActions": []
+                    "failActions": [],
+                    "conditionNegated": [
+                      false
+                    ],
+                    "alwaysNext": true
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -925,7 +977,9 @@ export const gilbertaGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -934,12 +988,19 @@ export const gilbertaGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0013_aglina_ultimate_spell_vulnerable",
@@ -1012,6 +1073,7 @@ export const gilbertaGeneratedSource = {
               }
             }
           ],
+          "tagConditions": [],
           "ownerControlled": false,
           "damageTagMatch": null,
           "damageTags": [],
@@ -1024,7 +1086,8 @@ export const gilbertaGeneratedSource = {
             "nature"
           ],
           "numberComparisons": [],
-          "healthComparisons": []
+          "healthComparisons": [],
+          "buffCountComparisons": []
         }
       ],
       "directDamageHits": [],
@@ -1061,7 +1124,9 @@ export const gilbertaGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -1070,12 +1135,19 @@ export const gilbertaGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -1140,48 +1212,55 @@ export const gilbertaGeneratedSource = {
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
-      "eventActions": [
-        {
-          "eventSource": "buff",
-          "event": "DuringBuffEnable",
-          "orderedActionTypes": [
-            "SetSuperArmorAction"
-          ],
-          "combatActions": [],
-          "damageUnits": [],
-          "buffApplications": [],
-          "createdBuffIds": [],
-          "forEachActions": [],
-          "targetGroupWrites": [],
-          "sequences": [
-            {
-              "onlyMainOperator": false,
-              "onlyGuard": false,
-              "orderedActionTypes": [
-                "SetSuperArmorAction"
-              ],
-              "combatActions": [],
-              "buffApplications": [],
-              "actions": [],
-              "priority": 0
-            }
-          ],
-          "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
-        }
-      ],
+      "eventActions": [],
       "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [
+        {
+          "target": {
+            "targetSource": "Owner",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "superArmor": {
+            "value": 50.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "impactResistance": {
+            "value": 100.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_full_immune_medium",
@@ -1253,48 +1332,55 @@ export const gilbertaGeneratedSource = {
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
-      "eventActions": [
-        {
-          "eventSource": "buff",
-          "event": "DuringBuffEnable",
-          "orderedActionTypes": [
-            "SetSuperArmorAction"
-          ],
-          "combatActions": [],
-          "damageUnits": [],
-          "buffApplications": [],
-          "createdBuffIds": [],
-          "forEachActions": [],
-          "targetGroupWrites": [],
-          "sequences": [
-            {
-              "onlyMainOperator": false,
-              "onlyGuard": false,
-              "orderedActionTypes": [
-                "SetSuperArmorAction"
-              ],
-              "combatActions": [],
-              "buffApplications": [],
-              "actions": [],
-              "priority": 0
-            }
-          ],
-          "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
-        }
-      ],
+      "eventActions": [],
       "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [
+        {
+          "target": {
+            "targetSource": "Owner",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "superArmor": {
+            "value": 40.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "impactResistance": {
+            "value": 100.0,
+            "blackboardKey": null,
+            "levelValues": null
+          }
+        }
+      ],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -1390,7 +1476,9 @@ export const gilbertaGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -1399,12 +1487,19 @@ export const gilbertaGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -1470,12 +1565,19 @@ export const gilbertaGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
       "attributeModifiersConverted": false,
       "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     }
   ],
   "skills": [
@@ -1752,13 +1854,21 @@ export const gilbertaGeneratedSource = {
                   "left": null,
                   "right": null,
                   "skillTypes": [],
+                  "poise": null,
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
                   },
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -1776,9 +1886,17 @@ export const gilbertaGeneratedSource = {
                     "excludeDeadEntity": false,
                     "storeKey": ""
                   },
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 }
               ],
               "succeedActions": [
@@ -1833,7 +1951,12 @@ export const gilbertaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "conditionNegated": [
+                false,
+                false
+              ],
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -2020,7 +2143,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [],
@@ -2723,7 +2848,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [],
@@ -3187,13 +3314,21 @@ export const gilbertaGeneratedSource = {
                   "left": null,
                   "right": null,
                   "skillTypes": [],
+                  "poise": null,
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
                   },
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -3211,9 +3346,17 @@ export const gilbertaGeneratedSource = {
                     "excludeDeadEntity": false,
                     "storeKey": ""
                   },
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 }
               ],
               "succeedActions": [
@@ -3268,7 +3411,12 @@ export const gilbertaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "conditionNegated": [
+                false,
+                false
+              ],
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -3381,13 +3529,21 @@ export const gilbertaGeneratedSource = {
                   "left": null,
                   "right": null,
                   "skillTypes": [],
+                  "poise": null,
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
                   },
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -3405,9 +3561,17 @@ export const gilbertaGeneratedSource = {
                     "excludeDeadEntity": false,
                     "storeKey": ""
                   },
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 }
               ],
               "succeedActions": [
@@ -3462,7 +3626,12 @@ export const gilbertaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "conditionNegated": [
+                false,
+                false
+              ],
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -3575,13 +3744,21 @@ export const gilbertaGeneratedSource = {
                   "left": null,
                   "right": null,
                   "skillTypes": [],
+                  "poise": null,
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
                   },
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -3599,9 +3776,17 @@ export const gilbertaGeneratedSource = {
                     "excludeDeadEntity": false,
                     "storeKey": ""
                   },
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 }
               ],
               "succeedActions": [
@@ -3656,7 +3841,12 @@ export const gilbertaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "conditionNegated": [
+                false,
+                false
+              ],
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -4308,13 +4498,21 @@ export const gilbertaGeneratedSource = {
                   "left": null,
                   "right": null,
                   "skillTypes": [],
+                  "poise": null,
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
                   },
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -4332,9 +4530,17 @@ export const gilbertaGeneratedSource = {
                     "excludeDeadEntity": false,
                     "storeKey": ""
                   },
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 }
               ],
               "succeedActions": [
@@ -4389,7 +4595,12 @@ export const gilbertaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "conditionNegated": [
+                false,
+                false
+              ],
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -4564,13 +4775,21 @@ export const gilbertaGeneratedSource = {
                   "left": null,
                   "right": null,
                   "skillTypes": [],
+                  "poise": null,
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
                   },
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -4588,9 +4807,17 @@ export const gilbertaGeneratedSource = {
                     "excludeDeadEntity": false,
                     "storeKey": ""
                   },
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 }
               ],
               "succeedActions": [
@@ -4645,7 +4872,12 @@ export const gilbertaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "conditionNegated": [
+                false,
+                false
+              ],
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -4820,13 +5052,21 @@ export const gilbertaGeneratedSource = {
                   "left": null,
                   "right": null,
                   "skillTypes": [],
+                  "poise": null,
                   "mainOperator": {
                     "targetSource": "Source",
                     "targetGroupKey": ""
                   },
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 },
                 {
                   "sourceType": "CheckEntityNum",
@@ -4844,9 +5084,17 @@ export const gilbertaGeneratedSource = {
                     "excludeDeadEntity": false,
                     "storeKey": ""
                   },
+                  "poise": null,
+                  "superArmor": null,
+                  "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
-                  "deckAttributeCompare": null
+                  "objectTypeMatch": null,
+                  "deckAttributeCompare": null,
+                  "probability": null,
+                  "anyConditionGroups": [],
+                  "anyConditionNegated": []
                 }
               ],
               "succeedActions": [
@@ -4901,7 +5149,12 @@ export const gilbertaGeneratedSource = {
                   }
                 }
               ],
-              "failActions": []
+              "failActions": [],
+              "conditionNegated": [
+                false,
+                false
+              ],
+              "alwaysNext": true
             }
           ],
           "auxiliaryActions": [],
@@ -5111,7 +5364,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 25,
@@ -5132,7 +5387,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 27,
@@ -5153,7 +5410,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [],
@@ -6193,13 +6452,21 @@ export const gilbertaGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Source",
                 "targetGroupKey": "tar"
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -6254,7 +6521,11 @@ export const gilbertaGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -6418,7 +6689,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -6440,13 +6713,21 @@ export const gilbertaGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Source",
                 "targetGroupKey": "tar"
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -6501,7 +6782,11 @@ export const gilbertaGeneratedSource = {
               }
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -7096,9 +7381,17 @@ export const gilbertaGeneratedSource = {
                 "levelValues": null
               },
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -7156,7 +7449,11 @@ export const gilbertaGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 108,
@@ -7197,9 +7494,17 @@ export const gilbertaGeneratedSource = {
                 "levelValues": null
               },
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             },
             {
               "sourceType": "CheckEntityNum",
@@ -7217,9 +7522,17 @@ export const gilbertaGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -7269,9 +7582,17 @@ export const gilbertaGeneratedSource = {
                       },
                       "characterTeamSelectionRole": "controlledOperator"
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -7411,9 +7732,17 @@ export const gilbertaGeneratedSource = {
                               "levelValues": null
                             }
                           },
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -7591,20 +7920,33 @@ export const gilbertaGeneratedSource = {
                             ]
                           }
                         }
-                      ]
+                      ],
+                      "conditionNegated": [
+                        false
+                      ],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false,
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [
@@ -7766,7 +8108,8 @@ export const gilbertaGeneratedSource = {
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         }
       ],
       "referencedBuffIds": [
@@ -8137,7 +8480,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 12,
@@ -8166,7 +8511,10 @@ export const gilbertaGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 12,
@@ -8193,7 +8541,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 12,
@@ -8220,7 +8570,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 12,
@@ -8247,7 +8599,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 12,
@@ -8274,7 +8628,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 29,
@@ -8295,7 +8651,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 46,
@@ -8316,7 +8674,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 62,
@@ -8337,7 +8697,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 78,
@@ -8358,7 +8720,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 108,
@@ -8379,7 +8743,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 108,
@@ -8409,7 +8775,9 @@ export const gilbertaGeneratedSource = {
           ],
           "inputTargets": [],
           "intervalSeconds": null,
-          "characterTeamSelectionRole": "lowestHealthRatioOperator"
+          "characterTeamSelectionRole": "lowestHealthRatioOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -8452,9 +8820,17 @@ export const gilbertaGeneratedSource = {
                 "levelValues": null
               },
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -8512,7 +8888,11 @@ export const gilbertaGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 12,
@@ -8541,9 +8921,17 @@ export const gilbertaGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -8609,9 +8997,17 @@ export const gilbertaGeneratedSource = {
                       "excludeDeadEntity": true,
                       "storeKey": ""
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -8717,13 +9113,21 @@ export const gilbertaGeneratedSource = {
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 108,
@@ -8764,9 +9168,17 @@ export const gilbertaGeneratedSource = {
                 "levelValues": null
               },
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             },
             {
               "sourceType": "CheckEntityNum",
@@ -8784,9 +9196,17 @@ export const gilbertaGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -8836,9 +9256,17 @@ export const gilbertaGeneratedSource = {
                       },
                       "characterTeamSelectionRole": "controlledOperator"
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -8998,9 +9426,17 @@ export const gilbertaGeneratedSource = {
                               "levelValues": null
                             }
                           },
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -9178,20 +9614,33 @@ export const gilbertaGeneratedSource = {
                             ]
                           }
                         }
-                      ]
+                      ],
+                      "conditionNegated": [
+                        false
+                      ],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false,
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -9572,9 +10021,17 @@ export const gilbertaGeneratedSource = {
                 "levelValues": null
               },
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             },
             {
               "sourceType": "CheckEntityNum",
@@ -9592,9 +10049,17 @@ export const gilbertaGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -9644,9 +10109,17 @@ export const gilbertaGeneratedSource = {
                       },
                       "characterTeamSelectionRole": "controlledOperator"
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -9786,9 +10259,17 @@ export const gilbertaGeneratedSource = {
                               "levelValues": null
                             }
                           },
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -9966,20 +10447,33 @@ export const gilbertaGeneratedSource = {
                             ]
                           }
                         }
-                      ]
+                      ],
+                      "conditionNegated": [
+                        false
+                      ],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false,
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "inflictions": [],
@@ -10396,7 +10890,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -10422,7 +10918,10 @@ export const gilbertaGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -10446,7 +10945,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -10470,7 +10971,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -10493,7 +10996,10 @@ export const gilbertaGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -10514,7 +11020,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 48,
@@ -10535,7 +11043,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 48,
@@ -10565,7 +11075,9 @@ export const gilbertaGeneratedSource = {
           ],
           "inputTargets": [],
           "intervalSeconds": null,
-          "characterTeamSelectionRole": "lowestHealthRatioOperator"
+          "characterTeamSelectionRole": "lowestHealthRatioOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -10591,7 +11103,10 @@ export const gilbertaGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -10622,9 +11137,17 @@ export const gilbertaGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -10698,7 +11221,11 @@ export const gilbertaGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 48,
@@ -10739,9 +11266,17 @@ export const gilbertaGeneratedSource = {
                 "levelValues": null
               },
               "skillTypes": [],
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             },
             {
               "sourceType": "CheckEntityNum",
@@ -10759,9 +11294,17 @@ export const gilbertaGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -10811,9 +11354,17 @@ export const gilbertaGeneratedSource = {
                       },
                       "characterTeamSelectionRole": "controlledOperator"
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -10973,9 +11524,17 @@ export const gilbertaGeneratedSource = {
                               "levelValues": null
                             }
                           },
+                          "poise": null,
+                          "superArmor": null,
+                          "twoDirectionAngle": null,
+                          "targetAngle": null,
                           "damageDecorateMask": null,
                           "contextBuffId": null,
-                          "deckAttributeCompare": null
+                          "objectTypeMatch": null,
+                          "deckAttributeCompare": null,
+                          "probability": null,
+                          "anyConditionGroups": [],
+                          "anyConditionNegated": []
                         }
                       ],
                       "succeedActions": [
@@ -11153,20 +11712,33 @@ export const gilbertaGeneratedSource = {
                             ]
                           }
                         }
-                      ]
+                      ],
+                      "conditionNegated": [
+                        false
+                      ],
+                      "alwaysNext": true
                     },
                     "legacyBuffFinish": null,
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
           ],
-          "failActions": []
+          "failActions": [],
+          "conditionNegated": [
+            false,
+            false
+          ],
+          "alwaysNext": true
         },
         {
           "startFrame": 0,
@@ -11186,13 +11758,21 @@ export const gilbertaGeneratedSource = {
               "left": null,
               "right": null,
               "skillTypes": [],
+              "poise": null,
               "mainOperator": {
                 "targetSource": "Owner",
                 "targetGroupKey": ""
               },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [],
@@ -11214,7 +11794,11 @@ export const gilbertaGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],
@@ -11258,7 +11842,8 @@ export const gilbertaGeneratedSource = {
                 "selectorDirection": "SourceForward",
                 "finderType": "OwnerSpawnedEntityFinder",
                 "validatorTypes": [],
-                "postProcessorTypes": []
+                "postProcessorTypes": [],
+                "finderSpawnedObjectType": "AbilityEntity"
               },
               "spawnedObjectType": "AbilityEntity",
               "tagQueries": []
@@ -11959,9 +12544,11 @@ export const gilbertaGeneratedSource = {
               "nestedCombatActions": [],
               "airborneOutputs": [],
               "actionInAuraBuffFinishes": [],
+              "actionWhenExitAuraBuffFinishes": [],
               "actionWhenExitAuraBuffApplications": []
             }
-          ]
+          ],
+          "presentationOnlySwitchActionIndexes": []
         }
       ],
       "referencedBuffIds": [
@@ -12431,7 +13018,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -12460,7 +13049,10 @@ export const gilbertaGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -12487,7 +13079,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -12514,7 +13108,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -12541,7 +13137,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -12568,7 +13166,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 60,
@@ -12589,7 +13189,9 @@ export const gilbertaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -12620,9 +13222,17 @@ export const gilbertaGeneratedSource = {
                 "excludeDeadEntity": false,
                 "storeKey": ""
               },
+              "poise": null,
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
-              "deckAttributeCompare": null
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
             }
           ],
           "succeedActions": [
@@ -12688,9 +13298,17 @@ export const gilbertaGeneratedSource = {
                       "excludeDeadEntity": true,
                       "storeKey": ""
                     },
+                    "poise": null,
+                    "superArmor": null,
+                    "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
-                    "deckAttributeCompare": null
+                    "objectTypeMatch": null,
+                    "deckAttributeCompare": null,
+                    "probability": null,
+                    "anyConditionGroups": [],
+                    "anyConditionNegated": []
                   }
                 ],
                 "succeedActions": [
@@ -12796,13 +13414,21 @@ export const gilbertaGeneratedSource = {
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
-                ]
+                ],
+                "conditionNegated": [
+                  false
+                ],
+                "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
-          ]
+          ],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
         }
       ],
       "auraActions": [],

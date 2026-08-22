@@ -48,11 +48,14 @@ export const mifuComboSkill: SkillDefinition = withSkillBlackboard(
                 undefined,
                 { alwaysNext: true },
               ),
-              step('calculateActionValue', {
-                key: 'talent_shield_maxhp',
-                operation: 'multiply',
-                left: { kind: 'blackboard', key: 'maxHealth' },
-                right: { kind: 'constant', value: 1 },
+              step('storeSourceAttributeValue', {
+                attribute: { kind: 'specific', key: 'maxHealth' },
+                stage: 'finalNonConverted',
+                useFloor: false,
+                divisor: { kind: 'constant', value: 1 },
+                multiplier: { kind: 'constant', value: 1 },
+                base: { kind: 'constant', value: 0 },
+                targetKey: 'talent_shield_maxhp',
               }),
               step('modifyActionValue', {
                 key: 'talent_shield_maxhp',

@@ -1,6 +1,6 @@
 /** 由 scripts/generate_next_operators 从解包数据生成；不要手工编辑。 */
 import type { OperatorDefinition, SkillDefinition } from '../../../core/game-data/operatorDefinition';
-import { branch, percentage, percentages, scheduled, sequence, step, withSkillBlackboard } from '../definitionHelpers';
+import { branch, forEachContextTarget, percentage, percentages, scheduled, sequence, step, withSkillBlackboard } from '../definitionHelpers';
 
 // prettier-ignore
 export const yvonneComboSkill: SkillDefinition = withSkillBlackboard(
@@ -2576,6 +2576,51 @@ export const yvonneUltimateAttackEnd: SkillDefinition = withSkillBlackboard(
         ),
       ),
       scheduled(
+        7,
+        sequence(
+          forEachContextTarget(
+            'robots',
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_robot_end',
+                target: 'currentAbilityEntity',
+                inheritSourceSkillCastInfo: true,
+              }),
+            ),
+          ),
+        ),
+      ),
+      scheduled(
+        12,
+        sequence(
+          forEachContextTarget(
+            'robots',
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_robot_end',
+                target: 'currentAbilityEntity',
+                inheritSourceSkillCastInfo: true,
+              }),
+            ),
+          ),
+        ),
+      ),
+      scheduled(
+        17,
+        sequence(
+          forEachContextTarget(
+            'robots',
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_robot_end',
+                target: 'currentAbilityEntity',
+                inheritSourceSkillCastInfo: true,
+              }),
+            ),
+          ),
+        ),
+      ),
+      scheduled(
         28,
         sequence(
           branch(
@@ -2679,6 +2724,11 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
     { key: 'comboSkill', skillType: 'comboSkill', levelSource: 'comboSkill', skills: yvonneComboSkill },
   ],
   buffDefinitions: {
+    'buff_chr_0017_yvonne_potential_5_effect': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+    },
     'buff_chr_0017_yvonne_potential_5_cd': {
       stackingType: 'unique',
       priority: 0,
@@ -2693,6 +2743,13 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
             target: 'caster',
             buffIds: ['buff_chr_0017_yvonne_potential_5_effect'],
             reason: 'other',
+          }),
+        ),
+        finish: sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0017_yvonne_potential_5_effect',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
           }),
         ),
       },
@@ -3208,6 +3265,11 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
         },
       ],
     },
+    'buff_chr_0017_yvonne_ultimate_skill_robot_end': {
+      stackingType: 'stack',
+      priority: 0,
+      maxStackCount: 1,
+    },
     'buff_chr_0017_yvonne_ultimate_skill_end': {
       stackingType: 'refresh',
       priority: 0,
@@ -3248,6 +3310,16 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
           }),
         ),
         finish: sequence(
+          forEachContextTarget(
+            'robots',
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_robot_end',
+                target: 'currentAbilityEntity',
+                inheritSourceSkillCastInfo: true,
+              }),
+            ),
+          ),
           step('finishBuffsById', {
             target: 'caster',
             buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
@@ -3287,6 +3359,25 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
           }),
         ),
       },
+      abilityEventResponses: [
+        {
+          event: 'ownerHpZero',
+          priority: 0,
+          sequence:
+            sequence(
+              forEachContextTarget(
+                'robots',
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0017_yvonne_ultimate_skill_robot_end',
+                    target: 'currentAbilityEntity',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+            ),
+        },
+      ],
     },
     'buff_chr_0017_yvonne_ultimate_skill': {
       stackingType: 'refresh',
@@ -3355,6 +3446,25 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
           }),
         ),
       },
+      abilityEventResponses: [
+        {
+          event: 'ownerHpZero',
+          priority: 0,
+          sequence:
+            sequence(
+              forEachContextTarget(
+                'robots',
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0017_yvonne_ultimate_skill_robot_end',
+                    target: 'currentAbilityEntity',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+            ),
+        },
+      ],
     },
     'buff_chr_0017_yvonne_ultimate_skill_camera_child': {
       stackingType: 'unique',
@@ -3791,6 +3901,20 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                                               }),
                                             ),
                                             start: sequence(
+                                              step('applyBuff', {
+                                                buffId: 'buff_common_cryst_triggered_start',
+                                                definition: {
+                                                  stackingType: 'unlimited',
+                                                  priority: 0,
+                                                  maxStackCount: 1,
+                                                  durationSeconds: 3,
+                                                  triggerIntervalSeconds: 0,
+                                                  waitFirstTriggerInterval: false,
+                                                  maxTriggerCount: 1,
+                                                },
+                                                target: 'enemy',
+                                                inheritSourceSkillCastInfo: true,
+                                              }),
                                               step('storeSourceAttributeValue', {
                                                 attribute: { kind: 'specific', key: 'cryoAbnormalDamageIncrease' },
                                                 stage: 'finalNonConverted',
@@ -3799,6 +3923,20 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                                                 multiplier: { kind: 'blackboard', key: 'phy_dmg_up' },
                                                 base: { kind: 'blackboard', key: 'phy_dmg_up' },
                                                 targetKey: 'final_phy_dmg_up',
+                                              }),
+                                              step('applyBuff', {
+                                                buffId: 'buff_common_cryst_triggered_fx',
+                                                definition: {
+                                                  stackingType: 'unlimited',
+                                                  priority: 0,
+                                                  maxStackCount: 0,
+                                                  durationSeconds: 5,
+                                                  triggerIntervalSeconds: 0,
+                                                  waitFirstTriggerInterval: true,
+                                                  maxTriggerCount: 1,
+                                                },
+                                                target: 'enemy',
+                                                inheritSourceSkillCastInfo: true,
                                               }),
                                             ),
                                           },

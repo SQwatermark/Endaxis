@@ -14,6 +14,7 @@ from operator_ability_entity_linker import link_operator_ability_entity_definiti
 
 from time_dilation_parser import parse_time_dilation_action, parse_time_scale_curve
 from target_group_parser import parse_circular_order_sort
+from target_parser import parse_spawned_entity_selector_identity
 
 from generate_next_operators import (
     ELEMENT_TYPE_MAP,
@@ -15121,6 +15122,43 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertTrue(loop.skillCasts[0].inheritSourceSkillCastId)
         self.assertEqual(parsed[0].sequences[0].orderedActionTypes, ("ForEachAction",))
         self.assertEqual(parsed[0].sequences[0].actions, ())
+
+    def test_owner_spawned_entity_finder_preserves_numeric_zero_mask(self) -> None:
+        spawned_object_type, tag_queries = parse_spawned_entity_selector_identity(
+            {
+                "finderData": {
+                    "$type": "Example.Selector+OwnerSpawnedEntityFinder+Data, Example",
+                    "spawnedObjectType": 0,
+                },
+                "validatorData": [],
+            },
+            "fixture.selectorData",
+        )
+
+        self.assertEqual(spawned_object_type, "0")
+        self.assertEqual(tag_queries, ())
+
+    def test_selector_identity_preserves_tag_queries_for_other_finders(self) -> None:
+        spawned_object_type, tag_queries = parse_spawned_entity_selector_identity(
+            {
+                "finderData": {
+                    "$type": "Example.Selector+HitBoxFinder+Data, Example",
+                },
+                "validatorData": [
+                    {
+                        "$type": "Example.Selector+TagValidator+Data, Example",
+                        "query": {
+                            "queryType": "HasAny",
+                            "tags": [{"tagId": -1110095722}, {"tagId": -421286163}],
+                        },
+                    }
+                ],
+            },
+            "fixture.selectorData",
+        )
+
+        self.assertIsNone(spawned_object_type)
+        self.assertEqual(tag_queries, (("HasAny", (-1110095722, -421286163)),))
 
     def test_buff_event_owner_spawned_query_compiles_to_ids_and_same_cast_filter(self) -> None:
         write = SimpleNamespace(

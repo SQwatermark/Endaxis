@@ -2128,6 +2128,7 @@
       "exportName": "tangtangGeneratedSource",
       "charId": "chr_0027_tangtang",
       "basePassiveSkillIds": ["chr_0027_tangtang_passive_0"],
+      "presentationOnlyPassiveBuffIds": ["buff_chr_0027_tangtang_water_passiveui"],
       "talents": [
         { "index": 0, "key": "talent1", "compile": "skillBlackboardPatch" },
         { "index": 1, "key": "talent2", "compile": "skillBlackboardPatch" }
@@ -2284,6 +2285,7 @@
       "slug": "fluorite",
       "exportName": "fluoriteGeneratedSource",
       "charId": "chr_0022_bounda",
+      "unmodeledPassiveSkillIds": ["chr_0022_bounda_talent_2"],
       "talents": [
         { "index": 0, "key": "talent1", "compile": "attachedPassive" },
         { "index": 1, "key": "talent2", "compile": "unmodeledTalent" }
@@ -2565,8 +2567,7 @@
           "source": "chr_0002_endminm_attack4.json",
           "compile": {
             "kind": "resolvedSequence",
-            "tags": ["normalAttack"],
-            "unmodeledBuffIds": ["buff_chr_0003_endminf_attack4"]
+            "tags": ["normalAttack"]
           }
         },
         {
@@ -2614,8 +2615,7 @@
           "source": "chr_0003_endminf_attack4.json",
           "compile": {
             "kind": "resolvedSequence",
-            "tags": ["normalAttack"],
-            "unmodeledBuffIds": ["buff_chr_0003_endminf_attack4"]
+            "tags": ["normalAttack"]
           }
         },
         {
@@ -3306,7 +3306,7 @@
       "slug": "liino",
       "exportName": "liinoGeneratedSource",
       "charId": "chr_0035_liino",
-      "outputStage": "complete",
+      "outputStage": "audit",
       "runtimeReplacementSkillKeys": ["battleSkillEnd"],
       "talents": [
         { "index": 0, "key": "talent1", "compile": "skillBlackboardPatch" },
@@ -3442,8 +3442,7 @@
         {
           "key": "ultimate",
           "skillType": "ultimate",
-          "source": "chr_0035_liino_ultimate_skill.json",
-          "compile": { "kind": "resolvedSequence", "tags": ["ultimateSkill"] }
+          "source": "chr_0035_liino_ultimate_skill.json"
         }
       ]
     }

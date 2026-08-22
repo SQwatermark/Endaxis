@@ -138,14 +138,16 @@ def parse_spawned_entity_selector_identity(
                     f"{path}.finderData: unexpected owner-spawned finder fields "
                     f"{sorted(finder)}"
                 )
-            spawned_object_type = finder.get("spawnedObjectType")
-            if not isinstance(spawned_object_type, str) or not spawned_object_type:
+            raw_spawned_object_type = finder.get("spawnedObjectType")
+            if raw_spawned_object_type == 0:
+                # ObjectType 没有命名零成员；复刻库已证明零掩码不会命中任何子实体。
+                spawned_object_type = "0"
+            elif isinstance(raw_spawned_object_type, str) and raw_spawned_object_type:
+                spawned_object_type = raw_spawned_object_type
+            else:
                 raise ValueError(
-                    f"{path}.finderData.spawnedObjectType: expected non-empty string"
+                    f"{path}.finderData.spawnedObjectType: expected named ObjectType or numeric 0"
                 )
-
-    if spawned_object_type is None:
-        return None, ()
 
     tag_queries: list[tuple[str, tuple[int, ...]]] = []
     for index, raw_validator in enumerate(
@@ -154,6 +156,9 @@ def parse_spawned_entity_selector_identity(
         validator_path = f"{path}.validatorData[{index}]"
         validator = require_dict(raw_validator, validator_path)
         if selector_component_name(validator, validator_path) != "TagValidator":
+            continue
+        if set(validator) == {"$type"}:
+            # 兼容只保留选择器种类、未携带查询载荷的最小审计目标引用。
             continue
         if set(validator) != {"$type", "query"}:
             raise ValueError(

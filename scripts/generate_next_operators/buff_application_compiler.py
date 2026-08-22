@@ -589,18 +589,14 @@ def compile_aura_action(
         compile_buff_application_values(
             buff_id=buff.buffId,
             blackboard_assignments=buff.blackboardAssignments,
-            target_source=("Target" if application_target == "enemy" else "Context"),
+            target_source="Context",
             target_group_key="",
             count=ScalarSource(1, None, None),
             buff_source=aura.buffSource,
             inherit_source_skill_cast_info=aura.inheritSourceSkillCastId,
             root_skill_context=True,
             path=f"{path}.buffs[{index}]",
-            context_application_target=(
-                application_target
-                if application_target in {"party", "partyExceptCaster"}
-                else None
-            ),
+            context_application_target=application_target,
             input_target=("enemy" if application_target == "enemy" else None),
             buff_definitions=buff_definitions,
             invoked_child_context=invoked_child_context,

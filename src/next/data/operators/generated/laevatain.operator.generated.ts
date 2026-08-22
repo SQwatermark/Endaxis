@@ -112,6 +112,8 @@ export const laevatainComboSkill: SkillDefinition = withSkillBlackboard(
                 ),
               ),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -242,6 +244,8 @@ export const laevatainComboSkill: SkillDefinition = withSkillBlackboard(
                 value: { kind: 'constant', value: 1 },
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
           branch(
             {
@@ -350,6 +354,7 @@ export const laevatainComboSkill: SkillDefinition = withSkillBlackboard(
                 ),
               ),
             ),
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -702,6 +707,8 @@ export const laevatainBasicAttack3: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -739,6 +746,8 @@ export const laevatainBasicAttack4: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -826,8 +835,12 @@ export const laevatainBasicAttack5: SkillDefinition = withSkillBlackboard(
                     spGainSource: 'normalAttack',
                   }),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -887,6 +900,8 @@ export const laevatainFinisher: SkillDefinition = withSkillBlackboard(
             sequence(
               step('changeResource', { resource: 'sp', amount: 0, recipient: 'team', spGainKind: 'gain', spGainSource: 'default' }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -934,6 +949,8 @@ export const laevatainPlungingAttack: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'normalAttack',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -1041,6 +1058,8 @@ export const laevatainBattleSkill: SkillDefinition = withSkillBlackboard(
                 spGainSource: 'skill',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
           step('dealDamage', {
             damageType: 'heat',
@@ -1142,6 +1161,8 @@ export const laevatainBattleSkillDuringUltimate: SkillDefinition = withSkillBlac
                 value: { kind: 'constant', value: 1 },
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
           step('applyElementalInfliction', { element: 'heat', isExtra: false }),
           step('dealDamage', {
@@ -1193,6 +1214,8 @@ export const laevatainBattleSkillDuringUltimate: SkillDefinition = withSkillBlac
                 value: { kind: 'constant', value: 1 },
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
           step('applyElementalInfliction', { element: 'heat', isExtra: false }),
           step('dealDamage', {
@@ -1283,6 +1306,8 @@ export const laevatainBattleSkillDuringUltimate: SkillDefinition = withSkillBlac
                 spGainSource: 'skill',
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
           step('dealDamage', {
             damageType: 'heat',
@@ -1387,16 +1412,6 @@ export const laevatainUltimate: SkillDefinition = withSkillBlackboard(
         ),
         73,
       ),
-      scheduled(
-        62,
-        sequence(
-          step('applyBuff', {
-            buffId: 'buff_chr_0016_laevat_ultimate_sfx_loop',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
-        ),
-      ),
     ],
   },
   {
@@ -1456,6 +1471,8 @@ export const laevatainUltimateAttack1: SkillDefinition = withSkillBlackboard(
                 ),
               ),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -1520,6 +1537,8 @@ export const laevatainUltimateAttack2: SkillDefinition = withSkillBlackboard(
                 ),
               ),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -1559,6 +1578,8 @@ export const laevatainUltimateAttack2: SkillDefinition = withSkillBlackboard(
                 ),
               ),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -1625,6 +1646,8 @@ export const laevatainUltimateAttack3: SkillDefinition = withSkillBlackboard(
                 ),
               ),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -1695,6 +1718,8 @@ export const laevatainUltimateAttack4: SkillDefinition = withSkillBlackboard(
                 value: { kind: 'constant', value: 1 },
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
           branch(
             { kind: 'casterControlled' },
@@ -1727,6 +1752,8 @@ export const laevatainUltimateAttack4: SkillDefinition = withSkillBlackboard(
                 ),
               ),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       ),
@@ -1769,11 +1796,6 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
     { key: 'comboSkill', skillType: 'comboSkill', levelSource: 'comboSkill', skills: laevatainComboSkill },
   ],
   buffDefinitions: {
-    'buff_chr_0016_laevat_wpn_vfx': {
-      stackingType: 'stack',
-      priority: 0,
-      maxStackCount: 1,
-    },
     'buff_chr_0016_laevat_ring_start_asset': {
       stackingType: 'stack',
       priority: 0,
@@ -1787,13 +1809,6 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
         },
       ],
       lifecycleSequences: {
-        enable: sequence(
-          step('applyBuff', {
-            buffId: 'buff_chr_0016_laevat_wpn_vfx',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
-        ),
         finish: sequence(
           step('finishBuffsById', {
             target: 'caster',
@@ -1849,6 +1864,11 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
       blackboard: {
         'duration': 16,
       },
+      sustainedProtection: {
+        target: 'owner',
+        superArmor: 25,
+        impactResistance: 100,
+      },
       lifecycleSequences: {
         start: sequence(
           sequence(
@@ -1901,13 +1921,6 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
             target: 'caster',
             buffIds: ['buff_chr_0016_laevat_wpn_vfx'],
             reason: 'other',
-          }),
-        ),
-        finish: sequence(
-          step('applyBuff', {
-            buffId: 'buff_chr_0016_laevat_wpn_vfx',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
           }),
         ),
       },
@@ -2015,6 +2028,8 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                 },
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
       },
@@ -2121,6 +2136,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                 ),
               ),
             ),
+            { alwaysNext: true },
           ),
         ),
       },
@@ -2201,11 +2217,6 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
     },
     'buff_chr_0016_laevat_pause_ult': {
       stackingType: 'unique',
-      priority: 0,
-      maxStackCount: 1,
-    },
-    'buff_chr_0016_laevat_ultimate_sfx_loop': {
-      stackingType: 'stack',
       priority: 0,
       maxStackCount: 1,
     },
@@ -2298,11 +2309,11 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
             sequence(
               step('dealDamage', {
                 damageType: 'heat',
-                attackScale: percentages([62, 68, 75, 81, 87, 93, 99, 106, 112, 120, 129, 140]),
+                attackScale: { kind: 'blackboard', key: 'atk_scale' },
                 tags: ['normalSkill'],
                 features: ['canBreakWeakness'],
-                stagger: 10,
-              }, '11:battleSkill13:abilityEntity28:chr_0016_laevat_normal_skill42:chr_0016_laevat_normal_skill_abilityentity11:actionOrder2:271:3'),
+                stagger: { kind: 'blackboard', key: 'poise' },
+              }, '85:abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity13:abilityEntity42:chr_0016_laevat_normal_skill_abilityentity11:actionOrder1:3'),
               step('applyBuff', {
                 buffId: 'buff_chr_0016_laevat_energy',
                 definition: {
@@ -2408,6 +2419,8 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                             },
                           }),
                         ),
+                        undefined,
+                        { alwaysNext: true },
                       ),
                     ),
                   },
@@ -2428,9 +2441,9 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
             sequence(
               step('dealDamage', {
                 damageType: 'heat',
-                attackScale: percentages([6, 7, 8, 8, 9, 9, 10, 11, 11, 12, 13, 14]),
+                attackScale: { kind: 'blackboard', key: 'atk_scale_2' },
                 tags: ['normalSkill'],
-              }, '11:battleSkill13:abilityEntity28:chr_0016_laevat_normal_skill42:chr_0016_laevat_normal_skill_abilityentity11:actionOrder2:272:11'),
+              }, '85:abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity13:abilityEntity42:chr_0016_laevat_normal_skill_abilityentity11:actionOrder2:11'),
               step('modifyActionValue', {
                 key: 'hit_count',
                 operation: 'add',
@@ -2541,6 +2554,8 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                             },
                           }),
                         ),
+                        undefined,
+                        { alwaysNext: true },
                       ),
                     ),
                   },
@@ -2556,9 +2571,9 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
             sequence(
               step('dealDamage', {
                 damageType: 'heat',
-                attackScale: percentages([6, 7, 8, 8, 9, 9, 10, 11, 11, 12, 13, 14]),
+                attackScale: { kind: 'blackboard', key: 'atk_scale_2' },
                 tags: ['normalSkill'],
-              }, '11:battleSkill13:abilityEntity28:chr_0016_laevat_normal_skill42:chr_0016_laevat_normal_skill_abilityentity11:actionOrder2:272:19'),
+              }, '85:abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity13:abilityEntity42:chr_0016_laevat_normal_skill_abilityentity11:actionOrder2:19'),
               step('modifyActionValue', {
                 key: 'hit_count',
                 operation: 'add',
@@ -2669,6 +2684,8 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                             },
                           }),
                         ),
+                        undefined,
+                        { alwaysNext: true },
                       ),
                     ),
                   },
@@ -2684,9 +2701,9 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
             sequence(
               step('dealDamage', {
                 damageType: 'heat',
-                attackScale: percentages([6, 7, 8, 8, 9, 9, 10, 11, 11, 12, 13, 14]),
+                attackScale: { kind: 'blackboard', key: 'atk_scale_2' },
                 tags: ['normalSkill'],
-              }, '11:battleSkill13:abilityEntity28:chr_0016_laevat_normal_skill42:chr_0016_laevat_normal_skill_abilityentity11:actionOrder2:272:27'),
+              }, '85:abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity13:abilityEntity42:chr_0016_laevat_normal_skill_abilityentity11:actionOrder2:27'),
               step('modifyActionValue', {
                 key: 'hit_count',
                 operation: 'add',
@@ -2797,6 +2814,8 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                             },
                           }),
                         ),
+                        undefined,
+                        { alwaysNext: true },
                       ),
                     ),
                   },
@@ -2812,9 +2831,9 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
             sequence(
               step('dealDamage', {
                 damageType: 'heat',
-                attackScale: percentages([6, 7, 8, 8, 9, 9, 10, 11, 11, 12, 13, 14]),
+                attackScale: { kind: 'blackboard', key: 'atk_scale_2' },
                 tags: ['normalSkill'],
-              }, '11:battleSkill13:abilityEntity28:chr_0016_laevat_normal_skill42:chr_0016_laevat_normal_skill_abilityentity11:actionOrder2:272:35'),
+              }, '85:abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity13:abilityEntity42:chr_0016_laevat_normal_skill_abilityentity11:actionOrder2:35'),
               step('modifyActionValue', {
                 key: 'hit_count',
                 operation: 'add',
@@ -2925,6 +2944,8 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                             },
                           }),
                         ),
+                        undefined,
+                        { alwaysNext: true },
                       ),
                     ),
                   },
@@ -2940,9 +2961,9 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
             sequence(
               step('dealDamage', {
                 damageType: 'heat',
-                attackScale: percentages([6, 7, 8, 8, 9, 9, 10, 11, 11, 12, 13, 14]),
+                attackScale: { kind: 'blackboard', key: 'atk_scale_2' },
                 tags: ['normalSkill'],
-              }, '11:battleSkill13:abilityEntity28:chr_0016_laevat_normal_skill42:chr_0016_laevat_normal_skill_abilityentity11:actionOrder2:272:43'),
+              }, '85:abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity13:abilityEntity42:chr_0016_laevat_normal_skill_abilityentity11:actionOrder2:43'),
               step('modifyActionValue', {
                 key: 'hit_count',
                 operation: 'add',
@@ -3053,6 +3074,8 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                             },
                           }),
                         ),
+                        undefined,
+                        { alwaysNext: true },
                       ),
                     ),
                   },
@@ -3068,9 +3091,9 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
             sequence(
               step('dealDamage', {
                 damageType: 'heat',
-                attackScale: percentages([6, 7, 8, 8, 9, 9, 10, 11, 11, 12, 13, 14]),
+                attackScale: { kind: 'blackboard', key: 'atk_scale_2' },
                 tags: ['normalSkill'],
-              }, '11:battleSkill13:abilityEntity28:chr_0016_laevat_normal_skill42:chr_0016_laevat_normal_skill_abilityentity11:actionOrder2:272:51'),
+              }, '85:abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity13:abilityEntity42:chr_0016_laevat_normal_skill_abilityentity11:actionOrder2:51'),
               step('modifyActionValue', {
                 key: 'hit_count',
                 operation: 'add',
@@ -3181,6 +3204,8 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                             },
                           }),
                         ),
+                        undefined,
+                        { alwaysNext: true },
                       ),
                     ),
                   },
@@ -3196,9 +3221,9 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
             sequence(
               step('dealDamage', {
                 damageType: 'heat',
-                attackScale: percentages([6, 7, 8, 8, 9, 9, 10, 11, 11, 12, 13, 14]),
+                attackScale: { kind: 'blackboard', key: 'atk_scale_2' },
                 tags: ['normalSkill'],
-              }, '11:battleSkill13:abilityEntity28:chr_0016_laevat_normal_skill42:chr_0016_laevat_normal_skill_abilityentity11:actionOrder2:272:59'),
+              }, '85:abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity13:abilityEntity42:chr_0016_laevat_normal_skill_abilityentity11:actionOrder2:59'),
               step('modifyActionValue', {
                 key: 'hit_count',
                 operation: 'add',
@@ -3309,6 +3334,8 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                             },
                           }),
                         ),
+                        undefined,
+                        { alwaysNext: true },
                       ),
                     ),
                   },
@@ -3324,9 +3351,9 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
             sequence(
               step('dealDamage', {
                 damageType: 'heat',
-                attackScale: percentages([6, 7, 8, 8, 9, 9, 10, 11, 11, 12, 13, 14]),
+                attackScale: { kind: 'blackboard', key: 'atk_scale_2' },
                 tags: ['normalSkill'],
-              }, '11:battleSkill13:abilityEntity28:chr_0016_laevat_normal_skill42:chr_0016_laevat_normal_skill_abilityentity11:actionOrder2:272:67'),
+              }, '85:abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity13:abilityEntity42:chr_0016_laevat_normal_skill_abilityentity11:actionOrder2:67'),
               step('modifyActionValue', {
                 key: 'hit_count',
                 operation: 'add',
@@ -3437,6 +3464,8 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                             },
                           }),
                         ),
+                        undefined,
+                        { alwaysNext: true },
                       ),
                     ),
                   },
@@ -3452,9 +3481,9 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
             sequence(
               step('dealDamage', {
                 damageType: 'heat',
-                attackScale: percentages([6, 7, 8, 8, 9, 9, 10, 11, 11, 12, 13, 14]),
+                attackScale: { kind: 'blackboard', key: 'atk_scale_2' },
                 tags: ['normalSkill'],
-              }, '11:battleSkill13:abilityEntity28:chr_0016_laevat_normal_skill42:chr_0016_laevat_normal_skill_abilityentity11:actionOrder2:272:75'),
+              }, '85:abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity13:abilityEntity42:chr_0016_laevat_normal_skill_abilityentity11:actionOrder2:75'),
               step('modifyActionValue', {
                 key: 'hit_count',
                 operation: 'add',
@@ -3565,6 +3594,8 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                             },
                           }),
                         ),
+                        undefined,
+                        { alwaysNext: true },
                       ),
                     ),
                   },
@@ -3580,9 +3611,9 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
             sequence(
               step('dealDamage', {
                 damageType: 'heat',
-                attackScale: percentages([6, 7, 8, 8, 9, 9, 10, 11, 11, 12, 13, 14]),
+                attackScale: { kind: 'blackboard', key: 'atk_scale_2' },
                 tags: ['normalSkill'],
-              }, '11:battleSkill13:abilityEntity28:chr_0016_laevat_normal_skill42:chr_0016_laevat_normal_skill_abilityentity11:actionOrder2:272:83'),
+              }, '85:abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity13:abilityEntity42:chr_0016_laevat_normal_skill_abilityentity11:actionOrder2:83'),
               step('modifyActionValue', {
                 key: 'hit_count',
                 operation: 'add',
@@ -3693,6 +3724,8 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                             },
                           }),
                         ),
+                        undefined,
+                        { alwaysNext: true },
                       ),
                     ),
                   },

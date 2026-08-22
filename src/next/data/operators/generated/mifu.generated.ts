@@ -79,6 +79,7 @@ export const mifuGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -87,7 +88,10 @@ export const mifuGeneratedSource = {
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false,
       "shields": [],
-      "sustainedProtections": []
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0031_mifu_comboprocess",
@@ -147,6 +151,7 @@ export const mifuGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -155,7 +160,10 @@ export const mifuGeneratedSource = {
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false,
       "shields": [],
-      "sustainedProtections": []
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0031_mifu_normalskill_2",
@@ -253,7 +261,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -363,7 +373,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -395,7 +407,13 @@ export const mifuGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [
+            [
+              "buff_chr_0031_mifu_buffpause"
+            ]
+          ],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -404,6 +422,7 @@ export const mifuGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -463,7 +482,10 @@ export const mifuGeneratedSource = {
         }
       ],
       "shields": [],
-      "sustainedProtections": []
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0031_mifu_normalskill_3",
@@ -561,7 +583,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -671,7 +695,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -703,7 +729,13 @@ export const mifuGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [
+            [
+              "buff_chr_0031_mifu_buffpause"
+            ]
+          ],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -712,6 +744,7 @@ export const mifuGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -771,7 +804,10 @@ export const mifuGeneratedSource = {
         }
       ],
       "shields": [],
-      "sustainedProtections": []
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0031_mifu_potential_addattack",
@@ -966,7 +1002,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -975,6 +1013,7 @@ export const mifuGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -983,7 +1022,10 @@ export const mifuGeneratedSource = {
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false,
       "shields": [],
-      "sustainedProtections": []
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0031_mifu_shield",
@@ -1095,7 +1137,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -1104,6 +1148,7 @@ export const mifuGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -1162,7 +1207,10 @@ export const mifuGeneratedSource = {
             "levelValues": null
           }
         }
-      ]
+      ],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0031_mifu_vulnerablephysic_comboskill",
@@ -1240,6 +1288,7 @@ export const mifuGeneratedSource = {
               }
             }
           ],
+          "tagConditions": [],
           "ownerControlled": false,
           "damageTagMatch": null,
           "damageTags": [],
@@ -1249,7 +1298,8 @@ export const mifuGeneratedSource = {
             "physical"
           ],
           "numberComparisons": [],
-          "healthComparisons": []
+          "healthComparisons": [],
+          "buffCountComparisons": []
         }
       ],
       "directDamageHits": [],
@@ -1290,7 +1340,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -1299,6 +1351,7 @@ export const mifuGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -1307,7 +1360,10 @@ export const mifuGeneratedSource = {
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false,
       "shields": [],
-      "sustainedProtections": []
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -1379,6 +1435,7 @@ export const mifuGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -1387,7 +1444,10 @@ export const mifuGeneratedSource = {
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false,
       "shields": [],
-      "sustainedProtections": []
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -1459,6 +1519,7 @@ export const mifuGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -1496,7 +1557,10 @@ export const mifuGeneratedSource = {
             "levelValues": null
           }
         }
-      ]
+      ],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -1592,7 +1656,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -1601,6 +1667,7 @@ export const mifuGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -1609,7 +1676,10 @@ export const mifuGeneratedSource = {
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false,
       "shields": [],
-      "sustainedProtections": []
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -1675,6 +1745,7 @@ export const mifuGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -1683,7 +1754,10 @@ export const mifuGeneratedSource = {
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false,
       "shields": [],
-      "sustainedProtections": []
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_vfx_char_atk_up",
@@ -1745,6 +1819,7 @@ export const mifuGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -1753,7 +1828,10 @@ export const mifuGeneratedSource = {
       "useTimeDilationDt": false,
       "onlyUseSelfTimeDilation": false,
       "shields": [],
-      "sustainedProtections": []
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     }
   ],
   "skills": [
@@ -2406,8 +2484,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -2423,6 +2503,7 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "globalCooldown": {
                 "targetSource": "Owner",
                 "targetGroupKey": "",
@@ -2430,6 +2511,7 @@ export const mifuGeneratedSource = {
               },
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -2495,8 +2577,10 @@ export const mifuGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -2582,6 +2666,9 @@ export const mifuGeneratedSource = {
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -2601,20 +2688,29 @@ export const mifuGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 29,
-              "blackboardCalculation": {
-                "key": "talent_shield_maxhp",
-                "operation": "Multiply",
-                "left": {
-                  "value": 0,
-                  "blackboardKey": "maxHealth",
-                  "levelValues": null
-                },
-                "right": {
+              "storeAttributeValue": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "attributeKind": "specific",
+                "attributeKey": "maxHealth",
+                "stage": "finalNonConverted",
+                "useFloor": false,
+                "divisor": {
                   "value": 1.0,
                   "blackboardKey": null,
                   "levelValues": null
                 },
-                "addend": null
+                "multiplier": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "base": {
+                  "value": 0.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "outputKey": "talent_shield_maxhp"
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -2761,6 +2857,10 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false,
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -2805,8 +2905,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -2894,6 +2996,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -2917,9 +3022,11 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "skillHasHit": {},
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -2979,6 +3086,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -3692,7 +3802,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 10,
@@ -3713,7 +3825,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 27,
@@ -3734,7 +3848,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 31,
@@ -3755,7 +3871,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 2,
@@ -3776,7 +3894,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 23,
@@ -3797,7 +3917,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -3823,7 +3945,10 @@ export const mifuGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -3869,8 +3994,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -3886,6 +4013,7 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "globalCooldown": {
                 "targetSource": "Owner",
                 "targetGroupKey": "",
@@ -3893,6 +4021,7 @@ export const mifuGeneratedSource = {
               },
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -3958,8 +4087,10 @@ export const mifuGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -4045,6 +4176,9 @@ export const mifuGeneratedSource = {
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -4064,20 +4198,29 @@ export const mifuGeneratedSource = {
                 "[1]"
               ],
               "serverActionIndex": 29,
-              "blackboardCalculation": {
-                "key": "talent_shield_maxhp",
-                "operation": "Multiply",
-                "left": {
-                  "value": 0,
-                  "blackboardKey": "maxHealth",
-                  "levelValues": null
-                },
-                "right": {
+              "storeAttributeValue": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "attributeKind": "specific",
+                "attributeKey": "maxHealth",
+                "stage": "finalNonConverted",
+                "useFloor": false,
+                "divisor": {
                   "value": 1.0,
                   "blackboardKey": null,
                   "levelValues": null
                 },
-                "addend": null
+                "multiplier": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "base": {
+                  "value": 0.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "outputKey": "talent_shield_maxhp"
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
@@ -4224,6 +4367,10 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false,
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -4268,8 +4415,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -4357,6 +4506,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -4380,9 +4532,11 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "skillHasHit": {},
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -4442,6 +4596,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -4469,8 +4626,10 @@ export const mifuGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -4496,6 +4655,9 @@ export const mifuGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -4541,7 +4703,8 @@ export const mifuGeneratedSource = {
                 "selectorDirection": "SourceForward",
                 "finderType": "OwnerSpawnedEntityFinder",
                 "validatorTypes": [],
-                "postProcessorTypes": []
+                "postProcessorTypes": [],
+                "finderSpawnedObjectType": "AbilityEntity"
               },
               "spawnedObjectType": "AbilityEntity",
               "tagQueries": []
@@ -4893,8 +5056,10 @@ export const mifuGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -4930,6 +5095,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -4961,8 +5129,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -4998,6 +5168,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -5029,8 +5202,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -5066,6 +5241,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -5097,8 +5275,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -5134,6 +5314,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -5392,7 +5575,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 10,
@@ -5413,7 +5598,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 11,
@@ -5434,7 +5621,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -5463,8 +5652,10 @@ export const mifuGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -5500,6 +5691,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -5531,8 +5725,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -5568,6 +5764,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -5599,8 +5798,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -5636,6 +5837,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -5667,8 +5871,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -5704,6 +5910,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -6245,7 +6454,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 16,
@@ -6266,7 +6477,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": 0.0333333351
+          "intervalSeconds": 0.0333333351,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [],
@@ -6918,8 +7131,10 @@ export const mifuGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -6955,6 +7170,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -6982,8 +7200,10 @@ export const mifuGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -7019,6 +7239,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -7050,8 +7273,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -7087,6 +7312,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -7118,8 +7346,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -7155,6 +7385,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -7186,8 +7419,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -7223,6 +7458,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -7254,8 +7492,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -7291,6 +7531,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -7322,8 +7565,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -7359,6 +7604,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -7390,8 +7638,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -7427,6 +7677,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -7458,8 +7711,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -7495,6 +7750,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -7526,8 +7784,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -7563,6 +7823,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -7594,8 +7857,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -7631,6 +7896,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -7662,8 +7930,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -7699,6 +7969,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -8152,7 +8425,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 11,
@@ -8173,7 +8448,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 12,
@@ -8194,7 +8471,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 16,
@@ -8215,7 +8494,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 17,
@@ -8236,7 +8517,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 18,
@@ -8257,7 +8540,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 19,
@@ -8278,7 +8563,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 30,
@@ -8299,7 +8586,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 31,
@@ -8320,7 +8609,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 32,
@@ -8341,7 +8632,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -8370,8 +8663,10 @@ export const mifuGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -8407,6 +8702,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -8434,8 +8732,10 @@ export const mifuGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -8471,6 +8771,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -8502,8 +8805,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -8539,6 +8844,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -8570,8 +8878,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -8607,6 +8917,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -8638,8 +8951,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -8675,6 +8990,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -8706,8 +9024,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -8743,6 +9063,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -8774,8 +9097,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -8811,6 +9136,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -8842,8 +9170,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -8879,6 +9209,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -8910,8 +9243,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -8947,6 +9282,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -8978,8 +9316,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -9015,6 +9355,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -9046,8 +9389,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -9083,6 +9428,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -9114,8 +9462,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -9151,6 +9501,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -9574,8 +9927,10 @@ export const mifuGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -9635,6 +9990,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -9880,7 +10238,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 30,
@@ -9901,7 +10261,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -9930,8 +10292,10 @@ export const mifuGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -9991,6 +10355,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -10188,8 +10555,10 @@ export const mifuGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -10249,6 +10618,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -10413,7 +10785,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -10442,8 +10816,10 @@ export const mifuGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -10503,6 +10879,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -10953,8 +11332,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -11065,6 +11446,9 @@ export const mifuGeneratedSource = {
               ]
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -11088,8 +11472,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -11200,6 +11586,9 @@ export const mifuGeneratedSource = {
               ]
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -11223,8 +11612,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -11388,6 +11779,9 @@ export const mifuGeneratedSource = {
               ]
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -11484,8 +11878,10 @@ export const mifuGeneratedSource = {
                   "levelValues": null
                 }
               },
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -11547,6 +11943,9 @@ export const mifuGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -11849,7 +12248,9 @@ export const mifuGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 6,
@@ -11872,7 +12273,9 @@ export const mifuGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 17,
@@ -11895,7 +12298,9 @@ export const mifuGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 37,
@@ -11918,7 +12323,9 @@ export const mifuGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 1,
@@ -11939,7 +12346,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -11964,8 +12373,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -12076,6 +12487,9 @@ export const mifuGeneratedSource = {
               ]
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -12099,8 +12513,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -12211,6 +12627,9 @@ export const mifuGeneratedSource = {
               ]
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -12234,8 +12653,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -12399,6 +12820,9 @@ export const mifuGeneratedSource = {
               ]
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -12495,8 +12919,10 @@ export const mifuGeneratedSource = {
                   "levelValues": null
                 }
               },
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -12558,6 +12984,9 @@ export const mifuGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -13648,7 +14077,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -13671,7 +14102,10 @@ export const mifuGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -13698,7 +14132,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -13725,7 +14161,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 4,
@@ -13746,7 +14184,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 7,
@@ -13776,7 +14216,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -13797,7 +14239,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -13821,7 +14265,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -13850,8 +14296,10 @@ export const mifuGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -13905,8 +14353,10 @@ export const mifuGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -13957,12 +14407,18 @@ export const mifuGeneratedSource = {
                     "buffIgnite": null
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         },
@@ -13996,8 +14452,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -14051,8 +14509,10 @@ export const mifuGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -14091,8 +14551,10 @@ export const mifuGeneratedSource = {
                       }
                     },
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -14125,6 +14587,10 @@ export const mifuGeneratedSource = {
                     "buffIgnite": null
                   }
                 ],
+                "conditionNegated": [
+                  false,
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -14133,6 +14599,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -14164,8 +14633,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -14192,6 +14663,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -14283,8 +14757,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -14338,8 +14814,10 @@ export const mifuGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -14378,8 +14856,10 @@ export const mifuGeneratedSource = {
                       }
                     },
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -14410,6 +14890,10 @@ export const mifuGeneratedSource = {
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false,
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -14418,6 +14902,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -14965,8 +15452,10 @@ export const mifuGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -15053,6 +15542,9 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -15087,8 +15579,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -15127,6 +15621,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -15158,8 +15655,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -15205,6 +15704,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -15758,7 +16260,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 10,
@@ -15779,7 +16283,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 24,
@@ -15800,7 +16306,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -15829,8 +16337,10 @@ export const mifuGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -15917,6 +16427,9 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -15951,8 +16464,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -15991,6 +16506,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -16022,8 +16540,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -16069,6 +16589,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -16602,8 +17125,10 @@ export const mifuGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -16690,6 +17215,9 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -16737,8 +17265,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -16754,8 +17284,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [
@@ -16794,8 +17326,10 @@ export const mifuGeneratedSource = {
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -16831,8 +17365,10 @@ export const mifuGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -16982,6 +17518,10 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false,
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -17014,8 +17554,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -17031,6 +17573,7 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "distance": {
                 "source": {
                   "targetSource": "Source",
@@ -17071,6 +17614,7 @@ export const mifuGeneratedSource = {
               },
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -17106,6 +17650,10 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false,
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -17133,8 +17681,10 @@ export const mifuGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -17187,8 +17737,10 @@ export const mifuGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -17256,6 +17808,9 @@ export const mifuGeneratedSource = {
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
+                ],
+                "conditionNegated": [
+                  false
                 ],
                 "alwaysNext": true
               },
@@ -17373,8 +17928,10 @@ export const mifuGeneratedSource = {
                         "levelValues": null
                       }
                     },
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -17472,6 +18029,9 @@ export const mifuGeneratedSource = {
                     "buffIgnite": null
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -17480,6 +18040,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -18071,7 +18634,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 25,
@@ -18092,7 +18657,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 26,
@@ -18113,7 +18680,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 21,
@@ -18137,7 +18706,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -18166,8 +18737,10 @@ export const mifuGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -18254,6 +18827,9 @@ export const mifuGeneratedSource = {
               "buffIgnite": null
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -18301,8 +18877,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -18318,8 +18896,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [
@@ -18358,8 +18938,10 @@ export const mifuGeneratedSource = {
                     },
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -18395,8 +18977,10 @@ export const mifuGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -18546,6 +19130,10 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false,
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -18578,8 +19166,10 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -18595,6 +19185,7 @@ export const mifuGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "distance": {
                 "source": {
                   "targetSource": "Source",
@@ -18635,6 +19226,7 @@ export const mifuGeneratedSource = {
               },
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -18687,6 +19279,10 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false,
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -18714,8 +19310,10 @@ export const mifuGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -18768,8 +19366,10 @@ export const mifuGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -18837,6 +19437,9 @@ export const mifuGeneratedSource = {
                     "skillCooldownAdjustment": null,
                     "buffIgnite": null
                   }
+                ],
+                "conditionNegated": [
+                  false
                 ],
                 "alwaysNext": true
               },
@@ -18954,8 +19557,10 @@ export const mifuGeneratedSource = {
                         "levelValues": null
                       }
                     },
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
+                    "objectTypeMatch": null,
                     "deckAttributeCompare": null,
                     "probability": null,
                     "anyConditionGroups": [],
@@ -19053,6 +19658,9 @@ export const mifuGeneratedSource = {
                     "buffIgnite": null
                   }
                 ],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -19061,6 +19669,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -20266,7 +20877,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 66,
@@ -20287,7 +20900,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 95,
@@ -20308,7 +20923,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 75,
@@ -20329,7 +20946,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 98,
@@ -20350,7 +20969,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 102,
@@ -20371,7 +20992,9 @@ export const mifuGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -20400,8 +21023,10 @@ export const mifuGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
+              "objectTypeMatch": null,
               "deckAttributeCompare": null,
               "probability": null,
               "anyConditionGroups": [],
@@ -20428,6 +21053,9 @@ export const mifuGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],

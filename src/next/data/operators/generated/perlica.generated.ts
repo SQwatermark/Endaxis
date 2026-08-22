@@ -63,6 +63,7 @@ export const perlicaGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -73,7 +74,8 @@ export const perlicaGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -145,6 +147,7 @@ export const perlicaGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -155,7 +158,8 @@ export const perlicaGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -227,6 +231,7 @@ export const perlicaGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -266,7 +271,8 @@ export const perlicaGeneratedSource = {
         }
       ],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -362,7 +368,9 @@ export const perlicaGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -371,6 +379,7 @@ export const perlicaGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -381,7 +390,8 @@ export const perlicaGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -447,6 +457,7 @@ export const perlicaGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -457,7 +468,8 @@ export const perlicaGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_pulse_pulse_conduct_triggered",
@@ -739,6 +751,7 @@ export const perlicaGeneratedSource = {
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
                         "objectTypeMatch": null,
@@ -782,6 +795,9 @@ export const perlicaGeneratedSource = {
                       }
                     ],
                     "failActions": [],
+                    "conditionNegated": [
+                      false
+                    ],
                     "alwaysNext": true
                   },
                   "legacyBuffFinish": null,
@@ -865,7 +881,9 @@ export const perlicaGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -874,6 +892,7 @@ export const perlicaGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -884,7 +903,877 @@ export const perlicaGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
+      "buffId": "buff_common_pulse_pulse_conduct_triggered_do",
+      "sourceFile": "buff_common_pulse_pulse_conduct_triggered_do.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 5.0,
+          "blackboardKey": "duration",
+          "levelValues": [
+            5.0
+          ]
+        },
+        "triggerInterval": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "StackingKey",
+        "stackingType": "Stack",
+        "stackingKey": "pulse_triggered",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "count",
+          "value": 1.0,
+          "isDynamic": false
+        },
+        {
+          "key": "duration",
+          "value": 5.0,
+          "isDynamic": true
+        },
+        {
+          "key": "extra_scaling",
+          "value": 1.0,
+          "isDynamic": true
+        },
+        {
+          "key": "final_spell_resistance_decrease",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "spell_resistance_decrease",
+          "value": 0.2,
+          "isDynamic": true
+        }
+      ],
+      "applyTagIds": [
+        1466867135
+      ],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [
+        {
+          "enabledSide": "Defender",
+          "targetSource": "",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [],
+          "processors": [
+            {
+              "side": "Defender",
+              "zone": "NormalCalcZone",
+              "addition": {
+                "value": 0.0,
+                "blackboardKey": "final_spell_resistance_decrease",
+                "levelValues": [
+                  0.0
+                ]
+              }
+            }
+          ],
+          "tagConditions": [],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "damageTypes": [
+            "heat"
+          ],
+          "numberComparisons": [],
+          "healthComparisons": [],
+          "buffCountComparisons": []
+        },
+        {
+          "enabledSide": "Defender",
+          "targetSource": "",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [],
+          "processors": [
+            {
+              "side": "Defender",
+              "zone": "NormalCalcZone",
+              "addition": {
+                "value": 0.0,
+                "blackboardKey": "final_spell_resistance_decrease",
+                "levelValues": [
+                  0.0
+                ]
+              }
+            }
+          ],
+          "tagConditions": [],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "damageTypes": [
+            "electric"
+          ],
+          "numberComparisons": [],
+          "healthComparisons": [],
+          "buffCountComparisons": []
+        },
+        {
+          "enabledSide": "Defender",
+          "targetSource": "",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [],
+          "processors": [
+            {
+              "side": "Defender",
+              "zone": "NormalCalcZone",
+              "addition": {
+                "value": 0.0,
+                "blackboardKey": "final_spell_resistance_decrease",
+                "levelValues": [
+                  0.0
+                ]
+              }
+            }
+          ],
+          "tagConditions": [],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "damageTypes": [
+            "cryo"
+          ],
+          "numberComparisons": [],
+          "healthComparisons": [],
+          "buffCountComparisons": []
+        },
+        {
+          "enabledSide": "Defender",
+          "targetSource": "",
+          "targetGroupKey": "",
+          "tagQueryType": "hasAny",
+          "tagIds": [],
+          "processors": [
+            {
+              "side": "Defender",
+              "zone": "NormalCalcZone",
+              "addition": {
+                "value": 0.0,
+                "blackboardKey": "final_spell_resistance_decrease",
+                "levelValues": [
+                  0.0
+                ]
+              }
+            }
+          ],
+          "tagConditions": [],
+          "ownerControlled": false,
+          "damageTagMatch": null,
+          "damageTags": [],
+          "damageFeatureMatch": null,
+          "damageFeatures": [],
+          "damageTypes": [
+            "nature"
+          ],
+          "numberComparisons": [],
+          "healthComparisons": [],
+          "buffCountComparisons": []
+        }
+      ],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "DuringBuffEnable",
+          "orderedActionTypes": [
+            "EffectAction",
+            "PlaySoundAction",
+            "EffectAction",
+            "CheckSuperArmor"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "EffectAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "PlaySoundAction",
+                "EffectAction",
+                "CheckSuperArmor"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        },
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "CreateBuffAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 8,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_common_pulse_triggered_start",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_common_pulse_triggered_start"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 8,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_pulse_triggered_start",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 8,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_pulse_triggered_start",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        },
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "ReadSkillSettingData",
+            "StoreAttributeValue",
+            "ModifyDynamicBlackboard",
+            "CreateBuffAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 12,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_common_pulse_triggered_fx",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_common_pulse_triggered_fx"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "ReadSkillSettingData",
+                "StoreAttributeValue",
+                "ModifyDynamicBlackboard",
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 12,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_pulse_triggered_fx",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "StoreAttributeValue",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 10,
+                  "storeAttributeValue": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "attributeKind": "specific",
+                    "attributeKey": "electricAbnormalDamageIncrease",
+                    "stage": "finalNonConverted",
+                    "useFloor": false,
+                    "divisor": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "multiplier": {
+                      "value": 1.0,
+                      "blackboardKey": "spell_resistance_decrease",
+                      "levelValues": [
+                        0.2
+                      ]
+                    },
+                    "base": {
+                      "value": 1.0,
+                      "blackboardKey": "spell_resistance_decrease",
+                      "levelValues": [
+                        0.2
+                      ]
+                    },
+                    "outputKey": "final_spell_resistance_decrease"
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "ModifyDynamicBlackboard",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 11,
+                  "blackboardMutation": {
+                    "key": "final_spell_resistance_decrease",
+                    "operation": "Multiply",
+                    "value": {
+                      "value": 0.0,
+                      "blackboardKey": "extra_scaling",
+                      "levelValues": [
+                        1.0
+                      ]
+                    }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 3,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[3]"
+                  ],
+                  "serverActionIndex": 12,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_pulse_triggered_fx",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        },
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "OnSpellAbnormalStartFinish"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "OnSpellAbnormalStartFinish"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        },
+        {
+          "eventSource": "buff",
+          "event": "OnBuffFinish",
+          "orderedActionTypes": [
+            "OnSpellAbnormalStartFinish"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "OnSpellAbnormalStartFinish"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
+      "buffId": "buff_common_pulse_triggered_fx",
+      "sourceFile": "buff_common_pulse_triggered_fx.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 5.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "EnemyHurtAnimAction",
+            "EffectAction",
+            "CameraImpulseAction",
+            "HitStopAction",
+            "PlaySoundAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "EnemyHurtAnimAction",
+                "EffectAction",
+                "CameraImpulseAction",
+                "HitStopAction",
+                "PlaySoundAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
+      "buffId": "buff_common_pulse_triggered_start",
+      "sourceFile": "buff_common_pulse_triggered_start.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 3.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "pulse_triggered",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "IgniteBuffTextAction"
+          ],
+          "combatActions": [],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "IgniteBuffTextAction"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     }
   ],
   "skills": [
@@ -1171,6 +2060,7 @@ export const perlicaGeneratedSource = {
                   },
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -1198,6 +2088,7 @@ export const perlicaGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -1260,6 +2151,10 @@ export const perlicaGeneratedSource = {
                 }
               ],
               "failActions": [],
+              "conditionNegated": [
+                false,
+                false
+              ],
               "alwaysNext": true
             }
           ],
@@ -1746,6 +2641,7 @@ export const perlicaGeneratedSource = {
                   },
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -1808,6 +2704,9 @@ export const perlicaGeneratedSource = {
                 }
               ],
               "failActions": [],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true
             }
           ],
@@ -1928,6 +2827,7 @@ export const perlicaGeneratedSource = {
                   },
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -1990,6 +2890,9 @@ export const perlicaGeneratedSource = {
                 }
               ],
               "failActions": [],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true
             }
           ],
@@ -2539,6 +3442,7 @@ export const perlicaGeneratedSource = {
                   },
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -2566,6 +3470,7 @@ export const perlicaGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -2628,6 +3533,10 @@ export const perlicaGeneratedSource = {
                 }
               ],
               "failActions": [],
+              "conditionNegated": [
+                false,
+                false
+              ],
               "alwaysNext": true
             }
           ],
@@ -2748,6 +3657,7 @@ export const perlicaGeneratedSource = {
                   },
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -2775,6 +3685,7 @@ export const perlicaGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -2837,6 +3748,10 @@ export const perlicaGeneratedSource = {
                 }
               ],
               "failActions": [],
+              "conditionNegated": [
+                false,
+                false
+              ],
               "alwaysNext": true
             }
           ],
@@ -2957,6 +3872,7 @@ export const perlicaGeneratedSource = {
                   },
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -2984,6 +3900,7 @@ export const perlicaGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -3046,6 +3963,10 @@ export const perlicaGeneratedSource = {
                 }
               ],
               "failActions": [],
+              "conditionNegated": [
+                false,
+                false
+              ],
               "alwaysNext": true
             }
           ],
@@ -3625,6 +4546,7 @@ export const perlicaGeneratedSource = {
                   },
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -3652,6 +4574,7 @@ export const perlicaGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -3714,6 +4637,10 @@ export const perlicaGeneratedSource = {
                 }
               ],
               "failActions": [],
+              "conditionNegated": [
+                false,
+                false
+              ],
               "alwaysNext": true
             }
           ],
@@ -5095,7 +6022,9 @@ export const perlicaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 1,
@@ -5116,7 +6045,9 @@ export const perlicaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 1,
@@ -5137,7 +6068,9 @@ export const perlicaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 1,
@@ -5158,7 +6091,9 @@ export const perlicaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 1,
@@ -5179,7 +6114,9 @@ export const perlicaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [],
@@ -5813,7 +6750,10 @@ export const perlicaGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -5834,7 +6774,9 @@ export const perlicaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 13,
@@ -5855,7 +6797,9 @@ export const perlicaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [],
@@ -6288,6 +7232,7 @@ export const perlicaGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -6306,6 +7251,7 @@ export const perlicaGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "entityTag": {
                     "targetSource": "Target",
                     "targetGroupKey": "",
@@ -6340,6 +7286,7 @@ export const perlicaGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -6614,6 +7561,7 @@ export const perlicaGeneratedSource = {
                               "poise": null,
                               "superArmor": null,
                               "twoDirectionAngle": null,
+                              "targetAngle": null,
                               "damageDecorateMask": null,
                               "contextBuffId": null,
                               "objectTypeMatch": null,
@@ -6632,6 +7580,7 @@ export const perlicaGeneratedSource = {
                               "poise": null,
                               "superArmor": null,
                               "twoDirectionAngle": null,
+                              "targetAngle": null,
                               "entityTag": {
                                 "targetSource": "Target",
                                 "targetGroupKey": "",
@@ -6666,6 +7615,7 @@ export const perlicaGeneratedSource = {
                               "poise": null,
                               "superArmor": null,
                               "twoDirectionAngle": null,
+                              "targetAngle": null,
                               "damageDecorateMask": null,
                               "contextBuffId": null,
                               "objectTypeMatch": null,
@@ -6757,6 +7707,11 @@ export const perlicaGeneratedSource = {
                             }
                           ],
                           "failActions": [],
+                          "conditionNegated": [
+                            false,
+                            false,
+                            false
+                          ],
                           "alwaysNext": true
                         }
                       ],
@@ -6900,6 +7855,11 @@ export const perlicaGeneratedSource = {
                 }
               ],
               "failActions": [],
+              "conditionNegated": [
+                false,
+                false,
+                false
+              ],
               "alwaysNext": true
             }
           ],
@@ -7392,7 +8352,10 @@ export const perlicaGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -7418,7 +8381,10 @@ export const perlicaGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -7452,6 +8418,7 @@ export const perlicaGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -7481,6 +8448,9 @@ export const perlicaGeneratedSource = {
               "buffIgnite": null
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -7508,6 +8478,7 @@ export const perlicaGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -7536,6 +8507,9 @@ export const perlicaGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -7581,7 +8555,8 @@ export const perlicaGeneratedSource = {
                 "selectorDirection": "SourceForward",
                 "finderType": "OwnerSpawnedEntityFinder",
                 "validatorTypes": [],
-                "postProcessorTypes": []
+                "postProcessorTypes": [],
+                "finderSpawnedObjectType": "AbilityEntity"
               },
               "spawnedObjectType": "AbilityEntity",
               "tagQueries": []
@@ -8087,7 +9062,8 @@ export const perlicaGeneratedSource = {
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         }
       ],
       "referencedBuffIds": [
@@ -8304,7 +9280,10 @@ export const perlicaGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -8325,7 +9304,9 @@ export const perlicaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 58,
@@ -8346,7 +9327,9 @@ export const perlicaGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [],

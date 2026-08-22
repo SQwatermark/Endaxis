@@ -116,7 +116,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -125,6 +127,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -135,7 +138,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_atkup_owner",
@@ -248,7 +252,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -257,6 +263,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -267,7 +274,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_buff_atkup",
@@ -504,7 +512,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -518,7 +528,9 @@ export const liinoGeneratedSource = {
           "targetGroupWrites": [],
           "sequences": [],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -527,6 +539,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -537,7 +550,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_end",
@@ -605,6 +619,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -615,7 +630,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_endtag_finish",
@@ -734,7 +750,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -743,6 +761,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -753,7 +772,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_animation_hitl",
@@ -849,6 +869,7 @@ export const liinoGeneratedSource = {
       ],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [
@@ -871,7 +892,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 24,
@@ -892,7 +915,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 32,
@@ -913,7 +938,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 25,
@@ -934,7 +961,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 33,
@@ -955,7 +984,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 28,
@@ -976,7 +1007,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 29,
@@ -997,7 +1030,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "runtimeSkillSlotReplacements": [],
@@ -1117,7 +1152,8 @@ export const liinoGeneratedSource = {
           "assignBlackboard": true,
           "entityBlackboardAssignments": []
         }
-      ]
+      ],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_animation_hitr",
@@ -1213,6 +1249,7 @@ export const liinoGeneratedSource = {
       ],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [
@@ -1235,7 +1272,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 24,
@@ -1256,7 +1295,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 32,
@@ -1277,7 +1318,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 25,
@@ -1298,7 +1341,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 33,
@@ -1319,7 +1364,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 28,
@@ -1340,7 +1387,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 29,
@@ -1361,7 +1410,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "runtimeSkillSlotReplacements": [],
@@ -1481,7 +1532,8 @@ export const liinoGeneratedSource = {
           "assignBlackboard": true,
           "entityBlackboardAssignments": []
         }
-      ]
+      ],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_animation_musicloop",
@@ -1574,7 +1626,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -1633,7 +1687,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -1642,6 +1698,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -1652,7 +1709,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_cd_uishow",
@@ -1732,7 +1790,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -1741,6 +1801,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -1791,7 +1852,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_cry_vfx",
@@ -1871,7 +1933,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -1880,6 +1944,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -1890,7 +1955,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_damage",
@@ -2090,6 +2156,7 @@ export const liinoGeneratedSource = {
                               "poise": null,
                               "superArmor": null,
                               "twoDirectionAngle": null,
+                              "targetAngle": null,
                               "damageDecorateMask": null,
                               "contextBuffId": null,
                               "objectTypeMatch": {
@@ -2131,28 +2198,33 @@ export const liinoGeneratedSource = {
                                 "[0]"
                               ],
                               "serverActionIndex": 2,
-                              "blackboardCalculation": {
-                                "key": "final_heal_value",
-                                "operation": "Multiply",
-                                "left": {
-                                  "value": 0,
-                                  "blackboardKey": "agility",
+                              "storeAttributeValue": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "attributeKind": "specific",
+                                "attributeKey": "agility",
+                                "stage": "finalNonConverted",
+                                "useFloor": false,
+                                "divisor": {
+                                  "value": 1.0,
+                                  "blackboardKey": null,
                                   "levelValues": null
                                 },
-                                "right": {
+                                "multiplier": {
                                   "value": 1.0,
                                   "blackboardKey": "heal_value",
                                   "levelValues": [
                                     0.0
                                   ]
                                 },
-                                "addend": {
+                                "base": {
                                   "value": 0.0,
                                   "blackboardKey": "heal_rate",
                                   "levelValues": [
                                     0.0
                                   ]
-                                }
+                                },
+                                "outputKey": "final_heal_value"
                               },
                               "legacyBuffFinish": null,
                               "skillCooldownAdjustment": null,
@@ -2250,6 +2322,9 @@ export const liinoGeneratedSource = {
                                 "inheritSourceSkillCastInfo": true
                               }
                             }
+                          ],
+                          "conditionNegated": [
+                            false
                           ],
                           "alwaysNext": true
                         }
@@ -2366,6 +2441,7 @@ export const liinoGeneratedSource = {
                               "poise": null,
                               "superArmor": null,
                               "twoDirectionAngle": null,
+                              "targetAngle": null,
                               "damageDecorateMask": null,
                               "contextBuffId": null,
                               "objectTypeMatch": {
@@ -2407,28 +2483,33 @@ export const liinoGeneratedSource = {
                                 "[0]"
                               ],
                               "serverActionIndex": 2,
-                              "blackboardCalculation": {
-                                "key": "final_heal_value",
-                                "operation": "Multiply",
-                                "left": {
-                                  "value": 0,
-                                  "blackboardKey": "agility",
+                              "storeAttributeValue": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "attributeKind": "specific",
+                                "attributeKey": "agility",
+                                "stage": "finalNonConverted",
+                                "useFloor": false,
+                                "divisor": {
+                                  "value": 1.0,
+                                  "blackboardKey": null,
                                   "levelValues": null
                                 },
-                                "right": {
+                                "multiplier": {
                                   "value": 1.0,
                                   "blackboardKey": "heal_value",
                                   "levelValues": [
                                     0.0
                                   ]
                                 },
-                                "addend": {
+                                "base": {
                                   "value": 0.0,
                                   "blackboardKey": "heal_rate",
                                   "levelValues": [
                                     0.0
                                   ]
-                                }
+                                },
+                                "outputKey": "final_heal_value"
                               },
                               "legacyBuffFinish": null,
                               "skillCooldownAdjustment": null,
@@ -2527,6 +2608,9 @@ export const liinoGeneratedSource = {
                               }
                             }
                           ],
+                          "conditionNegated": [
+                            false
+                          ],
                           "alwaysNext": true
                         }
                       ],
@@ -2550,7 +2634,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -2559,6 +2645,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -2569,7 +2656,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_smile_vfx",
@@ -2649,7 +2737,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -2658,6 +2748,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -2668,7 +2759,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_tag",
@@ -3020,6 +3112,7 @@ export const liinoGeneratedSource = {
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
                         "objectTypeMatch": null,
@@ -3049,6 +3142,7 @@ export const liinoGeneratedSource = {
                       }
                     ],
                     "failActions": [],
+                    "conditionNegated": [],
                     "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
@@ -3060,7 +3154,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -3177,7 +3273,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -3262,9 +3360,13 @@ export const liinoGeneratedSource = {
               "validatorTypes": [],
               "postProcessorTypes": [],
               "inputTargets": [],
-              "intervalSeconds": null
+              "intervalSeconds": null,
+              "pickIndexValue": null,
+              "pickIndexBlackboardKey": null
             }
-          ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -3583,6 +3685,7 @@ export const liinoGeneratedSource = {
           ]
         }
       ],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -3593,7 +3696,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_vfx",
@@ -3696,7 +3800,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -3813,7 +3919,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -3876,7 +3984,14 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [
+            [
+              "buff_chr_0035_liino_normalskill_music_animation_hitl",
+              "buff_chr_0035_liino_normalskill_music_animation_hitr"
+            ]
+          ],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -3995,7 +4110,14 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [
+            [
+              "buff_chr_0035_liino_normalskill_music_animation_hitl",
+              "buff_chr_0035_liino_normalskill_music_animation_hitr"
+            ]
+          ],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -4004,6 +4126,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -4014,7 +4137,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_vfx_airflow",
@@ -4094,7 +4218,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -4103,6 +4229,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -4113,7 +4240,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_spelllnfliction_check",
@@ -4299,6 +4427,7 @@ export const liinoGeneratedSource = {
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": {
                           "checkType": "Tag",
@@ -4388,6 +4517,7 @@ export const liinoGeneratedSource = {
                       }
                     ],
                     "failActions": [],
+                    "conditionNegated": [],
                     "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
@@ -4399,7 +4529,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -4408,6 +4540,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -4418,7 +4551,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_spelllnfliction_extraattack",
@@ -4645,6 +4779,7 @@ export const liinoGeneratedSource = {
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "distance": {
                           "source": {
                             "targetSource": "Source",
@@ -4730,6 +4865,7 @@ export const liinoGeneratedSource = {
                               "poise": null,
                               "superArmor": null,
                               "twoDirectionAngle": null,
+                              "targetAngle": null,
                               "timedMarker": {
                                 "targetSource": "Owner",
                                 "targetGroupKey": "",
@@ -4882,6 +5018,7 @@ export const liinoGeneratedSource = {
                                     "poise": null,
                                     "superArmor": null,
                                     "twoDirectionAngle": null,
+                                    "targetAngle": null,
                                     "damageDecorateMask": null,
                                     "contextBuffId": null,
                                     "objectTypeMatch": null,
@@ -5105,6 +5242,9 @@ export const liinoGeneratedSource = {
                                     }
                                   }
                                 ],
+                                "conditionNegated": [
+                                  false
+                                ],
                                 "alwaysNext": true
                               },
                               "legacyBuffFinish": null,
@@ -5113,6 +5253,7 @@ export const liinoGeneratedSource = {
                             }
                           ],
                           "failActions": [],
+                          "conditionNegated": [],
                           "alwaysNext": false
                         },
                         "legacyBuffFinish": null,
@@ -5121,6 +5262,7 @@ export const liinoGeneratedSource = {
                       }
                     ],
                     "failActions": [],
+                    "conditionNegated": [],
                     "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
@@ -5152,9 +5294,13 @@ export const liinoGeneratedSource = {
               "validatorTypes": [],
               "postProcessorTypes": [],
               "inputTargets": [],
-              "intervalSeconds": null
+              "intervalSeconds": null,
+              "pickIndexValue": null,
+              "pickIndexBlackboardKey": null
             }
-          ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -5163,6 +5309,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -5173,7 +5320,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_spelllnfliction_hit",
@@ -5241,6 +5389,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -5251,7 +5400,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_ui_vfx",
@@ -5372,7 +5522,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -5400,7 +5552,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -5494,6 +5648,7 @@ export const liinoGeneratedSource = {
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
                         "objectTypeMatch": null,
@@ -5579,6 +5734,7 @@ export const liinoGeneratedSource = {
                               "poise": null,
                               "superArmor": null,
                               "twoDirectionAngle": null,
+                              "targetAngle": null,
                               "damageDecorateMask": null,
                               "contextBuffId": null,
                               "objectTypeMatch": null,
@@ -5644,6 +5800,7 @@ export const liinoGeneratedSource = {
                                     "poise": null,
                                     "superArmor": null,
                                     "twoDirectionAngle": null,
+                                    "targetAngle": null,
                                     "damageDecorateMask": null,
                                     "contextBuffId": null,
                                     "objectTypeMatch": null,
@@ -5732,6 +5889,9 @@ export const liinoGeneratedSource = {
                                     "skillCooldownAdjustment": null,
                                     "buffIgnite": null
                                   }
+                                ],
+                                "conditionNegated": [
+                                  false
                                 ],
                                 "alwaysNext": true
                               },
@@ -5838,6 +5998,9 @@ export const liinoGeneratedSource = {
                             }
                           ],
                           "failActions": [],
+                          "conditionNegated": [
+                            false
+                          ],
                           "alwaysNext": true
                         },
                         "legacyBuffFinish": null,
@@ -5872,6 +6035,7 @@ export const liinoGeneratedSource = {
                       }
                     ],
                     "failActions": [],
+                    "conditionNegated": [],
                     "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
@@ -5883,7 +6047,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -5996,7 +6162,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -6024,7 +6192,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -6052,7 +6222,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -6061,6 +6233,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -6071,7 +6244,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_potential",
@@ -6242,7 +6416,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -6303,7 +6479,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -6312,6 +6490,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -6322,7 +6501,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_potential_enterfight",
@@ -6382,6 +6562,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -6392,7 +6573,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide",
@@ -6474,7 +6656,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -6502,7 +6686,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -6530,7 +6716,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -6647,7 +6835,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -6656,6 +6846,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -6666,7 +6857,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_attack",
@@ -6748,7 +6940,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -6776,7 +6970,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -6804,7 +7000,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -6921,7 +7119,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -6930,6 +7130,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -6940,7 +7141,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_audio",
@@ -7022,7 +7224,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -7050,7 +7254,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -7078,7 +7284,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -7195,7 +7403,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -7204,6 +7414,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -7214,7 +7425,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_audio_finish",
@@ -7294,7 +7506,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -7322,7 +7536,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -7331,6 +7547,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -7341,7 +7558,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_audio_fire",
@@ -7427,7 +7645,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -7436,6 +7656,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -7446,7 +7667,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_audio_ultskill",
@@ -7526,7 +7748,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -7535,6 +7759,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -7545,7 +7770,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_finish",
@@ -7625,7 +7851,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -7653,7 +7881,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -7662,6 +7892,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -7672,7 +7903,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_fire",
@@ -7754,7 +7986,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -7788,7 +8022,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -7797,6 +8033,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -7807,7 +8044,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_ultskill",
@@ -7887,7 +8125,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -8004,7 +8244,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -8013,6 +8255,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -8023,7 +8266,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_spellenhance",
@@ -8125,7 +8369,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -8134,6 +8380,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -8144,7 +8391,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_talent_shelter",
@@ -8245,6 +8493,7 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "tagConditions": [],
           "ownerControlled": false,
           "damageTagMatch": null,
           "damageTags": [],
@@ -8252,7 +8501,8 @@ export const liinoGeneratedSource = {
           "damageFeatures": [],
           "damageTypes": [],
           "numberComparisons": [],
-          "healthComparisons": []
+          "healthComparisons": [],
+          "buffCountComparisons": []
         }
       ],
       "directDamageHits": [],
@@ -8269,6 +8519,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -8279,7 +8530,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_talent_shelter_finishtime",
@@ -8380,6 +8632,7 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "tagConditions": [],
           "ownerControlled": false,
           "damageTagMatch": null,
           "damageTags": [],
@@ -8387,7 +8640,8 @@ export const liinoGeneratedSource = {
           "damageFeatures": [],
           "damageTypes": [],
           "numberComparisons": [],
-          "healthComparisons": []
+          "healthComparisons": [],
+          "buffCountComparisons": []
         }
       ],
       "directDamageHits": [],
@@ -8404,6 +8658,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -8414,7 +8669,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_talent_shelter_finishtime_normalskill",
@@ -8653,7 +8909,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -8662,6 +8920,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -8672,7 +8931,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_talent_shelter_finishtime_ultskill",
@@ -8911,7 +9171,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -8920,6 +9182,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -8930,7 +9193,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_talent_shelter_normalskill",
@@ -9167,7 +9431,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -9176,6 +9442,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -9186,7 +9453,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_talent_shelter_ultskill",
@@ -9423,7 +9691,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -9432,6 +9702,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -9442,7 +9713,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_buff_atkup",
@@ -9682,7 +9954,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -9696,7 +9970,9 @@ export const liinoGeneratedSource = {
           "targetGroupWrites": [],
           "sequences": [],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -9705,6 +9981,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -9715,7 +9992,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_music_damage",
@@ -9924,6 +10202,7 @@ export const liinoGeneratedSource = {
                               "poise": null,
                               "superArmor": null,
                               "twoDirectionAngle": null,
+                              "targetAngle": null,
                               "damageDecorateMask": null,
                               "contextBuffId": null,
                               "objectTypeMatch": {
@@ -9965,28 +10244,33 @@ export const liinoGeneratedSource = {
                                 "[0]"
                               ],
                               "serverActionIndex": 2,
-                              "blackboardCalculation": {
-                                "key": "final_heal_value",
-                                "operation": "Multiply",
-                                "left": {
-                                  "value": 0,
-                                  "blackboardKey": "agility",
+                              "storeAttributeValue": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "attributeKind": "specific",
+                                "attributeKey": "agility",
+                                "stage": "finalNonConverted",
+                                "useFloor": false,
+                                "divisor": {
+                                  "value": 1.0,
+                                  "blackboardKey": null,
                                   "levelValues": null
                                 },
-                                "right": {
+                                "multiplier": {
                                   "value": 1.0,
                                   "blackboardKey": "ultheal_value",
                                   "levelValues": [
                                     0.0
                                   ]
                                 },
-                                "addend": {
+                                "base": {
                                   "value": 0.0,
                                   "blackboardKey": "ultheal_rate",
                                   "levelValues": [
                                     0.0
                                   ]
-                                }
+                                },
+                                "outputKey": "final_heal_value"
                               },
                               "legacyBuffFinish": null,
                               "skillCooldownAdjustment": null,
@@ -10085,6 +10369,7 @@ export const liinoGeneratedSource = {
                                     "poise": null,
                                     "superArmor": null,
                                     "twoDirectionAngle": null,
+                                    "targetAngle": null,
                                     "damageDecorateMask": null,
                                     "contextBuffId": null,
                                     "objectTypeMatch": {
@@ -10209,12 +10494,18 @@ export const liinoGeneratedSource = {
                                   }
                                 ],
                                 "failActions": [],
+                                "conditionNegated": [
+                                  false
+                                ],
                                 "alwaysNext": true
                               },
                               "legacyBuffFinish": null,
                               "skillCooldownAdjustment": null,
                               "buffIgnite": null
                             }
+                          ],
+                          "conditionNegated": [
+                            false
                           ],
                           "alwaysNext": true
                         }
@@ -10340,6 +10631,7 @@ export const liinoGeneratedSource = {
                               "poise": null,
                               "superArmor": null,
                               "twoDirectionAngle": null,
+                              "targetAngle": null,
                               "damageDecorateMask": null,
                               "contextBuffId": null,
                               "objectTypeMatch": {
@@ -10381,28 +10673,33 @@ export const liinoGeneratedSource = {
                                 "[0]"
                               ],
                               "serverActionIndex": 2,
-                              "blackboardCalculation": {
-                                "key": "final_heal_value",
-                                "operation": "Multiply",
-                                "left": {
-                                  "value": 0,
-                                  "blackboardKey": "agility",
+                              "storeAttributeValue": {
+                                "targetSource": "Source",
+                                "targetGroupKey": "",
+                                "attributeKind": "specific",
+                                "attributeKey": "agility",
+                                "stage": "finalNonConverted",
+                                "useFloor": false,
+                                "divisor": {
+                                  "value": 1.0,
+                                  "blackboardKey": null,
                                   "levelValues": null
                                 },
-                                "right": {
+                                "multiplier": {
                                   "value": 1.0,
                                   "blackboardKey": "ultheal_value",
                                   "levelValues": [
                                     0.0
                                   ]
                                 },
-                                "addend": {
+                                "base": {
                                   "value": 0.0,
                                   "blackboardKey": "ultheal_rate",
                                   "levelValues": [
                                     0.0
                                   ]
-                                }
+                                },
+                                "outputKey": "final_heal_value"
                               },
                               "legacyBuffFinish": null,
                               "skillCooldownAdjustment": null,
@@ -10501,6 +10798,7 @@ export const liinoGeneratedSource = {
                                     "poise": null,
                                     "superArmor": null,
                                     "twoDirectionAngle": null,
+                                    "targetAngle": null,
                                     "damageDecorateMask": null,
                                     "contextBuffId": null,
                                     "objectTypeMatch": {
@@ -10625,12 +10923,18 @@ export const liinoGeneratedSource = {
                                   }
                                 ],
                                 "failActions": [],
+                                "conditionNegated": [
+                                  false
+                                ],
                                 "alwaysNext": true
                               },
                               "legacyBuffFinish": null,
                               "skillCooldownAdjustment": null,
                               "buffIgnite": null
                             }
+                          ],
+                          "conditionNegated": [
+                            false
                           ],
                           "alwaysNext": true
                         }
@@ -10679,7 +10983,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -10688,6 +10994,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -10698,7 +11005,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_music_heal",
@@ -10806,7 +11114,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -10851,28 +11161,33 @@ export const liinoGeneratedSource = {
                     "[1]"
                   ],
                   "serverActionIndex": 2,
-                  "blackboardCalculation": {
-                    "key": "final_heal_value",
-                    "operation": "Multiply",
-                    "left": {
-                      "value": 0,
-                      "blackboardKey": "agility",
+                  "storeAttributeValue": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "attributeKind": "specific",
+                    "attributeKey": "agility",
+                    "stage": "finalNonConverted",
+                    "useFloor": false,
+                    "divisor": {
+                      "value": 1.0,
+                      "blackboardKey": null,
                       "levelValues": null
                     },
-                    "right": {
+                    "multiplier": {
                       "value": 1.0,
                       "blackboardKey": "heal_value",
                       "levelValues": [
                         0.2
                       ]
                     },
-                    "addend": {
+                    "base": {
                       "value": 0.0,
                       "blackboardKey": "heal_rate",
                       "levelValues": [
                         500.0
                       ]
-                    }
+                    },
+                    "outputKey": "final_heal_value"
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -10937,7 +11252,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -10946,6 +11263,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -10956,7 +11274,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_music_heal_start",
@@ -11081,28 +11400,33 @@ export const liinoGeneratedSource = {
                     "[1]"
                   ],
                   "serverActionIndex": 1,
-                  "blackboardCalculation": {
-                    "key": "final_heal_value",
-                    "operation": "Multiply",
-                    "left": {
-                      "value": 0,
-                      "blackboardKey": "agility",
+                  "storeAttributeValue": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "attributeKind": "specific",
+                    "attributeKey": "agility",
+                    "stage": "finalNonConverted",
+                    "useFloor": false,
+                    "divisor": {
+                      "value": 1.0,
+                      "blackboardKey": null,
                       "levelValues": null
                     },
-                    "right": {
+                    "multiplier": {
                       "value": 1.0,
                       "blackboardKey": "heal_value",
                       "levelValues": [
                         0.2
                       ]
                     },
-                    "addend": {
+                    "base": {
                       "value": 0.0,
                       "blackboardKey": "heal_rate",
                       "levelValues": [
                         500.0
                       ]
-                    }
+                    },
+                    "outputKey": "final_heal_value"
                   },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
@@ -11167,7 +11491,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -11176,6 +11502,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -11186,7 +11513,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_music_tag",
@@ -11667,6 +11995,7 @@ export const liinoGeneratedSource = {
                         "poise": null,
                         "superArmor": null,
                         "twoDirectionAngle": null,
+                        "targetAngle": null,
                         "damageDecorateMask": null,
                         "contextBuffId": null,
                         "objectTypeMatch": null,
@@ -11696,6 +12025,7 @@ export const liinoGeneratedSource = {
                       }
                     ],
                     "failActions": [],
+                    "conditionNegated": [],
                     "alwaysNext": false
                   },
                   "legacyBuffFinish": null,
@@ -11707,7 +12037,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -12069,6 +12401,7 @@ export const liinoGeneratedSource = {
           ]
         }
       ],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -12079,7 +12412,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_music_vfx",
@@ -12179,7 +12513,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "buff",
@@ -12262,9 +12598,13 @@ export const liinoGeneratedSource = {
               "validatorTypes": [],
               "postProcessorTypes": [],
               "inputTargets": [],
-              "intervalSeconds": null
+              "intervalSeconds": null,
+              "pickIndexValue": null,
+              "pickIndexBlackboardKey": null
             }
-          ]
+          ],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -12273,6 +12613,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -12283,7 +12624,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_refrainobtainusp",
@@ -12371,7 +12713,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -12380,6 +12724,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -12390,7 +12735,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_weaponvisible",
@@ -12490,7 +12836,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -12549,7 +12897,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -12558,6 +12908,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -12568,7 +12919,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_weaponvisible_show",
@@ -12668,7 +13020,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         },
         {
           "eventSource": "ability",
@@ -12727,7 +13081,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -12736,6 +13092,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -12746,7 +13103,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -12818,6 +13176,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -12828,7 +13187,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -12924,7 +13284,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
+          "runtimeTargetGroupWrites": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
         }
       ],
       "igniteEventActions": [],
@@ -12933,6 +13295,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -12943,7 +13306,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -13009,6 +13373,7 @@ export const liinoGeneratedSource = {
       "combatActions": [],
       "unparsedPayloads": [],
       "auraActions": [],
+      "abilityEntityHits": [],
       "invokedAbilityEntitySkills": [],
       "auxiliaryActions": [],
       "targetGroupWrites": [],
@@ -13019,670 +13384,8 @@ export const liinoGeneratedSource = {
       "shields": [],
       "sustainedProtections": [],
       "animationEndBuffApplications": [],
-      "projectileLaunches": []
-    },
-    {
-      "buffId": "buff_physical_no_guard",
-      "sourceFile": "buff_physical_no_guard.json",
-      "sourceAvailable": true,
-      "lifecycle": {
-        "lifeType": "Limited",
-        "duration": {
-          "value": 20.0,
-          "blackboardKey": "duration",
-          "levelValues": [
-            20.0
-          ]
-        },
-        "triggerInterval": {
-          "value": -1.0,
-          "blackboardKey": null,
-          "levelValues": null
-        },
-        "waitFirstTriggerInterval": true,
-        "maxTriggerCount": {
-          "value": 0.0,
-          "blackboardKey": null,
-          "levelValues": null
-        },
-        "stackingIdentifierType": "Id",
-        "stackingType": "EnhanceAndRefresh",
-        "stackingKey": "common_debuff",
-        "priority": {
-          "value": 100.0,
-          "blackboardKey": null,
-          "levelValues": null
-        },
-        "negatePriority": false,
-        "maxStackCount": {
-          "value": 4.0,
-          "blackboardKey": null,
-          "levelValues": null
-        },
-        "hasStackEffects": false,
-        "stackEffectActionTypes": []
-      },
-      "blackboard": [
-        {
-          "key": "atk_scale",
-          "value": 0.0,
-          "isDynamic": true
-        },
-        {
-          "key": "count",
-          "value": 0.0,
-          "isDynamic": true
-        },
-        {
-          "key": "duration",
-          "value": 20.0,
-          "isDynamic": false
-        },
-        {
-          "key": "skip_handle_cryst_break",
-          "value": 0.0,
-          "isDynamic": false
-        }
-      ],
-      "applyTagIds": [
-        1075718177
-      ],
-      "extendTagIds": [],
-      "attributeModifiers": [],
-      "damageModifiers": [],
-      "directDamageHits": [],
-      "inflictions": [],
-      "conditionalActions": [],
-      "blackboardCalculations": [],
-      "blackboardMutations": [],
-      "buffBlackboardReads": [],
-      "buffFinishes": [],
-      "eventActions": [
-        {
-          "eventSource": "buff",
-          "event": "OnBuffStart",
-          "orderedActionTypes": [
-            "CompareFloat",
-            "CreateBuffAction"
-          ],
-          "combatActions": [
-            "CreateBuffAction"
-          ],
-          "damageUnits": [],
-          "buffApplications": [
-            {
-              "actionIndex": 1,
-              "payload": {
-                "buffs": [
-                  {
-                    "buffId": "buff_physical_handle_cryst_break",
-                    "classification": null,
-                    "blackboardAssignments": {}
-                  }
-                ],
-                "targetSource": "Owner",
-                "targetGroupKey": "",
-                "count": {
-                  "value": 1.0,
-                  "blackboardKey": null,
-                  "levelValues": null
-                },
-                "buffSource": "ActionSource",
-                "buffSourceContextKey": "",
-                "inheritSourceSkillCastInfo": true
-              }
-            }
-          ],
-          "createdBuffIds": [
-            "buff_physical_handle_cryst_break"
-          ],
-          "forEachActions": [],
-          "targetGroupWrites": [],
-          "sequences": [
-            {
-              "onlyMainOperator": false,
-              "onlyGuard": false,
-              "orderedActionTypes": [
-                "CompareFloat",
-                "CreateBuffAction"
-              ],
-              "combatActions": [
-                "CreateBuffAction"
-              ],
-              "buffApplications": [
-                {
-                  "actionIndex": 1,
-                  "payload": {
-                    "buffs": [
-                      {
-                        "buffId": "buff_physical_handle_cryst_break",
-                        "classification": null,
-                        "blackboardAssignments": {}
-                      }
-                    ],
-                    "targetSource": "Owner",
-                    "targetGroupKey": "",
-                    "count": {
-                      "value": 1.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "buffSource": "ActionSource",
-                    "buffSourceContextKey": "",
-                    "inheritSourceSkillCastInfo": true
-                  }
-                }
-              ],
-              "actions": [
-                {
-                  "actionType": "CompareFloat",
-                  "actionIndex": 0,
-                  "actionPath": [
-                    "timelineActions[0]",
-                    "_sequenceActionData",
-                    "actionData",
-                    "[0]",
-                    "succeedActions",
-                    "actionData",
-                    "[0]"
-                  ],
-                  "serverActionIndex": 0,
-                  "nestedCondition": {
-                    "startFrame": 0,
-                    "endFrame": 0,
-                    "actionIndex": 0,
-                    "actionPath": [
-                      "timelineActions[0]",
-                      "_sequenceActionData",
-                      "actionData",
-                      "[0]",
-                      "succeedActions",
-                      "actionData",
-                      "[0]"
-                    ],
-                    "conditions": [
-                      {
-                        "sourceType": "CompareFloat",
-                        "supported": true,
-                        "comparison": "Equals",
-                        "left": {
-                          "value": 0.0,
-                          "blackboardKey": "skip_handle_cryst_break",
-                          "levelValues": [
-                            0.0
-                          ]
-                        },
-                        "right": {
-                          "value": 0.0,
-                          "blackboardKey": null,
-                          "levelValues": null
-                        },
-                        "skillTypes": [],
-                        "poise": null,
-                        "superArmor": null,
-                        "twoDirectionAngle": null,
-                        "damageDecorateMask": null,
-                        "contextBuffId": null,
-                        "objectTypeMatch": null,
-                        "deckAttributeCompare": null,
-                        "probability": null,
-                        "anyConditionGroups": [],
-                        "anyConditionNegated": []
-                      }
-                    ],
-                    "succeedActions": [
-                      {
-                        "actionType": "CreateBuffAction",
-                        "actionIndex": 1,
-                        "actionPath": [
-                          "timelineActions[0]",
-                          "_sequenceActionData",
-                          "actionData",
-                          "[0]",
-                          "succeedActions",
-                          "actionData",
-                          "[1]"
-                        ],
-                        "serverActionIndex": 1,
-                        "legacyBuffFinish": null,
-                        "skillCooldownAdjustment": null,
-                        "buffIgnite": null,
-                        "buffApplication": {
-                          "buffs": [
-                            {
-                              "buffId": "buff_physical_handle_cryst_break",
-                              "classification": null,
-                              "blackboardAssignments": {}
-                            }
-                          ],
-                          "targetSource": "Owner",
-                          "targetGroupKey": "",
-                          "count": {
-                            "value": 1.0,
-                            "blackboardKey": null,
-                            "levelValues": null
-                          },
-                          "buffSource": "ActionSource",
-                          "buffSourceContextKey": "",
-                          "inheritSourceSkillCastInfo": true
-                        }
-                      }
-                    ],
-                    "failActions": [],
-                    "alwaysNext": false
-                  },
-                  "legacyBuffFinish": null,
-                  "skillCooldownAdjustment": null,
-                  "buffIgnite": null
-                }
-              ],
-              "priority": 0
-            }
-          ],
-          "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
-        },
-        {
-          "eventSource": "buff",
-          "event": "OnBuffFinish",
-          "orderedActionTypes": [
-            "CreateBuffAction"
-          ],
-          "combatActions": [
-            "CreateBuffAction"
-          ],
-          "damageUnits": [],
-          "buffApplications": [
-            {
-              "actionIndex": 2,
-              "payload": {
-                "buffs": [
-                  {
-                    "buffId": "buff_physical_no_guard_fake",
-                    "classification": null,
-                    "blackboardAssignments": {}
-                  }
-                ],
-                "targetSource": "Owner",
-                "targetGroupKey": "",
-                "count": {
-                  "value": 1.0,
-                  "blackboardKey": null,
-                  "levelValues": null
-                },
-                "buffSource": "ActionSource",
-                "buffSourceContextKey": "",
-                "inheritSourceSkillCastInfo": true
-              }
-            }
-          ],
-          "createdBuffIds": [
-            "buff_physical_no_guard_fake"
-          ],
-          "forEachActions": [],
-          "targetGroupWrites": [],
-          "sequences": [
-            {
-              "onlyMainOperator": false,
-              "onlyGuard": false,
-              "orderedActionTypes": [
-                "CreateBuffAction"
-              ],
-              "combatActions": [
-                "CreateBuffAction"
-              ],
-              "buffApplications": [
-                {
-                  "actionIndex": 2,
-                  "payload": {
-                    "buffs": [
-                      {
-                        "buffId": "buff_physical_no_guard_fake",
-                        "classification": null,
-                        "blackboardAssignments": {}
-                      }
-                    ],
-                    "targetSource": "Owner",
-                    "targetGroupKey": "",
-                    "count": {
-                      "value": 1.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "buffSource": "ActionSource",
-                    "buffSourceContextKey": "",
-                    "inheritSourceSkillCastInfo": true
-                  }
-                }
-              ],
-              "actions": [
-                {
-                  "actionType": "CreateBuffAction",
-                  "actionIndex": 0,
-                  "actionPath": [
-                    "timelineActions[0]",
-                    "_sequenceActionData",
-                    "actionData",
-                    "[0]",
-                    "succeedActions",
-                    "actionData",
-                    "[0]"
-                  ],
-                  "serverActionIndex": 2,
-                  "legacyBuffFinish": null,
-                  "skillCooldownAdjustment": null,
-                  "buffIgnite": null,
-                  "buffApplication": {
-                    "buffs": [
-                      {
-                        "buffId": "buff_physical_no_guard_fake",
-                        "classification": null,
-                        "blackboardAssignments": {}
-                      }
-                    ],
-                    "targetSource": "Owner",
-                    "targetGroupKey": "",
-                    "count": {
-                      "value": 1.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "buffSource": "ActionSource",
-                    "buffSourceContextKey": "",
-                    "inheritSourceSkillCastInfo": true
-                  }
-                }
-              ],
-              "priority": 0
-            }
-          ],
-          "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
-        },
-        {
-          "eventSource": "buff",
-          "event": "OnBuffAfterTryEnhanced",
-          "orderedActionTypes": [
-            "OnPhysicalNoGuardStart",
-            "IgniteAction",
-            "CheckBuffStackNumAdvanced",
-            "CompareFloat",
-            "CreateBuffAction"
-          ],
-          "combatActions": [
-            "CreateBuffAction",
-            "IgniteAction"
-          ],
-          "damageUnits": [],
-          "buffApplications": [
-            {
-              "actionIndex": 7,
-              "payload": {
-                "buffs": [
-                  {
-                    "buffId": "buff_physical_handle_cryst_break",
-                    "classification": null,
-                    "blackboardAssignments": {}
-                  }
-                ],
-                "targetSource": "Owner",
-                "targetGroupKey": "",
-                "count": {
-                  "value": 1.0,
-                  "blackboardKey": null,
-                  "levelValues": null
-                },
-                "buffSource": "ActionSource",
-                "buffSourceContextKey": "",
-                "inheritSourceSkillCastInfo": true
-              }
-            }
-          ],
-          "createdBuffIds": [
-            "buff_physical_handle_cryst_break"
-          ],
-          "forEachActions": [],
-          "targetGroupWrites": [],
-          "sequences": [
-            {
-              "onlyMainOperator": false,
-              "onlyGuard": false,
-              "orderedActionTypes": [
-                "OnPhysicalNoGuardStart"
-              ],
-              "combatActions": [],
-              "buffApplications": [],
-              "actions": [],
-              "priority": 0
-            },
-            {
-              "onlyMainOperator": false,
-              "onlyGuard": false,
-              "orderedActionTypes": [
-                "IgniteAction"
-              ],
-              "combatActions": [
-                "IgniteAction"
-              ],
-              "buffApplications": [],
-              "actions": [
-                {
-                  "actionType": "IgniteAction",
-                  "actionIndex": 0,
-                  "actionPath": [
-                    "timelineActions[0]",
-                    "_sequenceActionData",
-                    "actionData",
-                    "[0]",
-                    "succeedActions",
-                    "actionData",
-                    "[0]"
-                  ],
-                  "serverActionIndex": 4,
-                  "legacyBuffFinish": null,
-                  "skillCooldownAdjustment": null,
-                  "buffIgnite": {
-                    "source": {
-                      "targetSource": "Target",
-                      "targetGroupKey": "",
-                      "selectorOwner": "ActionOwner",
-                      "ownerContextKey": "",
-                      "centerType": "ActionSource",
-                      "centerContextKey": "",
-                      "centerToGround": false,
-                      "target": "ActionSource",
-                      "targetContextKey": "",
-                      "enableAdvancedDirection": false,
-                      "selectorDirection": "SourceForward",
-                      "finderType": null,
-                      "validatorTypes": [],
-                      "postProcessorTypes": []
-                    },
-                    "target": {
-                      "targetSource": "Owner",
-                      "targetGroupKey": "",
-                      "selectorOwner": "ActionOwner",
-                      "ownerContextKey": "",
-                      "centerType": "ActionSource",
-                      "centerContextKey": "",
-                      "centerToGround": false,
-                      "target": "ActionSource",
-                      "targetContextKey": "",
-                      "enableAdvancedDirection": false,
-                      "selectorDirection": "SourceForward",
-                      "finderType": null,
-                      "validatorTypes": [],
-                      "postProcessorTypes": []
-                    },
-                    "igniteType": "NoGuard",
-                    "successTargetContextKey": ""
-                  }
-                }
-              ],
-              "priority": 0
-            },
-            {
-              "onlyMainOperator": false,
-              "onlyGuard": false,
-              "orderedActionTypes": [
-                "CheckBuffStackNumAdvanced",
-                "CompareFloat",
-                "CreateBuffAction"
-              ],
-              "combatActions": [
-                "CreateBuffAction"
-              ],
-              "buffApplications": [
-                {
-                  "actionIndex": 7,
-                  "payload": {
-                    "buffs": [
-                      {
-                        "buffId": "buff_physical_handle_cryst_break",
-                        "classification": null,
-                        "blackboardAssignments": {}
-                      }
-                    ],
-                    "targetSource": "Owner",
-                    "targetGroupKey": "",
-                    "count": {
-                      "value": 1.0,
-                      "blackboardKey": null,
-                      "levelValues": null
-                    },
-                    "buffSource": "ActionSource",
-                    "buffSourceContextKey": "",
-                    "inheritSourceSkillCastInfo": true
-                  }
-                }
-              ],
-              "actions": [
-                {
-                  "actionType": "CompareFloat",
-                  "actionIndex": 1,
-                  "actionPath": [
-                    "timelineActions[0]",
-                    "_sequenceActionData",
-                    "actionData",
-                    "[0]",
-                    "succeedActions",
-                    "actionData",
-                    "[1]"
-                  ],
-                  "serverActionIndex": 6,
-                  "nestedCondition": {
-                    "startFrame": 0,
-                    "endFrame": 0,
-                    "actionIndex": 6,
-                    "actionPath": [
-                      "timelineActions[0]",
-                      "_sequenceActionData",
-                      "actionData",
-                      "[0]",
-                      "succeedActions",
-                      "actionData",
-                      "[1]"
-                    ],
-                    "conditions": [
-                      {
-                        "sourceType": "CompareFloat",
-                        "supported": true,
-                        "comparison": "Equals",
-                        "left": {
-                          "value": 0.0,
-                          "blackboardKey": "skip_handle_cryst_break",
-                          "levelValues": [
-                            0.0
-                          ]
-                        },
-                        "right": {
-                          "value": 0.0,
-                          "blackboardKey": null,
-                          "levelValues": null
-                        },
-                        "skillTypes": [],
-                        "poise": null,
-                        "superArmor": null,
-                        "twoDirectionAngle": null,
-                        "damageDecorateMask": null,
-                        "contextBuffId": null,
-                        "objectTypeMatch": null,
-                        "deckAttributeCompare": null,
-                        "probability": null,
-                        "anyConditionGroups": [],
-                        "anyConditionNegated": []
-                      }
-                    ],
-                    "succeedActions": [
-                      {
-                        "actionType": "CreateBuffAction",
-                        "actionIndex": 2,
-                        "actionPath": [
-                          "timelineActions[0]",
-                          "_sequenceActionData",
-                          "actionData",
-                          "[0]",
-                          "succeedActions",
-                          "actionData",
-                          "[2]"
-                        ],
-                        "serverActionIndex": 7,
-                        "legacyBuffFinish": null,
-                        "skillCooldownAdjustment": null,
-                        "buffIgnite": null,
-                        "buffApplication": {
-                          "buffs": [
-                            {
-                              "buffId": "buff_physical_handle_cryst_break",
-                              "classification": null,
-                              "blackboardAssignments": {}
-                            }
-                          ],
-                          "targetSource": "Owner",
-                          "targetGroupKey": "",
-                          "count": {
-                            "value": 1.0,
-                            "blackboardKey": null,
-                            "levelValues": null
-                          },
-                          "buffSource": "ActionSource",
-                          "buffSourceContextKey": "",
-                          "inheritSourceSkillCastInfo": true
-                        }
-                      }
-                    ],
-                    "failActions": [],
-                    "alwaysNext": false
-                  },
-                  "legacyBuffFinish": null,
-                  "skillCooldownAdjustment": null,
-                  "buffIgnite": null
-                }
-              ],
-              "priority": 0
-            }
-          ],
-          "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": []
-        }
-      ],
-      "igniteEventActions": [],
-      "sourceDeathFinish": null,
-      "resourceGains": [],
-      "combatActions": [],
-      "unparsedPayloads": [],
-      "auraActions": [],
-      "invokedAbilityEntitySkills": [],
-      "auxiliaryActions": [],
-      "targetGroupWrites": [],
-      "runtimeSkillSlotReplacements": [],
-      "attributeModifiersConverted": false,
-      "useTimeDilationDt": false,
-      "onlyUseSelfTimeDilation": false,
-      "shields": [],
-      "sustainedProtections": [],
-      "animationEndBuffApplications": [],
-      "projectileLaunches": []
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
     }
   ],
   "skills": [
@@ -14250,6 +13953,7 @@ export const liinoGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [],
           "alwaysNext": false
         },
         {
@@ -14291,6 +13995,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -14339,6 +14044,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -14380,6 +14088,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -14427,6 +14136,9 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -15061,7 +14773,10 @@ export const liinoGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -15082,7 +14797,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 9,
@@ -15103,7 +14820,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 33,
@@ -15124,7 +14843,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -15150,7 +14871,10 @@ export const liinoGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -15217,6 +14941,7 @@ export const liinoGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [],
           "alwaysNext": false
         },
         {
@@ -15244,6 +14969,7 @@ export const liinoGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -15272,6 +14998,9 @@ export const liinoGeneratedSource = {
               "skillCooldownAdjustment": null,
               "buffIgnite": null
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         },
@@ -15314,6 +15043,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -15362,6 +15092,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -15403,6 +15136,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -15451,6 +15185,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -15497,7 +15234,8 @@ export const liinoGeneratedSource = {
                 "selectorDirection": "SourceForward",
                 "finderType": "OwnerSpawnedEntityFinder",
                 "validatorTypes": [],
-                "postProcessorTypes": []
+                "postProcessorTypes": [],
+                "finderSpawnedObjectType": "AbilityEntity"
               },
               "spawnedObjectType": "AbilityEntity",
               "tagQueries": []
@@ -15541,7 +15279,8 @@ export const liinoGeneratedSource = {
                 "selectorDirection": "SourceForward",
                 "finderType": "OwnerSpawnedEntityFinder",
                 "validatorTypes": [],
-                "postProcessorTypes": []
+                "postProcessorTypes": [],
+                "finderSpawnedObjectType": "AbilityEntity"
               },
               "spawnedObjectType": "AbilityEntity",
               "tagQueries": []
@@ -15973,7 +15712,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": 0.0333333351
+          "intervalSeconds": 0.0333333351,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 7,
@@ -15994,7 +15735,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [],
@@ -16557,7 +16300,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": 0.0333333351
+          "intervalSeconds": 0.0333333351,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [],
@@ -17009,6 +16754,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -17057,6 +16803,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -17098,6 +16847,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -17146,6 +16896,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -17187,6 +16940,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -17235,6 +16989,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -17276,6 +17033,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -17323,6 +17081,9 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -18063,7 +17824,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": 0.0333333351
+          "intervalSeconds": 0.0333333351,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 13,
@@ -18084,7 +17847,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": 0.0333333351
+          "intervalSeconds": 0.0333333351,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 14,
@@ -18105,7 +17870,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": 0.0333333351
+          "intervalSeconds": 0.0333333351,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 15,
@@ -18126,7 +17893,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": 0.0333333351
+          "intervalSeconds": 0.0333333351,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 16,
@@ -18147,7 +17916,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": 0.0333333351
+          "intervalSeconds": 0.0333333351,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 17,
@@ -18168,7 +17939,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": 0.0333333351
+          "intervalSeconds": 0.0333333351,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 18,
@@ -18189,7 +17962,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": 0.0333333351
+          "intervalSeconds": 0.0333333351,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 19,
@@ -18210,7 +17985,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": 0.0333333351
+          "intervalSeconds": 0.0333333351,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -18253,6 +18030,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -18301,6 +18079,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -18342,6 +18123,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -18390,6 +18172,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -18431,6 +18216,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -18479,6 +18265,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -18520,6 +18309,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -18567,6 +18357,9 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -18937,6 +18730,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -18985,6 +18779,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -19026,6 +18823,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -19074,6 +18872,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -19115,6 +18916,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -19163,6 +18965,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -19204,6 +19009,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -19251,6 +19057,9 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -20540,6 +20349,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -20588,6 +20398,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -20629,6 +20442,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -20677,6 +20491,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -20718,6 +20535,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -20766,6 +20584,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -20807,6 +20628,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -20854,6 +20676,9 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -21208,6 +21033,7 @@ export const liinoGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -21264,6 +21090,7 @@ export const liinoGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -21329,6 +21156,9 @@ export const liinoGeneratedSource = {
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -21337,6 +21167,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -21378,6 +21211,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -21426,6 +21260,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -21467,6 +21304,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -21515,6 +21353,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -21556,6 +21397,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -21604,6 +21446,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -21645,6 +21490,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -21692,6 +21538,9 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -21892,7 +21741,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": 0.0333333351
+          "intervalSeconds": 0.0333333351,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -21921,6 +21772,7 @@ export const liinoGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -21977,6 +21829,7 @@ export const liinoGeneratedSource = {
                     "poise": null,
                     "superArmor": null,
                     "twoDirectionAngle": null,
+                    "targetAngle": null,
                     "damageDecorateMask": null,
                     "contextBuffId": null,
                     "objectTypeMatch": null,
@@ -22042,6 +21895,9 @@ export const liinoGeneratedSource = {
                   }
                 ],
                 "failActions": [],
+                "conditionNegated": [
+                  false
+                ],
                 "alwaysNext": true
               },
               "legacyBuffFinish": null,
@@ -22050,6 +21906,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -22091,6 +21950,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -22139,6 +21999,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -22180,6 +22043,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -22228,6 +22092,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -22269,6 +22136,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -22317,6 +22185,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -22358,6 +22229,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -22405,6 +22277,9 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -22912,6 +22787,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -22960,6 +22836,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -23001,6 +22880,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -23049,6 +22929,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -23090,6 +22973,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -23137,6 +23021,9 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -23404,6 +23291,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -23452,6 +23340,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -23493,6 +23384,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -23541,6 +23433,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -23582,6 +23477,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -23629,6 +23525,9 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -23944,6 +23843,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -23992,6 +23892,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -24033,6 +23936,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -24080,6 +23984,9 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -24405,7 +24312,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": 0.0333333351
+          "intervalSeconds": 0.0333333351,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -24448,6 +24357,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -24496,6 +24406,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -24537,6 +24450,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -24584,6 +24498,9 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -25158,6 +25075,7 @@ export const liinoGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [],
           "alwaysNext": false
         },
         {
@@ -25239,6 +25157,7 @@ export const liinoGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [],
           "alwaysNext": false
         },
         {
@@ -25280,6 +25199,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -25328,6 +25248,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -25369,6 +25292,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -25417,6 +25341,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -25458,6 +25385,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -25506,6 +25434,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -25547,6 +25478,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -25641,6 +25573,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -26315,6 +26250,7 @@ export const liinoGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -26727,6 +26663,9 @@ export const liinoGeneratedSource = {
                     }
                   ]
                 }
+              ],
+              "conditionNegated": [
+                false
               ],
               "alwaysNext": true
             }
@@ -26786,6 +26725,7 @@ export const liinoGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -27198,6 +27138,9 @@ export const liinoGeneratedSource = {
                     }
                   ]
                 }
+              ],
+              "conditionNegated": [
+                false
               ],
               "alwaysNext": true
             }
@@ -27257,6 +27200,7 @@ export const liinoGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -27669,6 +27613,9 @@ export const liinoGeneratedSource = {
                     }
                   ]
                 }
+              ],
+              "conditionNegated": [
+                false
               ],
               "alwaysNext": true
             }
@@ -27728,6 +27675,7 @@ export const liinoGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -28140,6 +28088,9 @@ export const liinoGeneratedSource = {
                     }
                   ]
                 }
+              ],
+              "conditionNegated": [
+                false
               ],
               "alwaysNext": true
             }
@@ -28199,6 +28150,7 @@ export const liinoGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -28611,6 +28563,9 @@ export const liinoGeneratedSource = {
                     }
                   ]
                 }
+              ],
+              "conditionNegated": [
+                false
               ],
               "alwaysNext": true
             }
@@ -28670,6 +28625,7 @@ export const liinoGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -29082,6 +29038,9 @@ export const liinoGeneratedSource = {
                     }
                   ]
                 }
+              ],
+              "conditionNegated": [
+                false
               ],
               "alwaysNext": true
             }
@@ -29936,6 +29895,7 @@ export const liinoGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [],
           "alwaysNext": false
         },
         {
@@ -30017,6 +29977,7 @@ export const liinoGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [],
           "alwaysNext": false
         },
         {
@@ -30058,6 +30019,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -30106,6 +30068,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -30147,6 +30112,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -30195,6 +30161,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -30236,6 +30205,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -30284,6 +30254,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -30325,6 +30298,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -30419,6 +30393,9 @@ export const liinoGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         }
       ],
@@ -31880,6 +31857,7 @@ export const liinoGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [],
           "alwaysNext": false
         },
         {
@@ -31961,6 +31939,7 @@ export const liinoGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [],
           "alwaysNext": false
         },
         {
@@ -32002,6 +31981,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -32050,6 +32030,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -32091,6 +32074,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -32139,6 +32123,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -32180,6 +32167,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -32227,6 +32215,9 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -33139,6 +33130,7 @@ export const liinoGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [],
           "alwaysNext": false
         },
         {
@@ -33220,6 +33212,7 @@ export const liinoGeneratedSource = {
             }
           ],
           "failActions": [],
+          "conditionNegated": [],
           "alwaysNext": false
         },
         {
@@ -33261,6 +33254,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -33309,6 +33303,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -33350,6 +33347,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -33398,6 +33396,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -33439,6 +33440,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -33486,6 +33488,9 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -34833,6 +34838,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -35195,6 +35201,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -35218,6 +35227,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "entityTag": {
                 "targetSource": "Owner",
                 "targetGroupKey": "",
@@ -35310,6 +35320,9 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
@@ -36122,6 +36135,7 @@ export const liinoGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -36687,6 +36701,9 @@ export const liinoGeneratedSource = {
                   ]
                 }
               ],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true
             },
             {
@@ -36719,6 +36736,7 @@ export const liinoGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -37284,6 +37302,9 @@ export const liinoGeneratedSource = {
                   ]
                 }
               ],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true
             },
             {
@@ -37316,6 +37337,7 @@ export const liinoGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -37881,6 +37903,9 @@ export const liinoGeneratedSource = {
                   ]
                 }
               ],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true
             },
             {
@@ -37913,6 +37938,7 @@ export const liinoGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -38478,6 +38504,9 @@ export const liinoGeneratedSource = {
                   ]
                 }
               ],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true
             },
             {
@@ -38510,6 +38539,7 @@ export const liinoGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -39075,6 +39105,9 @@ export const liinoGeneratedSource = {
                   ]
                 }
               ],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true
             },
             {
@@ -39107,6 +39140,7 @@ export const liinoGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -39672,6 +39706,9 @@ export const liinoGeneratedSource = {
                   ]
                 }
               ],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true
             },
             {
@@ -39704,6 +39741,7 @@ export const liinoGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -40269,6 +40307,9 @@ export const liinoGeneratedSource = {
                   ]
                 }
               ],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true
             },
             {
@@ -40301,6 +40342,7 @@ export const liinoGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -40714,6 +40756,9 @@ export const liinoGeneratedSource = {
                   ]
                 }
               ],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true
             },
             {
@@ -40746,6 +40791,7 @@ export const liinoGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -41311,6 +41357,9 @@ export const liinoGeneratedSource = {
                   ]
                 }
               ],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true
             },
             {
@@ -41343,6 +41392,7 @@ export const liinoGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -41908,6 +41958,9 @@ export const liinoGeneratedSource = {
                   ]
                 }
               ],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true
             },
             {
@@ -41940,6 +41993,7 @@ export const liinoGeneratedSource = {
                   "poise": null,
                   "superArmor": null,
                   "twoDirectionAngle": null,
+                  "targetAngle": null,
                   "damageDecorateMask": null,
                   "contextBuffId": null,
                   "objectTypeMatch": null,
@@ -42505,6 +42559,9 @@ export const liinoGeneratedSource = {
                   ]
                 }
               ],
+              "conditionNegated": [
+                false
+              ],
               "alwaysNext": true
             }
           ],
@@ -42540,7 +42597,8 @@ export const liinoGeneratedSource = {
           "blackboardMutations": [],
           "buffBlackboardReads": [],
           "buffFinishes": [],
-          "auraActions": []
+          "auraActions": [],
+          "presentationOnlySwitchActionIndexes": []
         }
       ],
       "referencedBuffIds": [
@@ -43373,7 +43431,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -43397,7 +43457,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -43423,7 +43485,10 @@ export const liinoGeneratedSource = {
           ],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "characterTeamSelectionRole": "controlledOperator",
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -43447,7 +43512,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 0,
@@ -43471,7 +43538,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 80,
@@ -43492,7 +43561,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         },
         {
           "startFrame": 513,
@@ -43513,7 +43584,9 @@ export const liinoGeneratedSource = {
           "validatorTypes": [],
           "postProcessorTypes": [],
           "inputTargets": [],
-          "intervalSeconds": null
+          "intervalSeconds": null,
+          "pickIndexValue": null,
+          "pickIndexBlackboardKey": null
         }
       ],
       "targetGroupControlFlowActions": [
@@ -43542,6 +43615,7 @@ export const liinoGeneratedSource = {
               },
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -43640,6 +43714,9 @@ export const liinoGeneratedSource = {
               "buffIgnite": null
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -43684,6 +43761,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "damageDecorateMask": null,
               "contextBuffId": null,
               "objectTypeMatch": null,
@@ -44046,6 +44124,9 @@ export const liinoGeneratedSource = {
               }
             }
           ],
+          "conditionNegated": [
+            false
+          ],
           "alwaysNext": true
         },
         {
@@ -44069,6 +44150,7 @@ export const liinoGeneratedSource = {
               "poise": null,
               "superArmor": null,
               "twoDirectionAngle": null,
+              "targetAngle": null,
               "entityTag": {
                 "targetSource": "Owner",
                 "targetGroupKey": "",
@@ -44161,6 +44243,9 @@ export const liinoGeneratedSource = {
                 "inheritSourceSkillCastInfo": true
               }
             }
+          ],
+          "conditionNegated": [
+            false
           ],
           "alwaysNext": true
         }
