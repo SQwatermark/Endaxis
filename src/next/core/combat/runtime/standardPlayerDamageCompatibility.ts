@@ -240,13 +240,23 @@ function inspectSequence(
           flags,
           source,
         );
-        inspectBuffDefinition(
-          step.parameters.fractureDefinition,
-          `${stepPath}.parameters.fractureDefinition`,
-          collect,
-          flags,
-          source,
-        );
+        if (step.parameters.type === 'crush') {
+          inspectBuffDefinition(
+            step.parameters.crushedDefinition,
+            `${stepPath}.parameters.crushedDefinition`,
+            collect,
+            flags,
+            source,
+          );
+        } else {
+          inspectBuffDefinition(
+            step.parameters.fractureDefinition,
+            `${stepPath}.parameters.fractureDefinition`,
+            collect,
+            flags,
+            source,
+          );
+        }
         return;
       case 'applyElementalReaction':
       case 'consumeElementalReaction':

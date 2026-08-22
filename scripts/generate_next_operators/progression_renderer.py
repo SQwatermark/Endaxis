@@ -692,6 +692,144 @@ def _render_consumed_infliction_vulnerability(
     )
 
 
+def _render_consumed_no_guard_physical_damage(
+    effect_entries: list[tuple[str, list[dict[str, Any]]]],
+    buff_definitions: dict[str, BuffDefinitionSource],
+) -> str:
+    """严格转换 OnConsumeBuff(破防) -> 按消费层数叠加自身物理伤害 Buff。"""
+    listener_id: str | None = None
+    values_by_key: dict[str, list[int | float]] = {
+        "dmg_up": [],
+        "stack": [],
+        "duration": [],
+    }
+    for effect_id, data_list in effect_entries:
+        if len(data_list) != 1:
+            raise ValueError(f"{effect_id}: expected one consumed-no-guard talent entry")
+        entry = data_list[0]
+        entry_path = f"{effect_id}.dataList[0]"
+        if _effect_payload_kinds(entry, entry_path) != ("attachBuff",):
+            raise ValueError(f"{entry_path}: expected only attachBuff")
+        if entry.get("modifyType") != 5:
+            raise ValueError(f"{entry_path}.modifyType: expected AddBuff(5)")
+        if require_list(entry.get("activeCondition"), f"{entry_path}.activeCondition"):
+            raise ValueError(f"{entry_path}: conditional listener attachment is unsupported")
+        attach = require_dict(entry.get("attachBuff"), f"{entry_path}.attachBuff")
+        current_id = attach.get("buffId")
+        if not isinstance(current_id, str) or not current_id:
+            raise ValueError(f"{entry_path}.attachBuff.buffId: expected non-empty id")
+        if listener_id is None:
+            listener_id = current_id
+        elif listener_id != current_id:
+            raise ValueError(f"{effect_id}: talent levels attach different listener Buffs")
+        level_values: dict[str, int | float] = {}
+        for index, raw in enumerate(
+            require_list(attach.get("blackboard"), f"{entry_path}.attachBuff.blackboard")
+        ):
+            item = require_dict(raw, f"{entry_path}.attachBuff.blackboard[{index}]")
+            key = item.get("key")
+            if not isinstance(key, str) or not key or key in level_values:
+                raise ValueError(
+                    f"{entry_path}.attachBuff.blackboard[{index}].key: expected unique key"
+                )
+            level_values[key] = require_number(
+                item.get("value"), f"{entry_path}.attachBuff.blackboard[{index}].value"
+            )
+        if set(level_values) != set(values_by_key):
+            raise ValueError(
+                f"{entry_path}: unexpected listener blackboard keys {sorted(level_values)}"
+            )
+        for key, value in level_values.items():
+            values_by_key[key].append(value)
+
+    assert listener_id is not None
+    listener = buff_definitions.get(listener_id)
+    if listener is None or listener.lifecycle is None:
+        raise ValueError(f"talent listener: missing resolved Buff {listener_id!r}")
+    event = listener.eventActions[0] if len(listener.eventActions) == 1 else None
+    if (
+        listener.lifecycle.lifeType != "Infinity"
+        or listener.lifecycle.stackingType != "Unique"
+        or event is None
+        or event.eventSource != "ability"
+        or event.event != "OnConsumeBuff"
+        or event.orderedActionTypes
+        != (
+            "CheckBuffIdInContextAdvanced",
+            "CheckConsumeBuffLayer",
+            "CreateBuffAction",
+        )
+        or len(event.sequences) != 1
+        or len(event.buffApplications) != 1
+        or event.contextBuffIdQueries != (("buff_physical_no_guard",),)
+        or event.contextBuffTagQueries
+        or event.consumeBuffLayerChecks != (("GE", 1.0, "consumedLayer"),)
+    ):
+        raise ValueError("talent listener: unsupported consumed-no-guard event shape")
+    application = event.buffApplications[0].payload
+    count = application.count
+    if (
+        application.targetSource != "Source"
+        or application.targetGroupKey
+        or application.buffSource != "ActionSource"
+        or application.buffSourceContextKey
+        or not application.inheritSourceSkillCastInfo
+        or application.targetFinderType is not None
+        or application.targetValidatorTypes
+        or application.targetPostProcessorTypes
+        or len(application.buffs) != 1
+        or count.blackboardKey != "consumedLayer"
+        or count.value != 1
+    ):
+        raise ValueError("talent listener: unsupported physical damage Buff application")
+    child_application = application.buffs[0]
+    if set(child_application.blackboardAssignments) != {"dmg_up", "duration", "stack"}:
+        raise ValueError("talent listener: physical damage assignments are incomplete")
+    for key, assignment in child_application.blackboardAssignments.items():
+        if assignment.blackboardKey != key or assignment.value != 0:
+            raise ValueError(
+                f"talent listener: physical damage assignment {key!r} is not a direct listener read"
+            )
+    child = buff_definitions.get(child_application.buffId)
+    if child is None:
+        raise ValueError(f"talent listener: missing child Buff {child_application.buffId!r}")
+    child_definition = compile_inline_buff_definition(
+        child, "consumed-no-guard physical damage"
+    )
+    return "\n".join(
+        [
+            "  modifiers: [],",
+            "  eventHandlers: [",
+            "    {",
+            "      event: { kind: 'buffConsumed', buffIds: ['buff_physical_no_guard'] },",
+            "      blackboard: {",
+            *(
+                f"        {ts_inline_literal(key)}: {ts_inline_literal(values)},"
+                for key, values in values_by_key.items()
+            ),
+            "      },",
+            "      sequence: sequence(",
+            "        step('applyBuff', {",
+            f"          buffId: {ts_inline_literal(child_application.buffId)},",
+            "          definition: {",
+            *("            " + line for line in child_definition.splitlines()),
+            "          },",
+            "          target: 'caster',",
+            "          count: { kind: 'blackboard', key: 'consumedLayer' },",
+            "          inheritSourceSkillCastInfo: true,",
+            "          blackboardAssignments: {",
+            "            'dmg_up': { kind: 'blackboard', key: 'dmg_up' },",
+            "            'duration': { kind: 'blackboard', key: 'duration' },",
+            "            'stack': { kind: 'blackboard', key: 'stack' },",
+            "          },",
+            "        }),",
+            "      ),",
+            "    },",
+            "  ],",
+        ]
+    )
+
+
 def _parse_skill_cooldown_add_entry(
     entry: dict[str, Any],
     entry_path: str,
@@ -2012,6 +2150,21 @@ def render_talents(
                         f"  levels: {len(entries)},",
                         "  modifiers: [],",
                         _render_consumed_infliction_vulnerability(
+                            attach_entries,
+                            buff_definitions,
+                        ),
+                        "}",
+                    ]
+                )
+            )
+        elif kind == "consumedNoGuardPhysicalDamage":
+            result.append(
+                "\n".join(
+                    [
+                        "{",
+                        f"  key: {ts_inline_literal(key)},",
+                        f"  levels: {len(entries)},",
+                        _render_consumed_no_guard_physical_damage(
                             attach_entries,
                             buff_definitions,
                         ),

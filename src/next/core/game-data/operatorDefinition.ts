@@ -641,14 +641,24 @@ export interface CombatStepParameters {
    * 选择首次破防或后续异常链，不把公共 Buff 变成可编辑的项目级钻石依赖。
    */
   applyPhysicalInfliction: {
-    type: 'fracture';
     target: 'enemy';
     isExtra: boolean;
     noGuardBuffId: string;
     noGuardDefinition: SkillBuffDefinition;
-    fractureBuffId: string;
-    fractureDefinition: SkillBuffDefinition;
-  };
+  } & (
+    | {
+        type: 'fracture';
+        fractureBuffId: string;
+        fractureDefinition: SkillBuffDefinition;
+      }
+    | {
+        type: 'crush';
+        crushedBuffId: string;
+        crushedDefinition: SkillBuffDefinition;
+        damageMultiplier: ActionValueOperand;
+        ignoreHitEffect: boolean;
+      }
+  );
   applyElementalReaction: {
     reaction: ElementalReaction;
     target: CombatTarget;
@@ -1464,6 +1474,8 @@ export type UpgradeEvent =
   | { kind: 'reactionApplied'; reaction: ElementalReaction }
   | Extract<CombatEventTrigger, { kind: 'spGained' }>
   | { kind: 'elementalAttachmentConsumed' }
+  /** 原生 OnConsumeBuff：只匹配由当前干员作为 finish source 消费的明确 Buff 身份。 */
+  | { kind: 'buffConsumed'; buffIds: readonly string[] }
   | Extract<CombatEventTrigger, { kind: 'skillHit' }>;
 
 export interface UpgradeEventHandlerDefinition {

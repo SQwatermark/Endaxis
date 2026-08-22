@@ -55,6 +55,7 @@ export class OperatorUpgradeEventRuntime {
     const eventBlackboard = {
       ...program.initialBlackboard,
       ...(event.kind === 'elementalAttachmentConsumed' ? { infliction_num: event.layers } : {}),
+      ...(event.kind === 'buffConsumed' ? { consumedLayer: event.layers } : {}),
     };
     const operationContext: CombatOperationContext = {
       blackboard: new ActionBlackboard(eventBlackboard),

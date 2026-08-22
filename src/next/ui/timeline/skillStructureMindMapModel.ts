@@ -365,11 +365,15 @@ function stepNode(
         editorSection,
       ),
       inlineBuffDefinitionNode(
-        step.parameters.fractureDefinition,
-        `${id}:fracture-definition`,
-        `${sourcePath}.parameters.fractureDefinition`,
-        '碎甲 Buff',
-        step.parameters.fractureBuffId,
+        step.parameters.type === 'crush'
+          ? step.parameters.crushedDefinition
+          : step.parameters.fractureDefinition,
+        `${id}:${step.parameters.type}-definition`,
+        `${sourcePath}.parameters.${step.parameters.type === 'crush' ? 'crushedDefinition' : 'fractureDefinition'}`,
+        step.parameters.type === 'crush' ? '压制 Buff' : '碎甲 Buff',
+        step.parameters.type === 'crush'
+          ? step.parameters.crushedBuffId
+          : step.parameters.fractureBuffId,
         editorSection,
       ),
     );

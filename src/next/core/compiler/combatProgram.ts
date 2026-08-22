@@ -104,13 +104,21 @@ export interface ResolvedCombatStepParameters {
     readonly definition?: ResolvedAbilityEntityDefinition;
   };
   applyElementalInfliction: CombatStepParameters['applyElementalInfliction'];
-  applyPhysicalInfliction: Omit<
-    CombatStepParameters['applyPhysicalInfliction'],
-    'noGuardDefinition' | 'fractureDefinition'
-  > & {
-    readonly noGuardDefinition: ResolvedSkillBuffDefinition;
-    readonly fractureDefinition: ResolvedSkillBuffDefinition;
-  };
+  applyPhysicalInfliction:
+    | (Omit<
+        Extract<CombatStepParameters['applyPhysicalInfliction'], { type: 'fracture' }>,
+        'noGuardDefinition' | 'fractureDefinition'
+      > & {
+        readonly noGuardDefinition: ResolvedSkillBuffDefinition;
+        readonly fractureDefinition: ResolvedSkillBuffDefinition;
+      })
+    | (Omit<
+        Extract<CombatStepParameters['applyPhysicalInfliction'], { type: 'crush' }>,
+        'noGuardDefinition' | 'crushedDefinition'
+      > & {
+        readonly noGuardDefinition: ResolvedSkillBuffDefinition;
+        readonly crushedDefinition: ResolvedSkillBuffDefinition;
+      });
   applyElementalReaction: CombatStepParameters['applyElementalReaction'];
   consumeElementalReaction: CombatStepParameters['consumeElementalReaction'];
   outputAirborne: CombatStepParameters['outputAirborne'];

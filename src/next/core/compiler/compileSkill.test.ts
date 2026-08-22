@@ -74,6 +74,8 @@ describe('compileSkill', () => {
     expect(
       step.parameters.noGuardDefinition.lifecycleSequences?.start?.steps[0]?.parameters,
     ).toEqual({ value: 4 });
+    expect(step.parameters.type).toBe('fracture');
+    if (step.parameters.type !== 'fracture') return;
     expect(
       step.parameters.fractureDefinition.scheduledSequences?.[0]?.sequence.steps[0]?.parameters,
     ).toEqual({ value: 3 });

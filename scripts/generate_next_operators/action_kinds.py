@@ -38,6 +38,7 @@ COMBAT_ACTION_NAMES = {
     "SwitchAction",
     "SlowAction",
     "FractureAction",
+    "CrushAction",
     "KnockDownAction",
     "HealAction",
     "AuraAction",

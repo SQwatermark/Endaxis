@@ -138,6 +138,8 @@ export interface GeneratedPhysicalInflictionPayload {
   readonly isExtra: boolean;
   readonly deadOption: string;
   readonly immobilizedTime: number;
+  readonly damageMultiplier?: GeneratedScalarSource | null;
+  readonly ignoreHitEffect?: boolean;
 }
 
 /** 原生 InterruptAction 载荷；当前审计层保留字段，运行时语义尚未映射。 */
@@ -148,7 +150,7 @@ export interface GeneratedInterruptPayload {
   readonly immobilizedTime: number;
 }
 
-export interface GeneratedTimedPhysicalInflictionSource {
+export interface GeneratedTimedPhysicalInflictionSource extends GeneratedNativeSequenceMember {
   readonly startFrame: number;
   readonly endFrame: number;
   readonly actionIndex: number;

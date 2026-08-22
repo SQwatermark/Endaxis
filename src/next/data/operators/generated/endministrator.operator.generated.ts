@@ -1105,6 +1105,268 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                 desiredKey: 'atb_return',
                 outputKey: 'atb_return',
               }),
+              step('applyPhysicalInfliction', {
+                type: 'crush',
+                target: 'enemy',
+                isExtra: false,
+                noGuardBuffId: 'buff_physical_no_guard',
+                noGuardDefinition: {
+                  stackingType: 'enhanceAndRefresh',
+                  presentation: {
+                    visible: true,
+                    iconId: 'icon_shadow_attribute_penetrate',
+                    showInHeadBarCommon: false,
+                    showInHeadBarAttached: true,
+                    showInSquadIcon: false,
+                    onlyShowForMainCharacter: false,
+                    iconStyleInSquad: 'Default',
+                    abnormalColorType: 'Physical',
+                    orderPriority: {
+                      useDirectoryValue: false,
+                      value: 0,
+                      category: 'CommonCharBuff',
+                    },
+                  },
+                  priority: 100,
+                  maxStackCount: 4,
+                  durationSeconds: { blackboardKey: 'duration' },
+                  applyTagIds: [1075718177],
+                  blackboard: {
+                    'atk_scale': 0,
+                    'count': 0,
+                    'duration': 20,
+                    'skip_handle_cryst_break': 0,
+                  },
+                  lifecycleSequences: {
+                    start: sequence(
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+                          operator: 'equal',
+                          right: { kind: 'constant', value: 0 },
+                        },
+                        sequence(
+                          step('applyBuff', {
+                            buffId: 'buff_physical_handle_cryst_break',
+                            target: 'enemy',
+                            inheritSourceSkillCastInfo: true,
+                          }),
+                        ),
+                      ),
+                    ),
+                    finish: sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_physical_no_guard_fake',
+                        target: 'enemy',
+                        inheritSourceSkillCastInfo: true,
+                      }),
+                    ),
+                    afterEnhance: sequence(
+                      step('igniteBuffs', {
+                        target: 'enemy',
+                        source: 'currentBuffSource',
+                        igniteType: 'NoGuard',
+                      }),
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+                          operator: 'equal',
+                          right: { kind: 'constant', value: 0 },
+                        },
+                        sequence(
+                          step('applyBuff', {
+                            buffId: 'buff_physical_handle_cryst_break',
+                            target: 'enemy',
+                            inheritSourceSkillCastInfo: true,
+                          }),
+                        ),
+                      ),
+                    ),
+                  },
+                },
+                crushedBuffId: 'buff_physical_crushed',
+                crushedDefinition: {
+                  stackingType: 'stack',
+                  presentation: {
+                    visible: true,
+                    iconId: 'knockback',
+                    showInHeadBarCommon: false,
+                    showInHeadBarAttached: false,
+                    showInSquadIcon: false,
+                    onlyShowForMainCharacter: false,
+                    iconStyleInSquad: 'Default',
+                    abnormalColorType: 'Physical',
+                    orderPriority: {
+                      useDirectoryValue: false,
+                      value: 0,
+                      category: 'CommonCharBuff',
+                    },
+                  },
+                  stackingKey: 'physical',
+                  priority: 0,
+                  maxStackCount: 1,
+                  durationSeconds: { blackboardKey: 'duration' },
+                  triggerIntervalSeconds: 0,
+                  waitFirstTriggerInterval: true,
+                  maxTriggerCount: 1,
+                  applyTagIds: [-168668661],
+                  blackboard: {
+                    'atk_scale': 1,
+                    'count': 0,
+                    'dmg_multiplier': 1,
+                    'duration': 3,
+                    'ignore_hit_effect': 0,
+                  },
+                  lifecycleSequences: {
+                    start: sequence(
+                      step('modifyActionValue', {
+                        key: 'atk_scale',
+                        operation: 'multiply',
+                        value: { kind: 'blackboard', key: 'dmg_multiplier' },
+                      }),
+                      step('finishBuffsById', {
+                        target: 'enemy',
+                        buffIds: ['buff_physical_no_guard'],
+                        reason: 'early',
+                      }),
+                      step('dealDamage', {
+                        damageType: 'physical',
+                        attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                        tags: [],
+                        features: ['crush'],
+                      }, '29:buff_physical_crushed:start:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[4]11:actionOrder1:4'),
+                      step('applyBuff', {
+                        buffId: 'buff_physical_handle_cryst_break',
+                        target: 'enemy',
+                        inheritSourceSkillCastInfo: true,
+                      }),
+                      step('igniteBuffs', {
+                        target: 'enemy',
+                        source: 'caster',
+                        igniteType: 'PhysicalStatus',
+                      }),
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'ignore_hit_effect' },
+                          operator: 'less',
+                          right: { kind: 'constant', value: 0.5 },
+                        },
+                        sequence(
+                          branch(
+                            {
+                              kind: 'actionValueCompare',
+                              left: { kind: 'blackboard', key: 'count' },
+                              operator: 'equal',
+                              right: { kind: 'constant', value: 0 },
+                            },
+                            sequence(
+                              step('startTimeDilation', {
+                                scope: 'entity',
+                                durationSeconds: { kind: 'constant', value: 0.1 },
+                                slot: 1464849466,
+                                priority: 15,
+                                curve: { kind: 'named', key: 'interrupt_weakness' },
+                                finishByAction: false,
+                                targets: ['caster', 'caster'],
+                              }),
+                            ),
+                            sequence(
+                              branch(
+                                {
+                                  kind: 'actionValueCompare',
+                                  left: { kind: 'blackboard', key: 'count' },
+                                  operator: 'equal',
+                                  right: { kind: 'constant', value: 1 },
+                                },
+                                sequence(
+                                  step('startTimeDilation', {
+                                    scope: 'entity',
+                                    durationSeconds: { kind: 'constant', value: 0.1 },
+                                    slot: 1464849466,
+                                    priority: 10,
+                                    curve: { kind: 'named', key: 'interrupt_weakness' },
+                                    finishByAction: false,
+                                    targets: ['caster', 'caster'],
+                                  }),
+                                ),
+                                sequence(
+                                  branch(
+                                    {
+                                      kind: 'actionValueCompare',
+                                      left: { kind: 'blackboard', key: 'count' },
+                                      operator: 'equal',
+                                      right: { kind: 'constant', value: 2 },
+                                    },
+                                    sequence(
+                                      step('startTimeDilation', {
+                                        scope: 'entity',
+                                        durationSeconds: { kind: 'constant', value: 0.25 },
+                                        slot: 1464849466,
+                                        priority: 20,
+                                        curve: { kind: 'named', key: 'interrupt_weakness' },
+                                        finishByAction: false,
+                                        targets: ['caster', 'caster'],
+                                      }),
+                                    ),
+                                    sequence(
+                                      branch(
+                                        {
+                                          kind: 'actionValueCompare',
+                                          left: { kind: 'blackboard', key: 'count' },
+                                          operator: 'equal',
+                                          right: { kind: 'constant', value: 3 },
+                                        },
+                                        sequence(
+                                          step('startTimeDilation', {
+                                            scope: 'entity',
+                                            durationSeconds: { kind: 'constant', value: 0.5 },
+                                            slot: 1464849466,
+                                            priority: 20,
+                                            curve: { kind: 'named', key: 'interrupt_weakness' },
+                                            finishByAction: false,
+                                            targets: ['caster', 'caster'],
+                                          }),
+                                        ),
+                                        sequence(
+                                          branch(
+                                            {
+                                              kind: 'actionValueCompare',
+                                              left: { kind: 'blackboard', key: 'count' },
+                                              operator: 'equal',
+                                              right: { kind: 'constant', value: 4 },
+                                            },
+                                            sequence(
+                                              step('startTimeDilation', {
+                                                scope: 'entity',
+                                                durationSeconds: { kind: 'constant', value: 0.65 },
+                                                slot: 1464849466,
+                                                priority: 20,
+                                                curve: { kind: 'named', key: 'interrupt_weakness' },
+                                                finishByAction: false,
+                                                targets: ['caster', 'caster'],
+                                              }),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            { alwaysNext: true },
+                          ),
+                        ),
+                      ),
+                    ),
+                  },
+                },
+                damageMultiplier: { kind: 'constant', value: 1 },
+                ignoreHitEffect: false,
+              }),
               step('changeResourceByActionValue', {
                 resource: 'sp',
                 amount: { kind: 'blackboard', key: 'atb_return' },
@@ -1143,6 +1405,268 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
               ),
             ),
             sequence(
+              step('applyPhysicalInfliction', {
+                type: 'crush',
+                target: 'enemy',
+                isExtra: false,
+                noGuardBuffId: 'buff_physical_no_guard',
+                noGuardDefinition: {
+                  stackingType: 'enhanceAndRefresh',
+                  presentation: {
+                    visible: true,
+                    iconId: 'icon_shadow_attribute_penetrate',
+                    showInHeadBarCommon: false,
+                    showInHeadBarAttached: true,
+                    showInSquadIcon: false,
+                    onlyShowForMainCharacter: false,
+                    iconStyleInSquad: 'Default',
+                    abnormalColorType: 'Physical',
+                    orderPriority: {
+                      useDirectoryValue: false,
+                      value: 0,
+                      category: 'CommonCharBuff',
+                    },
+                  },
+                  priority: 100,
+                  maxStackCount: 4,
+                  durationSeconds: { blackboardKey: 'duration' },
+                  applyTagIds: [1075718177],
+                  blackboard: {
+                    'atk_scale': 0,
+                    'count': 0,
+                    'duration': 20,
+                    'skip_handle_cryst_break': 0,
+                  },
+                  lifecycleSequences: {
+                    start: sequence(
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+                          operator: 'equal',
+                          right: { kind: 'constant', value: 0 },
+                        },
+                        sequence(
+                          step('applyBuff', {
+                            buffId: 'buff_physical_handle_cryst_break',
+                            target: 'enemy',
+                            inheritSourceSkillCastInfo: true,
+                          }),
+                        ),
+                      ),
+                    ),
+                    finish: sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_physical_no_guard_fake',
+                        target: 'enemy',
+                        inheritSourceSkillCastInfo: true,
+                      }),
+                    ),
+                    afterEnhance: sequence(
+                      step('igniteBuffs', {
+                        target: 'enemy',
+                        source: 'currentBuffSource',
+                        igniteType: 'NoGuard',
+                      }),
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+                          operator: 'equal',
+                          right: { kind: 'constant', value: 0 },
+                        },
+                        sequence(
+                          step('applyBuff', {
+                            buffId: 'buff_physical_handle_cryst_break',
+                            target: 'enemy',
+                            inheritSourceSkillCastInfo: true,
+                          }),
+                        ),
+                      ),
+                    ),
+                  },
+                },
+                crushedBuffId: 'buff_physical_crushed',
+                crushedDefinition: {
+                  stackingType: 'stack',
+                  presentation: {
+                    visible: true,
+                    iconId: 'knockback',
+                    showInHeadBarCommon: false,
+                    showInHeadBarAttached: false,
+                    showInSquadIcon: false,
+                    onlyShowForMainCharacter: false,
+                    iconStyleInSquad: 'Default',
+                    abnormalColorType: 'Physical',
+                    orderPriority: {
+                      useDirectoryValue: false,
+                      value: 0,
+                      category: 'CommonCharBuff',
+                    },
+                  },
+                  stackingKey: 'physical',
+                  priority: 0,
+                  maxStackCount: 1,
+                  durationSeconds: { blackboardKey: 'duration' },
+                  triggerIntervalSeconds: 0,
+                  waitFirstTriggerInterval: true,
+                  maxTriggerCount: 1,
+                  applyTagIds: [-168668661],
+                  blackboard: {
+                    'atk_scale': 1,
+                    'count': 0,
+                    'dmg_multiplier': 1,
+                    'duration': 3,
+                    'ignore_hit_effect': 0,
+                  },
+                  lifecycleSequences: {
+                    start: sequence(
+                      step('modifyActionValue', {
+                        key: 'atk_scale',
+                        operation: 'multiply',
+                        value: { kind: 'blackboard', key: 'dmg_multiplier' },
+                      }),
+                      step('finishBuffsById', {
+                        target: 'enemy',
+                        buffIds: ['buff_physical_no_guard'],
+                        reason: 'early',
+                      }),
+                      step('dealDamage', {
+                        damageType: 'physical',
+                        attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                        tags: [],
+                        features: ['crush'],
+                      }, '29:buff_physical_crushed:start:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[4]11:actionOrder1:4'),
+                      step('applyBuff', {
+                        buffId: 'buff_physical_handle_cryst_break',
+                        target: 'enemy',
+                        inheritSourceSkillCastInfo: true,
+                      }),
+                      step('igniteBuffs', {
+                        target: 'enemy',
+                        source: 'caster',
+                        igniteType: 'PhysicalStatus',
+                      }),
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'ignore_hit_effect' },
+                          operator: 'less',
+                          right: { kind: 'constant', value: 0.5 },
+                        },
+                        sequence(
+                          branch(
+                            {
+                              kind: 'actionValueCompare',
+                              left: { kind: 'blackboard', key: 'count' },
+                              operator: 'equal',
+                              right: { kind: 'constant', value: 0 },
+                            },
+                            sequence(
+                              step('startTimeDilation', {
+                                scope: 'entity',
+                                durationSeconds: { kind: 'constant', value: 0.1 },
+                                slot: 1464849466,
+                                priority: 15,
+                                curve: { kind: 'named', key: 'interrupt_weakness' },
+                                finishByAction: false,
+                                targets: ['caster', 'caster'],
+                              }),
+                            ),
+                            sequence(
+                              branch(
+                                {
+                                  kind: 'actionValueCompare',
+                                  left: { kind: 'blackboard', key: 'count' },
+                                  operator: 'equal',
+                                  right: { kind: 'constant', value: 1 },
+                                },
+                                sequence(
+                                  step('startTimeDilation', {
+                                    scope: 'entity',
+                                    durationSeconds: { kind: 'constant', value: 0.1 },
+                                    slot: 1464849466,
+                                    priority: 10,
+                                    curve: { kind: 'named', key: 'interrupt_weakness' },
+                                    finishByAction: false,
+                                    targets: ['caster', 'caster'],
+                                  }),
+                                ),
+                                sequence(
+                                  branch(
+                                    {
+                                      kind: 'actionValueCompare',
+                                      left: { kind: 'blackboard', key: 'count' },
+                                      operator: 'equal',
+                                      right: { kind: 'constant', value: 2 },
+                                    },
+                                    sequence(
+                                      step('startTimeDilation', {
+                                        scope: 'entity',
+                                        durationSeconds: { kind: 'constant', value: 0.25 },
+                                        slot: 1464849466,
+                                        priority: 20,
+                                        curve: { kind: 'named', key: 'interrupt_weakness' },
+                                        finishByAction: false,
+                                        targets: ['caster', 'caster'],
+                                      }),
+                                    ),
+                                    sequence(
+                                      branch(
+                                        {
+                                          kind: 'actionValueCompare',
+                                          left: { kind: 'blackboard', key: 'count' },
+                                          operator: 'equal',
+                                          right: { kind: 'constant', value: 3 },
+                                        },
+                                        sequence(
+                                          step('startTimeDilation', {
+                                            scope: 'entity',
+                                            durationSeconds: { kind: 'constant', value: 0.5 },
+                                            slot: 1464849466,
+                                            priority: 20,
+                                            curve: { kind: 'named', key: 'interrupt_weakness' },
+                                            finishByAction: false,
+                                            targets: ['caster', 'caster'],
+                                          }),
+                                        ),
+                                        sequence(
+                                          branch(
+                                            {
+                                              kind: 'actionValueCompare',
+                                              left: { kind: 'blackboard', key: 'count' },
+                                              operator: 'equal',
+                                              right: { kind: 'constant', value: 4 },
+                                            },
+                                            sequence(
+                                              step('startTimeDilation', {
+                                                scope: 'entity',
+                                                durationSeconds: { kind: 'constant', value: 0.65 },
+                                                slot: 1464849466,
+                                                priority: 20,
+                                                curve: { kind: 'named', key: 'interrupt_weakness' },
+                                                finishByAction: false,
+                                                targets: ['caster', 'caster'],
+                                              }),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            { alwaysNext: true },
+                          ),
+                        ),
+                      ),
+                    ),
+                  },
+                },
+                damageMultiplier: { kind: 'constant', value: 1 },
+                ignoreHitEffect: false,
+              }),
               step('dealDamage', {
                 damageType: 'physical',
                 attackScale: percentages([156, 171, 187, 202, 218, 234, 249, 265, 280, 300, 323, 350]),
@@ -1268,6 +1792,268 @@ export const endministratorBattleSkillFemale: SkillDefinition = withSkillBlackbo
                 desiredKey: 'atb_return',
                 outputKey: 'atb_return',
               }),
+              step('applyPhysicalInfliction', {
+                type: 'crush',
+                target: 'enemy',
+                isExtra: false,
+                noGuardBuffId: 'buff_physical_no_guard',
+                noGuardDefinition: {
+                  stackingType: 'enhanceAndRefresh',
+                  presentation: {
+                    visible: true,
+                    iconId: 'icon_shadow_attribute_penetrate',
+                    showInHeadBarCommon: false,
+                    showInHeadBarAttached: true,
+                    showInSquadIcon: false,
+                    onlyShowForMainCharacter: false,
+                    iconStyleInSquad: 'Default',
+                    abnormalColorType: 'Physical',
+                    orderPriority: {
+                      useDirectoryValue: false,
+                      value: 0,
+                      category: 'CommonCharBuff',
+                    },
+                  },
+                  priority: 100,
+                  maxStackCount: 4,
+                  durationSeconds: { blackboardKey: 'duration' },
+                  applyTagIds: [1075718177],
+                  blackboard: {
+                    'atk_scale': 0,
+                    'count': 0,
+                    'duration': 20,
+                    'skip_handle_cryst_break': 0,
+                  },
+                  lifecycleSequences: {
+                    start: sequence(
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+                          operator: 'equal',
+                          right: { kind: 'constant', value: 0 },
+                        },
+                        sequence(
+                          step('applyBuff', {
+                            buffId: 'buff_physical_handle_cryst_break',
+                            target: 'enemy',
+                            inheritSourceSkillCastInfo: true,
+                          }),
+                        ),
+                      ),
+                    ),
+                    finish: sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_physical_no_guard_fake',
+                        target: 'enemy',
+                        inheritSourceSkillCastInfo: true,
+                      }),
+                    ),
+                    afterEnhance: sequence(
+                      step('igniteBuffs', {
+                        target: 'enemy',
+                        source: 'currentBuffSource',
+                        igniteType: 'NoGuard',
+                      }),
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+                          operator: 'equal',
+                          right: { kind: 'constant', value: 0 },
+                        },
+                        sequence(
+                          step('applyBuff', {
+                            buffId: 'buff_physical_handle_cryst_break',
+                            target: 'enemy',
+                            inheritSourceSkillCastInfo: true,
+                          }),
+                        ),
+                      ),
+                    ),
+                  },
+                },
+                crushedBuffId: 'buff_physical_crushed',
+                crushedDefinition: {
+                  stackingType: 'stack',
+                  presentation: {
+                    visible: true,
+                    iconId: 'knockback',
+                    showInHeadBarCommon: false,
+                    showInHeadBarAttached: false,
+                    showInSquadIcon: false,
+                    onlyShowForMainCharacter: false,
+                    iconStyleInSquad: 'Default',
+                    abnormalColorType: 'Physical',
+                    orderPriority: {
+                      useDirectoryValue: false,
+                      value: 0,
+                      category: 'CommonCharBuff',
+                    },
+                  },
+                  stackingKey: 'physical',
+                  priority: 0,
+                  maxStackCount: 1,
+                  durationSeconds: { blackboardKey: 'duration' },
+                  triggerIntervalSeconds: 0,
+                  waitFirstTriggerInterval: true,
+                  maxTriggerCount: 1,
+                  applyTagIds: [-168668661],
+                  blackboard: {
+                    'atk_scale': 1,
+                    'count': 0,
+                    'dmg_multiplier': 1,
+                    'duration': 3,
+                    'ignore_hit_effect': 0,
+                  },
+                  lifecycleSequences: {
+                    start: sequence(
+                      step('modifyActionValue', {
+                        key: 'atk_scale',
+                        operation: 'multiply',
+                        value: { kind: 'blackboard', key: 'dmg_multiplier' },
+                      }),
+                      step('finishBuffsById', {
+                        target: 'enemy',
+                        buffIds: ['buff_physical_no_guard'],
+                        reason: 'early',
+                      }),
+                      step('dealDamage', {
+                        damageType: 'physical',
+                        attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                        tags: [],
+                        features: ['crush'],
+                      }, '29:buff_physical_crushed:start:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[4]11:actionOrder1:4'),
+                      step('applyBuff', {
+                        buffId: 'buff_physical_handle_cryst_break',
+                        target: 'enemy',
+                        inheritSourceSkillCastInfo: true,
+                      }),
+                      step('igniteBuffs', {
+                        target: 'enemy',
+                        source: 'caster',
+                        igniteType: 'PhysicalStatus',
+                      }),
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'ignore_hit_effect' },
+                          operator: 'less',
+                          right: { kind: 'constant', value: 0.5 },
+                        },
+                        sequence(
+                          branch(
+                            {
+                              kind: 'actionValueCompare',
+                              left: { kind: 'blackboard', key: 'count' },
+                              operator: 'equal',
+                              right: { kind: 'constant', value: 0 },
+                            },
+                            sequence(
+                              step('startTimeDilation', {
+                                scope: 'entity',
+                                durationSeconds: { kind: 'constant', value: 0.1 },
+                                slot: 1464849466,
+                                priority: 15,
+                                curve: { kind: 'named', key: 'interrupt_weakness' },
+                                finishByAction: false,
+                                targets: ['caster', 'caster'],
+                              }),
+                            ),
+                            sequence(
+                              branch(
+                                {
+                                  kind: 'actionValueCompare',
+                                  left: { kind: 'blackboard', key: 'count' },
+                                  operator: 'equal',
+                                  right: { kind: 'constant', value: 1 },
+                                },
+                                sequence(
+                                  step('startTimeDilation', {
+                                    scope: 'entity',
+                                    durationSeconds: { kind: 'constant', value: 0.1 },
+                                    slot: 1464849466,
+                                    priority: 10,
+                                    curve: { kind: 'named', key: 'interrupt_weakness' },
+                                    finishByAction: false,
+                                    targets: ['caster', 'caster'],
+                                  }),
+                                ),
+                                sequence(
+                                  branch(
+                                    {
+                                      kind: 'actionValueCompare',
+                                      left: { kind: 'blackboard', key: 'count' },
+                                      operator: 'equal',
+                                      right: { kind: 'constant', value: 2 },
+                                    },
+                                    sequence(
+                                      step('startTimeDilation', {
+                                        scope: 'entity',
+                                        durationSeconds: { kind: 'constant', value: 0.25 },
+                                        slot: 1464849466,
+                                        priority: 20,
+                                        curve: { kind: 'named', key: 'interrupt_weakness' },
+                                        finishByAction: false,
+                                        targets: ['caster', 'caster'],
+                                      }),
+                                    ),
+                                    sequence(
+                                      branch(
+                                        {
+                                          kind: 'actionValueCompare',
+                                          left: { kind: 'blackboard', key: 'count' },
+                                          operator: 'equal',
+                                          right: { kind: 'constant', value: 3 },
+                                        },
+                                        sequence(
+                                          step('startTimeDilation', {
+                                            scope: 'entity',
+                                            durationSeconds: { kind: 'constant', value: 0.5 },
+                                            slot: 1464849466,
+                                            priority: 20,
+                                            curve: { kind: 'named', key: 'interrupt_weakness' },
+                                            finishByAction: false,
+                                            targets: ['caster', 'caster'],
+                                          }),
+                                        ),
+                                        sequence(
+                                          branch(
+                                            {
+                                              kind: 'actionValueCompare',
+                                              left: { kind: 'blackboard', key: 'count' },
+                                              operator: 'equal',
+                                              right: { kind: 'constant', value: 4 },
+                                            },
+                                            sequence(
+                                              step('startTimeDilation', {
+                                                scope: 'entity',
+                                                durationSeconds: { kind: 'constant', value: 0.65 },
+                                                slot: 1464849466,
+                                                priority: 20,
+                                                curve: { kind: 'named', key: 'interrupt_weakness' },
+                                                finishByAction: false,
+                                                targets: ['caster', 'caster'],
+                                              }),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            { alwaysNext: true },
+                          ),
+                        ),
+                      ),
+                    ),
+                  },
+                },
+                damageMultiplier: { kind: 'constant', value: 1 },
+                ignoreHitEffect: false,
+              }),
               step('changeResourceByActionValue', {
                 resource: 'sp',
                 amount: { kind: 'blackboard', key: 'atb_return' },
@@ -1306,6 +2092,268 @@ export const endministratorBattleSkillFemale: SkillDefinition = withSkillBlackbo
               ),
             ),
             sequence(
+              step('applyPhysicalInfliction', {
+                type: 'crush',
+                target: 'enemy',
+                isExtra: false,
+                noGuardBuffId: 'buff_physical_no_guard',
+                noGuardDefinition: {
+                  stackingType: 'enhanceAndRefresh',
+                  presentation: {
+                    visible: true,
+                    iconId: 'icon_shadow_attribute_penetrate',
+                    showInHeadBarCommon: false,
+                    showInHeadBarAttached: true,
+                    showInSquadIcon: false,
+                    onlyShowForMainCharacter: false,
+                    iconStyleInSquad: 'Default',
+                    abnormalColorType: 'Physical',
+                    orderPriority: {
+                      useDirectoryValue: false,
+                      value: 0,
+                      category: 'CommonCharBuff',
+                    },
+                  },
+                  priority: 100,
+                  maxStackCount: 4,
+                  durationSeconds: { blackboardKey: 'duration' },
+                  applyTagIds: [1075718177],
+                  blackboard: {
+                    'atk_scale': 0,
+                    'count': 0,
+                    'duration': 20,
+                    'skip_handle_cryst_break': 0,
+                  },
+                  lifecycleSequences: {
+                    start: sequence(
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+                          operator: 'equal',
+                          right: { kind: 'constant', value: 0 },
+                        },
+                        sequence(
+                          step('applyBuff', {
+                            buffId: 'buff_physical_handle_cryst_break',
+                            target: 'enemy',
+                            inheritSourceSkillCastInfo: true,
+                          }),
+                        ),
+                      ),
+                    ),
+                    finish: sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_physical_no_guard_fake',
+                        target: 'enemy',
+                        inheritSourceSkillCastInfo: true,
+                      }),
+                    ),
+                    afterEnhance: sequence(
+                      step('igniteBuffs', {
+                        target: 'enemy',
+                        source: 'currentBuffSource',
+                        igniteType: 'NoGuard',
+                      }),
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+                          operator: 'equal',
+                          right: { kind: 'constant', value: 0 },
+                        },
+                        sequence(
+                          step('applyBuff', {
+                            buffId: 'buff_physical_handle_cryst_break',
+                            target: 'enemy',
+                            inheritSourceSkillCastInfo: true,
+                          }),
+                        ),
+                      ),
+                    ),
+                  },
+                },
+                crushedBuffId: 'buff_physical_crushed',
+                crushedDefinition: {
+                  stackingType: 'stack',
+                  presentation: {
+                    visible: true,
+                    iconId: 'knockback',
+                    showInHeadBarCommon: false,
+                    showInHeadBarAttached: false,
+                    showInSquadIcon: false,
+                    onlyShowForMainCharacter: false,
+                    iconStyleInSquad: 'Default',
+                    abnormalColorType: 'Physical',
+                    orderPriority: {
+                      useDirectoryValue: false,
+                      value: 0,
+                      category: 'CommonCharBuff',
+                    },
+                  },
+                  stackingKey: 'physical',
+                  priority: 0,
+                  maxStackCount: 1,
+                  durationSeconds: { blackboardKey: 'duration' },
+                  triggerIntervalSeconds: 0,
+                  waitFirstTriggerInterval: true,
+                  maxTriggerCount: 1,
+                  applyTagIds: [-168668661],
+                  blackboard: {
+                    'atk_scale': 1,
+                    'count': 0,
+                    'dmg_multiplier': 1,
+                    'duration': 3,
+                    'ignore_hit_effect': 0,
+                  },
+                  lifecycleSequences: {
+                    start: sequence(
+                      step('modifyActionValue', {
+                        key: 'atk_scale',
+                        operation: 'multiply',
+                        value: { kind: 'blackboard', key: 'dmg_multiplier' },
+                      }),
+                      step('finishBuffsById', {
+                        target: 'enemy',
+                        buffIds: ['buff_physical_no_guard'],
+                        reason: 'early',
+                      }),
+                      step('dealDamage', {
+                        damageType: 'physical',
+                        attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                        tags: [],
+                        features: ['crush'],
+                      }, '29:buff_physical_crushed:start:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[4]11:actionOrder1:4'),
+                      step('applyBuff', {
+                        buffId: 'buff_physical_handle_cryst_break',
+                        target: 'enemy',
+                        inheritSourceSkillCastInfo: true,
+                      }),
+                      step('igniteBuffs', {
+                        target: 'enemy',
+                        source: 'caster',
+                        igniteType: 'PhysicalStatus',
+                      }),
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'ignore_hit_effect' },
+                          operator: 'less',
+                          right: { kind: 'constant', value: 0.5 },
+                        },
+                        sequence(
+                          branch(
+                            {
+                              kind: 'actionValueCompare',
+                              left: { kind: 'blackboard', key: 'count' },
+                              operator: 'equal',
+                              right: { kind: 'constant', value: 0 },
+                            },
+                            sequence(
+                              step('startTimeDilation', {
+                                scope: 'entity',
+                                durationSeconds: { kind: 'constant', value: 0.1 },
+                                slot: 1464849466,
+                                priority: 15,
+                                curve: { kind: 'named', key: 'interrupt_weakness' },
+                                finishByAction: false,
+                                targets: ['caster', 'caster'],
+                              }),
+                            ),
+                            sequence(
+                              branch(
+                                {
+                                  kind: 'actionValueCompare',
+                                  left: { kind: 'blackboard', key: 'count' },
+                                  operator: 'equal',
+                                  right: { kind: 'constant', value: 1 },
+                                },
+                                sequence(
+                                  step('startTimeDilation', {
+                                    scope: 'entity',
+                                    durationSeconds: { kind: 'constant', value: 0.1 },
+                                    slot: 1464849466,
+                                    priority: 10,
+                                    curve: { kind: 'named', key: 'interrupt_weakness' },
+                                    finishByAction: false,
+                                    targets: ['caster', 'caster'],
+                                  }),
+                                ),
+                                sequence(
+                                  branch(
+                                    {
+                                      kind: 'actionValueCompare',
+                                      left: { kind: 'blackboard', key: 'count' },
+                                      operator: 'equal',
+                                      right: { kind: 'constant', value: 2 },
+                                    },
+                                    sequence(
+                                      step('startTimeDilation', {
+                                        scope: 'entity',
+                                        durationSeconds: { kind: 'constant', value: 0.25 },
+                                        slot: 1464849466,
+                                        priority: 20,
+                                        curve: { kind: 'named', key: 'interrupt_weakness' },
+                                        finishByAction: false,
+                                        targets: ['caster', 'caster'],
+                                      }),
+                                    ),
+                                    sequence(
+                                      branch(
+                                        {
+                                          kind: 'actionValueCompare',
+                                          left: { kind: 'blackboard', key: 'count' },
+                                          operator: 'equal',
+                                          right: { kind: 'constant', value: 3 },
+                                        },
+                                        sequence(
+                                          step('startTimeDilation', {
+                                            scope: 'entity',
+                                            durationSeconds: { kind: 'constant', value: 0.5 },
+                                            slot: 1464849466,
+                                            priority: 20,
+                                            curve: { kind: 'named', key: 'interrupt_weakness' },
+                                            finishByAction: false,
+                                            targets: ['caster', 'caster'],
+                                          }),
+                                        ),
+                                        sequence(
+                                          branch(
+                                            {
+                                              kind: 'actionValueCompare',
+                                              left: { kind: 'blackboard', key: 'count' },
+                                              operator: 'equal',
+                                              right: { kind: 'constant', value: 4 },
+                                            },
+                                            sequence(
+                                              step('startTimeDilation', {
+                                                scope: 'entity',
+                                                durationSeconds: { kind: 'constant', value: 0.65 },
+                                                slot: 1464849466,
+                                                priority: 20,
+                                                curve: { kind: 'named', key: 'interrupt_weakness' },
+                                                finishByAction: false,
+                                                targets: ['caster', 'caster'],
+                                              }),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            { alwaysNext: true },
+                          ),
+                        ),
+                      ),
+                    ),
+                  },
+                },
+                damageMultiplier: { kind: 'constant', value: 1 },
+                ignoreHitEffect: false,
+              }),
               step('dealDamage', {
                 damageType: 'physical',
                 attackScale: percentages([156, 171, 187, 202, 218, 234, 249, 265, 280, 300, 323, 350]),

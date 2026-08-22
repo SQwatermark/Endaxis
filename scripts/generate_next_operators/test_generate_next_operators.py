@@ -423,6 +423,18 @@ def aura_action_fixture() -> dict:
     }
 
 
+def crush_action_fixture() -> dict:
+    action = fracture_action_fixture()
+    action["$type"] = "Example.CrushAction+Data, Example"
+    action["damageMultiplier"] = {
+        "useBlackboardKey": True,
+        "value": 1.5,
+        "blackboardKey": "crush_multi",
+    }
+    action["ignoreHitEffect"] = False
+    return action
+
+
 def hidden_buff_presentation_fixture() -> dict[str, object]:
     """补齐真实 BuffData 始终存在的展示字段，避免行为夹具绕过图标解析门禁。"""
     return {
@@ -4682,6 +4694,18 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             ),
         )
 
+        root["actionGroupData"]["actions"].append(crush_action_fixture())
+        self.assertEqual(
+            collect_referenced_buff_ids(root, "skill.json"),
+            (
+                "buff.branch",
+                "buff.root",
+                "buff_physical_crushed",
+                "buff_physical_fracture",
+                "buff_physical_no_guard",
+            ),
+        )
+
     def test_buff_definitions_do_not_use_application_overrides(self) -> None:
         buff = {
             **hidden_buff_presentation_fixture(),
@@ -6093,6 +6117,32 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(parsed[0].actionIndex, 12)
         self.assertEqual(parsed[0].payload.directionType, "SourceToTarget")
         self.assertTrue(parsed[0].payload.clampToXZ)
+
+    def test_root_crush_action_preserves_multiplier_and_native_sequence(self) -> None:
+        root = {
+            "actionGroupData": {
+                "timelineActions": [
+                    {
+                        "_startFrame": 23,
+                        "_endFrame": 26,
+                        "_sequenceActionData": {"actionData": [crush_action_fixture()]},
+                    }
+                ]
+            }
+        }
+
+        parsed = parse_physical_inflictions(
+            root,
+            "crush.json",
+            {"crush_multi": (1.1, 1.2)},
+        )
+
+        self.assertEqual(len(parsed), 1)
+        self.assertEqual(parsed[0].sequenceIndex, 0)
+        self.assertEqual(parsed[0].payload.physicalType, "crush")
+        self.assertEqual(parsed[0].payload.damageMultiplier.blackboardKey, "crush_multi")
+        self.assertEqual(parsed[0].payload.damageMultiplier.levelValues, (1.1, 1.2))
+        self.assertFalse(parsed[0].payload.ignoreHitEffect)
 
     def test_fracture_damage_mask_selects_physical_infliction_multiplier(self) -> None:
         self.assertEqual(

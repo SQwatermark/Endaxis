@@ -13,6 +13,7 @@ import { scheduled, sequence, step } from '../data/operators/definitionHelpers';
 import {
   arcane,
   camille,
+  daPan,
   ember,
   fluorite,
   laevatain,
@@ -26,6 +27,85 @@ import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
 
 describe('registered generated operators', () => {
+  it('lets Da Pan Crush consume no-guard before the same-frame hit and activate talent 1', () => {
+    const run = (talentLevel: number) => {
+      const scenario = createEmptyScenario(`scenario:dapan:${talentLevel}`, '大潘压制天赋回归');
+      scenario.battle.durationFrames = 660;
+      scenario.enemy.editable.hp = 10_000_000;
+      scenario.tracks[0] = {
+        id: 'track:dapan',
+        operator: {
+          operatorSlug: daPan.slug,
+          level: 90,
+          promoted: true,
+          potential: 0,
+          trustLevel: 4,
+          skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+          talentStates: { 0: talentLevel, 1: 0 },
+        },
+        weapon: null,
+        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+        initialState: { ultimateEnergy: 0 },
+        skillCasts: [],
+      };
+      let nextId = 0;
+      const ids = { allocate: (kind: string) => `${kind}:dapan:${++nextId}` };
+      const first = placeSkillGroup({
+        scenario,
+        trackIndex: 0,
+        operator: daPan,
+        skillGroupKey: 'comboSkill',
+        startFrame: 1,
+        ids,
+      }).scenario;
+      const placed = placeSkillGroup({
+        scenario: first,
+        trackIndex: 0,
+        operator: daPan,
+        skillGroupKey: 'comboSkill',
+        startFrame: 550,
+        ids,
+      }).scenario;
+      return runStandardPlayerDamageScenarioSimulation({
+        scenario: placed,
+        endFrame: 660,
+        criticalSamples: new ExplicitCriticalSampleSource(Array(80).fill(1)),
+        elementalInflictionDocument: elementalAttachments,
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: true,
+        }),
+        options: {
+          index: nextGameDataRepository,
+          resources: {
+            sharedSpGain: { baseGainEfficiency: 1 },
+            spRecoveryPauseDuration: 1.5,
+            ultimateEnergySystemUnlocked: true,
+            normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+          },
+        },
+      });
+    };
+
+    const withoutTalent = run(0);
+    const withTalent = run(2);
+    const secondComboDamage = (result: ReturnType<typeof run>) => {
+      const value = result.receiptEntries.find(
+        entry =>
+          entry.event === 'DamageApplied' &&
+          entry.sourceId === 'track:dapan' &&
+          entry.frame >= 572 &&
+          String(entry.data?.stepKey).includes('comboSkill'),
+      )?.data?.value;
+      return typeof value === 'number' ? value : undefined;
+    };
+
+    const baseline = secondComboDamage(withoutTalent);
+    expect(baseline).toBeTypeOf('number');
+    expect(secondComboDamage(withTalent)).toBeCloseTo((baseline ?? 0) * 1.06);
+  });
+
   it('runs Arcane intellect-form battle entities and compiles the conditional combo cooldown', () => {
     const scenario = createEmptyScenario('scenario:arcane:registered', 'Arcane 默认仓库回归');
     scenario.battle.durationFrames = 180;

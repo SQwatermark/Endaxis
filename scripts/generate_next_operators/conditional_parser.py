@@ -1818,7 +1818,7 @@ def parse_conditional_actions(
                     )
                 elif action_type == "SpellInfliction":
                     infliction = parse_infliction_payload(action, source_path)
-                elif action_type == "FractureAction":
+                elif action_type in {"FractureAction", "CrushAction"}:
                     physical_infliction = parse_physical_infliction_payload(
                         action, source_path, inherited_blackboard
                     )

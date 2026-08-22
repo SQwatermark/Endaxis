@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/** Inspector for the evidence-locked physical infliction entry generated from FractureAction. */
+/** Inspector for evidence-locked physical infliction entries. */
 import type { CombatStepDefinition } from '../../../core/game-data/operatorDefinition';
 
 type PhysicalInflictionStep = Extract<CombatStepDefinition, { kind: 'applyPhysicalInfliction' }>;
@@ -33,15 +33,22 @@ function setIsExtra(event: Event): void {
       <input :value="step.parameters.noGuardBuffId" readonly />
     </label>
     <label>
-      <span>碎甲 Buff</span>
-      <input :value="step.parameters.fractureBuffId" readonly />
+      <span>{{ step.parameters.type === 'crush' ? '压制 Buff' : '碎甲 Buff' }}</span>
+      <input
+        :value="
+          step.parameters.type === 'crush'
+            ? step.parameters.crushedBuffId
+            : step.parameters.fractureBuffId
+        "
+        readonly
+      />
     </label>
     <label class="step-editor__check step-editor__check--field">
       <input type="checkbox" :checked="step.parameters.isExtra" @change="setIsExtra" />
       <span>额外物理异常</span>
     </label>
     <p class="physical-infliction-inspector__note">
-      类型、目标和公共 Buff 身份来自原生 FractureAction 证据，不能在此改写。两份 Buff
+      类型、目标和公共 Buff 身份来自原生物理异常动作证据，不能在此改写。两份 Buff
       定义已经内联在当前步骤下，请在左侧导图展开对应端口查看完整结构。
     </p>
   </div>

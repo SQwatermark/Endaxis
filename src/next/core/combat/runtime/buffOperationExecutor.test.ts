@@ -15,11 +15,13 @@ describe('BuffOperationExecutor', () => {
   it('applies the first no-guard layer before executing the fracture Buff chain', () => {
     let noGuardCount = 0;
     const applied: string[] = [];
+    const consumed: Array<{ buffId: string; layers: number; sourceOperatorId: string }> = [];
     const target = {
       ownerId: 'enemy',
       apply: (request: { buffId: string }) => {
         applied.push(request.buffId);
         if (request.buffId === 'buff_physical_no_guard') noGuardCount += 1;
+        if (request.buffId === 'buff_physical_fracture') noGuardCount = 0;
         return true;
       },
       getCountByIds: (ids: readonly string[]) =>
@@ -36,6 +38,7 @@ describe('BuffOperationExecutor', () => {
       sourceId: 'antal',
       sourceActionId: 'comboSkill',
       resolveTarget: () => target,
+      onBuffConsumed: event => consumed.push(event),
       delegate,
     });
     const step = {
@@ -62,6 +65,71 @@ describe('BuffOperationExecutor', () => {
     expect(executor.execute(step, context)).toBe(true);
     expect(executor.execute(step, context)).toBe(true);
     expect(applied).toEqual(['buff_physical_no_guard', 'buff_physical_fracture']);
+    expect(consumed).toEqual([
+      {
+        sourceOperatorId: 'antal',
+        targetId: 'enemy',
+        buffId: 'buff_physical_no_guard',
+        layers: 1,
+      },
+    ]);
+  });
+
+  it('resolves Crush assignments only when the existing no-guard layer is consumed', () => {
+    let noGuardCount = 1;
+    const applied: Array<{ buffId: string; blackboardValues: Readonly<Record<string, number>> }> =
+      [];
+    const target = {
+      ownerId: 'enemy',
+      apply: (request: { buffId: string; blackboardValues: Readonly<Record<string, number>> }) => {
+        applied.push(request);
+        if (request.buffId === 'buff_physical_crushed') noGuardCount = 0;
+        return true;
+      },
+      getCountByIds: (ids: readonly string[]) =>
+        ids.includes('buff_physical_no_guard') ? noGuardCount : 0,
+      finishByIds: () => 0,
+      holdByIds: () => ({ release: () => undefined }),
+      getCountByTags: () => 0,
+      matchesEntityTags: () => false,
+      findFirstByIds: () => undefined,
+      findFirstByTags: () => undefined,
+      finishByTags: () => 0,
+    };
+    const executor = new BuffOperationExecutor({
+      sourceId: 'dapan',
+      resolveTarget: () => target,
+      delegate,
+    });
+
+    expect(
+      executor.execute(
+        {
+          kind: 'applyPhysicalInfliction',
+          parameters: {
+            type: 'crush',
+            target: 'enemy',
+            isExtra: false,
+            noGuardBuffId: 'buff_physical_no_guard',
+            noGuardDefinition: { stackingType: 'enhanceAndRefresh' },
+            crushedBuffId: 'buff_physical_crushed',
+            crushedDefinition: { stackingType: 'stack', stackingKey: 'physical' },
+            damageMultiplier: { kind: 'blackboard', key: 'crush_multi' },
+            ignoreHitEffect: true,
+          },
+        },
+        {
+          blackboard: new ActionBlackboard({ crush_multi: 1.75 }),
+          skillCastInfo: { skillCastId: 1, originSkillId: 'combo', nonReturnedSpCost: 0 },
+        },
+      ),
+    ).toBe(true);
+    expect(applied).toEqual([
+      expect.objectContaining({
+        buffId: 'buff_physical_crushed',
+        blackboardValues: { dmg_multiplier: 1.75, ignore_hit_effect: 1 },
+      }),
+    ]);
   });
 
   it('finishes only Buff instances created for the active action interval', () => {

@@ -121,6 +121,13 @@ export interface BuffOperationDependencies {
   readonly resolveEventTarget?: (targetId: string) => BuffOperationTarget;
   /** 从当前动作所属干员、原始技能等级对应的附属对象表解析定义。 */
   readonly resolveBuffDefinition?: (buffId: string) => ResolvedSkillBuffDefinition | undefined;
+  /** 仅在已证明的消费路径完成后报告原生 OnConsumeBuff 事实。 */
+  readonly onBuffConsumed?: (event: {
+    readonly sourceOperatorId: string;
+    readonly targetId: string;
+    readonly buffId: string;
+    readonly layers: number;
+  }) => void;
   readonly delegate: CombatOperationExecutor;
 }
 
@@ -143,19 +150,27 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           `physical infliction target '${target.ownerId}' does not support Buff application`,
         );
       }
-      const hasNoGuard = target.getCountByIds([step.parameters.noGuardBuffId]) > 0;
-      const request: BuffApplicationRequest = hasNoGuard
+      const noGuardCount = target.getCountByIds([step.parameters.noGuardBuffId]);
+      const hasNoGuard = noGuardCount > 0;
+      const crushBlackboardValues: Readonly<Record<string, number>> =
+        hasNoGuard && step.parameters.type === 'crush'
+          ? (() => {
+              const values: Record<string, number> = {};
+              const multiplier = resolveActionValueOperand(
+                step.parameters.damageMultiplier,
+                context.blackboard,
+              );
+              if (Math.abs(multiplier - 1) > 1e-5) {
+                values.dmg_multiplier = multiplier;
+              }
+              if (step.parameters.ignoreHitEffect) {
+                values.ignore_hit_effect = 1;
+              }
+              return values;
+            })()
+          : {};
+      const request: BuffApplicationRequest = !hasNoGuard
         ? {
-            buffId: step.parameters.fractureBuffId,
-            definition: step.parameters.fractureDefinition,
-            sourceId: this.dependencies.sourceId,
-            ...(this.dependencies.sourceActionId === undefined
-              ? {}
-              : { sourceActionId: this.dependencies.sourceActionId }),
-            blackboardValues: {},
-            skillCastInfo: context.skillCastInfo,
-          }
-        : {
             buffId: step.parameters.noGuardBuffId,
             definition: step.parameters.noGuardDefinition,
             sourceId: this.dependencies.sourceId,
@@ -164,8 +179,42 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
               : { sourceActionId: this.dependencies.sourceActionId }),
             blackboardValues: {},
             skillCastInfo: context.skillCastInfo,
-          };
-      return target.apply(request);
+          }
+        : step.parameters.type === 'crush'
+          ? {
+              buffId: step.parameters.crushedBuffId,
+              definition: step.parameters.crushedDefinition,
+              sourceId: this.dependencies.sourceId,
+              ...(this.dependencies.sourceActionId === undefined
+                ? {}
+                : { sourceActionId: this.dependencies.sourceActionId }),
+              blackboardValues: crushBlackboardValues,
+              skillCastInfo: context.skillCastInfo,
+            }
+          : {
+              buffId: step.parameters.fractureBuffId,
+              definition: step.parameters.fractureDefinition,
+              sourceId: this.dependencies.sourceId,
+              ...(this.dependencies.sourceActionId === undefined
+                ? {}
+                : { sourceActionId: this.dependencies.sourceActionId }),
+              blackboardValues: {},
+              skillCastInfo: context.skillCastInfo,
+            };
+      const applied = target.apply(request);
+      if (applied && hasNoGuard) {
+        const remainingCount = target.getCountByIds([step.parameters.noGuardBuffId]);
+        const consumedLayers = Math.max(0, noGuardCount - remainingCount);
+        if (consumedLayers > 0) {
+          this.dependencies.onBuffConsumed?.({
+            sourceOperatorId: this.dependencies.sourceId,
+            targetId: target.ownerId,
+            buffId: step.parameters.noGuardBuffId,
+            layers: consumedLayers,
+          });
+        }
+      }
+      return applied;
     }
 
     if (step.kind === 'applyBuff') {

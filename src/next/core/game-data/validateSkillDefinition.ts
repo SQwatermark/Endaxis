@@ -1432,18 +1432,31 @@ function validateCombatStep(
       break;
     }
     case 'applyPhysicalInfliction': {
-      if (parameters.type !== 'fracture') {
-        push(out, `${path}.parameters.type`, "expected 'fracture'");
+      if (parameters.type !== 'fracture' && parameters.type !== 'crush') {
+        push(out, `${path}.parameters.type`, "expected 'fracture' or 'crush'");
       }
       if (parameters.target !== 'enemy') {
         push(out, `${path}.parameters.target`, "expected 'enemy'");
       }
       requireBoolean(parameters, 'isExtra', `${path}.parameters`, out);
       const noGuardBuffId = requireString(parameters, 'noGuardBuffId', `${path}.parameters`, out);
-      const fractureBuffId = requireString(parameters, 'fractureBuffId', `${path}.parameters`, out);
+      const statusBuffId =
+        parameters.type === 'crush'
+          ? requireString(parameters, 'crushedBuffId', `${path}.parameters`, out)
+          : requireString(parameters, 'fractureBuffId', `${path}.parameters`, out);
+      const statusDefinitionKey =
+        parameters.type === 'crush' ? 'crushedDefinition' : 'fractureDefinition';
+      if (parameters.type === 'crush') {
+        validateActionValueOperand(
+          parameters.damageMultiplier,
+          `${path}.parameters.damageMultiplier`,
+          out,
+        );
+        requireBoolean(parameters, 'ignoreHitEffect', `${path}.parameters`, out);
+      }
       for (const [definitionKey, buffId] of [
         ['noGuardDefinition', noGuardBuffId],
-        ['fractureDefinition', fractureBuffId],
+        [statusDefinitionKey, statusBuffId],
       ] as const) {
         if (buffId === null) continue;
         validateCombatStep(

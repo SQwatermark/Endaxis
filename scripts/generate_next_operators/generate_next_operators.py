@@ -2007,9 +2007,10 @@ def parse_physical_inflictions(
             timeline.get("_endFrame"), f"{source_name}.timelineActions[{timeline_index}]._endFrame"
         )
         for action in walk_unconditional_actions(timeline.get("_sequenceActionData")):
-            if action_name(action["$type"]) != "FractureAction":
+            if action_name(action["$type"]) not in {"FractureAction", "CrushAction"}:
                 continue
-            path = f"{source_name}.FractureAction"
+            action_type = action_name(action["$type"])
+            path = f"{source_name}.{action_type}"
             result.append(
                 TimedPhysicalInflictionSource(
                     startFrame=start_frame,
@@ -2018,6 +2019,7 @@ def parse_physical_inflictions(
                     payload=parse_physical_infliction_payload(
                         action, path, inherited_blackboard
                     ),
+                    sequenceIndex=timeline_index,
                 )
             )
     return tuple(result)
@@ -2026,13 +2028,18 @@ def parse_physical_inflictions(
 def collect_referenced_buff_ids(root: dict[str, Any], source_name: str) -> tuple[str, ...]:
     """收集整棵动作树直接创建或由光环维持的 Buff；不改变其控制流归属。"""
     result = set(collect_created_buff_ids(root.get("actionGroupData"), source_name))
-    if any(
-        action_name(action["$type"]) == "FractureAction"
+    physical_action_types = {
+        action_name(action["$type"])
         for action in walk_actions(root.get("actionGroupData"))
-    ):
+        if action_name(action["$type"]) in {"FractureAction", "CrushAction"}
+    }
+    if "FractureAction" in physical_action_types:
         # FractureAction 原生按固定公共 ID 进入破防/碎甲 Buff 链；这些不是
         # SkillData 的显式 CreateBuffAction 引用，但仍必须解析并内联定义。
         result.update(("buff_physical_no_guard", "buff_physical_fracture"))
+    if "CrushAction" in physical_action_types:
+        # CrushAction 与 FractureAction 共享破防入口，但进入独立的压制 Buff 链。
+        result.update(("buff_physical_no_guard", "buff_physical_crushed"))
     return tuple(sorted(result))
 
 
@@ -2452,6 +2459,7 @@ def resolve_progression_buff_definitions(
         index = require_non_negative_int(passive.get("index"), "passiveSkillNodeInfo.index")
         if talent_configs.get(index, {}).get("compile") not in {
             "consumedInflictionVulnerability",
+            "consumedNoGuardPhysicalDamage",
             "attachedBuff",
         }:
             continue
@@ -4538,8 +4546,8 @@ def compile_physical_infliction(
     read_frame: int | None = None,
     read_action_index: int | None = None,
 ) -> str:
-    """把 FractureAction 编译为统一入口，并内联公共破防/碎甲 Buff 树。"""
-    if payload.physicalType != "fracture":
+    """把 Fracture/Crush 编译为统一入口，并内联对应公共 Buff 树。"""
+    if payload.physicalType not in {"fracture", "crush"}:
         raise ValueError(f"{path}: unsupported physical infliction {payload.physicalType!r}")
     def resolve(reference: TargetReferenceSource) -> Literal["caster", "enemy"] | None:
         result = resolve_fixed_combat_target(
@@ -4574,16 +4582,16 @@ def compile_physical_infliction(
     target = resolve(payload.target)
     if attacker != "caster" or target != "enemy":
         raise ValueError(
-            f"{path}: FractureAction target identity is unresolved "
+            f"{path}: physical infliction target identity is unresolved "
             f"({attacker!r} -> {target!r})"
         )
     if buff_definitions is None:
-        raise ValueError(f"{path}: FractureAction requires resolved Buff definitions")
+        raise ValueError(f"{path}: physical infliction requires resolved Buff definitions")
 
     def compile_definition(buff_id: str) -> str:
         definition = buff_definitions.get(buff_id)
         if definition is None:
-            raise ValueError(f"{path}: missing Fracture Buff definition {buff_id!r}")
+            raise ValueError(f"{path}: missing physical Buff definition {buff_id!r}")
         has_event_sequences = bool(getattr(definition, "comboQteActions", ())) or any(
             sequence.actions
             for event in definition.eventActions
@@ -4631,22 +4639,48 @@ def compile_physical_infliction(
         return "\n".join(["{", *(f"  {line}" for line in body.splitlines()), "}"])
 
     no_guard = compile_definition("buff_physical_no_guard").splitlines()
-    fracture = compile_definition("buff_physical_fracture").splitlines()
     no_guard[-1] += ","
-    fracture[-1] += ","
+    status_buff_id = (
+        "buff_physical_crushed"
+        if payload.physicalType == "crush"
+        else "buff_physical_fracture"
+    )
+    status = compile_definition(status_buff_id).splitlines()
+    status[-1] += ","
     lines = [
         "step('applyPhysicalInfliction', {",
-        "  type: 'fracture',",
+        f"  type: {ts_inline_literal(payload.physicalType)},",
         "  target: 'enemy',",
         f"  isExtra: {ts_inline_literal(payload.isExtra)},",
         "  noGuardBuffId: 'buff_physical_no_guard',",
         f"  noGuardDefinition: {no_guard[0]}",
         *(f"  {line}" for line in no_guard[1:]),
-        "  fractureBuffId: 'buff_physical_fracture',",
-        f"  fractureDefinition: {fracture[0]}",
-        *(f"  {line}" for line in fracture[1:]),
-        "})",
     ]
+    if payload.physicalType == "crush":
+        if payload.damageMultiplier is None:
+            raise ValueError(f"{path}: CrushAction is missing damageMultiplier")
+        lines.extend(
+            [
+                f"  crushedBuffId: {ts_inline_literal(status_buff_id)},",
+                f"  crushedDefinition: {status[0]}",
+                *(f"  {line}" for line in status[1:]),
+                "  damageMultiplier: "
+                + compile_condition_operand(
+                    payload.damageMultiplier, f"{path}.damageMultiplier"
+                )
+                + ",",
+                f"  ignoreHitEffect: {ts_inline_literal(payload.ignoreHitEffect)},",
+            ]
+        )
+    else:
+        lines.extend(
+            [
+                f"  fractureBuffId: {ts_inline_literal(status_buff_id)},",
+                f"  fractureDefinition: {status[0]}",
+                *(f"  {line}" for line in status[1:]),
+            ]
+        )
+    lines.append("})")
     return "\n".join(lines)
 
 
@@ -7394,7 +7428,11 @@ def collect_compilable_conditional_action_types(
             if getattr(branch_action, "infliction", None) is not None:
                 result.add("SpellInfliction")
             if getattr(branch_action, "physicalInfliction", None) is not None:
-                result.add("FractureAction")
+                result.add(
+                    "CrushAction"
+                    if branch_action.physicalInfliction.physicalType == "crush"
+                    else "FractureAction"
+                )
             if getattr(branch_action, "damageUnits", None) is not None:
                 result.add("DamageAction")
             if getattr(branch_action, "heal", None) is not None:

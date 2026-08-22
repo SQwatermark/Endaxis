@@ -103,4 +103,43 @@ describe('OperatorUpgradeEventRuntime', () => {
 
     expect(consumedLayers).toBe(3);
   });
+
+  it('seeds the declared consumed Buff layer key for OnConsumeBuff handlers', () => {
+    const events = new CombatSemanticEventRuntime();
+    let consumedLayers: number | undefined;
+    const program: CompiledOperatorUpgradeEventProgram = {
+      key: 'talent:no-guard-consumed:0',
+      event: { kind: 'buffConsumed', buffIds: ['buff_physical_no_guard'] },
+      initialBlackboard: { dmg_up: 0.06 },
+      sequence: {
+        steps: [
+          {
+            kind: 'applyBuff',
+            parameters: {
+              buffId: 'physical-up',
+              target: 'caster',
+              count: { kind: 'blackboard', key: 'consumedLayer' },
+            },
+          },
+        ],
+      },
+    };
+    new OperatorUpgradeEventRuntime(events, 'operator:dapan', [program], () => ({
+      execute: (_step, context) => {
+        consumedLayers = context?.blackboard.getNumber('consumedLayer');
+        return true;
+      },
+      evaluate: () => false,
+    }));
+
+    events.emit({
+      kind: 'buffConsumed',
+      sourceOperatorId: 'operator:dapan',
+      targetId: 'enemy',
+      buffId: 'buff_physical_no_guard',
+      layers: 4,
+    });
+
+    expect(consumedLayers).toBe(4);
+  });
 });

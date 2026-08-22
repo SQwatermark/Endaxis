@@ -529,18 +529,37 @@ function resolveStep(
       };
     }
     case 'applyPhysicalInfliction': {
-      const { noGuardDefinition, fractureDefinition, ...parameters } = step.parameters;
+      const { noGuardDefinition, ...parameters } = step.parameters;
+      const resolvedNoGuard = resolveSkillBuffDefinition(
+        noGuardDefinition,
+        skillLevel,
+        `${path}.parameters.noGuardDefinition`,
+        abilityEntities,
+      );
+      if (parameters.type === 'crush') {
+        const { crushedDefinition, ...crushParameters } = parameters;
+        return {
+          ...keyed,
+          kind: step.kind,
+          parameters: {
+            ...crushParameters,
+            noGuardDefinition: resolvedNoGuard,
+            crushedDefinition: resolveSkillBuffDefinition(
+              crushedDefinition,
+              skillLevel,
+              `${path}.parameters.crushedDefinition`,
+              abilityEntities,
+            ),
+          },
+        };
+      }
+      const { fractureDefinition, ...fractureParameters } = parameters;
       return {
         ...keyed,
         kind: step.kind,
         parameters: {
-          ...parameters,
-          noGuardDefinition: resolveSkillBuffDefinition(
-            noGuardDefinition,
-            skillLevel,
-            `${path}.parameters.noGuardDefinition`,
-            abilityEntities,
-          ),
+          ...fractureParameters,
+          noGuardDefinition: resolvedNoGuard,
           fractureDefinition: resolveSkillBuffDefinition(
             fractureDefinition,
             skillLevel,

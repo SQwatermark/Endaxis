@@ -154,16 +154,16 @@
       "operatorCount": 22,
       "talent": {
         "totalCount": 44,
-        "definitionConvertedCount": 33,
-        "standardSimulationCompileReadyCount": 33
+        "definitionConvertedCount": 34,
+        "standardSimulationCompileReadyCount": 34
       },
       "potential": {
         "totalCount": 110,
         "definitionConvertedCount": 110,
         "standardSimulationCompileReadyCount": 110
       },
-      "definitionCompleteOperatorCount": 14,
-      "standardSimulationCompileReadyOperatorCount": 14
+      "definitionCompleteOperatorCount": 15,
+      "standardSimulationCompileReadyOperatorCount": 15
     }
   },
   "operators": [
@@ -3436,24 +3436,23 @@
         "slug": "da-pan",
         "talent": {
           "totalCount": 2,
-          "definitionConvertedCount": 1,
-          "standardSimulationCompileReadyCount": 1
+          "definitionConvertedCount": 2,
+          "standardSimulationCompileReadyCount": 2
         },
         "potential": {
           "totalCount": 5,
           "definitionConvertedCount": 5,
           "standardSimulationCompileReadyCount": 5
         },
-        "definitionComplete": false,
-        "standardSimulationCompileReady": false,
+        "definitionComplete": true,
+        "standardSimulationCompileReady": true,
         "talents": [
           {
             "key": "talent1",
             "sourceEffectIds": ["chr_0018_dapan_talent_1_1", "chr_0018_dapan_talent_1_2"],
-            "compiler": "unmodeledTalent",
-            "definitionConverted": false,
-            "standardSimulationCompileReady": false,
-            "blocker": "unmodeled-source-effect"
+            "compiler": "consumedNoGuardPhysicalDamage",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
           },
           {
             "key": "talent2",

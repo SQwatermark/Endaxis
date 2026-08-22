@@ -648,24 +648,6 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
             undefined,
             { alwaysNext: true },
           ),
-          step('dealDamage', {
-            damageType: 'physical',
-            attackScale: percentages([106, 116, 127, 137, 148, 158, 169, 180, 190, 203, 219, 238]),
-            tags: ['normalSkill'],
-            features: ['canBreakWeakness'],
-            stagger: 5,
-          }, '11:battleSkill6:direct29:chr_0029_pograni_normal_skill11:actionOrder2:88'),
-        ),
-      ),
-      scheduled(
-        38,
-        sequence(
-          step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
-        ),
-      ),
-      scheduled(
-        38,
-        sequence(
           step('applyPhysicalInfliction', {
             type: 'fracture',
             target: 'enemy',
@@ -774,6 +756,19 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
               },
             },
           }),
+          step('dealDamage', {
+            damageType: 'physical',
+            attackScale: percentages([106, 116, 127, 137, 148, 158, 169, 180, 190, 203, 219, 238]),
+            tags: ['normalSkill'],
+            features: ['canBreakWeakness'],
+            stagger: 5,
+          }, '11:battleSkill6:direct29:chr_0029_pograni_normal_skill11:actionOrder2:88'),
+        ),
+      ),
+      scheduled(
+        38,
+        sequence(
+          step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
         ),
       ),
     ],

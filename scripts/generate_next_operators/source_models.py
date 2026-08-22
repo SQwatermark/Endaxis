@@ -226,6 +226,8 @@ class PhysicalInflictionPayload:
     isExtra: bool
     deadOption: str
     immobilizedTime: float
+    damageMultiplier: ScalarSource | None = None
+    ignoreHitEffect: bool = False
 
 
 @dataclass(frozen=True)
@@ -246,6 +248,7 @@ class TimedPhysicalInflictionSource:
     endFrame: int
     actionIndex: int
     payload: PhysicalInflictionPayload
+    sequenceIndex: int = -1
 
 
 @dataclass(frozen=True)

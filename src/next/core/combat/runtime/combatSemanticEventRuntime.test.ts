@@ -3,6 +3,45 @@ import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 import type { CombatOperationExecutor } from './skillRuntime';
 
 describe('CombatSemanticEventRuntime', () => {
+  it('matches consumed Buff identity and consuming operator', () => {
+    const runtime = new CombatSemanticEventRuntime();
+    const received: string[] = [];
+    runtime.register({
+      ownerOperatorId: 'operator:a',
+      trigger: { kind: 'buffConsumed', buffIds: ['buff:no-guard'] },
+      phase: 'dataAction',
+      handle: context => {
+        if (context.event.kind === 'buffConsumed') {
+          received.push(`${context.event.kind}:${context.event.sourceOperatorId}`);
+        }
+      },
+    });
+
+    runtime.emit({
+      kind: 'buffConsumed',
+      sourceOperatorId: 'operator:b',
+      targetId: 'enemy',
+      buffId: 'buff:no-guard',
+      layers: 1,
+    });
+    runtime.emit({
+      kind: 'buffConsumed',
+      sourceOperatorId: 'operator:a',
+      targetId: 'enemy',
+      buffId: 'buff:other',
+      layers: 1,
+    });
+    runtime.emit({
+      kind: 'buffConsumed',
+      sourceOperatorId: 'operator:a',
+      targetId: 'enemy',
+      buffId: 'buff:no-guard',
+      layers: 2,
+    });
+
+    expect(received).toEqual(['buffConsumed:operator:a']);
+  });
+
   it('routes Buff application facts only to the Buff owner', () => {
     const runtime = new CombatSemanticEventRuntime();
     const received: string[] = [];

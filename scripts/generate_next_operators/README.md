@@ -167,7 +167,7 @@ python scripts/generate_next_operators/audit_operator_progression.py `
 报告的 `summary.configuredProgression` 以正式 manifest 的天赋/潜能槽位为单位，分别给出
 `definitionConvertedCount` 与 `standardSimulationCompileReadyCount`。后者只表示面板、技能补丁或常驻
 被动程序已经能进入标准场景编译，不等于所有触发条件都能在某条具体时间轴中发生，也不替代技能主体
-和 Buff 闭包审计。当前基线为 22 名正式生成干员：天赋 33/44 已转换、33/44 可进入模拟编译；潜能
+和 Buff 闭包审计。当前基线为 22 名正式生成干员：天赋 34/44 已转换、34/44 可进入模拟编译；潜能
 110/110 已转换、110/110 可进入模拟编译。当前所有已经完整写入定义的养成槽位都已有标准模拟消费链；
 后续重点转为扩大可无损转换的来源效果集合。
 
@@ -283,7 +283,7 @@ key 与二段第 0 帧还原帧。Next 用 `replacementSkills` 保存不可直�
 - 技能释放条件只用于合法性诊断。即使条件、费用或冷却不满足，用户排入时间轴的技能仍会进入模拟并产生结果。
 - 当前战斗模型只有一个敌人。佩丽卡连携的多目标递归弹射必须在清单中显式声明忽略，并由生成器校验它确实是同一投射物和命中技能形成的递归分支。
 - `AuraAction` 是战斗动作，不是表现占位。当前公共 SkillData 中有 117 个原始光环动作；从 320 个干员入口静态可达 20 个。生成器会把根技能及已解析能力实体/投射物调用图中的光环结构化为 `auraActions`，保留来源文件、时间区间、范围、目标过滤、Buff 输入和内部动作清单。固定零空间模型可编译根时间轴及条件分支中、plain Owner、没有额外标签或槽位筛选的闭合 Aura：敌对范围归约到唯一敌人，友方范围归约到全队；`TargetFilter.objectType` 按原生位掩码相交语义接受枚举名或有符号 int32，只有目标抽象的类型位实际命中时才归约。区间开始施加内联 Buff，区间结束通过步骤保存的实例句柄精确结束实际创建的 Buff，不按 ID 清除其他来源同名实例。能力实体子时间线还支持来源明确的固定阵营 `Anti/Bad` 与 `Anti/Good`：后者分别归约为唯一敌人和友方队伍；直接的 `FinishBuffAdvanced` 进入动作先清理对应离场 Buff，直接的 `CreateBuffAction` 离开动作在 Aura 结束帧施加离场 Buff。`ActionSource` owner-spawned 实体查询只在能力实体子图中归约为原施法者，根技能仍要求 `ActionOwner`。同组 `CheckEntityNum(Context, GE >= 1)` 已证明带标签能力实体实例存在时，紧邻的该 Context 距离条件才可按项目零距离模型折叠。条件叶子必须以精确 `actionPath` 绑定已解析 Aura 载荷，并保留外层原生 Sequence 的结束帧，不能提升为无条件根调度。BuffData 光环及未闭环的嵌套形状继续保留为审计事实。精确分布以当前递归审计为准。
-- `FractureAction` 会被解析为明确的 `fracture` 物理异常载荷。根时间轴和条件分支都保留目标、原生顺序、`isExtra`、中断时长以及全部击退参数；空间参数只作为证据保存，不在固定单敌人模型中执行。生成 DSL 使用固定形状的 `applyPhysicalInfliction`，内联公共 `buff_physical_no_guard` 与 `buff_physical_fracture` 定义：目标没有破防层时先创建破防层，已有破防层时触发其物理点燃响应并进入碎甲 Buff 链。原生 `DamageDecorateMask.Fracture` 位会生成 `physicalInfliction` 伤害特征，运行时因此应用物理异常伤害倍率。任何其他异常类型、目标身份、缺失公共 Buff 或未闭环载荷仍严格阻塞。
+- `FractureAction` 与 `CrushAction` 会被解析为明确的物理异常载荷。根时间轴和条件分支都保留目标、原生顺序、`isExtra`、中断时长以及全部击退参数；空间参数只作为证据保存，不在固定单敌人模型中执行。生成 DSL 使用判别式 `applyPhysicalInfliction`，两者内联公共 `buff_physical_no_guard`，再分别内联 `buff_physical_fracture` 或 `buff_physical_crushed`。目标没有破防层时先创建破防层，已有破防层时才进入对应状态 Buff 链；Crush 额外保留 `damageMultiplier` 与 `ignoreHitEffect`，且消费破防的原生动作顺序早于同一 Sequence 中的后续直伤。原生 `DamageDecorateMask.Fracture` 位会生成 `physicalInfliction` 伤害特征，运行时因此应用物理异常伤害倍率。任何其他异常类型、目标身份、缺失公共 Buff 或未闭环载荷仍严格阻塞。
 - 技能时间轴中的 `EventListenerAction` 会作为独立的事件订阅事实保存，包含注册区间、事件名、原生动作顺序、主控/守卫限制及可解析的 Buff 创建载荷。监听器内部动作不会被提升为技能第 0 帧或注册帧上的无条件动作。`OnAddedBuff` 现由 Buff 目标在实例创建成功后向全场语义总线发布目标、Buff ID 和来源身份；技能监听器只接收自身宿主事件，`CheckBuffIdInContext(Id + HasAny)` 编译为事件 Buff ID 条件并复用同一响应动作树。固定时间轴没有“脱离战斗”状态，因此 `OnTrulyExitFight` 保留在 audit 但不注册，清理响应也不会被无条件执行。其他尚未闭环的事件继续严格阻塞。
 - BuffData 的事件序列同样保留同步条件树。目标组生产者可选择进入有序树用于同帧溯源；每条非空序列按原生规则把首个启用动作的 `priorityLevel + priorityOffset` 降为数值（`Low=-100 / Default=0 / High=100`），空启用序列按原生 `CreateSequenceAction` 的 null 结果省略。`OnBeforeTakeDamage` 中 plain `Target == Source` 只有在 Buff 承伤事件上下文内才可编译为“伤害来源等于 Buff 来源”；其他同名目标不得借用。`InterruptAction` 的完整目标、霸体上限和定身参数保留在审计层；当前模拟器没有敌方主动技能、红圈可打断状态或行动时间线，而原生动作自身恒返回成功，因此正式编译将它归约为不阻断后续序列的零效果动作，不建立伪造的敌方控制状态。其他未知状态动作仍必须显式拒绝。
 - BuffData 自身的 `timelineActions` 编译为 Buff 实例级 `scheduledSequences`，每个实例独占本地帧游标，并随 Buff 启用、停用和重启。嵌套创建的 Buff 递归内联完整定义；命名 `Context` 目标只有在创建调用明确传入目标身份，或本地此前目标组写入能够证明身份时才归约。Li Zhiyan 连携中 `seal_total` 的 owner 是诀，但其 `Context/trigger` 是连携输入敌人；第 2 帧创建的 `seal` 因而由敌人持有，随后隐藏结束子技能的输入 `Target` 也保持为该敌人。能力实体模板不参与这条所有权链。

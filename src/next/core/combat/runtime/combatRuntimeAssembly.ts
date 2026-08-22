@@ -1205,6 +1205,7 @@ export class CombatRuntimeAssembly {
         this.#resolveAbilityEntityBuffTarget(target, this.#options),
       resolveEventTarget: targetId => this.#resolveBuffTargetById(targetId),
       resolveBuffDefinition: buffId => operator.buffDefinitions?.[buffId],
+      onBuffConsumed: event => this.semanticEvents.emit({ kind: 'buffConsumed', ...event }),
       delegate: timeDilationOperations,
     });
     const statusOperations = new StatusOperationExecutor({
@@ -1370,6 +1371,7 @@ export class CombatRuntimeAssembly {
         this.#resolveAbilityEntityBuffTarget(target, options),
       resolveEventTarget: targetId => this.#resolveBuffTargetById(targetId),
       resolveBuffDefinition: buffId => operator.buffDefinitions?.[buffId],
+      onBuffConsumed: event => this.semanticEvents.emit({ kind: 'buffConsumed', ...event }),
       delegate: timeDilationOperations,
     });
     const statusRuntime = this.#operatorStatuses.get(operatorId);

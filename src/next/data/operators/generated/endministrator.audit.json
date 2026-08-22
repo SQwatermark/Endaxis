@@ -1463,6 +1463,194 @@
       }
     },
     {
+      "buffId": "buff_common_cryst_triggered_physical_break",
+      "sourceFile": "buff_common_cryst_triggered_physical_break.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 5.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unlimited",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "atk_scale",
+          "value": 0.0,
+          "isDynamic": true
+        }
+      ],
+      "applyTagIds": [
+        -615023885
+      ],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "DamageAction",
+            "EffectAction",
+            "PlaySoundAction",
+            "IgniteBuffTextAction"
+          ],
+          "combatActions": [
+            "DamageAction"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  0.0
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 134217728
+            }
+          ],
+          "buffApplications": [],
+          "createdBuffIds": [],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "DamageAction",
+                "EffectAction",
+                "PlaySoundAction",
+                "IgniteBuffTextAction"
+              ],
+              "combatActions": [
+                "DamageAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "DamageAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "damageUnits": [
+                    {
+                      "damageType": "Physical",
+                      "attributeType": "Hp",
+                      "calculation": "standard",
+                      "attackScale": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_scale",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "calculationMultiplier": null,
+                      "poiseValue": null,
+                      "definiteValue": null,
+                      "damageDecorateMask": 134217728
+                    }
+                  ]
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
+    },
+    {
       "buffId": "buff_common_damage_immune_medium",
       "sourceFile": "buff_common_damage_immune_medium.json",
       "sourceAvailable": true,
@@ -3940,6 +4128,2949 @@
         -1486085048,
         -496376350,
         2002680355
+      ],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
+    },
+    {
+      "buffId": "buff_physical_crushed",
+      "sourceFile": "buff_physical_crushed.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 3.0,
+          "blackboardKey": "duration",
+          "levelValues": [
+            3.0
+          ]
+        },
+        "triggerInterval": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "StackingKey",
+        "stackingType": "Stack",
+        "stackingKey": "physical",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "atk_scale",
+          "value": 1.0,
+          "isDynamic": true
+        },
+        {
+          "key": "count",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "dmg_multiplier",
+          "value": 1.0,
+          "isDynamic": false
+        },
+        {
+          "key": "duration",
+          "value": 3.0,
+          "isDynamic": false
+        },
+        {
+          "key": "ignore_hit_effect",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [
+        -168668661
+      ],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "StoreBuffCount",
+            "ReadSkillSettingData",
+            "ModifyDynamicBlackboard",
+            "FinishBuffAction",
+            "DamageAction",
+            "InterruptAction",
+            "PlaySoundAction",
+            "EffectAction",
+            "CreateBuffAction",
+            "IgniteAction",
+            "CompareFloat",
+            "SwitchAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction",
+            "DamageAction",
+            "FinishBuffAction",
+            "IgniteAction",
+            "SwitchAction"
+          ],
+          "damageUnits": [
+            {
+              "damageType": "Physical",
+              "attributeType": "Hp",
+              "calculation": "standard",
+              "attackScale": {
+                "value": 0.0,
+                "blackboardKey": "atk_scale",
+                "levelValues": [
+                  1.0
+                ]
+              },
+              "calculationMultiplier": null,
+              "poiseValue": null,
+              "definiteValue": null,
+              "damageDecorateMask": 16384
+            }
+          ],
+          "buffApplications": [
+            {
+              "actionIndex": 8,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_physical_handle_cryst_break",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_physical_handle_cryst_break"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "StoreBuffCount",
+                "ReadSkillSettingData",
+                "ModifyDynamicBlackboard",
+                "FinishBuffAction",
+                "DamageAction",
+                "InterruptAction",
+                "PlaySoundAction",
+                "EffectAction"
+              ],
+              "combatActions": [
+                "FinishBuffAction",
+                "DamageAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "ModifyDynamicBlackboard",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 2,
+                  "blackboardMutation": {
+                    "key": "atk_scale",
+                    "operation": "Multiply",
+                    "value": {
+                      "value": 0.0,
+                      "blackboardKey": "dmg_multiplier",
+                      "levelValues": [
+                        1.0
+                      ]
+                    }
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "FinishBuffAction",
+                  "actionIndex": 3,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[3]"
+                  ],
+                  "serverActionIndex": 3,
+                  "legacyBuffFinish": {
+                    "target": {
+                      "targetSource": "Owner",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "buffIds": [
+                      "buff_physical_no_guard"
+                    ],
+                    "finishAll": true,
+                    "finishLayerCount": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "limitSource": false,
+                    "buffSource": {
+                      "targetSource": "Source",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "isFinishedEarly": true,
+                    "finishSource": {
+                      "targetSource": "Source",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    }
+                  },
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "DamageAction",
+                  "actionIndex": 4,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[4]"
+                  ],
+                  "serverActionIndex": 4,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "damageUnits": [
+                    {
+                      "damageType": "Physical",
+                      "attributeType": "Hp",
+                      "calculation": "standard",
+                      "attackScale": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_scale",
+                        "levelValues": [
+                          1.0
+                        ]
+                      },
+                      "calculationMultiplier": null,
+                      "poiseValue": null,
+                      "definiteValue": null,
+                      "damageDecorateMask": 16384
+                    }
+                  ]
+                },
+                {
+                  "actionType": "InterruptAction",
+                  "actionIndex": 5,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[5]"
+                  ],
+                  "serverActionIndex": 5,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "interrupt": {
+                    "attacker": {
+                      "targetSource": "Source",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "defender": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "overrideSuperArmorLimit": -1.0,
+                    "immobilizedTime": 2.0
+                  }
+                }
+              ],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 8,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_physical_handle_cryst_break",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 8,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_physical_handle_cryst_break",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "IgniteAction"
+              ],
+              "combatActions": [
+                "IgniteAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "IgniteAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 9,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": {
+                    "source": {
+                      "targetSource": "Source",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "target": {
+                      "targetSource": "Owner",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "igniteType": "PhysicalStatus",
+                    "successTargetContextKey": ""
+                  }
+                }
+              ],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CompareFloat",
+                "SwitchAction"
+              ],
+              "combatActions": [
+                "SwitchAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "CompareFloat",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 10,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 10,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CompareFloat",
+                        "supported": true,
+                        "comparison": "LT",
+                        "left": {
+                          "value": 0.0,
+                          "blackboardKey": "ignore_hit_effect",
+                          "levelValues": [
+                            0.0
+                          ]
+                        },
+                        "right": {
+                          "value": 0.5,
+                          "blackboardKey": null,
+                          "levelValues": null
+                        },
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "SwitchAction",
+                        "actionIndex": 1,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[1]"
+                        ],
+                        "serverActionIndex": 11,
+                        "nestedCondition": {
+                          "startFrame": 0,
+                          "endFrame": 0,
+                          "actionIndex": 11,
+                          "actionPath": [
+                            "timelineActions[0]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[1]",
+                            "options",
+                            "[0]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "CompareFloat",
+                              "supported": true,
+                              "comparison": "Equals",
+                              "left": {
+                                "value": 0.0,
+                                "blackboardKey": "count",
+                                "levelValues": [
+                                  0.0
+                                ]
+                              },
+                              "right": {
+                                "value": 0.0,
+                                "blackboardKey": null,
+                                "levelValues": null
+                              },
+                              "skillTypes": [],
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
+                              "targetAngle": null,
+                              "damageDecorateMask": null,
+                              "contextBuffId": null,
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "TimeDilationAction",
+                              "actionIndex": 1,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[1]",
+                                "options",
+                                "[0]",
+                                "actionData",
+                                "actionData",
+                                "[1]"
+                              ],
+                              "serverActionIndex": 13,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
+                              "timeDilation": {
+                                "startFrame": 0,
+                                "endFrame": 0,
+                                "actionIndex": 13,
+                                "kind": "normal",
+                                "priority": -693798243,
+                                "scope": "entity",
+                                "slot": 1464849466,
+                                "duration": {
+                                  "value": 0.1,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "namedCurve": "interrupt_weakness",
+                                "inlineCurve": [],
+                                "finishByAction": false,
+                                "ignoredTargets": [],
+                                "targets": [
+                                  "caster",
+                                  "caster"
+                                ],
+                                "omittedAbilityEntityTargets": 0,
+                                "ignoredAbilityEntityTargets": [],
+                                "influenceSkillCooldown": null,
+                                "targetScale": null,
+                                "sequenceIndex": -1,
+                                "effectAbilityEntityTargets": []
+                              }
+                            }
+                          ],
+                          "failActions": [
+                            {
+                              "actionType": "SwitchAction",
+                              "actionIndex": 0,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[1]",
+                                "options",
+                                "[1]"
+                              ],
+                              "serverActionIndex": 11,
+                              "nestedCondition": {
+                                "startFrame": 0,
+                                "endFrame": 0,
+                                "actionIndex": 11,
+                                "actionPath": [
+                                  "timelineActions[0]",
+                                  "_sequenceActionData",
+                                  "actionData",
+                                  "[0]",
+                                  "succeedActions",
+                                  "actionData",
+                                  "[1]",
+                                  "options",
+                                  "[1]"
+                                ],
+                                "conditions": [
+                                  {
+                                    "sourceType": "CompareFloat",
+                                    "supported": true,
+                                    "comparison": "Equals",
+                                    "left": {
+                                      "value": 0.0,
+                                      "blackboardKey": "count",
+                                      "levelValues": [
+                                        0.0
+                                      ]
+                                    },
+                                    "right": {
+                                      "value": 1.0,
+                                      "blackboardKey": null,
+                                      "levelValues": null
+                                    },
+                                    "skillTypes": [],
+                                    "poise": null,
+                                    "superArmor": null,
+                                    "twoDirectionAngle": null,
+                                    "targetAngle": null,
+                                    "damageDecorateMask": null,
+                                    "contextBuffId": null,
+                                    "objectTypeMatch": null,
+                                    "deckAttributeCompare": null,
+                                    "probability": null,
+                                    "anyConditionGroups": [],
+                                    "anyConditionNegated": []
+                                  }
+                                ],
+                                "succeedActions": [
+                                  {
+                                    "actionType": "TimeDilationAction",
+                                    "actionIndex": 1,
+                                    "actionPath": [
+                                      "timelineActions[0]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[0]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[1]",
+                                      "options",
+                                      "[1]",
+                                      "actionData",
+                                      "actionData",
+                                      "[1]"
+                                    ],
+                                    "serverActionIndex": 15,
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null,
+                                    "timeDilation": {
+                                      "startFrame": 0,
+                                      "endFrame": 0,
+                                      "actionIndex": 15,
+                                      "kind": "normal",
+                                      "priority": -2059842104,
+                                      "scope": "entity",
+                                      "slot": 1464849466,
+                                      "duration": {
+                                        "value": 0.1,
+                                        "blackboardKey": null,
+                                        "levelValues": null
+                                      },
+                                      "namedCurve": "interrupt_weakness",
+                                      "inlineCurve": [],
+                                      "finishByAction": false,
+                                      "ignoredTargets": [],
+                                      "targets": [
+                                        "caster",
+                                        "caster"
+                                      ],
+                                      "omittedAbilityEntityTargets": 0,
+                                      "ignoredAbilityEntityTargets": [],
+                                      "influenceSkillCooldown": null,
+                                      "targetScale": null,
+                                      "sequenceIndex": -1,
+                                      "effectAbilityEntityTargets": []
+                                    }
+                                  }
+                                ],
+                                "failActions": [
+                                  {
+                                    "actionType": "SwitchAction",
+                                    "actionIndex": 1,
+                                    "actionPath": [
+                                      "timelineActions[0]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[0]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[1]",
+                                      "options",
+                                      "[2]"
+                                    ],
+                                    "serverActionIndex": 11,
+                                    "nestedCondition": {
+                                      "startFrame": 0,
+                                      "endFrame": 0,
+                                      "actionIndex": 11,
+                                      "actionPath": [
+                                        "timelineActions[0]",
+                                        "_sequenceActionData",
+                                        "actionData",
+                                        "[0]",
+                                        "succeedActions",
+                                        "actionData",
+                                        "[1]",
+                                        "options",
+                                        "[2]"
+                                      ],
+                                      "conditions": [
+                                        {
+                                          "sourceType": "CompareFloat",
+                                          "supported": true,
+                                          "comparison": "Equals",
+                                          "left": {
+                                            "value": 0.0,
+                                            "blackboardKey": "count",
+                                            "levelValues": [
+                                              0.0
+                                            ]
+                                          },
+                                          "right": {
+                                            "value": 2.0,
+                                            "blackboardKey": null,
+                                            "levelValues": null
+                                          },
+                                          "skillTypes": [],
+                                          "poise": null,
+                                          "superArmor": null,
+                                          "twoDirectionAngle": null,
+                                          "targetAngle": null,
+                                          "damageDecorateMask": null,
+                                          "contextBuffId": null,
+                                          "objectTypeMatch": null,
+                                          "deckAttributeCompare": null,
+                                          "probability": null,
+                                          "anyConditionGroups": [],
+                                          "anyConditionNegated": []
+                                        }
+                                      ],
+                                      "succeedActions": [
+                                        {
+                                          "actionType": "TimeDilationAction",
+                                          "actionIndex": 1,
+                                          "actionPath": [
+                                            "timelineActions[0]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[1]",
+                                            "options",
+                                            "[2]",
+                                            "actionData",
+                                            "actionData",
+                                            "[1]"
+                                          ],
+                                          "serverActionIndex": 17,
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null,
+                                          "timeDilation": {
+                                            "startFrame": 0,
+                                            "endFrame": 0,
+                                            "actionIndex": 17,
+                                            "kind": "normal",
+                                            "priority": 1798502681,
+                                            "scope": "entity",
+                                            "slot": 1464849466,
+                                            "duration": {
+                                              "value": 0.25,
+                                              "blackboardKey": null,
+                                              "levelValues": null
+                                            },
+                                            "namedCurve": "interrupt_weakness",
+                                            "inlineCurve": [],
+                                            "finishByAction": false,
+                                            "ignoredTargets": [],
+                                            "targets": [
+                                              "caster",
+                                              "caster"
+                                            ],
+                                            "omittedAbilityEntityTargets": 0,
+                                            "ignoredAbilityEntityTargets": [],
+                                            "influenceSkillCooldown": null,
+                                            "targetScale": null,
+                                            "sequenceIndex": -1,
+                                            "effectAbilityEntityTargets": []
+                                          }
+                                        }
+                                      ],
+                                      "failActions": [
+                                        {
+                                          "actionType": "SwitchAction",
+                                          "actionIndex": 2,
+                                          "actionPath": [
+                                            "timelineActions[0]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[1]",
+                                            "options",
+                                            "[3]"
+                                          ],
+                                          "serverActionIndex": 11,
+                                          "nestedCondition": {
+                                            "startFrame": 0,
+                                            "endFrame": 0,
+                                            "actionIndex": 11,
+                                            "actionPath": [
+                                              "timelineActions[0]",
+                                              "_sequenceActionData",
+                                              "actionData",
+                                              "[0]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[1]",
+                                              "options",
+                                              "[3]"
+                                            ],
+                                            "conditions": [
+                                              {
+                                                "sourceType": "CompareFloat",
+                                                "supported": true,
+                                                "comparison": "Equals",
+                                                "left": {
+                                                  "value": 0.0,
+                                                  "blackboardKey": "count",
+                                                  "levelValues": [
+                                                    0.0
+                                                  ]
+                                                },
+                                                "right": {
+                                                  "value": 3.0,
+                                                  "blackboardKey": null,
+                                                  "levelValues": null
+                                                },
+                                                "skillTypes": [],
+                                                "poise": null,
+                                                "superArmor": null,
+                                                "twoDirectionAngle": null,
+                                                "targetAngle": null,
+                                                "damageDecorateMask": null,
+                                                "contextBuffId": null,
+                                                "objectTypeMatch": null,
+                                                "deckAttributeCompare": null,
+                                                "probability": null,
+                                                "anyConditionGroups": [],
+                                                "anyConditionNegated": []
+                                              }
+                                            ],
+                                            "succeedActions": [
+                                              {
+                                                "actionType": "TimeDilationAction",
+                                                "actionIndex": 1,
+                                                "actionPath": [
+                                                  "timelineActions[0]",
+                                                  "_sequenceActionData",
+                                                  "actionData",
+                                                  "[0]",
+                                                  "succeedActions",
+                                                  "actionData",
+                                                  "[1]",
+                                                  "options",
+                                                  "[3]",
+                                                  "actionData",
+                                                  "actionData",
+                                                  "[1]"
+                                                ],
+                                                "serverActionIndex": 19,
+                                                "legacyBuffFinish": null,
+                                                "skillCooldownAdjustment": null,
+                                                "buffIgnite": null,
+                                                "timeDilation": {
+                                                  "startFrame": 0,
+                                                  "endFrame": 0,
+                                                  "actionIndex": 19,
+                                                  "kind": "normal",
+                                                  "priority": 1798502681,
+                                                  "scope": "entity",
+                                                  "slot": 1464849466,
+                                                  "duration": {
+                                                    "value": 0.5,
+                                                    "blackboardKey": null,
+                                                    "levelValues": null
+                                                  },
+                                                  "namedCurve": "interrupt_weakness",
+                                                  "inlineCurve": [],
+                                                  "finishByAction": false,
+                                                  "ignoredTargets": [],
+                                                  "targets": [
+                                                    "caster",
+                                                    "caster"
+                                                  ],
+                                                  "omittedAbilityEntityTargets": 0,
+                                                  "ignoredAbilityEntityTargets": [],
+                                                  "influenceSkillCooldown": null,
+                                                  "targetScale": null,
+                                                  "sequenceIndex": -1,
+                                                  "effectAbilityEntityTargets": []
+                                                }
+                                              }
+                                            ],
+                                            "failActions": [
+                                              {
+                                                "actionType": "SwitchAction",
+                                                "actionIndex": 3,
+                                                "actionPath": [
+                                                  "timelineActions[0]",
+                                                  "_sequenceActionData",
+                                                  "actionData",
+                                                  "[0]",
+                                                  "succeedActions",
+                                                  "actionData",
+                                                  "[1]",
+                                                  "options",
+                                                  "[4]"
+                                                ],
+                                                "serverActionIndex": 11,
+                                                "nestedCondition": {
+                                                  "startFrame": 0,
+                                                  "endFrame": 0,
+                                                  "actionIndex": 11,
+                                                  "actionPath": [
+                                                    "timelineActions[0]",
+                                                    "_sequenceActionData",
+                                                    "actionData",
+                                                    "[0]",
+                                                    "succeedActions",
+                                                    "actionData",
+                                                    "[1]",
+                                                    "options",
+                                                    "[4]"
+                                                  ],
+                                                  "conditions": [
+                                                    {
+                                                      "sourceType": "CompareFloat",
+                                                      "supported": true,
+                                                      "comparison": "Equals",
+                                                      "left": {
+                                                        "value": 0.0,
+                                                        "blackboardKey": "count",
+                                                        "levelValues": [
+                                                          0.0
+                                                        ]
+                                                      },
+                                                      "right": {
+                                                        "value": 4.0,
+                                                        "blackboardKey": null,
+                                                        "levelValues": null
+                                                      },
+                                                      "skillTypes": [],
+                                                      "poise": null,
+                                                      "superArmor": null,
+                                                      "twoDirectionAngle": null,
+                                                      "targetAngle": null,
+                                                      "damageDecorateMask": null,
+                                                      "contextBuffId": null,
+                                                      "objectTypeMatch": null,
+                                                      "deckAttributeCompare": null,
+                                                      "probability": null,
+                                                      "anyConditionGroups": [],
+                                                      "anyConditionNegated": []
+                                                    }
+                                                  ],
+                                                  "succeedActions": [
+                                                    {
+                                                      "actionType": "TimeDilationAction",
+                                                      "actionIndex": 1,
+                                                      "actionPath": [
+                                                        "timelineActions[0]",
+                                                        "_sequenceActionData",
+                                                        "actionData",
+                                                        "[0]",
+                                                        "succeedActions",
+                                                        "actionData",
+                                                        "[1]",
+                                                        "options",
+                                                        "[4]",
+                                                        "actionData",
+                                                        "actionData",
+                                                        "[1]"
+                                                      ],
+                                                      "serverActionIndex": 21,
+                                                      "legacyBuffFinish": null,
+                                                      "skillCooldownAdjustment": null,
+                                                      "buffIgnite": null,
+                                                      "timeDilation": {
+                                                        "startFrame": 0,
+                                                        "endFrame": 0,
+                                                        "actionIndex": 21,
+                                                        "kind": "normal",
+                                                        "priority": 1798502681,
+                                                        "scope": "entity",
+                                                        "slot": 1464849466,
+                                                        "duration": {
+                                                          "value": 0.65,
+                                                          "blackboardKey": null,
+                                                          "levelValues": null
+                                                        },
+                                                        "namedCurve": "interrupt_weakness",
+                                                        "inlineCurve": [],
+                                                        "finishByAction": false,
+                                                        "ignoredTargets": [],
+                                                        "targets": [
+                                                          "caster",
+                                                          "caster"
+                                                        ],
+                                                        "omittedAbilityEntityTargets": 0,
+                                                        "ignoredAbilityEntityTargets": [],
+                                                        "influenceSkillCooldown": null,
+                                                        "targetScale": null,
+                                                        "sequenceIndex": -1,
+                                                        "effectAbilityEntityTargets": []
+                                                      }
+                                                    }
+                                                  ],
+                                                  "failActions": [],
+                                                  "conditionNegated": [],
+                                                  "alwaysNext": false
+                                                },
+                                                "legacyBuffFinish": null,
+                                                "skillCooldownAdjustment": null,
+                                                "buffIgnite": null
+                                              }
+                                            ],
+                                            "conditionNegated": [],
+                                            "alwaysNext": false
+                                          },
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null
+                                        }
+                                      ],
+                                      "conditionNegated": [],
+                                      "alwaysNext": false
+                                    },
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null
+                                  }
+                                ],
+                                "conditionNegated": [],
+                                "alwaysNext": false
+                              },
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null
+                            }
+                          ],
+                          "conditionNegated": [],
+                          "alwaysNext": true
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      }
+                    ],
+                    "failActions": [],
+                    "conditionNegated": [],
+                    "alwaysNext": false
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": true,
+        "spritePath": "knockback",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
+    },
+    {
+      "buffId": "buff_physical_handle_cryst_break",
+      "sourceFile": "buff_physical_handle_cryst_break.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 10.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Stack",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "atk_scale",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "count",
+          "value": 0.0,
+          "isDynamic": true
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "GetTargetBuffBBAdvanced",
+            "ReadSkillSettingData",
+            "FinishBuffAdvanced",
+            "CreateBuffAction",
+            "SwitchAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction",
+            "SwitchAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 3,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_common_cryst_triggered_physical_break",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "atk_scale": {
+                        "value": 4.0,
+                        "blackboardKey": "atk_scale",
+                        "levelValues": [
+                          0.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_common_cryst_triggered_physical_break"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "GetTargetBuffBBAdvanced",
+                "ReadSkillSettingData",
+                "FinishBuffAdvanced",
+                "CreateBuffAction",
+                "SwitchAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction",
+                "SwitchAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 3,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_cryst_triggered_physical_break",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "atk_scale": {
+                            "value": 4.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "GetTargetBuffBBAdvanced",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "buffBlackboardRead": {
+                    "outputKey": "count",
+                    "desiredKey": "count",
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Tag",
+                    "buffIds": [],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": [
+                      1535684437
+                    ]
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "FinishBuffAdvanced",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 2,
+                  "buffFinish": {
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Tag",
+                    "buffIds": [],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": [
+                      1535684437
+                    ],
+                    "finishAll": true,
+                    "limitSource": false,
+                    "isFinishedEarly": true,
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                },
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 3,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[3]"
+                  ],
+                  "serverActionIndex": 3,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_common_cryst_triggered_physical_break",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "atk_scale": {
+                            "value": 4.0,
+                            "blackboardKey": "atk_scale",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                },
+                {
+                  "actionType": "SwitchAction",
+                  "actionIndex": 4,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[4]"
+                  ],
+                  "serverActionIndex": 4,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 4,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[4]",
+                      "options",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CompareFloat",
+                        "supported": true,
+                        "comparison": "Equals",
+                        "left": {
+                          "value": 0.0,
+                          "blackboardKey": "count",
+                          "levelValues": [
+                            0.0
+                          ]
+                        },
+                        "right": {
+                          "value": 0.0,
+                          "blackboardKey": null,
+                          "levelValues": null
+                        },
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "TimeDilationAction",
+                        "actionIndex": 1,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[4]",
+                          "options",
+                          "[0]",
+                          "actionData",
+                          "actionData",
+                          "[1]"
+                        ],
+                        "serverActionIndex": 6,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
+                        "timeDilation": {
+                          "startFrame": 0,
+                          "endFrame": 0,
+                          "actionIndex": 6,
+                          "kind": "normal",
+                          "priority": -693798243,
+                          "scope": "entity",
+                          "slot": 1464849466,
+                          "duration": {
+                            "value": 0.1,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "namedCurve": "interrupt_weakness",
+                          "inlineCurve": [],
+                          "finishByAction": false,
+                          "ignoredTargets": [],
+                          "targets": [
+                            "caster",
+                            "caster"
+                          ],
+                          "omittedAbilityEntityTargets": 0,
+                          "ignoredAbilityEntityTargets": [],
+                          "influenceSkillCooldown": null,
+                          "targetScale": null,
+                          "sequenceIndex": -1,
+                          "effectAbilityEntityTargets": []
+                        }
+                      }
+                    ],
+                    "failActions": [
+                      {
+                        "actionType": "SwitchAction",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[4]",
+                          "options",
+                          "[1]"
+                        ],
+                        "serverActionIndex": 4,
+                        "nestedCondition": {
+                          "startFrame": 0,
+                          "endFrame": 0,
+                          "actionIndex": 4,
+                          "actionPath": [
+                            "timelineActions[0]",
+                            "_sequenceActionData",
+                            "actionData",
+                            "[0]",
+                            "succeedActions",
+                            "actionData",
+                            "[4]",
+                            "options",
+                            "[1]"
+                          ],
+                          "conditions": [
+                            {
+                              "sourceType": "CompareFloat",
+                              "supported": true,
+                              "comparison": "Equals",
+                              "left": {
+                                "value": 0.0,
+                                "blackboardKey": "count",
+                                "levelValues": [
+                                  0.0
+                                ]
+                              },
+                              "right": {
+                                "value": 1.0,
+                                "blackboardKey": null,
+                                "levelValues": null
+                              },
+                              "skillTypes": [],
+                              "poise": null,
+                              "superArmor": null,
+                              "twoDirectionAngle": null,
+                              "targetAngle": null,
+                              "damageDecorateMask": null,
+                              "contextBuffId": null,
+                              "objectTypeMatch": null,
+                              "deckAttributeCompare": null,
+                              "probability": null,
+                              "anyConditionGroups": [],
+                              "anyConditionNegated": []
+                            }
+                          ],
+                          "succeedActions": [
+                            {
+                              "actionType": "TimeDilationAction",
+                              "actionIndex": 1,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[4]",
+                                "options",
+                                "[1]",
+                                "actionData",
+                                "actionData",
+                                "[1]"
+                              ],
+                              "serverActionIndex": 8,
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null,
+                              "timeDilation": {
+                                "startFrame": 0,
+                                "endFrame": 0,
+                                "actionIndex": 8,
+                                "kind": "normal",
+                                "priority": -2059842104,
+                                "scope": "entity",
+                                "slot": 1464849466,
+                                "duration": {
+                                  "value": 0.1,
+                                  "blackboardKey": null,
+                                  "levelValues": null
+                                },
+                                "namedCurve": "interrupt_weakness",
+                                "inlineCurve": [],
+                                "finishByAction": false,
+                                "ignoredTargets": [],
+                                "targets": [
+                                  "caster",
+                                  "caster"
+                                ],
+                                "omittedAbilityEntityTargets": 0,
+                                "ignoredAbilityEntityTargets": [],
+                                "influenceSkillCooldown": null,
+                                "targetScale": null,
+                                "sequenceIndex": -1,
+                                "effectAbilityEntityTargets": []
+                              }
+                            }
+                          ],
+                          "failActions": [
+                            {
+                              "actionType": "SwitchAction",
+                              "actionIndex": 1,
+                              "actionPath": [
+                                "timelineActions[0]",
+                                "_sequenceActionData",
+                                "actionData",
+                                "[0]",
+                                "succeedActions",
+                                "actionData",
+                                "[4]",
+                                "options",
+                                "[2]"
+                              ],
+                              "serverActionIndex": 4,
+                              "nestedCondition": {
+                                "startFrame": 0,
+                                "endFrame": 0,
+                                "actionIndex": 4,
+                                "actionPath": [
+                                  "timelineActions[0]",
+                                  "_sequenceActionData",
+                                  "actionData",
+                                  "[0]",
+                                  "succeedActions",
+                                  "actionData",
+                                  "[4]",
+                                  "options",
+                                  "[2]"
+                                ],
+                                "conditions": [
+                                  {
+                                    "sourceType": "CompareFloat",
+                                    "supported": true,
+                                    "comparison": "Equals",
+                                    "left": {
+                                      "value": 0.0,
+                                      "blackboardKey": "count",
+                                      "levelValues": [
+                                        0.0
+                                      ]
+                                    },
+                                    "right": {
+                                      "value": 2.0,
+                                      "blackboardKey": null,
+                                      "levelValues": null
+                                    },
+                                    "skillTypes": [],
+                                    "poise": null,
+                                    "superArmor": null,
+                                    "twoDirectionAngle": null,
+                                    "targetAngle": null,
+                                    "damageDecorateMask": null,
+                                    "contextBuffId": null,
+                                    "objectTypeMatch": null,
+                                    "deckAttributeCompare": null,
+                                    "probability": null,
+                                    "anyConditionGroups": [],
+                                    "anyConditionNegated": []
+                                  }
+                                ],
+                                "succeedActions": [
+                                  {
+                                    "actionType": "TimeDilationAction",
+                                    "actionIndex": 1,
+                                    "actionPath": [
+                                      "timelineActions[0]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[0]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[4]",
+                                      "options",
+                                      "[2]",
+                                      "actionData",
+                                      "actionData",
+                                      "[1]"
+                                    ],
+                                    "serverActionIndex": 10,
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null,
+                                    "timeDilation": {
+                                      "startFrame": 0,
+                                      "endFrame": 0,
+                                      "actionIndex": 10,
+                                      "kind": "normal",
+                                      "priority": 1798502681,
+                                      "scope": "entity",
+                                      "slot": 1464849466,
+                                      "duration": {
+                                        "value": 0.25,
+                                        "blackboardKey": null,
+                                        "levelValues": null
+                                      },
+                                      "namedCurve": "interrupt_weakness",
+                                      "inlineCurve": [],
+                                      "finishByAction": false,
+                                      "ignoredTargets": [],
+                                      "targets": [
+                                        "caster",
+                                        "caster"
+                                      ],
+                                      "omittedAbilityEntityTargets": 0,
+                                      "ignoredAbilityEntityTargets": [],
+                                      "influenceSkillCooldown": null,
+                                      "targetScale": null,
+                                      "sequenceIndex": -1,
+                                      "effectAbilityEntityTargets": []
+                                    }
+                                  }
+                                ],
+                                "failActions": [
+                                  {
+                                    "actionType": "SwitchAction",
+                                    "actionIndex": 2,
+                                    "actionPath": [
+                                      "timelineActions[0]",
+                                      "_sequenceActionData",
+                                      "actionData",
+                                      "[0]",
+                                      "succeedActions",
+                                      "actionData",
+                                      "[4]",
+                                      "options",
+                                      "[3]"
+                                    ],
+                                    "serverActionIndex": 4,
+                                    "nestedCondition": {
+                                      "startFrame": 0,
+                                      "endFrame": 0,
+                                      "actionIndex": 4,
+                                      "actionPath": [
+                                        "timelineActions[0]",
+                                        "_sequenceActionData",
+                                        "actionData",
+                                        "[0]",
+                                        "succeedActions",
+                                        "actionData",
+                                        "[4]",
+                                        "options",
+                                        "[3]"
+                                      ],
+                                      "conditions": [
+                                        {
+                                          "sourceType": "CompareFloat",
+                                          "supported": true,
+                                          "comparison": "Equals",
+                                          "left": {
+                                            "value": 0.0,
+                                            "blackboardKey": "count",
+                                            "levelValues": [
+                                              0.0
+                                            ]
+                                          },
+                                          "right": {
+                                            "value": 3.0,
+                                            "blackboardKey": null,
+                                            "levelValues": null
+                                          },
+                                          "skillTypes": [],
+                                          "poise": null,
+                                          "superArmor": null,
+                                          "twoDirectionAngle": null,
+                                          "targetAngle": null,
+                                          "damageDecorateMask": null,
+                                          "contextBuffId": null,
+                                          "objectTypeMatch": null,
+                                          "deckAttributeCompare": null,
+                                          "probability": null,
+                                          "anyConditionGroups": [],
+                                          "anyConditionNegated": []
+                                        }
+                                      ],
+                                      "succeedActions": [
+                                        {
+                                          "actionType": "TimeDilationAction",
+                                          "actionIndex": 1,
+                                          "actionPath": [
+                                            "timelineActions[0]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[4]",
+                                            "options",
+                                            "[3]",
+                                            "actionData",
+                                            "actionData",
+                                            "[1]"
+                                          ],
+                                          "serverActionIndex": 12,
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null,
+                                          "timeDilation": {
+                                            "startFrame": 0,
+                                            "endFrame": 0,
+                                            "actionIndex": 12,
+                                            "kind": "normal",
+                                            "priority": 1798502681,
+                                            "scope": "entity",
+                                            "slot": 1464849466,
+                                            "duration": {
+                                              "value": 0.5,
+                                              "blackboardKey": null,
+                                              "levelValues": null
+                                            },
+                                            "namedCurve": "interrupt_weakness",
+                                            "inlineCurve": [],
+                                            "finishByAction": false,
+                                            "ignoredTargets": [],
+                                            "targets": [
+                                              "caster",
+                                              "caster"
+                                            ],
+                                            "omittedAbilityEntityTargets": 0,
+                                            "ignoredAbilityEntityTargets": [],
+                                            "influenceSkillCooldown": null,
+                                            "targetScale": null,
+                                            "sequenceIndex": -1,
+                                            "effectAbilityEntityTargets": []
+                                          }
+                                        }
+                                      ],
+                                      "failActions": [
+                                        {
+                                          "actionType": "SwitchAction",
+                                          "actionIndex": 3,
+                                          "actionPath": [
+                                            "timelineActions[0]",
+                                            "_sequenceActionData",
+                                            "actionData",
+                                            "[0]",
+                                            "succeedActions",
+                                            "actionData",
+                                            "[4]",
+                                            "options",
+                                            "[4]"
+                                          ],
+                                          "serverActionIndex": 4,
+                                          "nestedCondition": {
+                                            "startFrame": 0,
+                                            "endFrame": 0,
+                                            "actionIndex": 4,
+                                            "actionPath": [
+                                              "timelineActions[0]",
+                                              "_sequenceActionData",
+                                              "actionData",
+                                              "[0]",
+                                              "succeedActions",
+                                              "actionData",
+                                              "[4]",
+                                              "options",
+                                              "[4]"
+                                            ],
+                                            "conditions": [
+                                              {
+                                                "sourceType": "CompareFloat",
+                                                "supported": true,
+                                                "comparison": "Equals",
+                                                "left": {
+                                                  "value": 0.0,
+                                                  "blackboardKey": "count",
+                                                  "levelValues": [
+                                                    0.0
+                                                  ]
+                                                },
+                                                "right": {
+                                                  "value": 4.0,
+                                                  "blackboardKey": null,
+                                                  "levelValues": null
+                                                },
+                                                "skillTypes": [],
+                                                "poise": null,
+                                                "superArmor": null,
+                                                "twoDirectionAngle": null,
+                                                "targetAngle": null,
+                                                "damageDecorateMask": null,
+                                                "contextBuffId": null,
+                                                "objectTypeMatch": null,
+                                                "deckAttributeCompare": null,
+                                                "probability": null,
+                                                "anyConditionGroups": [],
+                                                "anyConditionNegated": []
+                                              }
+                                            ],
+                                            "succeedActions": [
+                                              {
+                                                "actionType": "TimeDilationAction",
+                                                "actionIndex": 1,
+                                                "actionPath": [
+                                                  "timelineActions[0]",
+                                                  "_sequenceActionData",
+                                                  "actionData",
+                                                  "[0]",
+                                                  "succeedActions",
+                                                  "actionData",
+                                                  "[4]",
+                                                  "options",
+                                                  "[4]",
+                                                  "actionData",
+                                                  "actionData",
+                                                  "[1]"
+                                                ],
+                                                "serverActionIndex": 14,
+                                                "legacyBuffFinish": null,
+                                                "skillCooldownAdjustment": null,
+                                                "buffIgnite": null,
+                                                "timeDilation": {
+                                                  "startFrame": 0,
+                                                  "endFrame": 0,
+                                                  "actionIndex": 14,
+                                                  "kind": "normal",
+                                                  "priority": 1798502681,
+                                                  "scope": "entity",
+                                                  "slot": 1464849466,
+                                                  "duration": {
+                                                    "value": 0.65,
+                                                    "blackboardKey": null,
+                                                    "levelValues": null
+                                                  },
+                                                  "namedCurve": "interrupt_weakness",
+                                                  "inlineCurve": [],
+                                                  "finishByAction": false,
+                                                  "ignoredTargets": [],
+                                                  "targets": [
+                                                    "caster",
+                                                    "caster"
+                                                  ],
+                                                  "omittedAbilityEntityTargets": 0,
+                                                  "ignoredAbilityEntityTargets": [],
+                                                  "influenceSkillCooldown": null,
+                                                  "targetScale": null,
+                                                  "sequenceIndex": -1,
+                                                  "effectAbilityEntityTargets": []
+                                                }
+                                              }
+                                            ],
+                                            "failActions": [],
+                                            "conditionNegated": [],
+                                            "alwaysNext": false
+                                          },
+                                          "legacyBuffFinish": null,
+                                          "skillCooldownAdjustment": null,
+                                          "buffIgnite": null
+                                        }
+                                      ],
+                                      "conditionNegated": [],
+                                      "alwaysNext": false
+                                    },
+                                    "legacyBuffFinish": null,
+                                    "skillCooldownAdjustment": null,
+                                    "buffIgnite": null
+                                  }
+                                ],
+                                "conditionNegated": [],
+                                "alwaysNext": false
+                              },
+                              "legacyBuffFinish": null,
+                              "skillCooldownAdjustment": null,
+                              "buffIgnite": null
+                            }
+                          ],
+                          "conditionNegated": [],
+                          "alwaysNext": false
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      }
+                    ],
+                    "conditionNegated": [],
+                    "alwaysNext": true
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": false,
+        "spritePath": "",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": false,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
+    },
+    {
+      "buffId": "buff_physical_no_guard",
+      "sourceFile": "buff_physical_no_guard.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 20.0,
+          "blackboardKey": "duration",
+          "levelValues": [
+            20.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "EnhanceAndRefresh",
+        "stackingKey": "common_debuff",
+        "priority": {
+          "value": 100.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 4.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "atk_scale",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "count",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "duration",
+          "value": 20.0,
+          "isDynamic": false
+        },
+        {
+          "key": "skip_handle_cryst_break",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [
+        1075718177
+      ],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffStart",
+          "orderedActionTypes": [
+            "CompareFloat",
+            "CreateBuffAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 1,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_physical_handle_cryst_break",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_physical_handle_cryst_break"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CompareFloat",
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 1,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_physical_handle_cryst_break",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CompareFloat",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CompareFloat",
+                        "supported": true,
+                        "comparison": "Equals",
+                        "left": {
+                          "value": 0.0,
+                          "blackboardKey": "skip_handle_cryst_break",
+                          "levelValues": [
+                            0.0
+                          ]
+                        },
+                        "right": {
+                          "value": 0.0,
+                          "blackboardKey": null,
+                          "levelValues": null
+                        },
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CreateBuffAction",
+                        "actionIndex": 1,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[1]"
+                        ],
+                        "serverActionIndex": 1,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
+                        "buffApplication": {
+                          "buffs": [
+                            {
+                              "buffId": "buff_physical_handle_cryst_break",
+                              "classification": null,
+                              "blackboardAssignments": {}
+                            }
+                          ],
+                          "targetSource": "Owner",
+                          "targetGroupKey": "",
+                          "count": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "buffSource": "ActionSource",
+                          "buffSourceContextKey": "",
+                          "inheritSourceSkillCastInfo": true
+                        }
+                      }
+                    ],
+                    "failActions": [],
+                    "conditionNegated": [],
+                    "alwaysNext": false
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        },
+        {
+          "eventSource": "buff",
+          "event": "OnBuffFinish",
+          "orderedActionTypes": [
+            "CreateBuffAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 2,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_physical_no_guard_fake",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_physical_no_guard_fake"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 2,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_physical_no_guard_fake",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 2,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_physical_no_guard_fake",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        },
+        {
+          "eventSource": "buff",
+          "event": "OnBuffAfterTryEnhanced",
+          "orderedActionTypes": [
+            "OnPhysicalNoGuardStart",
+            "IgniteAction",
+            "CheckBuffStackNumAdvanced",
+            "CompareFloat",
+            "CreateBuffAction"
+          ],
+          "combatActions": [
+            "CreateBuffAction",
+            "IgniteAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 7,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_physical_handle_cryst_break",
+                    "classification": null,
+                    "blackboardAssignments": {}
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_physical_handle_cryst_break"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "OnPhysicalNoGuardStart"
+              ],
+              "combatActions": [],
+              "buffApplications": [],
+              "actions": [],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "IgniteAction"
+              ],
+              "combatActions": [
+                "IgniteAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "IgniteAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 4,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": {
+                    "source": {
+                      "targetSource": "Target",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "target": {
+                      "targetSource": "Owner",
+                      "targetGroupKey": "",
+                      "selectorOwner": "ActionOwner",
+                      "ownerContextKey": "",
+                      "centerType": "ActionSource",
+                      "centerContextKey": "",
+                      "centerToGround": false,
+                      "target": "ActionSource",
+                      "targetContextKey": "",
+                      "enableAdvancedDirection": false,
+                      "selectorDirection": "SourceForward",
+                      "finderType": null,
+                      "validatorTypes": [],
+                      "postProcessorTypes": []
+                    },
+                    "igniteType": "NoGuard",
+                    "successTargetContextKey": ""
+                  }
+                }
+              ],
+              "priority": 0
+            },
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckBuffStackNumAdvanced",
+                "CompareFloat",
+                "CreateBuffAction"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 7,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_physical_handle_cryst_break",
+                        "classification": null,
+                        "blackboardAssignments": {}
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CompareFloat",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 6,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 6,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[1]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CompareFloat",
+                        "supported": true,
+                        "comparison": "Equals",
+                        "left": {
+                          "value": 0.0,
+                          "blackboardKey": "skip_handle_cryst_break",
+                          "levelValues": [
+                            0.0
+                          ]
+                        },
+                        "right": {
+                          "value": 0.0,
+                          "blackboardKey": null,
+                          "levelValues": null
+                        },
+                        "skillTypes": [],
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "CreateBuffAction",
+                        "actionIndex": 2,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[2]"
+                        ],
+                        "serverActionIndex": 7,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
+                        "buffApplication": {
+                          "buffs": [
+                            {
+                              "buffId": "buff_physical_handle_cryst_break",
+                              "classification": null,
+                              "blackboardAssignments": {}
+                            }
+                          ],
+                          "targetSource": "Owner",
+                          "targetGroupKey": "",
+                          "count": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "buffSource": "ActionSource",
+                          "buffSourceContextKey": "",
+                          "inheritSourceSkillCastInfo": true
+                        }
+                      }
+                    ],
+                    "failActions": [],
+                    "conditionNegated": [],
+                    "alwaysNext": false
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": [],
+      "presentation": {
+        "hasIcon": true,
+        "spritePath": "icon_shadow_attribute_penetrate",
+        "showInHeadBarCommon": false,
+        "showInHeadBarAttached": true,
+        "showInSquadIcon": false,
+        "onlyShowForMainCharacter": false,
+        "iconStyleInSquad": "Default",
+        "abnormalColorType": "Physical",
+        "orderUseDirectoryValue": false,
+        "orderPriorityValue": 0,
+        "orderPriorityEnum": "CommonCharBuff"
+      }
+    },
+    {
+      "buffId": "buff_physical_no_guard_fake",
+      "sourceFile": "buff_physical_no_guard_fake.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Limited",
+        "duration": {
+          "value": 1.0,
+          "blackboardKey": "duration",
+          "levelValues": [
+            1.0
+          ]
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Refresh",
+        "stackingKey": "common_debuff",
+        "priority": {
+          "value": 100.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "duration",
+          "value": 1.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [
+        -508362979
       ],
       "extendTagIds": [],
       "attributeModifiers": [],
@@ -13169,6 +16300,94 @@
               "buffIgnite": null
             },
             {
+              "actionType": "CrushAction",
+              "actionIndex": 2,
+              "actionPath": [
+                "timelineActions[9]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[2]"
+              ],
+              "serverActionIndex": 72,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "physicalInfliction": {
+                "physicalType": "crush",
+                "attackerTarget": {
+                  "targetSource": "Owner",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "blowOffDistance": {
+                  "value": 3.2,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "distanceRandomRange": {
+                  "value": 0.2,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "overwriteHeight": false,
+                "blowOffHeight": {
+                  "value": 0.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "directionType": "SourceToTarget",
+                "sourceMountPoint": "None",
+                "targetMountPoint": "None",
+                "customSourceAndTarget": false,
+                "clampToXZ": true,
+                "invertDirection": false,
+                "totalTime": {
+                  "value": 2.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "isExtra": false,
+                "deadOption": "AllValid",
+                "immobilizedTime": 0.0,
+                "damageMultiplier": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "ignoreHitEffect": false
+              }
+            },
+            {
               "actionType": "ObtainCostAction",
               "actionIndex": 3,
               "actionPath": [
@@ -13406,6 +16625,94 @@
             }
           ],
           "failActions": [
+            {
+              "actionType": "CrushAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[9]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 82,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "physicalInfliction": {
+                "physicalType": "crush",
+                "attackerTarget": {
+                  "targetSource": "Owner",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "blowOffDistance": {
+                  "value": 3.2,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "distanceRandomRange": {
+                  "value": 0.2,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "overwriteHeight": false,
+                "blowOffHeight": {
+                  "value": 0.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "directionType": "SourceToTarget",
+                "sourceMountPoint": "None",
+                "targetMountPoint": "None",
+                "customSourceAndTarget": false,
+                "clampToXZ": true,
+                "invertDirection": false,
+                "totalTime": {
+                  "value": 0.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "isExtra": false,
+                "deadOption": "AllValid",
+                "immobilizedTime": 0.0,
+                "damageMultiplier": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "ignoreHitEffect": false
+              }
+            },
             {
               "actionType": "DamageAction",
               "actionIndex": 1,
@@ -13815,7 +17122,9 @@
       "abilityEntityHits": [],
       "referencedBuffIds": [
         "buff_chr_0003_endminf_potential5_trigger",
-        "buff_common_obtain_ultimate_sp"
+        "buff_common_obtain_ultimate_sp",
+        "buff_physical_crushed",
+        "buff_physical_no_guard"
       ],
       "resolvedDamageHits": [],
       "resolvedSchedule": [
@@ -14135,6 +17444,7 @@
       "skillReplacements": [],
       "unresolvedCombatActions": [
         "CreateBuffAction",
+        "CrushAction",
         "DamageAction",
         "IfElseAction",
         "ObtainCostAction"
@@ -14293,6 +17603,94 @@
               "legacyBuffFinish": null,
               "skillCooldownAdjustment": null,
               "buffIgnite": null
+            },
+            {
+              "actionType": "CrushAction",
+              "actionIndex": 2,
+              "actionPath": [
+                "timelineActions[9]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "succeedActions",
+                "actionData",
+                "[2]"
+              ],
+              "serverActionIndex": 72,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "physicalInfliction": {
+                "physicalType": "crush",
+                "attackerTarget": {
+                  "targetSource": "Owner",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "blowOffDistance": {
+                  "value": 3.2,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "distanceRandomRange": {
+                  "value": 0.2,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "overwriteHeight": false,
+                "blowOffHeight": {
+                  "value": 0.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "directionType": "SourceToTarget",
+                "sourceMountPoint": "None",
+                "targetMountPoint": "None",
+                "customSourceAndTarget": false,
+                "clampToXZ": true,
+                "invertDirection": false,
+                "totalTime": {
+                  "value": 2.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "isExtra": false,
+                "deadOption": "AllValid",
+                "immobilizedTime": 0.0,
+                "damageMultiplier": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "ignoreHitEffect": false
+              }
             },
             {
               "actionType": "ObtainCostAction",
@@ -14532,6 +17930,94 @@
             }
           ],
           "failActions": [
+            {
+              "actionType": "CrushAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[9]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]",
+                "failActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 82,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "physicalInfliction": {
+                "physicalType": "crush",
+                "attackerTarget": {
+                  "targetSource": "Owner",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "blowOffDistance": {
+                  "value": 3.2,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "distanceRandomRange": {
+                  "value": 0.2,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "overwriteHeight": false,
+                "blowOffHeight": {
+                  "value": 0.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "directionType": "SourceToTarget",
+                "sourceMountPoint": "None",
+                "targetMountPoint": "None",
+                "customSourceAndTarget": false,
+                "clampToXZ": true,
+                "invertDirection": false,
+                "totalTime": {
+                  "value": 2.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "isExtra": false,
+                "deadOption": "AllValid",
+                "immobilizedTime": 0.0,
+                "damageMultiplier": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "ignoreHitEffect": false
+              }
+            },
             {
               "actionType": "DamageAction",
               "actionIndex": 1,
@@ -14941,7 +18427,9 @@
       "abilityEntityHits": [],
       "referencedBuffIds": [
         "buff_chr_0003_endminf_potential5_trigger",
-        "buff_common_obtain_ultimate_sp"
+        "buff_common_obtain_ultimate_sp",
+        "buff_physical_crushed",
+        "buff_physical_no_guard"
       ],
       "resolvedDamageHits": [],
       "resolvedSchedule": [
@@ -15261,6 +18749,7 @@
       "skillReplacements": [],
       "unresolvedCombatActions": [
         "CreateBuffAction",
+        "CrushAction",
         "DamageAction",
         "IfElseAction",
         "ObtainCostAction"

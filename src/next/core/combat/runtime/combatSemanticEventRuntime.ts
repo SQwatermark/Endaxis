@@ -80,6 +80,13 @@ export type CombatSemanticEvent =
       readonly layers: number;
     }
   | {
+      readonly kind: 'buffConsumed';
+      readonly sourceOperatorId: string;
+      readonly targetId: string;
+      readonly buffId: string;
+      readonly layers: number;
+    }
+  | {
       readonly kind: 'reactionApplied';
       readonly sourceOperatorId: string;
       readonly reaction: import('../../game-data/operatorDefinition').ElementalReaction;
@@ -201,6 +208,12 @@ function matches(registration: Registration, event: CombatSemanticEvent): boolea
     case 'elementalAttachmentConsumed':
       return (
         event.kind === 'elementalAttachmentConsumed' && event.sourceOperatorId === ownerOperatorId
+      );
+    case 'buffConsumed':
+      return (
+        event.kind === 'buffConsumed' &&
+        event.sourceOperatorId === ownerOperatorId &&
+        trigger.buffIds.includes(event.buffId)
       );
     case 'skillHit':
       return (

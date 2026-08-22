@@ -18816,8 +18816,11 @@ export const pogranichnikGeneratedSource = {
             },
             "isExtra": false,
             "deadOption": "AllValid",
-            "immobilizedTime": 0.0
-          }
+            "immobilizedTime": 0.0,
+            "damageMultiplier": null,
+            "ignoreHitEffect": false
+          },
+          "sequenceIndex": 15
         }
       ],
       "eventListeners": [],

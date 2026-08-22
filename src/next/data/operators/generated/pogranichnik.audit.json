@@ -15290,6 +15290,19 @@
         {
           "frame": 38,
           "actionOrder": [
+            87
+          ],
+          "sequenceOrder": [
+            15
+          ],
+          "itemType": "physicalInfliction",
+          "sourcePath": [
+            "chr_0029_pograni_normal_skill"
+          ]
+        },
+        {
+          "frame": 38,
+          "actionOrder": [
             88
           ],
           "sequenceOrder": [
@@ -15314,19 +15327,6 @@
             "_sequenceActionData",
             "actionData",
             "[0]"
-          ]
-        },
-        {
-          "frame": 38,
-          "actionOrder": [
-            87
-          ],
-          "sequenceOrder": [
-            87
-          ],
-          "itemType": "physicalInfliction",
-          "sourcePath": [
-            "chr_0029_pograni_normal_skill"
           ]
         }
       ],

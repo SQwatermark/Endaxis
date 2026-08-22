@@ -730,3 +730,20 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 养成审计现为天赋 33/44、潜能 110/110。莱万汀天赋 2 为当前木桩边界下的自身生存效果，继续
   显式未建模，因此干员仍为 `partial`。下一阶段继续筛选剩余 11 个天赋中能由玩家正常行为触发、
   且会改变对敌伤害的机制；防守侧效果只记录，不抢占输出链任务。
+
+### 2026-08-22：大潘 Crush 与第一天赋破防消费闭环
+
+- `combat-spec 66e1409` 已先补齐 `CrushAction`：严格解析 `damageMultiplier`、
+  `ignoreHitEffect` 与完整位移证据；运行时复用已恢复的物理异常准入和事件顺序，首次只添加
+  `buff_physical_no_guard`，再次才创建 `buff_physical_crushed`。倍率仅在不近似等于 1 时写入
+  `dmg_multiplier`，命中特效开关只在 true 时写入 `ignore_hit_effect=1`。
+- Next 的 `applyPhysicalInfliction` 现为 Fracture/Crush 判别式统一入口。大潘连携第 23 帧保留
+  原生 `CrushAction(20) -> DamageAction(21)`；根物理异常补存 timeline `sequenceIndex`，避免按
+  动作类别归并后把 Crush 错排到同帧伤害之后。`buff_physical_crushed` 及其完整子 Buff 树内联于
+  使用点，图标元数据不丢失。
+- 第一天天赋监听 `buff_physical_no_guard` 的原生 `OnConsumeBuff`。运行时新增受限的
+  `buffConsumed(sourceOperatorId,targetId,buffId,layers)` 事实，只在已闭环物理异常状态链确实移除
+  破防层后发布；普通结束、到期和驱散不冒充消费。一级/二级按消费层数叠加 10 秒物理增伤
+  4%/6%，最多 4 层，并保留 `icon_battle_physical_dmg_up`。
+- 生产场景连续两次大潘连携，验证第二次 Crush 先触发天赋、随后同帧直伤精确提高 6%。养成审计
+  更新为天赋 34/44、潜能 110/110；大潘两项天赋和全部潜能均进入标准模拟编译链。

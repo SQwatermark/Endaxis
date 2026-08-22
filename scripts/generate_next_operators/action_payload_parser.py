@@ -1106,7 +1106,10 @@ def parse_physical_infliction_payload(
     path: str,
     inherited_blackboard: dict[str, tuple[float, ...]],
 ) -> PhysicalInflictionPayload:
-    """严格读取 FractureAction；空间参数保留给未来的多目标或位移模型。"""
+    """严格读取 Fracture/Crush；空间参数保留给未来的多目标或位移模型。"""
+    action_type = action_name(str(action.get("$type", "")))
+    if action_type not in {"FractureAction", "CrushAction"}:
+        raise ValueError(f"{path}: expected FractureAction or CrushAction")
     expected_fields = {
         "$type",
         "isEnable",
@@ -1125,10 +1128,10 @@ def parse_physical_infliction_payload(
         "deadOption",
         "immobilizedTime",
     }
+    if action_type == "CrushAction":
+        expected_fields.update({"damageMultiplier", "ignoreHitEffect"})
     if set(action) != expected_fields:
         raise ValueError(f"{path}: unexpected fields {sorted(action)}")
-    if action_name(str(action.get("$type", ""))) != "FractureAction":
-        raise ValueError(f"{path}: expected FractureAction")
 
     direction = require_dict(action.get("directionSettings"), f"{path}.directionSettings")
     expected_direction_fields = {
@@ -1155,7 +1158,7 @@ def parse_physical_infliction_payload(
             raise ValueError(f"{path}.{key}: expected non-empty string")
 
     return PhysicalInflictionPayload(
-        physicalType="fracture",
+        physicalType="crush" if action_type == "CrushAction" else "fracture",
         attackerTarget=parse_target_reference(
             action.get("attackerTargetSettings"), f"{path}.attackerTargetSettings"
         ),
@@ -1189,6 +1192,20 @@ def parse_physical_infliction_payload(
         isExtra=require_bool(action.get("isExtra"), f"{path}.isExtra"),
         deadOption=dead_option,
         immobilizedTime=require_number(action.get("immobilizedTime"), f"{path}.immobilizedTime"),
+        damageMultiplier=(
+            parse_scalar(
+                action.get("damageMultiplier"),
+                f"{path}.damageMultiplier",
+                inherited_blackboard,
+            )
+            if action_type == "CrushAction"
+            else None
+        ),
+        ignoreHitEffect=(
+            require_bool(action.get("ignoreHitEffect"), f"{path}.ignoreHitEffect")
+            if action_type == "CrushAction"
+            else False
+        ),
     )
 
 

@@ -423,7 +423,10 @@ def compile_resolved_sequence(
     if skill.inflictions:
         allowed_actions.add("SpellInfliction")
     if getattr(skill, "physicalInflictions", ()):
-        allowed_actions.add("FractureAction")
+        allowed_actions.update(
+            "CrushAction" if item.payload.physicalType == "crush" else "FractureAction"
+            for item in skill.physicalInflictions
+        )
     if combat_auxiliary_actions:
         allowed_actions.add("CreateBuffAction")
     if skill.resourceGains:
