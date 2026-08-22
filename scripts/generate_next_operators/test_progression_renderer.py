@@ -237,6 +237,12 @@ class ProgressionRendererTests(unittest.TestCase):
             compiler="staticAttributes",
             effect_ids=("potential.effect",),
         )
+        attached_talent_buff = progression_conversion_item(
+            source="talent",
+            key="marker",
+            compiler="attachedBuff",
+            effect_ids=("talent.marker",),
+        )
         mixed_blackboard = progression_conversion_item(
             source="potential",
             key="mixed-blackboard",
@@ -254,6 +260,8 @@ class ProgressionRendererTests(unittest.TestCase):
         self.assertTrue(reaction_event["standardSimulationCompileReady"])
         self.assertTrue(connected["definitionConverted"])
         self.assertTrue(connected["standardSimulationCompileReady"])
+        self.assertTrue(attached_talent_buff["definitionConverted"])
+        self.assertTrue(attached_talent_buff["standardSimulationCompileReady"])
         self.assertTrue(mixed_blackboard["definitionConverted"])
         self.assertTrue(mixed_blackboard["standardSimulationCompileReady"])
         self.assertFalse(unmodeled["definitionConverted"])

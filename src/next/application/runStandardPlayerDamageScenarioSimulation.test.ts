@@ -342,7 +342,7 @@ function createGeneratedLifengKnockDownScenario() {
   }).scenario;
 }
 
-function createGeneratedEndministratorIgniteScenario() {
+function createGeneratedEndministratorIgniteScenario(talent1Level?: 1 | 2) {
   const scenario = createEmptyScenario('scenario:endministrator-ignite', '管理员冻结点燃样本');
   scenario.battle.resourceRules = {
     ...scenario.battle.resourceRules,
@@ -358,7 +358,7 @@ function createGeneratedEndministratorIgniteScenario() {
       potential: 3,
       trustLevel: 4,
       skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
-      talentStates: {},
+      talentStates: talent1Level === undefined ? {} : { 0: talent1Level },
     },
     weapon: null,
     gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
@@ -376,13 +376,22 @@ function createGeneratedEndministratorIgniteScenario() {
     startFrame: 1,
     ids,
   }).scenario;
-  return placeSkillGroup({
+  const withUltimate = placeSkillGroup({
     scenario: withFrozen,
     trackIndex: 0,
     operator: endministratorGeneratedOperator,
     skillGroupKey: 'ultimate',
     skillKey: 'ultimate',
     startFrame: 80,
+    ids,
+  }).scenario;
+  if (talent1Level === undefined) return withUltimate;
+  return placeSkillGroup({
+    scenario: withUltimate,
+    trackIndex: 0,
+    operator: endministratorGeneratedOperator,
+    skillGroupKey: 'basicAttackMale',
+    startFrame: 170,
     ids,
   }).scenario;
 }
@@ -1405,6 +1414,51 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       }),
     );
     expect(result.finalResources.squad[0]?.ultimateEnergy).toBe(15);
+  });
+
+  it('applies Endministrator talent 1 attack Buff after igniting frozen', () => {
+    const run = (talent1Level: 1 | 2) =>
+      runStandardPlayerDamageScenarioSimulation({
+        scenario: createGeneratedEndministratorIgniteScenario(talent1Level),
+        endFrame: 240,
+        criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        options: {
+          ...standardOptions(),
+          index: {
+            getCommonBuffDefinitions: () => generatedCommonBuffDefinitions,
+            getOperator: slug =>
+              slug === endministratorGeneratedOperator.slug
+                ? endministratorGeneratedOperator
+                : null,
+            getWeapon: () => null,
+            getGear: () => null,
+            getGearSet: () => null,
+          },
+        },
+      });
+
+    const level1 = run(1);
+    const level2 = run(2);
+    expect(level2.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'PassiveSkillEnabled',
+        sourceId: 'track:endministrator',
+        data: expect.objectContaining({
+          passiveKey: 'buff_chr_0003_endminf_talent_1',
+        }),
+      }),
+    );
+    const basicDamage = (result: typeof level1) =>
+      result.receiptEntries.find(
+        entry => entry.event === 'DamageApplied' && entry.data?.castId === 'skillCast:3',
+      )?.data?.value as number | undefined;
+    expect(basicDamage(level1)).toBeTypeOf('number');
+    expect(basicDamage(level2)).toBeGreaterThan(basicDamage(level1) ?? 0);
   });
 
   it('ends generated Arclight ultimate time freeze within the fixed actual-time range', () => {

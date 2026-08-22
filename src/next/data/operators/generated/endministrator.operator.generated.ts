@@ -1689,6 +1689,15 @@ export const endministratorGeneratedOperator: OperatorDefinition = {
       maxStackCount: 1,
       durationSeconds: 0.1,
     },
+    'buff_chr_0003_endminf_talent_1': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      blackboard: {
+        'atk_up': 0.15,
+        'duration': 15,
+      },
+    },
     'buff_chr_0003_endminf_potential1': {
       stackingType: 'unique',
       priority: 0,
@@ -1758,6 +1767,26 @@ export const endministratorGeneratedOperator: OperatorDefinition = {
       key: 'talent1',
       levels: 2,
       modifiers: [],
+      passiveSkills: [
+        {
+          key: 'buff_chr_0003_endminf_talent_1',
+          blackboard: {
+            'atk_up': [0.15, 0.3],
+            'duration': [15, 15],
+          },
+          enableSequence: sequence(
+            step('applyBuff', {
+              buffId: 'buff_chr_0003_endminf_talent_1',
+              target: 'caster',
+              inheritSourceSkillCastInfo: false,
+              blackboardAssignments: {
+                'atk_up': { kind: 'blackboard', key: 'atk_up' },
+                'duration': { kind: 'blackboard', key: 'duration' },
+              },
+            }),
+          ),
+        },
+      ],
     },
     {
       key: 'talent2',
