@@ -53,7 +53,7 @@ import { TimedMarkerContainer } from './timedMarkers';
 import { TimedMarkerOperationExecutor } from './timedMarkerOperationExecutor';
 import { ComboWindowRuntime } from './comboWindowRuntime';
 import { ComboWindowOperationExecutor } from './comboWindowOperationExecutor';
-import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
+import { CombatSemanticEventRuntime, type CombatSemanticEvent } from './combatSemanticEventRuntime';
 import {
   EquipmentEventRuntime,
   type EquipmentEventExecutionContext,
@@ -565,7 +565,11 @@ export class CombatRuntimeAssembly {
             this.#createReactiveOperationChain(
               operator,
               `upgrade-event:${context.programKey}`,
-              unsupportedReactiveTerminal,
+              this.#createReactiveTerminal(
+                operator,
+                `upgrade-event:${context.programKey}`,
+                options,
+              ),
               options,
             ),
         ),
@@ -602,17 +606,28 @@ export class CombatRuntimeAssembly {
       target.configureBuffAppliedObserver?.(event =>
         this.semanticEvents.emit({ kind: 'buffApplied', ...event }),
       );
-      target.configureSemanticEventAction?.((_event, priority, handle) =>
+      target.configureSemanticEventAction?.((event, priority, handle) =>
         this.semanticEvents.register({
           ownerOperatorId: target.ownerId,
-          trigger: { kind: 'enemyDefeated', scope: 'operator' },
+          trigger:
+            event === 'afterKillEntity'
+              ? { kind: 'enemyDefeated', scope: 'operator' }
+              : { kind: 'knockDownOutput' },
           phase: 'dataAction',
           priority,
           handle: context => {
-            if (context.event.kind !== 'enemyDefeated') {
-              throw new Error('enemy-defeated Buff listener received an invalid event');
+            if (
+              (event === 'afterKillEntity' && context.event.kind !== 'enemyDefeated') ||
+              (event === 'outputKnockDown' && context.event.kind !== 'knockDownOutput')
+            ) {
+              throw new Error(`${event} Buff listener received an invalid event`);
             }
-            handle(context.event);
+            handle(
+              context.event as Extract<
+                CombatSemanticEvent,
+                { readonly kind: 'enemyDefeated' | 'knockDownOutput' }
+              >,
+            );
           },
         }),
       );
@@ -626,7 +641,11 @@ export class CombatRuntimeAssembly {
         const operations = this.#createReactiveOperationChain(
           operator,
           `upgrade-initialization:${initialization.key}`,
-          unsupportedReactiveTerminal,
+          this.#createReactiveTerminal(
+            operator,
+            `upgrade-initialization:${initialization.key}`,
+            options,
+          ),
           options,
         );
         const runtime = new CombatActionSequenceRuntime(
@@ -652,7 +671,7 @@ export class CombatRuntimeAssembly {
         const operations = this.#createReactiveOperationChain(
           operator,
           `passive:${passive.key}`,
-          unsupportedReactiveTerminal,
+          this.#createReactiveTerminal(operator, `passive:${passive.key}`, options),
           options,
         );
         const runtime = new CombatActionSequenceRuntime(
@@ -1436,6 +1455,38 @@ export class CombatRuntimeAssembly {
     return operations;
   }
 
+  #createReactiveTerminal(
+    operator: CombatOperatorProgram,
+    sourceActionId: string,
+    options: CombatRuntimeAssemblyOptions,
+  ): CombatOperationExecutor {
+    const template = operator.skills[0];
+    if (template === undefined) return unsupportedReactiveTerminal;
+    return options.createOperationExecutor({
+      program: {
+        ...template,
+        castId: sourceActionId,
+        skillGroupKey: '',
+        skillId: sourceActionId,
+        sourceSkillId: sourceActionId,
+        initialBlackboard: {},
+        timelineBlockFrames: 0,
+        cooldownFrames: undefined,
+        costFrame: undefined,
+        costs: [],
+        timelineActions: [],
+        abilityEntityDefinitions: operator.abilityEntityDefinitions,
+      },
+      enemy: options.enemy,
+      equipmentContributions: operator.equipmentContributions ?? [],
+      ...(operator.panel === undefined ? {} : { panel: operator.panel }),
+      clock: this.clock,
+      resources: this.resources,
+      receipt: this.receipt,
+      semanticEvents: this.semanticEvents,
+    });
+  }
+
   #requireAbilitySystem(operatorId: string): AbilitySystemRuntime {
     const abilitySystem = this.#abilitySystems.get(operatorId);
     if (abilitySystem === undefined) {
@@ -1593,17 +1644,28 @@ export class CombatRuntimeAssembly {
     runtime.configureBuffAppliedObserver?.(event =>
       this.semanticEvents.emit({ kind: 'buffApplied', ...event }),
     );
-    runtime.configureSemanticEventAction?.((_event, priority, handle) =>
+    runtime.configureSemanticEventAction?.((event, priority, handle) =>
       this.semanticEvents.register({
         ownerOperatorId: runtime!.ownerId,
-        trigger: { kind: 'enemyDefeated', scope: 'operator' },
+        trigger:
+          event === 'afterKillEntity'
+            ? { kind: 'enemyDefeated', scope: 'operator' }
+            : { kind: 'knockDownOutput' },
         phase: 'dataAction',
         priority,
         handle: context => {
-          if (context.event.kind !== 'enemyDefeated') {
-            throw new Error('enemy-defeated Buff listener received an invalid event');
+          if (
+            (event === 'afterKillEntity' && context.event.kind !== 'enemyDefeated') ||
+            (event === 'outputKnockDown' && context.event.kind !== 'knockDownOutput')
+          ) {
+            throw new Error(`${event} Buff listener received an invalid event`);
           }
-          handle(context.event);
+          handle(
+            context.event as Extract<
+              CombatSemanticEvent,
+              { readonly kind: 'enemyDefeated' | 'knockDownOutput' }
+            >,
+          );
         },
       }),
     );

@@ -658,6 +658,8 @@ export interface CombatStepParameters {
   };
   /** 报告一次对固定目标成功输出浮空；木桩模型不保存位移、朝向或控制状态。 */
   outputAirborne: { target: CombatTarget };
+  /** 报告一次对固定目标成功输出击倒；木桩模型不保存倒地控制状态。 */
+  outputKnockDown: { target: CombatTarget };
   dealDamage: DealDamageParameters;
   dealFixedDamage: DealFixedDamageParameters;
   /** 不伴随生命伤害的独立失衡单元；数值仍会经过来源与目标的失衡倍率。 */
@@ -956,6 +958,7 @@ export const COMBAT_STEP_KINDS = [
   'applyElementalReaction',
   'consumeElementalReaction',
   'outputAirborne',
+  'outputKnockDown',
   'dealDamage',
   'dealFixedDamage',
   'dealStagger',
@@ -1060,6 +1063,7 @@ export type CombatEventTrigger =
   | { kind: 'operatorHealed' }
   | { kind: 'buffApplied' }
   | { kind: 'airborneOutput' }
+  | { kind: 'knockDownOutput' }
   | { kind: 'spGained'; source: SpGainSource; gainKind: SpGainKind }
   | { kind: 'damageTagHit'; tag: DamageTag; scope: SkillTriggerScope }
   | {
@@ -1150,6 +1154,7 @@ export interface SkillBuffAbilityEventResponse {
     | 'takeDamage'
     | 'takeCriticalDamage'
     | 'outputDamage'
+    | 'outputKnockDown'
     | 'outputHeal'
     | 'receiveHeal'
     | 'poiseZero'

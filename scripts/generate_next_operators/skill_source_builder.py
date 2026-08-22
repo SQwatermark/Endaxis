@@ -42,6 +42,7 @@ class SkillSourceBuilderServices:
     parse_skill_patch: Callable[..., Any]
     parse_target_group_writes: Callable[..., Any]
     parse_time_dilations: Callable[..., Any]
+    parse_knock_down_outputs: Callable[..., Any]
     parse_timed_skill_replacements: Callable[..., Any]
     parse_timeline: Callable[..., Any]
     parse_timeline_finishes: Callable[..., Any]
@@ -86,6 +87,7 @@ def parse_skill(
     parse_skill_patch = services.parse_skill_patch
     parse_target_group_writes = services.parse_target_group_writes
     parse_time_dilations = services.parse_time_dilations
+    parse_knock_down_outputs = services.parse_knock_down_outputs
     parse_timed_skill_replacements = services.parse_timed_skill_replacements
     parse_timeline = services.parse_timeline
     parse_timeline_finishes = services.parse_timeline_finishes
@@ -272,6 +274,9 @@ def parse_skill(
             root, source_name, resolved_blackboard
         ),
         timeDilations=parse_time_dilations(root, source_name, resolved_blackboard),
+        knockDownOutputs=parse_knock_down_outputs(
+            root, source_name, resolved_blackboard
+        ),
         keywordActions=parse_timed_keyword_actions(
             root, source_name, resolved_blackboard
         ),

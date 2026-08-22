@@ -3555,6 +3555,7 @@ export const emberGeneratedSource = {
         "DamageAction",
         "HealAction",
         "IfElseAction",
+        "KnockDownAction",
         "ObtainCostAction"
       ],
       "buffHolds": [],
@@ -4633,6 +4634,63 @@ export const emberGeneratedSource = {
           "targetScale": null,
           "sequenceIndex": 14,
           "effectAbilityEntityTargets": []
+        }
+      ],
+      "knockDownOutputs": [
+        {
+          "startFrame": 26,
+          "endFrame": 27,
+          "actionIndex": 27,
+          "source": {
+            "targetSource": "Source",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "target": {
+            "targetSource": "Context",
+            "targetGroupKey": "targets",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "forceKnockDown": false,
+          "duration": {
+            "value": 1.5,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "faceDirectionType": "TargetToSource",
+          "immobilizedTime": 0.0,
+          "isExtra": false,
+          "deadOption": "AllValid",
+          "returnTrueWhen": "Always",
+          "sequenceIndex": 6,
+          "actionPath": [
+            "timelineActions[6]",
+            "_sequenceActionData",
+            "actionData",
+            "[2]"
+          ]
         }
       ],
       "intervalDamageHits": [],
@@ -9636,7 +9694,8 @@ export const emberGeneratedSource = {
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "DamageAction",
-        "IfElseAction"
+        "IfElseAction",
+        "KnockDownAction"
       ],
       "buffHolds": [],
       "targetGroupWrites": [
@@ -11256,6 +11315,63 @@ export const emberGeneratedSource = {
         }
       ],
       "timeDilations": [],
+      "knockDownOutputs": [
+        {
+          "startFrame": 38,
+          "endFrame": 41,
+          "actionIndex": 61,
+          "source": {
+            "targetSource": "Source",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "target": {
+            "targetSource": "Context",
+            "targetGroupKey": "targets",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "forceKnockDown": false,
+          "duration": {
+            "value": 1.5,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "faceDirectionType": "TargetToSource",
+          "immobilizedTime": 0.0,
+          "isExtra": false,
+          "deadOption": "AllValid",
+          "returnTrueWhen": "Always",
+          "sequenceIndex": 12,
+          "actionPath": [
+            "timelineActions[12]",
+            "_sequenceActionData",
+            "actionData",
+            "[2]"
+          ]
+        }
+      ],
       "intervalDamageHits": [],
       "timelineJumps": [],
       "timelineJumpControlFlowActions": [],

@@ -250,6 +250,8 @@ function inspectSequence(
         return;
       case 'applyElementalReaction':
       case 'consumeElementalReaction':
+      case 'outputAirborne':
+      case 'outputKnockDown':
         return;
       case 'applyBuff':
         if (step.parameters.definition !== undefined) {

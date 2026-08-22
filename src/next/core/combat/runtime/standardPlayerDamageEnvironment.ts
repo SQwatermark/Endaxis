@@ -354,11 +354,13 @@ export class StandardPlayerDamageEnvironment {
           tags: step.parameters.tags,
           features: step.parameters.features ?? [],
         });
-        context.semanticEvents.emit({
-          kind: 'skillHit',
-          sourceOperatorId: context.program.operatorId,
-          skillGroupKey: context.program.skillGroupKey,
-        });
+        if (context.program.skillGroupKey.length > 0) {
+          context.semanticEvents.emit({
+            kind: 'skillHit',
+            sourceOperatorId: context.program.operatorId,
+            skillGroupKey: context.program.skillGroupKey,
+          });
+        }
       },
       delegate: this.#createReactionExecutor(context),
     });

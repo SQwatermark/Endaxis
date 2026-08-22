@@ -157,6 +157,7 @@ function forward(step: CombatStepDefinition): void {
         v-else-if="
           step.kind === 'createTimedMarker' ||
           step.kind === 'outputAirborne' ||
+          step.kind === 'outputKnockDown' ||
           step.kind === 'gainSquadUltimateEnergyFromSkillCost' ||
           step.kind === 'gainFinisherSp' ||
           step.kind === 'setContextFlag' ||

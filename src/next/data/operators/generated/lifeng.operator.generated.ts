@@ -375,6 +375,7 @@ export const lifengBattleSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         54,
         sequence(
+          step('outputKnockDown', { target: 'enemy' }),
           step('dealDamage', {
             damageType: 'physical',
             attackScale: percentages([119, 131, 143, 155, 167, 178, 190, 202, 214, 229, 247, 268]),
@@ -651,6 +652,136 @@ export const lifengGeneratedOperator: OperatorDefinition = {
         },
       ],
     },
+    'buff_chr_0015_lifeng_potential_5_1': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      blackboard: {
+        'atk_scale_potential5': 0,
+        'interval': 0,
+        'poise_potential5': 0,
+      },
+    },
+    'buff_chr_0015_lifeng_potential_5': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      triggerIntervalSeconds: { blackboardKey: 'interval' },
+      waitFirstTriggerInterval: true,
+      maxTriggerCount: -1,
+      blackboard: {
+        'atk_scale_potential5': 0,
+        'interval': 0,
+        'poise_potential5': 0,
+      },
+      lifecycleSequences: {
+        trigger: sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0015_lifeng_potential_5_1',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+            blackboardAssignments: {
+              'atk_scale_potential5': { kind: 'blackboard', key: 'atk_scale_potential5' },
+              'poise_potential5': { kind: 'blackboard', key: 'poise_potential5' },
+              'interval': { kind: 'blackboard', key: 'interval' },
+            },
+          }),
+          step('finishBuffsById', {
+            target: 'caster',
+            buffIds: ['buff_chr_0015_lifeng_potential_5'],
+            reason: 'other',
+          }),
+        ),
+      },
+    },
+    'buff_chr_0015_lifeng_talent_2': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      triggerIntervalSeconds: 1,
+      waitFirstTriggerInterval: false,
+      maxTriggerCount: -1,
+      blackboard: {
+        'atk_scale_potential5': 0,
+        'atk_scale_talent2': 0,
+        'final_atk_scale_talent2': 0,
+        'interval': 0,
+        'poise_potential5': 0,
+      },
+      abilityEventResponses: [
+        {
+          event: 'outputKnockDown',
+          priority: 0,
+          sequence:
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'caster',
+                  buffIds: ['buff_chr_0015_lifeng_potential_5_1'],
+                  operator: 'greaterOrEqual',
+                  value: { kind: 'constant', value: 1 },
+                },
+                sequence(
+                  step('readBuffBlackboard', {
+                    target: 'caster',
+                    query: { kind: 'id', buffIds: ['buff_chr_0015_lifeng_potential_5_1'] },
+                    desiredKey: 'atk_scale_potential5',
+                    outputKey: 'atk_scale_potential5',
+                  }),
+                  step('readBuffBlackboard', {
+                    target: 'caster',
+                    query: { kind: 'id', buffIds: ['buff_chr_0015_lifeng_potential_5_1'] },
+                    desiredKey: 'interval',
+                    outputKey: 'interval',
+                  }),
+                  step('readBuffBlackboard', {
+                    target: 'caster',
+                    query: { kind: 'id', buffIds: ['buff_chr_0015_lifeng_potential_5_1'] },
+                    desiredKey: 'poise_potential5',
+                    outputKey: 'poise_potential5',
+                  }),
+                  step('calculateActionValue', {
+                    key: 'final_atk_scale_talent2',
+                    operation: 'add',
+                    left: { kind: 'blackboard', key: 'atk_scale_talent2' },
+                    right: { kind: 'blackboard', key: 'atk_scale_potential5' },
+                  }),
+                  step('dealDamage', {
+                    damageType: 'physical',
+                    attackScale: { kind: 'blackboard', key: 'final_atk_scale_talent2' },
+                    tags: [],
+                    stagger: { kind: 'blackboard', key: 'poise_potential5' },
+                  }, '47:buff_chr_0015_lifeng_talent_2:outputKnockDown:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[4]11:actionOrder1:6'),
+                  step('finishBuffsById', {
+                    target: 'caster',
+                    buffIds: ['buff_chr_0015_lifeng_potential_5_1'],
+                    reason: 'other',
+                  }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0015_lifeng_potential_5',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      'interval': { kind: 'blackboard', key: 'interval' },
+                      'atk_scale_potential5': { kind: 'blackboard', key: 'atk_scale_potential5' },
+                      'poise_potential5': { kind: 'blackboard', key: 'poise_potential5' },
+                    },
+                  }),
+                ),
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'physical',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_talent2' },
+                    tags: [],
+                  }, '47:buff_chr_0015_lifeng_talent_2:outputKnockDown:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:failActions10:actionData3:[0]11:actionOrder1:9'),
+                ),
+                { alwaysNext: true },
+              ),
+            ),
+        },
+      ],
+    },
   },
   abilityEntityDefinitions: {
     'abilityentity_chr_0015_lifeng_ultimate_skill': { lifetime: { kind: 'limited', durationSeconds: 5 }, childSkill: {
@@ -668,6 +799,7 @@ export const lifengGeneratedOperator: OperatorDefinition = {
           scheduled(
             6,
             sequence(
+              step('outputKnockDown', { target: 'enemy' }),
               step('dealDamage', {
                 damageType: 'physical',
                 attackScale: { kind: 'blackboard', key: 'atk_scale1' },
@@ -680,6 +812,7 @@ export const lifengGeneratedOperator: OperatorDefinition = {
           scheduled(
             66,
             sequence(
+              step('outputKnockDown', { target: 'enemy' }),
               step('dealDamage', {
                 damageType: 'physical',
                 attackScale: { kind: 'blackboard', key: 'atk_scale2' },
@@ -772,6 +905,24 @@ export const lifengGeneratedOperator: OperatorDefinition = {
       key: 'talent2',
       levels: 2,
       modifiers: [],
+      passiveSkills: [
+        {
+          key: 'buff_chr_0015_lifeng_talent_2',
+          blackboard: {
+            'atk_scale_talent2': [0.5, 1],
+          },
+          enableSequence: sequence(
+            step('applyBuff', {
+              buffId: 'buff_chr_0015_lifeng_talent_2',
+              target: 'caster',
+              inheritSourceSkillCastInfo: false,
+              blackboardAssignments: {
+                'atk_scale_talent2': { kind: 'blackboard', key: 'atk_scale_talent2' },
+              },
+            }),
+          ),
+        },
+      ],
     },
   ],
   potentials: [
@@ -834,8 +985,19 @@ export const lifengGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential5',
       levels: 1,
-      modifiers: [],
+      initializationSequence: sequence(
+        step('applyBuff', {
+          buffId: 'buff_chr_0015_lifeng_potential_5',
+          target: 'caster',
+          inheritSourceSkillCastInfo: false,
+          blackboardAssignments: {
+            'interval': { kind: 'constant', value: 15 },
+            'atk_scale_potential5': { kind: 'constant', value: 2.5 },
+            'poise_potential5': { kind: 'constant', value: 5 },
+          },
+        }),
+      ),
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'talentEffects' }, { capability: 'potentialEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['ultimate'] }] },
+  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'skillBehavior', skillGroupKeys: ['ultimate'] }] },
 };

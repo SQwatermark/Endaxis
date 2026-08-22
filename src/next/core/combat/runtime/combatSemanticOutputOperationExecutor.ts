@@ -22,21 +22,22 @@ export class CombatSemanticOutputOperationExecutor implements CombatOperationExe
     step: ResolvedCombatOperationStep,
     context?: Parameters<CombatOperationExecutor['execute']>[1],
   ): boolean {
-    if (step.kind !== 'outputAirborne') {
+    if (step.kind !== 'outputAirborne' && step.kind !== 'outputKnockDown') {
       return context === undefined
         ? this.options.delegate.execute(step)
         : this.options.delegate.execute(step, context);
     }
     const targetId = this.options.resolveTargetId(step.parameters.target);
+    const isAirborne = step.kind === 'outputAirborne';
     this.options.receipt.record({
       frame: this.options.clock.frame,
       time: this.options.clock.time,
-      event: 'AirborneOutput',
+      event: isAirborne ? 'AirborneOutput' : 'KnockDownOutput',
       sourceId: this.options.sourceOperatorId,
       targetId,
     });
     this.options.semanticEvents.emit({
-      kind: 'airborneOutput',
+      kind: isAirborne ? 'airborneOutput' : 'knockDownOutput',
       sourceOperatorId: this.options.sourceOperatorId,
       targetId,
     });
@@ -47,7 +48,7 @@ export class CombatSemanticOutputOperationExecutor implements CombatOperationExe
     step: ResolvedCombatOperationStep,
     context?: Parameters<NonNullable<CombatOperationExecutor['end']>>[1],
   ): void {
-    if (step.kind === 'outputAirborne') return;
+    if (step.kind === 'outputAirborne' || step.kind === 'outputKnockDown') return;
     this.options.delegate.end?.(step, context);
   }
 

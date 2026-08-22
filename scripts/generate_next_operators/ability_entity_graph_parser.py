@@ -46,6 +46,7 @@ class AbilityEntityGraphParserServices:
     parse_direct_damage_hits: Callable[..., Any]
     parse_inflictions: Callable[..., Any]
     parse_interval_damage_hits: Callable[..., Any]
+    parse_knock_down_outputs: Callable[..., Any]
     parse_projectile_launches: Callable[..., Any]
     parse_resource_gains: Callable[..., Any]
     parse_target_group_writes: Callable[..., Any]
@@ -390,6 +391,9 @@ def resolve_ability_entity_payload(
         buffFinishes=child_finishes,
         auraActions=parse_aura_actions(child, child_name, child_blackboard),
         keywordActions=parse_timed_keyword_actions(
+            child, child_name, child_blackboard
+        ),
+        knockDownOutputs=services.parse_knock_down_outputs(
             child, child_name, child_blackboard
         ),
         localTargetGroupWrites=parse_target_group_writes(child, child_name),

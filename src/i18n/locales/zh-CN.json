@@ -1289,6 +1289,7 @@
       "triggerKinds": {
         "buffApplied": "施加 Buff",
         "airborneOutput": "输出浮空",
+        "knockDownOutput": "输出击倒",
         "damageTagHit": "伤害标签命中",
         "elementalInflictionApplied": "施加元素附着",
         "skillHit": "指定技能命中",
@@ -1789,6 +1790,7 @@
         "dealFixedDamage": "以固定基础值造成伤害，不乘攻击力，但仍经过后续伤害修正与防御抗性。",
         "dealStagger": "只造成失衡，不造成生命伤害。数值仍会经过失衡倍率。",
         "outputAirborne": "向目标输出一次浮空事实并同步触发监听器；不改变木桩的位置或控制状态。",
+        "outputKnockDown": "向目标输出一次击倒事实并同步触发监听器；不改变木桩的位置或控制状态。",
         "heal": "按施法者四维属性计算治疗，即使目标满血也记录原始治疗量与溢出治疗。",
         "applyBuff": "按当前步骤内联的 Buff 定义创建实例，并可覆盖其初始黑板值。",
         "readBuffBlackboard": "查找目标身上的 Buff，把其中一个黑板值写入当前技能动作黑板。",
@@ -1878,6 +1880,7 @@
         "dealFixedDamage": "造成固定伤害",
         "dealStagger": "造成失衡",
         "outputAirborne": "输出浮空",
+        "outputKnockDown": "输出击倒",
         "heal": "治疗干员",
         "applyBuff": "施加 Buff",
         "readBuffBlackboard": "读取 Buff 黑板",

@@ -105,6 +105,7 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
             undefined,
             { alwaysNext: true },
           ),
+          step('outputKnockDown', { target: 'enemy' }),
           step('dealDamage', {
             damageType: 'physical',
             attackScale: percentages([102, 112, 122, 133, 143, 153, 163, 173, 184, 196, 212, 230]),
@@ -529,6 +530,7 @@ export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
             undefined,
             { alwaysNext: true },
           ),
+          step('outputKnockDown', { target: 'enemy' }),
           step('dealDamage', {
             damageType: 'heat',
             attackScale: percentages([141, 155, 169, 183, 197, 211, 226, 240, 254, 271, 292, 317]),

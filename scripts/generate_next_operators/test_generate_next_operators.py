@@ -15,6 +15,7 @@ from operator_ability_entity_linker import link_operator_ability_entity_definiti
 from time_dilation_parser import parse_time_dilation_action, parse_time_scale_curve
 from target_group_parser import parse_circular_order_sort
 from target_parser import parse_spawned_entity_selector_identity
+from action_payload_parser import parse_knock_down_output_payload
 
 from generate_next_operators import (
     ELEMENT_TYPE_MAP,
@@ -216,6 +217,7 @@ from buff_definition_parser import (
 )
 from resolved_sequence_compiler import (
     ability_entity_child_is_inert,
+    compile_knock_down_output,
     projectile_ability_entities_are_condition_projections,
 )
 
@@ -443,6 +445,42 @@ def extract_step_key(source: str) -> str | None:
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_knock_down_output_preserves_native_dead_filter(self) -> None:
+        action = {
+            "$type": "Example.KnockDownAction+Data, Example",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 5,
+            "source": target_settings_fixture("Source"),
+            "targetSettings": target_settings_fixture("Target"),
+            "forceKnockDown": True,
+            "duration": {
+                "useBlackboardKey": False,
+                "value": 1.5,
+                "blackboardKey": "",
+            },
+            "faceDirection": {"directionType": "TargetToSource"},
+            "immobilizedTime": 0,
+            "isExtra": False,
+            "deadOption": "OnlyDead",
+            "returnTrueWhen": "Always",
+        }
+
+        payload = parse_knock_down_output_payload(
+            action,
+            "fixture.knockDown",
+            {},
+            start_frame=35,
+            end_frame=44,
+        )
+
+        self.assertEqual(payload.deadOption, "OnlyDead")
+        self.assertEqual(
+            compile_knock_down_output(payload, "fixture.knockDown"),
+            "sequence()",
+        )
+
     def test_parses_native_shield_config_strictly(self) -> None:
         scalar = lambda value, key="": {
             "useBlackboardKey": bool(key),

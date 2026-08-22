@@ -8904,6 +8904,7 @@
                     "damageUnits": null,
                     "heal": null,
                     "keywordAction": null,
+                    "knockDownOutput": null,
                     "timelineJumpDestinationFrame": 105
                   }
                 ],
@@ -8942,7 +8943,8 @@
               "conditionalAbilityEntityHits": null,
               "damageUnits": null,
               "heal": null,
-              "keywordAction": null
+              "keywordAction": null,
+              "knockDownOutput": null
             }
           ],
           "failActions": [],

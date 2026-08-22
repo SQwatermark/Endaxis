@@ -4909,6 +4909,7 @@ export const perlicaGeneratedSource = {
             "DamageAction",
             "BreakingAttackCalculation",
             "DefiniteValueCalculation",
+            "IfElseAction",
             "KnockDownAction",
             "EnemyHurtAnimAction",
             "CameraImpulseAction",
@@ -5129,7 +5130,126 @@ export const perlicaGeneratedSource = {
           "sequenceIndex": 2
         }
       ],
-      "conditionalActions": [],
+      "conditionalActions": [
+        {
+          "startFrame": 35,
+          "endFrame": 44,
+          "actionIndex": 3,
+          "actionPath": [
+            "timelineActions[2]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckMainCharacterCondition",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "poise": null,
+              "mainOperator": {
+                "targetSource": "Owner",
+                "targetGroupKey": ""
+              },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [
+            {
+              "actionType": "KnockDownAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[2]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 5,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "knockDownOutput": {
+                "startFrame": 35,
+                "endFrame": 44,
+                "actionIndex": 5,
+                "source": {
+                  "targetSource": "Source",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "forceKnockDown": true,
+                "duration": {
+                  "value": 1.5,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "faceDirectionType": "TargetToSource",
+                "immobilizedTime": 0.0,
+                "isExtra": false,
+                "deadOption": "OnlyDead",
+                "returnTrueWhen": "Always",
+                "sequenceIndex": -1,
+                "actionPath": [
+                  "timelineActions[2]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[1]",
+                  "succeedActions",
+                  "actionData",
+                  "[0]"
+                ]
+              }
+            }
+          ],
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
+        }
+      ],
       "inflictions": [],
       "auxiliaryActions": [
         {
@@ -5374,11 +5494,132 @@ export const perlicaGeneratedSource = {
       ],
       "unresolvedCombatActions": [
         "CreateBuffAction",
-        "DamageAction"
+        "DamageAction",
+        "IfElseAction",
+        "KnockDownAction"
       ],
       "buffHolds": [],
       "targetGroupWrites": [],
-      "targetGroupControlFlowActions": [],
+      "targetGroupControlFlowActions": [
+        {
+          "startFrame": 35,
+          "endFrame": 44,
+          "actionIndex": 3,
+          "actionPath": [
+            "timelineActions[2]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckMainCharacterCondition",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "poise": null,
+              "mainOperator": {
+                "targetSource": "Owner",
+                "targetGroupKey": ""
+              },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [
+            {
+              "actionType": "KnockDownAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[2]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 5,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "knockDownOutput": {
+                "startFrame": 35,
+                "endFrame": 44,
+                "actionIndex": 5,
+                "source": {
+                  "targetSource": "Source",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "forceKnockDown": true,
+                "duration": {
+                  "value": 1.5,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "faceDirectionType": "TargetToSource",
+                "immobilizedTime": 0.0,
+                "isExtra": false,
+                "deadOption": "OnlyDead",
+                "returnTrueWhen": "Always",
+                "sequenceIndex": -1,
+                "actionPath": [
+                  "timelineActions[2]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[1]",
+                  "succeedActions",
+                  "actionData",
+                  "[0]"
+                ]
+              }
+            }
+          ],
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
+        }
+      ],
       "auraActions": [],
       "physicalInflictions": [],
       "eventListeners": [],

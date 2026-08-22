@@ -659,6 +659,7 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
             undefined,
             { alwaysNext: true },
           ),
+          step('outputKnockDown', { target: 'enemy' }),
           step('dealDamage', {
             damageType: 'physical',
             attackScale: percentages([178, 196, 213, 231, 249, 267, 284, 302, 320, 342, 369, 400]),

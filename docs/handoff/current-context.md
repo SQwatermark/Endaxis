@@ -633,3 +633,22 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
   `docs/next/11-skill-lifecycle.md`：轨道块继续保存稳定槽位输入，实际形态由
   `SkillStarted.skillId + castId` 投影，项目覆盖按每个 replacement skill key 独立保存。整体方案实施前
   不做弭弗专用 UI 修补。
+
+### 2026-08-22：梨锋击倒响应与潜能 5
+
+- `combat-spec` 已先补齐 `KnockDownAction` 的可观察事件链与 `AllValid / OnlyAlive / OnlyDead`
+  存活过滤；对应提交为 `49f078a` 与 `08670f0`。Endaxis 新增同步 `outputKnockDown` 步骤、
+  `knockDownOutput` 语义触发、运行收据和图编辑器本层支持。目标组必须由普通 Target、固定 `tar`
+  或严格的唯一敌人 Finder 证明，不能按 Context 名称猜测。
+- 梨锋天赋 2 现监听真实 `OnBeforeOutputKnockDown`，输出追加物理伤害；潜能 5 的 15 秒计时 Buff
+  产生一次许可，触发时把追加倍率提高 2.5、增加 5 点失衡、消费许可并重新启动 15 秒计时。
+  默认仓库生产回归验证了同帧击倒事件、追加伤害、失衡、许可消费和 450 帧后的第二次计时结束。
+- 原始 `OnlyDead` 击倒只处理已经死亡的目标。Endaxis 的唯一木桩死亡是模拟终点，因此该动作仅保留
+  在生成审计中，正式 DSL 投影为无效果，不发布 `KnockDownOutput`。佩丽卡终结技第 35 帧先结算
+  伤害、再执行 `forceKnockDown + OnlyDead` 的尸体收尾；其正式定义继续使用原直伤模型，不显示为
+  对存活敌人的击倒能力。
+- 全量 22 名正式干员和梨诺审计产物已经重生成并通过 `--check`；生成器 442/442、Next Vitest
+  201 文件 1374/1374、`type-check:next` 通过。养成审计现为天赋 27/44、潜能 108/110，剩余潜能
+  仅秋栗潜能 5 与管理员潜能 4；`tmp/` 仍不得提交。
+- 下一阶段继续处理秋栗潜能 5，优先与其依赖天赋一起闭环；随后处理管理员潜能 4。每项仍要求
+  来源载荷、通用 DSL、标准运行消费与生产场景四层同时成立。

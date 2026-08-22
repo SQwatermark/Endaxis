@@ -2933,6 +2933,19 @@
         {
           "frame": 26,
           "actionOrder": [
+            27
+          ],
+          "sequenceOrder": [
+            6
+          ],
+          "itemType": "knockDownOutput",
+          "sourcePath": [
+            "chr_0009_azrila_combo_skill"
+          ]
+        },
+        {
+          "frame": 26,
+          "actionOrder": [
             28
           ],
           "sequenceOrder": [
@@ -3434,6 +3447,7 @@
         "DamageAction",
         "HealAction",
         "IfElseAction",
+        "KnockDownAction",
         "ObtainCostAction"
       ]
     },
@@ -6242,6 +6256,19 @@
         {
           "frame": 38,
           "actionOrder": [
+            61
+          ],
+          "sequenceOrder": [
+            12
+          ],
+          "itemType": "knockDownOutput",
+          "sourcePath": [
+            "chr_0009_azrila_normal_skill"
+          ]
+        },
+        {
+          "frame": 38,
+          "actionOrder": [
             62
           ],
           "sequenceOrder": [
@@ -6974,7 +7001,8 @@
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "DamageAction",
-        "IfElseAction"
+        "IfElseAction",
+        "KnockDownAction"
       ]
     },
     {

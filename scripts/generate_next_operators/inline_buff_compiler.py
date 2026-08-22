@@ -367,6 +367,10 @@ def compile_inline_buff_event_responses(
             is_output_damage = (
                 event.eventSource == "ability" and event.event == "OnOutputDamage"
             )
+            is_output_knock_down = (
+                event.eventSource == "ability"
+                and event.event == "OnBeforeOutputKnockDown"
+            )
             is_output_heal = (
                 event.eventSource == "ability" and event.event == "OnOutputHeal"
             )
@@ -433,6 +437,8 @@ def compile_inline_buff_event_responses(
                 if is_take_critical_damage
                 else "outputDamage"
                 if is_output_damage
+                else "outputKnockDown"
+                if is_output_knock_down
                 else "outputHeal"
                 if is_output_heal
                 else "receiveHeal"
@@ -531,6 +537,7 @@ def compile_inline_buff_event_responses(
                 or is_take_damage
                 or is_take_critical_damage
                 or is_output_damage
+                or is_output_knock_down
                 or is_output_heal
                 or is_receive_heal
                 or is_poise_zero
@@ -565,6 +572,8 @@ def compile_inline_buff_event_responses(
                 if is_take_critical_damage
                 else "outputDamage"
                 if is_output_damage
+                else "outputKnockDown"
+                if is_output_knock_down
                 else "outputHeal"
                 if is_output_heal
                 else "receiveHeal"

@@ -16,6 +16,7 @@ from source_models import (
     SkillSource,
 )
 from source_utils import require_list, ts_inline_literal
+from resolved_sequence_compiler import compile_knock_down_output
 
 
 @dataclass(frozen=True)
@@ -149,6 +150,20 @@ def compile_ability_entity_child_skill(
                 native_sequence_order(infliction, hit.actionOrder, hit.skillId),
                 (*hit.actionOrder, infliction.actionIndex),
                 compile_infliction(infliction).splitlines(),
+            )
+        )
+
+    for action in getattr(hit, "knockDownOutputs", ()):
+        compiled.append(
+            (
+                action.startFrame,
+                native_sequence_order(action, hit.actionOrder, hit.skillId),
+                (*hit.actionOrder, action.actionIndex),
+                [
+                    compile_knock_down_output(
+                        action, f"{skill.key}.{hit.skillId}.knockDownOutput"
+                    )
+                ],
             )
         )
 

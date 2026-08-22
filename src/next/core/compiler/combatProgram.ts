@@ -114,6 +114,7 @@ export interface ResolvedCombatStepParameters {
   applyElementalReaction: CombatStepParameters['applyElementalReaction'];
   consumeElementalReaction: CombatStepParameters['consumeElementalReaction'];
   outputAirborne: CombatStepParameters['outputAirborne'];
+  outputKnockDown: CombatStepParameters['outputKnockDown'];
   dealDamage: {
     damageType: DamageType;
     calculation?: 'standard' | 'breakingAttack';

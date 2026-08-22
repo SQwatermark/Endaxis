@@ -11075,7 +11075,8 @@ export const daPanGeneratedSource = {
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "DamageAction",
-        "IfElseAction"
+        "IfElseAction",
+        "KnockDownAction"
       ],
       "buffHolds": [],
       "targetGroupWrites": [
@@ -11980,6 +11981,63 @@ export const daPanGeneratedSource = {
           "targetScale": null,
           "sequenceIndex": 17,
           "effectAbilityEntityTargets": []
+        }
+      ],
+      "knockDownOutputs": [
+        {
+          "startFrame": 80,
+          "endFrame": 81,
+          "actionIndex": 25,
+          "source": {
+            "targetSource": "Owner",
+            "targetGroupKey": "",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "target": {
+            "targetSource": "Context",
+            "targetGroupKey": "tar",
+            "selectorOwner": "ActionOwner",
+            "ownerContextKey": "",
+            "centerType": "ActionSource",
+            "centerContextKey": "",
+            "centerToGround": false,
+            "target": "ActionSource",
+            "targetContextKey": "",
+            "enableAdvancedDirection": false,
+            "selectorDirection": "SourceForward",
+            "finderType": null,
+            "validatorTypes": [],
+            "postProcessorTypes": []
+          },
+          "forceKnockDown": true,
+          "duration": {
+            "value": 2.0,
+            "blackboardKey": null,
+            "levelValues": null
+          },
+          "faceDirectionType": "TargetToSource",
+          "immobilizedTime": 2.0,
+          "isExtra": false,
+          "deadOption": "AllValid",
+          "returnTrueWhen": "Always",
+          "sequenceIndex": 15,
+          "actionPath": [
+            "timelineActions[15]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ]
         }
       ],
       "intervalDamageHits": [],

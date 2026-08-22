@@ -254,6 +254,34 @@ function createGeneratedLifengScenario(talentLevel: number) {
   }).scenario;
 }
 
+function createGeneratedLifengKnockDownScenario() {
+  const scenario = createEmptyScenario('scenario:lifeng-knockdown', '黎风击倒天赋与潜能样本');
+  scenario.tracks[0] = {
+    id: 'track:lifeng-knockdown',
+    operator: {
+      operatorSlug: lifengGeneratedOperator.slug,
+      level: 90,
+      promoted: true,
+      potential: 5,
+      trustLevel: 4,
+      skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+      talentStates: { 1: 2 },
+    },
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    initialState: { ultimateEnergy: 0 },
+    skillCasts: [],
+  };
+  return placeSkillGroup({
+    scenario,
+    trackIndex: 0,
+    operator: lifengGeneratedOperator,
+    skillGroupKey: 'battleSkill',
+    startFrame: 451,
+    ids: { allocate: kind => `${kind}:1` },
+  }).scenario;
+}
+
 function createGeneratedEndministratorIgniteScenario() {
   const scenario = createEmptyScenario('scenario:endministrator-ignite', '管理员冻结点燃样本');
   scenario.battle.resourceRules = {
@@ -1408,6 +1436,58 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         event: 'PassiveSkillEnabled',
         sourceId: 'track:0',
         data: expect.objectContaining({ passiveKey: 'chr_0015_lifeng_talent_1' }),
+      }),
+    );
+  });
+
+  it('consumes Lifeng potential 5 on the next knockdown and restarts its timer', () => {
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: createGeneratedLifengKnockDownScenario(),
+      endFrame: 960,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      elementalInflictionDocument: elementalAttachments,
+      options: {
+        ...standardOptions(),
+        index: {
+          getOperator: slug =>
+            slug === lifengGeneratedOperator.slug ? lifengGeneratedOperator : null,
+          getWeapon: () => null,
+          getGear: () => null,
+          getGearSet: () => null,
+        },
+      },
+    });
+    // Generated action frame 54 is one-based, so it executes 53 runtime frames
+    // after the cast input frame.
+    const knockDownFrame = 451 + 53;
+    const damageAtKnockDown = result.receiptEntries.filter(
+      entry => entry.frame === knockDownFrame && entry.event === 'DamageApplied',
+    );
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        frame: knockDownFrame,
+        event: 'KnockDownOutput',
+        sourceId: 'track:lifeng-knockdown',
+      }),
+    );
+    expect(damageAtKnockDown).toHaveLength(2);
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        frame: knockDownFrame,
+        event: 'BuffFinished',
+        data: expect.objectContaining({ buffId: 'buff_chr_0015_lifeng_potential_5_1' }),
+      }),
+    );
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        frame: knockDownFrame + 450,
+        event: 'BuffFinished',
+        data: expect.objectContaining({ buffId: 'buff_chr_0015_lifeng_potential_5' }),
       }),
     );
   });

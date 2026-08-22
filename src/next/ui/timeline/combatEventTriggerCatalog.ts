@@ -4,6 +4,7 @@ export const EDITABLE_COMBAT_EVENT_TRIGGER_KINDS = [
   'buffApplied',
   'operatorHealed',
   'airborneOutput',
+  'knockDownOutput',
   'damageTagHit',
   'elementalInflictionApplied',
   'skillHit',
@@ -22,6 +23,7 @@ export function createCombatEventTriggerDraft(
     case 'buffApplied':
     case 'operatorHealed':
     case 'airborneOutput':
+    case 'knockDownOutput':
       return { kind };
     case 'damageTagHit':
       return { kind, tag: 'normalSkill', scope: 'operator' };

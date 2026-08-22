@@ -4269,7 +4269,126 @@
       "timelineJumps": [],
       "timelineJumpControlFlowActions": [],
       "timelineFinishes": [],
-      "conditionalActions": [],
+      "conditionalActions": [
+        {
+          "startFrame": 35,
+          "endFrame": 44,
+          "actionIndex": 3,
+          "actionPath": [
+            "timelineActions[2]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ],
+          "conditions": [
+            {
+              "sourceType": "CheckMainCharacterCondition",
+              "supported": true,
+              "comparison": null,
+              "left": null,
+              "right": null,
+              "skillTypes": [],
+              "poise": null,
+              "mainOperator": {
+                "targetSource": "Owner",
+                "targetGroupKey": ""
+              },
+              "superArmor": null,
+              "twoDirectionAngle": null,
+              "targetAngle": null,
+              "damageDecorateMask": null,
+              "contextBuffId": null,
+              "objectTypeMatch": null,
+              "deckAttributeCompare": null,
+              "probability": null,
+              "anyConditionGroups": [],
+              "anyConditionNegated": []
+            }
+          ],
+          "succeedActions": [
+            {
+              "actionType": "KnockDownAction",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[2]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "succeedActions",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 5,
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null,
+              "knockDownOutput": {
+                "startFrame": 35,
+                "endFrame": 44,
+                "actionIndex": 5,
+                "source": {
+                  "targetSource": "Source",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "target": {
+                  "targetSource": "Target",
+                  "targetGroupKey": "",
+                  "selectorOwner": "ActionOwner",
+                  "ownerContextKey": "",
+                  "centerType": "ActionSource",
+                  "centerContextKey": "",
+                  "centerToGround": false,
+                  "target": "ActionSource",
+                  "targetContextKey": "",
+                  "enableAdvancedDirection": false,
+                  "selectorDirection": "SourceForward",
+                  "finderType": null,
+                  "validatorTypes": [],
+                  "postProcessorTypes": []
+                },
+                "forceKnockDown": true,
+                "duration": {
+                  "value": 1.5,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "faceDirectionType": "TargetToSource",
+                "immobilizedTime": 0.0,
+                "isExtra": false,
+                "deadOption": "OnlyDead",
+                "returnTrueWhen": "Always",
+                "sequenceIndex": -1,
+                "actionPath": [
+                  "timelineActions[2]",
+                  "_sequenceActionData",
+                  "actionData",
+                  "[1]",
+                  "succeedActions",
+                  "actionData",
+                  "[0]"
+                ]
+              }
+            }
+          ],
+          "failActions": [],
+          "conditionNegated": [
+            false
+          ],
+          "alwaysNext": true
+        }
+      ],
       "auxiliaryActions": [
         {
           "startFrame": 0,
@@ -4416,6 +4535,22 @@
           "sourcePath": [
             "chr_0004_pelica_power_attack"
           ]
+        },
+        {
+          "frame": 35,
+          "actionOrder": [
+            3
+          ],
+          "sequenceOrder": [
+            2
+          ],
+          "itemType": "condition",
+          "sourcePath": [
+            "timelineActions[2]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ]
         }
       ],
       "blackboardKeys": [
@@ -4495,7 +4630,9 @@
       "skillReplacements": [],
       "unresolvedCombatActions": [
         "CreateBuffAction",
-        "DamageAction"
+        "DamageAction",
+        "IfElseAction",
+        "KnockDownAction"
       ]
     },
     {

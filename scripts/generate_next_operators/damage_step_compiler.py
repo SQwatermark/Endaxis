@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from typing import Any, Callable
 
 from source_models import (
+    ConditionalActionSource,
+    ConditionalBranchActionSource,
     DamageUnitSource,
     ProjectileSkillTriggerSource,
     ProjectileTriggeredSkillSource,
@@ -34,6 +36,32 @@ class DamageStepCompilerServices:
     resolved_scalar_values: Callable[..., Any]
     damage_type_map: dict[str, str]
     implied_damage_tag_parents: dict[str, str]
+
+
+def conditional_actions_are_terminal_dead_knock_down_only(
+    actions: tuple[ConditionalActionSource, ...],
+) -> bool:
+    """Recognize corpse-settlement-only control flow in the terminal dummy model."""
+    if not actions:
+        return False
+
+    def branch_is_terminal(action: ConditionalBranchActionSource) -> bool:
+        nested = getattr(action, "nestedCondition", None)
+        if nested is not None:
+            return conditional_is_terminal(nested)
+        once_actions = getattr(action, "onceActions", None)
+        if once_actions is not None:
+            return bool(once_actions) and all(
+                branch_is_terminal(child) for child in once_actions
+            )
+        payload = getattr(action, "knockDownOutput", None)
+        return payload is not None and payload.deadOption == "OnlyDead"
+
+    def conditional_is_terminal(action: ConditionalActionSource) -> bool:
+        branches = (*action.succeedActions, *action.failActions)
+        return bool(branches) and all(branch_is_terminal(branch) for branch in branches)
+
+    return all(conditional_is_terminal(action) for action in actions)
 
 
 def compile_direct_damage(
@@ -73,6 +101,13 @@ def compile_direct_damage(
         *({"SpellInfliction"} if skill.inflictions else set()),
         *({"LaunchProjectile"} if skill.projectileTriggeredSkills else set()),
         *({"GetTargetBuffBBAdvanced"} if skill.buffBlackboardReads else set()),
+        *(
+            {"IfElseAction", "KnockDownAction"}
+            if conditional_actions_are_terminal_dead_knock_down_only(
+                skill.conditionalActions
+            )
+            else set()
+        ),
     }
     if set(skill.unresolvedCombatActions) != expected_actions:
         raise ValueError(f"{skill.key}: unresolved combat actions are not fully accounted for")

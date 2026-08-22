@@ -39,6 +39,7 @@ class ConditionalLeafServices:
     compile_immediate_projectile_children: Callable[..., Any]
     compile_keyword_action: Callable[..., Any]
     compile_logical_ability_entity_spawn: Callable[..., Any]
+    compile_knock_down_output: Callable[..., Any]
     compile_physical_infliction: Callable[..., Any]
     compile_resource_gain: Callable[..., Any]
     compile_time_dilation: Callable[..., Any]
@@ -144,6 +145,7 @@ def compile_conditional_branch_action(
     compile_immediate_projectile_children = services.compile_immediate_projectile_children
     compile_keyword_action = services.compile_keyword_action
     compile_logical_ability_entity_spawn = services.compile_logical_ability_entity_spawn
+    compile_knock_down_output = services.compile_knock_down_output
     compile_physical_infliction = services.compile_physical_infliction
     compile_resource_gain = services.compile_resource_gain
     compile_time_dilation = services.compile_time_dilation
@@ -961,4 +963,7 @@ def compile_conditional_branch_action(
             context_action=context_action,
             target_group_writes=target_group_writes,
         )
+    knock_down_output = getattr(action, "knockDownOutput", None)
+    if knock_down_output is not None:
+        return compile_knock_down_output(knock_down_output, path)
     raise ValueError(f"{path}: unsupported conditional leaf {action.actionType!r}")

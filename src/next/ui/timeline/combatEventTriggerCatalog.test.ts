@@ -19,6 +19,7 @@ describe('combatEventTriggerCatalog', () => {
       'buffApplied',
       'operatorHealed',
       'airborneOutput',
+      'knockDownOutput',
       'damageTagHit',
       'elementalInflictionApplied',
       'skillHit',

@@ -26,6 +26,7 @@ type MechanicStep = Extract<
     kind:
       | 'createTimedMarker'
       | 'outputAirborne'
+      | 'outputKnockDown'
       | 'gainSquadUltimateEnergyFromSkillCost'
       | 'gainFinisherSp'
       | 'setContextFlag'
@@ -70,8 +71,8 @@ function setMarkerTarget(event: Event): void {
   emit('update', { ...props.step, parameters: { ...props.step.parameters, target } });
 }
 
-function setAirborneTarget(event: Event): void {
-  if (props.step.kind !== 'outputAirborne') return;
+function setControlOutputTarget(event: Event): void {
+  if (props.step.kind !== 'outputAirborne' && props.step.kind !== 'outputKnockDown') return;
   const target = (event.target as HTMLSelectElement).value as CombatTarget;
   if (!COMBAT_TARGETS.includes(target)) return;
   emit('update', { ...props.step, parameters: { target } });
@@ -154,13 +155,13 @@ function setContextValue(event: Event): void {
 
 <template>
   <div class="step-editor__grid">
-    <template v-if="step.kind === 'outputAirborne'">
+    <template v-if="step.kind === 'outputAirborne' || step.kind === 'outputKnockDown'">
       <label>
         <EditorFieldLabel
           :label="t('nextTimeline.skillEditing.target')"
           :help="t('nextTimeline.skillEditing.fieldHelp.airborneTarget')"
         />
-        <select :value="step.parameters.target" @change="setAirborneTarget">
+        <select :value="step.parameters.target" @change="setControlOutputTarget">
           <option v-for="target in COMBAT_TARGETS" :key="target" :value="target">
             {{ t(`nextTimeline.skillEditing.targets.${target}`) }}
           </option>

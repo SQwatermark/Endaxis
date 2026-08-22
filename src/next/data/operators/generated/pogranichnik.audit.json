@@ -16343,6 +16343,7 @@
               "damageUnits": null,
               "heal": null,
               "keywordAction": null,
+              "knockDownOutput": null,
               "timelineJumpDestinationFrame": 600
             }
           ],
@@ -16462,6 +16463,7 @@
                     "damageUnits": null,
                     "heal": null,
                     "keywordAction": null,
+                    "knockDownOutput": null,
                     "timelineJumpDestinationFrame": 400
                   }
                 ],
@@ -16590,6 +16592,7 @@
                           "damageUnits": null,
                           "heal": null,
                           "keywordAction": null,
+                          "knockDownOutput": null,
                           "timelineJumpDestinationFrame": 200
                         }
                       ],
@@ -16627,7 +16630,8 @@
                     "conditionalAbilityEntityHits": null,
                     "damageUnits": null,
                     "heal": null,
-                    "keywordAction": null
+                    "keywordAction": null,
+                    "knockDownOutput": null
                   }
                 ],
                 "conditionNegated": [
@@ -16663,7 +16667,8 @@
               "conditionalAbilityEntityHits": null,
               "damageUnits": null,
               "heal": null,
-              "keywordAction": null
+              "keywordAction": null,
+              "knockDownOutput": null
             }
           ],
           "conditionNegated": [

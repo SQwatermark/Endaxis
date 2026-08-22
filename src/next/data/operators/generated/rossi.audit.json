@@ -9477,6 +9477,7 @@
               "damageUnits": null,
               "heal": null,
               "keywordAction": null,
+              "knockDownOutput": null,
               "timelineJumpDestinationFrame": 189
             }
           ],
@@ -41081,7 +41082,8 @@
               "conditionalAbilityEntityHits": null,
               "damageUnits": null,
               "heal": null,
-              "keywordAction": null
+              "keywordAction": null,
+              "knockDownOutput": null
             },
             {
               "actionType": "ModifyDynamicBlackboard",
@@ -41130,7 +41132,8 @@
               "conditionalAbilityEntityHits": null,
               "damageUnits": null,
               "heal": null,
-              "keywordAction": null
+              "keywordAction": null,
+              "knockDownOutput": null
             },
             {
               "actionType": "TimeDilationAction",
@@ -41172,6 +41175,7 @@
               "damageUnits": null,
               "heal": null,
               "keywordAction": null,
+              "knockDownOutput": null,
               "timeDilation": {
                 "startFrame": 0,
                 "endFrame": 28,
@@ -41391,7 +41395,8 @@
                     "conditionalAbilityEntityHits": null,
                     "damageUnits": null,
                     "heal": null,
-                    "keywordAction": null
+                    "keywordAction": null,
+                    "knockDownOutput": null
                   }
                 ],
                 "failActions": [],
@@ -41428,7 +41433,8 @@
               "conditionalAbilityEntityHits": null,
               "damageUnits": null,
               "heal": null,
-              "keywordAction": null
+              "keywordAction": null,
+              "knockDownOutput": null
             }
           ],
           "failActions": [
@@ -41486,7 +41492,8 @@
               "conditionalAbilityEntityHits": null,
               "damageUnits": null,
               "heal": null,
-              "keywordAction": null
+              "keywordAction": null,
+              "knockDownOutput": null
             },
             {
               "actionType": "ModifyDynamicBlackboard",
@@ -41535,7 +41542,8 @@
               "conditionalAbilityEntityHits": null,
               "damageUnits": null,
               "heal": null,
-              "keywordAction": null
+              "keywordAction": null,
+              "knockDownOutput": null
             },
             {
               "actionType": "JumpToAction",
@@ -41577,6 +41585,7 @@
               "damageUnits": null,
               "heal": null,
               "keywordAction": null,
+              "knockDownOutput": null,
               "timelineJumpDestinationFrame": 212
             }
           ],

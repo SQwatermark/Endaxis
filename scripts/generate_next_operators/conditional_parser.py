@@ -29,6 +29,7 @@ from action_payload_parser import (
     parse_heal_payload,
     parse_infliction_payload,
     parse_interrupt_payload,
+    parse_knock_down_output_payload,
     parse_physical_infliction_payload,
     parse_projectile_launch_payload,
     parse_resource_gain_payload,
@@ -1622,6 +1623,7 @@ def parse_conditional_actions(
                 keyword_action = None
                 time_dilation = None
                 heal = None
+                knock_down_output = None
                 timeline_jump_destination_frame = None
                 if action_type == "SimpleCalcBBAction":
                     calculation = parse_blackboard_calculation_payload(
@@ -1838,6 +1840,15 @@ def parse_conditional_actions(
                         )
                 elif action_type == "HealAction":
                     heal = parse_heal_payload(action, source_path, inherited_blackboard)
+                elif action_type == "KnockDownAction":
+                    knock_down_output = parse_knock_down_output_payload(
+                        action,
+                        source_path,
+                        inherited_blackboard,
+                        start_frame=start_frame,
+                        end_frame=end_frame,
+                        action_path=action_path,
+                    )
                 elif action_type == "StoreCurSkillExecuteFrame":
                     expected_fields = {
                         "$type", "isEnable", "priorityLevel", "priorityOffset",
@@ -1948,6 +1959,7 @@ def parse_conditional_actions(
                     "damageUnits": damage_units,
                     "heal": heal,
                     "keywordAction": keyword_action,
+                    "knockDownOutput": knock_down_output,
                 }
                 if time_dilation is not None:
                     branch_arguments["timeDilation"] = time_dilation

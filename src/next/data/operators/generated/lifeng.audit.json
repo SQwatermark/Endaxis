@@ -75,6 +75,407 @@
       "presentationOnlySwitchActionIndexes": []
     },
     {
+      "buffId": "buff_chr_0015_lifeng_potential_5",
+      "sourceFile": "buff_chr_0015_lifeng_potential_5.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 10.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": "interval",
+          "levelValues": [
+            0.0
+          ]
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "atk_scale_potential5",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "interval",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "poise_potential5",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "buff",
+          "event": "OnBuffTrigger",
+          "orderedActionTypes": [
+            "CheckBuffStackNumAdvanced",
+            "CreateBuffAction",
+            "FinishBuffAdvanced"
+          ],
+          "combatActions": [
+            "CreateBuffAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [
+            {
+              "actionIndex": 1,
+              "payload": {
+                "buffs": [
+                  {
+                    "buffId": "buff_chr_0015_lifeng_potential_5_1",
+                    "classification": null,
+                    "blackboardAssignments": {
+                      "atk_scale_potential5": {
+                        "value": 0.0,
+                        "blackboardKey": "atk_scale_potential5",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "poise_potential5": {
+                        "value": 0.0,
+                        "blackboardKey": "poise_potential5",
+                        "levelValues": [
+                          0.0
+                        ]
+                      },
+                      "interval": {
+                        "value": 0.0,
+                        "blackboardKey": "interval",
+                        "levelValues": [
+                          0.0
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "count": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "buffSource": "ActionSource",
+                "buffSourceContextKey": "",
+                "inheritSourceSkillCastInfo": true
+              }
+            }
+          ],
+          "createdBuffIds": [
+            "buff_chr_0015_lifeng_potential_5_1"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "CheckBuffStackNumAdvanced",
+                "CreateBuffAction",
+                "FinishBuffAdvanced"
+              ],
+              "combatActions": [
+                "CreateBuffAction"
+              ],
+              "buffApplications": [
+                {
+                  "actionIndex": 1,
+                  "payload": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0015_lifeng_potential_5_1",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "atk_scale_potential5": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale_potential5",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "poise_potential5": {
+                            "value": 0.0,
+                            "blackboardKey": "poise_potential5",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "interval": {
+                            "value": 0.0,
+                            "blackboardKey": "interval",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "actionType": "CreateBuffAction",
+                  "actionIndex": 1,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[1]"
+                  ],
+                  "serverActionIndex": 1,
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null,
+                  "buffApplication": {
+                    "buffs": [
+                      {
+                        "buffId": "buff_chr_0015_lifeng_potential_5_1",
+                        "classification": null,
+                        "blackboardAssignments": {
+                          "atk_scale_potential5": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale_potential5",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "poise_potential5": {
+                            "value": 0.0,
+                            "blackboardKey": "poise_potential5",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "interval": {
+                            "value": 0.0,
+                            "blackboardKey": "interval",
+                            "levelValues": [
+                              0.0
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "count": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "buffSource": "ActionSource",
+                    "buffSourceContextKey": "",
+                    "inheritSourceSkillCastInfo": true
+                  }
+                },
+                {
+                  "actionType": "FinishBuffAdvanced",
+                  "actionIndex": 2,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[2]"
+                  ],
+                  "serverActionIndex": 2,
+                  "buffFinish": {
+                    "targetSource": "Owner",
+                    "targetGroupKey": "",
+                    "buffCheckType": "Id",
+                    "buffIds": [
+                      "buff_chr_0015_lifeng_potential_5"
+                    ],
+                    "tagQueryType": "hasAny",
+                    "buffTagIds": [],
+                    "finishAll": true,
+                    "limitSource": false,
+                    "isFinishedEarly": false,
+                    "isAbsorbed": false,
+                    "finishLayerCount": null
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        }
+      ],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
+      "buffId": "buff_chr_0015_lifeng_potential_5_1",
+      "sourceFile": "buff_chr_0015_lifeng_potential_5_1.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 10.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": true,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "atk_scale_potential5",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "interval",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "poise_potential5",
+          "value": 0.0,
+          "isDynamic": false
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
       "buffId": "buff_chr_0015_lifeng_purify",
       "sourceFile": "buff_chr_0015_lifeng_purify.json",
       "sourceAvailable": true,
@@ -309,6 +710,548 @@
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [],
+      "igniteEventActions": [],
+      "sourceDeathFinish": null,
+      "resourceGains": [],
+      "combatActions": [],
+      "unparsedPayloads": [],
+      "auraActions": [],
+      "abilityEntityHits": [],
+      "invokedAbilityEntitySkills": [],
+      "auxiliaryActions": [],
+      "targetGroupWrites": [],
+      "runtimeSkillSlotReplacements": [],
+      "attributeModifiersConverted": false,
+      "useTimeDilationDt": false,
+      "onlyUseSelfTimeDilation": false,
+      "shields": [],
+      "sustainedProtections": [],
+      "animationEndBuffApplications": [],
+      "projectileLaunches": [],
+      "presentationOnlySwitchActionIndexes": []
+    },
+    {
+      "buffId": "buff_chr_0015_lifeng_talent_2",
+      "sourceFile": "buff_chr_0015_lifeng_talent_2.json",
+      "sourceAvailable": true,
+      "lifecycle": {
+        "lifeType": "Infinity",
+        "duration": {
+          "value": 10.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "triggerInterval": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "waitFirstTriggerInterval": false,
+        "maxTriggerCount": {
+          "value": -1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "stackingIdentifierType": "Id",
+        "stackingType": "Unique",
+        "stackingKey": "",
+        "priority": {
+          "value": 0.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "negatePriority": false,
+        "maxStackCount": {
+          "value": 1.0,
+          "blackboardKey": null,
+          "levelValues": null
+        },
+        "hasStackEffects": false,
+        "stackEffectActionTypes": []
+      },
+      "blackboard": [
+        {
+          "key": "atk_scale_potential5",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "atk_scale_talent2",
+          "value": 0.0,
+          "isDynamic": false
+        },
+        {
+          "key": "final_atk_scale_talent2",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "interval",
+          "value": 0.0,
+          "isDynamic": true
+        },
+        {
+          "key": "poise_potential5",
+          "value": 0.0,
+          "isDynamic": true
+        }
+      ],
+      "applyTagIds": [],
+      "extendTagIds": [],
+      "attributeModifiers": [],
+      "damageModifiers": [],
+      "directDamageHits": [],
+      "inflictions": [],
+      "conditionalActions": [],
+      "blackboardCalculations": [],
+      "blackboardMutations": [],
+      "buffBlackboardReads": [],
+      "buffFinishes": [],
+      "eventActions": [
+        {
+          "eventSource": "ability",
+          "event": "OnBeforeOutputKnockDown",
+          "orderedActionTypes": [
+            "IfElseAction"
+          ],
+          "combatActions": [
+            "IfElseAction"
+          ],
+          "damageUnits": [],
+          "buffApplications": [],
+          "createdBuffIds": [
+            "buff_chr_0015_lifeng_potential_5"
+          ],
+          "forEachActions": [],
+          "targetGroupWrites": [],
+          "sequences": [
+            {
+              "onlyMainOperator": false,
+              "onlyGuard": false,
+              "orderedActionTypes": [
+                "IfElseAction"
+              ],
+              "combatActions": [
+                "IfElseAction"
+              ],
+              "buffApplications": [],
+              "actions": [
+                {
+                  "actionType": "IfElseAction",
+                  "actionIndex": 0,
+                  "actionPath": [
+                    "timelineActions[0]",
+                    "_sequenceActionData",
+                    "actionData",
+                    "[0]",
+                    "succeedActions",
+                    "actionData",
+                    "[0]"
+                  ],
+                  "serverActionIndex": 0,
+                  "nestedCondition": {
+                    "startFrame": 0,
+                    "endFrame": 0,
+                    "actionIndex": 0,
+                    "actionPath": [
+                      "timelineActions[0]",
+                      "_sequenceActionData",
+                      "actionData",
+                      "[0]",
+                      "succeedActions",
+                      "actionData",
+                      "[0]"
+                    ],
+                    "conditions": [
+                      {
+                        "sourceType": "CheckBuffStackNumAdvanced",
+                        "supported": true,
+                        "comparison": null,
+                        "left": null,
+                        "right": null,
+                        "skillTypes": [],
+                        "buffStack": {
+                          "targetSource": "Owner",
+                          "targetGroupKey": "",
+                          "buffCheckType": "Id",
+                          "buffIds": [
+                            "buff_chr_0015_lifeng_potential_5_1"
+                          ],
+                          "tagQueryType": "hasAny",
+                          "buffTagIds": [],
+                          "countType": "BuffCount",
+                          "comparison": "GE",
+                          "value": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "limitSkillCastId": false
+                        },
+                        "poise": null,
+                        "superArmor": null,
+                        "twoDirectionAngle": null,
+                        "targetAngle": null,
+                        "damageDecorateMask": null,
+                        "contextBuffId": null,
+                        "objectTypeMatch": null,
+                        "deckAttributeCompare": null,
+                        "probability": null,
+                        "anyConditionGroups": [],
+                        "anyConditionNegated": []
+                      }
+                    ],
+                    "succeedActions": [
+                      {
+                        "actionType": "GetTargetBuffBBAdvanced",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 2,
+                        "buffBlackboardRead": {
+                          "outputKey": "atk_scale_potential5",
+                          "desiredKey": "atk_scale_potential5",
+                          "targetSource": "Owner",
+                          "targetGroupKey": "",
+                          "buffCheckType": "Id",
+                          "buffIds": [
+                            "buff_chr_0015_lifeng_potential_5_1"
+                          ],
+                          "tagQueryType": "hasAny",
+                          "buffTagIds": []
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      },
+                      {
+                        "actionType": "GetTargetBuffBBAdvanced",
+                        "actionIndex": 1,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[1]"
+                        ],
+                        "serverActionIndex": 3,
+                        "buffBlackboardRead": {
+                          "outputKey": "interval",
+                          "desiredKey": "interval",
+                          "targetSource": "Owner",
+                          "targetGroupKey": "",
+                          "buffCheckType": "Id",
+                          "buffIds": [
+                            "buff_chr_0015_lifeng_potential_5_1"
+                          ],
+                          "tagQueryType": "hasAny",
+                          "buffTagIds": []
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      },
+                      {
+                        "actionType": "GetTargetBuffBBAdvanced",
+                        "actionIndex": 2,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[2]"
+                        ],
+                        "serverActionIndex": 4,
+                        "buffBlackboardRead": {
+                          "outputKey": "poise_potential5",
+                          "desiredKey": "poise_potential5",
+                          "targetSource": "Owner",
+                          "targetGroupKey": "",
+                          "buffCheckType": "Id",
+                          "buffIds": [
+                            "buff_chr_0015_lifeng_potential_5_1"
+                          ],
+                          "tagQueryType": "hasAny",
+                          "buffTagIds": []
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      },
+                      {
+                        "actionType": "SimpleCalcBBAction",
+                        "actionIndex": 3,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[3]"
+                        ],
+                        "serverActionIndex": 5,
+                        "blackboardCalculation": {
+                          "key": "final_atk_scale_talent2",
+                          "operation": "Add",
+                          "left": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale_talent2",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "right": {
+                            "value": 0.0,
+                            "blackboardKey": "atk_scale_potential5",
+                            "levelValues": [
+                              0.0
+                            ]
+                          },
+                          "addend": null
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      },
+                      {
+                        "actionType": "DamageAction",
+                        "actionIndex": 4,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[4]"
+                        ],
+                        "serverActionIndex": 6,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
+                        "damageUnits": [
+                          {
+                            "damageType": "Physical",
+                            "attributeType": "Hp",
+                            "calculation": "standard",
+                            "attackScale": {
+                              "value": 0.0,
+                              "blackboardKey": "final_atk_scale_talent2",
+                              "levelValues": [
+                                0.0
+                              ]
+                            },
+                            "calculationMultiplier": null,
+                            "poiseValue": null,
+                            "definiteValue": null,
+                            "damageDecorateMask": 0
+                          },
+                          {
+                            "damageType": "Physical",
+                            "attributeType": "Poise",
+                            "calculation": "standard",
+                            "attackScale": {
+                              "value": 0.0,
+                              "blackboardKey": null,
+                              "levelValues": null
+                            },
+                            "calculationMultiplier": null,
+                            "poiseValue": {
+                              "value": 0.0,
+                              "blackboardKey": "poise_potential5",
+                              "levelValues": [
+                                0.0
+                              ]
+                            },
+                            "definiteValue": null,
+                            "damageDecorateMask": 0
+                          }
+                        ]
+                      },
+                      {
+                        "actionType": "FinishBuffAdvanced",
+                        "actionIndex": 5,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[5]"
+                        ],
+                        "serverActionIndex": 7,
+                        "buffFinish": {
+                          "targetSource": "Owner",
+                          "targetGroupKey": "",
+                          "buffCheckType": "Id",
+                          "buffIds": [
+                            "buff_chr_0015_lifeng_potential_5_1"
+                          ],
+                          "tagQueryType": "hasAny",
+                          "buffTagIds": [],
+                          "finishAll": true,
+                          "limitSource": false,
+                          "isFinishedEarly": false,
+                          "isAbsorbed": false,
+                          "finishLayerCount": null
+                        },
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null
+                      },
+                      {
+                        "actionType": "CreateBuffAction",
+                        "actionIndex": 6,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[6]"
+                        ],
+                        "serverActionIndex": 8,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
+                        "buffApplication": {
+                          "buffs": [
+                            {
+                              "buffId": "buff_chr_0015_lifeng_potential_5",
+                              "classification": null,
+                              "blackboardAssignments": {
+                                "interval": {
+                                  "value": 0.0,
+                                  "blackboardKey": "interval",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                },
+                                "atk_scale_potential5": {
+                                  "value": 0.0,
+                                  "blackboardKey": "atk_scale_potential5",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                },
+                                "poise_potential5": {
+                                  "value": 0.0,
+                                  "blackboardKey": "poise_potential5",
+                                  "levelValues": [
+                                    0.0
+                                  ]
+                                }
+                              }
+                            }
+                          ],
+                          "targetSource": "Owner",
+                          "targetGroupKey": "",
+                          "count": {
+                            "value": 1.0,
+                            "blackboardKey": null,
+                            "levelValues": null
+                          },
+                          "buffSource": "ActionSource",
+                          "buffSourceContextKey": "",
+                          "inheritSourceSkillCastInfo": true
+                        }
+                      }
+                    ],
+                    "failActions": [
+                      {
+                        "actionType": "DamageAction",
+                        "actionIndex": 0,
+                        "actionPath": [
+                          "timelineActions[0]",
+                          "_sequenceActionData",
+                          "actionData",
+                          "[0]",
+                          "succeedActions",
+                          "actionData",
+                          "[0]",
+                          "failActions",
+                          "actionData",
+                          "[0]"
+                        ],
+                        "serverActionIndex": 9,
+                        "legacyBuffFinish": null,
+                        "skillCooldownAdjustment": null,
+                        "buffIgnite": null,
+                        "damageUnits": [
+                          {
+                            "damageType": "Physical",
+                            "attributeType": "Hp",
+                            "calculation": "standard",
+                            "attackScale": {
+                              "value": 0.0,
+                              "blackboardKey": "atk_scale_talent2",
+                              "levelValues": [
+                                0.0
+                              ]
+                            },
+                            "calculationMultiplier": null,
+                            "poiseValue": null,
+                            "definiteValue": null,
+                            "damageDecorateMask": 0
+                          }
+                        ]
+                      }
+                    ],
+                    "conditionNegated": [
+                      false
+                    ],
+                    "alwaysNext": true
+                  },
+                  "legacyBuffFinish": null,
+                  "skillCooldownAdjustment": null,
+                  "buffIgnite": null
+                }
+              ],
+              "priority": 0
+            }
+          ],
+          "finishAfterIgnited": false,
+          "runtimeTargetGroupWrites": [],
+          "obtainAtbValueKeys": [],
+          "contextBuffIdQueries": [],
+          "collectedBuffReactionModifier": null
+        }
+      ],
       "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
@@ -3692,6 +4635,19 @@
         {
           "frame": 54,
           "actionOrder": [
+            73
+          ],
+          "sequenceOrder": [
+            21
+          ],
+          "itemType": "knockDownOutput",
+          "sourcePath": [
+            "chr_0015_lifeng_normal_skill"
+          ]
+        },
+        {
+          "frame": 54,
+          "actionOrder": [
             74
           ],
           "sequenceOrder": [
@@ -3906,7 +4862,8 @@
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "DamageAction",
-        "IfElseAction"
+        "IfElseAction",
+        "KnockDownAction"
       ]
     },
     {
@@ -5359,7 +6316,8 @@
                   "projectileTriggeredSkills": [],
                   "nestedAbilityEntityHits": [],
                   "combatActions": [
-                    "DamageAction"
+                    "DamageAction",
+                    "KnockDownAction"
                   ],
                   "cycleTruncated": false,
                   "inheritsSourceBlackboard": true,
@@ -5405,6 +6363,118 @@
                   "buffBlackboardReads": [],
                   "buffFinishes": [],
                   "auraActions": [],
+                  "knockDownOutputs": [
+                    {
+                      "startFrame": 6,
+                      "endFrame": 7,
+                      "actionIndex": 3,
+                      "source": {
+                        "targetSource": "Source",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "tar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "forceKnockDown": false,
+                      "duration": {
+                        "value": 2.1,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "faceDirectionType": "TargetToSource",
+                      "immobilizedTime": 0.0,
+                      "isExtra": false,
+                      "deadOption": "AllValid",
+                      "returnTrueWhen": "Always",
+                      "sequenceIndex": 3,
+                      "actionPath": [
+                        "timelineActions[3]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[0]"
+                      ]
+                    },
+                    {
+                      "startFrame": 66,
+                      "endFrame": 67,
+                      "actionIndex": 9,
+                      "source": {
+                        "targetSource": "Source",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "tar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "forceKnockDown": false,
+                      "duration": {
+                        "value": 2.1,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "faceDirectionType": "TargetToSource",
+                      "immobilizedTime": 0.0,
+                      "isExtra": false,
+                      "deadOption": "AllValid",
+                      "returnTrueWhen": "Always",
+                      "sequenceIndex": 4,
+                      "actionPath": [
+                        "timelineActions[4]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[0]"
+                      ]
+                    }
+                  ],
                   "presentationOnlySwitchActionIndexes": []
                 }
               ]
@@ -5780,7 +6850,8 @@
                   "projectileTriggeredSkills": [],
                   "nestedAbilityEntityHits": [],
                   "combatActions": [
-                    "DamageAction"
+                    "DamageAction",
+                    "KnockDownAction"
                   ],
                   "cycleTruncated": false,
                   "inheritsSourceBlackboard": true,
@@ -5826,6 +6897,118 @@
                   "buffBlackboardReads": [],
                   "buffFinishes": [],
                   "auraActions": [],
+                  "knockDownOutputs": [
+                    {
+                      "startFrame": 6,
+                      "endFrame": 7,
+                      "actionIndex": 3,
+                      "source": {
+                        "targetSource": "Source",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "tar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "forceKnockDown": false,
+                      "duration": {
+                        "value": 2.1,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "faceDirectionType": "TargetToSource",
+                      "immobilizedTime": 0.0,
+                      "isExtra": false,
+                      "deadOption": "AllValid",
+                      "returnTrueWhen": "Always",
+                      "sequenceIndex": 3,
+                      "actionPath": [
+                        "timelineActions[3]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[0]"
+                      ]
+                    },
+                    {
+                      "startFrame": 66,
+                      "endFrame": 67,
+                      "actionIndex": 9,
+                      "source": {
+                        "targetSource": "Source",
+                        "targetGroupKey": "",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "target": {
+                        "targetSource": "Context",
+                        "targetGroupKey": "tar",
+                        "selectorOwner": "ActionOwner",
+                        "ownerContextKey": "",
+                        "centerType": "ActionSource",
+                        "centerContextKey": "",
+                        "centerToGround": false,
+                        "target": "ActionSource",
+                        "targetContextKey": "",
+                        "enableAdvancedDirection": false,
+                        "selectorDirection": "SourceForward",
+                        "finderType": null,
+                        "validatorTypes": [],
+                        "postProcessorTypes": []
+                      },
+                      "forceKnockDown": false,
+                      "duration": {
+                        "value": 2.1,
+                        "blackboardKey": null,
+                        "levelValues": null
+                      },
+                      "faceDirectionType": "TargetToSource",
+                      "immobilizedTime": 0.0,
+                      "isExtra": false,
+                      "deadOption": "AllValid",
+                      "returnTrueWhen": "Always",
+                      "sequenceIndex": 4,
+                      "actionPath": [
+                        "timelineActions[4]",
+                        "_sequenceActionData",
+                        "actionData",
+                        "[0]"
+                      ]
+                    }
+                  ],
                   "presentationOnlySwitchActionIndexes": []
                 }
               ]
@@ -6224,7 +7407,8 @@
           "projectileTriggeredSkills": [],
           "nestedAbilityEntityHits": [],
           "combatActions": [
-            "DamageAction"
+            "DamageAction",
+            "KnockDownAction"
           ],
           "cycleTruncated": false,
           "inheritsSourceBlackboard": true,
@@ -6270,6 +7454,118 @@
           "buffBlackboardReads": [],
           "buffFinishes": [],
           "auraActions": [],
+          "knockDownOutputs": [
+            {
+              "startFrame": 6,
+              "endFrame": 7,
+              "actionIndex": 3,
+              "source": {
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "target": {
+                "targetSource": "Context",
+                "targetGroupKey": "tar",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "forceKnockDown": false,
+              "duration": {
+                "value": 2.1,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "faceDirectionType": "TargetToSource",
+              "immobilizedTime": 0.0,
+              "isExtra": false,
+              "deadOption": "AllValid",
+              "returnTrueWhen": "Always",
+              "sequenceIndex": 3,
+              "actionPath": [
+                "timelineActions[3]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ]
+            },
+            {
+              "startFrame": 66,
+              "endFrame": 67,
+              "actionIndex": 9,
+              "source": {
+                "targetSource": "Source",
+                "targetGroupKey": "",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "target": {
+                "targetSource": "Context",
+                "targetGroupKey": "tar",
+                "selectorOwner": "ActionOwner",
+                "ownerContextKey": "",
+                "centerType": "ActionSource",
+                "centerContextKey": "",
+                "centerToGround": false,
+                "target": "ActionSource",
+                "targetContextKey": "",
+                "enableAdvancedDirection": false,
+                "selectorDirection": "SourceForward",
+                "finderType": null,
+                "validatorTypes": [],
+                "postProcessorTypes": []
+              },
+              "forceKnockDown": false,
+              "duration": {
+                "value": 2.1,
+                "blackboardKey": null,
+                "levelValues": null
+              },
+              "faceDirectionType": "TargetToSource",
+              "immobilizedTime": 0.0,
+              "isExtra": false,
+              "deadOption": "AllValid",
+              "returnTrueWhen": "Always",
+              "sequenceIndex": 4,
+              "actionPath": [
+                "timelineActions[4]",
+                "_sequenceActionData",
+                "actionData",
+                "[0]"
+              ]
+            }
+          ],
           "presentationOnlySwitchActionIndexes": []
         }
       ],
@@ -6603,6 +7899,23 @@
           "actionOrder": [
             37,
             0,
+            3
+          ],
+          "sequenceOrder": [
+            37,
+            0,
+            3
+          ],
+          "itemType": "knockDownOutput",
+          "sourcePath": [
+            "chr_0015_lifeng_ultimate_skill_abentity"
+          ]
+        },
+        {
+          "frame": 64,
+          "actionOrder": [
+            37,
+            0,
             5
           ],
           "sequenceOrder": [
@@ -6613,6 +7926,23 @@
           "itemType": "damage",
           "sourcePath": [
             "chr_0015_lifeng_ultimate_skill",
+            "chr_0015_lifeng_ultimate_skill_abentity"
+          ]
+        },
+        {
+          "frame": 124,
+          "actionOrder": [
+            37,
+            0,
+            9
+          ],
+          "sequenceOrder": [
+            37,
+            0,
+            4
+          ],
+          "itemType": "knockDownOutput",
+          "sourcePath": [
             "chr_0015_lifeng_ultimate_skill_abentity"
           ]
         },

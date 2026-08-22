@@ -33,6 +33,7 @@ from source_models import (
     TimedTimelineFinishSource,
     TimedTimelineJumpSource,
     TimedKeywordActionSource,
+    TimedKnockDownOutputSource,
     TimedResourceGainSource,
     TimedTimeDilationSource,
 )
@@ -82,6 +83,7 @@ def ability_entity_child_is_inert(hit: AbilityEntityHitSource) -> bool:
         and not hit.buffFinishes
         and not hit.auraActions
         and not hit.keywordActions
+        and not getattr(hit, "knockDownOutputs", ())
         and not hit.localTargetGroupWrites
     )
 
@@ -161,6 +163,62 @@ class ResolvedSequenceStepServices:
 class ResolvedSequenceServices:
     analysis: ResolvedSequenceAnalysisServices
     steps: ResolvedSequenceStepServices
+
+
+def compile_knock_down_output(
+    payload: TimedKnockDownOutputSource,
+    path: str,
+    *,
+    context_target_is_enemy: bool = False,
+    root_skill_context: bool = False,
+) -> str:
+    """把已证明的击倒动作归约为同步语义输出，空间控制字段只参与严格校验。"""
+    if not (
+        (
+            payload.source.targetSource == "Source"
+            or (root_skill_context and payload.source.targetSource == "Owner")
+        )
+        and not payload.source.targetGroupKey
+        and not payload.source.validatorTypes
+        and not payload.source.postProcessorTypes
+        and payload.target.targetSource in {"Context", "Target"}
+        and (
+            payload.target.targetSource != "Context"
+            or payload.target.targetGroupKey == "tar"
+            or context_target_is_enemy
+        )
+        and not payload.target.validatorTypes
+        and not payload.target.postProcessorTypes
+        and payload.faceDirectionType == "TargetToSource"
+        and payload.immobilizedTime >= 0
+        and payload.deadOption in {"AllValid", "OnlyAlive", "OnlyDead"}
+        and payload.returnTrueWhen == "Always"
+    ):
+        raise ValueError(f"{path}: unsupported KnockDownAction payload")
+    output = "step('outputKnockDown', { target: 'enemy' })"
+    # The single-enemy simulation ends when its only target dies. Native
+    # OnlyDead knockdown is corpse-settlement presentation and has no remaining
+    # observable consumer in this model.
+    if payload.deadOption == "OnlyDead":
+        return "sequence()"
+    if payload.deadOption == "AllValid":
+        return output
+    return "\n".join(
+        [
+            "branch(",
+            "  {",
+            "    kind: 'healthCompare',",
+            "    target: 'enemy',",
+            "    valueType: 'current',",
+            "    operator: 'greater',",
+            "    value: { kind: 'constant', value: 0 },",
+            "  },",
+            "  sequence(",
+            f"    {output},",
+            "  ),",
+            ")",
+        ]
+    )
 
 
 def conditional_action_contains_aura(
@@ -365,6 +423,8 @@ def compile_resolved_sequence(
         allowed_actions.add("ObtainCostAction")
     if getattr(skill, "keywordActions", ()):
         allowed_actions.add("SlowAction")
+    if getattr(skill, "knockDownOutputs", ()):
+        allowed_actions.add("KnockDownAction")
     if getattr(skill, "auraActions", ()):
         allowed_actions.add("AuraAction")
     allowed_actions.update(unmodeled_action_types)
@@ -1321,6 +1381,32 @@ def compile_resolved_sequence(
                 root_skill_context=item.sourcePath == (skill.skillId,),
                 input_target=item.inputTarget,
             ).splitlines()
+        elif item.itemType == "knockDownOutput":
+            payload = cast(TimedKnockDownOutputSource, item.payload)
+            context_target_is_enemy = False
+            if payload.target.targetSource == "Context":
+                writes = item.targetGroupWrites or getattr(skill, "targetGroupWrites", ())
+                write = resolve_latest_target_group_write_at(
+                    read_frame=payload.startFrame,
+                    read_action_index=payload.actionIndex,
+                    read_action_path=payload.actionPath,
+                    target_group_key=payload.target.targetGroupKey,
+                    writes=writes,
+                    control_flow_actions=getattr(skill, "targetGroupControlFlowActions", ()),
+                    root_skill_context=True,
+                )
+                context_target_is_enemy = (
+                    write is not None
+                    and target_group_write_guarantees_single_enemy(write, writes)
+                )
+            step_lines = [
+                compile_knock_down_output(
+                    payload,
+                    f"{skill.key}.schedule[{schedule_index}]",
+                    context_target_is_enemy=context_target_is_enemy,
+                    root_skill_context=item.sourcePath == (skill.skillId,),
+                )
+            ]
         elif item.itemType == "timelineJump":
             payload = cast(TimedTimelineJumpSource, item.payload)
             condition_lines: list[str] = []

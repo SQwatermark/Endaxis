@@ -1749,14 +1749,14 @@
       "charId": "chr_0015_lifeng",
       "talents": [
         { "index": 0, "key": "talent1", "compile": "attachedPassive" },
-        { "index": 1, "key": "talent2", "compile": "unmodeledTalent" }
+        { "index": 1, "key": "talent2", "compile": "attachedBuff" }
       ],
       "potentials": [
         { "key": "potential1", "compile": "skillBlackboardPatch" },
         { "key": "potential2", "compile": "staticAttributes" },
         { "key": "potential3", "compile": "passiveBlackboardPatch" },
         { "key": "potential4" },
-        { "key": "potential5", "compile": "unmodeledPotential" }
+        { "key": "potential5", "compile": "attachedBuff" }
       ],
       "skillGroups": [
         {

@@ -31,6 +31,7 @@ from source_models import (
     ResourceGainPayload,
     ScalarSource,
     SkillCooldownAdjustmentPayload,
+    TimedKnockDownOutputSource,
     TimedMarkerApplicationPayload,
 )
 from source_utils import (
@@ -62,6 +63,7 @@ __all__ = [
     "parse_heal_payload",
     "parse_infliction_payload",
     "parse_interrupt_payload",
+    "parse_knock_down_output_payload",
     "parse_physical_infliction_payload",
     "parse_projectile_launch_payload",
     "parse_resource_gain_payload",
@@ -72,6 +74,55 @@ __all__ = [
     "to_float32",
     "walk_single_enemy_actions",
 ]
+
+
+def parse_knock_down_output_payload(
+    action: dict[str, Any],
+    path: str,
+    inherited_blackboard: dict[str, tuple[float, ...]],
+    *,
+    start_frame: int,
+    end_frame: int,
+    action_path: tuple[str, ...] = (),
+) -> TimedKnockDownOutputSource:
+    """Strictly preserve a KnockDownAction payload for later model projection."""
+    expected_fields = {
+        "$type", "isEnable", "priorityLevel", "priorityOffset", "serverActionIndex",
+        "source", "targetSettings", "forceKnockDown", "duration", "faceDirection",
+        "immobilizedTime", "isExtra", "deadOption", "returnTrueWhen",
+    }
+    if set(action) != expected_fields:
+        raise ValueError(f"{path}: unexpected KnockDownAction fields {sorted(action)}")
+    face = require_dict(action.get("faceDirection"), f"{path}.faceDirection")
+    direction = face.get("directionType")
+    if not isinstance(direction, str) or not direction:
+        raise ValueError(f"{path}.faceDirection.directionType: expected string")
+    for key in ("deadOption", "returnTrueWhen"):
+        if not isinstance(action.get(key), str) or not action[key]:
+            raise ValueError(f"{path}.{key}: expected non-empty string")
+    return TimedKnockDownOutputSource(
+        startFrame=start_frame,
+        endFrame=end_frame,
+        actionIndex=require_non_negative_int(
+            action.get("serverActionIndex"), f"{path}.serverActionIndex"
+        ),
+        source=parse_target_reference(action.get("source"), f"{path}.source"),
+        target=parse_target_reference(
+            action.get("targetSettings"), f"{path}.targetSettings"
+        ),
+        forceKnockDown=require_bool(
+            action.get("forceKnockDown"), f"{path}.forceKnockDown"
+        ),
+        duration=parse_scalar(action.get("duration"), f"{path}.duration", inherited_blackboard),
+        faceDirectionType=direction,
+        immobilizedTime=require_number(
+            action.get("immobilizedTime"), f"{path}.immobilizedTime"
+        ),
+        isExtra=require_bool(action.get("isExtra"), f"{path}.isExtra"),
+        deadOption=action["deadOption"],
+        returnTrueWhen=action["returnTrueWhen"],
+        actionPath=action_path,
+    )
 
 TAG_QUERY_TYPE_MAP = {
     "HasAny": "hasAny",

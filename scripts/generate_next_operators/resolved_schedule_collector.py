@@ -436,6 +436,18 @@ def collect_resolved_schedule(
         )
         for action in getattr(skill, "keywordActions", ())
     )
+    result.extend(
+        ResolvedScheduleItemSource(
+            frame=action.startFrame,
+            actionOrder=(action.actionIndex,),
+            itemType="knockDownOutput",
+            sourcePath=(skill.skillId,),
+            payload=action,
+            inputTarget="enemy",
+            sequenceOrder=native_sequence_order(action, (), skill.skillId),
+        )
+        for action in getattr(skill, "knockDownOutputs", ())
+    )
     for projectile in skill.projectileTriggeredSkills:
         collect_projectile_schedule(projectile, result, services=services)
     for entity in skill.abilityEntityHits:
@@ -559,6 +571,18 @@ def collect_ability_entity_schedule(
     projected_interval_frames = {
         interval.tickFrames for interval in getattr(hit, "intervalDamageHits", ())
     }
+    result.extend(
+        ResolvedScheduleItemSource(
+            frame=hit.spawnFrame + action.startFrame,
+            actionOrder=(*hit.actionOrder, action.actionIndex),
+            itemType="knockDownOutput",
+            sourcePath=source_path,
+            payload=action,
+            inputTarget="enemy",
+            sequenceOrder=native_sequence_order(action, hit.actionOrder, hit.skillId),
+        )
+        for action in getattr(hit, "knockDownOutputs", ())
+    )
     for item_type, actions in (
         ("blackboardCalculation", getattr(hit, "blackboardCalculations", ())),
         ("blackboardMutation", getattr(hit, "blackboardMutations", ())),

@@ -96,6 +96,7 @@ __all__ = [
     "TargetGroupInputSource",
     "TargetGroupWriteSource",
     "TimedKeywordActionSource",
+    "TimedKnockDownOutputSource",
     "SkillSource",
     "ResolvedScheduleItemType",
 ]
@@ -328,6 +329,26 @@ class TimedKeywordActionSource:
 
 
 @dataclass(frozen=True)
+class TimedKnockDownOutputSource:
+    """原生 KnockDownAction 的非空间可观察输出。"""
+
+    startFrame: int
+    endFrame: int
+    actionIndex: int
+    source: "TargetReferenceSource"
+    target: "TargetReferenceSource"
+    forceKnockDown: bool
+    duration: ScalarSource
+    faceDirectionType: str
+    immobilizedTime: float
+    isExtra: bool
+    deadOption: str
+    returnTrueWhen: str
+    sequenceIndex: int = -1
+    actionPath: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
 class ProjectileSkillTriggerSource:
     event: Literal["hit", "block", "reach", "finish"]
     skillId: str
@@ -355,6 +376,7 @@ class ProjectileTriggeredSkillSource:
     abilityEntityHits: tuple["AbilityEntityHitSource", ...] = ()
     auraActions: tuple["AuraActionSource", ...] = ()
     keywordActions: tuple[TimedKeywordActionSource, ...] = ()
+    knockDownOutputs: tuple[TimedKnockDownOutputSource, ...] = ()
     localTargetGroupWrites: tuple["TargetGroupWriteSource", ...] = ()
 
 
@@ -456,6 +478,7 @@ class AbilityEntityHitSource:
     buffFinishes: tuple[BuffFinishSource, ...] = ()
     auraActions: tuple["AuraActionSource", ...] = ()
     keywordActions: tuple[TimedKeywordActionSource, ...] = ()
+    knockDownOutputs: tuple[TimedKnockDownOutputSource, ...] = ()
     localTargetGroupWrites: tuple["TargetGroupWriteSource", ...] = ()
     presentationOnlySwitchActionIndexes: tuple[int, ...] = ()
 
@@ -487,6 +510,7 @@ ResolvedScheduleItemType = Literal[
     "eventListener",
     "timeDilation",
     "keywordAction",
+    "knockDownOutput",
     "auraAction",
     "skillSlotReplacement",
 ]
@@ -514,6 +538,7 @@ class ResolvedScheduleItemSource:
         " | SkillEventListenerSource"
         " | TimedTimeDilationSource"
         " | TimedKeywordActionSource"
+        " | TimedKnockDownOutputSource"
         " | AuraActionSource"
         " | TimedSkillReplacementSource"
         " | AbilityEntitySpawnPayload"
@@ -1516,6 +1541,7 @@ class ConditionalBranchActionSource:
     damageUnits: tuple[DamageUnitSource, ...] | None = None
     heal: HealPayload | None = None
     keywordAction: TimedKeywordActionSource | None = None
+    knockDownOutput: TimedKnockDownOutputSource | None = None
 
 
 @dataclass(frozen=True)
@@ -1770,6 +1796,7 @@ class SkillSource:
     eventListeners: tuple[SkillEventListenerSource, ...] = ()
     timeDilations: tuple[TimedTimeDilationSource, ...] = ()
     keywordActions: tuple[TimedKeywordActionSource, ...] = ()
+    knockDownOutputs: tuple[TimedKnockDownOutputSource, ...] = ()
     skillReplacements: tuple[TimedSkillReplacementSource, ...] = ()
     intervalDamageHits: tuple[TimedIntervalDamageSource, ...] = ()
     timelineJumps: tuple[TimedTimelineJumpSource, ...] = ()

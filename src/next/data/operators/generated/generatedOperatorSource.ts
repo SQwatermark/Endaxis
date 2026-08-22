@@ -178,6 +178,23 @@ export interface GeneratedTimedKeywordActionSource extends GeneratedNativeSequen
   readonly autoFinishByAction: boolean;
 }
 
+/** 原生击倒动作的非空间可观察输出。 */
+export interface GeneratedTimedKnockDownOutputSource extends GeneratedNativeSequenceMember {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly actionIndex: number;
+  readonly source: GeneratedTargetReferenceSource;
+  readonly target: GeneratedTargetReferenceSource;
+  readonly forceKnockDown: boolean;
+  readonly duration: GeneratedScalarSource;
+  readonly faceDirectionType: string;
+  readonly immobilizedTime: number;
+  readonly isExtra: boolean;
+  readonly deadOption: string;
+  readonly returnTrueWhen: string;
+  readonly actionPath?: readonly string[];
+}
+
 export interface GeneratedProjectileSkillTriggerSource {
   readonly event: 'hit' | 'block' | 'reach' | 'finish';
   readonly skillId: string;
@@ -210,6 +227,7 @@ export interface GeneratedProjectileTriggeredSkillSource {
   readonly abilityEntityHits: readonly GeneratedAbilityEntityHitSource[];
   readonly auraActions: readonly GeneratedAuraActionSource[];
   readonly keywordActions?: readonly GeneratedTimedKeywordActionSource[];
+  readonly knockDownOutputs?: readonly GeneratedTimedKnockDownOutputSource[];
 }
 
 export interface GeneratedProjectileLaunchSource extends GeneratedProjectileLaunchPayload {
@@ -299,6 +317,7 @@ export interface GeneratedAbilityEntityHitSource {
   readonly buffFinishes: readonly GeneratedBuffFinishSource[];
   readonly auraActions: readonly GeneratedAuraActionSource[];
   readonly keywordActions?: readonly GeneratedTimedKeywordActionSource[];
+  readonly knockDownOutputs?: readonly GeneratedTimedKnockDownOutputSource[];
   /** 子技能中已审计为纯表现、不会改变战斗状态的 Switch 动作下标。 */
   readonly presentationOnlySwitchActionIndexes?: readonly number[];
 }
@@ -1149,6 +1168,7 @@ export interface GeneratedConditionalBranchActionSource {
     readonly tagIds: readonly number[];
   };
   readonly keywordAction?: GeneratedTimedKeywordActionSource;
+  readonly knockDownOutput?: GeneratedTimedKnockDownOutputSource | null;
   readonly timelineJumpDestinationFrame?: number;
   readonly storeCurrentTimelineFrame?: {
     readonly outputKey: string;
@@ -1506,6 +1526,7 @@ export interface GeneratedSkillSource {
   readonly eventListeners: readonly GeneratedSkillEventListenerSource[];
   readonly timeDilations: readonly GeneratedTimedTimeDilationSource[];
   readonly keywordActions?: readonly GeneratedTimedKeywordActionSource[];
+  readonly knockDownOutputs?: readonly GeneratedTimedKnockDownOutputSource[];
   /** 技能释放时对稳定技能槽执行的原生替换/还原关系。 */
   readonly skillReplacements?: readonly GeneratedTimedSkillReplacementSource[];
   /** 尚未转换成 Next 语义步骤的战斗行为；非空时不能把该技能视为生成完成。 */

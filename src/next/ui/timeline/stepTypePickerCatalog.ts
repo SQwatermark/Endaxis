@@ -57,6 +57,13 @@ export const STEP_TYPE_GROUPS: readonly StepTypeGroup[] = [
   },
   {
     key: 'flow',
-    kinds: ['outputAirborne', 'openComboWindow', 'listenForCombatEvents', 'conditional', 'once'],
+    kinds: [
+      'outputAirborne',
+      'outputKnockDown',
+      'openComboWindow',
+      'listenForCombatEvents',
+      'conditional',
+      'once',
+    ],
   },
 ];

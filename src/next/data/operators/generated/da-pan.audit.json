@@ -8076,6 +8076,19 @@
         {
           "frame": 80,
           "actionOrder": [
+            25
+          ],
+          "sequenceOrder": [
+            15
+          ],
+          "itemType": "knockDownOutput",
+          "sourcePath": [
+            "chr_0018_dapan_ultimate_skill"
+          ]
+        },
+        {
+          "frame": 80,
+          "actionOrder": [
             26
           ],
           "sequenceOrder": [
@@ -8544,7 +8557,8 @@
       "unresolvedCombatActions": [
         "CreateBuffAction",
         "DamageAction",
-        "IfElseAction"
+        "IfElseAction",
+        "KnockDownAction"
       ]
     }
   ]

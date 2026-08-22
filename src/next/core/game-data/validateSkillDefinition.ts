@@ -1175,6 +1175,7 @@ function validateCombatStep(
                     response.event !== 'takeDamage' &&
                     response.event !== 'takeCriticalDamage' &&
                     response.event !== 'outputDamage' &&
+                    response.event !== 'outputKnockDown' &&
                     response.event !== 'outputHeal' &&
                     response.event !== 'receiveHeal' &&
                     response.event !== 'poiseZero' &&
@@ -1476,6 +1477,7 @@ function validateCombatStep(
       validateActionValueOperand(parameters.value, `${path}.parameters.value`, out);
       break;
     case 'outputAirborne':
+    case 'outputKnockDown':
       requireTarget();
       break;
     case 'holdBuffsById':
@@ -1893,6 +1895,7 @@ function validateEventTrigger(
     case 'operatorHealed':
     case 'buffApplied':
     case 'airborneOutput':
+    case 'knockDownOutput':
       break;
     case 'spGained':
       requireEnum(record, 'source', SP_GAIN_SOURCES_SET, path, out);

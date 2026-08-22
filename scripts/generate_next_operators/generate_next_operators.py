@@ -40,6 +40,7 @@ from resolved_sequence_compiler import (
     ResolvedSequenceServices,
     ResolvedSequenceStepServices,
     compile_resolved_sequence as compile_resolved_sequence_backend,
+    compile_knock_down_output,
 )
 from resolved_schedule_collector import (
     ResolvedScheduleCollectorServices,
@@ -58,6 +59,7 @@ from damage_step_compiler import (
     compile_resolved_damage_steps as compile_resolved_damage_steps_backend,
     encode_damage_step_key as encode_damage_step_key_backend,
     encode_step_key_parts as encode_step_key_parts_backend,
+    conditional_actions_are_terminal_dead_knock_down_only,
     validate_ignored_recursive_projectile_conditions as validate_ignored_recursive_projectile_conditions_backend,
 )
 from buff_application_compiler import (
@@ -167,6 +169,7 @@ from source_models import (
     TimedResourceGainSource,
     TimedTimeDilationSource,
     TimedKeywordActionSource,
+    TimedKnockDownOutputSource,
     ProjectileSkillTriggerSource,
     ProjectileTriggeredSkillSource,
     ProjectileLaunchSource,
@@ -293,6 +296,7 @@ from action_payload_parser import (
     parse_entity_blackboard_assignments,
     parse_global_cooldown_application_payload,
     parse_infliction_payload,
+    parse_knock_down_output_payload,
     parse_physical_infliction_payload,
     parse_projectile_launch_payload,
     parse_resource_gain_payload,
@@ -406,6 +410,7 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "conditionalAbilityEntityHits",
         "damageUnits",
         "keywordAction",
+        "knockDownOutput",
         "projectedAbilityEntitySpawns",
         "projectedProjectileLaunches",
         "characterTeamSelectionRole",
@@ -422,6 +427,7 @@ EMPTY_SOURCE_SEQUENCE_KEYS = frozenset(
         "projectedAbilityEntitySpawns",
         "projectedProjectileLaunches",
         "keywordActions",
+        "knockDownOutputs",
         "targetValidatorTypes",
         "targetPostProcessorTypes",
         "validatorTagQueries",
@@ -1371,6 +1377,7 @@ def _make_ability_entity_graph_parser_services() -> AbilityEntityGraphParserServ
         parse_direct_damage_hits=parse_direct_damage_hits,
         parse_inflictions=parse_inflictions,
         parse_interval_damage_hits=parse_interval_damage_hits,
+        parse_knock_down_outputs=parse_knock_down_outputs,
         parse_projectile_launches=parse_projectile_launches,
         parse_resource_gains=parse_resource_gains,
         parse_target_group_writes=parse_target_group_writes,
@@ -1464,6 +1471,7 @@ def _make_skill_source_builder_services() -> SkillSourceBuilderServices:
         parse_skill_patch=parse_skill_patch,
         parse_target_group_writes=parse_target_group_writes,
         parse_time_dilations=parse_time_dilations,
+        parse_knock_down_outputs=parse_knock_down_outputs,
         parse_timed_skill_replacements=parse_timed_skill_replacements,
         parse_timeline=parse_timeline,
         parse_timeline_finishes=parse_timeline_finishes,
@@ -3444,6 +3452,64 @@ def parse_time_dilations(
     return tuple(result)
 
 
+def parse_knock_down_outputs(
+    root: dict[str, Any],
+    source_name: str,
+    inherited_blackboard: dict[str, ScalarSource],
+) -> tuple[TimedKnockDownOutputSource, ...]:
+    """严格读取根时间轴直接 KnockDownAction，不折叠为浮空或伤害 feature。"""
+    group = require_dict(root.get("actionGroupData"), f"{source_name}.actionGroupData")
+    timelines = require_list(
+        group.get("timelineActions"), f"{source_name}.actionGroupData.timelineActions"
+    )
+    result: list[TimedKnockDownOutputSource] = []
+    for timeline_index, raw_timeline in enumerate(timelines):
+        timeline_path = f"{source_name}.timelineActions[{timeline_index}]"
+        timeline = require_dict(raw_timeline, timeline_path)
+        sequence = require_dict(
+            timeline.get("_sequenceActionData"), f"{timeline_path}._sequenceActionData"
+        )
+        # Some normalized child inputs place a single action directly in the
+        # sequence slot. KnockDownAction collection only owns sequence containers;
+        # the direct action remains visible to the ordinary child action parsers.
+        if "actionData" not in sequence:
+            continue
+        actions = require_list(
+            sequence.get("actionData"), f"{timeline_path}._sequenceActionData.actionData"
+        )
+        for action_index, raw_action in enumerate(actions):
+            path = f"{timeline_path}._sequenceActionData.actionData[{action_index}]"
+            action = require_dict(raw_action, path)
+            if (
+                action.get("isEnable") is False
+                or action_name(str(action.get("$type", ""))) != "KnockDownAction"
+            ):
+                continue
+            result.append(
+                replace(
+                    parse_knock_down_output_payload(
+                        action,
+                        path,
+                        inherited_blackboard,
+                        start_frame=require_non_negative_int(
+                            timeline.get("_startFrame"), f"{timeline_path}._startFrame"
+                        ),
+                        end_frame=require_non_negative_int(
+                            timeline.get("_endFrame"), f"{timeline_path}._endFrame"
+                        ),
+                        action_path=(
+                            f"timelineActions[{timeline_index}]",
+                            "_sequenceActionData",
+                            "actionData",
+                            f"[{action_index}]",
+                        ),
+                    ),
+                    sequenceIndex=timeline_index,
+                )
+            )
+    return tuple(result)
+
+
 def parse_target_group_writes(
     root: dict[str, Any],
     source_name: str,
@@ -5261,6 +5327,7 @@ def _make_conditional_leaf_services() -> ConditionalLeafServices:
                 load_ability_entity_template_evidence(),
             )
         ),
+        compile_knock_down_output=compile_knock_down_output,
         compile_physical_infliction=compile_physical_infliction,
         compile_resource_gain=compile_resource_gain,
         compile_time_dilation=compile_time_dilation,
@@ -6861,6 +6928,8 @@ def ability_entity_child_combat_actions_can_compile(hit: AbilityEntityHitSource)
         "SpawnAbilityEntity",
     }
     conditional_actions = getattr(hit, "conditionalActions", ())
+    if getattr(hit, "knockDownOutputs", ()):
+        allowed.add("KnockDownAction")
     if conditional_actions:
         allowed.add("IfElseAction")
         allowed.update(collect_compilable_conditional_action_types(conditional_actions))
@@ -6894,6 +6963,7 @@ def ability_entity_child_timeline_can_compile(
             or getattr(hit, "conditionalActions", ())
             or getattr(hit, "auxiliaryActions", ())
             or getattr(hit, "auraActions", ())
+            or getattr(hit, "knockDownOutputs", ())
         )
         and all(
             ability_entity_child_buff_can_compile(
@@ -7296,6 +7366,8 @@ def collect_compilable_conditional_action_types(
                 result.add("DamageAction")
             if getattr(branch_action, "heal", None) is not None:
                 result.add("HealAction")
+            if getattr(branch_action, "knockDownOutput", None) is not None:
+                result.add("KnockDownAction")
             if getattr(branch_action, "keywordAction", None) is not None:
                 result.add("SlowAction")
             if getattr(branch_action, "abilityEntitySpawn", None) in projected_spawns:
@@ -7690,6 +7762,7 @@ def compile_skill_event_listener(
     event = {
         "OnAddedBuff": {"kind": "buffApplied"},
         "OnBeforeOutputAirborne": {"kind": "airborneOutput"},
+        "OnBeforeOutputKnockDown": {"kind": "knockDownOutput"},
         "OnBeforeTakeDamage": {"kind": "operatorHit"},
         "OnReceiveHeal": {"kind": "operatorHealed"},
         "OnAfterKillEntity": {"kind": "enemyDefeated", "scope": "operator"},
@@ -7923,10 +7996,16 @@ def compile_skill_entries(
             raise ValueError(
                 f"{skill.key}: stable slot replacement requires a resolved sequence compiler"
             )
-        if skill.conditionalActions and kind not in {
+        if (
+            skill.conditionalActions
+            and not conditional_actions_are_terminal_dead_knock_down_only(
+                skill.conditionalActions
+            )
+            and kind not in {
             "resolvedDamageSequence",
             "resolvedSequence",
-        }:
+            }
+        ):
             raise ValueError(
                 f"{skill.key}: compiler must consume conditional actions before emitting DSL"
             )
@@ -8192,7 +8271,7 @@ def collect_definition_helpers(
         helpers.add("percentage")
     if "percentages(" in compiled_source:
         helpers.add("percentages")
-    if any(skill.conditionalActions for skill, _ in compiled):
+    if "branch(" in compiled_source:
         helpers.add("branch")
     if any("once(" in source for _, source in compiled):
         helpers.add("once")

@@ -1289,6 +1289,7 @@
       "triggerKinds": {
         "buffApplied": "Buff applied",
         "airborneOutput": "Airborne output",
+        "knockDownOutput": "Knockdown output",
         "damageTagHit": "Damage tag hit",
         "elementalInflictionApplied": "Elemental infliction applied",
         "skillHit": "Specified skill hit",
@@ -1800,6 +1801,7 @@
         "dealFixedDamage": "Deals damage from a fixed base without multiplying Attack; later modifiers still apply.",
         "dealStagger": "Deals stagger only, with no health damage.",
         "outputAirborne": "Outputs one airborne fact and synchronously triggers listeners without changing dummy position or control state.",
+        "outputKnockDown": "Outputs one knockdown fact and synchronously triggers listeners without changing dummy position or control state.",
         "heal": "Heals an operator from the caster's primary attribute and records raw, actual, and overhealing even at full health.",
         "applyBuff": "Creates a Buff instance from the definition embedded in this step and may override initial blackboard values.",
         "readBuffBlackboard": "Reads one value from a matching Buff into this cast's action blackboard.",
@@ -1889,6 +1891,7 @@
         "dealFixedDamage": "Deal fixed damage",
         "dealStagger": "Deal stagger",
         "outputAirborne": "Output airborne",
+        "outputKnockDown": "Output knockdown",
         "heal": "Heal operator",
         "applyBuff": "Apply buff",
         "readBuffBlackboard": "Read buff blackboard",

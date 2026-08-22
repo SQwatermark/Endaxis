@@ -554,6 +554,7 @@ function resolveStep(
     case 'applyElementalReaction':
     case 'consumeElementalReaction':
     case 'outputAirborne':
+    case 'outputKnockDown':
     case 'gainFinisherSp':
     case 'consumeStatus':
     case 'setContextFlag':

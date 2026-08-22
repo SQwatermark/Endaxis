@@ -38,16 +38,24 @@ import { DAMAGE_TYPES, type SkillBuffSlotReplacement } from '../../game-data/ope
 
 /** 由 Buff 所有者环境提供的事件注册端口，避免生命周期层依赖具体伤害环境。 */
 export type RegisterBuffAbilityEventAction = (
-  event: Exclude<ResolvedSkillBuffAbilityEventResponse['event'], 'afterKillEntity'>,
+  event: Exclude<
+    ResolvedSkillBuffAbilityEventResponse['event'],
+    'afterKillEntity' | 'outputKnockDown'
+  >,
   priority: number,
   handle: (payload: unknown) => void,
   samePriorityKey?: string,
 ) => AbilityEventRegistration;
 
 export type RegisterBuffSemanticEventAction = (
-  event: Extract<ResolvedSkillBuffAbilityEventResponse['event'], 'afterKillEntity'>,
+  event: Extract<
+    ResolvedSkillBuffAbilityEventResponse['event'],
+    'afterKillEntity' | 'outputKnockDown'
+  >,
   priority: number,
-  handle: (event: Extract<CombatSemanticEvent, { readonly kind: 'enemyDefeated' }>) => void,
+  handle: (
+    event: Extract<CombatSemanticEvent, { readonly kind: 'enemyDefeated' | 'knockDownOutput' }>,
+  ) => void,
 ) => AbilityEventRegistration;
 
 class BuffScheduledSequenceAction<Key extends string> implements BuffDuringEnableAction<Key> {
@@ -273,13 +281,17 @@ export function attachBuffLifecycleSequences<Key extends string>(
   const registerEventResponses = (buff: CombatBuff<Key>): void => {
     if (abilityEventResponses.length === 0) return;
     if (
-      abilityEventResponses.some(response => response.event !== 'afterKillEntity') &&
+      abilityEventResponses.some(
+        response => response.event !== 'afterKillEntity' && response.event !== 'outputKnockDown',
+      ) &&
       registerAbilityEventAction === undefined
     ) {
       throw new Error(`buff '${definition.id}' has ability event responses, but no event runtime`);
     }
     if (
-      abilityEventResponses.some(response => response.event === 'afterKillEntity') &&
+      abilityEventResponses.some(
+        response => response.event === 'afterKillEntity' || response.event === 'outputKnockDown',
+      ) &&
       registerSemanticEventAction === undefined
     ) {
       throw new Error(`buff '${definition.id}' has semantic event responses, but no event runtime`);
@@ -311,7 +323,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
         }
       }
       for (const group of responseGroups.values()) {
-        if (group.event === 'afterKillEntity') {
+        if (group.event === 'afterKillEntity' || group.event === 'outputKnockDown') {
           registrations.push(
             registerSemanticEventAction!(group.event, group.priority, event => {
               const runtime = runtimeFor(buff);
@@ -337,7 +349,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
                     event: normalizeBuffAbilityEvent(
                       response.event as Exclude<
                         ResolvedSkillBuffAbilityEventResponse['event'],
-                        'afterKillEntity'
+                        'afterKillEntity' | 'outputKnockDown'
                       >,
                       payload,
                     ),
@@ -479,7 +491,10 @@ function isCommutativeCurrentBuffTimeResponse(
 }
 
 function normalizeBuffAbilityEvent(
-  event: Exclude<ResolvedSkillBuffAbilityEventResponse['event'], 'afterKillEntity'>,
+  event: Exclude<
+    ResolvedSkillBuffAbilityEventResponse['event'],
+    'afterKillEntity' | 'outputKnockDown'
+  >,
   payload: unknown,
 ):
   | CombatSemanticEvent
