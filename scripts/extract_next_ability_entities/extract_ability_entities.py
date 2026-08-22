@@ -198,7 +198,9 @@ def read_json(url: str) -> dict:
         return json.load(response)
 
 
-def collect_referenced_ids(skill_directory: Path) -> dict[str, list[str]]:
+def collect_referenced_ids(
+    source_directories: tuple[tuple[Path, str], ...],
+) -> dict[str, list[str]]:
     result: dict[str, set[str]] = {}
 
     def visit(value: object, source: str) -> None:
@@ -212,8 +214,16 @@ def collect_referenced_ids(skill_directory: Path) -> dict[str, list[str]]:
             for child in value:
                 visit(child, source)
 
-    for path in sorted(skill_directory.glob("chr_*.json")):
-        visit(json.loads(path.read_text(encoding="utf-8-sig")), path.name)
+    for directory, pattern in source_directories:
+        for path in sorted(directory.glob(pattern)):
+            try:
+                document = json.loads(path.read_text(encoding="utf-8-sig"))
+            except json.JSONDecodeError as error:
+                raise ValueError(f"invalid JSON source {path}: {error}") from error
+            visit(
+                document,
+                path.name,
+            )
     return {key: sorted(value) for key, value in sorted(result.items())}
 
 
@@ -264,6 +274,15 @@ def main() -> None:
         / "skill-data-cdn",
     )
     parser.add_argument(
+        "--buff-directory",
+        type=Path,
+        default=project_root.parent
+        / "vfs-index-browser"
+        / "combat-spec"
+        / "artifacts"
+        / "BuffData",
+    )
+    parser.add_argument(
         "--output",
         type=Path,
         default=project_root
@@ -289,7 +308,12 @@ def main() -> None:
     listing = read_json(listing_url)
     manifest_id = int(listing["virtual"]["manifestId"])
     assets = {item["name"]: item for item in listing["files"]}
-    references = collect_referenced_ids(args.skill_directory)
+    references = collect_referenced_ids(
+        (
+            (args.skill_directory, "chr_*.json"),
+            (args.buff_directory, "buff_chr_*.json"),
+        )
+    )
     results: dict[str, object] = {}
     unresolved_references: dict[str, object] = {}
 

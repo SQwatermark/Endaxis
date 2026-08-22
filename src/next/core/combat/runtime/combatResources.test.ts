@@ -32,6 +32,15 @@ function createResources() {
 }
 
 describe('CombatResources', () => {
+  it('exposes the resolved maximum ultimate energy for runtime attribute reads', () => {
+    const resources = createResources();
+
+    expect(resources.getMaxUltimateEnergy('source')).toBe(100);
+    expect(() => resources.getMaxUltimateEnergy('missing')).toThrow(
+      "squad operator 'missing' is not configured",
+    );
+  });
+
   it('returns a complete snapshot deeply isolated from runtime state', () => {
     const allowedTag = gameplayTagId(264623624);
     const initial = {

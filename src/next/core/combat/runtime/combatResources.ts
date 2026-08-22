@@ -278,6 +278,11 @@ export class CombatResources {
     return this.#requireOperator(operatorId).ultimateEnergy;
   }
 
+  /** 读取指定队员本场构筑结算后的终结技能量上限。 */
+  getMaxUltimateEnergy(operatorId: string): number {
+    return this.#requireOperator(operatorId).maxUltimateEnergy;
+  }
+
   /**
    * 应用一次以基础值表达的个人终结技能量变化。
    * 严格按“回能效率 -> 百分比最大值 -> 系数 -> 回复标签许可”的原生顺序结算。

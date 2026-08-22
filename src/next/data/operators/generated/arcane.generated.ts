@@ -9696,6 +9696,30 @@ export const arcaneGeneratedSource = {
                     "[0]"
                   ],
                   "serverActionIndex": 0,
+                  "storeAttributeValue": {
+                    "targetSource": "Source",
+                    "targetGroupKey": "",
+                    "attributeKind": "specific",
+                    "attributeKey": "maxUltimateEnergy",
+                    "stage": "armedNonConverted",
+                    "useFloor": false,
+                    "divisor": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "multiplier": {
+                      "value": 1.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "base": {
+                      "value": 0.0,
+                      "blackboardKey": null,
+                      "levelValues": null
+                    },
+                    "outputKey": "usp_step"
+                  },
                   "legacyBuffFinish": null,
                   "skillCooldownAdjustment": null,
                   "buffIgnite": null

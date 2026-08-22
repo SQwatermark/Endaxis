@@ -2987,6 +2987,51 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(pulse.attributeKey, "electricAbnormalDamageIncrease")
         self.assertEqual(pulse.stage, "finalNonConverted")
 
+    def test_store_max_ultimate_sp_maps_to_runtime_resource_limit(self) -> None:
+        scalar = lambda value: {
+            "useBlackboardKey": False,
+            "value": value,
+            "blackboardKey": "",
+        }
+        root = {
+            "actionGroupData": {
+                "timelineActions": [{
+                    "_startFrame": 0,
+                    "_endFrame": 0,
+                    "_sequenceActionData": {"actionData": [{
+                        "$type": "Example.IfElseAction+Data, Example",
+                        "alwaysNext": False,
+                        "serverActionIndex": 1,
+                        "conditionAction": {"actionData": []},
+                        "succeedActions": {"actionData": [{
+                            "$type": "Example.StoreAttributeValue+Data, Example",
+                            "isEnable": True,
+                            "priorityLevel": "Default",
+                            "priorityOffset": 0,
+                            "serverActionIndex": 2,
+                            "targetSettings": target_settings_fixture("Source"),
+                            "primaryAttributeType": "Specific",
+                            "attributeType": "MaxUltimateSp",
+                            "storeAttributeType": "BaseNonConverted",
+                            "useFloor": False,
+                            "divisorValue": scalar(1),
+                            "multiplierValue": scalar(1),
+                            "baseValue": scalar(0),
+                            "key": "usp_step",
+                        }]},
+                        "failActions": {"actionData": []},
+                    }]},
+                }]
+            }
+        }
+
+        parsed = parse_conditional_actions(root, "ultimate-aura.json", {})[
+            0
+        ].succeedActions[0].storeAttributeValue
+
+        self.assertEqual(parsed.attributeKey, "maxUltimateEnergy")
+        self.assertEqual(parsed.stage, "armedNonConverted")
+
     def test_conditional_aura_ability_entity_resolution_stays_attached_to_its_branch(self) -> None:
         spawn = AbilityEntitySpawnPayload("ability_fixture", "fixture_child")
         branch = ConditionalBranchActionSource(

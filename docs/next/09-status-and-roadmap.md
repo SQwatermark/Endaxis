@@ -230,3 +230,5 @@ Next 迁移期间允许存在用于贯通新旧入口、生成审计和功能占
 - Arcane 的第一条默认仓库生产回归已贯通智识形态初始化、天赋条件冷却（540 → 360 帧）、战技能力实体生成和实体伤害。完整运行时装配的全技能资源编译现显式复用最终面板属性；`storeSourceAttributeValue` 也进入标准模拟兼容白名单，但仍要求已装配面板。
 - Arcane 连携的多份同优先级 `beforeTakeDamage` 动作暂不强行运行：复刻库已把平级事件动作顺序标为未知，Next 保持失败关闭。下一步先从原生容器/机器码恢复该排序，再验证连携提前引爆、回能与结束 Buff 顺序；同时可继续做奥义换槽和腐蚀强化这两条不依赖该未知顺序的生产回归。
 - 奥义生产试跑已定位到另一条通用缺口：能力实体条件分支引用的敌方 Aura Buff，以及 Buff 事件调用隐藏能力实体技能后继续创建的 Buff，尚未全部进入传递定义闭包；不能只保留 ID 让运行时撞到 unknown Buff。闭包补齐后还需接入复刻库已有的 `StoreAttributeValue(MaxUltimateSp)` 和 Buff 事件内实体生成。公共大招免伤可按木桩模型显式省略，但不能用这一省略掩盖后续战斗 Buff。
+- 能力实体模板提取范围已从技能文件扩为技能与角色 Buff 的联合引用闭包，1.4.4 正式证据表由 54 个模板增至 59 个。Arcane 奥义事件的 death/place/laser/laser-target 模板均已从 manifest 与原始 MonoBehaviour 取得，不再属于未知资产；梨诺的 `abilityentity_chr_0035_liino_ult_skill_projhit` 仍明确缺失。
+- 原生 `MaxUltimateSp` 属性快照已接入 Next：生成 DSL 使用稳定键 `maxUltimateEnergy`，标准环境从同一 `CombatResources` 读取每名干员的实际终结技能量上限。下一阶段继续补 Buff 传递闭包与 Buff 本地时间线的带子技能实体生成，再完成 Arcane 奥义换槽/激光输出生产回归；不得把已取得模板的实体降格成无效果动作。

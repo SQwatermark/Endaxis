@@ -1492,6 +1492,7 @@ def parse_conditional_actions(
                     attribute_key = {
                         "Str": "strength", "Agi": "agility", "Wisd": "intellect",
                         "Will": "will", "Level": "level", "MaxHp": "maxHealth",
+                        "MaxUltimateSp": "maxUltimateEnergy",
                         "CrystAbnormalDamageIncrease": "cryoAbnormalDamageIncrease",
                         "PulseAbnormalDamageIncrease": "electricAbnormalDamageIncrease",
                     }.get(raw_attribute)

@@ -10,7 +10,8 @@
 枚举声明顺序，并由 54 个模板中“53 个有限时长、1 个 99999 哨兵时长”的分布交叉核对；
 未知原生值仍会在适配时被拒绝。
 
-默认只扫描 AKEDB `skill-data-cdn` 中 `chr_*.json` 实际引用的模板：
+默认扫描 AKEDB `skill-data-cdn` 中 `chr_*.json` 与 `BuffData` 中 `buff_chr_*.json`
+实际引用的模板。Buff 事件也能直接生成能力实体，不能只从技能入口建立引用闭包：
 
 ```powershell
 python scripts/extract_next_ability_entities/extract_ability_entities.py

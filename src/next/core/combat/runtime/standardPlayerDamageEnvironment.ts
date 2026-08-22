@@ -57,6 +57,7 @@ import { gameplayTagId, type GameplayTagRegistry } from '../tags/gameplayTags';
 import { HealOperationExecutor, type ResolvedHealTarget } from './healOperationExecutor';
 import { compareCombatNumbers } from './numericComparison';
 import type { RegisterBuffAbilityEventAction } from './buffLifecycleSequenceRuntime';
+import type { CombatResources } from './combatResources';
 
 type DamageStep = Extract<ResolvedCombatStep, { kind: 'dealDamage' | 'dealFixedDamage' }>;
 type EnvironmentOptions = Pick<
@@ -158,6 +159,7 @@ export class StandardPlayerDamageEnvironment {
   readonly #enemyVitals: CombatVitals;
   #enemyVitalsRuntime: CombatVitalsRuntime | null = null;
   #enemyIdentity: CombatOperationExecutorContext['enemy'] | null = null;
+  #resources: CombatResources | null = null;
 
   constructor(readonly options: StandardPlayerDamageEnvironmentOptions) {
     this.#enemyBuffs = new CombatBuffContainer(
@@ -260,6 +262,7 @@ export class StandardPlayerDamageEnvironment {
 
   #createOperationExecutor(context: CombatOperationExecutorContext): CombatOperationExecutor {
     this.#bindEnemy(context);
+    this.#resources = context.resources;
     this.#clock = context.clock;
     this.#receipt = context.receipt;
     if (context.panel !== undefined) {
@@ -661,6 +664,12 @@ export class StandardPlayerDamageEnvironment {
       readonly stage: 'armedNonConverted' | 'finalNonConverted';
     },
   ): number {
+    if (request.attribute.kind === 'specific' && request.attribute.key === 'maxUltimateEnergy') {
+      if (this.#resources === null) {
+        throw new Error('combat resource ledger is not bound');
+      }
+      return this.#resources.getMaxUltimateEnergy(sourceId);
+    }
     const panel = this.#operatorPanels.get(sourceId);
     if (panel === undefined) {
       throw new Error(`combat attribute source operator '${sourceId}' has no resolved panel`);

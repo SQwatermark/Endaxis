@@ -101,6 +101,41 @@
       "rawSha256": "3c2265203c56fc25bc69c8333526ca612116a330491bd0810c788a0f654dad5d",
       "referencedBySkillFiles": ["chr_0007_ikut_ultimate_skill.json"]
     },
+    "abilityentity_chr_0011_seraph_normal_skill": {
+      "gameId": "abilityentity_chr_0011_seraph_normal_skill",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1511579808, 1717826765, -715143713, 152398297, -380421959],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 30.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": 1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 6,
+      "managedReferenceCount": 9,
+      "rootRid": 8194869126427836739,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0011_seraph_normal_skill.asset",
+      "assetIndex": 295915,
+      "rawSha256": "c1649c6285da3827d01bec2376be7c6ea3b6a0e2a2d14c0f720636f499e33f5f",
+      "referencedBySkillFiles": [
+        "buff_chr_0011_seraph_normal_skill_listener.json",
+        "buff_chr_0011_seraph_normal_skill_listener_02.json",
+        "buff_chr_0011_seraph_spawnball.json"
+      ]
+    },
     "abilityentity_chr_0011_seraph_normal_skill_buff": {
       "gameId": "abilityentity_chr_0011_seraph_normal_skill_buff",
       "factionNativeValue": 2,
@@ -883,7 +918,11 @@
       "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0027_tangtang_comboskill_water.asset",
       "assetIndex": 162775,
       "rawSha256": "f527910a6e12628e48d7a7c9bb2d89d6dd4e0063a9fb5b09bbbb5a4b79ed1d52",
-      "referencedBySkillFiles": ["chr_0027_tangtang_combo_skill_water_gene.json"]
+      "referencedBySkillFiles": [
+        "buff_chr_0027_tangtang_chrdg_addwater.json",
+        "buff_chr_0027_tangtang_traindung_water_gene.json",
+        "chr_0027_tangtang_combo_skill_water_gene.json"
+      ]
     },
     "abilityentity_chr_0027_tangtang_normal_skill": {
       "gameId": "abilityentity_chr_0027_tangtang_normal_skill",
@@ -1118,7 +1157,10 @@
       "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0027_tangtang_normal_skill_move.asset",
       "assetIndex": 48807,
       "rawSha256": "d2856d130037e9660ea975dffe0fc4705ea74ac0554a49ca9faca05997ff2711",
-      "referencedBySkillFiles": ["chr_0027_tangtang_normal_skill.json"]
+      "referencedBySkillFiles": [
+        "buff_chr_0027_tangtang_ultskill_waterwake.json",
+        "chr_0027_tangtang_normal_skill.json"
+      ]
     },
     "abilityentity_chr_0027_tangtang_ultskill": {
       "gameId": "abilityentity_chr_0027_tangtang_ultskill",
@@ -1181,6 +1223,7 @@
       "assetIndex": 26884,
       "rawSha256": "1a05280d4f2f921e240b8007c4db8d031571852b7f5f414b9c33464fe66466c9",
       "referencedBySkillFiles": [
+        "buff_chr_0028_wulfa_combo_2_qte_timerlistening.json",
         "chr_0028_wulfa_absorb_1_projhit.json",
         "chr_0028_wulfa_absorb_2_projhit.json"
       ]
@@ -1214,7 +1257,11 @@
       "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0029_pograni_ultimate_skill.asset",
       "assetIndex": 252029,
       "rawSha256": "ebdd3b20c31830da6feb14b32b88858509e2391d824b092ba53078fed7abba2d",
-      "referencedBySkillFiles": ["chr_0029_pograni_ultimate_skill.json"]
+      "referencedBySkillFiles": [
+        "buff_chr_0029_pograni_ultimate_skill_abilityentity_inaura.json",
+        "buff_chr_0029_pograni_ultimate_skill_finall_rush.json",
+        "chr_0029_pograni_ultimate_skill.json"
+      ]
     },
     "abilityentity_chr_0030_zhuangfy_air_attack": {
       "gameId": "abilityentity_chr_0030_zhuangfy_air_attack",
@@ -1404,6 +1451,7 @@
       "assetIndex": 285707,
       "rawSha256": "5dfa098ba49b3ba0611f622768649ee300621c68a88d6bf0712c0a4b50d7b72d",
       "referencedBySkillFiles": [
+        "buff_chr_0030_zhuangfy_normal_skill_trigger_sword_tar.json",
         "chr_0030_zhuangfy_normal_skill.json",
         "chr_0030_zhuangfy_normal_skill_ult.json"
       ]
@@ -1437,7 +1485,10 @@
       "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0030_zhuangfy_normal_skill_sword.asset",
       "assetIndex": 225111,
       "rawSha256": "da7a77a8a4b5061792aee79165f1151db459651bb866e22e30118becb1dc3387",
-      "referencedBySkillFiles": ["chr_0030_zhuangfy_normal_skill_gene_sword_projhit.json"]
+      "referencedBySkillFiles": [
+        "buff_chr_0030_zhuangfy_train_gene_sword.json",
+        "chr_0030_zhuangfy_normal_skill_gene_sword_projhit.json"
+      ]
     },
     "abilityentity_chr_0030_zhuangfy_normal_skill_ult": {
       "gameId": "abilityentity_chr_0030_zhuangfy_normal_skill_ult",
@@ -1592,7 +1643,41 @@
       "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0032_lizhiyan_combo_skill_death.asset",
       "assetIndex": 16340,
       "rawSha256": "2fbe686b12a0a61fd237a7280877d31e3a02f503214fea43169ceed35aaae87c",
-      "referencedBySkillFiles": ["chr_0032_lizhiyan_combo_skill_abilityentity_seal_again.json"]
+      "referencedBySkillFiles": [
+        "buff_chr_0032_lizhiyan_combo_skill_spell_vulnerable.json",
+        "chr_0032_lizhiyan_combo_skill_abilityentity_seal_again.json"
+      ]
+    },
+    "abilityentity_chr_0032_lizhiyan_combo_skill_place": {
+      "gameId": "abilityentity_chr_0032_lizhiyan_combo_skill_place",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 6.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 4,
+      "managedReferenceCount": 5,
+      "rootRid": 8194869126427837158,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0032_lizhiyan_combo_skill_place.asset",
+      "assetIndex": 215767,
+      "rawSha256": "7f30b796ec8cb8d71ad1b0282a4c37114faa0d838f9a0185653d7ab24367e5fe",
+      "referencedBySkillFiles": ["buff_chr_0032_lizhiyan_combo_skill_seal_finisher_wisd.json"]
     },
     "abilityentity_chr_0032_lizhiyan_normal_skill": {
       "gameId": "abilityentity_chr_0032_lizhiyan_normal_skill",
@@ -1655,6 +1740,106 @@
       "assetIndex": 206620,
       "rawSha256": "083658f8a4ffce86b45cc89be440e43ed631084925a87515782abb55a54bc1ac",
       "referencedBySkillFiles": ["chr_0032_lizhiyan_ultimate_skill.json"]
+    },
+    "abilityentity_chr_0032_lizhiyan_ultimate_skill_death": {
+      "gameId": "abilityentity_chr_0032_lizhiyan_ultimate_skill_death",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 6.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 4,
+      "managedReferenceCount": 5,
+      "rootRid": 8194869126427837173,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0032_lizhiyan_ultimate_skill_death.asset",
+      "assetIndex": 22184,
+      "rawSha256": "70f57644de206c93a7166ad347b55074975fae8d664e899a0db23bcd3b3e85e1",
+      "referencedBySkillFiles": ["buff_chr_0032_lizhiyan_ultimate_skill_inaura.json"]
+    },
+    "abilityentity_chr_0032_lizhiyan_ultimate_skill_laser": {
+      "gameId": "abilityentity_chr_0032_lizhiyan_ultimate_skill_laser",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297, -439545433],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 6.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 2.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 4,
+      "managedReferenceCount": 5,
+      "rootRid": 8194869126427837178,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0032_lizhiyan_ultimate_skill_laser.asset",
+      "assetIndex": 114139,
+      "rawSha256": "ad57ddcb447bea5eb10140ec5396726b3ce926f2ecc885480b7e26221db9aa79",
+      "referencedBySkillFiles": [
+        "buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser1.json",
+        "buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser2.json",
+        "buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser3.json"
+      ]
+    },
+    "abilityentity_chr_0032_lizhiyan_ultimate_skill_laser_target": {
+      "gameId": "abilityentity_chr_0032_lizhiyan_ultimate_skill_laser_target",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1706530655, 1717826765, -715143713, 152398297],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 6.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 2.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": -1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 4,
+      "managedReferenceCount": 5,
+      "rootRid": 8194869126427837183,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0032_lizhiyan_ultimate_skill_laser_target.asset",
+      "assetIndex": 107424,
+      "rawSha256": "005d40b7696a7fcfb44dc75b89709407522db92b48fd62b24ad6cc2c2fa135db",
+      "referencedBySkillFiles": [
+        "buff_chr_0032_lizhiyan_ultimate_skill_inaura.json",
+        "buff_chr_0032_lizhiyan_ultimate_skill_target_mark.json"
+      ]
     },
     "abilityentity_chr_0032_lizhiyan_ultimate_skill_place": {
       "gameId": "abilityentity_chr_0032_lizhiyan_ultimate_skill_place",

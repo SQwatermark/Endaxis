@@ -231,6 +231,40 @@ function createSkillSettings(): SkillSettingsDocument {
 }
 
 describe('StandardPlayerDamageEnvironment', () => {
+  it('reads MaxUltimateSp from the bound combat resource ledger', () => {
+    const environment = createEnvironment();
+    const baseContext = createContext();
+    const context = {
+      ...baseContext,
+      resources: new CombatResources({
+        ...baseContext.resources.snapshot(),
+        ultimateEnergySystemUnlocked: true,
+        squad: [
+          {
+            operatorId: 'operator',
+            ultimateEnergy: 40,
+            maxUltimateEnergy: 80,
+            ultimateEnergyGainMultiplier: 1,
+            allowedUltimateEnergyRecoveryTagIds: null,
+          },
+        ],
+      }),
+    };
+    environment.runtimeOptions.createOperationExecutor(context);
+
+    expect(
+      environment.runtimeOptions.readSourceAttributeValue?.('operator', {
+        attribute: { kind: 'specific', key: 'maxUltimateEnergy' },
+        stage: 'armedNonConverted',
+        useFloor: false,
+        divisor: { kind: 'constant', value: 1 },
+        multiplier: { kind: 'constant', value: 1 },
+        base: { kind: 'constant', value: 0 },
+        targetKey: 'usp_step',
+      }),
+    ).toBe(80);
+  });
+
   it('reuses one operator Buff runtime for assembly operations and damage modifiers', () => {
     const environment = createEnvironment();
     const createRuntime = environment.runtimeOptions.createOperatorBuffRuntime;

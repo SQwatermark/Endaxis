@@ -1,5 +1,7 @@
 import importlib.util
 import struct
+import json
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -46,6 +48,34 @@ def fixture() -> bytes:
 
 
 class AbilityEntityTemplateParserTests(unittest.TestCase):
+    def test_collects_references_from_skill_and_buff_sources(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            skills = root / "skills"
+            buffs = root / "buffs"
+            skills.mkdir()
+            buffs.mkdir()
+            (skills / "chr_fixture.json").write_text(
+                json.dumps({"abilityEntityId": "abilityentity_skill"}),
+                encoding="utf-8",
+            )
+            (buffs / "buff_fixture.json").write_text(
+                json.dumps({"nested": {"abilityEntityId": "abilityentity_buff"}}),
+                encoding="utf-8",
+            )
+
+            references = MODULE.collect_referenced_ids(
+                ((skills, "chr_*.json"), (buffs, "buff_*.json"))
+            )
+
+        self.assertEqual(
+            references,
+            {
+                "abilityentity_buff": ["buff_fixture.json"],
+                "abilityentity_skill": ["chr_fixture.json"],
+            },
+        )
+
     def test_parses_proven_prefix_when_root_is_not_first_record(self):
         value = MODULE.parse_ability_entity_template(
             fixture(), "abilityentity_fixture"

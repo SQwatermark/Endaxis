@@ -6,7 +6,12 @@ import {
 
 describe('AbilityEntity template evidence adapter', () => {
   it('adapts all resolved templates without inventing the missing Liino template', () => {
-    expect(logicalAbilityEntityTemplates).toHaveLength(54);
+    expect(logicalAbilityEntityTemplates).toHaveLength(59);
+    expect(
+      logicalAbilityEntityTemplates.some(
+        template => template.id === 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser_target',
+      ),
+    ).toBe(true);
     expect(unresolvedAbilityEntityTemplateReferences).toHaveProperty(
       'abilityentity_chr_0035_liino_ult_skill_projhit',
     );
