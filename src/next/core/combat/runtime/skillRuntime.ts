@@ -79,6 +79,8 @@ export interface CombatOperationContext {
   readonly buffOwnerId?: string;
   /** 仅由 Buff 生命周期与事件响应提供；Environment 查询精确指向当前实例。 */
   readonly finishCurrentBuff?: (reason: BuffFinishReason) => boolean;
+  /** Environment BuffCount 查询读取正在执行的当前 Buff 增强层数。 */
+  readonly getCurrentBuffEnhanceCount?: () => number;
   /** 仅由 Buff 生命周期与事件响应提供；暂停只作用于当前实例。 */
   readonly setCurrentBuffTimePaused?: (paused: boolean) => void;
   /** 仅由宿主技能/能力实体子技能提供；普通操作不得缓存或跨宿主调用。 */

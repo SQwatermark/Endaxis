@@ -1504,7 +1504,11 @@
       "addAssignment": "添加赋值",
       "deleteAssignment": "删除赋值",
       "buffQueryKind": "查询方式",
-      "buffQueryKinds": { "id": "按 Buff 身份", "tag": "按原生标签" },
+      "buffQueryKinds": {
+        "id": "按 Buff 身份",
+        "tag": "按原生标签",
+        "environment": "当前 Buff（原生环境）"
+      },
       "buffIds": "Buff 身份列表",
       "buffTagIds": "原生标签 ID",
       "tagQueryType": "标签匹配规则",

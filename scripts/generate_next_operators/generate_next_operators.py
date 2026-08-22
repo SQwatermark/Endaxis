@@ -4866,7 +4866,16 @@ def compile_buff_stack_read(
             f"{path}: unsupported Buff target "
             f"{payload.targetSource!r}/{payload.targetGroupKey!r}"
         )
-    if payload.buffCheckType == "Id" and payload.buffIds:
+    if (
+        payload.buffCheckType == "Environment"
+        and payload.countType == "BuffCount"
+        and not payload.buffIds
+        and not payload.buffTagIds
+        and not payload.limitSkillCastId
+        and current_buff_environment
+    ):
+        query = "{ kind: 'environment' }"
+    elif payload.buffCheckType == "Id" and payload.buffIds:
         query = "{ kind: 'id', buffIds: " + ts_inline_literal(payload.buffIds) + " }"
     elif payload.buffCheckType == "Tag" and payload.buffTagIds:
         query = (

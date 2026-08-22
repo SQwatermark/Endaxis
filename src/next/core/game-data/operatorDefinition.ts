@@ -691,6 +691,7 @@ export interface CombatStepParameters {
     outputKey: string;
     query:
       | { kind: 'id'; buffIds: readonly string[] }
+      | { kind: 'environment' }
       | {
           kind: 'tag';
           tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';

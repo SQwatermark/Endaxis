@@ -1387,7 +1387,11 @@
       "addAssignment": "Добавить значение",
       "deleteAssignment": "Удалить значение",
       "buffQueryKind": "Способ поиска",
-      "buffQueryKinds": { "id": "Идентификатор Buff", "tag": "Внутренний тег" },
+      "buffQueryKinds": {
+        "id": "Идентификатор Buff",
+        "tag": "Внутренний тег",
+        "environment": "Текущий Buff (родная среда)"
+      },
       "buffIds": "Идентификаторы Buff",
       "buffTagIds": "ID внутренних тегов",
       "tagQueryType": "Правило тегов",

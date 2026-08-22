@@ -228,6 +228,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
       buffSourceId: buff.sourceId,
       buffOwnerId: buff.owner.ownerId,
       finishCurrentBuff: reason => buff.finish(reason),
+      getCurrentBuffEnhanceCount: () => buff.enhanceCount,
       setCurrentBuffTimePaused: paused => buff.setTimePaused(paused),
     };
     runtime = new CombatActionSequenceRuntime(resolveOperations(buff), context);

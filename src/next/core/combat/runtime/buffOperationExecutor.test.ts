@@ -252,6 +252,32 @@ describe('BuffOperationExecutor', () => {
     expect(blackboard.getNumber('inflictCnt')).toBe(2);
   });
 
+  it('writes the executing Buff enhance count for an environment query', () => {
+    const blackboard = new ActionBlackboard({ count: 0 });
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => {
+        throw new Error('environment query must not resolve a target container');
+      },
+      delegate,
+    });
+
+    expect(
+      executor.execute(
+        {
+          kind: 'readBuffStackCount',
+          parameters: {
+            target: 'caster',
+            outputKey: 'count',
+            query: { kind: 'environment' },
+          },
+        },
+        { blackboard, getCurrentBuffEnhanceCount: () => 4 },
+      ),
+    ).toBe(true);
+    expect(blackboard.getNumber('count')).toBe(4);
+  });
+
   it('resolves action-blackboard assignments before applying a index buff', () => {
     const applied: unknown[] = [];
     const target = {

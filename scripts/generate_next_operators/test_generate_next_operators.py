@@ -5354,6 +5354,21 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             input_target="enemy",
         )
         self.assertIn("sameSourceSkillCast: true", limited)
+        environment = compile_buff_stack_read(
+            replace(
+                read,
+                targetSource="Owner",
+                targetGroupKey="",
+                buffCheckType="Environment",
+                buffIds=(),
+                buffTagIds=(),
+            ),
+            "fixture.environmentRead",
+            buff_owner_target="currentAbilityEntity",
+            current_buff_environment=True,
+        )
+        self.assertIn("target: 'currentAbilityEntity'", environment)
+        self.assertIn("query: { kind: 'environment' }", environment)
         with self.assertRaisesRegex(ValueError, "unsupported Buff target"):
             compile_buff_stack_read(read, "fixture.read")
 

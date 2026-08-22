@@ -1358,8 +1358,10 @@ function validateCombatStep(
       } else if (queryKind === 'tag') {
         requireEnum(query, 'tagQueryType', TAG_QUERY_TYPES_SET, `${path}.parameters.query`, out);
         validateNonEmptyIntegerArray(query.buffTagIds, `${path}.parameters.query.buffTagIds`, out);
-      } else if (queryKind !== null) {
-        push(out, `${path}.parameters.query.kind`, "expected 'id' or 'tag'");
+      } else if (queryKind === 'environment' && kind !== 'readBuffStackCount') {
+        push(out, `${path}.parameters.query.kind`, 'environment is only valid for stack count');
+      } else if (queryKind !== 'environment' && queryKind !== null) {
+        push(out, `${path}.parameters.query.kind`, "expected 'id', 'tag', or 'environment'");
       }
       break;
     }

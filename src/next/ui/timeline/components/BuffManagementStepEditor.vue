@@ -45,7 +45,7 @@ const { t } = useI18n({ useScope: 'global' });
 const usesQuery = computed(
   () => props.step.kind === 'readBuffBlackboard' || props.step.kind === 'readBuffStackCount',
 );
-const queryKind = computed<'id' | 'tag'>(() => {
+const queryKind = computed<'id' | 'tag' | 'environment'>(() => {
   if (!usesQuery.value) return props.step.kind === 'finishBuffsByTag' ? 'tag' : 'id';
   return (props.step as ReadStep).parameters.query.kind;
 });
@@ -251,6 +251,9 @@ function setReason(event: Event): void {
       <select :value="queryKind" @change="setQueryKind">
         <option value="id">{{ t('nextTimeline.skillEditing.buffQueryKinds.id') }}</option>
         <option value="tag">{{ t('nextTimeline.skillEditing.buffQueryKinds.tag') }}</option>
+        <option value="environment" disabled>
+          {{ t('nextTimeline.skillEditing.buffQueryKinds.environment') }}
+        </option>
       </select>
     </label>
 
@@ -262,7 +265,7 @@ function setReason(event: Event): void {
         />
         <textarea :value="readBuffIdsText" @change="setReadBuffIds" />
       </label>
-      <template v-else>
+      <template v-else-if="queryKind === 'tag'">
         <label>
           <EditorFieldLabel
             :label="t('nextTimeline.skillEditing.tagQueryType')"

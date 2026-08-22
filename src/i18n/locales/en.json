@@ -1510,7 +1510,11 @@
       "addAssignment": "Add assignment",
       "deleteAssignment": "Delete assignment",
       "buffQueryKind": "Query method",
-      "buffQueryKinds": { "id": "Buff identity", "tag": "Native tag" },
+      "buffQueryKinds": {
+        "id": "Buff identity",
+        "tag": "Native tag",
+        "environment": "Current Buff (native environment)"
+      },
       "buffIds": "Buff identities",
       "buffTagIds": "Native tag IDs",
       "tagQueryType": "Tag matching rule",

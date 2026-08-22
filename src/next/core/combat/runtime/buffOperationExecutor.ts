@@ -261,6 +261,16 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       if (context === undefined) {
         throw new Error('readBuffStackCount requires a combat operation context');
       }
+      if (step.parameters.query.kind === 'environment') {
+        if (context.getCurrentBuffEnhanceCount === undefined) {
+          throw new Error('readBuffStackCount environment query requires a Buff operation context');
+        }
+        context.blackboard.assignDynamic(
+          step.parameters.outputKey,
+          context.getCurrentBuffEnhanceCount(),
+        );
+        return true;
+      }
       const target = this.dependencies.resolveTarget(step.parameters.target);
       const skillCastId = step.parameters.sameSourceSkillCast
         ? this.#requireSkillCastId(context, 'readBuffStackCount')
