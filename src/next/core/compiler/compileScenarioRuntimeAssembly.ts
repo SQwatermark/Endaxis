@@ -196,6 +196,12 @@ export function compileScenarioRuntimeAssembly(
             `timeline operator '${operator.operatorId}' has no resolved operator build`,
           );
         }
+        const panel = panels.get(operator.operatorId);
+        if (panel === undefined) {
+          throw new Error(
+            `timeline operator '${operator.operatorId}' has no resolved operator panel`,
+          );
+        }
         return {
           operatorId: operator.operatorId,
           skills: compileOperatorDefinitionSkills(
@@ -203,6 +209,7 @@ export function compileScenarioRuntimeAssembly(
             build.operatorInstance,
             build.operator,
             options.index.getCommonAbilityEntityDefinitions?.(),
+            panel.attributes,
           ),
         };
       }),

@@ -260,6 +260,16 @@ function inspectSequence(
       case 'startTimeDilation':
       case 'startUltimateTimeDilation':
         return;
+      case 'storeSourceAttributeValue':
+        if (!flags.operatorVitals) {
+          report(
+            collect,
+            'unsupported-step',
+            stepPath,
+            'storeSourceAttributeValue requires a resolved operator panel',
+          );
+        }
+        return;
       case 'jumpTimeline':
         if (step.parameters.condition !== undefined) {
           inspectCondition(

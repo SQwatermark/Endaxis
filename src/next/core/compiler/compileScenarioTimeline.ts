@@ -278,6 +278,7 @@ export function compileOperatorDefinitionSkills(
   build: OperatorInstanceDocument,
   operator: OperatorDefinition,
   commonAbilityEntityDefinitions: OperatorDefinition['abilityEntityDefinitions'] = {},
+  buildAttributes?: Readonly<Record<OperatorAttribute, number>>,
 ): readonly CompiledSkillProgram[] {
   const duplicateAbilityEntityIds = [
     ...Object.keys(operator.abilityEntityDefinitions ?? {}),
@@ -308,7 +309,9 @@ export function compileOperatorDefinitionSkills(
       });
     });
   });
-  return applyOperatorUpgradeSkillPatches(skills, resolveActiveOperatorUpgrades(build, operator));
+  return applyOperatorUpgradeSkillPatches(skills, resolveActiveOperatorUpgrades(build, operator), {
+    buildAttributes,
+  });
 }
 
 interface ResolvedTimelineTrack {

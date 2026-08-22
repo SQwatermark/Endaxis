@@ -307,6 +307,34 @@ describe('standardPlayerDamageCompatibility', () => {
     ).toEqual(['unsupported-step', 'unsupported-condition']);
   });
 
+  it('accepts source attribute snapshots only with a resolved operator panel', () => {
+    const sequence: ResolvedActionSequence = {
+      steps: [
+        {
+          kind: 'storeSourceAttributeValue',
+          parameters: {
+            attribute: { kind: 'specific', key: 'will' },
+            stage: 'armedNonConverted',
+            useFloor: false,
+            divisor: { kind: 'constant', value: 1 },
+            multiplier: { kind: 'constant', value: 1 },
+            base: { kind: 'constant', value: 0 },
+            targetKey: 'will',
+          },
+        },
+      ],
+    };
+
+    expect(
+      inspectStandardPlayerDamageCompatibility(compatibilityInput(operator(sequence, 0, true))),
+    ).toEqual([]);
+    expect(
+      inspectStandardPlayerDamageCompatibility(compatibilityInput(operator(sequence))).map(
+        issue => issue.code,
+      ),
+    ).toEqual(['unsupported-step']);
+  });
+
   it('recursively reports unsupported branches and nested conditions in stable order', () => {
     const issues = inspectStandardPlayerDamageCompatibility(
       compatibilityInput(

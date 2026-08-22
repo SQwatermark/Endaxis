@@ -1,13 +1,104 @@
 import { describe, expect, it } from 'vitest';
 import { ExplicitCriticalSampleSource } from '../core/combat/random/criticalSampleSource';
+import { compileOperatorEntityBlackboardInitialValues } from '../core/compiler/compileScenarioRuntimeAssembly';
+import { compileOperatorDefinitionSkills } from '../core/compiler/compileScenarioTimeline';
+import { resolveOperatorPanel } from '../core/compiler/resolveOperatorPanel';
+import { resolveScenarioBuilds } from '../core/compiler/resolveScenarioBuilds';
 import { createEmptyScenario } from '../core/project/createProject';
 import { nextGameDataRepository } from '../data/gameDataRepository';
 import { elementalAttachments } from '../data/buffs/elementalAttachments';
-import { ember, laevatain, yvonne, zhuangFangyi } from '../data/operators';
+import { arcane, ember, laevatain, yvonne, zhuangFangyi } from '../data/operators';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
 
 describe('registered generated operators', () => {
+  it('runs Arcane intellect-form battle entities and compiles the conditional combo cooldown', () => {
+    const scenario = createEmptyScenario('scenario:arcane:registered', 'Arcane 默认仓库回归');
+    scenario.battle.durationFrames = 180;
+    scenario.tracks[0] = {
+      id: 'track:arcane',
+      operator: {
+        operatorSlug: arcane.slug,
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 2 },
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    const placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: arcane,
+      skillGroupKey: 'battleSkill',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:arcane` },
+    }).scenario;
+
+    const [build] = resolveScenarioBuilds(placed, nextGameDataRepository);
+    if (build === undefined) throw new Error('missing Arcane resolved build');
+    const panel = resolveOperatorPanel(build);
+    const allSkills = compileOperatorDefinitionSkills(
+      build.track.id,
+      build.operatorInstance,
+      build.operator,
+      nextGameDataRepository.getCommonAbilityEntityDefinitions?.() ?? {},
+      panel.attributes,
+    );
+    expect(allSkills.find(skill => skill.skillId === 'comboSkill')?.cooldownFrames).toBe(360);
+    expect(compileOperatorEntityBlackboardInitialValues(build.operator, panel)).toMatchObject({
+      EntityBB_wisd_greater_will: 1,
+    });
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      endFrame: 180,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(80).fill(1)),
+      elementalInflictionDocument: elementalAttachments,
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          ultimateEnergySystemUnlocked: true,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+        },
+      },
+    });
+
+    expect(
+      result.receiptEntries.filter(
+        entry =>
+          entry.event === 'SkillStarted' &&
+          entry.sourceId === 'track:arcane' &&
+          entry.data?.skillId === 'battleSkill',
+      ),
+    ).toHaveLength(1);
+    expect(
+      result.receiptEntries.filter(
+        entry =>
+          entry.event === 'AbilityEntitySpawned' &&
+          entry.sourceId === 'track:arcane' &&
+          entry.data?.abilityEntityId === 'abilityentity_chr_0032_lizhiyan_normal_skill',
+      ),
+    ).toHaveLength(1);
+    expect(
+      result.receiptEntries.some(
+        entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:arcane',
+      ),
+    ).toBe(true);
+  });
+
   it('runs Laevatain basic attack through the default repository', () => {
     const scenario = createEmptyScenario('scenario:laevatain:registered', '莱万汀默认仓库回归');
     scenario.battle.durationFrames = 120;
