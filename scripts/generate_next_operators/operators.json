@@ -834,12 +834,10 @@
             "ignoreBuffIds": ["buff_chr_0033_camille_normal_skill_bateffect"],
             "simulationNoEffectBuffIds": [
               "buff_chr_0033_camille_normal_skill_bat_duration_icon",
-              "buff_common_full_immune"
+              "buff_common_full_immune",
+              "buff_chr_0033_camille_normal_skill_listen_target_dead"
             ],
-            "unmodeledBuffIds": [
-              "buff_chr_0033_camille_normal_skill_listen_target_dead",
-              "buff_chr_0033_camille_normal_skill_weak"
-            ],
+            "unmodeledBuffIds": ["buff_chr_0033_camille_normal_skill_weak"],
             "skipBuffDefinitionResolutionIds": [
               "buff_chr_0033_camille_normal_skill_listen_target_dead",
               "buff_chr_0033_camille_normal_skill_weak"
@@ -876,11 +874,9 @@
             "tags": ["ultimateSkill"],
             "costResource": "ultimateEnergy",
             "usePatchCooldown": true,
+            "ignoreBuffIds": ["buff_chr_0033_camille_ult_effect"],
             "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"],
-            "unmodeledBuffIds": [
-              "buff_chr_0033_camille_ult_effect",
-              "buff_chr_0033_camille_ult_henshin_state"
-            ]
+            "unmodeledBuffIds": ["buff_chr_0033_camille_ult_henshin_state"]
           }
         }
       ]

@@ -504,6 +504,12 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 本阶段门禁：生成器完整 421/421、Camille 严格重生成、养成/生成定义定向 Vitest 59/59、`type-check:next` 通过；上一阶段完整 Next 仍为 198 文件 1335/1335。仓库级 `--check` 仍首先报告此前已过期的 `perlica.generated.ts`，本轮没有刷新无关干员产物；`tmp/` 保持未跟踪且不得提交。
 - 下一步清理 Camille 战技的死亡监听/弱点 Buff 与奥义变身 Buff。`WeakAction`、`VulnerableAction` 或其它尚未进入复刻库的行为必须先完成原生取证；不能为了去掉 `skillBehavior` 缺口把这些 Buff 标成无效果。
 
+### 2026-08-22：Camille 目标死亡链与 KeywordAction 边界
+
+- 战技能力实体给唯一敌人安装的 `normal_skill_listen_target_dead` 只在该目标生命归零后向来源实体施加 `reset_target`；后者排除已死目标并从其余战斗敌人中选取新目标。Endaxis 的固定唯一敌人模型不存在第二实例，因此这条重选链已进入显式 `simulationNoEffectBuffIds`，不再占用战技的未建模行为；该判断不泛化为忽略任意 `OnOwnerHpZero` 响应。
+- `buff_chr_0033_camille_ult_effect` 只有模型显隐、特效和声音，且全仓引用只来自本次奥义施加，现作为显式表现 Buff 忽略。奥义 `ult_henshin_state` 仍保留缺口：其有效载荷包括把 NormalSkill 槽换成路由技能，不能因为伤害侧无修正就标成模拟无效果；后续应由技能形态/轨道可用性校验承接。
+- `WeakAction` 的公共 child Buff 只是 `AbilitySystem` 动态关键词实例载体，静态定义为空不能证明无效果。1.4.4 离线模块中的 `KeywordAction.ExecuteInternal` 与带子类型版本是 IFix 跳板；当前只能确认字段、目标、持续时间和倍率，不能确认 Weak 的计算区、符号及叠层。`combat-spec/docs/keyword-actions.md` 记录了 IFix `0xB601/0xB608` 及运行时探针边界；取得启动器认证进程证据前，Camille 战技继续只保留这一项明确缺口。
+
 ### 2026-08-22：Arcane 奥义 Buff 局部激光实体链
 
 - `BuffDefinitionSource` 现在保存 Buff 时间线直接生成的能力实体子图，递归定义闭包同时遍历直接生成与事件调用的隐藏子技能，不再只收集其顶层 `CreateBuffAction`。能力实体条件编译也会收到完整 Buff 定义目录，因此 Aura/事件内的传递 Buff 可继续严格内联。

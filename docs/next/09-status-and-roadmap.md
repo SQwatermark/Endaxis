@@ -237,3 +237,4 @@ Next 迁移期间允许存在用于贯通新旧入口、生成审计和功能占
 - 治疗成功事件已形成端到端公共管线：`HealAction` 成功后按原生顺序派发 output/receive heal，满血治疗仍触发；载荷保留治疗双方、请求/实际/溢出量和治疗 GameplayTag。Buff 响应、语义 `operatorHealed`、标签查询与溢出判断均走统一运行时，不需要角色特判。
 - Camille 天赋 2 已由真实 Buff 条件树生成：治疗标签门控、自身/队友差异化增益、溢出治疗嵌套重复施加全部进入正式组件树；严格的队伍 `ForEach` 投影仅接受 `CharacterTeamFinder + ExcludeOwnerValidator + Target Buff`。潜能 5 对该纯事件被动执行 `atk_up += 0.06`，现由通用 `patchPassiveBlackboard` 严格生成；Camille 当前只剩战技/奥义行为缺口。
 - 本阶段门禁为生成器完整 421/421、Next 198 文件 1335/1335、养成/生成定义定向 59/59、`type-check:next`。全仓生成检查另有历史陈旧 Perlica 产物，未与本次 Camille 变更混合刷新。下一阶段先处理战技死亡监听/弱点 Buff 与奥义变身 Buff，再补生产模拟回归；遇到新机制继续坚持 `combat-spec` 先行。
+- Camille 战技的目标死亡重选链已按固定唯一敌人模型关闭：当前目标死亡后没有第二敌人可选，故监听与短暂 retarget Buff 对标准输出不可观察；该结论只覆盖完整匹配的重选结构。奥义纯模型/特效 Buff 也已显式归为表现层。战技现只剩 IFix `WeakAction`，奥义只剩承担技能槽路由的变身 Buff；前者等待运行时方法体，后者优先接入严格的技能形态与轨道可用性检查，均不得用宽泛忽略项绕过。
