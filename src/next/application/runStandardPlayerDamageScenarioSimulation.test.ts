@@ -380,6 +380,42 @@ function createGeneratedTangtangComboScenario() {
   }).scenario;
 }
 
+function createGeneratedTangtangBattleScenario(potential: number) {
+  const scenario = createEmptyScenario(
+    `scenario:generated-tangtang-p${potential}`,
+    '唐棠战技潜能样本',
+  );
+  scenario.battle.resourceRules = {
+    ...scenario.battle.resourceRules,
+    initialSp: 300,
+    spRecoveryPerSecond: 0,
+  };
+  scenario.tracks[0] = {
+    id: 'track:tangtang',
+    operator: {
+      operatorSlug: tangtangGeneratedOperator.slug,
+      level: 90,
+      promoted: true,
+      potential,
+      trustLevel: 4,
+      skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+      talentStates: {},
+    },
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    initialState: { ultimateEnergy: 0 },
+    skillCasts: [],
+  };
+  return placeSkillGroup({
+    scenario,
+    trackIndex: 0,
+    operator: tangtangGeneratedOperator,
+    skillGroupKey: 'battleSkill',
+    startFrame: 1,
+    ids: { allocate: kind => `${kind}:tangtang:p${potential}` },
+  }).scenario;
+}
+
 function createGeneratedMifuProtectionScenario() {
   const scenario = createEmptyScenario('scenario:generated-mifu', '弭弗护盾与战技换槽样本');
   scenario.battle.durationFrames = 240;
@@ -996,6 +1032,37 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     );
     expect(spawnedIds.size).toBeGreaterThan(0);
     expect([...spawnedIds].some(id => finishedIds.has(id))).toBe(true);
+  });
+
+  it('applies Tangtang potential 3 to battle-skill and base-passive damage inputs', () => {
+    const simulate = (potential: number) =>
+      runStandardPlayerDamageScenarioSimulation({
+        scenario: createGeneratedTangtangBattleScenario(potential),
+        endFrame: 180,
+        criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        elementalInflictionDocument: elementalAttachments,
+        options: {
+          ...standardOptions(),
+          index: {
+            getOperator: slug =>
+              slug === tangtangGeneratedOperator.slug ? tangtangGeneratedOperator : null,
+            getWeapon: () => null,
+            getGear: () => null,
+            getGearSet: () => null,
+          },
+        },
+      });
+    const damage = (potential: number) =>
+      simulate(potential).receiptEntries.find(entry => entry.event === 'DamageApplied')?.data
+        ?.value;
+
+    expect(damage(0)).toBeTypeOf('number');
+    expect(damage(3)).toBeGreaterThan(damage(0) as number);
   });
 
   it('runs generated Mifu shield creation and chained battle-skill replacement', () => {

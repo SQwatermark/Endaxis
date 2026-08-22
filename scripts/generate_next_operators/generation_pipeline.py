@@ -349,6 +349,7 @@ def run_generation(*, services: GenerationPipelineServices) -> None:
             loaded_tables["CharacterPotentialTable.json"],
             loaded_tables["PotentialTalentEffectTable.json"],
             args.source,
+            patch_table,
             parse_base_passive_skill_ids(operator),
         )
         passive_skills = filter_presentation_only_passive_buffs(operator, passive_skills)

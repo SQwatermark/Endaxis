@@ -465,7 +465,11 @@ function compileResolvedTimelineTracks(
       comboSkillRegistrations: compileComboSkillRegistrations(operatorInstance, operator),
       skillSlotGroups: compileSkillSlotGroups(operator),
       initializationPrograms: compileOperatorInitializationPrograms(activeUpgrades),
-      passivePrograms: compileOperatorPassivePrograms(activeUpgrades, operator.passiveSkills),
+      passivePrograms: compileOperatorPassivePrograms(
+        activeUpgrades,
+        operator.passiveSkills,
+        operatorInstance.skillLevels,
+      ),
       upgradeEventPrograms: compileOperatorUpgradeEventPrograms(activeUpgrades),
       skills: compiledSkills,
     });

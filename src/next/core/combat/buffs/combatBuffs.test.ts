@@ -120,6 +120,34 @@ function createDefinition(
 }
 
 describe('CombatBuffContainer', () => {
+  it('有限 Buff 接受原生负时长并在首次 Tick 的生命周期阶段结束', () => {
+    const events: string[] = [];
+    const container = new CombatBuffContainer<never>('operator', new CombatAttributeSet<never>());
+    const buff = requireAddedBuff(
+      container.add(
+        {
+          id: 'negative-lifetime',
+          stackingType: 'unique',
+          durationSeconds: -1,
+          actions: {
+            start: () => events.push('start'),
+            finish: () => events.push('finish'),
+          },
+        },
+        'operator',
+      ),
+    );
+
+    expect(buff.isFinished).toBe(false);
+    expect(buff.remainingDuration).toBe(-1);
+    expect(events).toEqual(['start']);
+
+    buff.tick(0);
+
+    expect(buff.isFinished).toBe(true);
+    expect(events).toEqual(['start', 'finish']);
+  });
+
   it('PauseBuffTime 只冻结当前 Buff 的计时与周期行为，恢复后从剩余时长继续', () => {
     const container = new CombatBuffContainer<never>('operator', new CombatAttributeSet<never>());
     const buff = requireAddedBuff(
@@ -513,7 +541,7 @@ describe('CombatBuffContainer', () => {
     expect(infinite.remainingDuration).toBeNull();
   });
 
-  it('rejects a negative Extend duration without mutating the existing instance', () => {
+  it('applies a negative native Extend duration to the existing instance', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     const container = new CombatBuffContainer('operator', attributes);
     const definition: CombatBuffDefinition<Attribute> = {
@@ -524,12 +552,10 @@ describe('CombatBuffContainer', () => {
     };
     const existing = requireAddedBuff(container.add(definition, 'first-source'));
 
-    expect(() =>
-      container.add(definition, 'second-source', {
-        blackboardValues: { duration: -3 },
-      }),
-    ).toThrow('buff duration must resolve to a non-negative finite number');
-    expect(existing.remainingDuration).toBe(10);
+    container.add(definition, 'second-source', {
+      blackboardValues: { duration: -3 },
+    });
+    expect(existing.remainingDuration).toBe(7);
     expect(container.buffs).toEqual([existing]);
   });
 
@@ -1155,8 +1181,8 @@ describe('CombatBuffContainer', () => {
     expect(first.remainingDuration).toBe(7);
   });
 
-  it.each([-1, Number.POSITIVE_INFINITY])(
-    'rejects invalid enhance-and-overwrite duration %s without partial mutation',
+  it.each([Number.POSITIVE_INFINITY, Number.NaN])(
+    'rejects non-finite enhance-and-overwrite duration %s without partial mutation',
     invalidDuration => {
       const attributes = new CombatAttributeSet<Attribute>();
       const container = new CombatBuffContainer('operator', attributes);
@@ -1179,7 +1205,7 @@ describe('CombatBuffContainer', () => {
         container.add(definition, 'invalid-source', {
           blackboardValues: { duration: invalidDuration },
         }),
-      ).toThrow('buff duration must resolve to a non-negative finite number');
+      ).toThrow('buff duration must resolve to a finite number');
       expect(existing.enhanceCount).toBe(1);
       expect(existing.remainingDuration).toBe(10);
       expect(container.buffs).toEqual([existing]);

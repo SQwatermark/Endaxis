@@ -2518,9 +2518,11 @@ def collect_operator_passive_skills(
     potential_table: dict[str, Any],
     effects: dict[str, Any],
     source_dir: Path,
+    patch_table: dict[str, Any],
     base_passive_skill_ids: Iterable[str] = (),
 ) -> dict[str, PassiveSkillSource]:
     """收集该干员养成效果引用的隐藏技能，供 Buff 解析、审计和 DSL 生成共用。"""
+    base_passive_ids = set(base_passive_skill_ids)
     effect_ids: set[str] = set()
     nodes = require_dict(growth.get("talentNodeMap"), f"CharGrowthTable.{char_id}.talentNodeMap")
     for raw_node in nodes.values():
@@ -2536,7 +2538,7 @@ def collect_operator_passive_skills(
         unlock = require_dict(raw_unlock, f"{char_id}.potentialUnlockBundle[{index}]")
         effect_ids.add(str(unlock["potentialEffectId"]))
 
-    skill_ids: set[str] = set(base_passive_skill_ids)
+    skill_ids: set[str] = set(base_passive_ids)
     for effect_id in effect_ids:
         effect = table_row(effects, effect_id, "PotentialTalentEffectTable")
         for index, raw_entry in enumerate(
@@ -2557,6 +2559,17 @@ def collect_operator_passive_skills(
             json.loads((source_dir / f"{skill_id}.json").read_text(encoding="utf-8")),
             f"{skill_id}.json",
         )
+        if skill_id in patch_table:
+            resolved_passive_blackboard = resolve_skill_blackboard(
+                passive_root,
+                f"{skill_id}.json",
+                parse_skill_patch(patch_table[skill_id], skill_id),
+            )
+        else:
+            # 没有独立 SkillPatch 时仅用 SkillData 声明值解析事件结构。
+            # attachSkill 的运行时数值仍由天赋/潜能效果传入；基础被动
+            # 则保留所属技能组的 levelSource，但其标量声明在各级相同。
+            resolved_passive_blackboard = dict(passive.blackboard_values)
         passive_group = require_dict(
             passive_root.get("actionGroupData"), f"{skill_id}.json.actionGroupData"
         )
@@ -2564,11 +2577,7 @@ def collect_operator_passive_skills(
             passive_group.get("passiveEventActions", []),
             f"{skill_id}.json.actionGroupData.passiveEventActions",
         )
-        passive_blackboard = {
-            str(item["key"]): (float(item.get("valueDouble", 0)),)
-            for item in require_list(passive_root.get("blackboard"), f"{skill_id}.json.blackboard")
-            if isinstance(item, dict) and isinstance(item.get("key"), str)
-        }
+        passive_blackboard = resolved_passive_blackboard
         parsed_passive_events = parse_buff_event_actions(
             {
                 **passive_root,
@@ -2595,6 +2604,7 @@ def collect_operator_passive_skills(
         )
         result[skill_id] = replace(
             passive,
+            blackboard_values=tuple(sorted(resolved_passive_blackboard.items())),
             event_listeners=passive_listeners,
             event_buff_ids=tuple(
                 sorted(

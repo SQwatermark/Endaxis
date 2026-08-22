@@ -10,6 +10,7 @@ import { fluoriteGeneratedOperator } from '../../data/operators/generated/fluori
 import { gilbertaGeneratedOperator } from '../../data/operators/generated/gilberta.operator.generated';
 import { lastRiteGeneratedOperator } from '../../data/operators/generated/last-rite.operator.generated';
 import { estellaGeneratedOperator } from '../../data/operators/generated/estella.operator.generated';
+import { tangtangGeneratedOperator } from '../../data/operators/generated/tangtang.operator.generated';
 import type { CompiledSkillProgram } from './combatProgram';
 import type { OperatorInstanceDocument } from '../project/schema';
 import type {
@@ -988,6 +989,34 @@ describe('operator upgrade compilation', () => {
         enableSequence: { steps: [] },
       },
     ]);
+  });
+
+  it('resolves Tangtang base passive from battle-skill level before potential patches', () => {
+    const operatorBuild = build({
+      operatorSlug: tangtangGeneratedOperator.slug,
+      potential: 3,
+    });
+    const active = resolveActiveOperatorUpgrades(operatorBuild, tangtangGeneratedOperator);
+    const skills = compileOperatorDefinitionSkills(
+      'track:tangtang',
+      operatorBuild,
+      tangtangGeneratedOperator,
+    );
+    const passives = compileOperatorPassivePrograms(
+      active,
+      tangtangGeneratedOperator.passiveSkills,
+      operatorBuild.skillLevels,
+    );
+
+    const battleSkill = skills.find(skill => skill.skillGroupKey === 'battleSkill');
+    const ultimate = skills.find(skill => skill.skillGroupKey === 'ultimate');
+    expect(battleSkill?.initialBlackboard.potential3).toBe(1);
+    expect(battleSkill?.initialBlackboard.rate_spellvulnerable).toBeCloseTo(0.1);
+    expect(battleSkill?.initialBlackboard.rate_spellvulnerable_02).toBeCloseTo(0.15);
+    expect(ultimate?.initialBlackboard.rate_spellvulnerable).toBeCloseTo(0.05);
+    expect(ultimate?.initialBlackboard.rate_spellvulnerable_02).toBeCloseTo(0.05);
+    expect(passives).toHaveLength(1);
+    expect(passives[0]?.initialBlackboard.normalskill_atk_scale01).toBeCloseTo(0.275);
   });
 
   it('patches Lifeng potential 3 into the enabled talent passive blackboard', () => {

@@ -9134,30 +9134,22 @@
                           "duration": {
                             "value": 0.0,
                             "blackboardKey": "duration",
-                            "levelValues": [
-                              20.0
-                            ]
+                            "levelValues": 20.0
                           },
                           "atk_up": {
                             "value": 0.0,
                             "blackboardKey": "atk_up",
-                            "levelValues": [
-                              0.1
-                            ]
+                            "levelValues": 0.1
                           },
                           "physpell_up": {
                             "value": 0.0,
                             "blackboardKey": "physpell_up",
-                            "levelValues": [
-                              10.0
-                            ]
+                            "levelValues": 10.0
                           },
                           "max_stack": {
                             "value": 0.0,
                             "blackboardKey": "max_stack_owner",
-                            "levelValues": [
-                              5.0
-                            ]
+                            "levelValues": 5.0
                           }
                         }
                       }
@@ -9195,9 +9187,7 @@
                     "value": {
                       "value": 0.0,
                       "blackboardKey": "atb_contain_temp",
-                      "levelValues": [
-                        0.0
-                      ]
+                      "levelValues": 0.0
                     }
                   },
                   "legacyBuffFinish": null,
@@ -9243,9 +9233,7 @@
                         "right": {
                           "value": 0.0,
                           "blackboardKey": "atb_gain",
-                          "levelValues": [
-                            100.0
-                          ]
+                          "levelValues": 100.0
                         },
                         "skillTypes": [],
                         "poise": null,
@@ -9281,9 +9269,7 @@
                           "left": {
                             "value": 0.0,
                             "blackboardKey": "atb_gain",
-                            "levelValues": [
-                              100.0
-                            ]
+                            "levelValues": 100.0
                           },
                           "right": {
                             "value": -1.0,
@@ -9315,9 +9301,7 @@
                           "value": {
                             "value": 0.0,
                             "blackboardKey": "atb_gain_minus",
-                            "levelValues": [
-                              0.0
-                            ]
+                            "levelValues": 0.0
                           }
                         },
                         "legacyBuffFinish": null,
@@ -9349,30 +9333,22 @@
                                 "duration": {
                                   "value": 0.0,
                                   "blackboardKey": "duration",
-                                  "levelValues": [
-                                    20.0
-                                  ]
+                                  "levelValues": 20.0
                                 },
                                 "atk_up": {
                                   "value": 0.0,
                                   "blackboardKey": "atk_up",
-                                  "levelValues": [
-                                    0.1
-                                  ]
+                                  "levelValues": 0.1
                                 },
                                 "physpell_up": {
                                   "value": 0.0,
                                   "blackboardKey": "physpell_up",
-                                  "levelValues": [
-                                    10.0
-                                  ]
+                                  "levelValues": 10.0
                                 },
                                 "max_stack": {
                                   "value": 0.0,
                                   "blackboardKey": "max_stack_owner",
-                                  "levelValues": [
-                                    5.0
-                                  ]
+                                  "levelValues": 5.0
                                 }
                               }
                             }

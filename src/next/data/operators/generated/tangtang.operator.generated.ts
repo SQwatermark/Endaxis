@@ -8914,15 +8914,14 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
   passiveSkills: [
     {
       key: 'chr_0027_tangtang_passive_0',
+      levelSource: 'battleSkill',
       blackboard: {
-        'atk_scale_water_ult': 0,
-        'duration_spellvulnerable': 0,
-        'normalskill_atk_scale01': 0,
-        'normalskill_atk_scale02': 0,
-        'normalskill_atk_scale03': 0,
-        'rate_spellvulnerable': 0,
-        'rate_spellvulnerable_02': 0,
-        'talent2': 0,
+        'duration_spellvulnerable': [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],
+        'normalskill_atk_scale01': [0.111, 0.122, 0.133, 0.145, 0.156, 0.167, 0.178, 0.189, 0.2, 0.214, 0.231, 0.25],
+        'normalskill_atk_scale02': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        'normalskill_atk_scale03': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        'rate_spellvulnerable': [0.03, 0.03, 0.03, 0.035, 0.035, 0.035, 0.04, 0.04, 0.04, 0.045, 0.045, 0.05],
+        'rate_spellvulnerable_02': [0.06, 0.06, 0.06, 0.07, 0.07, 0.07, 0.08, 0.08, 0.08, 0.09, 0.09, 0.1],
       },
       enableSequence: sequence(
         step('applyBuff', {
@@ -9066,7 +9065,57 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
     {
       key: 'potential3',
       levels: 1,
-      modifiers: [],
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'potential3',
+          operation: 'assign',
+          value: 1,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'rate_spellvulnerable',
+          operation: 'add',
+          value: 0.05,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'rate_spellvulnerable_02',
+          operation: 'add',
+          value: 0.05,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'rate_spellvulnerable',
+          operation: 'add',
+          value: 0.05,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'rate_spellvulnerable_02',
+          operation: 'add',
+          value: 0.05,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'atk_scale_1',
+          operation: 'multiply',
+          value: 1.1,
+        },
+        {
+          kind: 'patchPassiveBlackboard',
+          passiveSkillKey: 'chr_0027_tangtang_passive_0',
+          blackboardKey: 'normalskill_atk_scale01',
+          operation: 'multiply',
+          value: 1.1,
+        },
+      ],
     },
     {
       key: 'potential4',
@@ -9136,5 +9185,5 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
       ],
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'potentialEffects' }, { capability: 'skillBehavior', skillGroupKeys: ['ultimate'] }] },
+  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'skillBehavior', skillGroupKeys: ['ultimate'] }] },
 };

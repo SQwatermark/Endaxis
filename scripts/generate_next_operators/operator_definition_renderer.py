@@ -18,7 +18,13 @@ from operator_ability_entity_linker import (
     render_operator_ability_entity_definitions,
 )
 from source_models import BuffDefinitionSource, SkillSource
-from source_utils import require_non_negative_int, table_row, ts_inline_literal
+from source_utils import (
+    require_dict,
+    require_list,
+    require_non_negative_int,
+    table_row,
+    ts_inline_literal,
+)
 
 
 @dataclass(frozen=True)
@@ -191,6 +197,33 @@ def render_operator_definition(
             f"{operator['slug']}: compile-time-only base passives are not declared base passives: "
             f"{sorted(unknown_compile_time_ids)!r}"
         )
+    native_level_sources = {0: "basicAttack", 1: "battleSkill", 2: "ultimate", 3: "comboSkill"}
+    base_passive_level_sources: dict[str, str] = {}
+    native_skill_groups = require_dict(
+        growth.get("skillGroupMap"), f"CharGrowthTable.{char_id}.skillGroupMap"
+    )
+    for passive_id in base_passive_ids:
+        matching_groups = [
+            require_dict(group, f"CharGrowthTable.{char_id}.skillGroupMap[]")
+            for group in native_skill_groups.values()
+            if passive_id in require_list(
+                require_dict(group, f"CharGrowthTable.{char_id}.skillGroupMap[]").get("skillIdList"),
+                f"CharGrowthTable.{char_id}.skillGroupMap[].skillIdList",
+            )
+        ]
+        if len(matching_groups) > 1:
+            raise ValueError(
+                f"{operator['slug']}.basePassiveSkillIds: ambiguous native groups for {passive_id!r}"
+            )
+        if not matching_groups:
+            continue
+        native_group_type = matching_groups[0].get("skillGroupType")
+        if native_group_type not in native_level_sources:
+            raise ValueError(
+                f"{operator['slug']}.basePassiveSkillIds: unsupported group type "
+                f"{native_group_type!r} for {passive_id!r}"
+            )
+        base_passive_level_sources[passive_id] = native_level_sources[native_group_type]
     base_passive_body = render_base_passive_skills(
         {
             skill_id: passive_skills[skill_id]
@@ -200,6 +233,7 @@ def render_operator_definition(
         definitions_by_id,
         compile_progression_buff_definition,
         compile_passive_event_listener,
+        base_passive_level_sources,
     )
     helper_imports = collect_definition_helpers(skill_entries, damage_type_factories)
     base_passive_sources = [] if base_passive_body is None else [base_passive_body]

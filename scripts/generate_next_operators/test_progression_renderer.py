@@ -141,6 +141,12 @@ class ProgressionRendererTests(unittest.TestCase):
             compiler="staticAttributes",
             effect_ids=("potential.effect",),
         )
+        mixed_blackboard = progression_conversion_item(
+            source="potential",
+            key="mixed-blackboard",
+            compiler="skillAndPassiveBlackboardPatch",
+            effect_ids=("potential.mixed",),
+        )
         unmodeled = progression_conversion_item(
             source="talent",
             key="unknown",
@@ -152,6 +158,8 @@ class ProgressionRendererTests(unittest.TestCase):
         self.assertTrue(reaction_event["standardSimulationCompileReady"])
         self.assertTrue(connected["definitionConverted"])
         self.assertTrue(connected["standardSimulationCompileReady"])
+        self.assertTrue(mixed_blackboard["definitionConverted"])
+        self.assertTrue(mixed_blackboard["standardSimulationCompileReady"])
         self.assertFalse(unmodeled["definitionConverted"])
         self.assertEqual(unmodeled["blocker"], "unmodeled-source-effect")
 

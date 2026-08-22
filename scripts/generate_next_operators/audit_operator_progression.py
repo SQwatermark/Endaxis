@@ -98,6 +98,7 @@ POTENTIAL_DEFINITION_COMPILERS = {
     "setReactionEffectiveness",
     "skillBlackboardPatch",
     "skillBlackboardPatchAndAttachedBuff",
+    "skillAndPassiveBlackboardPatch",
     "skillCooldownAndBlackboardPatch",
     "staticAttributes",
 }
@@ -112,6 +113,7 @@ POTENTIAL_SIMULATION_COMPILERS = {
     "setReactionEffectiveness",
     "skillBlackboardPatch",
     "skillBlackboardPatchAndAttachedBuff",
+    "skillAndPassiveBlackboardPatch",
     "skillCooldownAndBlackboardPatch",
     "staticAttributes",
 }

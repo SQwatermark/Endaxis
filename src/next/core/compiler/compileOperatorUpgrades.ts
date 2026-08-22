@@ -116,12 +116,20 @@ function matchesBuildCondition(
 export function compileOperatorPassivePrograms(
   upgrades: readonly ActiveOperatorUpgrade[],
   basePassives: readonly OperatorPassiveSkillDefinition[] = [],
+  skillLevels?: OperatorInstanceDocument['skillLevels'],
 ): readonly CompiledOperatorPassiveProgram[] {
   const programs: CompiledOperatorPassiveProgram[] = [];
   const keys = new Set<string>();
   for (const [index, passive] of basePassives.entries()) {
     const path = `operator.passiveSkills[${index}]`;
     if (passive.key.length === 0) throw new Error(`${path}.key must not be empty`);
+    if (passive.levelSource !== undefined && skillLevels === undefined) {
+      throw new Error(`${path}.levelSource requires operator skill levels`);
+    }
+    const passiveLevel = passive.levelSource === undefined ? 1 : skillLevels?.[passive.levelSource];
+    if (passiveLevel === undefined) {
+      throw new Error(`${path}.levelSource requires operator skill levels`);
+    }
     if (keys.has(passive.key)) throw new Error(`${path} duplicates passive '${passive.key}'`);
     keys.add(passive.key);
     programs.push({
@@ -129,10 +137,14 @@ export function compileOperatorPassivePrograms(
       initialBlackboard: Object.fromEntries(
         Object.entries(passive.blackboard ?? {}).map(([key, value]) => [
           key,
-          resolveUpgradeLevelValue(value, 1, `${path}.blackboard.${key}`),
+          resolveUpgradeLevelValue(value, passiveLevel, `${path}.blackboard.${key}`),
         ]),
       ),
-      enableSequence: compileActionSequence(passive.enableSequence, 1, `${path}.enableSequence`),
+      enableSequence: compileActionSequence(
+        passive.enableSequence,
+        passiveLevel,
+        `${path}.enableSequence`,
+      ),
     });
   }
   for (const upgrade of upgrades) {

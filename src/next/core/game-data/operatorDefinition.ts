@@ -1457,7 +1457,9 @@ export interface UpgradeEventHandlerDefinition {
  */
 export interface OperatorPassiveSkillDefinition {
   key: string;
-  /** 被动启用序列读取的初始黑板；数组按当前天赋等级解析。 */
+  /** 角色基础被动跟随其所属原生技能组；养成附加被动不设置该字段。 */
+  levelSource?: SkillLevelSource;
+  /** 被动启用序列读取的初始黑板；数组按所属技能或当前养成等级解析。 */
   blackboard?: Readonly<Record<string, LevelValues>>;
   /** 原生被动 Skill.Enable 时执行的有序行为。 */
   enableSequence: ActionSequenceDefinition;

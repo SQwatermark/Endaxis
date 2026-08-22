@@ -1894,16 +1894,12 @@
                           "atk_up": {
                             "value": 0.0,
                             "blackboardKey": "atk_up",
-                            "levelValues": [
-                              0.05
-                            ]
+                            "levelValues": 0.05
                           },
                           "duration": {
                             "value": 0.0,
                             "blackboardKey": "duration",
-                            "levelValues": [
-                              20.0
-                            ]
+                            "levelValues": 20.0
                           }
                         }
                       }
@@ -1931,16 +1927,12 @@
                           "atk_up": {
                             "value": 0.0,
                             "blackboardKey": "atk_up",
-                            "levelValues": [
-                              0.05
-                            ]
+                            "levelValues": 0.05
                           },
                           "duration": {
                             "value": 0.0,
                             "blackboardKey": "duration",
-                            "levelValues": [
-                              20.0
-                            ]
+                            "levelValues": 20.0
                           }
                         }
                       }
@@ -1978,16 +1970,12 @@
                     "left": {
                       "value": 0.0,
                       "blackboardKey": "atk_up",
-                      "levelValues": [
-                        0.05
-                      ]
+                      "levelValues": 0.05
                     },
                     "right": {
                       "value": 0.0,
                       "blackboardKey": "teammate_rate",
-                      "levelValues": [
-                        0.2
-                      ]
+                      "levelValues": 0.2
                     },
                     "addend": null
                   },
@@ -2076,16 +2064,12 @@
                                 "atk_up": {
                                   "value": 0.0,
                                   "blackboardKey": "atk_up",
-                                  "levelValues": [
-                                    0.05
-                                  ]
+                                  "levelValues": 0.05
                                 },
                                 "duration": {
                                   "value": 0.0,
                                   "blackboardKey": "duration",
-                                  "levelValues": [
-                                    20.0
-                                  ]
+                                  "levelValues": 20.0
                                 }
                               }
                             }
@@ -2130,16 +2114,12 @@
                                 "atk_up": {
                                   "value": 0.0,
                                   "blackboardKey": "atk_up_teammate",
-                                  "levelValues": [
-                                    0.0
-                                  ]
+                                  "levelValues": 0.0
                                 },
                                 "duration": {
                                   "value": 0.0,
                                   "blackboardKey": "duration",
-                                  "levelValues": [
-                                    20.0
-                                  ]
+                                  "levelValues": 20.0
                                 }
                               }
                             }
@@ -2238,16 +2218,12 @@
                                       "atk_up": {
                                         "value": 0.0,
                                         "blackboardKey": "atk_up",
-                                        "levelValues": [
-                                          0.05
-                                        ]
+                                        "levelValues": 0.05
                                       },
                                       "duration": {
                                         "value": 0.0,
                                         "blackboardKey": "duration",
-                                        "levelValues": [
-                                          20.0
-                                        ]
+                                        "levelValues": 20.0
                                       }
                                     }
                                   }
@@ -2292,16 +2268,12 @@
                                       "atk_up": {
                                         "value": 0.0,
                                         "blackboardKey": "atk_up_teammate",
-                                        "levelValues": [
-                                          0.0
-                                        ]
+                                        "levelValues": 0.0
                                       },
                                       "duration": {
                                         "value": 0.0,
                                         "blackboardKey": "duration",
-                                        "levelValues": [
-                                          20.0
-                                        ]
+                                        "levelValues": 20.0
                                       }
                                     }
                                   }

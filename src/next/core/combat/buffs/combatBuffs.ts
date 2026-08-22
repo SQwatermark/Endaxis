@@ -1365,7 +1365,8 @@ function resolveBuffDuration<Key extends string>(
     blackboard,
   );
   if (value === null) return null;
-  validateNonNegativeBuffNumber(value, 'buff duration');
+  if (!Number.isFinite(value))
+    throw new RangeError('buff duration must resolve to a finite number');
   return value;
 }
 
@@ -1457,10 +1458,4 @@ function resolveOptionalBuffNumber(
     );
   }
   return value;
-}
-
-function validateNonNegativeBuffNumber(value: number, field: string): void {
-  if (!Number.isFinite(value) || value < 0) {
-    throw new RangeError(`${field} must resolve to a non-negative finite number`);
-  }
 }

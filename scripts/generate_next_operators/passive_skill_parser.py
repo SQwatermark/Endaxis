@@ -31,7 +31,7 @@ class PassiveSkillSource:
     declared_blackboard_keys: tuple[str, ...]
     buffs: tuple[PassiveBuffApplicationSource, ...]
     unsupported_reasons: tuple[str, ...]
-    blackboard_values: tuple[tuple[str, float], ...] = ()
+    blackboard_values: tuple[tuple[str, float | tuple[float, ...]], ...] = ()
     event_listeners: tuple[SkillEventListenerSource, ...] = ()
     event_buff_ids: tuple[str, ...] = ()
 

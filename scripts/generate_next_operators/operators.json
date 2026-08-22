@@ -2289,7 +2289,7 @@
       "potentials": [
         { "key": "potential1", "compile": "skillCooldownAndBlackboardPatch" },
         { "key": "potential2", "compile": "staticAttributes" },
-        { "key": "potential3", "compile": "unmodeledPotential" },
+        { "key": "potential3", "compile": "skillAndPassiveBlackboardPatch" },
         { "key": "potential4" },
         { "key": "potential5", "compile": "skillBlackboardPatch" }
       ],

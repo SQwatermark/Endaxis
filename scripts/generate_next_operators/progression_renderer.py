@@ -251,8 +251,11 @@ def _render_passive_skill_entry(
     compile_event_listener: Callable[
         [object, str, frozenset[str], str, dict[str, BuffDefinitionSource]], str | None
     ] | None,
+    level_source: str | None = None,
 ) -> list[str]:
     lines = ["    {", f"      key: {ts_inline_literal(skill_id)},"]
+    if level_source is not None:
+        lines.append(f"      levelSource: {ts_inline_literal(level_source)},")
     if values_by_key:
         lines.append("      blackboard: {")
         for key, value in values_by_key.items():
@@ -323,6 +326,7 @@ def render_base_passive_skills(
     compile_event_listener: Callable[
         [object, str, frozenset[str], str, dict[str, BuffDefinitionSource]], str | None
     ] | None = None,
+    level_sources: dict[str, str] | None = None,
 ) -> str | None:
     if not passive_skills:
         return None
@@ -336,6 +340,7 @@ def render_base_passive_skills(
                 buff_definitions,
                 compile_buff_definition,
                 compile_event_listener,
+                (level_sources or {}).get(skill_id),
             )
         )
     lines.append("  ],")
