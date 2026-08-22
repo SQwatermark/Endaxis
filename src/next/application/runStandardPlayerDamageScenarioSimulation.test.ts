@@ -1078,6 +1078,12 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     expect(damageSteps.filter(stepKey => stepKey.includes('battleSkill1'))).toHaveLength(1);
     expect(damageSteps.filter(stepKey => stepKey.includes('battleSkill2'))).toHaveLength(3);
     expect(damageSteps.filter(stepKey => stepKey.includes('battleSkill3'))).toHaveLength(1);
+    const thirdFormDamage = result.receiptEntries.find(
+      entry =>
+        entry.event === 'DamageApplied' && String(entry.data?.stepKey).includes('battleSkill3'),
+    );
+    expect(thirdFormDamage?.data?.value).toBeTypeOf('number');
+    expect(thirdFormDamage?.data?.value as number).toBeGreaterThan(0);
     expect(
       result.receiptEntries
         .filter(entry => entry.event === 'DamageApplied')

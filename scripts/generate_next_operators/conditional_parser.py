@@ -92,6 +92,10 @@ from source_utils import (
 from target_parser import parse_character_team_selection_role, parse_target_reference
 from keyword_action_parser import parse_keyword_action
 from time_dilation_parser import parse_time_dilation_action
+from skill_setting_catalog import (
+    has_recovered_skill_setting_data,
+    resolve_linear_skill_setting_read,
+)
 
 __all__ = [
     "contains_combat_effect",
@@ -1619,6 +1623,64 @@ def parse_conditional_actions(
                             base=base,
                             outputKey=output_key,
                         )
+                elif action_type == "ReadSkillSettingData":
+                    expected_fields = {
+                        "$type", "isEnable", "priorityLevel", "priorityOffset",
+                        "serverActionIndex", "dataList",
+                    }
+                    if set(action) != expected_fields:
+                        raise ValueError(
+                            f"{source_path}: unexpected ReadSkillSettingData fields {sorted(action)}"
+                        )
+                    data_list = require_list(action.get("dataList"), f"{source_path}.dataList")
+                    if len(data_list) != 1:
+                        continue
+                    item = require_dict(data_list[0], f"{source_path}.dataList[0]")
+                    if set(item) != {"dataKey", "column", "enhanceAttributeSource", "storeKey"}:
+                        raise ValueError(
+                            f"{source_path}.dataList[0]: unexpected fields {sorted(item)}"
+                        )
+                    data_key = item.get("dataKey")
+                    output_key = item.get("storeKey")
+                    if not isinstance(data_key, str) or not data_key:
+                        raise ValueError(f"{source_path}.dataList[0].dataKey: expected non-empty string")
+                    if not has_recovered_skill_setting_data(data_key):
+                        continue
+                    if not isinstance(output_key, str) or not output_key:
+                        raise ValueError(f"{source_path}.dataList[0].storeKey: expected non-empty string")
+                    column = parse_scalar(
+                        item.get("column"), f"{source_path}.dataList[0].column", inherited_blackboard
+                    )
+                    if column.blackboardKey is not None:
+                        continue
+                    target = parse_target_reference(
+                        item.get("enhanceAttributeSource"),
+                        f"{source_path}.dataList[0].enhanceAttributeSource",
+                    )
+                    if (
+                        target.targetSource not in {"Source", "Owner"}
+                        or target.targetGroupKey
+                        or target.validatorTypes
+                        or target.postProcessorTypes
+                    ):
+                        raise ValueError(f"{source_path}.dataList[0]: unsupported enhance target")
+                    base, multiplier = resolve_linear_skill_setting_read(
+                        data_key, column.value, f"{source_path}.dataList[0]"
+                    )
+                    store_attribute_value = StoreAttributeValuePayload(
+                        targetSource=target.targetSource,
+                        targetGroupKey="",
+                        attributeKind="specific",
+                        attributeKey="PhysicalAndSpellInflictionEnhance",
+                        stage="finalNonConverted",
+                        useFloor=False,
+                        divisor=ScalarSource(value=1, blackboardKey=None, levelValues=None),
+                        multiplier=ScalarSource(
+                            value=multiplier, blackboardKey=None, levelValues=None
+                        ),
+                        base=ScalarSource(value=base, blackboardKey=None, levelValues=None),
+                        outputKey=output_key,
+                    )
                 elif action_type == "GetTargetBuffBBAdvanced":
                     buff_read = parse_buff_blackboard_read_payload(action, source_path)
                 elif action_type == "FinishBuffAdvanced":
@@ -1936,6 +1998,27 @@ def parse_conditional_actions(
             target_source = target.get("targetSource")
             target_group_key = target.get("targetGroupKey")
             if target_source == "Context" and isinstance(target_group_key, str) and target_group_key:
+                def contains_recovered_skill_setting_read(current: Any) -> bool:
+                    if isinstance(current, list):
+                        return any(contains_recovered_skill_setting_read(item) for item in current)
+                    if not isinstance(current, dict) or current.get("isEnable") is False:
+                        return False
+                    if action_name(str(current.get("$type", ""))) == "ReadSkillSettingData":
+                        raw_data = current.get("dataList")
+                        return (
+                            isinstance(raw_data, list)
+                            and any(
+                                isinstance(item, dict)
+                                and isinstance(item.get("dataKey"), str)
+                                and has_recovered_skill_setting_data(item["dataKey"])
+                                for item in raw_data
+                            )
+                        )
+                    return any(
+                        contains_recovered_skill_setting_read(item)
+                        for item in current.values()
+                    )
+
                 def contains_duration_assignment(current: Any) -> bool:
                     if isinstance(current, list):
                         return any(contains_duration_assignment(item) for item in current)
@@ -1962,7 +2045,40 @@ def parse_conditional_actions(
                 has_duration_assignment = contains_duration_assignment(
                     value.get("action")
                 )
+                has_recovered_setting_read = contains_recovered_skill_setting_read(
+                    value.get("action")
+                )
                 if not (has_duration_assignment or has_direct_guard):
+                    if has_recovered_setting_read:
+                        actions = parse_branch(
+                            value.get("action"),
+                            start_frame,
+                            end_frame,
+                            (*path, "action"),
+                            execution_frames,
+                        )
+                        # 根级伤害、Buff、回能与嵌套条件仍由既有解析器拥有；这里只
+                        # 接管 ReadSkillSettingData 周围必须保持顺序的黑板计算。
+                        ordered_actions = tuple(
+                            action
+                            for action in actions
+                            if action.blackboardMutation is not None
+                            or action.storeAttributeValue is not None
+                        )
+                        if ordered_actions:
+                            result.append(
+                                UnconditionalActionSource(
+                                    startFrame=start_frame,
+                                    endFrame=end_frame,
+                                    actionIndex=require_server_action_index(
+                                        value, f"{source_name}.{'.'.join(path)}"
+                                    ),
+                                    actionPath=path,
+                                    conditions=(),
+                                    succeedActions=ordered_actions,
+                                    failActions=(),
+                                )
+                            )
                     for key, child in value.items():
                         visit(child, start_frame, end_frame, (*path, key), execution_frames)
                     return

@@ -17233,6 +17233,129 @@ export const mifuGeneratedSource = {
         {
           "startFrame": 26,
           "endFrame": 26,
+          "actionIndex": 40,
+          "actionPath": [
+            "timelineActions[10]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ],
+          "conditions": [],
+          "succeedActions": [
+            {
+              "actionType": "ModifyDynamicBlackboard",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[10]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "action",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 41,
+              "blackboardMutation": {
+                "key": "atk_scale_runtime",
+                "operation": "Assign",
+                "value": {
+                  "value": 0.0,
+                  "blackboardKey": "atk_scale",
+                  "levelValues": [
+                    4.0,
+                    4.16,
+                    4.32,
+                    4.48,
+                    4.64,
+                    4.8,
+                    4.96,
+                    5.12,
+                    5.28,
+                    5.48,
+                    5.72,
+                    6.0
+                  ]
+                }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
+            },
+            {
+              "actionType": "ReadSkillSettingData",
+              "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[10]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "action",
+                "actionData",
+                "[1]"
+              ],
+              "serverActionIndex": 42,
+              "storeAttributeValue": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "attributeKind": "specific",
+                "attributeKey": "PhysicalAndSpellInflictionEnhance",
+                "stage": "finalNonConverted",
+                "useFloor": false,
+                "divisor": {
+                  "value": 1,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "multiplier": {
+                  "value": 0.01,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "base": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "outputKey": "yuanshi_multi"
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
+            },
+            {
+              "actionType": "ModifyDynamicBlackboard",
+              "actionIndex": 2,
+              "actionPath": [
+                "timelineActions[10]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "action",
+                "actionData",
+                "[2]"
+              ],
+              "serverActionIndex": 43,
+              "blackboardMutation": {
+                "key": "atk_scale_runtime",
+                "operation": "Multiply",
+                "value": {
+                  "value": 0.0,
+                  "blackboardKey": "yuanshi_multi",
+                  "levelValues": null
+                }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
+            }
+          ],
+          "failActions": [],
+          "conditionNegated": [],
+          "alwaysNext": false
+        },
+        {
+          "startFrame": 26,
+          "endFrame": 26,
           "actionIndex": 45,
           "actionPath": [
             "timelineActions[10]",
@@ -18841,6 +18964,129 @@ export const mifuGeneratedSource = {
             false
           ],
           "alwaysNext": true
+        },
+        {
+          "startFrame": 26,
+          "endFrame": 26,
+          "actionIndex": 40,
+          "actionPath": [
+            "timelineActions[10]",
+            "_sequenceActionData",
+            "actionData",
+            "[1]"
+          ],
+          "conditions": [],
+          "succeedActions": [
+            {
+              "actionType": "ModifyDynamicBlackboard",
+              "actionIndex": 0,
+              "actionPath": [
+                "timelineActions[10]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "action",
+                "actionData",
+                "[0]"
+              ],
+              "serverActionIndex": 41,
+              "blackboardMutation": {
+                "key": "atk_scale_runtime",
+                "operation": "Assign",
+                "value": {
+                  "value": 0.0,
+                  "blackboardKey": "atk_scale",
+                  "levelValues": [
+                    4.0,
+                    4.16,
+                    4.32,
+                    4.48,
+                    4.64,
+                    4.8,
+                    4.96,
+                    5.12,
+                    5.28,
+                    5.48,
+                    5.72,
+                    6.0
+                  ]
+                }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
+            },
+            {
+              "actionType": "ReadSkillSettingData",
+              "actionIndex": 1,
+              "actionPath": [
+                "timelineActions[10]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "action",
+                "actionData",
+                "[1]"
+              ],
+              "serverActionIndex": 42,
+              "storeAttributeValue": {
+                "targetSource": "Owner",
+                "targetGroupKey": "",
+                "attributeKind": "specific",
+                "attributeKey": "PhysicalAndSpellInflictionEnhance",
+                "stage": "finalNonConverted",
+                "useFloor": false,
+                "divisor": {
+                  "value": 1,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "multiplier": {
+                  "value": 0.01,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "base": {
+                  "value": 1.0,
+                  "blackboardKey": null,
+                  "levelValues": null
+                },
+                "outputKey": "yuanshi_multi"
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
+            },
+            {
+              "actionType": "ModifyDynamicBlackboard",
+              "actionIndex": 2,
+              "actionPath": [
+                "timelineActions[10]",
+                "_sequenceActionData",
+                "actionData",
+                "[1]",
+                "action",
+                "actionData",
+                "[2]"
+              ],
+              "serverActionIndex": 43,
+              "blackboardMutation": {
+                "key": "atk_scale_runtime",
+                "operation": "Multiply",
+                "value": {
+                  "value": 0.0,
+                  "blackboardKey": "yuanshi_multi",
+                  "levelValues": null
+                }
+              },
+              "legacyBuffFinish": null,
+              "skillCooldownAdjustment": null,
+              "buffIgnite": null
+            }
+          ],
+          "failActions": [],
+          "conditionNegated": [],
+          "alwaysNext": false
         },
         {
           "startFrame": 26,

@@ -1,0 +1,21 @@
+{
+  "revision": "combat-1.4.4",
+  "source": {
+    "manifestId": 451359,
+    "assetIndex": 67099,
+    "assetPath": "assets/beyond/dynamicassets/gamedata/gameplayconfig/skillsetting.asset"
+  },
+  "data": {
+    "弭弗特殊猛击": {
+      "values": [1, 1, 1, 1],
+      "enhanceFormulaKey": "Damage"
+    }
+  },
+  "formulas": {
+    "Damage": {
+      "formulaType": 1,
+      "paramA": 0.01,
+      "paramB": 1
+    }
+  }
+}

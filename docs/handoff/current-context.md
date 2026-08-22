@@ -580,3 +580,17 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 梨诺潜能 2 的 `Will +20` 与 `HealOutputIncrease +0.1` 现由同一个 `staticAttributes` 养成槽严格生成；审计保存 `staticHealingIncrease/output` 的明确目标，不再把属性 29 标为缺少运行时消费者。她仍保持 `outputStage: audit`：终结技缺失的 `abilityentity_chr_0035_liino_ult_skill_projhit` 在 Endaxis、vfs-index-browser、IL2CPP-Dumper 与 AnimeStudio 的本地证据范围内均未找到，不能为得到正式产物而猜造模板。
 - 当前门禁：生成器 435/435、全量生成 `--check`、Next 201 文件 1362/1362、`type-check:next` 与 `git diff --check` 通过。`tmp/` 仍未跟踪且不得提交。
 - 雪绒默认仓库场景现按双方 resolved panel 锁定精确治疗量：初次连携治疗先计算施法者 `Will * 0.5 + 216`，再乘佩丽卡 `1 + Will * 0.001` 的受治疗增幅；目标满血时 `actualHealing=0`，但 `requestedHealing` 仍必须与公式一致并派发成功治疗事件。
+
+### 2026-08-22：弭弗三段伤害与替换技能编辑边界
+
+- 弭弗第三段第 26 帧的真实动作顺序为 `atk_scale_runtime = atk_scale`、读取
+  `SkillSetting[弭弗特殊猛击]` 第一列到 `yuanshi_multi`、乘入运行倍率，再执行破韧天赋分支和伤害。
+  旧生成结果漏掉前三步，只留下以初值 0 参与伤害，因而回执伤害为 0。
+- 台式机 VFS manifest `451359`、asset index `67099` 已确认真实 `skillsetting.asset`：该项四列均为
+  1，使用 `Damage` 线性公式 `1 + 0.01 * PhysicalAndSpellInflictionEnhance`。复刻库提交 `c348745`
+  先固定数据与语义；
+  Endaxis 转换器只对已恢复条目、字面列号和已支持线性公式生成公共属性读取步骤，其他读取不猜测。
+- 替换技能 Inspector 显示第一段是编辑读模型仍只按稳定放置来源查基础模板。正式方案记录于
+  `docs/next/11-skill-lifecycle.md`：轨道块继续保存稳定槽位输入，实际形态由
+  `SkillStarted.skillId + castId` 投影，项目覆盖按每个 replacement skill key 独立保存。整体方案实施前
+  不做弭弗专用 UI 修补。

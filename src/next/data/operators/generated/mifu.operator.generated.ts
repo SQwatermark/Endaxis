@@ -1412,6 +1412,25 @@ export const mifuBattleSkill3: SkillDefinition = withSkillBlackboard(
       scheduled(
         26,
         sequence(
+          step('modifyActionValue', {
+            key: 'atk_scale_runtime',
+            operation: 'assign',
+            value: { kind: 'blackboard', key: 'atk_scale' },
+          }),
+          step('storeSourceAttributeValue', {
+            attribute: { kind: 'specific', key: 'PhysicalAndSpellInflictionEnhance' },
+            stage: 'finalNonConverted',
+            useFloor: false,
+            divisor: { kind: 'constant', value: 1 },
+            multiplier: { kind: 'constant', value: 0.01 },
+            base: { kind: 'constant', value: 1 },
+            targetKey: 'yuanshi_multi',
+          }),
+          step('modifyActionValue', {
+            key: 'atk_scale_runtime',
+            operation: 'multiply',
+            value: { kind: 'blackboard', key: 'yuanshi_multi' },
+          }),
           branch(
             {
               kind: 'all',
@@ -1482,6 +1501,7 @@ export const mifuBattleSkill3: SkillDefinition = withSkillBlackboard(
   },
   {
     'Ifmoveto': 0,
+    'atk_scale': [4, 4.16, 4.32, 4.48, 4.64, 4.8, 4.96, 5.12, 5.28, 5.48, 5.72, 6],
     'atk_scale_runtime': 0,
     'cam_angle': 0,
     'crushmulti': 1,
@@ -1490,7 +1510,7 @@ export const mifuBattleSkill3: SkillDefinition = withSkillBlackboard(
     'distance': 4,
     'ifrightside': 0,
     'talent': 0,
-    'atk_scale': [4, 4.16, 4.32, 4.48, 4.64, 4.8, 4.96, 5.12, 5.28, 5.48, 5.72, 6],
+    'yuanshi_multi': 1,
     'display_poise': 10,
     'poise': 5,
   },

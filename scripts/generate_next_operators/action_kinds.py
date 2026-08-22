@@ -82,6 +82,7 @@ CONDITIONAL_AUDIT_ACTION_NAMES = COMBAT_ACTION_NAMES | {
     "FinishBuffAction",
     "GetTargetBuffBBAdvanced",
     "ModifyDynamicBlackboard",
+    "ReadSkillSettingData",
     "SaveBuffStackNumAdvanced",
     "SimpleCalcBBAction",
     "StoreAttributeValue",
