@@ -232,3 +232,4 @@ Next 迁移期间允许存在用于贯通新旧入口、生成审计和功能占
 - 奥义生产试跑已定位到另一条通用缺口：能力实体条件分支引用的敌方 Aura Buff，以及 Buff 事件调用隐藏能力实体技能后继续创建的 Buff，尚未全部进入传递定义闭包；不能只保留 ID 让运行时撞到 unknown Buff。闭包补齐后还需接入复刻库已有的 `StoreAttributeValue(MaxUltimateSp)` 和 Buff 事件内实体生成。公共大招免伤可按木桩模型显式省略，但不能用这一省略掩盖后续战斗 Buff。
 - 能力实体模板提取范围已从技能文件扩为技能与角色 Buff 的联合引用闭包，1.4.4 正式证据表由 54 个模板增至 59 个。Arcane 奥义事件的 death/place/laser/laser-target 模板均已从 manifest 与原始 MonoBehaviour 取得，不再属于未知资产；梨诺的 `abilityentity_chr_0035_liino_ult_skill_projhit` 仍明确缺失。
 - 原生 `MaxUltimateSp` 属性快照已接入 Next：生成 DSL 使用稳定键 `maxUltimateEnergy`，标准环境从同一 `CombatResources` 读取每名干员的实际终结技能量上限。下一阶段继续补 Buff 传递闭包与 Buff 本地时间线的带子技能实体生成，再完成 Arcane 奥义换槽/激光输出生产回归；不得把已取得模板的实体降格成无效果动作。
+- Buff 本地时间线的战斗型 `SpawnAbilityEntity` 已进入统一能力实体图：解析层保存直接子图，依赖闭包递归收集其 Buff，编译层按原生局部帧生成携带子技能的实例。Arcane 四次激光生成的 plain `Owner` 被严格解释为当前 Buff 宿主能力实体，DSL/运行时新增上下文受限的 `currentAbilityEntity` 生成锚点，不再误映射为 caster。Arcane 严格生成的下一阻塞已前移到更深的 `enhanceChanged` 空 Buff 查询；下一步先恢复该查询的原生身份，再补奥义激光生产回归。

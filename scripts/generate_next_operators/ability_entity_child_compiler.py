@@ -400,6 +400,8 @@ def compile_ability_entity_child_skill(
                 compiled_projectile_launches=compiled_projectile_launches,
                 aura_actions=hit.auraActions,
                 invoked_child_context=(skill, config),
+                ignored_buff_ids=ignored_buff_ids | unmodeled_buff_ids,
+                buff_definitions=buff_definitions,
             )
             if source == COMPILED_EMPTY_SEQUENCE:
                 continue

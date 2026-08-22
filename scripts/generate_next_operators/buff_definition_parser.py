@@ -193,6 +193,7 @@ class BuffDefinitionParserServices:
     damage_type_map: Mapping[str, str]
     decode_damage_decorate_mask: Callable[..., Any]
     collect_created_buff_ids: Callable[..., Any]
+    collect_nested_combat_node_buff_ids: Callable[..., Any]
     load_projected_skill_data: Callable[..., Any]
     parse_auxiliary_actions: Callable[..., Any]
     parse_blackboard_calculations: Callable[..., Any]
@@ -207,6 +208,7 @@ class BuffDefinitionParserServices:
     parse_inflictions: Callable[..., Any]
     parse_resource_gains: Callable[..., Any]
     parse_target_group_writes: Callable[..., Any]
+    resolve_ability_entity_hits: Callable[..., Any]
     resolve_ability_entity_payload: Callable[..., Any]
     resolve_conditional_projectile_triggers: Callable[..., Any]
     target_reference_is_plain: Callable[..., Any]
@@ -1208,6 +1210,7 @@ def resolve_buff_definitions(
     `buff-data-current` 之类的完整导出，避免公共 Buff 仅因不在精选目录中而被误报缺失。
     """
     collect_created_buff_ids = services.collect_created_buff_ids
+    collect_nested_combat_node_buff_ids = services.collect_nested_combat_node_buff_ids
     load_projected_skill_data = services.load_projected_skill_data
     parse_auxiliary_actions = services.parse_auxiliary_actions
     parse_blackboard_calculations = services.parse_blackboard_calculations
@@ -1222,6 +1225,7 @@ def resolve_buff_definitions(
     parse_inflictions = services.parse_inflictions
     parse_resource_gains = services.parse_resource_gains
     parse_target_group_writes = services.parse_target_group_writes
+    resolve_ability_entity_hits = services.resolve_ability_entity_hits
     resolve_ability_entity_payload = services.resolve_ability_entity_payload
     walk_actions = services.walk_actions
     parse_projectile_launches = services.parse_projectile_launches
@@ -1353,6 +1357,18 @@ def resolve_buff_definitions(
             skill_source_dir or source_path.parent,
             blackboard,
         )
+        ability_entity_hits = (
+            resolve_ability_entity_hits(
+                adapted_root,
+                source_file,
+                skill_source_dir,
+                0,
+                (buff_id,),
+                blackboard,
+            )
+            if skill_source_dir is not None
+            else ()
+        )
         animation_end_applications = parse_buff_animation_end_applications(
             buff, source_file, blackboard
         )
@@ -1460,6 +1476,7 @@ def resolve_buff_definitions(
                 buff, source_file, unsupported_damage_modifiers
             ),
             auraActions=parse_buff_aura_actions(buff, source_file, blackboard),
+            abilityEntityHits=ability_entity_hits,
             invokedAbilityEntitySkills=tuple(invoked_skills),
             auxiliaryActions=auxiliary_actions,
             targetGroupWrites=parse_target_group_writes(adapted_root, source_file),
@@ -1489,12 +1506,10 @@ def resolve_buff_definitions(
             if child_id not in result and child_id not in excluded
         )
         pending.extend(
-            action.sourceId
-            for child in invoked_skills
-            for action in child.auxiliaryActions
-            if action.actionType == "CreateBuffAction"
-            and action.sourceId not in result
-            and action.sourceId not in excluded
+            child_id
+            for child in (*ability_entity_hits, *invoked_skills)
+            for child_id in collect_nested_combat_node_buff_ids(child)
+            if child_id not in result and child_id not in excluded
         )
     return tuple(result[buff_id] for buff_id in sorted(result))
 

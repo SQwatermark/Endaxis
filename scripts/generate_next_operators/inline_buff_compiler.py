@@ -27,6 +27,7 @@ class InlineBuffServices:
     decode_damage_decorate_mask: Callable[..., Any]
     collect_resolved_damage_hits: Callable[..., Any]
     compile_ability_entity_child_skill: Callable[..., Any]
+    compile_logical_ability_entity_spawn: Callable[..., Any]
     compile_buff_event_target_group_write: Callable[..., Any]
     load_ability_entity_template_evidence: Callable[..., Any]
     target_reference_has_plain_selector: Callable[..., Any]
@@ -53,6 +54,7 @@ def compile_inline_buff_event_responses(
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"],
     buff_definitions: dict[str, BuffDefinitionSource],
     ignored_buff_ids: frozenset[str] = frozenset(),
+    invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
     damage_tags: tuple[str, ...] = (),
     services: InlineBuffServices,
 ) -> str:
@@ -98,6 +100,7 @@ def compile_inline_buff_event_responses(
                     buff_definitions=buff_definitions,
                     buff_owner_target=buff_owner_target,
                     current_buff_environment=True,
+                    invoked_child_context=invoked_child_context,
                     aura_actions=tuple(
                         aura
                         for aura in source.auraActions
@@ -432,6 +435,7 @@ def compile_inline_buff_event_responses(
                 ),
                 buff_owner_target=buff_owner_target,
                 current_buff_environment=True,
+                invoked_child_context=invoked_child_context,
                 aura_actions=tuple(
                     aura
                     for aura in getattr(source, "auraActions", ())
@@ -652,6 +656,7 @@ def compile_inline_buff_behaviors(
             buff_owner_target=buff_owner_target,
             buff_definitions=buff_definitions,
             ignored_buff_ids=ignored_buff_ids,
+            invoked_child_context=invoked_child_context,
             damage_tags=damage_tags,
             services=services,
         )
@@ -871,6 +876,10 @@ def compile_inline_buff_scheduled_sequences(
     resolve_latest_target_group_write_at = services.resolve_latest_target_group_write_at
     resource_gain_can_change_value = services.resource_gain_can_change_value
     target_group_write_buff_application_target = services.target_group_write_buff_application_target
+    collect_resolved_damage_hits = services.collect_resolved_damage_hits
+    compile_ability_entity_child_skill = services.compile_ability_entity_child_skill
+    compile_logical_ability_entity_spawn = services.compile_logical_ability_entity_spawn
+    load_ability_entity_template_evidence = services.load_ability_entity_template_evidence
     runtime_blackboard_keys = frozenset(item.key for item in source.blackboard)
     damage_tags = tuple(
         dict.fromkeys(
@@ -941,6 +950,63 @@ def compile_inline_buff_scheduled_sequences(
             and action.classification == "nonCombatAbilityEntity"
             and not action.nestedCombatActions
         ):
+            continue
+        if action.actionType == "SpawnAbilityEntity":
+            if invoked_child_context is None:
+                raise ValueError(
+                    f"{path}.auxiliaryActions[{index}]: root skill context is unavailable"
+                )
+            matches = tuple(
+                hit
+                for hit in source.abilityEntityHits
+                if hit.spawnFrame == action.startFrame
+                and hit.abilityEntityId == action.sourceId.split(":", 1)[0]
+                and hit.actionOrder
+                and hit.actionOrder[-1] == action.actionIndex
+            )
+            if len(matches) != 1:
+                raise ValueError(
+                    f"{path}.auxiliaryActions[{index}]: AbilityEntity child was not resolved uniquely"
+                )
+            hit = matches[0]
+            root_skill, config = invoked_child_context
+            child_damage_hits = collect_resolved_damage_hits(
+                SimpleNamespace(
+                    skillId=f"{source.buffId}:scheduled:{index}",
+                    directDamageHits=(),
+                    projectileTriggeredSkills=(),
+                    abilityEntityHits=(hit,),
+                )
+            )
+            child_source = compile_ability_entity_child_skill(
+                hit,
+                root_skill,
+                config,
+                child_damage_hits,
+                frozenset(item.key for item in hit.declaredBlackboard),
+                input_target="enemy",
+                buff_definitions=buff_definitions,
+            )
+            payload = hit.spawnPayload
+            target_role = None
+            if (
+                buff_owner_target == "currentAbilityEntity"
+                and payload.target is not None
+                and payload.target.targetSource == "Owner"
+                and services.target_reference_is_plain(payload.target)
+            ):
+                payload = replace(payload, target=None)
+                target_role = "currentAbilityEntity"
+            step_lines = compile_logical_ability_entity_spawn(
+                payload,
+                f"{path}.auxiliaryActions[{index}]",
+                load_ability_entity_template_evidence(),
+                child_source,
+                target_role=target_role,
+            ).splitlines()
+            compiled.append(
+                (action.startFrame, action.sequenceIndex, action.actionIndex, step_lines)
+            )
             continue
         if action.actionType != "CreateBuffAction":
             raise ValueError(f"{path}.auxiliaryActions[{index}]: unsupported {action.actionType}")
@@ -1152,7 +1218,7 @@ def compile_inline_buff_scheduled_sequences(
         covered_actions.add("SwitchAction")
     if source.auxiliaryActions:
         covered_actions.add("CreateBuffAction")
-    if any(
+    if getattr(source, "abilityEntityHits", ()) or any(
         action.actionType == "SpawnAbilityEntity"
         and action.classification == "nonCombatAbilityEntity"
         and not action.nestedCombatActions

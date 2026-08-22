@@ -485,3 +485,10 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 奥义生产试跑也把形式生成与完整运行装配之间的下一层缺口定位清楚：玩家公共大招免伤在木桩输出模型中可按既有 `simulationNoEffectBuffIds` 证据省略，但奥义能力实体随后给敌人施加的 `ultimate_skill_inaura` 仍是 ID-only 引用，生成产物没有把能力实体条件分支及 Buff 调用隐藏子技能中的传递 Buff 闭包全部内联。继续严格展开后还会遇到已有 `combat-spec` 语义的 `StoreAttributeValue(MaxUltimateSp)`，以及 Buff 事件内生成能力实体。该链本轮没有以忽略项绕过；下一步应先补“Buff → 隐藏能力实体技能 → 条件/Aura Buff”的传递依赖收集，再接最大终结技能量属性读取和事件内实体生成。
 - 能力实体模板证据提取器此前只扫描 `SkillData`，因此漏掉仅由 `BuffData` 事件生成的实体。默认引用闭包现扩为 `chr_*.json + buff_chr_*.json`，同一 1.4.4 manifest 的可解析模板由 54 增至 59；Arcane 奥义所需 `ultimate_skill_death`、`ultimate_skill_laser`、`ultimate_skill_laser_target`、`ultimate_skill_place` 均取得真实 MonoBehaviour 生命周期与 born tag。梨诺缺失模板仍是唯一 unresolved reference。
 - `StoreAttributeValue(MaxUltimateSp, BaseNonConverted)` 已严格映射为 `maxUltimateEnergy`，运行时从本场 `CombatResources` 的干员账本读取构筑结算后的上限，不再误读静态面板。Arcane 真实数据已重新生成并通过专项规则/运行时测试。下一步重新开启传递 Buff 闭包时，应继续处理 Buff 本地时间线中携带子技能的 `SpawnAbilityEntity`；现已确认这类激光实体有真实模板，不能再当作模板缺失或纯表现动作跳过。
+
+### 2026-08-22：Arcane 奥义 Buff 局部激光实体链
+
+- `BuffDefinitionSource` 现在保存 Buff 时间线直接生成的能力实体子图，递归定义闭包同时遍历直接生成与事件调用的隐藏子技能，不再只收集其顶层 `CreateBuffAction`。能力实体条件编译也会收到完整 Buff 定义目录，因此 Aura/事件内的传递 Buff 可继续严格内联。
+- Arcane 的 `ultimate_skill_inaura_laser1` 在 Buff 局部第 0/4/8/12 帧各生成一次 `ultimate_skill_laser`。原生 plain `Owner` 是承载该 Buff 的 `laser_target` 能力实体，不是干员；DSL 因此新增只在现有目标上下文中合法的 `spawnAbilityEntity.target='currentAbilityEntity'`，运行时保留该实例引用，缺少 current target 时严格报错。子 SkillData 的第 12 帧敌方 HitBox 在项目零距离、全范围、唯一敌人模型下进入实体局部伤害时间线。
+- 严格 Arcane 生成已越过此前 `scheduledSequences.auxiliaryActions: unsupported SpawnAbilityEntity`，当前新首阻塞位于后续 `enhanceChanged` 事件中的空 Buff 查询（`compile_buff_stack_read: unsupported or empty Buff lookup`）。失败生成产生的半成品已撤回；不能把这一新查询猜成宿主或任意固定 Buff。
+- 当前门禁：生成器 340/340、完整 Next Vitest 198 文件 1329/1329、`type-check:next` 通过。`tmp/` 保持未跟踪且不得提交。下一步应从对应 BuffData 的目标与查询载荷定位 `enhanceChanged` 空查询的真实身份，再完成 Arcane 奥义生成和生产时间轴激光回执。

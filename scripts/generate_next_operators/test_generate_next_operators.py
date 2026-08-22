@@ -11421,6 +11421,19 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
 
         self.assertIn("step('spawnAbilityEntity'", compiled)
+        current_owner = compile_logical_ability_entity_spawn(
+            replace(payload, target=None),
+            "fixture.spawn.currentOwner",
+            {
+                "ability_entity": {
+                    "bornTagIds": [1, -2],
+                    "_endaxisLifetimeKind": "limited",
+                    "durationSeconds": 5,
+                }
+            },
+            target_role="currentAbilityEntity",
+        )
+        self.assertIn("target: 'currentAbilityEntity'", current_owner)
         self.assertIn("abilityEntityId: 'ability_entity'", compiled)
         self.assertNotIn("bornTagIds", compiled)
         self.assertIn("lifetime: { kind: 'limited', durationSeconds: 5 }", compiled)

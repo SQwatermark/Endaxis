@@ -591,7 +591,8 @@ export interface CombatStepParameters {
     definition?: AbilityEntityDefinition;
     /** 原生 assignBlackboard：生成时把当前动作黑板复制为实体黑板初值。 */
     inheritActionBlackboard?: boolean;
-    target?: CombatTarget;
+    /** 生成位置锚点；Buff 局部时间线中的 Owner 是当前 Buff 宿主能力实体。 */
+    target?: CombatTarget | 'currentAbilityEntity';
     overrideDurationSeconds?: ActionValueOperand;
     saveToContextKey?: string;
     dieWhenSourceDies: boolean;

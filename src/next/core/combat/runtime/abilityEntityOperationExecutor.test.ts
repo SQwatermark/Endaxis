@@ -78,6 +78,57 @@ describe('AbilityEntityOperationExecutor', () => {
     });
   });
 
+  it('preserves the current AbilityEntity as a nested spawn target', () => {
+    const entities = new LogicalAbilityEntityRuntime({});
+    const parent = entities.spawn({
+      abilityEntityId: 'laser-target',
+      definition: { lifetime: { kind: 'limited', durationSeconds: 5 } },
+      ownerId: 'arcane',
+      source: { kind: 'operator', operatorId: 'arcane' },
+    });
+    const executor = new AbilityEntityOperationExecutor('arcane', entities, {
+      execute: () => false,
+      evaluate: () => false,
+    });
+
+    expect(
+      executor.execute(
+        {
+          kind: 'spawnAbilityEntity',
+          parameters: {
+            abilityEntityId: 'laser',
+            definition: { lifetime: { kind: 'limited', durationSeconds: 1.5 } },
+            target: 'currentAbilityEntity',
+            dieWhenSourceDies: false,
+          },
+        },
+        { blackboard: new ActionBlackboard(), currentTarget: parent },
+      ),
+    ).toBe(true);
+
+    const nested = entities
+      .findOwnerSpawned({ ownerId: 'arcane' })
+      .find(entity => entities.snapshot(entity).abilityEntityId === 'laser');
+    expect(nested).toBeDefined();
+    if (nested === undefined) throw new Error('expected nested AbilityEntity');
+    expect(entities.snapshot(nested).target).toEqual(parent);
+
+    expect(() =>
+      executor.execute(
+        {
+          kind: 'spawnAbilityEntity',
+          parameters: {
+            abilityEntityId: 'orphan',
+            definition: { lifetime: { kind: 'infinite' } },
+            target: 'currentAbilityEntity',
+            dieWhenSourceDies: false,
+          },
+        },
+        { blackboard: new ActionBlackboard() },
+      ),
+    ).toThrow('requires a current target');
+  });
+
   it('finds all owner-tag matches in zero space and exposes their count', () => {
     const entities = new LogicalAbilityEntityRuntime({});
     entities.spawn({

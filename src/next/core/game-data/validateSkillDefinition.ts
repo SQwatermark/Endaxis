@@ -863,7 +863,13 @@ function validateCombatStep(
       if (parameters.inheritActionBlackboard !== undefined) {
         requireBoolean(parameters, 'inheritActionBlackboard', `${path}.parameters`, out);
       }
-      if (parameters.target !== undefined) requireTarget();
+      if (parameters.target !== undefined) {
+        if (parameters.target === 'currentAbilityEntity') {
+          if (!currentTargetAvailable) push(out, path, 'requires a forEachContextTarget body');
+        } else {
+          requireTarget();
+        }
+      }
       if (parameters.overrideDurationSeconds !== undefined) {
         validateActionValueOperand(
           parameters.overrideDurationSeconds,

@@ -200,7 +200,12 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
         ? undefined
         : parameters.target === 'enemy'
           ? ({ kind: 'enemy' } as const)
-          : source;
+          : parameters.target === 'currentAbilityEntity'
+            ? context.currentTarget
+            : source;
+    if (parameters.target === 'currentAbilityEntity' && target === undefined) {
+      throw new Error('spawnAbilityEntity currentAbilityEntity target requires a current target');
+    }
     const entity = this.#entities.spawn({
       abilityEntityId: parameters.abilityEntityId,
       definition,

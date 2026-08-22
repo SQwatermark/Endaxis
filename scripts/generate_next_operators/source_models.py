@@ -567,6 +567,7 @@ class BuffDefinitionSource:
     combatActions: tuple[str, ...]
     unparsedPayloads: tuple["UnparsedBuffPayloadSource", ...]
     auraActions: tuple["AuraActionSource", ...] = ()
+    abilityEntityHits: tuple[AbilityEntityHitSource, ...] = ()
     invokedAbilityEntitySkills: tuple[AbilityEntityHitSource, ...] = ()
     auxiliaryActions: tuple[AuxiliaryActionSource, ...] = ()
     targetGroupWrites: tuple[TargetGroupWriteSource, ...] = ()

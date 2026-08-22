@@ -2037,6 +2037,7 @@ def _make_buff_definition_parser_services() -> BuffDefinitionParserServices:
         damage_type_map=DAMAGE_TYPE_MAP,
         decode_damage_decorate_mask=decode_damage_decorate_mask,
         collect_created_buff_ids=collect_created_buff_ids,
+        collect_nested_combat_node_buff_ids=collect_nested_combat_node_buff_ids,
         load_projected_skill_data=load_projected_skill_data,
         parse_auxiliary_actions=parse_auxiliary_actions,
         parse_blackboard_calculations=parse_blackboard_calculations,
@@ -2051,6 +2052,7 @@ def _make_buff_definition_parser_services() -> BuffDefinitionParserServices:
         parse_inflictions=parse_inflictions,
         parse_resource_gains=parse_resource_gains,
         parse_target_group_writes=parse_target_group_writes,
+        resolve_ability_entity_hits=resolve_ability_entity_hits,
         resolve_ability_entity_payload=resolve_ability_entity_payload,
         resolve_conditional_projectile_triggers=resolve_conditional_projectile_triggers,
         target_reference_is_plain=target_reference_is_plain,
@@ -5693,6 +5695,7 @@ def _make_inline_buff_services() -> InlineBuffServices:
         decode_damage_decorate_mask=decode_damage_decorate_mask,
         collect_resolved_damage_hits=collect_resolved_damage_hits,
         compile_ability_entity_child_skill=compile_ability_entity_child_skill,
+        compile_logical_ability_entity_spawn=compile_logical_ability_entity_spawn,
         compile_buff_event_target_group_write=compile_buff_event_target_group_write,
         load_ability_entity_template_evidence=load_ability_entity_template_evidence,
         target_reference_has_plain_selector=target_reference_has_plain_selector,
@@ -5720,6 +5723,7 @@ def compile_inline_buff_event_responses(
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"],
     buff_definitions: dict[str, BuffDefinitionSource],
     ignored_buff_ids: frozenset[str] = frozenset(),
+    invoked_child_context: tuple[SkillSource, dict[str, Any]] | None = None,
     damage_tags: tuple[str, ...] = (),
 ) -> str:
     """兼容既有调用方的 Buff 事件响应编译入口。"""
@@ -5730,6 +5734,7 @@ def compile_inline_buff_event_responses(
         buff_owner_target=buff_owner_target,
         buff_definitions=buff_definitions,
         ignored_buff_ids=ignored_buff_ids,
+        invoked_child_context=invoked_child_context,
         damage_tags=damage_tags,
         services=_make_inline_buff_services(),
     )
@@ -6484,6 +6489,8 @@ def compile_logical_ability_entity_spawn(
     path: str,
     templates: dict[str, dict[str, Any]],
     child_skill: str | None = None,
+    *,
+    target_role: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
 ) -> str:
     """把有完整来源证据的 SpawnAbilityEntity 转为逻辑实例生成步骤。"""
     if not logical_ability_entity_spawn_can_compile(payload):
@@ -6509,8 +6516,8 @@ def compile_logical_ability_entity_spawn(
     ]
     if payload.assignBlackboard:
         fields.append("inheritActionBlackboard: true")
-    if payload.target is not None:
-        target = zero_distance_target_role(payload.target)
+    if payload.target is not None or target_role is not None:
+        target = target_role or zero_distance_target_role(payload.target)
         if target is None:
             raise AssertionError("compile predicate accepted an unresolved AbilityEntity target")
         fields.append(f"target: {ts_inline_literal(target)}")
