@@ -249,3 +249,4 @@ Next 迁移期间允许存在用于贯通新旧入口、生成审计和功能占
 - Camille 奥义槽位路由已进入默认仓库生产回归：奥义施加 `ult_henshin_state` 后，现实时间轴上的稳定 `battleSkill` 组键解析为 `battleSkillDuringUltimate`，支付 40 SP 并执行连携二段伤害；该技能起手结束变身后槽位恢复为基础战技。生成物、运行时槽投影与用户轨道身份由同一场景闭环，Camille 现只剩缺乏 IFix 语义证据的 `WeakAction`，不再把奥义列为缺口。
 - 下一阶段继续把 29 名横向完整干员提升为正式 manifest、默认仓库入口和有机制含量的生产场景。梨诺仍是唯一横向技能资产缺口；Camille `WeakAction` 继续等待原生证据，两项都不以猜测换取统计完成。
 - 换槽技能的命中投影已补齐：同一稳定轨道块除基础定义外，也收集 `replacementSkills` 与路由替换形态的 hit，后者只在实际伤害回执存在时显示。弭弗三段战技以 1/3/1 个伤害回执锁定端到端行为，二、三段不再因 UI 只读取基础模板而丢失 hit 标记。
+- 治疗最终属性倍率已按 1.4.4 原生公式闭环：双方 `AfterCalculation` 修正后乘 `1 + HealOutputIncrease + HealTakenIncrease`，意志对两项属性的派生系数分别为 `0` 与 `0.001`。养成 DSL 新增独立的 `addStaticHealingIncrease`，梨诺潜能 2 的 `Will +20 / HealOutputIncrease +0.1` 已可严格生成。梨诺本体仍为 audit 11/12；本地四个证据仓库均未发现终结技缺失的能力实体模板，继续失败关闭。下一步可为已正式注册干员补治疗属性生产场景，或推进不依赖该缺失资产的横向模拟回归。

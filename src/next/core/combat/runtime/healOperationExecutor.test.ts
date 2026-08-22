@@ -231,6 +231,7 @@ describe('HealOperationExecutor', () => {
         stages.push(side);
         context.value *= side === 'healer' ? 1.1 : 1.2;
       },
+      resolveHealingIncrease: side => (side === 'healer' ? 0.2 : 0.3),
       delegate: terminal,
     });
 
@@ -247,7 +248,7 @@ describe('HealOperationExecutor', () => {
     });
 
     expect(stages).toEqual(['healer', 'receiver']);
-    expect(target.health).toBeCloseTo(832);
+    expect(target.health).toBeCloseTo(898);
   });
 
   it('applies a definite blackboard amount without reading an attribute', () => {

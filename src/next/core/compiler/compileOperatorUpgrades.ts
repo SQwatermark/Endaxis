@@ -75,6 +75,7 @@ const PANEL_MODIFIER_KINDS = new Set<UpgradeModifierDefinition['kind']>([
   'addBuildAttribute',
   'modifyBasePanelStat',
   'addStaticDamageIncrease',
+  'addStaticHealingIncrease',
 ]);
 
 function requireMultiplier(value: number, path: string): void {

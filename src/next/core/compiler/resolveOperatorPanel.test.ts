@@ -145,6 +145,7 @@ describe('resolveOperatorPanel', () => {
             },
             { kind: 'addStaticDamageIncrease', target: 'normalAttack', value: 0.15 },
             { kind: 'addStaticDamageIncrease', target: 'physical', value: 0.08 },
+            { kind: 'addStaticHealingIncrease', target: 'output', value: 0.1 },
           ],
         },
       ],
@@ -161,6 +162,7 @@ describe('resolveOperatorPanel', () => {
     expect(panel.combatModifiers).toEqual([
       { kind: 'staticDamageIncrease', target: 'normalAttack', value: 0.15 },
       { kind: 'staticDamageIncrease', target: 'physical', value: 0.08 },
+      { kind: 'staticHealingIncrease', target: 'output', value: 0.1 },
     ]);
     expect(panel.receipt).toEqual(
       expect.arrayContaining([

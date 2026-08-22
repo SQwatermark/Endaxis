@@ -27,6 +27,7 @@ __all__ = [
     "BUILD_ATTRIBUTE_TYPES",
     "MODIFIER_TYPE_NAMES",
     "STATIC_DAMAGE_INCREASE_ATTRIBUTE_TYPES",
+    "STATIC_HEALING_INCREASE_ATTRIBUTE_TYPES",
     "ProgressionConversionIssue",
     "StaticAttributeProgressionResult",
     "UltimateCostMultiplierResult",
@@ -48,6 +49,7 @@ StaticDamageIncreaseTarget = Literal[
     "electric",
     "cryo",
 ]
+StaticHealingIncreaseTarget = Literal["output", "taken"]
 BUILD_ATTRIBUTE_TYPES: dict[int, BuildAttributeName] = {
     39: "strength",
     40: "agility",
@@ -70,6 +72,10 @@ STATIC_DAMAGE_INCREASE_ATTRIBUTE_TYPES: dict[int, StaticDamageIncreaseTarget] = 
     50: "physical",
     52: "electric",
     53: "cryo",
+}
+STATIC_HEALING_INCREASE_ATTRIBUTE_TYPES: dict[int, StaticHealingIncreaseTarget] = {
+    29: "output",
+    30: "taken",
 }
 
 # 1.4.4 GameplayTagConfig: Skill/Character/Common/SpellStatus/Corrupt.
@@ -191,6 +197,9 @@ class StaticAttributeProgressionResult:
     ]
     static_damage_increase_modifiers: tuple[
         tuple[StaticDamageIncreaseTarget, int | float], ...
+    ]
+    static_healing_increase_modifiers: tuple[
+        tuple[StaticHealingIncreaseTarget, int | float], ...
     ]
     issues: tuple[ProgressionConversionIssue, ...]
     missing_capabilities: tuple[Literal["potentialEffects"], ...]
@@ -1216,6 +1225,9 @@ def parse_static_attribute_progression(
     static_damage_increase_modifiers: list[
         tuple[StaticDamageIncreaseTarget, int | float]
     ] = []
+    static_healing_increase_modifiers: list[
+        tuple[StaticHealingIncreaseTarget, int | float]
+    ] = []
     issues: list[ProgressionConversionIssue] = []
 
     def reject(code: str, issue_path: str, detail: str) -> None:
@@ -1259,8 +1271,14 @@ def parse_static_attribute_progression(
         attribute = BUILD_ATTRIBUTE_TYPES.get(attr_type)
         base_panel_target = BASE_PANEL_ATTRIBUTE_TYPES.get(attr_type)
         static_damage_target = STATIC_DAMAGE_INCREASE_ATTRIBUTE_TYPES.get(attr_type)
+        static_healing_target = STATIC_HEALING_INCREASE_ATTRIBUTE_TYPES.get(attr_type)
         semantic = ATTRIBUTE_TYPE_SEMANTICS.get(attr_type)
-        if attribute is None and base_panel_target is None and static_damage_target is None:
+        if (
+            attribute is None
+            and base_panel_target is None
+            and static_damage_target is None
+            and static_healing_target is None
+        ):
             if semantic is None:
                 reject(
                     "unknown-attribute-type",
@@ -1277,7 +1295,9 @@ def parse_static_attribute_progression(
             continue
         expected_modifier_type = (
             5
-            if attribute is not None or static_damage_target is not None
+            if attribute is not None
+            or static_damage_target is not None
+            or static_healing_target is not None
             else base_panel_target[2]
         )
         if (
@@ -1336,11 +1356,27 @@ def parse_static_attribute_progression(
             static_damage_increase_modifiers.append(
                 (static_damage_target, normalized_value)
             )
+        elif static_healing_target is not None:
+            if any(
+                existing_target == static_healing_target
+                for existing_target, _ in static_healing_increase_modifiers
+            ):
+                reject(
+                    "duplicate-static-healing-increase",
+                    modifier_path,
+                    f"duplicate static healing increase {static_healing_target!r}",
+                )
+                continue
+            normalized_value = int(value) if value.is_integer() else value
+            static_healing_increase_modifiers.append(
+                (static_healing_target, normalized_value)
+            )
 
     return StaticAttributeProgressionResult(
         build_attribute_modifiers=tuple(build_attribute_modifiers),
         base_panel_stat_modifiers=tuple(base_panel_stat_modifiers),
         static_damage_increase_modifiers=tuple(static_damage_increase_modifiers),
+        static_healing_increase_modifiers=tuple(static_healing_increase_modifiers),
         issues=tuple(issues),
         missing_capabilities=("potentialEffects",) if issues else (),
     )
@@ -1408,6 +1444,7 @@ def _render_static_attribute_modifiers(result: StaticAttributeProgressionResult)
         not result.build_attribute_modifiers
         and not result.base_panel_stat_modifiers
         and not result.static_damage_increase_modifiers
+        and not result.static_healing_increase_modifiers
     ):
         raise ValueError("static attribute potential: expected at least one converted modifier")
     grouped: list[tuple[int, list[BuildAttributeName]]] = []
@@ -1438,6 +1475,12 @@ def _render_static_attribute_modifiers(result: StaticAttributeProgressionResult)
         lines.append(
             "    "
             f"{{ kind: 'addStaticDamageIncrease', target: {ts_inline_literal(target)}, "
+            f"value: {ts_inline_literal(value)} }},"
+        )
+    for target, value in result.static_healing_increase_modifiers:
+        lines.append(
+            "    "
+            f"{{ kind: 'addStaticHealingIncrease', target: {ts_inline_literal(target)}, "
             f"value: {ts_inline_literal(value)} }},"
         )
     lines.append("  ],")

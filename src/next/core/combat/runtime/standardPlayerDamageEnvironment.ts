@@ -380,6 +380,14 @@ export class StandardPlayerDamageEnvironment {
           healContext.healerId,
           healContext.receiverId,
         ).applyHealModifiers(timing, side, healContext),
+      resolveHealingIncrease: (side, operatorId) =>
+        this.#readSourceAttributeValue(operatorId, {
+          attribute: {
+            kind: 'specific',
+            key: side === 'healer' ? 'healOutputIncrease' : 'healTakenIncrease',
+          },
+          stage: 'finalNonConverted',
+        }),
       emitSuccessfulHeal: event => {
         if (event.event === 'outputHeal') {
           this.#emit(event.sourceId, event.event, event);

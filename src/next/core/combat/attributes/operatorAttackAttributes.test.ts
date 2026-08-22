@@ -82,4 +82,17 @@ describe('operator attack attributes', () => {
       Math.floor(500 * 1.4 * (1 + 120 * Math.fround(0.005) + 200 * Math.fround(0.002))),
     );
   });
+
+  it('derives healing attributes from Will and static progression modifiers', () => {
+    const attributes = createOperatorAttackAttributes({
+      ...input,
+      combatModifiers: [
+        { kind: 'staticHealingIncrease', target: 'output', value: 0.1 },
+        { kind: 'staticHealingIncrease', target: 'taken', value: 0.05 },
+      ],
+    });
+
+    expect(attributes.get('healOutputIncrease')).toBeCloseTo(0.1);
+    expect(attributes.get('healTakenIncrease')).toBeCloseTo(0.25);
+  });
 });

@@ -306,12 +306,23 @@ class ProgressionRendererTests(unittest.TestCase):
         self.assertEqual(result.issues, ())
         self.assertEqual(result.missing_capabilities, ())
 
-    def test_strict_mode_rejects_unknown_attribute_data(self) -> None:
-        with self.assertRaisesRegex(ValueError, "HealOutputIncrease.*no exact Next"):
-            parse_static_attribute_progression(
-                [effect_entry(attr_type=29, value=0.08)],
-                "effect.dataList",
-            )
+    def test_strict_mode_converts_healing_increase_attributes(self) -> None:
+        result = parse_static_attribute_progression(
+            [
+                effect_entry(attr_type=29, value=0.08),
+                effect_entry(attr_type=30, value=0.12),
+            ],
+            "effect.dataList",
+        )
+
+        self.assertEqual(
+            result.static_healing_increase_modifiers,
+            (("output", 0.08), ("taken", 0.12)),
+        )
+        self.assertEqual(result.issues, ())
+        self.assertEqual(result.missing_capabilities, ())
+
+    def test_strict_mode_rejects_invalid_attribute_data(self) -> None:
         with self.assertRaisesRegex(ValueError, "unknown fields"):
             parse_static_attribute_progression(
                 [effect_entry(attr_type=39, value=10, unexpected=True)],
@@ -333,7 +344,7 @@ class ProgressionRendererTests(unittest.TestCase):
                 "effect.dataList",
             )
 
-    def test_lenient_mode_keeps_supported_part_and_marks_missing_capability(self) -> None:
+    def test_mixed_build_and_healing_attributes_are_fully_convertible(self) -> None:
         result = parse_static_attribute_progression(
             [
                 effect_entry(attr_type=42, value=20),
@@ -346,8 +357,9 @@ class ProgressionRendererTests(unittest.TestCase):
         self.assertEqual(result.build_attribute_modifiers, (("will", 20),))
         self.assertEqual(result.base_panel_stat_modifiers, ())
         self.assertEqual(result.static_damage_increase_modifiers, ())
-        self.assertEqual(result.missing_capabilities, ("potentialEffects",))
-        self.assertEqual([issue.code for issue in result.issues], ["unsupported-next-attribute"])
+        self.assertEqual(result.static_healing_increase_modifiers, (("output", 0.15),))
+        self.assertEqual(result.missing_capabilities, ())
+        self.assertEqual(result.issues, ())
 
     def test_unknown_attribute_type_is_never_silently_discarded(self) -> None:
         with self.assertRaisesRegex(ValueError, "unknown AttributeType 999"):
@@ -482,7 +494,7 @@ class ProgressionRendererTests(unittest.TestCase):
             rendered[0],
         )
 
-    def test_audit_marks_mixed_attribute_effect_as_partial(self) -> None:
+    def test_audit_marks_mixed_build_and_healing_effect_as_complete(self) -> None:
         effect = audit_effect(
             "effect.mixed",
             {
@@ -497,10 +509,13 @@ class ProgressionRendererTests(unittest.TestCase):
         )
 
         conversion = effect["staticAttributeConversion"]
-        self.assertEqual(conversion["status"], "partial")
+        self.assertEqual(conversion["status"], "complete")
         self.assertEqual(
             conversion["modifiers"],
-            [{"kind": "addBuildAttribute", "attribute": "will", "value": 20}],
+            [
+                {"kind": "addBuildAttribute", "attribute": "will", "value": 20},
+                {"kind": "addStaticHealingIncrease", "target": "output", "value": 0.15},
+            ],
         )
         self.assertEqual(
             conversion["attributeFacts"][1],
@@ -513,21 +528,10 @@ class ProgressionRendererTests(unittest.TestCase):
                 "modifierName": "BaseAddition",
                 "modifyAttributeType": 0,
                 "value": 0.15,
-                "nextTarget": None,
-                "runtimeClosure": {
-                    "nativeFormulaSlot": "BaseAddition",
-                    "nativeConsumer": "healing output calculation",
-                    "nextStatus": "missing-runtime-consumer",
-                    "blockers": [
-                        "healing operation executor",
-                        "healing formula and source/target snapshots",
-                        "healing event lifecycle",
-                    ],
-                    "forbiddenApproximation": "panel stat or damage modifier",
-                },
+                "nextTarget": {"kind": "staticHealingIncrease", "target": "output"},
             },
         )
-        self.assertEqual(conversion["missingCapabilities"], ["potentialEffects"])
+        self.assertEqual(conversion["missingCapabilities"], [])
 
     def test_audit_distinguishes_operator_damage_taken_from_enemy_snapshot(self) -> None:
         effect = audit_effect(

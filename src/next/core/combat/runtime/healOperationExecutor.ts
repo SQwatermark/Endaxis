@@ -38,6 +38,7 @@ export interface HealOperationDependencies {
     side: HealModifierSide,
     context: HealCalculationContext,
   ) => void;
+  readonly resolveHealingIncrease?: (side: HealModifierSide, operatorId: string) => number;
   /** 原生 Modifier 成功后固定先 output、再 receive；满血治疗也必须调用。 */
   readonly emitSuccessfulHeal?: (event: CombatAbilityHealEvent) => void;
   readonly delegate: CombatOperationExecutor;
@@ -78,6 +79,12 @@ export class HealOperationExecutor implements CombatOperationExecutor {
     );
     this.dependencies.applyHealModifiers?.('afterCalculation', 'healer', calculation);
     this.dependencies.applyHealModifiers?.('afterCalculation', 'receiver', calculation);
+    // BattleFormula.CalculateHeal：普通治疗在 AfterCalculation 修正之后，
+    // 乘创建 HealPack 时双方属性快照的 1 + output + taken。
+    calculation.value *=
+      1 +
+      (this.dependencies.resolveHealingIncrease?.('healer', sourceOperatorId) ?? 0) +
+      (this.dependencies.resolveHealingIncrease?.('receiver', target.operatorId) ?? 0);
     const requested = Math.max(0, calculation.value);
     const result = target.vitals.heal(requested);
     this.dependencies.receipt.record({

@@ -1339,6 +1339,12 @@ export type UpgradeModifierDefinition =
       value: number;
     }
   | {
+      /** 原生 HealOutputIncrease / HealTakenIncrease 的基础加算。 */
+      kind: 'addStaticHealingIncrease';
+      target: 'output' | 'taken';
+      value: number;
+    }
+  | {
       kind: 'addSkillStat';
       skillGroupKey: string;
       stat: 'criticalRate';
@@ -1426,6 +1432,7 @@ export const UPGRADE_MODIFIER_KINDS = [
   'addBuildAttribute',
   'modifyBasePanelStat',
   'addStaticDamageIncrease',
+  'addStaticHealingIncrease',
   'addReactionDuration',
   'addReactionEffectiveness',
 ] as const satisfies readonly UpgradeModifierDefinition['kind'][];

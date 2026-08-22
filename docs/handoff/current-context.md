@@ -572,3 +572,10 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 弭弗二、三段战技的生成定义和运行时伤害一直存在；缺口位于时间轴读模型：轨道块只从基础 `battleSkill1` 收集 hit 标记，而同槽位的 `replacementSkills` 虽参与模拟编译，却没有进入 UI 候选，因此二、三段 `DamageApplied` 的稳定 `hitId` 无法匹配可画标记。
 - 时间轴现在同时收集基础定义、普通替换形态与路由替换形态的命中。基础形态保留无模拟时的定义预览；替换形态统一作为回执门控的条件候选，只有本次释放实际产生对应 `DamageApplied` 后才显示，不会在运行前把多套形态堆叠到同一块上。
 - 真实弭弗定义锁定每个战技块的候选数量为一段 1、二段 3、三段 1；三次连续战技的生产模拟依次执行 `battleSkill1 → battleSkill2 → battleSkill3`，伤害回执同样为 1/3/1 且全部携带 `castId + hitId`。命中详情面板可继续复用现有按稳定身份归因逻辑。
+
+### 2026-08-22：治疗属性与梨诺潜能 2 闭环
+
+- 1.4.4 `BattleFormula.CalculateHeal(HealPackData)`（RVA `0x06D405FC`）已证明普通治疗在双方 `AfterCalculation` Modifier 之后，乘创建 HealPack 时快照的 `1 + healer.HealOutputIncrease + receiver.HealTakenIncrease`。`combat-spec` 提交 `500ff1a` 先完成该公式；Endaxis 随后新增独立的治疗输出/受治疗运行时属性和最终治疗倍率，不把它们近似为面板数值或伤害修正。
+- `BattleConst` 证据对应的意志派生系数为治疗输出 `0`、受治疗 `0.001`。构筑层新增 `addStaticHealingIncrease(output|taken)`，并通过 resolved panel 的战斗修正进入每名干员的战斗属性集；Buff 治疗修正仍先按 healer/receiver 两侧执行，随后应用双方属性倍率。
+- 梨诺潜能 2 的 `Will +20` 与 `HealOutputIncrease +0.1` 现由同一个 `staticAttributes` 养成槽严格生成；审计保存 `staticHealingIncrease/output` 的明确目标，不再把属性 29 标为缺少运行时消费者。她仍保持 `outputStage: audit`：终结技缺失的 `abilityentity_chr_0035_liino_ult_skill_projhit` 在 Endaxis、vfs-index-browser、IL2CPP-Dumper 与 AnimeStudio 的本地证据范围内均未找到，不能为得到正式产物而猜造模板。
+- 当前门禁：生成器 435/435、全量生成 `--check`、Next 201 文件 1362/1362、`type-check:next` 与 `git diff --check` 通过。`tmp/` 仍未跟踪且不得提交。

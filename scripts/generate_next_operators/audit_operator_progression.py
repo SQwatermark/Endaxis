@@ -18,6 +18,7 @@ from progression_renderer import (
     BUILD_ATTRIBUTE_TYPES,
     MODIFIER_TYPE_NAMES,
     STATIC_DAMAGE_INCREASE_ATTRIBUTE_TYPES,
+    STATIC_HEALING_INCREASE_ATTRIBUTE_TYPES,
     parse_static_attribute_progression,
     parse_ultimate_cost_multiplier,
 )
@@ -48,17 +49,6 @@ EFFECT_PAYLOAD_KINDS = (
 # 这些属性的原生身份已经确认，但当前 Next 尚无方向与生命周期均等价的消费链。
 # 审计保留结构化缺口，避免后续维护者把“已知但不可转换”误当成未知枚举。
 NEXT_RUNTIME_CLOSURE_GAPS: dict[int, dict[str, Any]] = {
-    29: {
-        "nativeFormulaSlot": "BaseAddition",
-        "nativeConsumer": "healing output calculation",
-        "nextStatus": "missing-runtime-consumer",
-        "blockers": [
-            "healing operation executor",
-            "healing formula and source/target snapshots",
-            "healing event lifecycle",
-        ],
-        "forbiddenApproximation": "panel stat or damage modifier",
-    },
     60: {
         "nativeFormulaSlot": "BaseAddition",
         "nativeConsumer": "ether damage defender resistance factor",
@@ -523,6 +513,11 @@ def audit_effect(
                             "target": STATIC_DAMAGE_INCREASE_ATTRIBUTE_TYPES[attr_type],
                         }
                         if attr_type in STATIC_DAMAGE_INCREASE_ATTRIBUTE_TYPES
+                        else {
+                            "kind": "staticHealingIncrease",
+                            "target": STATIC_HEALING_INCREASE_ATTRIBUTE_TYPES[attr_type],
+                        }
+                        if attr_type in STATIC_HEALING_INCREASE_ATTRIBUTE_TYPES
                         else None
                     ),
                 }
@@ -571,7 +566,9 @@ def audit_effect(
         )
         converted_count = len(conversion.build_attribute_modifiers) + len(
             conversion.base_panel_stat_modifiers
-        ) + len(conversion.static_damage_increase_modifiers)
+        ) + len(conversion.static_damage_increase_modifiers) + len(
+            conversion.static_healing_increase_modifiers
+        )
         result["staticAttributeConversion"] = {
             "status": (
                 "complete"
@@ -602,6 +599,14 @@ def audit_effect(
                         "value": value,
                     }
                     for target, value in conversion.static_damage_increase_modifiers
+                ),
+                *(
+                    {
+                        "kind": "addStaticHealingIncrease",
+                        "target": target,
+                        "value": value,
+                    }
+                    for target, value in conversion.static_healing_increase_modifiers
                 ),
             ],
             "missingCapabilities": list(conversion.missing_capabilities),

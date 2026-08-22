@@ -112,6 +112,11 @@ export type ResolvedOperatorCombatModifier =
       readonly kind: 'staticDamageIncrease';
       readonly target: UpgradeStaticDamageIncreaseTarget;
       readonly value: number;
+    }
+  | {
+      readonly kind: 'staticHealingIncrease';
+      readonly target: 'output' | 'taken';
+      readonly value: number;
     };
 
 interface MutablePanelValues {
@@ -207,6 +212,12 @@ function applyUpgradeModifier(
   } else if (modifier.kind === 'addStaticDamageIncrease') {
     combatModifiers.push({
       kind: 'staticDamageIncrease',
+      target: modifier.target,
+      value: modifier.value,
+    });
+  } else if (modifier.kind === 'addStaticHealingIncrease') {
+    combatModifiers.push({
+      kind: 'staticHealingIncrease',
       target: modifier.target,
       value: modifier.value,
     });

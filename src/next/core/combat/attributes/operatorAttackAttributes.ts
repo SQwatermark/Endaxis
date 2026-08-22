@@ -4,6 +4,8 @@
  */
 import type { OperatorAttribute } from '../../game-data/operatorDefinition';
 import {
+  HEAL_OUTPUT_INCREASE_PER_WILL,
+  HEAL_TAKEN_INCREASE_PER_WILL,
   MAIN_ATTRIBUTE_ATTACK_FACTOR,
   SECONDARY_ATTRIBUTE_ATTACK_FACTOR,
 } from '../../game-data/battleConstants';
@@ -31,7 +33,9 @@ export type OperatorRuntimeAttribute =
   | 'AtbCostAddition'
   | 'ComboSkillCooldownRecoveryScalar'
   | 'criticalRate'
-  | 'criticalDamageIncrease';
+  | 'criticalDamageIncrease'
+  | 'healOutputIncrease'
+  | 'healTakenIncrease';
 
 export interface OperatorAttackDerivationInput {
   readonly attributes: Readonly<Record<OperatorAttribute, number>>;
@@ -40,6 +44,11 @@ export interface OperatorAttackDerivationInput {
   readonly artsIntensity?: number;
   readonly mainAttribute: OperatorAttribute;
   readonly secondaryAttribute: OperatorAttribute;
+  readonly combatModifiers?: readonly {
+    readonly kind: string;
+    readonly target?: string;
+    readonly value?: number;
+  }[];
 }
 
 /** 按原生属性元数据和主副属性规则创建一场战斗独占的属性集。 */
@@ -65,6 +74,25 @@ export function createOperatorAttackAttributes(
   for (const attribute of DAMAGE_SCALE_ATTRIBUTE_KEYS) {
     result.define(attribute, 0, {});
   }
+  const staticHealing = (input.combatModifiers ?? []).reduce(
+    (total, modifier) => {
+      if (
+        modifier.kind === 'staticHealingIncrease' &&
+        (modifier.target === 'output' || modifier.target === 'taken') &&
+        typeof modifier.value === 'number'
+      ) {
+        total[modifier.target] += modifier.value;
+      }
+      return total;
+    },
+    { output: 0, taken: 0 },
+  );
+  result.define('healOutputIncrease', staticHealing.output, {
+    otherAttributeBaseAddition: Math.floor(input.attributes.will) * HEAL_OUTPUT_INCREASE_PER_WILL,
+  });
+  result.define('healTakenIncrease', staticHealing.taken, {
+    otherAttributeBaseAddition: Math.floor(input.attributes.will) * HEAL_TAKEN_INCREASE_PER_WILL,
+  });
   // 面板值仍由构筑层持有；这里保存战斗中 Buff 产生的即时增量。
   result.define('criticalRate', 0, {});
   result.define('criticalDamageIncrease', 0, {});
