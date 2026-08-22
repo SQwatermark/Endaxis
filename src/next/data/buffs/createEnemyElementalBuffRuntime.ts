@@ -9,6 +9,7 @@ import {
 } from '../../core/combat/attributes/combatAttributeEntities';
 import { compileCombatBuffDefinitions } from '../../core/combat/buffs/combatBuffDefinitions';
 import type { ElementalInflictionStartedPayload } from '../../core/combat/infliction/elementalInflictionBuffAdapter';
+import type { DamageFeature, DamageTag, DamageType } from '../../core/game-data/operatorDefinition';
 import { ElementalBuffRuntime } from '../../core/combat/runtime/elementalBuffRuntime';
 import type { GameplayTagRegistry } from '../../core/combat/tags/gameplayTags';
 import { elementalAttachments } from './elementalAttachments';
@@ -27,6 +28,15 @@ export interface CreateEnemyElementalBuffRuntimeOptions<Key extends string> {
     readonly burstType: string;
     readonly sourceId: string;
   }) => void;
+  /** 复合状态生命周期伤害端口；只使用附着/爆发的调用方可省略。 */
+  readonly onAttackScaledDamageTriggered?: (payload: {
+    readonly damageType: DamageType;
+    readonly attackScale: number;
+    readonly tags: readonly DamageTag[];
+    readonly features: readonly DamageFeature[];
+    readonly canCritical: boolean;
+    readonly sourceId: string;
+  }) => void;
 }
 
 /** 为一次模拟创建独立容器；返回值不得跨场景或重跑复用。 */
@@ -38,6 +48,13 @@ export function createEnemyElementalBuffRuntime<Key extends string>(
     ...(options.onSpellBurstTriggered === undefined
       ? {}
       : { onSpellBurstTriggered: options.onSpellBurstTriggered }),
+    onAttackScaledDamageTriggered:
+      options.onAttackScaledDamageTriggered ??
+      (payload => {
+        throw new Error(
+          `enemy compound-status damage '${payload.damageType}' requires an attack-scaled damage port`,
+        );
+      }),
     readAttribute:
       options.attributeEntities === undefined
         ? (_request, buff) => {

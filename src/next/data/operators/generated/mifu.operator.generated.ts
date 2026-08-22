@@ -899,33 +899,6 @@ export const mifuFinisher: SkillDefinition = withSkillBlackboard(
       scheduled(
         0,
         sequence(
-          branch(
-            {
-              kind: 'cameraToTargetAngleCompare',
-              operator: 'less',
-              value: { kind: 'constant', value: 0 },
-            },
-            sequence(
-              step('modifyActionValue', {
-                key: 'ifrightside',
-                operation: 'assign',
-                value: { kind: 'constant', value: 0 },
-              }),
-            ),
-            sequence(
-              step('modifyActionValue', {
-                key: 'ifrightside',
-                operation: 'assign',
-                value: { kind: 'constant', value: 1 },
-              }),
-            ),
-            { alwaysNext: true },
-          ),
-        ),
-      ),
-      scheduled(
-        0,
-        sequence(
           step('applyBuff', {
             buffId: 'buff_common_damage_immune_medium',
             target: 'caster',
@@ -1586,33 +1559,6 @@ export const mifuBattleSkill3: SkillDefinition = withSkillBlackboard(
                     key: 'cam_angle',
                     operation: 'assign',
                     value: { kind: 'constant', value: 60 },
-                  }),
-                ),
-                { alwaysNext: true },
-              ),
-              branch(
-                {
-                  kind: 'cameraToTargetAngleCompare',
-                  operator: 'less',
-                  value: { kind: 'constant', value: 0 },
-                },
-                sequence(
-                  step('modifyActionValue', {
-                    key: 'ifrightside',
-                    operation: 'assign',
-                    value: { kind: 'constant', value: 0 },
-                  }),
-                ),
-                sequence(
-                  step('modifyActionValue', {
-                    key: 'ifrightside',
-                    operation: 'assign',
-                    value: { kind: 'constant', value: 1 },
-                  }),
-                  step('modifyActionValue', {
-                    key: 'cam_angle',
-                    operation: 'multiply',
-                    value: { kind: 'constant', value: -1 },
                   }),
                 ),
                 { alwaysNext: true },

@@ -7856,6 +7856,96 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertFalse(is_presentation_only_camera_condition(action))
 
+    def test_camera_to_target_side_branch_is_omitted_when_it_only_drives_presentation(self) -> None:
+        condition = ConditionSource(
+            sourceType="CheckTwoDirectionAngle",
+            supported=False,
+            comparison=None,
+            left=None,
+            right=None,
+            skillTypes=(),
+            twoDirectionAngle=SimpleNamespace(
+                dir1DirectionType="CameraForward",
+                dir2DirectionType="SourceToTarget",
+            ),
+        )
+        action = ConditionalActionSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=79,
+            actionPath=("timelineActions[18]", "actionData", "[2]"),
+            conditions=(condition,),
+            succeedActions=(
+                ConditionalBranchActionSource(
+                    actionType="ModifyDynamicBlackboard",
+                    actionIndex=0,
+                    blackboardMutation=BlackboardMutationPayload(
+                        key="ifrightside",
+                        operation="Assign",
+                        value=ScalarSource(0, None, None),
+                    ),
+                ),
+            ),
+            failActions=(
+                ConditionalBranchActionSource(
+                    actionType="ModifyDynamicBlackboard",
+                    actionIndex=0,
+                    blackboardMutation=BlackboardMutationPayload(
+                        key="ifrightside",
+                        operation="Assign",
+                        value=ScalarSource(1, None, None),
+                    ),
+                ),
+                ConditionalBranchActionSource(
+                    actionType="ModifyDynamicBlackboard",
+                    actionIndex=1,
+                    blackboardMutation=BlackboardMutationPayload(
+                        key="cam_angle",
+                        operation="Multiply",
+                        value=ScalarSource(-1, None, None),
+                    ),
+                ),
+            ),
+        )
+
+        self.assertTrue(is_presentation_only_camera_condition(action))
+        self.assertEqual(compile_conditional_action(action, "fixture.condition"), "sequence()")
+
+    def test_camera_to_target_branch_with_damage_scale_write_is_not_omitted(self) -> None:
+        condition = ConditionSource(
+            sourceType="CheckTwoDirectionAngle",
+            supported=False,
+            comparison=None,
+            left=None,
+            right=None,
+            skillTypes=(),
+            twoDirectionAngle=SimpleNamespace(
+                dir1DirectionType="CameraForward",
+                dir2DirectionType="SourceToTarget",
+            ),
+        )
+        action = ConditionalActionSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=79,
+            actionPath=("timelineActions[18]", "actionData", "[2]"),
+            conditions=(condition,),
+            succeedActions=(
+                ConditionalBranchActionSource(
+                    actionType="ModifyDynamicBlackboard",
+                    actionIndex=0,
+                    blackboardMutation=BlackboardMutationPayload(
+                        key="atk_scale",
+                        operation="Assign",
+                        value=ScalarSource(2, None, None),
+                    ),
+                ),
+            ),
+            failActions=(),
+        )
+
+        self.assertFalse(is_presentation_only_camera_condition(action))
+
     def test_blackboard_write_without_camera_condition_is_not_omitted(self) -> None:
         condition = ConditionSource(
             sourceType="CompareFloat",

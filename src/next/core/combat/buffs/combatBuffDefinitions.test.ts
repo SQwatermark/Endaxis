@@ -781,4 +781,52 @@ describe('compileCombatBuffDefinitions', () => {
       }),
     ).toThrow("buff 'status.missing-port' stores an attribute value without a readAttribute port");
   });
+
+  it('resolves attack-scaled Buff damage from the instance blackboard', () => {
+    const onDamage = vi.fn();
+    const document = parseCombatBuffDefinitionsDocument({
+      schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
+      revision: 'test-buff-damage',
+      buffs: [
+        {
+          id: 'status.damage',
+          stackingType: 'unique',
+          blackboard: { atk_scale: 0 },
+          actions: {
+            start: [
+              {
+                kind: 'dealAttackScaledDamage',
+                damageType: 'nature',
+                attackScale: { blackboardKey: 'atk_scale' },
+                tags: ['natureAbnormal'],
+                features: [],
+                canCritical: true,
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const index = compileCombatBuffDefinitions<Attribute>(document, {
+      emitElementalInflictionStarted: vi.fn(),
+      onAttackScaledDamageTriggered: onDamage,
+    });
+    const definition = index.get('status.damage');
+    if (definition === undefined) throw new Error('compiled test buff is missing');
+
+    new CombatBuffContainer('enemy', new CombatAttributeSet<Attribute>()).add(
+      definition,
+      'operator',
+      { blackboardValues: { atk_scale: 1.75 } },
+    );
+
+    expect(onDamage).toHaveBeenCalledWith({
+      damageType: 'nature',
+      attackScale: 1.75,
+      tags: ['natureAbnormal'],
+      features: [],
+      canCritical: true,
+      sourceId: 'operator',
+    });
+  });
 });

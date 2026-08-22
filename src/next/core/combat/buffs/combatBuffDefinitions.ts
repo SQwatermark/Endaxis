@@ -9,6 +9,8 @@ import {
   DAMAGE_TAGS,
   DAMAGE_TYPES,
   type DamageType,
+  type DamageFeature,
+  type DamageTag,
   type InflictionElement,
 } from '../../game-data/operatorDefinition';
 import type { ActionBlackboardValue } from '../runtime/actionBlackboard';
@@ -103,6 +105,15 @@ export type CombatBuffDefinitionAction =
       /** 触发法术爆发；伤害由运行时按定义中的 `spellBurst` 参数执行。 */
       readonly kind: 'triggerSpellBurst';
       readonly burstType: string;
+    }
+  | {
+      /** Buff 生命周期中的原生 DamageAction；倍率读取当前 Buff 黑板并走标准玩家伤害。 */
+      readonly kind: 'dealAttackScaledDamage';
+      readonly damageType: DamageType;
+      readonly attackScale: CombatBuffDefinitionNumberOperand;
+      readonly tags: readonly DamageTag[];
+      readonly features: readonly DamageFeature[];
+      readonly canCritical: boolean;
     }
   | {
       /** 已确认对数值无影响的纯表现动作（动画/特效/声音/镜头等），`actionType` 记录原生类型名。 */
@@ -229,6 +240,14 @@ export interface CombatBuffDefinitionCompilerPorts<Key extends string> {
   /** 法术爆发触发端口；爆发 Buff 存在该动作时必须提供。 */
   readonly onSpellBurstTriggered?: (payload: {
     readonly burstType: string;
+    readonly sourceId: string;
+  }) => void;
+  readonly onAttackScaledDamageTriggered?: (payload: {
+    readonly damageType: DamageType;
+    readonly attackScale: number;
+    readonly tags: readonly DamageTag[];
+    readonly features: readonly DamageFeature[];
+    readonly canCritical: boolean;
     readonly sourceId: string;
   }) => void;
 }
@@ -1128,6 +1147,38 @@ function parseOptionalDefinitionActionList(
           burstType: requireNonEmptyString(action.burstType, `${actionPath}.burstType`),
         };
       }
+      if (action.kind === 'dealAttackScaledDamage') {
+        requireOnlyKeys(action, actionPath, [
+          'kind',
+          'damageType',
+          'attackScale',
+          'tags',
+          'features',
+          'canCritical',
+        ]);
+        if (action.canCritical !== true && action.canCritical !== false) {
+          throw new Error(`${actionPath}.canCritical: expected boolean`);
+        }
+        if (!Array.isArray(action.tags)) throw new Error(`${actionPath}.tags: expected array`);
+        if (!Array.isArray(action.features)) {
+          throw new Error(`${actionPath}.features: expected array`);
+        }
+        return {
+          kind: action.kind,
+          damageType: requireEnum(action.damageType, DAMAGE_TYPES, `${actionPath}.damageType`),
+          attackScale: parseDefinitionNumberOperand(
+            action.attackScale,
+            `${actionPath}.attackScale`,
+          ),
+          tags: action.tags.map((tag, tagIndex) =>
+            requireEnum(tag, DAMAGE_TAGS, `${actionPath}.tags[${tagIndex}]`),
+          ),
+          features: action.features.map((feature, featureIndex) =>
+            requireEnum(feature, DAMAGE_FEATURES, `${actionPath}.features[${featureIndex}]`),
+          ),
+          canCritical: action.canCritical,
+        };
+      }
       if (action.kind === 'visualOnly') {
         requireOnlyKeys(action, actionPath, ['kind', 'actionType']);
         return {
@@ -1425,6 +1476,23 @@ function compileDefinitionActionList<Key extends string>(
         }
         return buff =>
           onSpellBurstTriggered({ burstType: action.burstType, sourceId: buff.sourceId });
+      }
+      case 'dealAttackScaledDamage': {
+        const onTriggered = ports.onAttackScaledDamageTriggered;
+        if (onTriggered === undefined) {
+          throw new Error(
+            `buff '${entry.id}' deals attack-scaled damage without an onAttackScaledDamageTriggered port`,
+          );
+        }
+        return buff =>
+          onTriggered({
+            damageType: action.damageType,
+            attackScale: resolveBuffBlackboardOperand(buff, action.attackScale),
+            tags: action.tags,
+            features: action.features,
+            canCritical: action.canCritical,
+            sourceId: buff.sourceId,
+          });
       }
       case 'visualOnly':
         // 已确认的纯表现动作（动画/特效/声音/镜头/顿帧等），后端无数值作用。

@@ -11,7 +11,27 @@ import { skillSettings } from '../combat/skillSettings';
 import { compoundStatusFactories } from './compoundStatusFactories';
 import { elementalAttachments } from './elementalAttachments';
 
-type Attribute = 'attack';
+type Attribute =
+  | 'attack'
+  | 'PhysicalResistance'
+  | 'FireResistance'
+  | 'PulseResistance'
+  | 'CrystResistance'
+  | 'NaturalResistance';
+
+function createEnemyAttributes(): CombatAttributeSet<Attribute> {
+  const attributes = new CombatAttributeSet<Attribute>();
+  for (const key of [
+    'PhysicalResistance',
+    'FireResistance',
+    'PulseResistance',
+    'CrystResistance',
+    'NaturalResistance',
+  ] as const) {
+    attributes.define(key, 0, {});
+  }
+  return attributes;
+}
 
 describe('elementalAttachments', () => {
   it('loads all four generated attachment roles through the strict schema boundary', () => {
@@ -20,6 +40,7 @@ describe('elementalAttachments', () => {
     const index = compileCombatBuffDefinitions<Attribute>(elementalAttachments, {
       emitElementalInflictionStarted: emitStarted,
       onSpellBurstTriggered,
+      onAttackScaledDamageTriggered: vi.fn(),
       readAttribute: () => 0,
     });
     const container = new CombatBuffContainer('enemy', new CombatAttributeSet<Attribute>());
@@ -41,12 +62,18 @@ describe('elementalAttachments', () => {
     expect(index.getCompoundStatus('nature', 'electric').id).toBe(
       'buff_common_pulse_natural_triggered',
     );
+    for (const factory of compoundStatusFactories.factories) {
+      expect(index.getCompoundStatus(factory.consumedElement, factory.incomingElement).id).toBe(
+        factory.createdBuff.buffId,
+      );
+    }
   });
 
   it('resolves real nature layers through the factory into an active conduct status', () => {
     const index = compileCombatBuffDefinitions<Attribute>(elementalAttachments, {
       emitElementalInflictionStarted: () => undefined,
       onSpellBurstTriggered: () => undefined,
+      onAttackScaledDamageTriggered: () => undefined,
       readAttribute: () => 0,
     });
     const container = new CombatBuffContainer('enemy', new CombatAttributeSet<Attribute>());
@@ -79,5 +106,56 @@ describe('elementalAttachments', () => {
     expect(conduct?.blackboard.getNumber('spell_resistance_decrease')).toBeCloseTo(0.12);
     expect(conduct?.blackboard.getNumber('final_spell_resistance_decrease')).toBeCloseTo(0.12);
     expect(conduct?.remainingDuration).toBe(12);
+  });
+
+  it('creates every ordered compound status and publishes its initial abnormal damage', () => {
+    const emittedDamage = vi.fn();
+    const index = compileCombatBuffDefinitions<Attribute>(elementalAttachments, {
+      emitElementalInflictionStarted: () => undefined,
+      onSpellBurstTriggered: () => undefined,
+      onAttackScaledDamageTriggered: emittedDamage,
+      readAttribute: () => 0,
+    });
+    const settings = createSkillSettingSource(skillSettings);
+
+    for (const factory of compoundStatusFactories.factories) {
+      const container = new CombatBuffContainer(
+        `enemy.${factory.consumedElement}.${factory.incomingElement}`,
+        createEnemyAttributes(),
+      );
+      const adapter = new ElementalInflictionBuffAdapter(
+        container,
+        'operator',
+        index,
+        undefined,
+        undefined,
+        (consumedElement, incomingElement, input) => {
+          const matched = compoundStatusFactories.factories.find(
+            entry =>
+              entry.consumedElement === consumedElement &&
+              entry.incomingElement === incomingElement,
+          )!;
+          return executeCompoundStatusFactory(matched, input, 0, settings)
+            .blackboardValues as Readonly<Record<string, number>>;
+        },
+      );
+
+      for (const operation of resolveElementalInfliction(factory.consumedElement, null)) {
+        adapter.apply(operation);
+      }
+      const existing = adapter.getExistingAttachment();
+      for (const operation of resolveElementalInfliction(factory.incomingElement, existing)) {
+        adapter.apply(operation);
+      }
+
+      expect(
+        container.findFirst(buff => buff.definition.id === factory.createdBuff.buffId),
+      ).toBeDefined();
+    }
+
+    expect(emittedDamage).toHaveBeenCalledTimes(12);
+    expect(new Set(emittedDamage.mock.calls.map(([payload]) => payload.damageType))).toEqual(
+      new Set(['heat', 'electric', 'cryo', 'nature']),
+    );
   });
 });

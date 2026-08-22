@@ -41,6 +41,9 @@ import type {
 import { ElementalInflictionOperationExecutor } from './elementalInflictionOperationExecutor';
 import { ElementalReactionOperationExecutor } from './elementalReactionOperationExecutor';
 import { executeSpellBurst } from './spellBurstRuntime';
+import { resolvePlayerActiveDamageInput } from '../damage/playerActiveDamageInput';
+import { calculatePlayerActiveDamage } from '../damage/playerActiveDamage';
+import { executeHealthDamage } from '../damage/healthDamage';
 import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
 import type { CriticalSampleSource } from '../random/criticalSampleSource';
 import type { ProbabilitySampleSource } from '../random/probabilitySampleSource';
@@ -689,6 +692,7 @@ export class StandardPlayerDamageEnvironment {
       emitElementalInflictionStarted: payload =>
         this.#emit('enemy', 'elementalInflictionStarted', payload),
       onSpellBurstTriggered: payload => this.#onSpellBurstTriggered(payload),
+      onAttackScaledDamageTriggered: payload => this.#onBuffDamageTriggered(payload),
       readAttribute: (request, buff) => this.#readSourceAttributeValue(buff.sourceId, request),
     });
     return definitions.get(entry.id)!;
@@ -760,6 +764,7 @@ export class StandardPlayerDamageEnvironment {
       emitElementalInflictionStarted: payload =>
         this.#emit('enemy', 'elementalInflictionStarted', payload),
       onSpellBurstTriggered: payload => this.#onSpellBurstTriggered(payload),
+      onAttackScaledDamageTriggered: payload => this.#onBuffDamageTriggered(payload),
       readAttribute: (request, buff) => this.#readSourceAttributeValue(buff.sourceId, request),
     });
     return this.#elementalDefinitions;
@@ -844,6 +849,86 @@ export class StandardPlayerDamageEnvironment {
       receipt: this.#requireReceipt(),
       emitSourceEvent: (event, eventPayload) => this.#emit(payload.sourceId, event, eventPayload),
       emitTargetEvent: (event, eventPayload) => this.#emit('enemy', event, eventPayload),
+    });
+  }
+
+  /** 执行复合状态 Buff 生命周期中的原生 DamageAction。 */
+  #onBuffDamageTriggered(payload: {
+    readonly damageType: import('../../game-data/operatorDefinition').DamageType;
+    readonly attackScale: number;
+    readonly tags: readonly DamageTag[];
+    readonly features: readonly DamageFeature[];
+    readonly canCritical: boolean;
+    readonly sourceId: string;
+  }): void {
+    const panel = this.#operatorPanels.get(payload.sourceId);
+    if (panel === undefined) {
+      throw new Error(`buff damage source operator '${payload.sourceId}' has no resolved panel`);
+    }
+    const attributes = this.#operatorBuffRuntime(payload.sourceId, panel).container.attributes;
+    const attack = resolveOperatorAttack(panel, attributes);
+    const step = {
+      kind: 'dealDamage' as const,
+      parameters: {
+        damageType: payload.damageType,
+        attackScale: payload.attackScale,
+        tags: payload.tags,
+        features: payload.features,
+      },
+    };
+    const damage = calculatePlayerActiveDamage(
+      resolvePlayerActiveDamageInput({
+        step,
+        finalAttackValue: attack * payload.attackScale,
+        attacker: {
+          attack,
+          criticalRate: payload.canCritical
+            ? panel.criticalRate + attributes.get('criticalRate')
+            : 0,
+          criticalDamageIncrease: panel.criticalDamage + attributes.get('criticalDamageIncrease'),
+          weaknessDamageMultiplier: 1,
+          igniteDamageMultiplier: 1,
+          physicalInflictionDamageMultiplier: 1,
+        },
+        defender: this.#requireEnemyIdentity().defenderAttributes,
+        runtime: {
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: payload.tags.includes('fireAbnormal'),
+          appliesPhysicalInflictionDamageMultiplier:
+            payload.features.includes('physicalInfliction'),
+          // 原生 DamageAction 明确禁止暴击时，不应推进暴击随机流；否则持续伤害会改变后续技能的暴击序列。
+          criticalSample: payload.canCritical
+            ? this.options.criticalSamples.nextCriticalSample()
+            : 1,
+        },
+      }),
+    );
+    const state = executeHealthDamage({
+      sourceId: payload.sourceId,
+      targetId: 'enemy',
+      damageType: payload.damageType,
+      tags: payload.tags,
+      features: payload.features,
+      result: damage,
+      target: this.enemyVitals,
+      clock: this.#requireClock(),
+      receipt: this.#requireReceipt(),
+      emitSourceEvent: (event, eventPayload) => this.#emit(payload.sourceId, event, eventPayload),
+      emitTargetEvent: (event, eventPayload) => this.#emit('enemy', event, eventPayload),
+    });
+    this.#requireReceipt().record({
+      frame: this.#requireClock().frame,
+      time: this.#requireClock().time,
+      event: 'BuffDamageApplied',
+      sourceId: payload.sourceId,
+      targetId: 'enemy',
+      data: {
+        damageType: payload.damageType,
+        attackScale: payload.attackScale,
+        value: damage.value,
+        actualDamage: state.actualDamage,
+        remainingHealth: state.currentHealth,
+      },
     });
   }
 

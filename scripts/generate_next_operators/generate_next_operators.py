@@ -5595,9 +5595,14 @@ PRESENTATION_CAMERA_BLACKBOARD_VALUES = {
     "isWall": frozenset({1}),
     "camera_blocked": frozenset({1}),
     "is_cam": frozenset({0, 1}),
+    # 弭弗当前样本中，左右侧选择只驱动镜头水平基准和动作朝向。这里仍是经过
+    # 人工审计的窄白名单，并非完整的数据流证明：后续应先证明键的全部消费者都属于
+    # 表现/空间层，再反向消去生产这些值的镜头条件。新增键不得仅凭名称或直觉加入。
+    "ifrightside": frozenset({0, 1}),
+    "cam_angle": frozenset({-1}),
 }
 PRESENTATION_CAMERA_CONDITION_TYPES = frozenset(
-    {"CheckSkillCameraMotionFree", "CheckTargetAngle"}
+    {"CheckSkillCameraMotionFree", "CheckTargetAngle", "CheckTwoDirectionAngle"}
 )
 
 
@@ -5614,13 +5619,28 @@ def is_presentation_only_camera_condition(action: ConditionalActionSource) -> bo
         for condition in action.conditions
     ):
         return False
+    for condition in action.conditions:
+        if condition.sourceType != "CheckTwoDirectionAngle":
+            continue
+        angle = condition.twoDirectionAngle
+        if (
+            angle is None
+            or angle.dir1DirectionType != "CameraForward"
+            or angle.dir2DirectionType != "SourceToTarget"
+        ):
+            return False
 
     for branch_action in (*action.succeedActions, *action.failActions):
         mutation = branch_action.blackboardMutation
+        if mutation is None or mutation.key not in PRESENTATION_CAMERA_BLACKBOARD_VALUES:
+            return False
+        allowed_operation = (
+            mutation.operation == "Assign"
+            if mutation.key != "cam_angle"
+            else mutation.operation == "Multiply"
+        )
         if (
-            mutation is None
-            or mutation.key not in PRESENTATION_CAMERA_BLACKBOARD_VALUES
-            or mutation.operation != "Assign"
+            not allowed_operation
             or mutation.value.value
             not in PRESENTATION_CAMERA_BLACKBOARD_VALUES[mutation.key]
             or mutation.value.blackboardKey is not None
