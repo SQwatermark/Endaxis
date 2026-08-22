@@ -2588,6 +2588,58 @@
       "slug": "endministrator",
       "exportName": "endministratorGeneratedSource",
       "charId": "chr_9000_endmin",
+      "simulationEquivalentNativeSkillIds": [
+        "chr_0002_endminm_attack1",
+        "chr_0002_endminm_attack2",
+        "chr_0002_endminm_attack3",
+        "chr_0002_endminm_attack4",
+        "chr_0002_endminm_attack5",
+        "chr_0002_endminm_power_attack",
+        "chr_0002_endminm_plunging_attack_end",
+        "chr_0002_endminm_normal_skill",
+        "chr_0002_endminm_ultimate_skill",
+        "chr_0002_endminm_combo_skill"
+      ],
+      "skillAliases": [
+        { "from": ["basicAttackMale", "basicAttackMale1"], "to": ["basicAttack", "basicAttack1"] },
+        { "from": ["basicAttackMale", "basicAttackMale2"], "to": ["basicAttack", "basicAttack2"] },
+        { "from": ["basicAttackMale", "basicAttackMale3"], "to": ["basicAttack", "basicAttack3"] },
+        { "from": ["basicAttackMale", "basicAttackMale4"], "to": ["basicAttack", "basicAttack4"] },
+        { "from": ["basicAttackMale", "basicAttackMale5"], "to": ["basicAttack", "basicAttack5"] },
+        {
+          "from": ["basicAttackFemale", "basicAttackFemale1"],
+          "to": ["basicAttack", "basicAttack1"]
+        },
+        {
+          "from": ["basicAttackFemale", "basicAttackFemale2"],
+          "to": ["basicAttack", "basicAttack2"]
+        },
+        {
+          "from": ["basicAttackFemale", "basicAttackFemale3"],
+          "to": ["basicAttack", "basicAttack3"]
+        },
+        {
+          "from": ["basicAttackFemale", "basicAttackFemale4"],
+          "to": ["basicAttack", "basicAttack4"]
+        },
+        {
+          "from": ["basicAttackFemale", "basicAttackFemale5"],
+          "to": ["basicAttack", "basicAttack5"]
+        },
+        { "from": ["finisherMale", "finisherMale"], "to": ["finisher", "finisher"] },
+        { "from": ["finisherFemale", "finisherFemale"], "to": ["finisher", "finisher"] },
+        {
+          "from": ["plungingAttackMale", "plungingAttackMale"],
+          "to": ["plungingAttack", "plungingAttack"]
+        },
+        {
+          "from": ["plungingAttackFemale", "plungingAttackFemale"],
+          "to": ["plungingAttack", "plungingAttack"]
+        },
+        { "from": ["battleSkill", "battleSkillFemale"], "to": ["battleSkill", "battleSkill"] },
+        { "from": ["ultimate", "ultimateFemale"], "to": ["ultimate", "ultimate"] },
+        { "from": ["comboSkill", "comboSkillFemale"], "to": ["comboSkill", "comboSkill"] }
+      ],
       "talents": [
         { "index": 0, "key": "talent1", "compile": "attachedBuff" },
         { "index": 1, "key": "talent2", "compile": "attachedPassive" }
@@ -2605,94 +2657,57 @@
       ],
       "skillGroups": [
         {
-          "key": "basicAttackMale",
+          "key": "basicAttack",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
           "nativeGroupType": 0,
           "skillKeys": [
-            "basicAttackMale1",
-            "basicAttackMale2",
-            "basicAttackMale3",
-            "basicAttackMale4",
-            "basicAttackMale5"
+            "basicAttack1",
+            "basicAttack2",
+            "basicAttack3",
+            "basicAttack4",
+            "basicAttack5"
           ]
         },
         {
-          "key": "finisherMale",
+          "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
           "nativeGroupType": 0,
-          "skillKeys": ["finisherMale"]
+          "skillKeys": ["finisher"]
         },
         {
-          "key": "plungingAttackMale",
+          "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
           "nativeGroupType": 0,
-          "skillKeys": ["plungingAttackMale"]
-        },
-        {
-          "key": "basicAttackFemale",
-          "skillType": "basicAttack",
-          "levelSource": "basicAttack",
-          "nativeGroupType": 0,
-          "skillKeys": [
-            "basicAttackFemale1",
-            "basicAttackFemale2",
-            "basicAttackFemale3",
-            "basicAttackFemale4",
-            "basicAttackFemale5"
-          ]
-        },
-        {
-          "key": "finisherFemale",
-          "skillType": "finisher",
-          "levelSource": "basicAttack",
-          "nativeGroupType": 0,
-          "skillKeys": ["finisherFemale"]
-        },
-        {
-          "key": "plungingAttackFemale",
-          "skillType": "plungingAttack",
-          "levelSource": "basicAttack",
-          "nativeGroupType": 0,
-          "skillKeys": ["plungingAttackFemale"]
+          "skillKeys": ["plungingAttack"]
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
           "nativeGroupType": 1,
-          "skillKeys": ["battleSkill", "battleSkillFemale"]
+          "skillKeys": ["battleSkill"]
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
           "nativeGroupType": 2,
-          "skillKeys": ["ultimate", "ultimateFemale"]
+          "skillKeys": ["ultimate"]
         },
         {
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
           "nativeGroupType": 3,
-          "skillKeys": ["comboSkill", "comboSkillFemale"]
+          "skillKeys": ["comboSkill"]
         }
       ],
       "skills": [
         {
           "key": "comboSkill",
-          "skillType": "comboSkill",
-          "source": "chr_0002_endminm_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"],
-            "usePatchCooldown": true
-          }
-        },
-        {
-          "key": "comboSkillFemale",
           "skillType": "comboSkill",
           "source": "chr_0003_endminf_combo_skill.json",
           "compile": {
@@ -2702,73 +2717,25 @@
           }
         },
         {
-          "key": "basicAttackMale1",
-          "skillType": "basicAttack",
-          "source": "chr_0002_endminm_attack1.json",
-          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
-        },
-        {
-          "key": "basicAttackMale2",
-          "skillType": "basicAttack",
-          "source": "chr_0002_endminm_attack2.json",
-          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
-        },
-        {
-          "key": "basicAttackMale3",
-          "skillType": "basicAttack",
-          "source": "chr_0002_endminm_attack3.json",
-          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
-        },
-        {
-          "key": "basicAttackMale4",
-          "skillType": "basicAttack",
-          "source": "chr_0002_endminm_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
-        },
-        {
-          "key": "basicAttackMale5",
-          "skillType": "basicAttack",
-          "source": "chr_0002_endminm_attack5.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
-        },
-        {
-          "key": "finisherMale",
-          "skillType": "finisher",
-          "source": "chr_0002_endminm_power_attack.json",
-          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack", "powerAttack"] }
-        },
-        {
-          "key": "plungingAttackMale",
-          "skillType": "plungingAttack",
-          "source": "chr_0002_endminm_plunging_attack_end.json",
-          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack", "plungingAttack"] }
-        },
-        {
-          "key": "basicAttackFemale1",
+          "key": "basicAttack1",
           "skillType": "basicAttack",
           "source": "chr_0003_endminf_attack1.json",
           "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
         },
         {
-          "key": "basicAttackFemale2",
+          "key": "basicAttack2",
           "skillType": "basicAttack",
           "source": "chr_0003_endminf_attack2.json",
           "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
         },
         {
-          "key": "basicAttackFemale3",
+          "key": "basicAttack3",
           "skillType": "basicAttack",
           "source": "chr_0003_endminf_attack3.json",
           "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
         },
         {
-          "key": "basicAttackFemale4",
+          "key": "basicAttack4",
           "skillType": "basicAttack",
           "source": "chr_0003_endminf_attack4.json",
           "compile": {
@@ -2777,7 +2744,7 @@
           }
         },
         {
-          "key": "basicAttackFemale5",
+          "key": "basicAttack5",
           "skillType": "basicAttack",
           "source": "chr_0003_endminf_attack5.json",
           "compile": {
@@ -2786,13 +2753,13 @@
           }
         },
         {
-          "key": "finisherFemale",
+          "key": "finisher",
           "skillType": "finisher",
           "source": "chr_0003_endminf_power_attack2.json",
           "compile": { "kind": "resolvedSequence", "tags": ["normalAttack", "powerAttack"] }
         },
         {
-          "key": "plungingAttackFemale",
+          "key": "plungingAttack",
           "skillType": "plungingAttack",
           "source": "chr_0003_endminf_plunging_attack_end.json",
           "compile": { "kind": "resolvedSequence", "tags": ["normalAttack", "plungingAttack"] }
@@ -2800,29 +2767,11 @@
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
-          "source": "chr_0002_endminm_normal_skill.json",
-          "compile": { "kind": "resolvedSequence", "tags": ["normalSkill"], "costResource": "sp" }
-        },
-        {
-          "key": "battleSkillFemale",
-          "skillType": "battleSkill",
           "source": "chr_0003_endminf_normal_skill.json",
           "compile": { "kind": "resolvedSequence", "tags": ["normalSkill"], "costResource": "sp" }
         },
         {
           "key": "ultimate",
-          "skillType": "ultimate",
-          "source": "chr_0002_endminm_ultimate_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"],
-            "costResource": "ultimateEnergy",
-            "usePatchCooldown": true,
-            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"]
-          }
-        },
-        {
-          "key": "ultimateFemale",
           "skillType": "ultimate",
           "source": "chr_0003_endminf_ultimate_skill.json",
           "compile": {

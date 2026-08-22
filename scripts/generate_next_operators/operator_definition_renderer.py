@@ -163,6 +163,35 @@ def render_operator_definition(
     )
     validate_skill_groups(operator, skills, growth, f"CharGrowthTable.{char_id}")
     groups = render_skill_groups(operator, skills, skill_slot_replacement_relations)
+    canonical_skill_identities = {
+        (str(group["key"]), str(skill_key))
+        for group in (
+            require_dict(raw, f"{operator['slug']}.skillGroups[]")
+            for raw in require_list(operator.get("skillGroups"), f"{operator['slug']}.skillGroups")
+        )
+        for skill_key in require_list(group.get("skillKeys"), f"{operator['slug']}.skillGroups[].skillKeys")
+    }
+    skill_aliases: list[dict[str, list[str]]] = []
+    seen_aliases: set[tuple[str, str]] = set()
+    for index, raw_alias in enumerate(
+        require_list(operator.get("skillAliases", []), f"{operator['slug']}.skillAliases")
+    ):
+        path = f"{operator['slug']}.skillAliases[{index}]"
+        alias = require_dict(raw_alias, path)
+        if set(alias) != {"from", "to"}:
+            raise ValueError(f"{path}: expected only from/to identities")
+        source = [str(value) for value in require_list(alias.get("from"), f"{path}.from")]
+        target = [str(value) for value in require_list(alias.get("to"), f"{path}.to")]
+        if len(source) != 2 or len(target) != 2 or not all((*source, *target)):
+            raise ValueError(f"{path}: expected two non-empty group/skill keys")
+        source_identity = (source[0], source[1])
+        target_identity = (target[0], target[1])
+        if source_identity in seen_aliases or source_identity in canonical_skill_identities:
+            raise ValueError(f"{path}.from: duplicate or canonical identity {source_identity!r}")
+        if source_identity == target_identity or target_identity not in canonical_skill_identities:
+            raise ValueError(f"{path}.to: expected a distinct canonical identity")
+        seen_aliases.add(source_identity)
+        skill_aliases.append({"from": source, "to": target})
     combo_skill_registrations = parse_combo_skill_registrations(operator, skills)
     if entity_blackboard_initializers is None:
         entity_blackboard_initializers = derive_entity_blackboard_initializers(
@@ -301,6 +330,11 @@ def render_operator_definition(
             "  skillGroups: [",
             *(f"    {group}," for group in groups),
             "  ],",
+            *(
+                [f"  skillAliases: {ts_inline_literal(skill_aliases)},"]
+                if skill_aliases
+                else []
+            ),
             *operator_buff_definition_lines,
             *operator_ability_entity_definition_lines,
             *(

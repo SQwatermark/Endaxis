@@ -40,7 +40,7 @@ const generatedOperators: readonly [OperatorDefinition, number][] = [
   [ember, 9],
   [akekuri, 9],
   [fluorite, 10],
-  [endministrator, 20],
+  [endministrator, 10],
   [lastRite, 9],
   [chenQianyu, 10],
   [rossi, 11],
@@ -67,6 +67,33 @@ function hasUpgradeBehavior(
 }
 
 describe('新增的完整技能转换干员', () => {
+  it('管理员只暴露一套以女管理员数据生成的规范技能入口', () => {
+    expect(endministrator.skillGroups.map(group => group.key)).toEqual([
+      'basicAttack',
+      'finisher',
+      'plungingAttack',
+      'battleSkill',
+      'ultimate',
+      'comboSkill',
+    ]);
+    expect(
+      endministrator.skillGroups.flatMap(group =>
+        (Array.isArray(group.skills) ? group.skills : [group.skills]).map(skill => skill.key),
+      ),
+    ).toEqual([
+      'basicAttack1',
+      'basicAttack2',
+      'basicAttack3',
+      'basicAttack4',
+      'basicAttack5',
+      'finisher',
+      'plungingAttack',
+      'battleSkill',
+      'ultimate',
+      'comboSkill',
+    ]);
+  });
+
   it('三个新样本只把真实转换缺口计入 skillBehavior', () => {
     const skillBehaviorGaps = (operator: OperatorDefinition) =>
       operator.conversionSupport?.missingCapabilities.find(

@@ -759,3 +759,13 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
   潜能 110/110，18/22 名正式干员养成完整。Arcane 已执行的条件被动冷却编译器也补入审计白名单，
   不再被统计漏算。若未来扩展多敌人或敌方主动伤害，必须按保留原因重新
   打开对应审计。
+
+### 2026-08-22：管理员统一为女版来源的单一技能集
+
+- 管理员不再把 `chr_0002_endminm` / `chr_0003_endminf` 暴露为两套技能。对照审计确认对应技能的
+  伤害段数、命中帧、倍率、条件和资源行为一致；唯一块边界差异是男连携 24 帧、女连携 23 帧。
+  正式定义按决策采用女版来源，技能入口由 20 个降为 10 个，使用通用
+  `basicAttack1..5/finisher/plungingAttack/battleSkill/ultimate/comboSkill` 身份。
+- 男版原生 ID 通过 `simulationEquivalentNativeSkillIds` 留在严格原生技能组闭包中，不被误报为
+  缺失入口。早期项目保存的男女技能键通过定义级 `skillAliases` 映射到规范模板；别名只用于解析，
+  不回到技能选择列表。完整证据见 `docs/research/endministrator-gender-skill-equivalence.md`。

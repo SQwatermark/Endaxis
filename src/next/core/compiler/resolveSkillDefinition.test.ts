@@ -71,6 +71,30 @@ describe('resolveEffectiveSkillDefinition', () => {
     expect(resolved.group.skillType).toBe('battleSkill');
   });
 
+  it('resolves a legacy skill identity through a canonical catalog alias', () => {
+    const resolved = resolveEffectiveSkillDefinition(
+      createCast({
+        source: {
+          kind: 'operatorSkill',
+          skillGroupKey: 'battleSkillFemale',
+          skillKey: 'battleSkillFemale',
+        },
+      }),
+      {
+        ...operator,
+        skillAliases: [
+          {
+            from: ['battleSkillFemale', 'battleSkillFemale'],
+            to: ['battleSkill', 'battleSkill'],
+          },
+        ],
+      },
+    );
+
+    expect(resolved.definition).toBe(catalogSkill);
+    expect(resolved.group).toBe(skillGroup);
+  });
+
   it('returns custom definition when present', () => {
     const resolved = resolveEffectiveSkillDefinition(
       createCast({ customDefinition: customSkill }),

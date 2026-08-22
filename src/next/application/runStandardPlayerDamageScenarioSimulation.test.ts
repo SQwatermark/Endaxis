@@ -390,7 +390,7 @@ function createGeneratedEndministratorIgniteScenario(talent1Level?: 1 | 2) {
     scenario: withUltimate,
     trackIndex: 0,
     operator: endministratorGeneratedOperator,
-    skillGroupKey: 'basicAttackMale',
+    skillGroupKey: 'basicAttack',
     startFrame: 170,
     ids,
   }).scenario;

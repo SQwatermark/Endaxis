@@ -27,12 +27,31 @@ export function resolveSkillTemplateDefinition(
     throw new Error(`skill cast '${cast.id}' uses unsupported source kind '${source.kind}'`);
   }
 
-  const group = operator.skillGroups.find(candidate => candidate.key === source.skillGroupKey);
+  const directGroup = operator.skillGroups.find(
+    candidate => candidate.key === source.skillGroupKey,
+  );
+  const directSkills =
+    directGroup === undefined
+      ? []
+      : Array.isArray(directGroup.skills)
+        ? directGroup.skills
+        : [directGroup.skills];
+  const directDefinition = directSkills.find(candidate => candidate.key === source.skillKey);
+  const alias =
+    directDefinition === undefined
+      ? operator.skillAliases?.find(
+          candidate =>
+            candidate.from[0] === source.skillGroupKey && candidate.from[1] === source.skillKey,
+        )
+      : undefined;
+  const groupKey = alias?.to[0] ?? source.skillGroupKey;
+  const skillKey = alias?.to[1] ?? source.skillKey;
+  const group = operator.skillGroups.find(candidate => candidate.key === groupKey);
   if (group === undefined) {
     throw new Error(`operator '${operator.slug}' has no skill group '${source.skillGroupKey}'`);
   }
   const skills = Array.isArray(group.skills) ? group.skills : [group.skills];
-  const definition = skills.find(candidate => candidate.key === source.skillKey);
+  const definition = skills.find(candidate => candidate.key === skillKey);
   if (definition === undefined) {
     throw new Error(
       `skill group '${operator.slug}/${group.key}' has no skill '${source.skillKey}'`,

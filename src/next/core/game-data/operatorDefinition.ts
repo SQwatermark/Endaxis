@@ -1549,6 +1549,11 @@ export interface OperatorDefinition {
   /** 仅记录偏离全局 `[10, 15, 15, 20]` 主属性规则的干员。 */
   trustAttributeBonus?: TrustAttributeBonusDefinition;
   skillGroups: readonly SkillGroupDefinition[];
+  /** 旧项目技能身份到当前规范身份的只读兼容映射；不得作为技能库中的额外入口展示。 */
+  skillAliases?: readonly {
+    readonly from: readonly [skillGroupKey: string, skillKey: string];
+    readonly to: readonly [skillGroupKey: string, skillKey: string];
+  }[];
   /** 干员级附属对象；编辑器后续可在干员层级创建和修改，技能不得复制其完整定义。 */
   buffDefinitions?: OperatorBuffDefinitions;
   /** 干员级能力实体蓝图；子技能按引用它的技能等级编译。 */

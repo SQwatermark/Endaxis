@@ -8750,6 +8750,29 @@ def validate_skill_groups(
             f"{operator['slug']}.routingOnlyNativeSkillIds: ids are absent from native groups: "
             f"{unknown_routing_ids}"
         )
+    equivalent_native_ids = [
+        str(value)
+        for value in require_list(
+            operator.get("simulationEquivalentNativeSkillIds", []),
+            f"{operator['slug']}.simulationEquivalentNativeSkillIds",
+        )
+    ]
+    if len(equivalent_native_ids) != len(set(equivalent_native_ids)):
+        raise ValueError(
+            f"{operator['slug']}.simulationEquivalentNativeSkillIds: duplicate skill id"
+        )
+    unknown_equivalent_ids = sorted(set(equivalent_native_ids).difference(actual_ids))
+    if unknown_equivalent_ids:
+        raise ValueError(
+            f"{operator['slug']}.simulationEquivalentNativeSkillIds: ids are absent from native groups: "
+            f"{unknown_equivalent_ids}"
+        )
+    generated_equivalent_overlap = sorted(generated_ids.intersection(equivalent_native_ids))
+    if generated_equivalent_overlap:
+        raise ValueError(
+            f"{operator['slug']}.simulationEquivalentNativeSkillIds: generated skills cannot be omitted: "
+            f"{generated_equivalent_overlap}"
+        )
     base_passive_ids = set(parse_base_passive_skill_ids(operator))
     passive_overlap = sorted(generated_ids.intersection(base_passive_ids))
     if passive_overlap:
@@ -8760,7 +8783,7 @@ def validate_skill_groups(
     # 基础被动由独立 Passive SkillData 提供身份与行为，不要求同时出现在
     # CharGrowthTable 的可操作技能组中。collect_operator_passive_skills 已严格
     # 校验文件存在、skillId 一致且 castType=Passive；这里只需避免它与主动技能重叠。
-    routing_only = set(routing_only_ids) | base_passive_ids
+    routing_only = set(routing_only_ids) | set(equivalent_native_ids) | base_passive_ids
     routed_skill_ids = {
         skill.skillId for skill in skills if skill.key in routed_skill_keys
     }

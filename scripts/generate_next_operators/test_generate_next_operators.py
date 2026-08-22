@@ -13215,6 +13215,24 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         validate_skill_groups(operator, skills, growth, "growth")
 
+    def test_simulation_equivalent_native_skill_can_be_represented_by_one_selected_variant(self) -> None:
+        operator = {
+            "slug": "operator",
+            "simulationEquivalentNativeSkillIds": ["skill_male"],
+            "skillGroups": [{"nativeGroupType": 0, "skillKeys": ["basicAttack1"]}],
+        }
+        skills = [SimpleNamespace(key="basicAttack1", skillId="skill_female")]
+        growth = {
+            "skillGroupMap": {
+                "basic": {
+                    "skillGroupType": 0,
+                    "skillIdList": ["skill_male", "skill_female"],
+                }
+            }
+        }
+
+        validate_skill_groups(operator, skills, growth, "growth")
+
     def test_generated_routed_wrapper_can_bind_a_different_native_group(self) -> None:
         operator = {
             "slug": "operator",

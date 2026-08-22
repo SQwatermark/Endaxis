@@ -196,9 +196,15 @@ python scripts/generate_next_operators/audit_operator_progression.py `
 `passiveSkills`。管理员潜能 1/2 是首批样本，分别安装供技能读取的 `atb_return=50` 与 `ratio=0.5`。
 伤害修正中的严格 `CheckHp(Target)` 也可保留为实时目标生命条件；陈千语潜能 1 会在敌人当前生命
 比例低于 `0.5` 时向攻击方 `normal` 伤害倍率区间增加 `0.2`，阈值和加值均从所属 Buff 黑板读取。
-管理员潜能 5 证明事件型附着 Buff 也可走同一入口：监听精确的连携触发 Buff ID，并对男女管理员
-两个原生连携技能 ID 的当前剩余冷却各扣除 `2` 秒。`absoluteSeconds` 保持为运行时操作语义，按
-30fps 换算后从剩余冷却扣除并最低归零，不改写技能定义的基础冷却。
+管理员潜能 5 证明事件型附着 Buff 也可走同一入口：监听精确的连携触发 Buff ID；原生 Buff 仍保留
+男女管理员两个连携技能 ID 的冷却扣减动作。正式管理员只生成女版连携程序，因此女版 ID 消费一次
+`2` 秒扣减，男版 ID 没有运行时目标，不会重复扣同一个规范技能。`absoluteSeconds` 保持为运行时
+操作语义，按 30fps 换算后从剩余冷却扣除并最低归零，不改写技能定义的基础冷却。
+
+管理员在 Endaxis 中只有一套技能。男女 SkillData 的伤害段数、命中帧、倍率、条件与资源动作对照
+一致，只有连携展示边界相差 1 帧；正式生成统一采用 `chr_0003_endminf_*` 女管理员来源和无性别后缀的
+稳定键。男版原生 ID 以 `simulationEquivalentNativeSkillIds` 参加技能组闭包审计但不生成第二入口；
+早期项目中的男女键通过只读 `skillAliases` 解析到规范身份，别名不会出现在技能列表中。
 
 Estella 潜能 5 覆盖 Buff 生命周期中的 `DuringBuffEnable` Aura：常驻潜能 Buff 启用时，以精确
 动作作用域向唯一敌人施加监听 Buff，停用或结束时只释放该实例。监听器接收成功施加 Buff 的
