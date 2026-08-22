@@ -26,10 +26,14 @@
 - 四族状态均保留原生图标、Tag、叠加身份和持续时间。Buff 生命周期新增攻击倍率伤害端口：12 种
   状态创建时均按工厂 `atk_scale` 结算对应元素异常伤害；燃烧按 `burning_atk_scale` 每秒结算且禁用
   暴击；导电继续修改全元素法术伤害；腐蚀按原始五类抗性修正键在启动和周期触发后刷新属性。
-- 当前边界：冻结的初始异常伤害与冻结 Tag 已进入模拟，但 `ForceTriggerWeakness` 本身尚未在
-  combat-spec 闭环；后续碎冰仍依赖现有公共 Buff 链。腐蚀当前新实例的启动赋值与周期递减已接入，
-  尚需用完整复刻库回执核对达到 `max_def_decrease` 时的最后一次夹断。不得把“12/12 可实例化”误写
-  成复合状态所有衍生机制均已完成。
+- 腐蚀的周期链已按原始 `CompareFloat -> Add -> IfElse -> Assign max -> Refresh` 证据投影为
+  `Add -> clamp(min=max_def_decrease) -> Refresh`；测试覆盖恰好到达和一步越界，最终减抗不再超过
+  原始下限。
+- `ForceTriggerWeakness` 已在 combat-spec 恢复：它只在 defender 上派发携带 attacker 的
+  `OnForceTriggerWeakness`。真实消费者是敌方主动技能时间线中的 `SetWeaknessAction` 弱点窗口；标准
+  木桩不运行敌人主动技能，因此不存在监听器，当前严格归类为
+  `enemyWeaknessWindowRequiresEnemyActiveBehavior` 无效果，而不是猜固定增伤。若以后以外部标记建立
+  弱点窗口，必须先补该消费者状态机。
 
 ## 2. Git 基线
 

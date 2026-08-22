@@ -140,7 +140,16 @@ function frozenStatus(
       shatter_dmg: 0,
     },
     role: { kind: 'compoundStatus', consumedElement, incomingElement: 'cryo' },
-    actions: { start: [compoundDamage('cryo', 'cryoAbnormal')] },
+    actions: {
+      start: [
+        compoundDamage('cryo', 'cryoAbnormal'),
+        {
+          kind: 'simulationNoEffect',
+          reason: 'enemyWeaknessWindowRequiresEnemyActiveBehavior',
+          nativeActionType: 'ForceTriggerWeakness',
+        },
+      ],
+    },
   };
 }
 
@@ -234,6 +243,12 @@ function corrosionStatus(
           operation: 'add',
           targetKey: 'def_decrease',
           value: { blackboardKey: 'def_decrease_tick' },
+        },
+        // 原始链在递减后再次 CompareFloat，越过下限时 Assign max_def_decrease。
+        {
+          kind: 'clampBlackboard',
+          targetKey: 'def_decrease',
+          minimum: { blackboardKey: 'max_def_decrease' },
         },
         { kind: 'refreshAttributeModifierValues' },
       ],

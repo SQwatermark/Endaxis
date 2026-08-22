@@ -102,6 +102,16 @@ export type CombatBuffDefinitionAction =
       readonly value: number | { readonly blackboardKey: string };
     }
   | {
+      /**
+       * 对一段已由原生 CompareFloat/IfElse/Assign 证明等价的数值链做边界投影。
+       * 这不是把未知分支猜成 clamp；调用方必须保存原始动作顺序的证据。
+       */
+      readonly kind: 'clampBlackboard';
+      readonly targetKey: string;
+      readonly minimum?: CombatBuffDefinitionNumberOperand;
+      readonly maximum?: CombatBuffDefinitionNumberOperand;
+    }
+  | {
       /** 触发法术爆发；伤害由运行时按定义中的 `spellBurst` 参数执行。 */
       readonly kind: 'triggerSpellBurst';
       readonly burstType: string;
@@ -119,6 +129,12 @@ export type CombatBuffDefinitionAction =
       /** 已确认对数值无影响的纯表现动作（动画/特效/声音/镜头等），`actionType` 记录原生类型名。 */
       readonly kind: 'visualOnly';
       readonly actionType: string;
+    }
+  | {
+      /** 已恢复真实语义，但在 Endaxis 固定木桩模型中严格不可触发的动作。 */
+      readonly kind: 'simulationNoEffect';
+      readonly reason: 'enemyWeaknessWindowRequiresEnemyActiveBehavior';
+      readonly nativeActionType: string;
     };
 
 /** 法术爆发的伤害参数；从原生 `DamageAction` 与 `ReadSkillSettingData` 提取。 */
@@ -1109,6 +1125,26 @@ function parseOptionalDefinitionActionList(
               : parseBlackboardReference(action.value, `${actionPath}.value`),
         };
       }
+      if (action.kind === 'clampBlackboard') {
+        requireOnlyKeys(action, actionPath, ['kind', 'targetKey', 'minimum', 'maximum']);
+        if (action.minimum === undefined && action.maximum === undefined) {
+          throw new Error(`${actionPath}: expected minimum or maximum`);
+        }
+        return {
+          kind: action.kind,
+          targetKey: requireNonEmptyString(action.targetKey, `${actionPath}.targetKey`),
+          ...(action.minimum === undefined
+            ? {}
+            : {
+                minimum: parseDefinitionNumberOperand(action.minimum, `${actionPath}.minimum`),
+              }),
+          ...(action.maximum === undefined
+            ? {}
+            : {
+                maximum: parseDefinitionNumberOperand(action.maximum, `${actionPath}.maximum`),
+              }),
+        };
+      }
       if (action.kind === 'storeAttributeValue') {
         requireOnlyKeys(action, actionPath, [
           'kind',
@@ -1184,6 +1220,21 @@ function parseOptionalDefinitionActionList(
         return {
           kind: action.kind,
           actionType: requireNonEmptyString(action.actionType, `${actionPath}.actionType`),
+        };
+      }
+      if (action.kind === 'simulationNoEffect') {
+        requireOnlyKeys(action, actionPath, ['kind', 'reason', 'nativeActionType']);
+        return {
+          kind: action.kind,
+          reason: requireEnum(
+            action.reason,
+            ['enemyWeaknessWindowRequiresEnemyActiveBehavior'] as const,
+            `${actionPath}.reason`,
+          ),
+          nativeActionType: requireNonEmptyString(
+            action.nativeActionType,
+            `${actionPath}.nativeActionType`,
+          ),
         };
       }
       requireOnlyKeys(action, actionPath, ['kind']);
@@ -1438,6 +1489,8 @@ function compileDefinitionActionList<Key extends string>(
     switch (action.kind) {
       case 'modifyBlackboard':
         return buff => modifyBuffBlackboard(buff, action);
+      case 'clampBlackboard':
+        return buff => clampBuffBlackboard(buff, action);
       case 'refreshAttributeModifierValues':
         return buff => buff.refreshAttributeModifierValues();
       case 'storeAttributeValue': {
@@ -1497,6 +1550,9 @@ function compileDefinitionActionList<Key extends string>(
       case 'visualOnly':
         // 已确认的纯表现动作（动画/特效/声音/镜头/顿帧等），后端无数值作用。
         return () => undefined;
+      case 'simulationNoEffect':
+        // 动作身份和固定模型边界保留在定义中；标准木桩没有对应的敌方主动行为状态。
+        return () => undefined;
     }
   });
 }
@@ -1539,6 +1595,32 @@ function modifyBuffBlackboard<Key extends string>(
     );
   }
   buff.blackboard.assignDynamic(action.targetKey, (current ?? 0) + operand);
+}
+
+function clampBuffBlackboard<Key extends string>(
+  buff: CombatBuff<Key>,
+  action: Extract<CombatBuffDefinitionAction, { kind: 'clampBlackboard' }>,
+): void {
+  const current = buff.blackboard.getNumber(action.targetKey);
+  if (current === undefined) {
+    throw new Error(
+      `buff '${buff.definition.id}' blackboard target '${action.targetKey}' is missing or not numeric`,
+    );
+  }
+  const minimum =
+    action.minimum === undefined
+      ? Number.NEGATIVE_INFINITY
+      : resolveBuffBlackboardOperand(buff, action.minimum);
+  const maximum =
+    action.maximum === undefined
+      ? Number.POSITIVE_INFINITY
+      : resolveBuffBlackboardOperand(buff, action.maximum);
+  if (minimum > maximum) {
+    throw new Error(
+      `buff '${buff.definition.id}' blackboard clamp '${action.targetKey}' has minimum ${minimum} above maximum ${maximum}`,
+    );
+  }
+  buff.blackboard.assignDynamic(action.targetKey, Math.min(maximum, Math.max(minimum, current)));
 }
 
 function resolveBuffBlackboardOperand<Key extends string>(

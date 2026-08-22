@@ -619,6 +619,51 @@ describe('compileCombatBuffDefinitions', () => {
     expect(buff.blackboard.getNumber('tick')).toBe(1);
   });
 
+  it('clamps a dynamic blackboard value against blackboard-backed bounds', () => {
+    const document = parseCombatBuffDefinitionsDocument({
+      schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
+      revision: 'test-clamp-blackboard',
+      buffs: [
+        {
+          id: 'status.corrosion',
+          stackingType: 'unique',
+          blackboard: { def_decrease: -0.14, def_decrease_tick: -0.01, max_def_decrease: -0.15 },
+          actions: {
+            start: [
+              {
+                kind: 'modifyBlackboard',
+                operation: 'add',
+                targetKey: 'def_decrease',
+                value: { blackboardKey: 'def_decrease_tick' },
+              },
+              {
+                kind: 'clampBlackboard',
+                targetKey: 'def_decrease',
+                minimum: { blackboardKey: 'max_def_decrease' },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const definition = compileCombatBuffDefinitions<Attribute>(document, {
+      emitElementalInflictionStarted: vi.fn(),
+    }).get('status.corrosion');
+    if (definition === undefined) throw new Error('compiled test buff is missing');
+    const container = new CombatBuffContainer('enemy', new CombatAttributeSet<Attribute>());
+
+    const exact = requireAddedBuff(container.add(definition, 'operator'));
+    expect(exact.blackboard.getNumber('def_decrease')).toBeCloseTo(-0.15);
+
+    container.finishByIds(['status.corrosion'], 'other');
+    const overshot = requireAddedBuff(
+      container.add(definition, 'operator', {
+        blackboardValues: { def_decrease_tick: -0.02 },
+      }),
+    );
+    expect(overshot.blackboard.getNumber('def_decrease')).toBeCloseTo(-0.15);
+  });
+
   it('rejects unsupported blackboard operations at the strict index boundary', () => {
     expect(() =>
       parseCombatBuffDefinitionsDocument({
