@@ -9,6 +9,7 @@ import type { ResolvedCombatStep } from '../core/compiler/combatProgram';
 import type { CombatOperationExecutorContext } from '../core/combat/runtime/combatRuntimeAssembly';
 import type { CombatBuffDefinitionsDocument } from '../core/combat/buffs/combatBuffDefinitions';
 import type { SkillSettingsDocument } from '../core/combat/infliction/skillSettings';
+import type { CompoundStatusFactoriesDocument } from '../core/combat/infliction/compoundStatusFactories';
 import type { PlayerDamageNonRandomRuntimeSnapshot } from '../core/combat/damage/playerActiveDamageInput';
 import type { CriticalSampleSource } from '../core/combat/random/criticalSampleSource';
 import type { ProbabilitySampleSource } from '../core/combat/random/probabilitySampleSource';
@@ -18,6 +19,7 @@ import type { CompileScenarioResourcesOptions } from '../core/compiler/compileSc
 import type { ScenarioBuildIndex } from '../core/compiler/resolveScenarioBuilds';
 import type { ScenarioDocument } from '../core/project/schema';
 import { elementalAttachments } from '../data/buffs/elementalAttachments';
+import { compoundStatusFactories } from '../data/buffs/compoundStatusFactories';
 import {
   projectEnemyHealthCurveFromReceipt,
   type EnemyHealthCurve,
@@ -72,6 +74,7 @@ export interface ScenarioSimulationServiceOptions {
   readonly elementalInflictionDocument?: CombatBuffDefinitionsDocument;
   /** 法术爆发倍率（SkillSetting）；缺失时爆发触发会明确报错。 */
   readonly spellInflictionSettings?: SkillSettingsDocument;
+  readonly compoundStatusFactories?: CompoundStatusFactoriesDocument;
   /** 仅用于性能计时；测试可注入单调时钟，产品环境默认使用 performance.now()。 */
   readonly performanceNow?: () => number;
 }
@@ -165,6 +168,7 @@ export class ScenarioSimulationService {
       resolveNonRandomRuntimeSnapshot:
         options.resolveNonRandomRuntimeSnapshot ?? defaultNonRandomRuntimeSnapshot,
       elementalInflictionDocument: options.elementalInflictionDocument ?? elementalAttachments,
+      compoundStatusFactories: options.compoundStatusFactories ?? compoundStatusFactories,
     };
     this.#repositoryRevision = options.repositoryRevision ?? 'definitions';
     this.#cacheLimit = cacheLimit;
@@ -225,6 +229,7 @@ export class ScenarioSimulationService {
         ...(this.#options.spellInflictionSettings === undefined
           ? {}
           : { spellInflictionSettings: this.#options.spellInflictionSettings }),
+        compoundStatusFactories: this.#options.compoundStatusFactories,
         options: {
           index: this.#options.index,
           resources: this.#options.resources,

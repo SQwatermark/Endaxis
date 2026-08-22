@@ -38,11 +38,14 @@ export function createEnemyElementalBuffRuntime<Key extends string>(
     ...(options.onSpellBurstTriggered === undefined
       ? {}
       : { onSpellBurstTriggered: options.onSpellBurstTriggered }),
-    ...(options.attributeEntities === undefined
-      ? {}
-      : {
-          readAttribute: createCombatBuffDefinitionAttributeReader(options.attributeEntities),
-        }),
+    readAttribute:
+      options.attributeEntities === undefined
+        ? (_request, buff) => {
+            throw new Error(
+              `enemy elemental Buff '${buff.definition.id}' reads source attributes without an attribute entity registry`,
+            );
+          }
+        : createCombatBuffDefinitionAttributeReader(options.attributeEntities),
   });
   return new ElementalBuffRuntime({
     ownerId: 'enemy',

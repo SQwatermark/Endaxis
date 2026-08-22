@@ -6,6 +6,7 @@ import type { ResolvedCombatStep } from '../core/compiler/combatProgram';
 import type { CompileScenarioRuntimeAssemblyOptions } from '../core/compiler/compileScenarioRuntimeAssembly';
 import type { CombatBuffDefinitionsDocument } from '../core/combat/buffs/combatBuffDefinitions';
 import type { SkillSettingsDocument } from '../core/combat/infliction/skillSettings';
+import type { CompoundStatusFactoriesDocument } from '../core/combat/infliction/compoundStatusFactories';
 import type { PlayerDamageNonRandomRuntimeSnapshot } from '../core/combat/damage/playerActiveDamageInput';
 import type { CriticalSampleSource } from '../core/combat/random/criticalSampleSource';
 import type { ProbabilitySampleSource } from '../core/combat/random/probabilitySampleSource';
@@ -47,6 +48,7 @@ export interface RunStandardPlayerDamageScenarioInput {
   readonly elementalInflictionDocument?: CombatBuffDefinitionsDocument;
   /** 法术爆发倍率（SkillSetting）；缺失时爆发触发会明确报错。 */
   readonly spellInflictionSettings?: SkillSettingsDocument;
+  readonly compoundStatusFactories?: CompoundStatusFactoriesDocument;
   /** 原生 TimeManager 模式原值；值 2 使用未缩放默认时钟，其他值使用全局缩放时钟。 */
   readonly timeManagerDeltaMode?: number;
 }
@@ -107,6 +109,9 @@ export function runStandardPlayerDamageScenarioSimulation(
     ...(input.spellInflictionSettings === undefined
       ? {}
       : { spellInflictionSettings: input.spellInflictionSettings }),
+    ...(input.compoundStatusFactories === undefined
+      ? {}
+      : { compoundStatusFactories: input.compoundStatusFactories }),
   };
   const environment = new StandardPlayerDamageEnvironment(environmentOptions);
   const compiled = compileScenarioRuntimeAssembly(input.scenario, {

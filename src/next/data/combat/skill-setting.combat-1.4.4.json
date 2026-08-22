@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "revision": "1.4.4",
+  "data": [
+    { "key": "异常/破防前附着层数", "values": [1, 2, 3, 4], "enhanceFormulaKey": "" },
+    { "key": "异常初始伤害倍率", "values": [1.6, 2.4, 3.2, 4], "enhanceFormulaKey": "Damage" },
+    { "key": "导电法术伤害提高", "values": [0.12, 0.16, 0.2, 0.24], "enhanceFormulaKey": "Debuff" },
+    { "key": "燃烧每跳伤害", "values": [0.24, 0.36, 0.48, 0.6], "enhanceFormulaKey": "Damage" },
+    { "key": "腐蚀每跳减抗", "values": [-0.84, -1.12, -1.4, -1.68], "enhanceFormulaKey": "Debuff" },
+    { "key": "腐蚀减抗上限", "values": [-12, -16, -20, -24], "enhanceFormulaKey": "Debuff" },
+    { "key": "碎冰倍率", "values": [2.4, 3.6, 4.8, 6], "enhanceFormulaKey": "Damage" },
+    { "key": "冰冻持续时间", "values": [6, 7, 8, 9], "enhanceFormulaKey": "" },
+    { "key": "猛击伤害", "values": [3, 4.5, 6, 7.5], "enhanceFormulaKey": "Damage" },
+    { "key": "碎甲物理伤害提高", "values": [0.12, 0.16, 0.2, 0.24], "enhanceFormulaKey": "Debuff" },
+    { "key": "碎甲持续时间", "values": [12, 18, 24, 30], "enhanceFormulaKey": "" },
+    { "key": "法术爆发伤害倍率", "values": [1.6, 1.6, 1.6, 1.6], "enhanceFormulaKey": "Damage" },
+    { "key": "连击增伤", "values": [0.2, 0.15, 0.1333, 0.125], "enhanceFormulaKey": "" },
+    { "key": "击飞伤害", "values": [1.2, 1.2, 1.2, 1.2], "enhanceFormulaKey": "Damage" },
+    { "key": "击飞失衡", "values": [10, 10, 10, 10], "enhanceFormulaKey": "Poise" },
+    { "key": "倒地伤害", "values": [1.2, 1.2, 1.2, 1.2], "enhanceFormulaKey": "Damage" },
+    { "key": "倒地失衡", "values": [10, 10, 10, 10], "enhanceFormulaKey": "Poise" },
+    { "key": "导电持续时间", "values": [12, 18, 24, 30], "enhanceFormulaKey": "" },
+    { "key": "碎甲伤害", "values": [1, 1.5, 2, 2.5], "enhanceFormulaKey": "Damage" },
+    { "key": "腐蚀初始减抗", "values": [-3.6, -4.8, -6, -7.2], "enhanceFormulaKey": "Debuff" },
+    { "key": "腐蚀持续时间", "values": [15, 15, 15, 15], "enhanceFormulaKey": "" },
+    { "key": "弭弗特殊猛击", "values": [1, 1, 1, 1], "enhanceFormulaKey": "Damage" }
+  ],
+  "enhanceFormulas": [
+    { "key": "Damage", "formulaType": "linear", "paramA": 0.01, "paramB": 1 },
+    { "key": "Poise", "formulaType": "linear", "paramA": 0.005, "paramB": 1 },
+    { "key": "Debuff", "formulaType": "saturating", "paramA": 2, "paramB": 300 }
+  ]
+}

@@ -72,6 +72,7 @@ import { createEmptyProject } from '../../core/project/createProject';
 import { serializeProjectDocument } from '../../core/project/serialization';
 import { openProject, type OpenProjectResult } from '../../application/openProject';
 import { nextGameDataRepository } from '../../data/gameDataRepository';
+import { skillSettings } from '../../data/combat/skillSettings';
 import { diffSkillDefinition } from '../../core/game-data/diffSkillDefinition';
 import { resolveSkillTemplateDefinition } from '../../core/compiler/resolveSkillDefinition';
 import type { OperatorDefinition, SkillDefinition } from '../../core/game-data/operatorDefinition';
@@ -476,6 +477,7 @@ const selectedTrackModel = computed(() => viewModel.value.tracks[selectedTrack.v
 const simulationService = new ScenarioSimulationService({
   index: editorGameDataRepository,
   repositoryRevision: nextGameDataRepository.revision,
+  spellInflictionSettings: skillSettings,
   resources: {
     sharedSpGain: { baseGainEfficiency: 1 },
     spRecoveryPauseDuration: 1.5,

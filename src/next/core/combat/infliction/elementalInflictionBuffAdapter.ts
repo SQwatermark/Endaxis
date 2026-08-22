@@ -46,6 +46,12 @@ export interface ElementalBuffAppliedPayload {
   readonly buffTagIds: readonly number[];
 }
 
+export type ResolveCompoundStatusBlackboard = (
+  consumedElement: InflictionElement,
+  incomingElement: InflictionElement,
+  input: Readonly<Record<string, number>>,
+) => Readonly<Record<string, number>>;
+
 export function createElementalAttachmentLifecycleActions<Key extends string>(
   element: InflictionElement,
   emitStarted: (payload: ElementalInflictionStartedPayload, buff: CombatBuff<Key>) => void,
@@ -67,6 +73,7 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
     readonly index: ElementalInflictionBuffIndex<Key>,
     readonly addOptions?: CombatBuffAddOptions,
     readonly onBuffApplied?: (event: ElementalBuffAppliedPayload) => void,
+    readonly resolveCompoundStatusBlackboard?: ResolveCompoundStatusBlackboard,
   ) {}
 
   getExistingAttachment(): ExistingElementalAttachment | null {
@@ -98,15 +105,24 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
         return;
       }
       case 'createCompoundStatus':
+        const inputBlackboard = {
+          consumed_type: NATIVE_ELEMENT_VALUES[operation.consumedElement],
+          consumed_layer: operation.consumedLayers,
+          count: operation.consumedLayers,
+        };
+        const factoryBlackboard = this.resolveCompoundStatusBlackboard?.(
+          operation.consumedElement,
+          operation.incomingElement,
+          inputBlackboard,
+        );
         this.add(
           this.index.getCompoundStatus(operation.consumedElement, operation.incomingElement),
           {
             ...this.addOptions,
             blackboardValues: {
               ...this.addOptions?.blackboardValues,
-              consumed_type: NATIVE_ELEMENT_VALUES[operation.consumedElement],
-              consumed_layer: operation.consumedLayers,
-              count: operation.consumedLayers,
+              ...inputBlackboard,
+              ...factoryBlackboard,
             },
           },
         );

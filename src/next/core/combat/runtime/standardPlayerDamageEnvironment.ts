@@ -29,6 +29,8 @@ import type { DamageModifierSide } from '../damage/playerDamageContext';
 import type { DamageModifierExternalCondition } from '../damage/damageModifiers';
 import type { PlayerDamageNonRandomRuntimeSnapshot } from '../damage/playerActiveDamageInput';
 import { ElementalInflictionBuffAdapter } from '../infliction/elementalInflictionBuffAdapter';
+import type { CompoundStatusFactoriesDocument } from '../infliction/compoundStatusFactories';
+import { executeCompoundStatusFactory } from '../infliction/compoundStatusFactory';
 import type { ElementalInflictionOperation } from '../infliction/elementalInfliction';
 import { ElementalReactionContainer } from '../infliction/elementalReactionState';
 import { createSkillSettingSource } from '../infliction/skillSettings';
@@ -128,6 +130,8 @@ export interface StandardPlayerDamageEnvironmentOptions {
   readonly elementalInflictionDocument?: CombatBuffDefinitionsDocument;
   /** 法术爆发倍率来源；缺失时爆发触发会明确失败。 */
   readonly spellInflictionSettings?: SkillSettingsDocument;
+  /** 异类附着按元素方向读取的原生短生命周期工厂。 */
+  readonly compoundStatusFactories?: CompoundStatusFactoriesDocument;
   /**
    * 本次模拟唯一的敌人生命账本，由场景装配层创建并注入。
    * 伤害写入、生命条件求值和失衡恢复推进都引用这一实例，环境不再自行构造或回退到静态生命值。
@@ -692,12 +696,54 @@ export class StandardPlayerDamageEnvironment {
   #inflictionAdapter(operatorId: string): ElementalInflictionBuffAdapter<string> {
     let adapter = this.#inflictionAdapters.get(operatorId);
     if (adapter === undefined) {
+      const resolveCompoundStatusBlackboard =
+        this.options.compoundStatusFactories === undefined
+          ? undefined
+          : (
+              consumedElement: 'heat' | 'electric' | 'cryo' | 'nature',
+              incomingElement: 'heat' | 'electric' | 'cryo' | 'nature',
+              inputBlackboard: Readonly<Record<string, number>>,
+            ) => {
+              const catalog = this.options.compoundStatusFactories!;
+              const factory = catalog.factories.find(
+                entry =>
+                  entry.consumedElement === consumedElement &&
+                  entry.incomingElement === incomingElement,
+              );
+              if (factory === undefined) {
+                throw new Error(
+                  `compound status '${consumedElement}->${incomingElement}' has no factory`,
+                );
+              }
+              const settings = this.#ensureSkillSettings();
+              const enhance = this.#operatorBuffRuntime(operatorId).container.attributes.get(
+                'PhysicalAndSpellInflictionEnhance',
+              );
+              const result = executeCompoundStatusFactory(
+                factory,
+                inputBlackboard,
+                enhance,
+                settings,
+              );
+              const definition = this.#ensureElementalDefinitions().getCompoundStatus(
+                consumedElement,
+                incomingElement,
+              );
+              if (definition.id !== result.buffId) {
+                throw new Error(
+                  `compound-status factory '${factory.id}' creates '${result.buffId}', ` +
+                    `but the registered definition is '${definition.id}'`,
+                );
+              }
+              return result.blackboardValues as Readonly<Record<string, number>>;
+            };
       adapter = new ElementalInflictionBuffAdapter(
         this.#enemyBuffs,
         operatorId,
         this.#ensureElementalDefinitions(),
         undefined,
         event => this.#emit('enemy', 'addedBuff', event),
+        resolveCompoundStatusBlackboard,
       );
       this.#inflictionAdapters.set(operatorId, adapter);
     }
