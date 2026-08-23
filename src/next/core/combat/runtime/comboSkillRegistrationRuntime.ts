@@ -47,11 +47,10 @@ export class ComboSkillRegistrationRuntime {
                 return;
               }
 
-              options.comboWindows.open(
-                options.operatorId,
-                registration.skillKey,
-                registration.blackboard,
-              );
+              options.comboWindows.open(options.operatorId, registration.skillKey, {
+                ...registration.blackboard,
+                ...rule.blackboard,
+              });
             },
           }),
         );

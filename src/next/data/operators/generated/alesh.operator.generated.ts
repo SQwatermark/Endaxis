@@ -487,33 +487,6 @@ export const aleshFinisher: SkillDefinition = withSkillBlackboard(
         ),
       ),
       scheduled(
-        18,
-        sequence(
-          branch(
-            {
-              kind: 'cameraToTargetAngleCompare',
-              operator: 'less',
-              value: { kind: 'constant', value: 0 },
-            },
-            sequence(
-              step('modifyActionValue', {
-                key: 'camera',
-                operation: 'assign',
-                value: { kind: 'constant', value: 1 },
-              }),
-            ),
-            sequence(
-              step('modifyActionValue', {
-                key: 'camera',
-                operation: 'assign',
-                value: { kind: 'constant', value: 2 },
-              }),
-            ),
-            { alwaysNext: true },
-          ),
-        ),
-      ),
-      scheduled(
         47,
         sequence(
           step('dealDamage', {

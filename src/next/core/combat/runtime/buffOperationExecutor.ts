@@ -128,6 +128,11 @@ export interface BuffOperationDependencies {
     readonly buffId: string;
     readonly layers: number;
   }) => void;
+  readonly onPhysicalInflictionApplied?: (event: {
+    readonly sourceOperatorId: string;
+    readonly targetId: string;
+    readonly type: 'fracture' | 'crush';
+  }) => void;
   readonly delegate: CombatOperationExecutor;
 }
 
@@ -202,6 +207,13 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
               skillCastInfo: context.skillCastInfo,
             };
       const applied = target.apply(request);
+      if (applied && hasNoGuard) {
+        this.dependencies.onPhysicalInflictionApplied?.({
+          sourceOperatorId: this.dependencies.sourceId,
+          targetId: target.ownerId,
+          type: step.parameters.type,
+        });
+      }
       if (applied && hasNoGuard) {
         const remainingCount = target.getCountByIds([step.parameters.noGuardBuffId]);
         const consumedLayers = Math.max(0, noGuardCount - remainingCount);

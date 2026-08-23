@@ -1284,63 +1284,70 @@ describe('registered generated operators', () => {
     );
   });
 
-  it('runs Alesh basic attack through the registered production repository', () => {
-    const scenario = createEmptyScenario('scenario:alesh:registered', '阿列什默认仓库回归');
-    scenario.battle.durationFrames = 120;
-    scenario.tracks[0] = {
-      id: 'track:alesh',
-      operator: {
-        operatorSlug: alesh.slug,
-        level: 90,
-        promoted: true,
-        potential: 5,
-        trustLevel: 4,
-        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
-        talentStates: { 0: 2, 1: 2 },
-      },
-      weapon: null,
-      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
-      initialState: { ultimateEnergy: 0 },
-      skillCasts: [],
-    };
-    const placed = placeSkillGroup({
-      scenario,
-      trackIndex: 0,
-      operator: alesh,
-      skillGroupKey: 'basicAttack',
-      startFrame: 1,
-      ids: { allocate: kind => `${kind}:alesh` },
-    }).scenario;
-
-    const result = runStandardPlayerDamageScenarioSimulation({
-      scenario: placed,
-      endFrame: 120,
-      criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
-      elementalInflictionDocument: elementalAttachments,
-      resolveNonRandomRuntimeSnapshot: () => ({
-        runtimeExtensionMultiplier: 1,
-        appliesIgniteDamageMultiplier: false,
-        appliesPhysicalInflictionDamageMultiplier: false,
-      }),
-      options: {
-        index: nextGameDataRepository,
-        resources: {
-          sharedSpGain: { baseGainEfficiency: 1 },
-          spRecoveryPauseDuration: 1.5,
-          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
-          ultimateEnergySystemUnlocked: false,
+  it.each(['basicAttack', 'finisher', 'comboSkill'] as const)(
+    'runs Alesh %s through the registered production repository',
+    skillGroupKey => {
+      const scenario = createEmptyScenario(
+        `scenario:alesh:${skillGroupKey}:registered`,
+        '阿列什默认仓库回归',
+      );
+      scenario.battle.durationFrames = 160;
+      scenario.tracks[0] = {
+        id: 'track:alesh',
+        operator: {
+          operatorSlug: alesh.slug,
+          level: 90,
+          promoted: true,
+          potential: 5,
+          trustLevel: 4,
+          skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+          talentStates: { 0: 2, 1: 2 },
         },
-      },
-    });
+        weapon: null,
+        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+        initialState: { ultimateEnergy: 0 },
+        skillCasts: [],
+      };
+      const placed = placeSkillGroup({
+        scenario,
+        trackIndex: 0,
+        operator: alesh,
+        skillGroupKey,
+        startFrame: 1,
+        ids: { allocate: kind => `${kind}:alesh:${skillGroupKey}` },
+      }).scenario;
 
-    expect(result.receiptEntries).toContainEqual(
-      expect.objectContaining({
-        event: 'DamageApplied',
-        sourceId: 'track:alesh',
-        targetId: 'enemy',
-      }),
-    );
-  });
+      const result = runStandardPlayerDamageScenarioSimulation({
+        scenario: placed,
+        endFrame: 160,
+        criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+        probabilitySamples: new ExplicitProbabilitySampleSource(Array(20).fill(1)),
+        elementalInflictionDocument: elementalAttachments,
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        options: {
+          index: nextGameDataRepository,
+          resources: {
+            sharedSpGain: { baseGainEfficiency: 1 },
+            spRecoveryPauseDuration: 1.5,
+            normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+            ultimateEnergySystemUnlocked: false,
+          },
+        },
+      });
+
+      expect(result.receiptEntries).toContainEqual(
+        expect.objectContaining({
+          event: 'DamageApplied',
+          sourceId: 'track:alesh',
+          targetId: 'enemy',
+        }),
+      );
+    },
+  );
 
   it('applies Antal battle-skill vulnerability and its potential-5 keyword enhancement', () => {
     const run = (potential: number) => {
@@ -1426,5 +1433,157 @@ describe('registered generated operators', () => {
       );
     expect(perlicaDamage(base)).toBeGreaterThan(0);
     expect(perlicaDamage(enhanced)).toBeGreaterThan(perlicaDamage(base));
+  });
+
+  it('injects the triggering infliction type into Antal combo skill blackboard', () => {
+    const scenario = createEmptyScenario('scenario:antal:combo-input', '安塔尔连携输入回归');
+    scenario.battle.durationFrames = 180;
+    const createTrack = (id: string, operatorSlug: string) => ({
+      id,
+      operator: {
+        operatorSlug,
+        level: 90,
+        promoted: true,
+        potential: 5,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 2, 1: 2 },
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    });
+    scenario.tracks[0] = createTrack('track:antal', antal.slug);
+    scenario.tracks[1] = createTrack('track:wulfgard', wulfgard.slug);
+
+    let placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: antal,
+      skillGroupKey: 'battleSkill',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:antal:focus` },
+    }).scenario;
+    placed = placeSkillGroup({
+      scenario: placed,
+      trackIndex: 1,
+      operator: wulfgard,
+      skillGroupKey: 'battleSkill',
+      startFrame: 40,
+      ids: { allocate: kind => `${kind}:wulfgard:infliction` },
+    }).scenario;
+    placed = placeSkillGroup({
+      scenario: placed,
+      trackIndex: 0,
+      operator: antal,
+      skillGroupKey: 'comboSkill',
+      startFrame: 80,
+      ids: { allocate: kind => `${kind}:antal:combo` },
+    }).scenario;
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      endFrame: 180,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(40).fill(1)),
+      elementalInflictionDocument: elementalAttachments,
+      spellInflictionSettings: {
+        schemaVersion: 1,
+        revision: 'antal-combo-regression',
+        data: [
+          {
+            key: '法术爆发伤害倍率',
+            values: [1.5, 2, 2.5, 3],
+            enhanceFormulaKey: '',
+          },
+        ],
+        enhanceFormulas: [],
+      },
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+          ultimateEnergySystemUnlocked: false,
+        },
+      },
+    });
+
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({ event: 'ComboWindowConsumed', sourceId: 'track:antal' }),
+    );
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'DamageApplied',
+        sourceId: 'track:antal',
+        targetId: 'enemy',
+      }),
+    );
+  });
+
+  it('keeps Antal forced combo casts simulatable while diagnosing the missing trigger', () => {
+    const scenario = createEmptyScenario('scenario:antal:forced-combo', '安塔尔强制连携回归');
+    scenario.battle.durationFrames = 80;
+    scenario.tracks[0] = {
+      id: 'track:antal',
+      operator: {
+        operatorSlug: antal.slug,
+        level: 90,
+        promoted: true,
+        potential: 5,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 2, 1: 2 },
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    const placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: antal,
+      skillGroupKey: 'comboSkill',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:antal:forced-combo` },
+    }).scenario;
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      endFrame: 80,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+      elementalInflictionDocument: elementalAttachments,
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+          ultimateEnergySystemUnlocked: false,
+        },
+      },
+    });
+
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'ComboWindowUnavailableAtStart',
+        sourceId: 'track:antal',
+      }),
+    );
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({ event: 'DamageApplied', sourceId: 'track:antal' }),
+    );
   });
 });

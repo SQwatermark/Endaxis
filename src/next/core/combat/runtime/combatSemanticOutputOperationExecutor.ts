@@ -41,6 +41,12 @@ export class CombatSemanticOutputOperationExecutor implements CombatOperationExe
       sourceOperatorId: this.options.sourceOperatorId,
       targetId,
     });
+    this.options.semanticEvents.emit({
+      kind: 'physicalInflictionApplied',
+      sourceOperatorId: this.options.sourceOperatorId,
+      targetId,
+      type: isAirborne ? 'airborne' : 'knockDown',
+    });
     return true;
   }
 

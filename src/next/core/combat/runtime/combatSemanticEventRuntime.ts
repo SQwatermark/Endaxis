@@ -73,6 +73,12 @@ export type CombatSemanticEvent =
       readonly elements: readonly DamageElement[];
     }
   | {
+      readonly kind: 'physicalInflictionApplied';
+      readonly sourceOperatorId: string;
+      readonly targetId: string;
+      readonly type: import('../../game-data/operatorDefinition').PhysicalInflictionType;
+    }
+  | {
       readonly kind: 'elementalAttachmentConsumed';
       readonly sourceOperatorId: string;
       readonly targetId: string;
@@ -198,6 +204,12 @@ function matches(registration: Registration, event: CombatSemanticEvent): boolea
         event.kind === 'elementalInflictionApplied' &&
         matchesScope(trigger.scope, ownerOperatorId, event.sourceOperatorId) &&
         event.elements.some(element => includesValue(trigger.elements, element))
+      );
+    case 'physicalInflictionApplied':
+      return (
+        event.kind === 'physicalInflictionApplied' &&
+        matchesScope(trigger.scope, ownerOperatorId, event.sourceOperatorId) &&
+        includesValue(trigger.types, event.type)
       );
     case 'reactionApplied':
       return (

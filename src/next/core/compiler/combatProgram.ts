@@ -357,7 +357,10 @@ export interface CompiledComboSkillRegistration {
   readonly skillKey: string;
   readonly priority: ComboSkillPriority;
   readonly blackboard: Readonly<Record<string, number>>;
-  readonly rules: readonly ComboSkillTriggerRule[];
+  readonly invalidCastBlackboard?: Readonly<Record<string, number>>;
+  readonly rules: readonly (Omit<ComboSkillTriggerRule, 'blackboard'> & {
+    readonly blackboard?: Readonly<Record<string, number>>;
+  })[];
 }
 
 export type { ElementalReaction, StatusModifierDefinition };

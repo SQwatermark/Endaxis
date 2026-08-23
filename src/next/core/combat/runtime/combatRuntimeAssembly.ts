@@ -807,6 +807,14 @@ export class CombatRuntimeAssembly {
       if (result.consumed) {
         ability.prepareSkillStartBlackboard(skillId, castId, result.window.blackboard);
       } else {
+        const invalidCastBlackboard = this.#operators
+          .get(operatorId)
+          ?.comboSkillRegistrations?.find(
+            registration => registration.skillKey === skillId,
+          )?.invalidCastBlackboard;
+        if (invalidCastBlackboard !== undefined && Object.keys(invalidCastBlackboard).length > 0) {
+          ability.prepareSkillStartBlackboard(skillId, castId, invalidCastBlackboard);
+        }
         this.receipt.record({
           frame: this.clock.frame,
           time: this.clock.time,
@@ -1209,6 +1217,8 @@ export class CombatRuntimeAssembly {
       resolveEventTarget: targetId => this.#resolveBuffTargetById(targetId),
       resolveBuffDefinition: buffId => operator.buffDefinitions?.[buffId],
       onBuffConsumed: event => this.semanticEvents.emit({ kind: 'buffConsumed', ...event }),
+      onPhysicalInflictionApplied: event =>
+        this.semanticEvents.emit({ kind: 'physicalInflictionApplied', ...event }),
       delegate: timeDilationOperations,
     });
     const statusOperations = new StatusOperationExecutor({
@@ -1375,6 +1385,8 @@ export class CombatRuntimeAssembly {
       resolveEventTarget: targetId => this.#resolveBuffTargetById(targetId),
       resolveBuffDefinition: buffId => operator.buffDefinitions?.[buffId],
       onBuffConsumed: event => this.semanticEvents.emit({ kind: 'buffConsumed', ...event }),
+      onPhysicalInflictionApplied: event =>
+        this.semanticEvents.emit({ kind: 'physicalInflictionApplied', ...event }),
       delegate: timeDilationOperations,
     });
     const statusRuntime = this.#operatorStatuses.get(operatorId);

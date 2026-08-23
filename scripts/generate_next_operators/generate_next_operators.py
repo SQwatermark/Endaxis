@@ -5676,6 +5676,9 @@ PRESENTATION_CAMERA_BLACKBOARD_VALUES = {
     # 表现/空间层，再反向消去生产这些值的镜头条件。新增键不得仅凭名称或直觉加入。
     "ifrightside": frozenset({0, 1}),
     "cam_angle": frozenset({-1}),
+    # 阿列什处决把这个值写成 1/2，唯一消费者是后续 SwitchAction 中的两套
+    # LockCameraAimAction。原始 SkillData 未发现伤害、资源、状态或目标选择消费者。
+    "camera": frozenset({1, 2}),
 }
 PRESENTATION_CAMERA_CONDITION_TYPES = frozenset(
     {"CheckSkillCameraMotionFree", "CheckTargetAngle", "CheckTwoDirectionAngle"}
@@ -8999,7 +9002,9 @@ def parse_combo_skill_registrations(
     for index, value in enumerate(registrations):
         path = f"{operator['slug']}.comboSkillRegistrations[{index}]"
         registration = require_dict(value, path)
-        unknown = set(registration).difference({"skillKey", "priority", "blackboard", "rules"})
+        unknown = set(registration).difference(
+            {"skillKey", "priority", "blackboard", "invalidCastBlackboard", "rules"}
+        )
         if unknown:
             raise ValueError(f"{path}: unexpected fields {sorted(unknown)}")
 
@@ -9015,6 +9020,11 @@ def parse_combo_skill_registrations(
             raise ValueError(f"{path}.priority: unsupported combo priority")
         if registration.get("blackboard") is not None:
             require_dict(registration["blackboard"], f"{path}.blackboard")
+        if registration.get("invalidCastBlackboard") is not None:
+            require_dict(
+                registration["invalidCastBlackboard"],
+                f"{path}.invalidCastBlackboard",
+            )
 
         rules = require_list(registration.get("rules"), f"{path}.rules")
         if not rules:
@@ -9022,17 +9032,22 @@ def parse_combo_skill_registrations(
         for rule_index, rule_value in enumerate(rules):
             rule_path = f"{path}.rules[{rule_index}]"
             rule = require_dict(rule_value, rule_path)
-            unknown_rule = set(rule).difference({"trigger", "condition", "castImmediately"})
+            unknown_rule = set(rule).difference(
+                {"trigger", "condition", "blackboard", "castImmediately"}
+            )
             if unknown_rule:
                 raise ValueError(f"{rule_path}: unexpected fields {sorted(unknown_rule)}")
             if "castImmediately" in rule:
                 require_bool(rule["castImmediately"], f"{rule_path}.castImmediately")
+            if rule.get("blackboard") is not None:
+                require_dict(rule["blackboard"], f"{rule_path}.blackboard")
 
             trigger = require_dict(rule.get("trigger"), f"{rule_path}.trigger")
             trigger_kind = trigger.get("kind")
             expected_trigger_fields = {
                 "damageTagHit": {"kind", "tag", "scope"},
                 "elementalInflictionApplied": {"kind", "elements", "scope"},
+                "physicalInflictionApplied": {"kind", "types", "scope"},
             }.get(trigger_kind)
             if expected_trigger_fields is None:
                 raise ValueError(f"{rule_path}.trigger.kind: unsupported combo trigger")

@@ -218,6 +218,32 @@ describe('CombatSemanticEventRuntime', () => {
     expect(received).toEqual(['infliction', 'skill', 'status']);
   });
 
+  it('matches physical infliction type and team scope', () => {
+    const runtime = new CombatSemanticEventRuntime();
+    const received: string[] = [];
+    runtime.register({
+      ownerOperatorId: 'operator:a',
+      trigger: { kind: 'physicalInflictionApplied', types: ['fracture', 'crush'], scope: 'team' },
+      phase: 'combo',
+      handle: () => received.push('physical'),
+    });
+
+    runtime.emit({
+      kind: 'physicalInflictionApplied',
+      sourceOperatorId: 'operator:b',
+      targetId: 'enemy',
+      type: 'knockDown',
+    });
+    runtime.emit({
+      kind: 'physicalInflictionApplied',
+      sourceOperatorId: 'operator:b',
+      targetId: 'enemy',
+      type: 'fracture',
+    });
+
+    expect(received).toEqual(['physical']);
+  });
+
   it('matches enemy defeat events by operator or team scope', () => {
     const runtime = new CombatSemanticEventRuntime();
     const received: string[] = [];

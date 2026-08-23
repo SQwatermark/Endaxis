@@ -40,6 +40,42 @@ describe('ComboSkillRegistrationRuntime', () => {
     });
   });
 
+  it('overrides registration blackboard with the matched event branch parameters', () => {
+    const events = new CombatSemanticEventRuntime();
+    const windows = new ComboWindowRuntime(new CombatClock(), new CombatReceiptCollector());
+    new ComboSkillRegistrationRuntime({
+      operatorId: 'antal',
+      semanticEvents: events,
+      comboWindows: windows,
+      registrations: [
+        {
+          skillKey: 'comboSkill',
+          priority: 'default',
+          blackboard: { shared: 7, EntityBB_combo_type: -1 },
+          rules: [
+            {
+              trigger: { kind: 'physicalInflictionApplied', types: 'crush', scope: 'team' },
+              blackboard: { EntityBB_combo_type: 1, EntityBB_combo_index: 3 },
+            },
+          ],
+        },
+      ],
+    });
+
+    events.emit({
+      kind: 'physicalInflictionApplied',
+      sourceOperatorId: 'ally',
+      targetId: 'enemy',
+      type: 'crush',
+    });
+
+    expect(windows.first?.blackboard).toEqual({
+      shared: 7,
+      EntityBB_combo_type: 1,
+      EntityBB_combo_index: 3,
+    });
+  });
+
   it('checks a condition before opening the window', () => {
     const events = new CombatSemanticEventRuntime();
     const windows = new ComboWindowRuntime(new CombatClock(), new CombatReceiptCollector());

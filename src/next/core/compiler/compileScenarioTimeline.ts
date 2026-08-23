@@ -211,6 +211,16 @@ function compileComboSkillRegistrations(
       );
     }
     const level = requireSkillLevel(build, group.levelSource);
+    const invalidCastBlackboard = Object.fromEntries(
+      Object.entries(registration.invalidCastBlackboard ?? {}).map(([key, value]) => [
+        key,
+        resolveLevelValue(
+          value,
+          level,
+          `operator '${operator.slug}'.comboSkillRegistrations[${index}].invalidCastBlackboard.${key}`,
+        ),
+      ]),
+    );
     return {
       skillKey: registration.skillKey,
       priority: registration.priority,
@@ -224,7 +234,23 @@ function compileComboSkillRegistrations(
           ),
         ]),
       ),
-      rules: registration.rules,
+      ...(Object.keys(invalidCastBlackboard).length === 0 ? {} : { invalidCastBlackboard }),
+      rules: registration.rules.map((rule, ruleIndex) => {
+        const blackboard = Object.fromEntries(
+          Object.entries(rule.blackboard ?? {}).map(([key, value]) => [
+            key,
+            resolveLevelValue(
+              value,
+              level,
+              `operator '${operator.slug}'.comboSkillRegistrations[${index}].rules[${ruleIndex}].blackboard.${key}`,
+            ),
+          ]),
+        );
+        return {
+          ...rule,
+          ...(Object.keys(blackboard).length === 0 ? {} : { blackboard }),
+        };
+      }),
     };
   });
 }

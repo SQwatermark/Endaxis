@@ -1073,6 +1073,7 @@ export interface SkillCostDefinition {
 
 /** 事件触发器筛选干员自身或全队来源的范围。 */
 export type SkillTriggerScope = 'operator' | 'team';
+export type PhysicalInflictionType = 'airborne' | 'knockDown' | 'fracture' | 'crush';
 /**
  * 技能和养成效果可以监听的语义战斗事件。
  * 事件身份不包含复杂筛选逻辑，额外限制应由条件树表达。
@@ -1090,6 +1091,11 @@ export type CombatEventTrigger =
       elements: DamageElement | readonly DamageElement[];
       scope: SkillTriggerScope;
     }
+  | {
+      kind: 'physicalInflictionApplied';
+      types: PhysicalInflictionType | readonly PhysicalInflictionType[];
+      scope: SkillTriggerScope;
+    }
   | { kind: 'skillHit'; skillGroupKey: string; scope: SkillTriggerScope }
   | { kind: 'enemyDefeated'; scope: SkillTriggerScope }
   | { kind: 'statusExpired'; statusKey: string; target: CombatTarget }
@@ -1097,8 +1103,13 @@ export type CombatEventTrigger =
 
 /** 角色级连携入口的一条事件规则；条件成立后进入 pending 或立即尝试释放。 */
 export interface ComboSkillTriggerRule {
-  trigger: Extract<CombatEventTrigger, { kind: 'damageTagHit' | 'elementalInflictionApplied' }>;
+  trigger: Extract<
+    CombatEventTrigger,
+    { kind: 'damageTagHit' | 'elementalInflictionApplied' | 'physicalInflictionApplied' }
+  >;
   condition?: CombatCondition;
+  /** 原生条件命中时随候选复制的事件分支参数；覆盖角色级连携默认黑板。 */
+  blackboard?: Readonly<Record<string, LevelValues>>;
   /** 对应原生 `comboSkillConditionImmediately`；省略时进入连携窗口。 */
   castImmediately?: boolean;
 }
@@ -1117,6 +1128,11 @@ export interface ComboSkillRegistrationDefinition {
   priority: ComboSkillPriority;
   /** 创建候选时复制到本次连携施法参数中的默认黑板。 */
   blackboard?: Readonly<Record<string, LevelValues>>;
+  /**
+   * 时间轴强制释放但没有合法窗口时使用的模拟哨兵值。只允许让事件依赖分支不执行；
+   * `ComboWindowUnavailableAtStart` 诊断仍保留，不能把它当成原生默认输入。
+   */
+  invalidCastBlackboard?: Readonly<Record<string, LevelValues>>;
   rules: readonly ComboSkillTriggerRule[];
 }
 

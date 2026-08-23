@@ -8053,6 +8053,52 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertFalse(is_presentation_only_camera_condition(action))
 
+    def test_alesh_finisher_camera_choice_is_omitted_after_consumer_audit(self) -> None:
+        condition = ConditionSource(
+            sourceType="CheckTwoDirectionAngle",
+            supported=False,
+            comparison=None,
+            left=None,
+            right=None,
+            skillTypes=(),
+            twoDirectionAngle=SimpleNamespace(
+                dir1DirectionType="CameraForward",
+                dir2DirectionType="SourceToTarget",
+            ),
+        )
+        action = ConditionalActionSource(
+            startFrame=18,
+            endFrame=49,
+            actionIndex=37,
+            actionPath=("timelineActions[4]", "actionData", "[1]"),
+            conditions=(condition,),
+            succeedActions=(
+                ConditionalBranchActionSource(
+                    actionType="ModifyDynamicBlackboard",
+                    actionIndex=40,
+                    blackboardMutation=BlackboardMutationPayload(
+                        key="camera",
+                        operation="Assign",
+                        value=ScalarSource(1, None, None),
+                    ),
+                ),
+            ),
+            failActions=(
+                ConditionalBranchActionSource(
+                    actionType="ModifyDynamicBlackboard",
+                    actionIndex=42,
+                    blackboardMutation=BlackboardMutationPayload(
+                        key="camera",
+                        operation="Assign",
+                        value=ScalarSource(2, None, None),
+                    ),
+                ),
+            ),
+        )
+
+        self.assertTrue(is_presentation_only_camera_condition(action))
+        self.assertEqual(compile_conditional_action(action, "alesh.finisher.camera"), "sequence()")
+
     def test_blackboard_write_without_camera_condition_is_not_omitted(self) -> None:
         condition = ConditionSource(
             sourceType="CompareFloat",
