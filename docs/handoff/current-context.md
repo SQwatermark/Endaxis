@@ -1058,3 +1058,22 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
   `formal_weapon_identities.json`，只在完成 Skill/Buff/运行时闭环后登记，不以旧目录猜效果。
   下一阶段按伤害相关性优先处理剩余 23 条：最终伤害减免 8 条、按技能范围冷却缩减 2 条、
   按技能范围失衡增益 1 条，以及需要开战持久 Buff 的条件效果 12 条；随后批量正式化武器、装备和套装。
+
+### 2026-08-23：双仓库交接基线与 Next 武器数据位置
+
+- Endaxis 当前开发分支为 `codex/time-dilation-curve-editor`，本轮功能基线提交是 `115ceabf`；
+  `tmp/` 仍是未跟踪取证目录，不得提交。白天继续工作时应先拉取该分支，不要从仍停在
+  `e85e88d7` 的旧本地 `feature/next` 开始重复实现。
+- 复刻库是独立仓库 `D:/Projects/combat-spec`，不是
+  `D:/Projects/vfs-index-browser/combat-spec` 工件目录。当前复刻基线为 `593fd8c`，包含
+  `EnhancedAction autoFinishByAction` 的动作句柄清理证据；后者工件目录属于
+  vfs-index-browser 工作树且有大量独立未提交内容，不得混作复刻库提交。
+- Next 正式武器定义放在 `src/next/data/equipment/akedbWeaponDefinitions.ts`；
+  `sharedEquipmentDefinitions.ts` 把正式定义与仍在过渡期的旧目录适配结果汇总，
+  `gameDataRepository.ts` 再注册为编辑器和模拟的默认查询源。项目级自定义武器模板保存在
+  `definitionLibrary.weapons`，轨道实例只保存 `weaponSlug`、等级、调校/潜能和词条等级；三者不是
+  同一层数据。武器展示资源位于 `public/weapons/<type>/`。
+- 下一阶段不要优先实现只影响己方承伤的 8 条 `protection`。先处理会改变对敌结果的 12 条条件
+  属性/伤害效果，以及按技能范围的 2 条连携冷却缩减和 1 条处决失衡增益。任何正式装备仍需
+  `WeaponBasic/EquipSuit + SkillPatch + SkillData/BuffData + 真实生产模拟` 闭环；候选审计的旧目录
+  文本与结构只能用于定位，不能单独升级为正式游戏规则。
