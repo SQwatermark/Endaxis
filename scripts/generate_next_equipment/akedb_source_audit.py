@@ -82,6 +82,7 @@ def build_akedb_source_audit(
     skill_patch_input: object,
     *,
     version_id: str,
+    formal_weapon_identities_input: object | None = None,
 ) -> dict[str, Any]:
     """Build a fail-fast audit while retaining expected migration coverage gaps."""
 
@@ -90,6 +91,11 @@ def build_akedb_source_audit(
     item_table = _object(item_table_input, "ItemTable")
     suit_table = _object(suit_table_input, "EquipSuitTable")
     skill_patch = _object(skill_patch_input, "SkillPatchTable")
+    formal_weapon_identities = (
+        {}
+        if formal_weapon_identities_input is None
+        else _object(formal_weapon_identities_input, "formalWeaponIdentities")
+    )
 
     local_weapons = [record for record in records if record["kind"] == "weapon"]
     local_gears = [record for record in records if record["kind"] == "gearPiece"]
@@ -129,6 +135,23 @@ def build_akedb_source_audit(
             _validate_skill_patch_reference(
                 skill_patch, skill_id, f"WeaponBasicTable.{weapon_id}.weaponSkillList[{index}]"
             )
+
+    formal_weapon_slugs: set[str] = set()
+    for game_id, raw_slug in sorted(formal_weapon_identities.items()):
+        game_id = _non_empty_string(game_id, "formalWeaponIdentities.<key>")
+        slug = _non_empty_string(raw_slug, f"formalWeaponIdentities.{game_id}")
+        if game_id not in weapon_table:
+            raise AuditFailure(f"formalWeaponIdentities.{game_id}", "WeaponBasicTable 缺少该武器")
+        previous = weapon_matches.get(game_id)
+        if previous is not None and previous != slug:
+            raise AuditFailure(
+                f"formalWeaponIdentities.{game_id}",
+                f"正式 slug {slug!r} 与旧目录映射 {previous!r} 冲突",
+            )
+        if slug in formal_weapon_slugs:
+            raise AuditFailure(f"formalWeaponIdentities.{game_id}", f"正式 slug {slug!r} 重复")
+        formal_weapon_slugs.add(slug)
+        weapon_matches[game_id] = slug
 
     matched_local_weapon_slugs = set(weapon_matches.values())
     missing_weapon_ids = sorted(set(weapon_table) - set(weapon_matches))
@@ -228,6 +251,7 @@ def build_akedb_source_audit(
             "akedbWeapons": len(weapon_table),
             "akedbGearSets": len(suit_table),
             "legacyWeapons": len(local_weapons),
+            "formalNextWeapons": len(formal_weapon_identities),
             "legacyGearPieces": len(local_gears),
             "legacyGearSets": len(local_sets),
             "legacySentinels": Counter(record["slug"] == "no-set-bonuses" for record in records)[

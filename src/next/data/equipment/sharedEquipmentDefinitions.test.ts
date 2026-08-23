@@ -21,6 +21,9 @@ describe('sharedEquipmentDefinitions', () => {
     expect(sharedGearSetDefinitions.some(definition => definition.slug === 'aic-fieldwork')).toBe(
       true,
     );
+    expect(
+      sharedWeaponDefinitions.some(definition => definition.slug === 'bedazzling-night-debut'),
+    ).toBe(true);
     for (const definitions of [
       sharedWeaponDefinitions,
       sharedGearDefinitions,
@@ -28,6 +31,31 @@ describe('sharedEquipmentDefinitions', () => {
     ]) {
       expect(new Set(definitions.map(definition => definition.slug)).size).toBe(definitions.length);
     }
+  });
+
+  it('registers the AKEDB-only Bedazzling Night Debut with its complete heal trigger', () => {
+    const definition = sharedWeaponDefinitions.find(
+      candidate => candidate.slug === 'bedazzling-night-debut',
+    );
+    expect(definition).toBeDefined();
+    expect(definition?.traits).toHaveLength(3);
+    expect(definition?.traits[1]?.modifiers).toEqual([
+      expect.objectContaining({ kind: 'staticHealingIncrease', target: 'output' }),
+    ]);
+    expect(definition?.traits[2]?.eventHandlers?.[0]).toMatchObject({
+      event: { kind: 'operatorHealed', role: 'source' },
+      condition: { kind: 'all' },
+      sequence: {
+        steps: [
+          { kind: 'applyBuff', parameters: { target: 'eventTarget' } },
+          { kind: 'createTimedMarker', parameters: { target: 'eventTarget' } },
+        ],
+      },
+    });
+    expect(getSharedEquipmentSupport('weapon', 'bedazzling-night-debut')).toMatchObject({
+      completeness: 'complete',
+      issues: [],
+    });
   });
 
   it('registers only structurally valid Next definitions', () => {

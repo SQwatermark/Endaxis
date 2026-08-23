@@ -155,6 +155,36 @@ describe('compile equipment contributions', () => {
     });
   });
 
+  it('resolves equipment healing modifiers and event blackboards at the selected level', () => {
+    const definition: WeaponDefinition = {
+      slug: 'healing-weapon',
+      rarity: 6,
+      weaponType: 'polearm',
+      baseAttackAtLevelNodes: [1, 2, 3, 4, 5, 6],
+      traits: [
+        {
+          key: 'healing',
+          levelCount: 2,
+          modifiers: [{ kind: 'staticHealingIncrease', target: 'output', value: [0.1, 0.2] }],
+          eventHandlers: [
+            {
+              key: 'heal-output',
+              event: { kind: 'operatorHealed', role: 'source' },
+              blackboard: { rate: [0.05, 0.1] },
+              sequence: { steps: [] },
+            },
+          ],
+        },
+      ],
+    };
+
+    const [compiled] = compileWeaponContributions(definition, [2], attributes);
+    expect(compiled!.modifiers).toEqual([
+      { kind: 'staticHealingIncrease', target: 'output', value: 0.2 },
+    ]);
+    expect(compiled!.eventHandlers[0]!.blackboard).toEqual({ rate: 0.1 });
+  });
+
   it('fails when build levels cannot map one-to-one to definition traits', () => {
     expect(() => compileWeaponContributions(loneBarge, [1, 1], attributes)).toThrow(
       "weapon 'lone-barge' expects 3 trait levels",

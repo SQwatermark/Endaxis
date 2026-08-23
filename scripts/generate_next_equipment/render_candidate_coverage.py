@@ -71,9 +71,9 @@ def render_candidate_coverage(ir: dict[str, Any]) -> str:
 
     lines.extend([
         "",
-        "严格结论：只有 `gearSet:swordmancer:effects[0]` 的无范围 `staggerPercent` 能映射为 `panelStat.staggerDamagePercent`。4 条旧 `self + susceptibility` 并不是对自身施加脆弱；中英文装备目录均将其命名为 `DMG Bonus vs. Staggered`，必须按“攻击失衡目标时增伤”的实时条件处理。",
+        "严格结论：9 条无条件治疗效率与 `gearSet:swordmancer:effects[0]` 的无范围 `staggerPercent` 已可分别映射为 `staticHealingIncrease.output` 与 `panelStat.staggerDamagePercent`。4 条旧 `self + susceptibility` 并不是对自身施加脆弱；中英文装备目录均将其命名为 `DMG Bonus vs. Staggered`，必须按“攻击失衡目标时增伤”的实时条件处理。",
         "",
-        "其余 20 条无条件常驻效果仍属于构筑静态战斗输入，但当前定义缺少治疗效率（9）、最终伤害减免（8）、按技能类型冷却缩减（2）和按技能类型失衡增益（1）。另外 12 条必须成为持久 Buff：显式条件属性/伤害修正 8 条，加上上述对失衡目标增伤 4 条。当前装备定义没有 Buff 蓝图和启动序列，可序列化 Buff 目录也没有条件伤害修正，因此这 12 条目前全部是 DSL 缺口。",
+        "剩余 11 条无条件常驻效果仍属于构筑静态战斗输入，但当前定义缺少最终伤害减免（8）、按技能类型冷却缩减（2）和按技能类型失衡增益（1）。另外 12 条必须成为持久 Buff：显式条件属性/伤害修正 8 条，加上上述对失衡目标增伤 4 条。当前装备定义没有 Buff 蓝图和启动序列，可序列化 Buff 目录也没有条件伤害修正，因此这 12 条目前全部是 DSL 缺口。",
         "",
         "## 来源分组",
         "",
@@ -102,6 +102,7 @@ def render_candidate_coverage(ir: dict[str, Any]) -> str:
     lines.extend([
         "- `attributeFlat` / `attributePercent` 映射到 `attribute`；旧 `sub` 明确转换为 Next 的 `secondary`。百分比由百分数除以 100。",
         "- 攻击、生命、防御、暴击、法术强度和终结技充能效率映射到 `panelStat`。其中百分比类同样转换为小数。",
+        "- 无条件 `heal` 是施术者输出治疗效率，映射到 `staticHealingIncrease.output`；它在治疗公式中生效，即使目标满血、实际治疗为零也不阻止治疗事件。",
         "- `dmgBonus` 是构筑期可确定的战斗公式输入，不等于角色面板字段。元素范围明确时按元素映射；仅按技能范围或完全无范围时，映射到除 `lifeDrain` 外的全部 DamageType。",
         "- 旧版完全无范围的“所有技能伤害”只覆盖战技、连携技和终结技；旧 `basicAttack` 范围还包含处决和下落攻击，适配时分别显式展开。",
         "- `ampBonus` 是独立增幅乘区，不能降级为 `damageBonus`。`attributeAtkPercent` 修改四维到攻击力的换算系数，不能降级为 `attackPercent`。",

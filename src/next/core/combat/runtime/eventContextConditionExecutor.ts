@@ -45,6 +45,7 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       condition.kind !== 'eventBuffEndedEarly' &&
       condition.kind !== 'eventBuffTagsMatch' &&
       condition.kind !== 'eventHealTagsMatch' &&
+      condition.kind !== 'eventSourceTargetMatch' &&
       condition.kind !== 'eventOverheal' &&
       condition.kind !== 'eventSourceMatchesBuffSource' &&
       condition.kind !== 'eventSourceMatchesBuffSourceEntitySource' &&
@@ -129,6 +130,15 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       const tagIds =
         event.kind === 'abilityHeal' || event.kind === 'operatorHealed' ? event.tagIds : null;
       return tagIds !== null && matchValues(tagIds, condition.tagIds, condition.match);
+    }
+    if (condition.kind === 'eventSourceTargetMatch') {
+      const event = context.event;
+      if (event.kind !== 'abilityHeal' && event.kind !== 'operatorHealed') return false;
+      const equal =
+        event.kind === 'operatorHealed'
+          ? event.sourceOperatorId === event.targetOperatorId
+          : event.sourceId === event.targetId;
+      return condition.operator === 'equal' ? equal : !equal;
     }
     if (condition.kind === 'eventOverheal') {
       const event = context.event;

@@ -144,6 +144,11 @@ function validateModifier(
         validateEnumList(record.skillTypes, skillTypes, `${path}.skillTypes`, issues);
       }
       break;
+    case 'staticHealingIncrease':
+      if (record.target !== 'output' && record.target !== 'taken') {
+        push(issues, `${path}.target`, "expected 'output' or 'taken'");
+      }
+      break;
     case null:
       break;
     default:
@@ -189,6 +194,23 @@ function validateContribution(
       issues.push(
         ...validateCombatConditionDefinition(handlerRecord.condition, `${handlerPath}.condition`),
       );
+    }
+    if (handlerRecord.blackboard !== undefined) {
+      const blackboard = asRecord(handlerRecord.blackboard, `${handlerPath}.blackboard`, issues);
+      if (blackboard !== null) {
+        for (const [blackboardKey, value] of Object.entries(blackboard)) {
+          issues.push(
+            ...validateLevelValuesDefinition(value, `${handlerPath}.blackboard.${blackboardKey}`),
+          );
+          if (Array.isArray(value) && value.length !== levelCount) {
+            push(
+              issues,
+              `${handlerPath}.blackboard.${blackboardKey}`,
+              `expected ${levelCount} level values`,
+            );
+          }
+        }
+      }
     }
     issues.push(
       ...validateActionSequenceDefinition(handlerRecord.sequence, `${handlerPath}.sequence`),

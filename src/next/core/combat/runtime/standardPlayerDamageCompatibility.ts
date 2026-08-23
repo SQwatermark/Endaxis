@@ -97,6 +97,8 @@ function inspectCondition(
     case 'eventDamageTagsMatch':
     case 'eventDamageFeaturesMatch':
     case 'eventDamageTypeIn':
+    case 'eventHealTagsMatch':
+    case 'eventSourceTargetMatch':
     case 'eventInflictionElementIn':
     case 'eventSkillTypeIn':
     case 'eventSkillIdIn':

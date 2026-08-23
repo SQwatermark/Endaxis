@@ -263,5 +263,14 @@ describe('EventContextConditionExecutor', () => {
       ),
     ).toBe(true);
     expect(blackboard.snapshot()).toMatchObject({ over: 216, final: 216, real: 0 });
+    expect(
+      executor.evaluate({ kind: 'eventSourceTargetMatch', operator: 'notEqual' }, context),
+    ).toBe(true);
+    expect(
+      executor.evaluate(
+        { kind: 'eventSourceTargetMatch', operator: 'equal' },
+        { ...context, event: { ...context.event, targetId: 'operator:healer' } },
+      ),
+    ).toBe(true);
   });
 });

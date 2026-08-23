@@ -17,6 +17,7 @@ import {
   COMBAT_RESOURCES,
   COMBAT_STEP_KINDS,
   COMBAT_TARGETS,
+  TIMED_MARKER_TARGETS,
   COMPARISON_OPERATORS,
   DAMAGE_CALCULATIONS,
   DAMAGE_ELEMENTS,
@@ -55,6 +56,7 @@ const ELEMENTAL_REACTIONS_SET = new Set<string>(ELEMENTAL_REACTIONS);
 const HEAL_TARGETS_SET = new Set<string>(HEAL_TARGETS);
 const COMBAT_RESOURCES_SET = new Set<string>(COMBAT_RESOURCES);
 const COMBAT_TARGETS_SET = new Set<string>(COMBAT_TARGETS);
+const TIMED_MARKER_TARGETS_SET = new Set<string>(TIMED_MARKER_TARGETS);
 const HEALTH_TARGETS_SET = new Set<string>([...COMBAT_TARGETS, ...HEAL_TARGETS]);
 const TIME_DILATION_IGNORE_TARGETS_SET = new Set<string>(TIME_DILATION_IGNORE_TARGETS);
 const BUFF_APPLICATION_TARGETS_SET = new Set<string>(BUFF_APPLICATION_TARGETS);
@@ -544,7 +546,7 @@ function validateCombatCondition(
       }
       break;
     case 'timedMarkerPresent':
-      requireEnum(record, 'target', COMBAT_TARGETS_SET, path, out);
+      requireEnum(record, 'target', TIMED_MARKER_TARGETS_SET, path, out);
       requireString(record, 'markerId', path, out);
       break;
     case 'abilityEntityTimedMarkerPresent':
@@ -612,6 +614,9 @@ function validateCombatCondition(
       for (const key of ['overHealKey', 'finalHealKey', 'realHealKey'] as const) {
         if (record[key] !== undefined) requireString(record, key, path, out);
       }
+      break;
+    case 'eventSourceTargetMatch':
+      requireEnum(record, 'operator', new Set(['equal', 'notEqual']), path, out);
       break;
     case 'elementalInflictionPresent':
       validateElements(record.elements, `${path}.elements`, out);
@@ -1588,7 +1593,7 @@ function validateCombatStep(
       validateNonEmptyStringArray(parameters.buffIds, `${path}.parameters.buffIds`, out);
       break;
     case 'createTimedMarker':
-      requireTarget();
+      requireEnum(parameters, 'target', TIMED_MARKER_TARGETS_SET, `${path}.parameters`, out);
       requireString(parameters, 'markerId', `${path}.parameters`, out);
       validateActionValueOperand(
         parameters.durationSeconds,
@@ -1993,7 +1998,12 @@ function validateEventTrigger(
   if (kind === null) return;
   switch (kind) {
     case 'operatorHit':
+      break;
     case 'operatorHealed':
+      if (record.role !== undefined) {
+        requireEnum(record, 'role', new Set(['source', 'target']), path, out);
+      }
+      break;
     case 'buffApplied':
     case 'airborneOutput':
     case 'knockDownOutput':

@@ -262,8 +262,14 @@ class CandidateDefinitionIrTest(unittest.TestCase):
         self.assertEqual(audit["effectCount"], 3)
         self.assertEqual(audit["buildStaticDestinationCount"], 2)
         self.assertEqual(audit["persistentBuffRequiredCount"], 1)
-        self.assertEqual(audit["directBuildStaticDefinitionReadyCount"], 1)
-        self.assertEqual(audit["dslGapCount"], 2)
+        self.assertEqual(audit["directBuildStaticDefinitionReadyCount"], 2)
+        self.assertEqual(audit["dslGapCount"], 1)
+        heal_entry = report["entries"][1]
+        self.assertEqual(heal_entry["candidateDefinition"], {
+            "kind": "staticHealingIncrease",
+            "target": "output",
+            "value": 0.156,
+        })
         self.assertEqual(audit["targetCounts"], {"self": 3})
         self.assertEqual(audit["conditionKindCounts"], {"none": 2, "operatorHp": 1})
         self.assertEqual(audit["lifecycleCounts"], {"none": 3})

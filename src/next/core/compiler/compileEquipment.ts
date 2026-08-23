@@ -45,6 +45,11 @@ export type ResolvedEquipmentModifier =
       readonly damageTypes: DamageType | readonly DamageType[];
       readonly skillTypes?: SkillType | readonly SkillType[];
       readonly value: number;
+    }
+  | {
+      readonly kind: 'staticHealingIncrease';
+      readonly target: 'output' | 'taken';
+      readonly value: number;
     };
 
 /** 动作序列已解析，但尚未注册到事件总线的一项配装监听器。 */
@@ -52,6 +57,8 @@ export interface CompiledEquipmentEventHandler {
   readonly key: string;
   readonly event: CombatEventTrigger;
   readonly condition?: CombatCondition;
+  /** 编译器始终写入；可选只为兼容外部测试/装配端口的空黑板记录。 */
+  readonly blackboard?: Readonly<Record<string, number>>;
   readonly sequence: ResolvedActionSequence;
 }
 
@@ -105,6 +112,8 @@ function compileModifier(
         ...(modifier.skillTypes === undefined ? {} : { skillTypes: modifier.skillTypes }),
         value,
       };
+    case 'staticHealingIncrease':
+      return { kind: modifier.kind, target: modifier.target, value };
   }
 }
 
@@ -117,6 +126,12 @@ function compileEventHandler(
     key: handler.key,
     event: handler.event,
     ...(handler.condition === undefined ? {} : { condition: handler.condition }),
+    blackboard: Object.fromEntries(
+      Object.entries(handler.blackboard ?? {}).map(([key, value]) => [
+        key,
+        resolveLevelValue(value, level, `${path}.blackboard.${key}`),
+      ]),
+    ),
     sequence: compileActionSequence(handler.sequence, level, `${path}.sequence`),
   };
 }

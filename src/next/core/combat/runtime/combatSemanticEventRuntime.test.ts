@@ -126,6 +126,35 @@ describe('CombatSemanticEventRuntime', () => {
     expect(received).toEqual(['operator:receiver']);
   });
 
+  it('can route successful healing by its source without changing the receiver default', () => {
+    const runtime = new CombatSemanticEventRuntime();
+    const received: string[] = [];
+    runtime.register({
+      ownerOperatorId: 'operator:healer',
+      trigger: { kind: 'operatorHealed', role: 'source' },
+      phase: 'dataAction',
+      handle: () => received.push('source'),
+    });
+    runtime.register({
+      ownerOperatorId: 'operator:receiver',
+      trigger: { kind: 'operatorHealed' },
+      phase: 'dataAction',
+      handle: () => received.push('target'),
+    });
+
+    runtime.emit({
+      kind: 'operatorHealed',
+      sourceOperatorId: 'operator:healer',
+      targetOperatorId: 'operator:receiver',
+      requestedHealing: 100,
+      actualHealing: 0,
+      overhealing: 100,
+      tagIds: [-320297214],
+    });
+
+    expect(received).toEqual(['source', 'target']);
+  });
+
   it('routes airborne output to the source operator regardless of its target', () => {
     const runtime = new CombatSemanticEventRuntime();
     const received: string[] = [];

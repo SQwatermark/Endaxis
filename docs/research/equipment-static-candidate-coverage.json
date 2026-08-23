@@ -5,18 +5,18 @@
   "summary": {
     "effectCount": 1049,
     "buildStaticCount": 920,
-    "definitionReadyCount": 900,
-    "dslGapCount": 32,
+    "definitionReadyCount": 909,
+    "dslGapCount": 23,
     "outsideStaticDefinitionScopeCount": 117,
     "characterPanelVisibleReadyCount": 733,
-    "buildOnlyReadyCount": 167,
+    "buildOnlyReadyCount": 176,
     "battlePersistentAudit": {
       "effectCount": 33,
       "buildStaticDestinationCount": 21,
       "persistentBuffRequiredCount": 12,
-      "directBuildStaticDefinitionReadyCount": 1,
-      "definitionReadyCount": 1,
-      "dslGapCount": 32,
+      "directBuildStaticDefinitionReadyCount": 10,
+      "definitionReadyCount": 10,
+      "dslGapCount": 23,
       "destinationCounts": {
         "battleStartPersistentBuff": 12,
         "buildStaticModifier": 21
@@ -54,7 +54,7 @@
           "dslGap": 5
         },
         "heal": {
-          "dslGap": 9
+          "definitionReady": 9
         },
         "protection": {
           "dslGap": 8
@@ -69,15 +69,14 @@
       }
     },
     "statusCounts": {
-      "definitionReady": 900,
-      "dslGap": 32,
+      "definitionReady": 909,
+      "dslGap": 23,
       "outsideStaticDefinitionScope": 117
     },
     "gapReasonCounts": {
       "conditional-attribute-buff-unsupported": 3,
       "conditional-damage-buff-unsupported": 5,
       "final-damage-reduction-modifier-unsupported": 8,
-      "healing-effect-modifier-unsupported": 9,
       "scoped-skill-cooldown-reduction-unsupported": 2,
       "scoped-stagger-modifier-unsupported": 1,
       "staggered-target-damage-buff-unsupported": 4
@@ -128,7 +127,7 @@
         "definitionReady": 9
       },
       "heal": {
-        "dslGap": 9
+        "definitionReady": 9
       },
       "hpPercent": {
         "definitionReady": 25
@@ -169,12 +168,12 @@
         "definitionReady": 242
       },
       "gearTrait.skill2": {
-        "definitionReady": 233,
-        "dslGap": 7
+        "definitionReady": 236,
+        "dslGap": 4
       },
       "gearTrait.skill3": {
-        "definitionReady": 198,
-        "dslGap": 14
+        "definitionReady": 204,
+        "dslGap": 8
       },
       "weaponTrait.skill1": {
         "definitionReady": 76
@@ -11268,13 +11267,14 @@
         "evidence": [
           "legacy.collectEffects.passiveStatus",
           "gameLocale.heal",
-          "next.equipment.modifier.missing"
+          "next.equipment.staticHealingIncrease.output"
         ]
       },
-      "status": "dslGap",
-      "gap": {
-        "code": "healing-effect-modifier-unsupported",
-        "detail": "治疗效率是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+      "status": "definitionReady",
+      "candidateDefinition": {
+        "kind": "staticHealingIncrease",
+        "target": "output",
+        "value": [0.207, 0.228, 0.248, 0.26899999999999996]
       }
     },
     {
@@ -13556,13 +13556,14 @@
         "evidence": [
           "legacy.collectEffects.passiveStatus",
           "gameLocale.heal",
-          "next.equipment.modifier.missing"
+          "next.equipment.staticHealingIncrease.output"
         ]
       },
-      "status": "dslGap",
-      "gap": {
-        "code": "healing-effect-modifier-unsupported",
-        "detail": "治疗效率是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+      "status": "definitionReady",
+      "candidateDefinition": {
+        "kind": "staticHealingIncrease",
+        "target": "output",
+        "value": [0.207, 0.228, 0.248, 0.26899999999999996]
       }
     },
     {
@@ -13901,13 +13902,14 @@
         "evidence": [
           "legacy.collectEffects.passiveStatus",
           "gameLocale.heal",
-          "next.equipment.modifier.missing"
+          "next.equipment.staticHealingIncrease.output"
         ]
       },
-      "status": "dslGap",
-      "gap": {
-        "code": "healing-effect-modifier-unsupported",
-        "detail": "治疗效率是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+      "status": "definitionReady",
+      "candidateDefinition": {
+        "kind": "staticHealingIncrease",
+        "target": "output",
+        "value": [0.10300000000000001, 0.114, 0.124, 0.135]
       }
     },
     {
@@ -14051,13 +14053,14 @@
         "evidence": [
           "legacy.collectEffects.passiveStatus",
           "gameLocale.heal",
-          "next.equipment.modifier.missing"
+          "next.equipment.staticHealingIncrease.output"
         ]
       },
-      "status": "dslGap",
-      "gap": {
-        "code": "healing-effect-modifier-unsupported",
-        "detail": "治疗效率是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+      "status": "definitionReady",
+      "candidateDefinition": {
+        "kind": "staticHealingIncrease",
+        "target": "output",
+        "value": [0.17300000000000001, 0.19, 0.207, 0.22399999999999998]
       }
     },
     {
@@ -14201,13 +14204,14 @@
         "evidence": [
           "legacy.collectEffects.passiveStatus",
           "gameLocale.heal",
-          "next.equipment.modifier.missing"
+          "next.equipment.staticHealingIncrease.output"
         ]
       },
-      "status": "dslGap",
-      "gap": {
-        "code": "healing-effect-modifier-unsupported",
-        "detail": "治疗效率是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+      "status": "definitionReady",
+      "candidateDefinition": {
+        "kind": "staticHealingIncrease",
+        "target": "output",
+        "value": [0.10300000000000001, 0.114, 0.124, 0.135]
       }
     },
     {
@@ -16034,13 +16038,14 @@
         "evidence": [
           "legacy.collectEffects.passiveStatus",
           "gameLocale.heal",
-          "next.equipment.modifier.missing"
+          "next.equipment.staticHealingIncrease.output"
         ]
       },
-      "status": "dslGap",
-      "gap": {
-        "code": "healing-effect-modifier-unsupported",
-        "detail": "治疗效率是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+      "status": "definitionReady",
+      "candidateDefinition": {
+        "kind": "staticHealingIncrease",
+        "target": "output",
+        "value": 0.147
       }
     },
     {
@@ -16093,13 +16098,14 @@
         "evidence": [
           "legacy.collectEffects.passiveStatus",
           "gameLocale.heal",
-          "next.equipment.modifier.missing"
+          "next.equipment.staticHealingIncrease.output"
         ]
       },
-      "status": "dslGap",
-      "gap": {
-        "code": "healing-effect-modifier-unsupported",
-        "detail": "治疗效率是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+      "status": "definitionReady",
+      "candidateDefinition": {
+        "kind": "staticHealingIncrease",
+        "target": "output",
+        "value": 0.105
       }
     },
     {
@@ -16243,13 +16249,14 @@
         "evidence": [
           "legacy.collectEffects.passiveStatus",
           "gameLocale.heal",
-          "next.equipment.modifier.missing"
+          "next.equipment.staticHealingIncrease.output"
         ]
       },
-      "status": "dslGap",
-      "gap": {
-        "code": "healing-effect-modifier-unsupported",
-        "detail": "治疗效率是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+      "status": "definitionReady",
+      "candidateDefinition": {
+        "kind": "staticHealingIncrease",
+        "target": "output",
+        "value": 0.08800000000000001
       }
     },
     {
@@ -17071,13 +17078,14 @@
         "evidence": [
           "legacy.collectEffects.passiveStatus",
           "gameLocale.heal",
-          "next.equipment.modifier.missing"
+          "next.equipment.staticHealingIncrease.output"
         ]
       },
-      "status": "dslGap",
-      "gap": {
-        "code": "healing-effect-modifier-unsupported",
-        "detail": "治疗效率是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
+      "status": "definitionReady",
+      "candidateDefinition": {
+        "kind": "staticHealingIncrease",
+        "target": "output",
+        "value": 0.156
       }
     },
     {

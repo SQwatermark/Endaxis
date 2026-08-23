@@ -144,6 +144,10 @@ export const COMBAT_TARGETS = ['caster', 'enemy'] as const;
 /** 干员 DSL 中无需多敌人寻址的语义目标。 */
 export type CombatTarget = (typeof COMBAT_TARGETS)[number];
 
+export const TIMED_MARKER_TARGETS = [...COMBAT_TARGETS, 'eventTarget'] as const;
+/** 定时标记还可明确落到触发当前响应的事件目标。 */
+export type TimedMarkerTarget = (typeof TIMED_MARKER_TARGETS)[number];
+
 export const TIME_DILATION_IGNORE_TARGETS = [...COMBAT_TARGETS, 'controlled'] as const;
 /** 全局时间膨胀还可在动作执行帧排除当前主控干员。 */
 export type TimeDilationIgnoreTarget = (typeof TIME_DILATION_IGNORE_TARGETS)[number];
@@ -329,7 +333,7 @@ export type CombatCondition =
   | {
       /** 检查目标能力系统中是否存在仍有效的原生定时标记。 */
       kind: 'timedMarkerPresent';
-      target: CombatTarget;
+      target: TimedMarkerTarget;
       markerId: string;
     }
   | {
@@ -388,6 +392,11 @@ export type CombatCondition =
       kind: 'eventHealTagsMatch';
       match: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
       tagIds: readonly number[];
+    }
+  | {
+      /** 比较治疗事件的来源与目标身份。 */
+      kind: 'eventSourceTargetMatch';
+      operator: 'equal' | 'notEqual';
     }
   | {
       /** 原生 CheckOverHeal；非空键会在判断前接收对应事件值。 */
@@ -455,6 +464,7 @@ export const COMBAT_CONDITION_KINDS = [
   'eventBuffEndedEarly',
   'eventBuffTagsMatch',
   'eventHealTagsMatch',
+  'eventSourceTargetMatch',
   'eventOverheal',
   'eventSourceMatchesBuffSource',
   'eventSourceMatchesBuffSourceEntitySource',
@@ -809,7 +819,7 @@ export interface CombatStepParameters {
   };
   /** 在目标能力系统上创建定时标记；同 ID 标记不会互相覆盖。 */
   createTimedMarker: {
-    target: CombatTarget;
+    target: TimedMarkerTarget;
     markerId: string;
     durationSeconds: ActionValueOperand;
     autoFinishByAction: boolean;
@@ -1084,7 +1094,7 @@ export type PhysicalInflictionType = 'airborne' | 'knockDown' | 'fracture' | 'cr
  */
 export type CombatEventTrigger =
   | { kind: 'operatorHit' }
-  | { kind: 'operatorHealed' }
+  | { kind: 'operatorHealed'; role?: 'source' | 'target' }
   | { kind: 'buffApplied' }
   | { kind: 'airborneOutput' }
   | { kind: 'knockDownOutput' }

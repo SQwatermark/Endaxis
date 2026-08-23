@@ -1243,6 +1243,7 @@ export class CombatRuntimeAssembly {
           ? this.#enemyTimedMarkers
           : this.#requireTimedMarkerContainer(operatorId),
       resolveAbilityEntityTarget: target => this.abilityEntities.timedMarkers(target),
+      resolveEventTarget: targetId => this.#requireTimedMarkerContainer(targetId),
       globalClock: this.clock,
       delegate: statusOperations,
     });
@@ -1426,6 +1427,7 @@ export class CombatRuntimeAssembly {
           ? this.#enemyTimedMarkers
           : this.#requireTimedMarkerContainer(operatorId),
       resolveAbilityEntityTarget: target => this.abilityEntities.timedMarkers(target),
+      resolveEventTarget: targetId => this.#requireTimedMarkerContainer(targetId),
       globalClock: this.clock,
       delegate: statusOperations,
     });

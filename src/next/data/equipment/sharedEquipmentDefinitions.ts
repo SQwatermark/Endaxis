@@ -17,6 +17,7 @@ import {
   type SharedEquipmentAdaptationIssue,
   type SharedEquipmentAdaptationResult,
 } from './adaptSharedEquipment';
+import { akedbWeaponDefinitions } from './akedbWeaponDefinitions';
 
 const weaponModules = import.meta.glob('../../../data/weapons/**/*.ts', {
   eager: true,
@@ -96,7 +97,10 @@ const gearSetEntries = adaptDirectory(
   (slug, source) => adaptSharedGearSet(slug, source, { mode: 'permissive' }),
 );
 
-export const sharedWeaponDefinitions: readonly WeaponDefinition[] = weaponEntries.definitions;
+export const sharedWeaponDefinitions: readonly WeaponDefinition[] = Object.freeze([
+  ...weaponEntries.definitions,
+  ...akedbWeaponDefinitions,
+]);
 export const sharedGearDefinitions: readonly GearDefinition[] = gearEntries.definitions;
 export const sharedGearSetDefinitions: readonly GearSetDefinition[] = gearSetEntries.definitions;
 /** 未进入 Next 正式定义的全部原因；新增源数据出现陌生语义时测试应直接暴露。 */
@@ -104,10 +108,20 @@ export const sharedEquipmentAdaptationIssues: readonly SharedEquipmentAdaptation
   Object.freeze([...weaponEntries.issues, ...gearEntries.issues, ...gearSetEntries.issues]);
 
 const supportByIdentity = new Map(
-  [...weaponEntries.support, ...gearEntries.support, ...gearSetEntries.support].map(item => [
-    `${item.sourceKind}:${item.slug}`,
-    item,
-  ]),
+  [
+    ...weaponEntries.support,
+    ...akedbWeaponDefinitions.map(
+      definition =>
+        ({
+          sourceKind: 'weapon',
+          slug: definition.slug,
+          completeness: 'complete',
+          issues: [],
+        }) satisfies SharedEquipmentSupport,
+    ),
+    ...gearEntries.support,
+    ...gearSetEntries.support,
+  ].map(item => [`${item.sourceKind}:${item.slug}`, item]),
 );
 
 /** UI 可据此提示定义项仅完成基础转换；返回值不参与项目持久化。 */

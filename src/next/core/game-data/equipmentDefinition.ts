@@ -57,6 +57,12 @@ export type EquipmentModifierDefinition =
       readonly damageTypes: DamageType | readonly DamageType[];
       readonly skillTypes?: SkillType | readonly SkillType[];
       readonly value: LevelValues;
+    }
+  | {
+      /** 原生 HealOutputIncrease / HealTakenIncrease 的构筑期基础加算。 */
+      readonly kind: 'staticHealingIncrease';
+      readonly target: 'output' | 'taken';
+      readonly value: LevelValues;
     };
 
 /** 配装能力监听战斗事件后执行的纯数据序列。 */
@@ -64,6 +70,8 @@ export interface EquipmentEventHandlerDefinition {
   readonly key: string;
   readonly event: CombatEventTrigger;
   readonly condition?: CombatCondition;
+  /** 按当前词条等级展开，并在每次事件响应时复制到独立动作黑板。 */
+  readonly blackboard?: Readonly<Record<string, LevelValues>>;
   readonly sequence: ActionSequenceDefinition;
 }
 

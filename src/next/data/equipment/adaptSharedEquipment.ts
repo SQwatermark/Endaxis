@@ -330,6 +330,12 @@ function adaptStaticStatus(
     return value === null ? null : { kind: 'panelStat', stat: 'staggerDamagePercent', value };
   }
 
+  if (modifier === 'heal') {
+    if (!requireExactStatFields(context, stat, ['modifier'], `${path}.stat`)) return null;
+    const value = mapLevelValues(context, effect.value, expectedLevelCount, valuePath, 0.01);
+    return value === null ? null : { kind: 'staticHealingIncrease', target: 'output', value };
+  }
+
   if (modifier === 'dmgBonus') {
     if (
       !requireExactStatFields(context, stat, ['modifier', 'elements', 'skillTypes'], `${path}.stat`)

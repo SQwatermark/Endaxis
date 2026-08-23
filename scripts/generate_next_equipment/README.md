@@ -1,6 +1,6 @@
 # Endaxis Next 装备生成前审计
 
-本目录为武器、单件装备和套装迁移到 Endaxis Next DSL 建立严格、可重复的结构审计基础。当前阶段只审计旧数据，不生成 Next DSL。
+本目录为武器、单件装备和套装迁移到 Endaxis Next DSL 建立严格、可重复的结构审计基础。候选报告仍不直接生成正式定义；已由 SkillPatch、SkillData、BuffData 和运行时语义闭环的新增武器身份登记在 `formal_weapon_identities.json`，由 Next 正式定义单独承载。
 
 版本化 AKEDB 输入由仓库根目录的 `scripts/download_akedb_next_sources.py` 统一下载。除干员生成所需表外，下载器还固定获取 `WeaponBasicTable`、`ItemTable` 与 `EquipSuitTable`；后续 AKEDB Adapter 必须从这三张表建立正式身份与 SkillPatch 引用，旧 TypeScript 快照只作为迁移对照，不能继续充当最终游戏事实源。
 

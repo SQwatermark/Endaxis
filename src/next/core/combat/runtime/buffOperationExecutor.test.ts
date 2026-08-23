@@ -593,6 +593,58 @@ describe('BuffOperationExecutor', () => {
     expect(context.blackboard.getNumber('count')).toBe(3);
   });
 
+  it('resolves an operator-healed semantic event target for Buff application', () => {
+    const applied: unknown[] = [];
+    const target = {
+      ownerId: 'operator-b',
+      apply: (request: unknown) => {
+        applied.push(request);
+        return true;
+      },
+      getCountByIds: () => 0,
+      finishByIds: () => 0,
+      holdByIds: () => ({ release: () => undefined }),
+      getCountByTags: () => 0,
+      matchesEntityTags: () => false,
+      findFirstByIds: () => undefined,
+      findFirstByTags: () => undefined,
+      finishByTags: () => 0,
+    };
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator-a',
+      resolveTarget: () => target,
+      resolveEventTarget: targetId => {
+        expect(targetId).toBe('operator-b');
+        return target;
+      },
+      delegate,
+    });
+
+    expect(
+      executor.execute(
+        {
+          kind: 'applyBuff',
+          parameters: { buffId: 'healing-trigger-buff', target: 'eventTarget' },
+        },
+        {
+          blackboard: new ActionBlackboard(),
+          event: {
+            kind: 'operatorHealed',
+            sourceOperatorId: 'operator-a',
+            targetOperatorId: 'operator-b',
+            requestedHealing: 100,
+            actualHealing: 0,
+            overhealing: 100,
+            tagIds: [1],
+          },
+        },
+      ),
+    ).toBe(true);
+    expect(applied).toEqual([
+      expect.objectContaining({ buffId: 'healing-trigger-buff', sourceId: 'operator-a' }),
+    ]);
+  });
+
   it('uses an explicitly selected entity as the Buff source', () => {
     const applied: unknown[] = [];
     const targets = {

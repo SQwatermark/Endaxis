@@ -1307,6 +1307,114 @@ describe('registered generated operators', () => {
     ).toBe(true);
   });
 
+  it('applies Bedazzling Night Debut attack stacks to an ally healed by Camille', () => {
+    const run = (equipWeapon: boolean) => {
+      const scenario = createEmptyScenario(
+        `scenario:camille:bedazzling:${equipWeapon ? 'equipped' : 'bare'}`,
+        '卡米拉曜夜治疗增伤生产回归',
+      );
+      scenario.battle.durationFrames = 300;
+      scenario.enemy.editable.hp = 10_000_000;
+      scenario.tracks[0] = {
+        id: 'track:camille',
+        operator: {
+          operatorSlug: camille.slug,
+          level: 90,
+          promoted: true,
+          potential: 0,
+          trustLevel: 4,
+          skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+          talentStates: { 0: 2 },
+        },
+        weapon: equipWeapon
+          ? {
+              weaponSlug: 'bedazzling-night-debut',
+              level: 90,
+              tuned: true,
+              potential: 0,
+              traitLevels: [9, 9, 9],
+            }
+          : null,
+        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+        initialState: { ultimateEnergy: 0 },
+        skillCasts: [],
+      };
+      scenario.tracks[1] = {
+        id: 'track:perlica',
+        operator: {
+          operatorSlug: perlica.slug,
+          level: 90,
+          promoted: true,
+          potential: 0,
+          trustLevel: 4,
+          skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+          talentStates: { 0: 0, 1: 0 },
+        },
+        weapon: null,
+        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+        initialState: { ultimateEnergy: 0 },
+        skillCasts: [],
+      };
+      // 卡米拉释放后、治疗帧到来前切入佩丽卡，使 controlledOperator 与施术者不同。
+      scenario.battle.controlSwitches.push({ id: 'switch:perlica', frame: 40, trackIndex: 1 });
+      let placed = placeSkillGroup({
+        scenario,
+        trackIndex: 0,
+        operator: camille,
+        skillGroupKey: 'comboSkill',
+        startFrame: 1,
+        ids: { allocate: kind => `${kind}:camille:bedazzling` },
+      }).scenario;
+      placed = placeSkillGroup({
+        scenario: placed,
+        trackIndex: 1,
+        operator: perlica,
+        skillGroupKey: 'basicAttack',
+        startFrame: 220,
+        ids: { allocate: kind => `${kind}:perlica:bedazzling` },
+      }).scenario;
+
+      return runStandardPlayerDamageScenarioSimulation({
+        scenario: placed,
+        endFrame: 300,
+        criticalSamples: new ExplicitCriticalSampleSource(Array(40).fill(1)),
+        elementalInflictionDocument: elementalAttachments,
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        options: {
+          index: nextGameDataRepository,
+          resources: {
+            sharedSpGain: { baseGainEfficiency: 1 },
+            spRecoveryPauseDuration: 1.5,
+            normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+            ultimateEnergySystemUnlocked: false,
+          },
+        },
+      });
+    };
+
+    const bare = run(false);
+    const equipped = run(true);
+    expect(equipped.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'HealingApplied',
+        sourceId: 'track:camille',
+        targetId: 'track:perlica',
+      }),
+    );
+    const perlicaDamage = (result: typeof equipped) =>
+      Number(
+        result.receiptEntries.find(
+          entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:perlica',
+        )?.data?.value,
+      );
+    expect(perlicaDamage(bare)).toBeGreaterThan(0);
+    expect(perlicaDamage(equipped)).toBeGreaterThan(perlicaDamage(bare));
+  });
+
   it('resolves Zhuang Fangyi ultimate slot replacement and enhanced battle entity damage', () => {
     const scenario = createEmptyScenario('scenario:zhuang-fangyi:registered', '庄方宜默认仓库回归');
     scenario.battle.durationFrames = 300;

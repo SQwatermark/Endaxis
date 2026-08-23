@@ -258,8 +258,14 @@ function applyEquipmentContribution(
         operation: modifier.stat.endsWith('Percent') ? 'percent' : 'flat',
         value: modifier.value,
       });
-    } else {
+    } else if (modifier.kind === 'damageBonus') {
       combatModifiers.push(modifier);
+    } else {
+      combatModifiers.push({
+        kind: 'staticHealingIncrease',
+        target: modifier.target,
+        value: modifier.value,
+      });
     }
   }
 }

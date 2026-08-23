@@ -477,9 +477,11 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       const eventTargetId =
         'targetId' in context.event
           ? context.event.targetId
-          : context.event.kind === 'operatorHit'
+          : context.event.kind === 'operatorHealed'
             ? context.event.targetOperatorId
-            : undefined;
+            : context.event.kind === 'operatorHit'
+              ? context.event.targetOperatorId
+              : undefined;
       if (eventTargetId === undefined) {
         throw new Error(`event '${context.event.kind}' does not expose a Buff target`);
       }
@@ -623,9 +625,11 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       const eventTargetId =
         'targetId' in context.event
           ? context.event.targetId
-          : context.event.kind === 'operatorHit'
+          : context.event.kind === 'operatorHealed'
             ? context.event.targetOperatorId
-            : undefined;
+            : context.event.kind === 'operatorHit'
+              ? context.event.targetOperatorId
+              : undefined;
       if (eventTargetId === undefined) {
         throw new Error(`event '${context.event.kind}' does not expose a Buff target`);
       }

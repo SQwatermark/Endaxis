@@ -186,7 +186,12 @@ function matches(registration: Registration, event: CombatSemanticEvent): boolea
     case 'operatorHit':
       return event.kind === 'operatorHit' && event.targetOperatorId === ownerOperatorId;
     case 'operatorHealed':
-      return event.kind === 'operatorHealed' && event.targetOperatorId === ownerOperatorId;
+      return (
+        event.kind === 'operatorHealed' &&
+        (trigger.role === 'source'
+          ? event.sourceOperatorId === ownerOperatorId
+          : event.targetOperatorId === ownerOperatorId)
+      );
     case 'buffApplied':
       return event.kind === 'buffApplied' && event.targetId === ownerOperatorId;
     case 'airborneOutput':

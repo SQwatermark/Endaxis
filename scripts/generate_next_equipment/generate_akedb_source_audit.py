@@ -23,6 +23,7 @@ DEFAULT_TABLE_ROOT = (
 )
 DEFAULT_JSON = REPOSITORY_ROOT / "docs/research/equipment-akedb-source-coverage.json"
 DEFAULT_MARKDOWN = REPOSITORY_ROOT / "docs/research/equipment-akedb-source-coverage.md"
+FORMAL_WEAPON_IDENTITIES = Path(__file__).with_name("formal_weapon_identities.json")
 PRETTIER = REPOSITORY_ROOT / "node_modules/prettier/bin/prettier.cjs"
 
 
@@ -47,7 +48,7 @@ def _render(report: dict[str, object]) -> str:
         "",
         f"- 审计执行：`{report['auditStatus']}`",
         f"- 来源覆盖：`{report['coverageStatus']}`",
-        f"- AKEDB 武器：{counts['akedbWeapons']}；旧迁移目录：{counts['legacyWeapons']}；已映射：{weapons['mapped']}",
+        f"- AKEDB 武器：{counts['akedbWeapons']}；旧迁移目录：{counts['legacyWeapons']}；Next 正式补充：{counts['formalNextWeapons']}；已映射：{weapons['mapped']}",
         f"- AKEDB 套装：{counts['akedbGearSets']}；旧真实套装：{counts['legacyGearSets']}；已映射：{sets['mapped']}",
         f"- 旧单件装备定义：{gears['definitionCount']}；唯一 AKEDB Item 身份：{gears['mappedItemIds']}",
         f"- 非游戏套装哨兵：{counts['legacySentinels']}（不计入 AKEDB 套装总量）",
@@ -87,6 +88,7 @@ def _render(report: dict[str, object]) -> str:
             "- `ItemTable` 连接游戏 ID 与图标资源身份；少数武器的 Item ID 与图标 ID 不同，审计按显式别名和 Item 行匹配。",
             "- `EquipSuitTable` 证明真实套装身份、三件激活规则和套装 SkillPatch 引用。",
             "- 当前旧 TypeScript 快照仅用于 slug 与历史效果解释对照；正式生成仍需逐项核对 SkillPatch、SkillData、BuffData 和运行时语义。",
+            "- `formal_weapon_identities.json` 只登记完成上述闭环并进入 Next 正式仓库的新增身份，不携带或推断效果。",
             "",
         ]
     )
@@ -111,6 +113,7 @@ def main() -> None:
             _load(args.table_root / "EquipSuitTable.json"),
             _load(args.table_root / "SkillPatchTable.json"),
             version_id=args.version,
+            formal_weapon_identities_input=_load(FORMAL_WEAPON_IDENTITIES),
         )
 
     _write_atomic(args.json_output.resolve(), json.dumps(report, ensure_ascii=False, indent=2) + "\n")

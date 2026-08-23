@@ -72,7 +72,7 @@ export class EquipmentEventRuntime {
     operations: CombatOperationExecutor,
     event: CombatSemanticEventContext['event'],
   ): void {
-    const blackboard = new ActionBlackboard();
+    const blackboard = new ActionBlackboard(handler.blackboard ?? {});
     const operationContext: CombatOperationContext = { blackboard, event };
     new CombatActionSequenceRuntime(operations, operationContext)
       .createSequence(handler.sequence)

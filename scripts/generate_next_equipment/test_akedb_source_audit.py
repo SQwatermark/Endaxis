@@ -86,6 +86,34 @@ class AkedbSourceAuditTests(unittest.TestCase):
         self.assertEqual(report["coverageStatus"], "partial")
         self.assertEqual(report["weaponCoverage"]["missingGameIds"], ["wpn_lance_0001"])
 
+    def test_counts_a_formally_closed_next_weapon_outside_the_legacy_snapshot(self) -> None:
+        value = snapshot()
+        value["records"] = value["records"][1:]
+        report = build_akedb_source_audit(
+            value,
+            {"wpn_lance_0001": {"weaponSkillList": ["attr", "skill"]}},
+            {
+                "wpn_lance_0001": {"iconId": "wpn_lance_0001"},
+                "item_equip_test_body": {},
+            },
+            {
+                "suit_test": {
+                    "equipList": ["item_equip_test_body"],
+                    "list": [{"equipCnt": 3, "skillID": "set-skill"}],
+                }
+            },
+            {"attr": {}, "skill": {}, "set-skill": {}},
+            version_id="test-version",
+            formal_weapon_identities_input={"wpn_lance_0001": "formal-lance"},
+        )
+
+        self.assertEqual(report["sourceCounts"]["formalNextWeapons"], 1)
+        self.assertEqual(report["weaponCoverage"]["missingGameIds"], [])
+        self.assertEqual(
+            report["weaponCoverage"]["matches"],
+            [{"gameId": "wpn_lance_0001", "slug": "formal-lance"}],
+        )
+
     def test_fails_when_an_akedb_skill_reference_is_missing(self) -> None:
         with self.assertRaisesRegex(AuditFailure, "SkillPatchTable"):
             build_akedb_source_audit(

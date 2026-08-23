@@ -3,7 +3,7 @@
  * 目标到实体容器的映射由装配层提供；动态时长只读取当前技能实例黑板。
  */
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
-import type { CombatTarget } from '../../game-data/operatorDefinition';
+import type { CombatTarget, TimedMarkerTarget } from '../../game-data/operatorDefinition';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import { resolveActionValueOperand } from './actionBlackboard';
 import type { CombatOperationExecutor } from './skillRuntime';
@@ -13,6 +13,7 @@ type RuntimeOperation = ResolvedCombatOperationStep;
 
 export interface TimedMarkerOperationDependencies {
   readonly resolveTarget: (target: CombatTarget) => TimedMarkerContainer;
+  readonly resolveEventTarget?: (targetId: string) => TimedMarkerContainer;
   readonly resolveAbilityEntityTarget?: (target: RuntimeTargetRef) => TimedMarkerContainer;
   readonly globalClock?: TimedMarkerClock;
   readonly delegate: CombatOperationExecutor;
@@ -38,7 +39,7 @@ export class TimedMarkerOperationExecutor implements CombatOperationExecutor {
     const duration = resolveActionValueOperand(step.parameters.durationSeconds, context.blackboard);
     const target =
       step.kind === 'createTimedMarker'
-        ? this.dependencies.resolveTarget(step.parameters.target)
+        ? this.#resolveTarget(step.parameters.target, context)
         : this.#resolveCurrentAbilityEntity(context.currentTarget);
     const markerClock =
       step.kind === 'createAbilityEntityTimedMarker' && step.parameters.timeDomain === 'global'
@@ -68,7 +69,7 @@ export class TimedMarkerOperationExecutor implements CombatOperationExecutor {
     context?: Parameters<CombatOperationExecutor['evaluate']>[1],
   ): boolean {
     if (condition.kind === 'timedMarkerPresent') {
-      return this.dependencies.resolveTarget(condition.target).has(condition.markerId);
+      return this.#resolveTarget(condition.target, context).has(condition.markerId);
     }
     if (condition.kind === 'abilityEntityTimedMarkerPresent') {
       if (context === undefined) {
@@ -98,6 +99,31 @@ export class TimedMarkerOperationExecutor implements CombatOperationExecutor {
       throw new Error('ability entity timed marker runtime is not configured');
     }
     return resolve(target);
+  }
+
+  #resolveTarget(
+    target: TimedMarkerTarget,
+    context: Parameters<CombatOperationExecutor['execute']>[1] | undefined,
+  ): TimedMarkerContainer {
+    if (target !== 'eventTarget') return this.dependencies.resolveTarget(target);
+    if (context === undefined) {
+      throw new Error('eventTarget timed marker requires a combat operation context');
+    }
+    const event = context.event;
+    const targetId =
+      event?.kind === 'operatorHealed'
+        ? event.targetOperatorId
+        : event?.kind === 'abilityHeal'
+          ? event.targetId
+          : undefined;
+    if (targetId === undefined) {
+      throw new Error('eventTarget timed marker requires a healing event target');
+    }
+    const resolve = this.dependencies.resolveEventTarget;
+    if (resolve === undefined) {
+      throw new Error('eventTarget timed marker runtime is not configured');
+    }
+    return resolve(targetId);
   }
 
   #requireGlobalClock(): TimedMarkerClock {

@@ -116,6 +116,37 @@ describe('adaptSharedEquipment', () => {
     });
   });
 
+  it('maps static healing efficiency without treating it as a panel percentage', () => {
+    const source: GearPieceSheet = {
+      name: 'Healing Gear',
+      icon: '/unused.webp',
+      slotType: 'gloves',
+      levelRequirement: 70,
+      defense: 0,
+      skill1: {
+        effects: [
+          {
+            kind: 'status',
+            stat: { modifier: 'heal' },
+            target: 'self',
+            value: [6, 10, 20, 46.4],
+          },
+        ],
+      },
+    };
+
+    const result = adaptSharedGear('healing-gear', source);
+    expect(result).toMatchObject({ ok: true, completeness: 'complete' });
+    if (!result.ok) throw new Error('expected complete adaptation');
+    expect(result.definition.traits[0]!.modifiers).toEqual([
+      {
+        kind: 'staticHealingIncrease',
+        target: 'output',
+        value: [0.06, 0.1, 0.2, 0.46399999999999997],
+      },
+    ]);
+  });
+
   it('rejects an entire definition instead of dropping dynamic behavior', () => {
     const source: GearSetSheet = {
       effects: [

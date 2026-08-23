@@ -44,6 +44,48 @@ describe('TimedMarkerOperationExecutor', () => {
     ).toBe(false);
   });
 
+  it('creates and queries a marker on the active healing event target', () => {
+    const clock = new CombatClock();
+    const receiver = new TimedMarkerContainer('operator:receiver', clock);
+    const executor = new TimedMarkerOperationExecutor({
+      resolveTarget: () => new TimedMarkerContainer('unused', clock),
+      resolveEventTarget: targetId => {
+        expect(targetId).toBe('operator:receiver');
+        return receiver;
+      },
+      delegate,
+    });
+    const context = {
+      blackboard: new ActionBlackboard(),
+      event: {
+        kind: 'operatorHealed' as const,
+        sourceOperatorId: 'operator:healer',
+        targetOperatorId: 'operator:receiver',
+        requestedHealing: 100,
+        actualHealing: 0,
+        overhealing: 100,
+        tagIds: [-320297214],
+      },
+    };
+    const step: ResolvedCombatOperationStep = {
+      kind: 'createTimedMarker',
+      parameters: {
+        target: 'eventTarget',
+        markerId: 'heal-icd',
+        durationSeconds: { kind: 'constant', value: 0.1 },
+        autoFinishByAction: false,
+      },
+    };
+
+    expect(executor.execute(step, context)).toBe(true);
+    expect(
+      executor.evaluate(
+        { kind: 'timedMarkerPresent', target: 'eventTarget', markerId: 'heal-icd' },
+        context,
+      ),
+    ).toBe(true);
+  });
+
   it('uses the current ability entity local clock for time-dilated markers', () => {
     const entities = new LogicalAbilityEntityRuntime({ resolveDeltaSeconds: () => 1 / 60 });
     const target = entities.spawn({

@@ -318,24 +318,31 @@ def _validate_persistent_effect(
             [*evidence, "legacy.computeStats.cooldownReductionPercent.skillTypes", "next.equipment.panelStat.unscoped"],
         )
 
-    if modifier in {"heal", "protection"} and condition is None:
+    if modifier == "heal" and condition is None:
         _reject_stat_fields(stat, {"modifier"}, f"{path}.stat")
-        code = (
-            "healing-effect-modifier-unsupported"
-            if modifier == "heal"
-            else "final-damage-reduction-modifier-unsupported"
+        return (
+            "buildStaticModifier",
+            {
+                "kind": "staticHealingIncrease",
+                "target": "output",
+                "value": _scale_percent(effect["value"], f"{path}.value"),
+            },
+            False,
+            None,
+            [*evidence, "gameLocale.heal", "next.equipment.staticHealingIncrease.output"],
         )
-        detail = (
-            "治疗效率是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
-            if modifier == "heal"
-            else "最终伤害减免是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道"
-        )
+
+    if modifier == "protection" and condition is None:
+        _reject_stat_fields(stat, {"modifier"}, f"{path}.stat")
         return (
             "buildStaticModifier",
             None,
             False,
-            _gap(code, detail),
-            [*evidence, f"gameLocale.{modifier}", "next.equipment.modifier.missing"],
+            _gap(
+                "final-damage-reduction-modifier-unsupported",
+                "最终伤害减免是常驻战斗属性，但当前 EquipmentModifierDefinition 和 Buff 目录没有对应通道",
+            ),
+            [*evidence, "gameLocale.protection", "next.equipment.modifier.missing"],
         )
 
     if modifier == "susceptibility" and condition is None:
