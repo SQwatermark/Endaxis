@@ -1351,7 +1351,13 @@ def parse_buff_enhanced_action_modifiers(
                     )
                     and action.get("asChildBuff") is True
                     and action.get("enhancingList") == []
-                    and action.get("autoFinishByAction") is False
+                    and (
+                        action.get("autoFinishByAction") is False
+                        or (
+                            event.get("buffEvent") == "DuringBuffEnable"
+                            and action.get("autoFinishByAction") is True
+                        )
+                    )
                     and subtype in ENHANCED_ACTION_ATTRIBUTE_TYPES
                 ):
                     raise ValueError(f"{action_path}: unsupported EnhancedAction semantics")

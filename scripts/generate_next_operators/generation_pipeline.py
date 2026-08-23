@@ -10,6 +10,23 @@ from typing import Any, Callable
 from source_utils import require_dict, require_list, table_row
 
 
+def validate_complete_skill_compile_configs(
+    operator: dict[str, Any], output_stage: str
+) -> None:
+    """正式产物不得引用未声明编译策略、因而不会生成变量的技能。"""
+    if output_stage != "complete":
+        return
+    slug = str(operator["slug"])
+    for index, raw_skill in enumerate(
+        require_list(operator.get("skills"), f"{slug}.skills")
+    ):
+        skill = require_dict(raw_skill, f"{slug}.skills[{index}]")
+        if not isinstance(skill.get("compile"), dict):
+            raise ValueError(
+                f"{slug}.skills[{index}].compile: complete output requires a compile config"
+            )
+
+
 def validate_routed_skills(
     operator: dict[str, Any], skills: list[Any], skill_source_dir: Any
 ) -> None:
@@ -342,6 +359,7 @@ def run_generation(*, services: GenerationPipelineServices) -> None:
         output_stage = operator.get("outputStage", "complete")
         if output_stage not in {"audit", "complete"}:
             raise ValueError(f"{slug}.outputStage: expected 'audit' or 'complete'")
+        validate_complete_skill_compile_configs(operator, str(output_stage))
         growth = table_row(loaded_tables["CharGrowthTable.json"], char_id, "CharGrowthTable")
         passive_skills = collect_operator_passive_skills(
             char_id,

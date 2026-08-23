@@ -11,6 +11,7 @@ from unittest.mock import patch
 from collections import OrderedDict
 
 from operator_ability_entity_linker import link_operator_ability_entity_definitions
+from generation_pipeline import validate_complete_skill_compile_configs
 
 from time_dilation_parser import parse_time_dilation_action, parse_time_scale_curve
 from target_group_parser import parse_circular_order_sort
@@ -20,7 +21,6 @@ from action_payload_parser import (
     parse_knock_down_output_payload,
     parse_simple_buff_stack_read_payload,
 )
-
 from generate_next_operators import (
     ELEMENT_TYPE_MAP,
     collect_blackboard_keys,
@@ -481,6 +481,22 @@ def extract_step_key(source: str) -> str | None:
         return None
     key_end = tail.find("'", key_start + 1)
     return tail[key_start + 1 : key_end]
+
+
+class GenerationPipelineManifestTests(unittest.TestCase):
+    def test_complete_output_requires_every_skill_compile_config(self) -> None:
+        operator = {
+            "slug": "fixture",
+            "skills": [{"key": "ultimate", "source": "fixture.json"}],
+        }
+
+        with self.assertRaisesRegex(
+            ValueError,
+            "complete output requires a compile config",
+        ):
+            validate_complete_skill_compile_configs(operator, "complete")
+
+        validate_complete_skill_compile_configs(operator, "audit")
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
@@ -952,6 +968,29 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                 "NaturalEnhancedDmgIncrease",
             ),
         )
+
+        action["autoFinishByAction"] = True
+        buff["buffEventAction"][0]["buffEvent"] = "DuringBuffEnable"
+        scoped_modifiers = parse_buff_enhanced_action_modifiers(
+            buff,
+            "fixture",
+            {"duration": (12.0,), "rate": (0.24,)},
+            target_reference_is_plain=lambda target: (
+                target.targetGroupKey == "" and target.targetContextKey == ""
+            ),
+        )
+        self.assertEqual(len(scoped_modifiers), 4)
+
+        buff["buffEventAction"][0]["buffEvent"] = "OnBuffStart"
+        with self.assertRaisesRegex(ValueError, "unsupported EnhancedAction semantics"):
+            parse_buff_enhanced_action_modifiers(
+                buff,
+                "fixture",
+                {"duration": (12.0,), "rate": (0.24,)},
+                target_reference_is_plain=lambda target: (
+                    target.targetGroupKey == "" and target.targetContextKey == ""
+                ),
+            )
 
 
     def test_action_duration_slow_compiles_as_scoped_buff(self) -> None:

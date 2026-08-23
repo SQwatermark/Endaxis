@@ -1015,3 +1015,24 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
   下一阶段不应继续简单扩大干员清单，而应先对梨诺的缺失资产与替换技能/动作句柄总体方案
   做一次证据复核；仍不可猜造模板寿命或技能槽路由。若资产仍不闭合，则按既定顺序转入全武器、
   装备和套装的转换与生产模拟。
+
+### 2026-08-23：梨诺 EnhancedAction 句柄复核与缺资产门禁
+
+- 梨诺 `buff_chr_0035_liino_spellenhance` 的两个 `EnhancedAction` 会直接改变对敌输出：
+  分别把同一 `spellenhance_rate` 写入脉冲与自然独立增幅区。它们位于 `DuringBuffEnable`、
+  目标为 Buff Owner、duration 与宿主使用同一黑板键，但 `autoFinishByAction=true`，之前因动作
+  句柄寿命未取证而被严格拒绝。
+- 1.4.4 `GameAssembly.dll` 的 `KeywordActionWithSubType.OnEnd`（RVA `0x04B2F3D0`）
+  现已静态反汇编确认：动作先检查数据偏移 `0x60` 的 `autoFinishByAction`，为真时遍历实例私有
+  `m_createdBuffs`、逐个结束并清空列表。`combat-spec` 提交 `593fd8c` 新增
+  `EnhancedKeywordAction` 与宿主 Buff 禁用/结束回归；定向 5/5 通过。
+- Next 生成器只新放行上述 `DuringBuffEnable + Owner + 同寿命 + 空 enhancingList`
+  形状，`OnBuffStart + autoFinishByAction=true` 仍继续失败关闭。梨诺审计产物现保留
+  `PulseEnhancedDmgIncrease` 和 `NaturalEnhancedDmgIncrease`，不再丢失这两个伤害乘区。
+- 一次正式提升试跑还发现，梨诺终结技原清单漏写 `compile` 策略，导致渲染器可以引用未生成的
+  `liinoUltimate`。正式 `complete` 阶段现强制每个技能都有结构化编译策略；将终结技试接入
+  `resolvedSequence` 后，真实首阻塞仍精确回到第 76 帧缺失
+  `abilityentity_chr_0035_liino_ult_skill_projhit` 模板。梨诺因此继续保持 `audit`，
+  不用 41 帧子 SkillData 猜寿命、born tag 或组件。
+- 本轮 Endaxis 门禁为生成器 472/472、默认来源全量生成及 `--check`、
+  `type-check:next`、Next Vitest 202 文件 1455/1455。`tmp/` 仍未跟踪且不得提交。

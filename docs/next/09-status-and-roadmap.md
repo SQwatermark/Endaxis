@@ -385,3 +385,11 @@ Ardelia 现已作为第 29 名 `complete` 干员进入正式 manifest、稳定�
 145/145，已转换槽位均 simulation-ready。干员正式化的下一个真实阻塞仍是梨诺终结技缺失的
 能力实体模板及相关动作句柄寿命；先复核本地解包/反编译证据，若仍无法闭合就保持失败关闭，
 并转入全武器、装备和套装的同口径正式转换。
+
+梨诺的第二个输出相关缺口已闭环：`combat-spec 593fd8c` 依 1.4.4
+`KeywordActionWithSubType.OnEnd` 机器码复刻 `autoFinishByAction` 只清理本动作创建的关键词
+Buff；Next 因此可将梨诺 `DuringBuffEnable` 中与宿主同寿命的脉冲/自然增幅严格内联到属性。
+正式提升试跑同时补上 `complete` 清单的逐技能编译策略完整性门禁，避免再生成引用未定义技能变量的
+TS。梨诺终结技进入真实严格编译后，第 76 帧仍因
+`abilityentity_chr_0035_liino_ult_skill_projhit` 模板在当前 1.4.4 manifest 中缺失而失败；
+保持 `audit` 是当前正确边界。若无新资产证据，下一主线转入全武器、装备与套装的正式转换和生产模拟。
