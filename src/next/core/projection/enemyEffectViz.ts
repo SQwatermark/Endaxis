@@ -5,17 +5,35 @@
  */
 import type { CombatReceiptEntry, CombatReceiptValue } from '../combat/receipt/combatReceipt';
 
-/** 一段持续的元素附着状态。 */
-export interface EnemyEffectSegment {
-  readonly kind: 'attachment';
-  readonly element: string;
-  /** 附着开始帧。 */
-  readonly startFrame: number;
-  /** 附着结束帧；未到期则等于模拟终点。 */
-  readonly endFrame: number;
-  /** 该段结束时的附着层数。 */
-  readonly layers: number;
+/** 一段持续的元素附着或元素反应状态。 */
+export type EnemyEffectSegment =
+  | {
+      readonly kind: 'attachment';
+      readonly element: string;
+      /** 该段结束时的附着层数。 */
+      readonly layers: number;
+      readonly startFrame: number;
+      readonly endFrame: number;
+    }
+  | {
+      readonly kind: 'reaction';
+      readonly reaction: string;
+      readonly level: number;
+      readonly startFrame: number;
+      readonly endFrame: number;
+    };
+
+interface OpenReactionSegment {
+  readonly segment: Extract<EnemyEffectSegment, { kind: 'reaction' }>;
+  /** 回执给出的自然到期帧；消费或刷新可以令它更早关闭。 */
+  readonly expiresAtFrame: number;
 }
+
+/*
+ * 反应持续时间来自固定 30 FPS 战斗帧。这个投影只把回执中的秒数换算为同一时间轴帧，
+ * 不参与反应状态或战斗规则计算。
+ */
+const COMBAT_FPS = 30;
 
 /** 一个瞬时效果标记。 */
 export interface EnemyEffectMarker {
@@ -94,6 +112,7 @@ export function projectEnemyEffectViz(
   }
   // 同元素当前仍生效的段（层数或时长变化时关闭旧段再开新段，保留完整历史）。
   const openSegments = new Map<string, EnemyEffectSegment>();
+  const openReactions = new Map<string, OpenReactionSegment>();
   const closedSegments: EnemyEffectSegment[] = [];
   const markers: EnemyEffectMarker[] = [];
 
@@ -102,6 +121,16 @@ export function projectEnemyEffectViz(
     if (open === undefined) return;
     openSegments.delete(element);
     closedSegments.push({ ...open, endFrame: closeFrame });
+  }
+
+  function closeOpenReaction(reaction: string, closeFrame: number): void {
+    const open = openReactions.get(reaction);
+    if (open === undefined) return;
+    openReactions.delete(reaction);
+    closedSegments.push({
+      ...open.segment,
+      endFrame: Math.min(closeFrame, open.expiresAtFrame),
+    });
   }
 
   for (const entry of entries) {
@@ -139,11 +168,26 @@ export function projectEnemyEffectViz(
     }
     if (entry.event === 'ElementalReactionApplied') {
       const data = requireData(entry);
+      const reaction = requireString(entry, data, 'reaction');
+      const level = requireNumber(entry, data, 'level');
+      const durationSeconds = requireNumber(entry, data, 'durationSeconds');
+      const expiresAtFrame = entry.frame + Math.round(durationSeconds * COMBAT_FPS);
+      closeOpenReaction(reaction, entry.frame);
+      openReactions.set(reaction, {
+        segment: {
+          kind: 'reaction',
+          reaction,
+          level,
+          startFrame: entry.frame,
+          endFrame: Math.min(endFrame, expiresAtFrame),
+        },
+        expiresAtFrame,
+      });
       markers.push({
         frame: entry.frame,
         kind: 'reactionApplied',
-        reaction: requireString(entry, data, 'reaction'),
-        level: requireNumber(entry, data, 'level'),
+        reaction,
+        level,
       });
       continue;
     }
@@ -151,17 +195,26 @@ export function projectEnemyEffectViz(
       const data = requireData(entry);
       // 未消费成功（敌人身上没有该反应）时不生成消费标记。
       if (!requireBoolean(entry, data, 'consumed')) continue;
+      const reaction = requireString(entry, data, 'reaction');
+      closeOpenReaction(reaction, entry.frame);
       markers.push({
         frame: entry.frame,
         kind: 'reactionConsumed',
-        reaction: requireString(entry, data, 'reaction'),
+        reaction,
         level: requireNumber(entry, data, 'level'),
       });
     }
   }
 
   return {
-    segments: [...closedSegments, ...openSegments.values()],
+    segments: [
+      ...closedSegments,
+      ...openSegments.values(),
+      ...[...openReactions.values()].map(open => ({
+        ...open.segment,
+        endFrame: Math.min(endFrame, open.expiresAtFrame),
+      })),
+    ],
     markers,
   };
 }

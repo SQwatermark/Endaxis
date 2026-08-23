@@ -34,6 +34,13 @@ const ELEMENT_ICONS: Readonly<Record<string, string>> = {
   nature: '/icons/icon_element_nature.webp',
 };
 
+const ELEMENT_COLORS: Readonly<Record<string, string>> = {
+  heat: '#ff5a5f',
+  electric: '#ffec3d',
+  cryo: '#69c0ff',
+  nature: '#52c41a',
+};
+
 const BURST_ICONS: Readonly<Record<string, string>> = {
   Fire: '/icons/icon_burst_fusion_fire.webp',
   Pulse: '/icons/icon_burst_fusion_pulse.webp',
@@ -46,6 +53,11 @@ const REACTION_ICONS: Readonly<Record<string, string>> = {
   corrosion: '/icons/icon_battle_debuff_corrupt.webp',
 };
 
+const REACTION_COLORS: Readonly<Record<string, string>> = {
+  electrification: '#ffec3d',
+  corrosion: '#52c41a',
+};
+
 function pointX(frame: number): number {
   return props.trackHeaderWidth + (frame + props.prepFrames) * props.pxPerFrame - props.scrollLeft;
 }
@@ -56,45 +68,69 @@ function clamp(value: number, minimum: number, maximum: number): number {
 
 const width = computed(() => Math.max(1, props.trackHeaderWidth + props.timelineWidth));
 
-/** 附着段：图标 + 层数 + 时长条，整体从段起点横向铺开。 */
-const segments = computed(() =>
-  props.viz.segments.map(segment => {
-    const left = pointX(segment.startFrame);
-    const right = pointX(segment.endFrame);
-    return {
-      key: `${segment.element}:${segment.startFrame}`,
-      element: segment.element,
-      icon: ELEMENT_ICONS[segment.element] ?? '/icons/default_icon.webp',
-      left,
-      barWidthPx: Math.max(0, right - left - ICON_SIZE - 2),
-      layers: segment.layers,
-    };
-  }),
+/** 附着与反应段共用旧版紧凑分行；互不重叠的持续段复用同一行。 */
+const segments = computed(() => {
+  const laneEnds: number[] = [];
+  return [...props.viz.segments]
+    .sort((left, right) => left.startFrame - right.startFrame || left.endFrame - right.endFrame)
+    .map(segment => {
+      let lane = laneEnds.findIndex(endFrame => endFrame <= segment.startFrame);
+      if (lane < 0) lane = laneEnds.length;
+      laneEnds[lane] = segment.endFrame;
+      const left = pointX(segment.startFrame);
+      const right = pointX(segment.endFrame);
+      const isAttachment = segment.kind === 'attachment';
+      const identity = isAttachment ? segment.element : segment.reaction;
+      const stacks = isAttachment ? segment.layers : segment.level;
+      return {
+        key: `${segment.kind}:${identity}:${segment.startFrame}`,
+        title: isAttachment
+          ? `${identity} · ${stacks} 层`
+          : `${props.labels.reaction} ${identity} Lv${stacks}`,
+        icon: isAttachment
+          ? (ELEMENT_ICONS[identity] ?? '/icons/default_icon.webp')
+          : (REACTION_ICONS[identity] ?? '/icons/default_icon.webp'),
+        color: isAttachment
+          ? (ELEMENT_COLORS[identity] ?? '#596a7a')
+          : (REACTION_COLORS[identity] ?? '#596a7a'),
+        left,
+        top: ICON_TOP + lane * 22,
+        barWidthPx: Math.max(0, right - left - ICON_SIZE - 2),
+        stacks,
+        lane,
+      };
+    });
+});
+
+const effectLaneCount = computed(() =>
+  Math.max(0, ...segments.value.map(segment => segment.lane + 1)),
 );
 
 /** 爆发/反应标记：小图标框，hover 显示说明。 */
 const markers = computed(() =>
-  props.viz.markers.map(marker => {
-    const icon =
-      marker.kind === 'burst'
-        ? (BURST_ICONS[marker.burstType ?? ''] ?? '/icons/default_icon.webp')
-        : (REACTION_ICONS[marker.reaction ?? ''] ?? '/icons/default_icon.webp');
-    const title =
-      marker.kind === 'burst'
-        ? `${props.labels.burst} ${marker.burstType ?? ''}`
-        : marker.kind === 'reactionApplied'
-          ? `${props.labels.reaction} ${marker.reaction ?? ''} Lv${marker.level ?? 0}`
-          : `${props.labels.reactionConsumed} ${marker.reaction ?? ''}`;
-    return {
-      key: `${marker.kind}:${marker.frame}:${marker.reaction ?? marker.burstType ?? ''}`,
-      icon,
-      x: clamp(pointX(marker.frame) - ICON_SIZE / 2, 0, width.value - ICON_SIZE),
-      title,
-    };
-  }),
+  props.viz.markers
+    .filter(marker => marker.kind !== 'reactionApplied')
+    .map(marker => {
+      const icon =
+        marker.kind === 'burst'
+          ? (BURST_ICONS[marker.burstType ?? ''] ?? '/icons/default_icon.webp')
+          : (REACTION_ICONS[marker.reaction ?? ''] ?? '/icons/default_icon.webp');
+      const title =
+        marker.kind === 'burst'
+          ? `${props.labels.burst} ${marker.burstType ?? ''}`
+          : marker.kind === 'reactionApplied'
+            ? `${props.labels.reaction} ${marker.reaction ?? ''} Lv${marker.level ?? 0}`
+            : `${props.labels.reactionConsumed} ${marker.reaction ?? ''}`;
+      return {
+        key: `${marker.kind}:${marker.frame}:${marker.reaction ?? marker.burstType ?? ''}`,
+        icon,
+        x: clamp(pointX(marker.frame) - ICON_SIZE / 2, 0, width.value - ICON_SIZE),
+        title,
+      };
+    }),
 );
 
-const buffLaneOffset = computed(() => (props.viz.segments.length > 0 ? 1 : 0));
+const buffLaneOffset = effectLaneCount;
 const buffs = computed(() =>
   props.buffs.map(buff => {
     const left = pointX(buff.startFrame);
@@ -112,7 +148,8 @@ const buffs = computed(() =>
 
 const rowCount = computed(() =>
   Math.max(
-    props.viz.segments.length > 0 || props.viz.markers.length > 0 ? 1 : 0,
+    effectLaneCount.value,
+    props.viz.markers.length > 0 ? 1 : 0,
     ...buffs.value.map(buff => buff.lane + buffLaneOffset.value + 1),
   ),
 );
@@ -132,17 +169,17 @@ const height = computed(() => Math.max(24, rowCount.value * 22 + 2));
         v-for="segment in segments"
         :key="segment.key"
         class="attachment-item"
-        :style="{ left: `${segment.left}px`, top: `${ICON_TOP}px` }"
-        :title="`${segment.element} · ${segment.layers} 层`"
+        :style="{ left: `${segment.left}px`, top: `${segment.top}px` }"
+        :title="segment.title"
       >
         <span class="anomaly-icon-box">
           <img :src="segment.icon" class="anomaly-icon" alt="" />
-          <span v-if="segment.layers > 1" class="anomaly-stacks">{{ segment.layers }}</span>
+          <span v-if="segment.stacks > 1" class="anomaly-stacks">{{ segment.stacks }}</span>
         </span>
         <span
           v-if="segment.barWidthPx > 0"
           class="anomaly-duration-bar"
-          :style="{ width: `${segment.barWidthPx}px` }"
+          :style="{ width: `${segment.barWidthPx}px`, backgroundColor: segment.color }"
         >
           <span class="striped-bg"></span>
         </span>

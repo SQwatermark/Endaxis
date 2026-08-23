@@ -114,6 +114,48 @@ describe('projectEnemyEffectViz', () => {
       { frame: 40, kind: 'reactionApplied', reaction: 'electrification', level: 1 },
       { frame: 80, kind: 'reactionConsumed', reaction: 'electrification', level: 1 },
     ]);
+    expect(viz.segments).toEqual([
+      {
+        kind: 'reaction',
+        reaction: 'electrification',
+        level: 1,
+        startFrame: 40,
+        endFrame: 80,
+      },
+    ]);
+  });
+
+  it('未消费的反应按回执持续时间自然收尾', () => {
+    expect(projectEnemyEffectViz([reaction(0, 30, true)], 300).segments).toEqual([
+      {
+        kind: 'reaction',
+        reaction: 'electrification',
+        level: 1,
+        startFrame: 30,
+        endFrame: 180,
+      },
+    ]);
+  });
+
+  it('再次施加会关闭旧段并从当前帧刷新持续时间', () => {
+    expect(
+      projectEnemyEffectViz([reaction(0, 30, true), reaction(1, 90, true)], 300).segments,
+    ).toEqual([
+      {
+        kind: 'reaction',
+        reaction: 'electrification',
+        level: 1,
+        startFrame: 30,
+        endFrame: 90,
+      },
+      {
+        kind: 'reaction',
+        reaction: 'electrification',
+        level: 1,
+        startFrame: 90,
+        endFrame: 240,
+      },
+    ]);
   });
 
   it('非附着 Buff 的结束回执不影响附着段', () => {

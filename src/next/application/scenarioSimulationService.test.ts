@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createEmptyScenario } from '../core/project/createProject';
 import type { ScenarioDocument } from '../core/project/schema';
+import { projectEnemyEffectViz } from '../core/projection/enemyEffectViz';
 import { perlica } from '../data/operators/perlica';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import {
@@ -146,11 +147,20 @@ describe('ScenarioSimulationService', () => {
       ids: { allocate: kind => `${kind}:1` },
     }).scenario;
 
-    const run = await createService().simulate(placed, 120);
+    const run = await createService().simulate(placed, 240);
 
     const reaction = run.receiptEntries.find(entry => entry.event === 'ElementalReactionApplied');
     expect(reaction?.data?.reaction).toBe('electrification');
     expect(reaction?.data?.level).toBe(1);
+    expect(reaction?.data?.durationSeconds).toBe(5);
+    if (reaction === undefined) throw new Error('expected Perlica combo reaction receipt');
+    expect(projectEnemyEffectViz(run.receiptEntries, run.frame).segments).toContainEqual({
+      kind: 'reaction',
+      reaction: 'electrification',
+      level: 1,
+      startFrame: reaction.frame,
+      endFrame: reaction.frame + 150,
+    });
     expect(run.receiptEntries.some(entry => entry.event === 'DamageApplied')).toBe(true);
     expect(run.receiptEntries.some(entry => entry.event === 'PoiseApplied')).toBe(true);
     expect(run.comboWindowDiagnostics[0]?.reasons).toEqual(['windowMissing']);
