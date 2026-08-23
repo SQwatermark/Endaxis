@@ -3,12 +3,12 @@
   "status": "complete",
   "sourceMigrationSchemaVersion": 1,
   "summary": {
-    "effectCount": 1052,
-    "buildStaticCount": 922,
-    "definitionReadyCount": 902,
+    "effectCount": 1049,
+    "buildStaticCount": 920,
+    "definitionReadyCount": 900,
     "dslGapCount": 32,
-    "outsideStaticDefinitionScopeCount": 118,
-    "characterPanelVisibleReadyCount": 735,
+    "outsideStaticDefinitionScopeCount": 117,
+    "characterPanelVisibleReadyCount": 733,
     "buildOnlyReadyCount": 167,
     "battlePersistentAudit": {
       "effectCount": 33,
@@ -69,9 +69,9 @@
       }
     },
     "statusCounts": {
-      "definitionReady": 902,
+      "definitionReady": 900,
       "dslGap": 32,
-      "outsideStaticDefinitionScope": 118
+      "outsideStaticDefinitionScope": 117
     },
     "gapReasonCounts": {
       "conditional-attribute-buff-unsupported": 3,
@@ -93,13 +93,13 @@
       "atkPercent": {
         "definitionReady": 54,
         "dslGap": 2,
-        "outsideStaticDefinitionScope": 31
+        "outsideStaticDefinitionScope": 30
       },
       "attributeFlat": {
-        "definitionReady": 516
+        "definitionReady": 515
       },
       "attributePercent": {
-        "definitionReady": 21,
+        "definitionReady": 20,
         "outsideStaticDefinitionScope": 2
       },
       "consume": {
@@ -177,15 +177,15 @@
         "dslGap": 14
       },
       "weaponTrait.skill1": {
-        "definitionReady": 77
+        "definitionReady": 76
       },
       "weaponTrait.skill2": {
         "definitionReady": 68
       },
       "weaponTrait.skill3": {
-        "definitionReady": 63,
+        "definitionReady": 62,
         "dslGap": 6,
-        "outsideStaticDefinitionScope": 95
+        "outsideStaticDefinitionScope": 94
       }
     },
     "specialModifierAudit": {
@@ -4509,71 +4509,6 @@
         "slot": "skill3",
         "formKey": null,
         "effectPath": "skill3.triggers[1].effects[0]",
-        "location": "trigger"
-      },
-      "group": "weaponTrait.skill3",
-      "buildTimeDeterminable": false,
-      "status": "outsideStaticDefinitionScope",
-      "characterPanelVisible": false
-    },
-    {
-      "id": "weapon:bedazzling-night-debut:skill1.effects[0]",
-      "source": {
-        "kind": "weapon",
-        "slug": "bedazzling-night-debut",
-        "sourcePath": "src/data/weapons/polearm/6/bedazzling-night-debut.ts",
-        "slot": "skill1",
-        "formKey": null,
-        "effectPath": "skill1.effects[0]",
-        "location": "passive"
-      },
-      "group": "weaponTrait.skill1",
-      "buildTimeDeterminable": true,
-      "status": "definitionReady",
-      "characterPanelVisible": true,
-      "sourceModifier": "attributeFlat",
-      "candidateDefinition": {
-        "kind": "attribute",
-        "attribute": "will",
-        "operation": "flat",
-        "value": [20, 36, 52, 68, 84, 100, 116, 132, 156]
-      }
-    },
-    {
-      "id": "weapon:bedazzling-night-debut:skill3.effects[0]",
-      "source": {
-        "kind": "weapon",
-        "slug": "bedazzling-night-debut",
-        "sourcePath": "src/data/weapons/polearm/6/bedazzling-night-debut.ts",
-        "slot": "skill3",
-        "formKey": null,
-        "effectPath": "skill3.effects[0]",
-        "location": "passive"
-      },
-      "group": "weaponTrait.skill3",
-      "buildTimeDeterminable": true,
-      "status": "definitionReady",
-      "characterPanelVisible": true,
-      "sourceModifier": "attributePercent",
-      "candidateDefinition": {
-        "kind": "attribute",
-        "attribute": "main",
-        "operation": "percent",
-        "value": [
-          0.16, 0.192, 0.22399999999999998, 0.256, 0.28800000000000003, 0.32, 0.35200000000000004,
-          0.384, 0.44799999999999995
-        ]
-      }
-    },
-    {
-      "id": "weapon:bedazzling-night-debut:skill3.triggers[0].effects[0]",
-      "source": {
-        "kind": "weapon",
-        "slug": "bedazzling-night-debut",
-        "sourcePath": "src/data/weapons/polearm/6/bedazzling-night-debut.ts",
-        "slot": "skill3",
-        "formKey": null,
-        "effectPath": "skill3.triggers[0].effects[0]",
         "location": "trigger"
       },
       "group": "weaponTrait.skill3",

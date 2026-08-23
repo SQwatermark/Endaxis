@@ -4,17 +4,17 @@
 
 ## 总览
 
-- Effect 总数：1052
-- 可无损进入迁移 IR：1052
+- Effect 总数：1049
+- 可无损进入迁移 IR：1049
 - 因源语义无法闭环而阻塞：0
-- 等待静态定义适配审计：901
-- 仍需核心能力：151
+- 等待静态定义适配审计：899
+- 仍需核心能力：150
 
 | 迁移类别            | 数量 | 来源分布                                    | Effect kind                                              | 代表样本                                                                                                                                                                                                                                                      |
 | ------------------- | ---: | ------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 构筑期静态贡献      |  901 | `gearPiece` 673、`gearSet` 20、`weapon` 208 | `status` 901                                             | `src/data/weapons/arts-unit/3/jiminy-12.ts#skill1.effects[0]`<br>`src/data/weapons/arts-unit/3/jiminy-12.ts#skill3.effects[0]`<br>`src/data/weapons/arts-unit/4/fluorescent-roc.ts#skill1.effects[0]`                                                         |
+| 构筑期静态贡献      |  899 | `gearPiece` 673、`gearSet` 20、`weapon` 206 | `status` 899                                             | `src/data/weapons/arts-unit/3/jiminy-12.ts#skill1.effects[0]`<br>`src/data/weapons/arts-unit/3/jiminy-12.ts#skill3.effects[0]`<br>`src/data/weapons/arts-unit/4/fluorescent-roc.ts#skill1.effects[0]`                                                         |
 | 战斗初始化/常驻修正 |   33 | `gearPiece` 21、`gearSet` 6、`weapon` 6     | `status` 33                                              | `src/data/weapons/arts-unit/4/hypernova-auto.ts#skill3.effects[0]`<br>`src/data/weapons/greatsword/6/sundered-prince.ts#skill3.effects[0]`<br>`src/data/weapons/polearm/4/pathfinders-beacon.ts#skill3.effects[0]`                                            |
-| 事件触发行为        |  112 | `gearSet` 21、`weapon` 91                   | `consume` 1、`damageHit` 2、`spRecovery` 1、`status` 108 | `src/data/weapons/arts-unit/4/fluorescent-roc.ts#skill3.triggers[0].effects[0]`<br>`src/data/weapons/arts-unit/5/obj-arts-identifier.ts#skill3.triggers[0].effects[0]`<br>`src/data/weapons/arts-unit/5/stanza-of-memorials.ts#skill3.triggers[0].effects[0]` |
+| 事件触发行为        |  111 | `gearSet` 21、`weapon` 90                   | `consume` 1、`damageHit` 2、`spRecovery` 1、`status` 107 | `src/data/weapons/arts-unit/4/fluorescent-roc.ts#skill3.triggers[0].effects[0]`<br>`src/data/weapons/arts-unit/5/obj-arts-identifier.ts#skill3.triggers[0].effects[0]`<br>`src/data/weapons/arts-unit/5/stanza-of-memorials.ts#skill3.triggers[0].effects[0]` |
 | 一次性行为          |    6 | `gearSet` 2、`weapon` 4                     | `oneTime` 6                                              | `src/data/weapons/polearm/5/cohesive-traction.ts#skill3.triggers[0].effects[0]`<br>`src/data/weapons/sword/5/aspirant.ts#skill3.triggers[0].effects[0]`<br>`src/data/weapons/sword/6/glorious-memory.ts#skill3.triggers[0].effects[0]`                        |
 | 当前无法转换        |    0 | -                                           | -                                                        | -                                                                                                                                                                                                                                                             |
 
@@ -34,27 +34,27 @@
 
 | 能力                                       | 涉及 effect 数 |
 | ------------------------------------------ | -------------: |
-| `effect.status`                            |           1042 |
-| `target.self`                              |           1011 |
-| `build.modifier.attributeFlat`             |            516 |
+| `effect.status`                            |           1039 |
+| `target.self`                              |           1009 |
+| `build.modifier.attributeFlat`             |            515 |
 | `build.modifier.dmgBonus`                  |            166 |
-| `lifecycle.duration`                       |            112 |
+| `lifecycle.duration`                       |            111 |
 | `event-target.enemy`                       |             68 |
 | `combat.modifier.dmgBonus`                 |             63 |
-| `event.onStatusApplied`                    |             56 |
+| `event.onStatusApplied`                    |             55 |
 | `build.modifier.atkPercent`                |             54 |
 | `build.modifier.ultimateGainEfficiency`    |             44 |
 | `build.modifier.artsIntensity`             |             34 |
-| `combat.modifier.atkPercent`               |             33 |
-| `lifecycle.maxStacks`                      |             33 |
-| `lifecycle.stackStrategy`                  |             26 |
+| `combat.modifier.atkPercent`               |             32 |
+| `lifecycle.maxStacks`                      |             32 |
 | `build.modifier.hpPercent`                 |             25 |
+| `lifecycle.stackStrategy`                  |             25 |
 | `build.modifier.critRate`                  |             23 |
-| `build.modifier.attributePercent`          |             21 |
+| `build.modifier.attributePercent`          |             20 |
 | `event.onActionStart`                      |             20 |
 | `event.onStatusConsumed`                   |             20 |
-| `target.team`                              |             16 |
-| `lifecycle.icd`                            |             15 |
+| `target.team`                              |             15 |
+| `lifecycle.icd`                            |             14 |
 | `condition.operatorStatus`                 |             13 |
 | `condition.not`                            |             11 |
 | `target.enemy`                             |             11 |
@@ -63,8 +63,8 @@
 | `build.modifier.atkFlat`                   |              9 |
 | `build.modifier.flatHp`                    |              9 |
 | `combat.modifier.heal`                     |              9 |
-| `event-target.self`                        |              9 |
 | `combat.modifier.protection`               |              8 |
+| `event-target.self`                        |              8 |
 | `target.owner`                             |              7 |
 | `condition.enemyStatus`                    |              6 |
 | `effect.oneTime`                           |              6 |

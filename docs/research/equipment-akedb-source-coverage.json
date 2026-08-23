@@ -1,0 +1,435 @@
+{
+  "schemaVersion": 1,
+  "auditStatus": "complete",
+  "coverageStatus": "partial",
+  "sourceVersion": "1.4.4@9433094-12",
+  "sourceCounts": {
+    "akedbWeapons": 77,
+    "akedbGearSets": 23,
+    "legacyWeapons": 76,
+    "legacyGearPieces": 242,
+    "legacyGearSets": 23,
+    "legacySentinels": 1
+  },
+  "weaponCoverage": {
+    "mapped": 76,
+    "missingGameIds": ["wpn_lance_0014"],
+    "unmappedLegacySlugs": [],
+    "ambiguous": [],
+    "matches": [
+      {
+        "gameId": "wpn_claym_0003",
+        "slug": "industry-01"
+      },
+      {
+        "gameId": "wpn_claym_0004",
+        "slug": "exemplar"
+      },
+      {
+        "gameId": "wpn_claym_0006",
+        "slug": "former-finery"
+      },
+      {
+        "gameId": "wpn_claym_0007",
+        "slug": "thunderberge"
+      },
+      {
+        "gameId": "wpn_claym_0008",
+        "slug": "sundered-prince"
+      },
+      {
+        "gameId": "wpn_claym_0009",
+        "slug": "quencher"
+      },
+      {
+        "gameId": "wpn_claym_0010",
+        "slug": "darhoff-7"
+      },
+      {
+        "gameId": "wpn_claym_0011",
+        "slug": "seeker-of-dark-lung"
+      },
+      {
+        "gameId": "wpn_claym_0012",
+        "slug": "finishing-call"
+      },
+      {
+        "gameId": "wpn_claym_0013",
+        "slug": "khravengger"
+      },
+      {
+        "gameId": "wpn_claym_0014",
+        "slug": "ancient-canal"
+      },
+      {
+        "gameId": "wpn_claym_0015",
+        "slug": "obj-heavy-burden"
+      },
+      {
+        "gameId": "wpn_claym_0016",
+        "slug": "phantom-pain"
+      },
+      {
+        "gameId": "wpn_claym_0017",
+        "slug": "amaranthine-tassel"
+      },
+      {
+        "gameId": "wpn_funnel_0001",
+        "slug": "hypernova-auto"
+      },
+      {
+        "gameId": "wpn_funnel_0002",
+        "slug": "jiminy-12"
+      },
+      {
+        "gameId": "wpn_funnel_0003",
+        "slug": "fluorescent-roc"
+      },
+      {
+        "gameId": "wpn_funnel_0004",
+        "slug": "wild-wanderer"
+      },
+      {
+        "gameId": "wpn_funnel_0005",
+        "slug": "stanza-of-memorials"
+      },
+      {
+        "gameId": "wpn_funnel_0006",
+        "slug": "opus-etch-figure"
+      },
+      {
+        "gameId": "wpn_funnel_0007",
+        "slug": "monaihe"
+      },
+      {
+        "gameId": "wpn_funnel_0008",
+        "slug": "detonation-unit"
+      },
+      {
+        "gameId": "wpn_funnel_0009",
+        "slug": "oblivion"
+      },
+      {
+        "gameId": "wpn_funnel_0010",
+        "slug": "chivalric-virtues"
+      },
+      {
+        "gameId": "wpn_funnel_0011",
+        "slug": "delivery-guaranteed"
+      },
+      {
+        "gameId": "wpn_funnel_0012",
+        "slug": "freedom-to-proselytize"
+      },
+      {
+        "gameId": "wpn_funnel_0013",
+        "slug": "dreams-of-the-starry-beach"
+      },
+      {
+        "gameId": "wpn_funnel_0014",
+        "slug": "obj-arts-identifier"
+      },
+      {
+        "gameId": "wpn_funnel_0015",
+        "slug": "lone-barge"
+      },
+      {
+        "gameId": "wpn_funnel_0016",
+        "slug": "type-42-solemn-phalanx"
+      },
+      {
+        "gameId": "wpn_funnel_0017",
+        "slug": "flickers-in-the-mist"
+      },
+      {
+        "gameId": "wpn_funnel_0018",
+        "slug": "junction-point"
+      },
+      {
+        "gameId": "wpn_lance_0003",
+        "slug": "pathfinders-beacon"
+      },
+      {
+        "gameId": "wpn_lance_0004",
+        "slug": "chimeric-justice"
+      },
+      {
+        "gameId": "wpn_lance_0006",
+        "slug": "cohesive-traction"
+      },
+      {
+        "gameId": "wpn_lance_0007",
+        "slug": "beacon-of-duty"
+      },
+      {
+        "gameId": "wpn_lance_0008",
+        "slug": "aggeloslayer"
+      },
+      {
+        "gameId": "wpn_lance_0009",
+        "slug": "opero-77"
+      },
+      {
+        "gameId": "wpn_lance_0010",
+        "slug": "valiant"
+      },
+      {
+        "gameId": "wpn_lance_0011",
+        "slug": "jet"
+      },
+      {
+        "gameId": "wpn_lance_0012",
+        "slug": "mountain-bearer"
+      },
+      {
+        "gameId": "wpn_lance_0013",
+        "slug": "obj-razorhorn"
+      },
+      {
+        "gameId": "wpn_lance_0015",
+        "slug": "blessing-of-lustrous-carmine"
+      },
+      {
+        "gameId": "wpn_lance_0016",
+        "slug": "golden-age"
+      },
+      {
+        "gameId": "wpn_pistol_0001",
+        "slug": "peco-5"
+      },
+      {
+        "gameId": "wpn_pistol_0002",
+        "slug": "howling-guard"
+      },
+      {
+        "gameId": "wpn_pistol_0003",
+        "slug": "long-road"
+      },
+      {
+        "gameId": "wpn_pistol_0004",
+        "slug": "rational-farewell"
+      },
+      {
+        "gameId": "wpn_pistol_0005",
+        "slug": "navigator"
+      },
+      {
+        "gameId": "wpn_pistol_0006",
+        "slug": "opus-the-living"
+      },
+      {
+        "gameId": "wpn_pistol_0007",
+        "slug": "home-longing"
+      },
+      {
+        "gameId": "wpn_pistol_0008",
+        "slug": "wedge"
+      },
+      {
+        "gameId": "wpn_pistol_0009",
+        "slug": "clannibal"
+      },
+      {
+        "gameId": "wpn_pistol_0010",
+        "slug": "artzy-tyrannical"
+      },
+      {
+        "gameId": "wpn_pistol_0011",
+        "slug": "brigands-calling"
+      },
+      {
+        "gameId": "wpn_pistol_0012",
+        "slug": "obj-velocitous"
+      },
+      {
+        "gameId": "wpn_sword_0003",
+        "slug": "tarr-11"
+      },
+      {
+        "gameId": "wpn_sword_0005",
+        "slug": "sundering-steel"
+      },
+      {
+        "gameId": "wpn_sword_0006",
+        "slug": "forgeborn-scathe"
+      },
+      {
+        "gameId": "wpn_sword_0007",
+        "slug": "fortmaker"
+      },
+      {
+        "gameId": "wpn_sword_0008",
+        "slug": "prominent-edge"
+      },
+      {
+        "gameId": "wpn_sword_0009",
+        "slug": "wave-tide"
+      },
+      {
+        "gameId": "wpn_sword_0010",
+        "slug": "umbral-torch"
+      },
+      {
+        "gameId": "wpn_sword_0011",
+        "slug": "rapid-ascent"
+      },
+      {
+        "gameId": "wpn_sword_0012",
+        "slug": "thermite-cutter"
+      },
+      {
+        "gameId": "wpn_sword_0013",
+        "slug": "eminent-repute"
+      },
+      {
+        "gameId": "wpn_sword_0014",
+        "slug": "white-night-nova"
+      },
+      {
+        "gameId": "wpn_sword_0015",
+        "slug": "aspirant"
+      },
+      {
+        "gameId": "wpn_sword_0016",
+        "slug": "never-rest"
+      },
+      {
+        "gameId": "wpn_sword_0017",
+        "slug": "glorious-memory"
+      },
+      {
+        "gameId": "wpn_sword_0018",
+        "slug": "twelve-questions"
+      },
+      {
+        "gameId": "wpn_sword_0019",
+        "slug": "obj-edge-of-lightness"
+      },
+      {
+        "gameId": "wpn_sword_0020",
+        "slug": "finchaser-30"
+      },
+      {
+        "gameId": "wpn_sword_0021",
+        "slug": "grand-vision"
+      },
+      {
+        "gameId": "wpn_sword_0022",
+        "slug": "lupine-scarlet"
+      },
+      {
+        "gameId": "wpn_sword_0026",
+        "slug": "farsight"
+      }
+    ]
+  },
+  "gearCoverage": {
+    "mappedItemIds": 241,
+    "definitionCount": 242,
+    "duplicateItemMappings": [
+      {
+        "gameId": "item_equip_t4_suit_usp02_hand_01",
+        "slugs": ["eternal-xiranite-gloves", "eternal-xiranite-gloves-t1"]
+      }
+    ]
+  },
+  "gearSetCoverage": {
+    "mapped": 23,
+    "missingGameIds": [],
+    "unmappedLegacySlugs": [],
+    "matches": [
+      {
+        "gameId": "suit_agi01",
+        "slug": "roving-msgr"
+      },
+      {
+        "gameId": "suit_atb01",
+        "slug": "frontiers"
+      },
+      {
+        "gameId": "suit_atk01",
+        "slug": "aburreys-legacy"
+      },
+      {
+        "gameId": "suit_atk02",
+        "slug": "type-50-yinglung"
+      },
+      {
+        "gameId": "suit_attri01",
+        "slug": "bonekrusha"
+      },
+      {
+        "gameId": "suit_burst01",
+        "slug": "tide-surge"
+      },
+      {
+        "gameId": "suit_combo_cd01",
+        "slug": "qingbo"
+      },
+      {
+        "gameId": "suit_criti01",
+        "slug": "mi-security"
+      },
+      {
+        "gameId": "suit_crush_fracture",
+        "slug": "grizzled-edge"
+      },
+      {
+        "gameId": "suit_expend_spell01",
+        "slug": "xiranflow"
+      },
+      {
+        "gameId": "suit_fire_natr01",
+        "slug": "hot-work"
+      },
+      {
+        "gameId": "suit_generaltype",
+        "slug": "aic-fieldwork"
+      },
+      {
+        "gameId": "suit_heal01",
+        "slug": "lynx"
+      },
+      {
+        "gameId": "suit_phy01",
+        "slug": "swordmancer"
+      },
+      {
+        "gameId": "suit_poise01",
+        "slug": "aethertech"
+      },
+      {
+        "gameId": "suit_pulse_cryst01",
+        "slug": "pulser-labs"
+      },
+      {
+        "gameId": "suit_str01",
+        "slug": "armored-msgr"
+      },
+      {
+        "gameId": "suit_stragi01",
+        "slug": "aic-heavy"
+      },
+      {
+        "gameId": "suit_usp01",
+        "slug": "catastrophe"
+      },
+      {
+        "gameId": "suit_usp02",
+        "slug": "eternal-xiranite"
+      },
+      {
+        "gameId": "suit_will01",
+        "slug": "mordvolt-resistant"
+      },
+      {
+        "gameId": "suit_wisd01",
+        "slug": "mordvolt-insulation"
+      },
+      {
+        "gameId": "suit_wisdwill01",
+        "slug": "aic-light"
+      }
+    ]
+  }
+}

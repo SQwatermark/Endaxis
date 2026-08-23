@@ -4,6 +4,8 @@
 
 ## 1. 当前状态
 
+2026-08-23 已建立版本化 AKEDB 装备身份覆盖审计：统一下载器现在固定获取 `WeaponBasicTable`、`ItemTable` 与 `EquipSuitTable`，并与旧迁移快照严格对照。当前 `1.4.4@9433094-12` 为武器 76/77、真实套装 23/23；唯一缺失武器身份是 `wpn_lance_0014`（曜夜）。另有 `eternal-xiranite-gloves-t1` 与正式版共用同一 AKEDB 图标身份、但旧定义属性不同，必须等待真实 Item/装备属性表消歧，不能按图标合并。旧 `no-set-bonuses` 已明确作为本地哨兵排除在 23 套游戏套装之外。下一步先从 SkillPatch、SkillData 与两份 BuffData 正式生成曜夜，再按同一证据链扩大全武器与套装行为覆盖。
+
 ### 已接入
 
 - V2 项目 schema、结构校验、序列化和迁移端口；

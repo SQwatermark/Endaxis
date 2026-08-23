@@ -3,6 +3,8 @@
 > 更新时间：2026-08-23（Asia/Shanghai）
 > 本文是变化最快、优先级最高的交接入口。完全不了解背景时，先读 [交接文档首页](./README.md)，再读本文和 [Next 文档入口](../next/README.md)。
 
+2026-08-23 装备主线已从旧适配器转入版本化 AKEDB 来源审计。`scripts/download_akedb_next_sources.py` 现在同一版本下载 8 张表，新增 `WeaponBasicTable`、`ItemTable`、`EquipSuitTable`；`scripts.generate_next_equipment.generate_akedb_source_audit` 严格校验所有武器/套装 SkillPatch 引用和本地身份映射。当前 `1.4.4@9433094-12` 结果为武器 76/77、真实套装 23/23、单件装备 242 个定义对应 241 个唯一 Item 图标身份。缺失武器为 `wpn_lance_0014`（曜夜）；`eternal-xiranite-gloves-t1` 与 `eternal-xiranite-gloves` 共用 `item_equip_t4_suit_usp02_hand_01` 图标但旧第二属性不同，保持消歧缺口。旧报告已按当前目录刷新为 342 个定义、1049 个 effect；`no-set-bonuses` 是哨兵，不计入 AKEDB 23 套。身份覆盖不等于行为覆盖，后续先用曜夜贯通治疗输出事件、目标排除自身、0.1 秒标记限频和 20 秒四层攻击 Buff。
+
 ## 1. 当前目标与边界
 
 当前工作位于 `feature/next`，目标是在不修改旧版实现的前提下建设 Endaxis Next：以干员、武器、装备、敌人和用户操作序列为输入，准确模拟战斗过程，并由统一结果生成资源曲线、状态、伤害、诊断和日志。新版 UI 尽可能保持旧版布局与交互。

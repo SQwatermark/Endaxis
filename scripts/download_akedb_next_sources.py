@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Download the version-locked AKEDB inputs used by the Next operator generator."""
+"""Download the version-locked AKEDB inputs used by the Next data generators."""
 
 from __future__ import annotations
 
@@ -20,6 +20,9 @@ TABLE_NAMES = (
     "CharacterPotentialTable",
     "PotentialTalentEffectTable",
     "SkillPatchTable",
+    "WeaponBasicTable",
+    "ItemTable",
+    "EquipSuitTable",
 )
 JSON_COLLECTIONS = {
     "SkillData": "skill-data-cdn",

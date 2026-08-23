@@ -3,11 +3,11 @@
   "status": "complete",
   "sourceSnapshotVersion": 1,
   "summary": {
-    "effectCount": 1052,
+    "effectCount": 1049,
     "classificationCounts": {
       "battlePersistentModifier": 33,
-      "buildStaticContribution": 901,
-      "eventTriggeredBehavior": 112,
+      "buildStaticContribution": 899,
+      "eventTriggeredBehavior": 111,
       "oneTimeBehavior": 6
     },
     "classificationSourceCounts": {
@@ -19,11 +19,11 @@
       "buildStaticContribution": {
         "gearPiece": 673,
         "gearSet": 20,
-        "weapon": 208
+        "weapon": 206
       },
       "eventTriggeredBehavior": {
         "gearSet": 21,
-        "weapon": 91
+        "weapon": 90
       },
       "oneTimeBehavior": {
         "gearSet": 2,
@@ -35,38 +35,38 @@
         "status": 33
       },
       "buildStaticContribution": {
-        "status": 901
+        "status": 899
       },
       "eventTriggeredBehavior": {
         "consume": 1,
         "damageHit": 2,
         "spRecovery": 1,
-        "status": 108
+        "status": 107
       },
       "oneTimeBehavior": {
         "oneTime": 6
       }
     },
     "irReadinessCounts": {
-      "convertible": 1052
+      "convertible": 1049
     },
     "downstreamReadinessCounts": {
-      "requiresCoreCapabilities": 151,
-      "requiresDefinitionAudit": 901
+      "requiresCoreCapabilities": 150,
+      "requiresDefinitionAudit": 899
     },
     "requirementCounts": {
       "build.modifier.artsIntensity": 34,
       "build.modifier.atkFlat": 9,
       "build.modifier.atkPercent": 54,
-      "build.modifier.attributeFlat": 516,
-      "build.modifier.attributePercent": 21,
+      "build.modifier.attributeFlat": 515,
+      "build.modifier.attributePercent": 20,
       "build.modifier.critRate": 23,
       "build.modifier.dmgBonus": 166,
       "build.modifier.flatHp": 9,
       "build.modifier.hpPercent": 25,
       "build.modifier.ultimateGainEfficiency": 44,
       "combat.modifier.artsIntensity": 3,
-      "combat.modifier.atkPercent": 33,
+      "combat.modifier.atkPercent": 32,
       "combat.modifier.attributePercent": 2,
       "combat.modifier.cooldownReductionPercent": 2,
       "combat.modifier.critRate": 3,
@@ -88,28 +88,28 @@
       "effect.damageHit": 2,
       "effect.oneTime": 6,
       "effect.spRecovery": 1,
-      "effect.status": 1042,
+      "effect.status": 1039,
       "event-target.enemy": 68,
-      "event-target.self": 9,
+      "event-target.self": 8,
       "event.onActionStart": 20,
       "event.onBattleStart": 3,
       "event.onFinalStrike": 2,
       "event.onHit": 10,
       "event.onSpRecovery": 6,
-      "event.onStatusApplied": 56,
+      "event.onStatusApplied": 55,
       "event.onStatusConsumed": 20,
       "event.onStatusExpire": 1,
-      "lifecycle.duration": 112,
-      "lifecycle.icd": 15,
+      "lifecycle.duration": 111,
+      "lifecycle.icd": 14,
       "lifecycle.ignoreTimeShift": 5,
-      "lifecycle.maxStacks": 33,
-      "lifecycle.stackStrategy": 26,
+      "lifecycle.maxStacks": 32,
+      "lifecycle.stackStrategy": 25,
       "lifecycle.stacks": 3,
       "scaling.status": 5,
       "target.enemy": 11,
       "target.owner": 7,
-      "target.self": 1011,
-      "target.team": 16,
+      "target.self": 1009,
+      "target.team": 15,
       "target.teamExcludeSameElement": 1,
       "target.teamExcludeSelf": 6
     },
@@ -10602,173 +10602,6 @@
         "target": "team",
         "value": [4, 4.8, 5.6, 6.4, 7.2, 8, 8.8, 9.6, 11.2],
         "duration": 30
-      }
-    },
-    {
-      "id": "weapon:bedazzling-night-debut:skill1.effects[0]",
-      "source": {
-        "kind": "weapon",
-        "slug": "bedazzling-night-debut",
-        "sourcePath": "src/data/weapons/polearm/6/bedazzling-night-debut.ts",
-        "slot": "skill1",
-        "formKey": null,
-        "effectPath": "skill1.effects[0]",
-        "location": "passive"
-      },
-      "classification": {
-        "kind": "buildStaticContribution",
-        "irStatus": "convertible",
-        "buildResolver": true,
-        "combatInitialization": false,
-        "eventDriven": false,
-        "oneTime": false,
-        "blockers": [],
-        "downstreamStatus": "requiresDefinitionAudit",
-        "pendingCapabilities": ["definition.equipmentModifier"]
-      },
-      "semantics": {
-        "effectKind": "status",
-        "modifier": "attributeFlat",
-        "target": {
-          "scope": "self",
-          "explicit": true
-        },
-        "trigger": null,
-        "condition": null,
-        "lifecycle": {},
-        "requirements": ["build.modifier.attributeFlat", "effect.status", "target.self"]
-      },
-      "sourceEffect": {
-        "kind": "status",
-        "stat": {
-          "modifier": "attributeFlat",
-          "attribute": "will"
-        },
-        "target": "self",
-        "value": [20, 36, 52, 68, 84, 100, 116, 132, 156]
-      }
-    },
-    {
-      "id": "weapon:bedazzling-night-debut:skill3.effects[0]",
-      "source": {
-        "kind": "weapon",
-        "slug": "bedazzling-night-debut",
-        "sourcePath": "src/data/weapons/polearm/6/bedazzling-night-debut.ts",
-        "slot": "skill3",
-        "formKey": null,
-        "effectPath": "skill3.effects[0]",
-        "location": "passive"
-      },
-      "classification": {
-        "kind": "buildStaticContribution",
-        "irStatus": "convertible",
-        "buildResolver": true,
-        "combatInitialization": false,
-        "eventDriven": false,
-        "oneTime": false,
-        "blockers": [],
-        "downstreamStatus": "requiresDefinitionAudit",
-        "pendingCapabilities": ["definition.equipmentModifier"]
-      },
-      "semantics": {
-        "effectKind": "status",
-        "modifier": "attributePercent",
-        "target": {
-          "scope": "self",
-          "explicit": true
-        },
-        "trigger": null,
-        "condition": null,
-        "lifecycle": {},
-        "requirements": ["build.modifier.attributePercent", "effect.status", "target.self"]
-      },
-      "sourceEffect": {
-        "kind": "status",
-        "stat": {
-          "modifier": "attributePercent",
-          "attribute": "main"
-        },
-        "target": "self",
-        "value": [16, 19.2, 22.4, 25.6, 28.8, 32, 35.2, 38.4, 44.8]
-      }
-    },
-    {
-      "id": "weapon:bedazzling-night-debut:skill3.triggers[0].effects[0]",
-      "source": {
-        "kind": "weapon",
-        "slug": "bedazzling-night-debut",
-        "sourcePath": "src/data/weapons/polearm/6/bedazzling-night-debut.ts",
-        "slot": "skill3",
-        "formKey": null,
-        "effectPath": "skill3.triggers[0].effects[0]",
-        "location": "trigger"
-      },
-      "classification": {
-        "kind": "eventTriggeredBehavior",
-        "irStatus": "convertible",
-        "buildResolver": false,
-        "combatInitialization": false,
-        "eventDriven": true,
-        "oneTime": false,
-        "blockers": [],
-        "downstreamStatus": "requiresCoreCapabilities",
-        "pendingCapabilities": [
-          "combat.modifier.atkPercent",
-          "effect.status",
-          "event-target.self",
-          "event.onStatusApplied",
-          "lifecycle.duration",
-          "lifecycle.icd",
-          "lifecycle.maxStacks",
-          "lifecycle.stackStrategy",
-          "target.team"
-        ]
-      },
-      "semantics": {
-        "effectKind": "status",
-        "modifier": "atkPercent",
-        "target": {
-          "scope": "team",
-          "explicit": true
-        },
-        "trigger": {
-          "kind": "onStatusApplied",
-          "status": {
-            "modifier": "heal"
-          },
-          "target": "self"
-        },
-        "condition": null,
-        "lifecycle": {
-          "duration": 20,
-          "icd": 0.1,
-          "maxStacks": 4,
-          "stackStrategy": "INDEPENDENT"
-        },
-        "requirements": [
-          "combat.modifier.atkPercent",
-          "effect.status",
-          "event-target.self",
-          "event.onStatusApplied",
-          "lifecycle.duration",
-          "lifecycle.icd",
-          "lifecycle.maxStacks",
-          "lifecycle.stackStrategy",
-          "target.team"
-        ]
-      },
-      "sourceEffect": {
-        "id": "bedazzling-night-debut-atk",
-        "kind": "status",
-        "stat": {
-          "modifier": "atkPercent"
-        },
-        "target": "team",
-        "value": [3.5, 4.2, 4.9, 5.6, 6.3, 7, 7.7, 8.4, 9.8],
-        "stackStrategy": "INDEPENDENT",
-        "maxStacks": 4,
-        "duration": 20,
-        "icd": 0.1
       }
     },
     {

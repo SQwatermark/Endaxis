@@ -4,15 +4,15 @@
   "sourceCounts": {
     "gearPiece": 242,
     "gearSet": 24,
-    "weapon": 77
+    "weapon": 76
   },
   "formCounts": {
     "weaponDefinitions": 1,
     "weaponVariants": 2
   },
   "effectLocationCounts": {
-    "passive": 934,
-    "trigger": 118
+    "passive": 932,
+    "trigger": 117
   },
   "effectKinds": {
     "consume": {
@@ -60,12 +60,12 @@
       "paths": ["src/data/gearsets/catastrophe.ts#triggers[0].effects[0]"]
     },
     "status": {
-      "count": 1042,
-      "sourceCount": 341,
+      "count": 1039,
+      "sourceCount": 340,
       "sourceKindCounts": {
         "gearPiece": 694,
         "gearSet": 45,
-        "weapon": 303
+        "weapon": 300
       },
       "paths": [
         "src/data/weapons/arts-unit/3/jiminy-12.ts#skill1.effects[0]",
@@ -269,9 +269,6 @@
         "src/data/weapons/polearm/6/beacon-of-duty.ts#skill3.effects[0]",
         "src/data/weapons/polearm/6/beacon-of-duty.ts#skill3.triggers[0].effects[0]",
         "src/data/weapons/polearm/6/beacon-of-duty.ts#skill3.triggers[1].effects[0]",
-        "src/data/weapons/polearm/6/bedazzling-night-debut.ts#skill1.effects[0]",
-        "src/data/weapons/polearm/6/bedazzling-night-debut.ts#skill3.effects[0]",
-        "src/data/weapons/polearm/6/bedazzling-night-debut.ts#skill3.triggers[0].effects[0]",
         "src/data/weapons/polearm/6/blessing-of-lustrous-carmine.ts#skill1.effects[0]",
         "src/data/weapons/polearm/6/blessing-of-lustrous-carmine.ts#skill2.effects[0]",
         "src/data/weapons/polearm/6/blessing-of-lustrous-carmine.ts#skill3.effects[0]",
@@ -1194,12 +1191,12 @@
       ]
     },
     "atkPercent": {
-      "count": 87,
-      "sourceCount": 69,
+      "count": 86,
+      "sourceCount": 68,
       "sourceKindCounts": {
         "gearPiece": 16,
         "gearSet": 9,
-        "weapon": 62
+        "weapon": 61
       },
       "paths": [
         "src/data/weapons/arts-unit/4/fluorescent-roc.ts#skill2.effects[0].stat",
@@ -1237,7 +1234,6 @@
         "src/data/weapons/polearm/4/pathfinders-beacon.ts#skill3.effects[0].stat",
         "src/data/weapons/polearm/5/chimeric-justice.ts#skill3.triggers[0].effects[0].stat",
         "src/data/weapons/polearm/5/obj-razorhorn.ts#skill3.triggers[0].effects[0].stat",
-        "src/data/weapons/polearm/6/bedazzling-night-debut.ts#skill3.triggers[0].effects[0].stat",
         "src/data/weapons/polearm/6/blessing-of-lustrous-carmine.ts#skill3.triggers[0].effects[0].stat",
         "src/data/weapons/polearm/6/jet.ts#skill2.effects[0].stat",
         "src/data/weapons/polearm/6/valiant.ts#skill3.effects[0].stat",
@@ -1292,12 +1288,12 @@
       ]
     },
     "attributeFlat": {
-      "count": 516,
-      "sourceCount": 321,
+      "count": 515,
+      "sourceCount": 320,
       "sourceKindCounts": {
         "gearPiece": 435,
         "gearSet": 4,
-        "weapon": 77
+        "weapon": 76
       },
       "paths": [
         "src/data/weapons/arts-unit/3/jiminy-12.ts#skill1.effects[0].stat",
@@ -1351,7 +1347,6 @@
         "src/data/weapons/polearm/5/cohesive-traction.ts#skill1.effects[0].stat",
         "src/data/weapons/polearm/5/obj-razorhorn.ts#skill1.effects[0].stat",
         "src/data/weapons/polearm/6/beacon-of-duty.ts#skill1.effects[0].stat",
-        "src/data/weapons/polearm/6/bedazzling-night-debut.ts#skill1.effects[0].stat",
         "src/data/weapons/polearm/6/blessing-of-lustrous-carmine.ts#skill1.effects[0].stat",
         "src/data/weapons/polearm/6/golden-age.ts#skill1.effects[0].stat",
         "src/data/weapons/polearm/6/jet.ts#skill1.effects[0].stat",
@@ -1819,11 +1814,11 @@
       ]
     },
     "attributePercent": {
-      "count": 23,
-      "sourceCount": 22,
+      "count": 22,
+      "sourceCount": 21,
       "sourceKindCounts": {
         "gearPiece": 11,
-        "weapon": 12
+        "weapon": 11
       },
       "paths": [
         "src/data/weapons/arts-unit/5/freedom-to-proselytize.ts#skill3.effects[0].stat",
@@ -1833,7 +1828,6 @@
         "src/data/weapons/greatsword/5/finishing-call.ts#skill3.effects[0].stat",
         "src/data/weapons/greatsword/5/obj-heavy-burden.ts#skill3.effects[0].stat",
         "src/data/weapons/greatsword/5/seeker-of-dark-lung.ts#skill3.effects[0].stat",
-        "src/data/weapons/polearm/6/bedazzling-night-debut.ts#skill3.effects[0].stat",
         "src/data/weapons/polearm/6/mountain-bearer.ts#skill3.triggers[0].effects[0].stat",
         "src/data/weapons/polearm/6/mountain-bearer.ts#skill3.triggers[1].effects[0].stat",
         "src/data/weapons/sword/5/obj-edge-of-lightness.ts#skill3.effects[0].stat",
@@ -2170,16 +2164,15 @@
       ]
     },
     "heal": {
-      "count": 13,
-      "sourceCount": 13,
+      "count": 12,
+      "sourceCount": 12,
       "sourceKindCounts": {
         "gearPiece": 9,
-        "weapon": 4
+        "weapon": 3
       },
       "paths": [
         "src/data/weapons/arts-unit/6/chivalric-virtues.ts#skill3.triggers[0].trigger.status",
         "src/data/weapons/greatsword/6/thunderberge.ts#skill3.triggers[0].trigger.status",
-        "src/data/weapons/polearm/6/bedazzling-night-debut.ts#skill3.triggers[0].trigger.status",
         "src/data/weapons/polearm/6/golden-age.ts#skill3.triggers[0].trigger.status[0]",
         "src/data/gearpieces/eternal-xiranite/eternal-xiranite-power-core-t1.ts#skill3.effects[0].stat",
         "src/data/gearpieces/lynx/lynx-aegis-injector.ts#skill2.effects[0].stat",
@@ -2466,11 +2459,11 @@
       ]
     },
     "onStatusApplied": {
-      "count": 51,
-      "sourceCount": 41,
+      "count": 50,
+      "sourceCount": 40,
       "sourceKindCounts": {
         "gearSet": 9,
-        "weapon": 42
+        "weapon": 41
       },
       "paths": [
         "src/data/weapons/arts-unit/5/obj-arts-identifier.ts#skill3.triggers[0].trigger",
@@ -2500,7 +2493,6 @@
         "src/data/weapons/polearm/5/chimeric-justice.ts#skill3.triggers[0].trigger",
         "src/data/weapons/polearm/6/beacon-of-duty.ts#skill3.triggers[0].trigger",
         "src/data/weapons/polearm/6/beacon-of-duty.ts#skill3.triggers[1].trigger",
-        "src/data/weapons/polearm/6/bedazzling-night-debut.ts#skill3.triggers[0].trigger",
         "src/data/weapons/polearm/6/blessing-of-lustrous-carmine.ts#skill3.triggers[1].trigger",
         "src/data/weapons/polearm/6/golden-age.ts#skill3.triggers[0].trigger",
         "src/data/weapons/polearm/6/mountain-bearer.ts#skill3.triggers[0].trigger",
@@ -2718,12 +2710,12 @@
       ]
     },
     "effect:self": {
-      "count": 1008,
-      "sourceCount": 341,
+      "count": 1006,
+      "sourceCount": 340,
       "sourceKindCounts": {
         "gearPiece": 694,
         "gearSet": 42,
-        "weapon": 272
+        "weapon": 270
       },
       "paths": [
         "src/data/weapons/arts-unit/3/jiminy-12.ts#skill1.effects[0].target",
@@ -2907,8 +2899,6 @@
         "src/data/weapons/polearm/6/beacon-of-duty.ts#skill2.effects[0].target",
         "src/data/weapons/polearm/6/beacon-of-duty.ts#skill3.effects[0].target",
         "src/data/weapons/polearm/6/beacon-of-duty.ts#skill3.triggers[0].effects[0].target",
-        "src/data/weapons/polearm/6/bedazzling-night-debut.ts#skill1.effects[0].target",
-        "src/data/weapons/polearm/6/bedazzling-night-debut.ts#skill3.effects[0].target",
         "src/data/weapons/polearm/6/blessing-of-lustrous-carmine.ts#skill1.effects[0].target",
         "src/data/weapons/polearm/6/blessing-of-lustrous-carmine.ts#skill2.effects[0].target",
         "src/data/weapons/polearm/6/blessing-of-lustrous-carmine.ts#skill3.effects[0].target",
@@ -3737,11 +3727,11 @@
       ]
     },
     "effect:team": {
-      "count": 16,
-      "sourceCount": 12,
+      "count": 15,
+      "sourceCount": 11,
       "sourceKindCounts": {
         "gearSet": 1,
-        "weapon": 15
+        "weapon": 14
       },
       "paths": [
         "src/data/weapons/arts-unit/5/obj-arts-identifier.ts#skill3.triggers[0].effects[0].target",
@@ -3749,7 +3739,6 @@
         "src/data/weapons/arts-unit/6/chivalric-virtues.ts#skill3.triggers[0].effects[0].target",
         "src/data/weapons/arts-unit/6/delivery-guaranteed.ts#skill3.triggers[0].effects[0].target",
         "src/data/weapons/polearm/6/beacon-of-duty.ts#skill3.triggers[1].effects[0].target",
-        "src/data/weapons/polearm/6/bedazzling-night-debut.ts#skill3.triggers[0].effects[0].target",
         "src/data/weapons/polearm/6/blessing-of-lustrous-carmine.ts#skill3.triggers[0].effects[0].target",
         "src/data/weapons/polearm/6/blessing-of-lustrous-carmine.ts#skill3.triggers[1].effects[0].target",
         "src/data/weapons/polearm/6/golden-age.ts#skill3.triggers[0].effects[0].target",
@@ -3873,17 +3862,16 @@
       ]
     },
     "trigger:self": {
-      "count": 9,
-      "sourceCount": 8,
+      "count": 8,
+      "sourceCount": 7,
       "sourceKindCounts": {
         "gearSet": 1,
-        "weapon": 8
+        "weapon": 7
       },
       "paths": [
         "src/data/weapons/arts-unit/6/chivalric-virtues.ts#skill3.triggers[0].trigger.target",
         "src/data/weapons/arts-unit/6/flickers-in-the-mist.ts#skill3.triggers[0].trigger.target",
         "src/data/weapons/greatsword/6/thunderberge.ts#skill3.triggers[0].trigger.target",
-        "src/data/weapons/polearm/6/bedazzling-night-debut.ts#skill3.triggers[0].trigger.target",
         "src/data/weapons/polearm/6/golden-age.ts#skill3.triggers[0].trigger.target",
         "src/data/weapons/sword/6/lupine-scarlet.ts#skill3.triggers[1].trigger.target",
         "src/data/weapons/sword/6/lupine-scarlet.ts#skill3.triggers[2].trigger.target",

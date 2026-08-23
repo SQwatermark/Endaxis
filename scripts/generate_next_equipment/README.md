@@ -2,6 +2,8 @@
 
 本目录为武器、单件装备和套装迁移到 Endaxis Next DSL 建立严格、可重复的结构审计基础。当前阶段只审计旧数据，不生成 Next DSL。
 
+版本化 AKEDB 输入由仓库根目录的 `scripts/download_akedb_next_sources.py` 统一下载。除干员生成所需表外，下载器还固定获取 `WeaponBasicTable`、`ItemTable` 与 `EquipSuitTable`；后续 AKEDB Adapter 必须从这三张表建立正式身份与 SkillPatch 引用，旧 TypeScript 快照只作为迁移对照，不能继续充当最终游戏事实源。
+
 ## 数据流
 
 1. `export_legacy_equipment.mjs` 使用 Vite SSR 真实加载 `src/data/weapons`、`src/data/gearpieces` 和 `src/data/gearsets` 下的 TypeScript 模块。
@@ -21,6 +23,7 @@
 python -m scripts.generate_next_equipment.generate_audit
 python -m scripts.generate_next_equipment.generate_migration_matrix
 python -m scripts.generate_next_equipment.generate_candidate_coverage
+python -m scripts.generate_next_equipment.generate_akedb_source_audit
 ```
 
 默认生成：
@@ -32,6 +35,7 @@ python -m scripts.generate_next_equipment.generate_candidate_coverage
 - `docs/research/equipment-static-candidate-coverage.json`：可直接构造的候选定义、分组统计与 DSL 缺口。
 - `docs/research/equipment-static-candidate-coverage.md`：静态定义覆盖审计的中文结论。
 - `docs/research/equipment-battle-persistent-modifier-audit.md`：33 条常驻战斗修正的旧执行链、语义纠正和 Next 能力证据。
+- `docs/research/equipment-akedb-source-coverage.json` / `.md`：版本化 AKEDB 武器、Item 与套装身份覆盖；它与旧效果迁移覆盖分开统计。
 
 也可以复用已有 Node 快照排查 Python 审计问题：
 
@@ -48,6 +52,7 @@ python -m scripts.generate_next_equipment.generate_audit --input snapshot.json
 python -m unittest scripts.generate_next_equipment.test_equipment_audit
 python -m unittest scripts.generate_next_equipment.test_migration_ir
 python -m unittest scripts.generate_next_equipment.test_candidate_definition_ir
+python -m unittest scripts.generate_next_equipment.test_akedb_source_audit
 node --test scripts/generate_next_equipment/test_export_legacy_equipment.mjs
 ```
 
