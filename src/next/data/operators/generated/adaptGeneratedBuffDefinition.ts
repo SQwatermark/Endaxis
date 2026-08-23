@@ -136,7 +136,14 @@ export function adaptGeneratedBuffDefinition(
       : {
           shields: source.shields.map(shield => ({
             infinityValue: shield.infinityValue,
-            value: scalarValue(shield.value),
+            value:
+              shield.valueAttributeType == null
+                ? scalarValue(shield.value)
+                : {
+                    attribute: shield.valueAttributeType,
+                    multiplier: scalarValue(shield.valueMultiplier!),
+                    addition: scalarValue(shield.valueAddition!),
+                  },
             absorbCount: scalarValue(shield.absorbCount),
             absorbAllDamageWhenConsumed: shield.absorbAllDamageWhenConsumed,
             removeBuffWhenConsumed: shield.removeBuffWhenConsumed,

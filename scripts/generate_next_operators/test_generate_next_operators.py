@@ -663,6 +663,43 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(shields[0].damageAbsorptions[0].damageType, "heat")
         self.assertEqual(shields[0].priority, "PrioritizeConsume")
 
+    def test_parses_attribute_scaled_shield_value(self) -> None:
+        scalar = lambda value, key="": {
+            "useBlackboardKey": bool(key),
+            "value": value,
+            "blackboardKey": key,
+        }
+        shields = parse_buff_shields(
+            {
+                "shieldConfigs": [
+                    {
+                        "infinityValue": False,
+                        "valueCalculation": {
+                            "$type": "Beyond.Gameplay.Core.MultiplyAttributeCalculation, Gameplay.Beyond",
+                            "valueSource": "AttackerOrHealer",
+                            "attributeType": "Def",
+                            "multiplier": scalar(0.5, "shield_def_rate"),
+                            "addition": scalar(100, "shield_base"),
+                        },
+                        "damageAbsorptions": [],
+                        "absorbCnt": scalar(-1),
+                        "absorbAllDmgWhenConsume": False,
+                        "removeBuffWhenConsume": True,
+                        "priority": "Normal",
+                        "replaceHitEffect": True,
+                        "hitEffect": {},
+                    }
+                ]
+            },
+            "buff.fixture",
+            {"shield_def_rate": (5.0,), "shield_base": (300.0,)},
+            {"Heat": "heat"},
+        )
+
+        self.assertEqual(shields[0].valueAttributeType, "Def")
+        self.assertEqual(shields[0].valueMultiplier.blackboardKey, "shield_def_rate")
+        self.assertEqual(shields[0].valueAddition.blackboardKey, "shield_base")
+
     def test_parses_sustained_protection_from_wrapped_and_direct_actions(self) -> None:
         def scalar(value: float) -> dict[str, object]:
             return {
@@ -15069,6 +15106,56 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         ] = True
         with self.assertRaisesRegex(ValueError, "scaled definite values"):
             parse_damage_units(root, "ultimate.json", {})
+
+    def test_multiply_attribute_damage_preserves_attribute_multiplier_and_addition(self) -> None:
+        scalar = lambda value, key="": {
+            "useBlackboardKey": bool(key),
+            "blackboardKey": key,
+            "value": value,
+        }
+        root = {
+            "actionGroupData": {
+                "action": {
+                    "$type": "Example.DamageAction, Example",
+                    "damageUnits": [
+                        {
+                            "damageType": "Physical",
+                            "damageAttributeType": "Hp",
+                            "damageDecorateMask": 768,
+                            "simpleCalculation": False,
+                            "atkScale": scalar(0),
+                            "atkCalculation": {
+                                "$type": "Example.MultiplyAttributeCalculation, Example",
+                                "valueSource": "AttackerOrHealer",
+                                "attributeType": "Def",
+                                "multiplier": scalar(1, "def_scale"),
+                                "addition": scalar(0, "dmg_base"),
+                            },
+                        }
+                    ],
+                }
+            }
+        }
+
+        unit = parse_damage_units(
+            root,
+            "potential.json",
+            {"def_scale": (5.0,), "dmg_base": (300.0,)},
+        )[0]
+
+        self.assertEqual(unit.calculation, "attribute")
+        self.assertEqual(unit.calculationAttribute, "Def")
+        self.assertEqual(unit.attackScale.blackboardKey, "def_scale")
+        self.assertEqual(unit.calculationAddition.blackboardKey, "dmg_base")
+        compiled = compile_damage_units_step(
+            (unit,), ("normalSkill", "ultimateSkill"), "potential.hit",
+            runtime_blackboard_keys={"def_scale", "dmg_base"}
+        )
+        self.assertIn("  calculation: 'attribute',", compiled)
+        self.assertIn("  calculationAttribute: 'Def',", compiled)
+        self.assertIn(
+            "  calculationAddition: { kind: 'blackboard', key: 'dmg_base' },", compiled
+        )
 
     def test_damage_unit_requires_native_decorate_mask(self) -> None:
         root = {

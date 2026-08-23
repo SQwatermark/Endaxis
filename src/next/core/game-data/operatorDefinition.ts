@@ -186,7 +186,7 @@ export type ComparisonOperator = (typeof COMPARISON_OPERATORS)[number];
 /** 所有等级共用一个值，或为每个等级分别提供值。 */
 export type LevelValues = number | readonly number[];
 
-export const DAMAGE_CALCULATIONS = ['standard', 'breakingAttack'] as const;
+export const DAMAGE_CALCULATIONS = ['standard', 'breakingAttack', 'attribute'] as const;
 /** 命中进入标准或破防专用公式前处理的计算路径。 */
 export type DamageCalculation = (typeof DAMAGE_CALCULATIONS)[number];
 
@@ -199,6 +199,10 @@ export interface DealDamageParameters {
   attackScale: LevelValues | ActionValueOperand;
   /** 破防攻击计算中的逐命中倍率；标准伤害不得设置。 */
   calculationMultiplier?: LevelValues;
+  /** MultiplyAttributeCalculation 读取的来源实体原生属性键。 */
+  calculationAttribute?: string;
+  /** MultiplyAttributeCalculation 在属性乘算后追加的固定或黑板值。 */
+  calculationAddition?: LevelValues | ActionValueOperand;
   tags: readonly DamageTag[];
   /** 原生伤害位中与技能分类无关的行为特征。 */
   features?: readonly DamageFeature[];

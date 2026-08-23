@@ -136,6 +136,8 @@ class DamageUnitSource:
     definiteValue: ScalarSource | None = None
     # 原生 DamageDecorateMask 完整位值；正式 DSL 尚未消费的位也必须保留。
     damageDecorateMask: int = 0
+    calculationAttribute: str | None = None
+    calculationAddition: ScalarSource | None = None
 
 
 @dataclass(frozen=True)
@@ -676,6 +678,9 @@ class BuffShieldSource:
     removeBuffWhenConsumed: bool
     priority: str
     replaceHitEffect: bool
+    valueAttributeType: str | None = None
+    valueMultiplier: ScalarSource | None = None
+    valueAddition: ScalarSource | None = None
 
 
 @dataclass(frozen=True)

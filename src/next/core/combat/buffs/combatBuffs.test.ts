@@ -1983,6 +1983,42 @@ describe('CombatBuffContainer', () => {
     expect(container.shields).toEqual([]);
   });
 
+  it('freezes an attribute-scaled shield value when its Buff instance is created', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    attributes.define('attack', 200, { minimum: 0, maximum: 1000 });
+    const container = new CombatBuffContainer('operator', attributes);
+    const buff = requireAddedBuff(
+      container.add(
+        {
+          id: 'attribute-shield',
+          stackingType: 'unlimited',
+          blackboard: { multiplier: 0.5, addition: 100 },
+          shields: [
+            {
+              infinityValue: false,
+              value: {
+                attribute: 'attack',
+                multiplier: { blackboardKey: 'multiplier' },
+                addition: { blackboardKey: 'addition' },
+              },
+              absorbCount: -1,
+              absorbAllDamageWhenConsumed: false,
+              removeBuffWhenConsumed: true,
+              priority: 'normal',
+              replaceHitEffect: false,
+              damageAbsorptions: [],
+            },
+          ],
+        },
+        'operator',
+      ),
+    );
+
+    expect(buff.shields[0]?.maxValue).toBe(200);
+    attributes.setRawValue('attack', 500);
+    expect(buff.shields[0]?.maxValue).toBe(200);
+  });
+
   it('registers sustained protection only while the owning Buff is enabled', () => {
     const container = new CombatBuffContainer('operator', new CombatAttributeSet<Attribute>());
     const low = requireAddedBuff(

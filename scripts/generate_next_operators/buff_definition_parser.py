@@ -156,14 +156,37 @@ def parse_buff_shields(
         if set(config) != expected:
             raise ValueError(f"{path}: unexpected fields {sorted(set(config) - expected)}")
         calculation = require_dict(config.get("valueCalculation"), f"{path}.valueCalculation")
-        calculation_expected = {"$type", "value", "applyScale", "valueScale"}
-        if set(calculation) != calculation_expected:
-            raise ValueError(f"{path}.valueCalculation: unexpected fields")
-        if calculation.get("$type") != "Beyond.Gameplay.Core.DefiniteValueCalculation, Gameplay.Beyond":
+        calculation_type = action_name(str(calculation.get("$type", "")))
+        value_attribute_type: str | None = None
+        value_multiplier: ScalarSource | None = None
+        value_addition: ScalarSource | None = None
+        if calculation_type == "DefiniteValueCalculation":
+            calculation_expected = {"$type", "value", "applyScale", "valueScale"}
+            if set(calculation) != calculation_expected:
+                raise ValueError(f"{path}.valueCalculation: unexpected fields")
+            if require_bool(calculation.get("applyScale"), f"{path}.valueCalculation.applyScale"):
+                raise ValueError(f"{path}.valueCalculation.applyScale: unsupported true value")
+            parse_scalar(calculation.get("valueScale"), f"{path}.valueCalculation.valueScale", blackboard)
+            value = parse_scalar(calculation.get("value"), f"{path}.valueCalculation.value", blackboard)
+        elif calculation_type == "MultiplyAttributeCalculation":
+            calculation_expected = {"$type", "valueSource", "attributeType", "multiplier", "addition"}
+            if set(calculation) != calculation_expected:
+                raise ValueError(f"{path}.valueCalculation: unexpected fields")
+            if calculation.get("valueSource") != "AttackerOrHealer":
+                raise ValueError(f"{path}.valueCalculation.valueSource: unsupported value")
+            raw_attribute = calculation.get("attributeType")
+            if not isinstance(raw_attribute, str) or not raw_attribute:
+                raise ValueError(f"{path}.valueCalculation.attributeType: expected string")
+            value_attribute_type = raw_attribute
+            value_multiplier = parse_scalar(
+                calculation.get("multiplier"), f"{path}.valueCalculation.multiplier", blackboard
+            )
+            value_addition = parse_scalar(
+                calculation.get("addition"), f"{path}.valueCalculation.addition", blackboard
+            )
+            value = ScalarSource(0, None, None)
+        else:
             raise ValueError(f"{path}.valueCalculation.$type: unsupported calculation")
-        if require_bool(calculation.get("applyScale"), f"{path}.valueCalculation.applyScale"):
-            raise ValueError(f"{path}.valueCalculation.applyScale: unsupported true value")
-        parse_scalar(calculation.get("valueScale"), f"{path}.valueCalculation.valueScale", blackboard)
         absorptions: list[BuffShieldAbsorptionSource] = []
         for absorption_index, raw_absorption in enumerate(
             require_list(config.get("damageAbsorptions"), f"{path}.damageAbsorptions")
@@ -185,13 +208,16 @@ def parse_buff_shields(
             raise ValueError(f"{path}.priority: unsupported {priority!r}")
         result.append(BuffShieldSource(
             infinityValue=require_bool(config.get("infinityValue"), f"{path}.infinityValue"),
-            value=parse_scalar(calculation.get("value"), f"{path}.valueCalculation.value", blackboard),
+            value=value,
             damageAbsorptions=tuple(absorptions),
             absorbCount=parse_scalar(config.get("absorbCnt"), f"{path}.absorbCnt", blackboard),
             absorbAllDamageWhenConsumed=require_bool(config.get("absorbAllDmgWhenConsume"), f"{path}.absorbAllDmgWhenConsume"),
             removeBuffWhenConsumed=require_bool(config.get("removeBuffWhenConsume"), f"{path}.removeBuffWhenConsume"),
             priority=str(priority),
             replaceHitEffect=require_bool(config.get("replaceHitEffect"), f"{path}.replaceHitEffect"),
+            valueAttributeType=value_attribute_type,
+            valueMultiplier=value_multiplier,
+            valueAddition=value_addition,
         ))
     return tuple(result)
 

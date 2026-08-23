@@ -15,6 +15,7 @@ import {
   antal,
   arcane,
   avywenna,
+  catcher,
   camille,
   chenQianyu,
   daPan,
@@ -33,6 +34,78 @@ import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
 
 describe('registered generated operators', () => {
+  it('applies Catcher potential 1 defense-scaled damage after each ultimate hit', () => {
+    const run = (potential: number) => {
+      const scenario = createEmptyScenario(
+        `scenario:catcher:potential-${potential}`,
+        'Catcher 潜能一生产回归',
+      );
+      scenario.battle.durationFrames = 150;
+      scenario.enemy.editable.hp = 10_000_000;
+      scenario.tracks[0] = {
+        id: 'track:catcher',
+        operator: {
+          operatorSlug: catcher.slug,
+          level: 90,
+          promoted: true,
+          potential,
+          trustLevel: 4,
+          skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+          talentStates: { 0: 0, 1: 0 },
+        },
+        weapon: null,
+        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+        initialState: { ultimateEnergy: 80 },
+        skillCasts: [],
+      };
+      const placed = placeSkillGroup({
+        scenario,
+        trackIndex: 0,
+        operator: catcher,
+        skillGroupKey: 'ultimate',
+        startFrame: 1,
+        ids: { allocate: (kind: string) => `${kind}:catcher:${potential}` },
+      }).scenario;
+      return runStandardPlayerDamageScenarioSimulation({
+        scenario: placed,
+        endFrame: 150,
+        criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+        elementalInflictionDocument: elementalAttachments,
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        options: {
+          index: nextGameDataRepository,
+          resources: {
+            sharedSpGain: { baseGainEfficiency: 1 },
+            spRecoveryPauseDuration: 1.5,
+            normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+            ultimateEnergySystemUnlocked: true,
+          },
+        },
+      });
+    };
+    const hits = (potential: number) =>
+      run(potential).receiptEntries.filter(
+        entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:catcher',
+      );
+    const base = hits(0);
+    const enhanced = hits(1);
+    const potentialHits = (entries: typeof enhanced) =>
+      entries.filter(entry =>
+        String(entry.data?.stepKey).includes('buff_chr_0020_meurs_potential_1'),
+      );
+
+    expect(potentialHits(base)).toHaveLength(0);
+    expect(potentialHits(enhanced)).toHaveLength(6);
+    expect(enhanced).toHaveLength(base.length + 6);
+    expect(enhanced.reduce((total, entry) => total + Number(entry.data?.value), 0)).toBeGreaterThan(
+      base.reduce((total, entry) => total + Number(entry.data?.value), 0),
+    );
+  });
+
   it('runs Avywenna standalone battle skill through the registered production pipeline', () => {
     const scenario = createEmptyScenario('scenario:avywenna:battle', 'Avywenna 战技生产回归');
     scenario.battle.durationFrames = 80;

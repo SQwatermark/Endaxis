@@ -22,7 +22,7 @@
 
 Aura 对目标的进入、离开和整体结束是实例生命周期，而不是一次性的范围查询。Next 的零空间模型中，已证明命中全队/全体敌人的目标会持续留在 Aura 内直到宿主动作结束；因此 Aura 进入时施加的 Buff 使用 `finishByAction` 绑定宿主生命周期。若原生 `actionWhenExitAura` 只是按 ID、全量、无限来源地清理同一组 Aura Buff，生成器会严格核对 ID 集合后将它归并进这条生命周期，不重复生成第二次清理。证据见 `combat-spec/docs/aura-influence-lifecycle.md`。
 
-`BuffData.shieldConfigs` 只按复刻库已经恢复的原生字段进入正式定义：有限/无限容量、按伤害类型的吸收比例与容量换算、有限/无限次数、耗尽一击处理、耗尽结束 Buff、消费优先级和受击特效选择位。空 `damageAbsorptions` 使用原生默认 `(ratio=1, scale=1)`，不能解释为不吸收。`SetSuperArmorAction` 的启用期句柄另投影为 Buff 持续霸体与冲击抗性，停用或结束时注销；表现特效不进入后端。证据与当前边界见 `combat-spec/docs/shield.md` 和 `combat-spec/docs/set-super-armor-action.md`。
+`BuffData.shieldConfigs` 只按复刻库已经恢复的原生字段进入正式定义：有限/无限容量、按伤害类型的吸收比例与容量换算、有限/无限次数、耗尽一击处理、耗尽结束 Buff、消费优先级和受击特效选择位。容量同时支持固定值和 `MultiplyAttributeCalculation(AttackerOrHealer)`；后者在 Buff 实例创建时冻结所属实体指定属性的最终值，再计算 `attribute * multiplier + addition`，倍率与加值可读实例黑板。空 `damageAbsorptions` 使用原生默认 `(ratio=1, scale=1)`，不能解释为不吸收。`SetSuperArmorAction` 的启用期句柄另投影为 Buff 持续霸体与冲击抗性，停用或结束时注销；表现特效不进入后端。证据与当前边界见 `combat-spec/docs/shield.md` 和 `combat-spec/docs/set-super-armor-action.md`。
 
 `EnhancedAction` 按 `combat-spec/docs/keyword-actions.md` 已复刻的 1.4.4 公共关键词载体映射进入独立元素增幅属性区：`Spell` 同时覆盖火/脉冲/结晶/自然，单元素只修改对应属性，`All` 另含物理与以太。动态 rate 依赖 Buff 黑板时，每次生命周期黑板写入后立即重建属性修正。`overrideChildBuffId=true` 指向的表现子 Buff 身份、图标路径和显示位以 `childPresentations` 保留，不能因数值已内联到父载体而丢弃。当前严格子集要求增幅目标为 Buff Owner、生命周期与载体一致且无 `enhancingList`；Source 目标、动作句柄寿命和加入边沿增强继续保留审计，不错误注册到宿主属性。
 
@@ -298,7 +298,9 @@ key 与二段第 0 帧还原帧。Next 用 `replacementSkills` 保存不可直�
 - `TimeDilationAction` 中的能力实体查询会严格保留 owner-spawned 身份、可选 GameplayTag 查询或命名 Context 身份。全局/终结技 `ignoreTargets` 已生成正式 DSL，并在执行时把查询到的稳定实体加入排除集合；这在能力实体寿命开始消费时间倍率后是必要语义。Entity `effectTargets` 的 DSL/运行时查询、寿命效果和内嵌子时间轴倍率都已存在，生成器只在模板证据证明单一 `HasAny` 标签的全部匹配模板均由当前可达图生成、每个生成点都有逻辑实体且所有战斗子图均已动态迁移时输出。Li Zhiyan 连携的 `-1480463572` 只匹配自身封印模板，四个生成点都是无战斗子动作的逻辑实体，已命中该闭包；Tangtang、Yvonne、Liino 及其他未闭合查询仍失败关闭，不能把该字段误认成纯表现 `EffectAction` 后忽略。
 - Buff 施加单独支持 `party` 集合目标：只有未附带筛选器或后处理器的 `CharacterTeamFinder` 目标组才能归约为当前全部存活干员。Buff 查询、结束和条件仍要求 `caster/enemy` 单一实体；主控筛选、召唤物和父级上下文目标不得借用 `party` 近似。
 - `OnBuffEnhanceChanged` 当前只开放 Arclight 已证明的严格形状：读取 Source 的四维 `FinalNonConverted` 值、写入当前 Buff 黑板、创建队伍 Buff 并结束计数 Buff。静态面板四维由场景装配写入共享实体黑板；`isConvertedAttribute=true` 保留为属性修正的 `converted` 来源。原生属性名会映射到 Next 伤害快照键，例如 `PulseDamageIncrease -> electricDamageIncrease`，运行时 Buff 修正与构筑静态增伤在每次命中时合并。
-- 技能条件分支中的严格 `StoreAttributeValue` 复用动作黑板计算链。场景共享实体黑板提供等级、最终四维和 `maxHealth`；其中 `MaxHp + Specific + FinalNonConverted` 在当前静态面板边界映射为运行时 `maxHealth` 读取，再按原生 multiplier/base 写入本次技能黑板，不在生成期烘焙具体构筑生命值。Mifu 连携的护盾上限计算命中该形状；其他属性阶段、取整、动态除数或非 plain Source/Owner 仍拒绝。
+- 技能与 Buff 条件分支中的严格 `StoreAttributeValue` 复用动作黑板计算链。场景共享实体黑板提供等级、最终四维和 `maxHealth`；`BaseNonConverted` / `FinalNonConverted` 分别映射到已恢复的非 Converted 属性阶段，并按原生 `divisor -> floor（若启用） -> multiplier -> base` 顺序写入技能或 Buff 黑板。Catcher 天赋 1 的 `floor(Will / 10) * rate` 会动态刷新 `Def/BaseAddition`，Mifu 连携的生命读取也复用同一端口；未知属性、阶段或非 plain Source/Owner 仍拒绝。
+
+- 生命伤害的 `MultiplyAttributeCalculation(AttackerOrHealer)` 进入统一主动伤害生命周期，而不是伪装成攻击力倍率。生成器保留来源属性、乘数、加值和动作黑板引用；运行时在 `beforeCalculation` 修正后冻结该属性，再以 `attribute * multiplier + addition` 产生基础值，后续照常执行伤害乘区、抗性、暴击、回执和 Ability 事件。Catcher 潜能 1 的 `Def * def_scale + dmg_base` 是首个正式样本。
 - `VulnerableAction` 只有在 Buff 事件、Source/Owner、duration/rate 黑板、Physical 子类型和生命周期形状全部匹配时，才投影为无标签条件的 defender/vulnerable 伤害修正。当前 Lifeng 的 `OnBuffStart` 与 Estella 的 `DuringBuffEnable` 样本命中；其他易伤事件不会因动作名相同而自动放行。
 - `buff_common_obtain_ultimate_sp` 的 `skillCostUltimateEnergyGain` 分类在根时间轴和条件分支共用专用步骤；它表示按技能消耗为小队回终结技能量，不作为普通 Buff 内联。条件分支仍校验固定次数、Source/Owner 目标、来源和施法身份继承。
 - `InstantSearch` Buff 目标会在中间层保留 finder、validator 与 post-processor 类型；目前也只有无过滤、无后处理的 `CharacterTeamFinder` 能直接归约为 `party`，其他即时搜索继续显式阻塞。

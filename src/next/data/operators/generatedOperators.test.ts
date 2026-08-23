@@ -15,6 +15,7 @@ import {
   antal,
   akekuri,
   avywenna,
+  catcher,
   camille,
   chenQianyu,
   daPan,
@@ -62,6 +63,7 @@ const generatedOperators: readonly [OperatorDefinition, number][] = [
   [alesh, 10],
   [xaihi, 10],
   [avywenna, 10],
+  [catcher, 9],
 ];
 
 function hasUpgradeBehavior(
@@ -77,6 +79,24 @@ function hasUpgradeBehavior(
 }
 
 describe('新增的完整技能转换干员', () => {
+  it('Catcher 保留意志换防御、属性护盾与防御倍率追加伤害', () => {
+    expect(catcher.conversionSupport).toEqual({
+      completeness: 'complete',
+      missingCapabilities: [],
+    });
+    expect(catcher.buffDefinitions?.buff_chr_0020_meurs_talent_0).toBeDefined();
+    expect(
+      catcher.buffDefinitions?.buff_chr_0020_meurs_combo_skill_shield?.shields?.[0]?.value,
+    ).toEqual({
+      attribute: 'Def',
+      multiplier: { blackboardKey: 'shield_def_rate' },
+      addition: { blackboardKey: 'shield_base' },
+    });
+    expect(JSON.stringify(catcher.buffDefinitions?.buff_chr_0020_meurs_potential_1)).toContain(
+      'calculationAttribute',
+    );
+  });
+
   it('Avywenna 长枪回收保留脉冲附着检查，天赋一同时保留技能补丁与常驻 Buff', () => {
     expect(avywenna.conversionSupport).toEqual({
       completeness: 'complete',

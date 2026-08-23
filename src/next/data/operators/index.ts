@@ -29,3 +29,4 @@ export { antal } from './antal';
 export { alesh } from './alesh';
 export { xaihi } from './xaihi';
 export { avywenna } from './avywenna';
+export { catcher } from './catcher';

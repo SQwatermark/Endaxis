@@ -359,6 +359,32 @@ class BuffDefinitionCompilerTests(unittest.TestCase):
         self.assertIn("target: 'buffSource'", compiled)
         self.assertIn("superArmor: 35", compiled)
 
+    def test_compiles_attribute_scaled_shield_value(self) -> None:
+        source = definition(
+            shields=(
+                SimpleNamespace(
+                    infinityValue=False,
+                    value=scalar(0),
+                    valueAttributeType="Def",
+                    valueMultiplier=scalar(0.5, "shield_def_rate"),
+                    valueAddition=scalar(100, "shield_base"),
+                    absorbCount=scalar(-1),
+                    absorbAllDamageWhenConsumed=False,
+                    removeBuffWhenConsumed=True,
+                    priority="Normal",
+                    replaceHitEffect=True,
+                    damageAbsorptions=(),
+                ),
+            ),
+        )
+
+        compiled = compile_inline_buff_definition(source, "fixture")
+
+        self.assertIn(
+            "value: { attribute: 'Def', multiplier: { blackboardKey: 'shield_def_rate' }, addition: { blackboardKey: 'shield_base' } }",
+            compiled,
+        )
+
     def test_rejects_guarded_event_when_it_has_a_projected_action(self) -> None:
         source = definition(
             eventActions=(

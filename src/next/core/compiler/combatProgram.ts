@@ -125,9 +125,11 @@ export interface ResolvedCombatStepParameters {
   outputKnockDown: CombatStepParameters['outputKnockDown'];
   dealDamage: {
     damageType: DamageType;
-    calculation?: 'standard' | 'breakingAttack';
+    calculation?: 'standard' | 'breakingAttack' | 'attribute';
     attackScale: number | ActionValueOperand;
     calculationMultiplier?: number;
+    calculationAttribute?: string;
+    calculationAddition?: number | ActionValueOperand;
     tags: readonly DamageTag[];
     features?: readonly DamageFeature[];
     stagger?: number | ActionValueOperand;

@@ -215,6 +215,20 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       operationContext,
       'dynamic damage scale',
     );
+    if (step.parameters.calculation === 'attribute') {
+      const attributeValue = context.attackerAttributes.calculationAttributeValue;
+      if (attributeValue === undefined) {
+        throw new Error(
+          `damage calculation attribute '${step.parameters.calculationAttribute ?? ''}' is missing`,
+        );
+      }
+      const addition = this.#resolveActionValue(
+        step.parameters.calculationAddition ?? 0,
+        operationContext,
+        'dynamic damage calculation addition',
+      );
+      return attributeValue * attackScale + addition;
+    }
     if (step.parameters.calculation !== 'breakingAttack') {
       return context.attackerAttributes.attack * attackScale;
     }

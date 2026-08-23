@@ -129,6 +129,17 @@ export function resolveStaticPlayerDamageSnapshots(
     attacker: {
       ...attackerDamageScales,
       attack: resolveOperatorAttack(panel, operatorAttributes),
+      ...(step.kind === 'dealDamage' && step.parameters.calculation === 'attribute'
+        ? (() => {
+            const attribute = step.parameters.calculationAttribute;
+            if (attribute === undefined || !operatorAttributes.has(attribute)) {
+              throw new Error(
+                `damage calculation attribute '${attribute ?? ''}' is not available on the attacker`,
+              );
+            }
+            return { calculationAttributeValue: operatorAttributes.get(attribute) };
+          })()
+        : {}),
       criticalRate:
         panel.criticalRate +
         (context.program.statModifiers?.criticalRate ?? 0) +

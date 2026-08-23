@@ -28,7 +28,7 @@ export interface GeneratedSkillPatchSource {
 export interface GeneratedDamageUnitSource {
   readonly damageType: string;
   readonly attributeType: string;
-  readonly calculation: 'standard' | 'breakingAttack' | 'definiteValue';
+  readonly calculation: 'standard' | 'breakingAttack' | 'definiteValue' | 'attribute';
   readonly attackScale: GeneratedScalarSource;
   readonly calculationMultiplier: GeneratedScalarSource | null;
   readonly poiseValue: GeneratedScalarSource | null;
@@ -36,6 +36,8 @@ export interface GeneratedDamageUnitSource {
   readonly definiteValue: GeneratedScalarSource | null;
   /** 原生 DamageDecorateMask 完整位值；用于审计尚未映射的伤害特征。 */
   readonly damageDecorateMask: number;
+  readonly calculationAttribute?: string | null;
+  readonly calculationAddition?: GeneratedScalarSource | null;
 }
 
 /** 动作所属的原生 timelineActions 序号，用于恢复 Sequence 边界。 */
@@ -460,6 +462,9 @@ export interface GeneratedBuffDefinitionSource {
 export interface GeneratedBuffShieldSource {
   readonly infinityValue: boolean;
   readonly value: GeneratedScalarSource;
+  readonly valueAttributeType?: string | null;
+  readonly valueMultiplier?: GeneratedScalarSource | null;
+  readonly valueAddition?: GeneratedScalarSource | null;
   readonly damageAbsorptions: readonly {
     readonly damageType: string;
     readonly ratio: GeneratedScalarSource;
@@ -660,7 +665,8 @@ export interface GeneratedHealthConditionSource {
   readonly characterTeamSelectionRole?:
     | 'controlledOperator'
     | 'lowestHealthRatioOperator'
-    | 'lowestHealthRatioOperatorExceptControlled';
+    | 'lowestHealthRatioOperatorExceptControlled'
+    | 'lowestHealthRatioOperatorExceptCaster';
 }
 
 /** 原生实体 GameplayTag 查询；与 Buff 身份和层数查询保持独立。 */
@@ -1320,7 +1326,8 @@ export interface GeneratedTargetGroupWriteSource {
   readonly characterTeamSelectionRole?:
     | 'controlledOperator'
     | 'lowestHealthRatioOperator'
-    | 'lowestHealthRatioOperatorExceptControlled';
+    | 'lowestHealthRatioOperatorExceptControlled'
+    | 'lowestHealthRatioOperatorExceptCaster';
   readonly finderFixedPointSnapToNavmesh?: boolean | null;
   readonly center?: string | null;
   readonly centerContextKey?: string;

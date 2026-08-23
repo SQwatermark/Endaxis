@@ -19,6 +19,12 @@ const input: OperatorAttackDerivationInput = {
 };
 
 describe('operator attack attributes', () => {
+  it('exposes panel defense through the native Def runtime attribute', () => {
+    const attributes = createOperatorAttackAttributes({ ...input, defense: 420 });
+
+    expect(attributes.get('Def')).toBe(420);
+  });
+
   it('uses panel arts intensity as native infliction enhance and accepts Buff additions', () => {
     const attributes = createOperatorAttackAttributes(input);
     attributes.addModifier(

@@ -18,6 +18,8 @@ export interface DamageResistanceSnapshot {
 /** 来源方对标准主动伤害公式有影响的属性快照。 */
 export interface PlayerDamageAttackerSnapshot {
   readonly attack: number;
+  /** MultiplyAttributeCalculation 在 beforeCalculation 后冻结的来源属性。 */
+  readonly calculationAttributeValue?: number;
   readonly criticalRate: number;
   readonly criticalDamageIncrease: number;
   readonly weaknessDamageMultiplier: number;

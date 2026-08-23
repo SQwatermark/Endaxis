@@ -965,6 +965,8 @@ def parse_damage_units(
             calculation = "standard"
             calculation_multiplier = None
             definite_value = None
+            calculation_attribute = None
+            calculation_addition = None
             attribute_type = str(unit.get("damageAttributeType", ""))
             if attribute_type == "Hp" and not simple_calculation:
                 raw_calculation = require_dict(
@@ -976,13 +978,39 @@ def parse_damage_units(
                     "AtkScaleCalculation": "standard",
                     "BreakingAttackCalculation": "breakingAttack",
                     "DefiniteValueCalculation": "definiteValue",
+                    "MultiplyAttributeCalculation": "attribute",
                 }
                 if calculation_type not in calculation_types:
                     raise ValueError(
                         f"{source_name}.DamageAction.damageUnits[{index}]: unsupported calculation {calculation_type}"
                     )
                 calculation = calculation_types[calculation_type]
-                if calculation == "definiteValue":
+                if calculation == "attribute":
+                    if set(raw_calculation) != {
+                        "$type", "valueSource", "attributeType", "multiplier", "addition"
+                    }:
+                        raise ValueError(
+                            f"{source_name}.DamageAction.damageUnits[{index}].atkCalculation: "
+                            f"unexpected fields {sorted(raw_calculation)}"
+                        )
+                    if raw_calculation.get("valueSource") != "AttackerOrHealer":
+                        raise ValueError(
+                            f"{source_name}.DamageAction.damageUnits[{index}].atkCalculation.valueSource: "
+                            "unsupported value"
+                        )
+                    calculation_attribute = raw_calculation.get("attributeType")
+                    if not isinstance(calculation_attribute, str) or not calculation_attribute:
+                        raise ValueError(
+                            f"{source_name}.DamageAction.damageUnits[{index}].atkCalculation.attributeType: "
+                            "expected string"
+                        )
+                    attack_scale_source = raw_calculation.get("multiplier")
+                    calculation_addition = parse_scalar(
+                        raw_calculation.get("addition"),
+                        f"{source_name}.DamageAction.damageUnits[{index}].atkCalculation.addition",
+                        inherited_blackboard,
+                    )
+                elif calculation == "definiteValue":
                     if raw_calculation.get("applyScale") is not False:
                         raise ValueError(
                             f"{source_name}.DamageAction.damageUnits[{index}].atkCalculation: "
@@ -1063,6 +1091,8 @@ def parse_damage_units(
                     poiseValue=poise_value,
                     definiteValue=definite_value,
                     damageDecorateMask=damage_decorate_mask,
+                    calculationAttribute=calculation_attribute,
+                    calculationAddition=calculation_addition,
                 )
             )
     return tuple(result)

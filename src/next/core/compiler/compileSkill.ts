@@ -206,6 +206,18 @@ function resolveStep(
                   `${path}.parameters.calculationMultiplier`,
                 ),
               }),
+          ...(step.parameters.calculationAttribute === undefined
+            ? {}
+            : { calculationAttribute: step.parameters.calculationAttribute }),
+          ...(step.parameters.calculationAddition === undefined
+            ? {}
+            : {
+                calculationAddition: resolveLevelValueOrActionOperand(
+                  step.parameters.calculationAddition,
+                  skillLevel,
+                  `${path}.parameters.calculationAddition`,
+                ),
+              }),
           tags: step.parameters.tags,
           ...(step.parameters.stagger === undefined
             ? {}

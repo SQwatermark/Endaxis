@@ -401,10 +401,24 @@ def compile_inline_buff_definition(
     if getattr(source, "shields", ()):
         fields.append("shields: [")
         for shield in source.shields:
+            value_attribute_type = getattr(shield, "valueAttributeType", None)
+            if value_attribute_type is None:
+                compiled_shield_value = _compile_scalar(shield.value)
+            else:
+                value_multiplier = getattr(shield, "valueMultiplier", None)
+                value_addition = getattr(shield, "valueAddition", None)
+                if value_multiplier is None or value_addition is None:
+                    raise ValueError(f"{path}: attribute shield calculation is incomplete")
+                compiled_shield_value = (
+                    "{ attribute: "
+                    f"{ts_inline_literal(value_attribute_type)}, "
+                    f"multiplier: {_compile_scalar(value_multiplier)}, "
+                    f"addition: {_compile_scalar(value_addition)} }}"
+                )
             fields.extend([
                 "  {",
                 f"    infinityValue: {ts_inline_literal(shield.infinityValue)},",
-                f"    value: {_compile_scalar(shield.value)},",
+                f"    value: {compiled_shield_value},",
                 f"    absorbCount: {_compile_scalar(shield.absorbCount)},",
                 f"    absorbAllDamageWhenConsumed: {ts_inline_literal(shield.absorbAllDamageWhenConsumed)},",
                 f"    removeBuffWhenConsumed: {ts_inline_literal(shield.removeBuffWhenConsumed)},",

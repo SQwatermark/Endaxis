@@ -4,6 +4,7 @@ import {
   antal,
   akekuri,
   avywenna,
+  catcher,
   arcane,
   arclight,
   camille,
@@ -74,6 +75,7 @@ describe('gameDataRepository', () => {
       alesh,
       xaihi,
       avywenna,
+      catcher,
     ]);
     expect(nextGameDataRepository.getOperator(perlica.slug)).toBe(perlica);
     expect(nextGameDataRepository.getOperator(alesh.slug)).toBe(alesh);
@@ -102,6 +104,7 @@ describe('gameDataRepository', () => {
     expect(nextGameDataRepository.getOperator(antal.slug)).toBe(antal);
     expect(nextGameDataRepository.getOperator(xaihi.slug)).toBe(xaihi);
     expect(nextGameDataRepository.getOperator(avywenna.slug)).toBe(avywenna);
+    expect(nextGameDataRepository.getOperator(catcher.slug)).toBe(catcher);
     expect(nextGameDataRepository.getOperator('missing')).toBeNull();
   });
 

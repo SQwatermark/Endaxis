@@ -1672,14 +1672,11 @@ def parse_conditional_actions(
                         and action.get("primaryAttributeType")
                         == ("Sub" if action.get("attributeType") == "Level" else "Specific")
                         and attribute_key is not None
-                        # Next 当前只把构筑期已解析面板放入共享动作黑板；没有
-                        # 运行时四维 converted 修正。因此 BaseNonConverted 与
-                        # FinalNonConverted 在这个边界都投影为同一静态面板值。
+                        # StoreAttributeValue 的运行时端口会按来源实体读取非 Converted
+                        # 属性阶段，并在写入 Buff 黑板后刷新依赖它的动态属性修正。
                         and action.get("storeAttributeType")
                         in {"BaseNonConverted", "FinalNonConverted"}
-                        and action.get("useFloor") is False
-                        and divisor.blackboardKey is None
-                        and divisor.value == 1
+                        and isinstance(action.get("useFloor"), bool)
                         and isinstance(output_key, str)
                         and output_key
                     )

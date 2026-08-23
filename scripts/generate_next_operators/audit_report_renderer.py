@@ -11,6 +11,27 @@ from source_models import BuffDefinitionSource, SkillSource
 from source_utils import require_dict, require_list
 
 
+_OPTIONAL_CALCULATION_KEYS = frozenset({
+    "calculationAttribute", "calculationAddition",
+    "valueAttributeType", "valueMultiplier", "valueAddition",
+})
+
+
+def _omit_empty_calculation_details(value: Any) -> Any:
+    """新增公式详情只在真实存在时进入报告，避免给所有既有命中制造 null 漂移。"""
+    if isinstance(value, dict):
+        return {
+            key: _omit_empty_calculation_details(item)
+            for key, item in value.items()
+            if not (key in _OPTIONAL_CALCULATION_KEYS and item is None)
+        }
+    if isinstance(value, list):
+        return [_omit_empty_calculation_details(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_omit_empty_calculation_details(item) for item in value)
+    return value
+
+
 @dataclass(frozen=True)
 class AuditReportRendererServices:
     """由入口注入递归序列化、调度投影与技能替换关系归纳。"""
@@ -178,4 +199,6 @@ def render_report(
             for skill in skills
         ],
     }
-    return json.dumps(report, ensure_ascii=False, indent=2) + "\n"
+    return json.dumps(
+        _omit_empty_calculation_details(report), ensure_ascii=False, indent=2
+    ) + "\n"

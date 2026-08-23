@@ -492,6 +492,61 @@ describe('PlayerDamageOperationExecutor', () => {
     expect(nextCriticalSample).toHaveBeenCalledTimes(2);
   });
 
+  it('uses a frozen source attribute for MultiplyAttributeCalculation damage', () => {
+    const targetVitals = new CombatVitals({
+      health: 5000,
+      maxHealth: 5000,
+      maxPoise: 100,
+      poise: 100,
+      poiseRecoveryTime: 1,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    const snapshots = createAttributeSnapshots();
+    const executor = new PlayerDamageOperationExecutor({
+      sourceOperatorId: 'catcher',
+      targetId: 'enemy',
+      targetVitals,
+      clock: new CombatClock(),
+      receipt: new CombatReceiptCollector(),
+      captureAttributeSnapshots: () => ({
+        ...snapshots,
+        attacker: { ...snapshots.attacker, calculationAttributeValue: 200 },
+      }),
+      criticalSamples: { nextCriticalSample: () => 1 },
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      applyDamageModifiers: () => undefined,
+      addInstantAttributeModifier: () => undefined,
+      clearInstantAttributeModifiers: () => undefined,
+      emitPreparationEvent: () => undefined,
+      resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),
+      emitHealthSourceEvent: () => undefined,
+      emitHealthTargetEvent: () => undefined,
+      emitPoiseSourceEvent: () => undefined,
+      emitPoiseTargetEvent: () => undefined,
+      delegate: { execute: vi.fn(() => true), evaluate: vi.fn(() => false) },
+    });
+
+    executor.execute({
+      kind: 'dealDamage',
+      parameters: {
+        damageType: 'physical',
+        calculation: 'attribute',
+        calculationAttribute: 'Def',
+        attackScale: 5,
+        calculationAddition: 300,
+        tags: [],
+      },
+    });
+
+    expect(targetVitals.health).toBe(3700);
+  });
+
   it('delegates operations outside the damage path', () => {
     const delegate = { execute: vi.fn(() => true), evaluate: vi.fn(() => false) };
     const executor = new PlayerDamageOperationExecutor({

@@ -122,7 +122,13 @@ export interface BuffShieldDamageAbsorptionDefinition {
 
 export interface BuffShieldDefinition {
   readonly infinityValue: boolean;
-  readonly value: BuffDuration;
+  readonly value:
+    | BuffDuration
+    | {
+        readonly attribute: string;
+        readonly multiplier: BuffDuration;
+        readonly addition: BuffDuration;
+      };
   readonly damageAbsorptions: readonly BuffShieldDamageAbsorptionDefinition[];
   readonly absorbCount: BuffTriggerCount;
   readonly absorbAllDamageWhenConsumed: boolean;
@@ -724,7 +730,11 @@ export class CombatShield<Key extends string> {
     readonly buff: CombatBuff<Key>,
     readonly definition: BuffShieldDefinition,
   ) {
-    this.maxValue = Math.max(0, resolveBuffNumber(buff, definition.value, 'shield value'));
+    const value =
+      typeof definition.value === 'object' && 'attribute' in definition.value
+        ? resolveShieldAttributeValue(buff, definition.value)
+        : resolveBuffNumber(buff, definition.value, 'shield value');
+    this.maxValue = Math.max(0, value);
     this.remainingValue = this.maxValue;
     this.maxAbsorbCount = resolveBuffInteger(buff, definition.absorbCount, 'shield absorb count');
     this.remainingAbsorbCount = this.maxAbsorbCount;
@@ -1159,6 +1169,21 @@ function resolveBuffNumber<Key extends string>(
     throw new Error(`buff '${buff.definition.id}' ${label} must resolve to a finite number`);
   }
   return resolved;
+}
+
+function resolveShieldAttributeValue<Key extends string>(
+  buff: CombatBuff<Key>,
+  calculation: Extract<BuffShieldDefinition['value'], { readonly attribute: string }>,
+): number {
+  if (!buff.owner.attributes.has(calculation.attribute)) {
+    throw new Error(
+      `buff '${buff.definition.id}' shield attribute '${calculation.attribute}' is missing`,
+    );
+  }
+  const attributeValue = buff.owner.attributes.get(calculation.attribute as Key);
+  const multiplier = resolveBuffNumber(buff, calculation.multiplier, 'shield multiplier');
+  const addition = resolveBuffNumber(buff, calculation.addition, 'shield addition');
+  return attributeValue * multiplier + addition;
 }
 
 function resolveBuffInteger<Key extends string>(

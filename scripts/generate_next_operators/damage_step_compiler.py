@@ -587,6 +587,24 @@ def compile_damage_units_step(
         ]
         if hp.calculation != "standard":
             fields.append(f"calculation: {ts_inline_literal(hp.calculation)}")
+        if hp.calculation == "attribute":
+            if hp.calculationAttribute is None or hp.calculationAddition is None:
+                raise ValueError(f"{path}: attribute damage calculation is incomplete")
+            fields.append(
+                f"calculationAttribute: {ts_inline_literal(hp.calculationAttribute)}"
+            )
+            if hp.calculationAddition.blackboardKey in runtime_blackboard_keys:
+                addition = (
+                    "{ kind: 'blackboard', key: "
+                    f"{ts_inline_literal(hp.calculationAddition.blackboardKey)} }}"
+                )
+            else:
+                addition = ts_inline_literal(
+                    compact_level_values(
+                        require_level_values(hp.calculationAddition, f"{path}.calculationAddition")
+                    )
+                )
+            fields.append(f"calculationAddition: {addition}")
         if hp.calculationMultiplier is not None:
             fields.append(
                 "calculationMultiplier: "

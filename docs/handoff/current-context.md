@@ -978,3 +978,22 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
   正式生成与 `--check` 必须使用默认解包工件，不能用仅含 AKEDB 公共清单的 `tmp` 镜像替代。
   本轮门禁为生成器 468/468、默认解包源全量生成与 `--check`、`type-check:next`、Next Vitest
   202 文件 1442/1442。
+
+### 2026-08-23：Catcher 正式生成与属性公式闭环
+
+- Catcher 的 9 个技能入口、2 项天赋和 5 项潜能已加入正式 manifest、稳定导出与默认仓库，
+  `conversionSupport` 为 `complete`。正式完整干员达到 28 名；未正式注册的官方干员只剩 Ardelia，
+  梨诺继续因终结技能力实体模板与动作句柄寿命缺口保持 `audit`。
+- 两个新公式不是 Catcher 特判。护盾容量现支持原生
+  `MultiplyAttributeCalculation(AttackerOrHealer)`，Buff 创建时冻结宿主属性并执行
+  `attribute * multiplier + addition`；Catcher 连携护盾因此保留 `Def * shield_def_rate + shield_base`。
+  伤害公式的同类分支则在 `beforeCalculation` 后冻结来源属性，再进入完整玩家主动伤害生命周期；
+  潜能 1 的 `Def * 5 + 300` 会响应每次带普通战技或终结技标签的输出伤害。
+- `StoreAttributeValue` 的非 Converted 属性读取不再误限于“不取整、除数为 1”。Catcher 天赋 1
+  按真实顺序计算 `floor(Will / 10) * rate`，写入 Buff 黑板后即时刷新 `Def/BaseAddition`；面板防御
+  也以原生 `Def` 键进入战斗属性集，潜能 2 的面板防御加值会被上述护盾和伤害公式读取。
+- 正式生产回归在真实时间轴释放 Catcher 终结技：本体与冲击波共 6 次终结技标签伤害，潜能 1
+  对六次各追加一次防御倍率伤害，追加伤害不递归触发自身。普通战技仍是受击/指定敌方 Buff
+  驱动的反击链；固定木桩不会自然制造该输入，现有外部事件边界不因此被扩大。
+- 本轮门禁：生成器 471/471、默认来源全量生成及 `--check`、`type-check:next`、Next Vitest
+  202 文件 1450/1450。`tmp/` 仍为未跟踪临时目录，不纳入提交。
