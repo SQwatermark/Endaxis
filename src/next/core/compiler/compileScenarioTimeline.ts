@@ -298,7 +298,16 @@ function compileCastSkillPrograms(
             : { executionSkillGroupKey, executionSkillId }),
           ...(cast.simulationInputs === undefined
             ? {}
-            : { simulationInputs: { ...cast.simulationInputs } }),
+            : {
+                simulationInputs: {
+                  ...cast.simulationInputs,
+                  ...(cast.simulationInputs.forcedCriticalStepKeys === undefined
+                    ? {}
+                    : {
+                        forcedCriticalStepKeys: [...cast.simulationInputs.forcedCriticalStepKeys],
+                      }),
+                },
+              }),
         },
         cast.id,
       ),

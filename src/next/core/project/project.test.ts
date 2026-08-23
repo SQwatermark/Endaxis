@@ -578,7 +578,10 @@ describe('V2 project document', () => {
         skillKey: 'battleSkill',
       },
       placement: { startFrame: 0 },
-      simulationInputs: { cameraToTargetSignedAngleDegrees: -45 },
+      simulationInputs: {
+        cameraToTargetSignedAngleDegrees: -45,
+        forcedCriticalStepKeys: ['damage:1'],
+      },
     });
     project.scenarios[0]!.tracks[0] = track;
 
@@ -591,6 +594,18 @@ describe('V2 project document', () => {
       expect(invalid.issues).toContainEqual({
         path: '$.scenarios[0].tracks[0].skillCasts[0].simulationInputs.cameraToTargetSignedAngleDegrees',
         message: 'expected a finite angle in [-180, 180]',
+      });
+    }
+
+    track.skillCasts[0]!.simulationInputs = {
+      forcedCriticalStepKeys: ['damage:1', 'damage:1'],
+    };
+    const duplicateKeys = validateProjectDocument(project);
+    expect(duplicateKeys.ok).toBe(false);
+    if (!duplicateKeys.ok) {
+      expect(duplicateKeys.issues).toContainEqual({
+        path: '$.scenarios[0].tracks[0].skillCasts[0].simulationInputs.forcedCriticalStepKeys',
+        message: 'expected unique non-empty step keys',
       });
     }
   });

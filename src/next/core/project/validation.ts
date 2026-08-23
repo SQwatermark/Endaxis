@@ -257,13 +257,28 @@ function validateSkillCast(
     const inputPath = `${path}.simulationInputs`;
     if (!isObject(value.simulationInputs)) {
       issues.push({ path: inputPath, message: 'expected an object' });
-    } else if (value.simulationInputs.cameraToTargetSignedAngleDegrees !== undefined) {
-      const angle = value.simulationInputs.cameraToTargetSignedAngleDegrees;
-      if (typeof angle !== 'number' || !Number.isFinite(angle) || angle < -180 || angle > 180) {
-        issues.push({
-          path: `${inputPath}.cameraToTargetSignedAngleDegrees`,
-          message: 'expected a finite angle in [-180, 180]',
-        });
+    } else {
+      if (value.simulationInputs.cameraToTargetSignedAngleDegrees !== undefined) {
+        const angle = value.simulationInputs.cameraToTargetSignedAngleDegrees;
+        if (typeof angle !== 'number' || !Number.isFinite(angle) || angle < -180 || angle > 180) {
+          issues.push({
+            path: `${inputPath}.cameraToTargetSignedAngleDegrees`,
+            message: 'expected a finite angle in [-180, 180]',
+          });
+        }
+      }
+      if (value.simulationInputs.forcedCriticalStepKeys !== undefined) {
+        const keys = value.simulationInputs.forcedCriticalStepKeys;
+        if (
+          !Array.isArray(keys) ||
+          keys.some(key => typeof key !== 'string' || key.length === 0) ||
+          new Set(keys).size !== keys.length
+        ) {
+          issues.push({
+            path: `${inputPath}.forcedCriticalStepKeys`,
+            message: 'expected unique non-empty step keys',
+          });
+        }
       }
     }
   }

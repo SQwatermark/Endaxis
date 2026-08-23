@@ -119,6 +119,7 @@ import {
   setSkillCastDisabled,
   setSkillCastColor,
   setSkillCastCameraTargetAngle,
+  setSkillCastForcedCritical,
   setSkillCastCustomDefinition,
   resetSkillCastToTemplate,
   updateBattleResourceRule,
@@ -1111,13 +1112,6 @@ function reactionName(reaction: string): string {
   return translated === key ? reaction : translated;
 }
 
-function inflictionOutcomeLabel(outcome: string): string {
-  if (outcome === 'attachmentOnly') return t('nextTimeline.hitInflictionSuffix');
-  if (outcome === 'burst') return t('nextTimeline.effect.burst');
-  if (outcome === 'compoundStatus') return t('nextTimeline.effect.reaction');
-  return outcome;
-}
-
 function hitMarkerTitle(label: TimelineHitEffectLabel | undefined): string {
   if (label === undefined) return '';
   const parts: string[] = [];
@@ -1178,22 +1172,29 @@ const hitDetail = computed(() => {
   const entries = projectTimelineHitDetailEntries(current.receiptEntries, cast.id, marker.hitId);
   return { cast, marker, entries };
 });
-const hitDetailTitle = computed(() => {
+const hitDetailForceCritical = computed(() => {
   const detail = hitDetail.value;
-  const target = hitDetailTarget.value;
-  if (detail === null || target === null) return '';
-  const trackModel = viewModel.value.tracks[target.trackIndex];
-  const castModel = trackModel?.skillCasts.find(cast => cast.id === target.castId);
-  if (trackModel === undefined || castModel === undefined) {
-    return `${target.castId} · ${detail.marker.frameOffset}f`;
-  }
-  const actualStart = skillCastActualStartFrames.value.get(target.castId) ?? castModel.startFrame;
-  const actualOffset =
-    (hitActualFrames.value.get(detail.marker.hitId) ?? actualStart + detail.marker.frameOffset) -
-    actualStart;
-  return `${timelineCastLabel(castModel, trackModel)} · ${actualOffset}f`;
+  return (
+    detail !== null &&
+    (detail.cast.simulationInputs?.forcedCriticalStepKeys ?? []).includes(detail.marker.stepKey)
+  );
 });
 
+function toggleHitDetailForceCritical(forced: boolean): void {
+  const target = hitDetailTarget.value;
+  const detail = hitDetail.value;
+  if (target === null || detail === null) return;
+  const changed = commitScenario('setSkillCastForcedCritical', current =>
+    setSkillCastForcedCritical(
+      current,
+      target.trackIndex,
+      target.castId,
+      detail.marker.stepKey,
+      forced,
+    ),
+  );
+  if (changed) void simulateNow();
+}
 const cursorGuideLines = computed(() => {
   const frame = cursorGuide.value?.sampleFrame ?? 0;
   const lines = [`TIME ${Number((frame / PROJECT_FPS).toFixed(2))}s`];
@@ -2656,34 +2657,36 @@ function setPanelDialogVisible(visible: boolean): void {
   />
   <TimelineHitDetailDialog
     :visible="hitDetailTarget !== null"
-    :title="hitDetailTitle"
+    :force-critical="hitDetailForceCritical"
     :entries="hitDetail?.entries ?? []"
     :damage-type-label="damageElementLabel"
-    :reaction-label="reactionName"
-    :outcome-label="inflictionOutcomeLabel"
+    :skill-type-label="skillTypeLabel"
     :labels="{
       dialogTitle: t('hitDetail.title'),
       context: t('hitDetail.context'),
       result: t('hitDetail.result'),
+      base: t('hitDetail.base'),
       multipliers: t('hitDetail.multipliers'),
-      effects: `${t('nextTimeline.hitDetail.element')} / ${t('nextTimeline.hitDetail.reaction')}`,
-      frame: t('nextTimeline.hitDetail.frame'),
-      damage: t('nextTimeline.hitDetail.damage'),
-      actualDamage: t('nextTimeline.hitDetail.actualDamage'),
-      remainingHealth: t('nextTimeline.hitDetail.remainingHealth'),
-      damageType: t('nextTimeline.hitDetail.damageType'),
-      isCritical: t('nextTimeline.hitDetail.isCritical'),
-      criticalMultiplier: t('nextTimeline.hitDetail.criticalMultiplier'),
-      defenseMultiplier: t('nextTimeline.hitDetail.defenseMultiplier'),
-      resistanceMultiplier: t('nextTimeline.hitDetail.resistanceMultiplier'),
-      element: t('nextTimeline.hitDetail.element'),
-      outcome: t('nextTimeline.hitDetail.outcome'),
-      reaction: t('nextTimeline.hitDetail.reaction'),
-      reactionConsumed: t('nextTimeline.hitDetail.reactionConsumed'),
-      level: t('nextTimeline.hitDetail.level'),
-      close: t('common.close'),
+      skillType: t('hitDetail.skillType'),
+      element: t('hitDetail.element'),
+      expectedDamage: t('hitDetail.expectedDamage'),
+      forcedDamage: t('hitDetail.forcedDamage'),
+      forceCrit: t('hitDetail.forceCrit'),
+      criticalDamage: t('hitDetail.critDamage'),
+      nonCriticalDamage: t('hitDetail.nonCritDamage'),
+      attack: t('hitDetail.attack'),
+      skillMultiplier: t('hitDetail.multiplier'),
+      baseDamage: t('hitDetail.baseDamage'),
+      damageBonus: t('hitDetail.dmgBonus'),
+      criticalExpectation: t('hitDetail.critMult'),
+      directMultiplier: t('hitDetail.directMult'),
+      damageTaken: t('hitDetail.dmgTaken'),
+      defenseMultiplier: t('hitDetail.defMult'),
+      resistanceMultiplier: t('hitDetail.resMult'),
+      defenseDetail: (value: number) => t('hitDetail.defDetail', { def: value }),
     }"
     @close="hitDetailTarget = null"
+    @toggle-force-critical="toggleHitDetailForceCritical"
   />
 </template>
 

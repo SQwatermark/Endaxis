@@ -36,6 +36,28 @@ export interface HealthDamageEventPayload {
   readonly result: PlayerActiveDamageResult;
 }
 
+/** 旧版伤害详情能够直接显示、且已经由本次公式确定的冻结值。 */
+export interface HealthDamageReceiptDetail {
+  readonly skillType?: string;
+  readonly attack?: number;
+  readonly baseDamage?: number;
+  readonly finalAttackValue?: number;
+  readonly standardCalculation?: boolean;
+  readonly skillMultiplierPercent?: number;
+  readonly calculationMultiplier?: number;
+  readonly damageScaleMultiplier?: number;
+  readonly criticalRate?: number;
+  readonly criticalDamageIncrease?: number;
+  readonly nonCriticalDamage?: number;
+  readonly criticalDamage?: number;
+  readonly expectedDamage?: number;
+  readonly enemyDefense?: number;
+  readonly enemyResistancePercent?: number;
+  readonly damageTakenMultiplier?: number;
+  readonly weaknessDamageMultiplier?: number;
+  readonly shelterDamageMultiplier?: number;
+}
+
 /** 在正确事件边界写入一次生命伤害所需的状态和端口。 */
 export interface ExecuteHealthDamageInput {
   readonly sourceId: string;
@@ -44,6 +66,8 @@ export interface ExecuteHealthDamageInput {
   readonly tags: readonly DamageTag[];
   readonly features?: readonly DamageFeature[];
   readonly result: PlayerActiveDamageResult;
+  /** 伤害详情使用的公式冻结值；只记录已参与本次结算的标量，不在投影层重算规则。 */
+  readonly detail?: HealthDamageReceiptDetail;
   readonly target: CombatVitals;
   readonly clock: CombatClock;
   readonly receipt: CombatReceiptSink;
@@ -108,6 +132,7 @@ export function executeHealthDamage(input: ExecuteHealthDamageInput): HealthDama
       runtimeExtensionMultiplier: result.runtimeExtensionMultiplier,
       igniteMultiplier: result.igniteMultiplier,
       physicalInflictionMultiplier: result.physicalInflictionMultiplier,
+      ...input.detail,
       ...(input.stepKey === undefined ? {} : { stepKey: input.stepKey }),
       ...(input.castId === undefined ? {} : { castId: input.castId }),
       ...(input.hitId === undefined ? {} : { hitId: input.hitId }),

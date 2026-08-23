@@ -54,10 +54,11 @@ function requireSingleSkill(skillGroupKey: string): SkillDefinition {
 }
 
 describe('compileScenarioTimeline', () => {
-  it('carries cast-specific direction input into the placed combat program', () => {
+  it('copies cast-specific simulation inputs into the placed combat program', () => {
     const scenario = place(createScenario(), 'battleSkill', 0);
     scenario.tracks[0]!.skillCasts[0]!.simulationInputs = {
       cameraToTargetSignedAngleDegrees: 22.5,
+      forcedCriticalStepKeys: ['damage:1'],
     };
 
     const compiled = compileScenarioTimeline(scenario, index());
@@ -66,7 +67,12 @@ describe('compileScenarioTimeline', () => {
       compiled.operators[0]?.skills.find(skill => skill.castId !== undefined)?.simulationInputs,
     ).toEqual({
       cameraToTargetSignedAngleDegrees: 22.5,
+      forcedCriticalStepKeys: ['damage:1'],
     });
+    expect(
+      compiled.operators[0]?.skills.find(skill => skill.castId !== undefined)?.simulationInputs
+        ?.forcedCriticalStepKeys,
+    ).not.toBe(scenario.tracks[0]!.skillCasts[0]!.simulationInputs?.forcedCriticalStepKeys);
   });
 
   it('combines read-only common Buffs with operator-owned Buffs without a skill level', () => {

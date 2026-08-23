@@ -56,6 +56,12 @@ export function createPlayerActiveOperationExecutor(
 ): CombatOperationExecutor {
   const shared = {
     sourceOperatorId: options.context.program.operatorId,
+    skillType: options.context.program.skillType,
+    isCriticalForced: (
+      step: Parameters<PlayerDamageOperationDependencies['isCriticalForced']>[0],
+    ) =>
+      step.key !== undefined &&
+      (options.context.program.simulationInputs?.forcedCriticalStepKeys ?? []).includes(step.key),
     targetId: options.targetId,
     clock: options.context.clock,
     receipt: options.context.receipt,

@@ -153,6 +153,8 @@ export interface SkillCastDocument {
   simulationInputs?: {
     /** 镜头前向到施法者→目标方向、绕世界上轴的有符号角度（度）。 */
     cameraToTargetSignedAngleDegrees?: number;
+    /** 旧版“强制暴击”的稳定命中身份；保存 step key，复制技能块时不会绑定到旧 castId。 */
+    forcedCriticalStepKeys?: string[];
   };
   /** 完整的自定义技能定义。存在时显示铅笔角标，模拟时使用它替代技能模板。 */
   customDefinition?: SkillDefinition;

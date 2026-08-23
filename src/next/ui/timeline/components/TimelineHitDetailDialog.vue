@@ -1,195 +1,200 @@
 <script setup lang="ts">
-/** 命中详情沿用旧版分节，但只展示统一回执已经证明的事实。 */
-import { computed, onMounted, onUnmounted } from 'vue';
+/** 结构与视觉以旧版 HitDamageDetailDialog 为规格；UI 只投影回执冻结值。 */
+import { computed } from 'vue';
 import type { CombatReceiptEntry } from '../../../core/combat/receipt/combatReceipt';
 
 const props = defineProps<{
   visible: boolean;
-  title: string;
+  forceCritical: boolean;
   entries: readonly CombatReceiptEntry[];
   damageTypeLabel: (value: string) => string;
-  reactionLabel: (value: string) => string;
-  outcomeLabel: (value: string) => string;
+  skillTypeLabel: (value: string) => string;
   labels: {
     dialogTitle: string;
     context: string;
     result: string;
+    base: string;
     multipliers: string;
-    effects: string;
-    frame: string;
-    damage: string;
-    actualDamage: string;
-    remainingHealth: string;
-    damageType: string;
-    isCritical: string;
-    criticalMultiplier: string;
+    skillType: string;
+    element: string;
+    expectedDamage: string;
+    forcedDamage: string;
+    forceCrit: string;
+    criticalDamage: string;
+    nonCriticalDamage: string;
+    attack: string;
+    skillMultiplier: string;
+    baseDamage: string;
+    damageBonus: string;
+    criticalExpectation: string;
+    directMultiplier: string;
+    damageTaken: string;
     defenseMultiplier: string;
     resistanceMultiplier: string;
-    element: string;
-    outcome: string;
-    reaction: string;
-    reactionConsumed: string;
-    level: string;
-    close: string;
+    defenseDetail: (value: number) => string;
   };
 }>();
 
-const emit = defineEmits<{ close: [] }>();
+const emit = defineEmits<{ close: []; toggleForceCritical: [forced: boolean] }>();
 
 interface DetailRow {
   readonly label: string;
+  readonly detail?: string;
   readonly value: string;
 }
 
 interface DamageDetail {
   readonly key: number;
-  readonly headline: string;
-  readonly critical: boolean;
+  readonly headline: number;
+  readonly criticalDamage: number;
+  readonly nonCriticalDamage: number;
+  readonly canForceCritical: boolean;
   readonly contextRows: readonly DetailRow[];
-  readonly resultRows: readonly DetailRow[];
+  readonly baseRows: readonly DetailRow[];
   readonly multiplierRows: readonly DetailRow[];
 }
 
-function finiteNumber(value: unknown): number | null {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
+function finiteNumber(value: unknown, fallback = 0): number {
+  return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
 }
 
-function fmt(value: unknown): string {
-  const number = finiteNumber(value);
-  if (number !== null) {
-    return new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(number);
-  }
-  if (value === null || value === undefined || value === '') return '—';
-  return String(value);
+function num(value: unknown): string {
+  return Math.floor(finiteNumber(value)).toLocaleString();
 }
 
-function multiplier(value: unknown): string | null {
-  const number = finiteNumber(value);
-  return number === null ? null : `x${number.toFixed(3)}`;
+function pct(value: unknown): string {
+  return `${(finiteNumber(value) * 100).toFixed(1)}%`;
 }
 
-function localized(value: unknown, resolve: (value: string) => string): string {
-  return typeof value === 'string' && value.length > 0 ? resolve(value) : fmt(value);
+function mult(value: unknown): string {
+  return `x${finiteNumber(value).toFixed(3)}`;
 }
 
-function frameLabel(entry: CombatReceiptEntry): string {
-  return `${entry.frame}f / ${entry.time.toFixed(2)}s`;
+function differsFromOne(value: number): boolean {
+  return Math.abs(value - 1) > 0.000_001;
 }
 
 const damageDetails = computed<readonly DamageDetail[]>(() =>
   props.entries.flatMap(entry => {
     if (entry.event !== 'DamageApplied') return [];
     const data = entry.data ?? {};
-    const criticalMultiplier = multiplier(data.criticalMultiplier);
-    const defenseMultiplier = multiplier(data.defenseMultiplier);
-    const resistanceMultiplier = multiplier(data.resistanceMultiplier);
+    const actualValue = finiteNumber(data.value);
+    const expectedDamage = finiteNumber(data.expectedDamage, actualValue);
+    const nonCriticalDamage = finiteNumber(data.nonCriticalDamage, actualValue);
+    const criticalDamage = finiteNumber(data.criticalDamage, actualValue);
+    const skillType = typeof data.skillType === 'string' ? data.skillType : null;
+    const damageType = typeof data.damageType === 'string' ? data.damageType : null;
+    const standardCalculation = data.standardCalculation === true;
+    const damageScaleMultiplier = finiteNumber(data.damageScaleMultiplier, 1);
+    const criticalRate = finiteNumber(data.criticalRate);
+    const criticalDamageIncrease = finiteNumber(data.criticalDamageIncrease);
+    const criticalExpectation = 1 + Math.min(Math.max(criticalRate, 0), 1) * criticalDamageIncrease;
+    const directMultiplier =
+      finiteNumber(data.calculationMultiplier, 1) *
+      finiteNumber(data.weaknessDamageMultiplier, 1) *
+      (1 - finiteNumber(data.shelterDamageMultiplier)) *
+      finiteNumber(data.runtimeExtensionMultiplier, 1) *
+      finiteNumber(data.igniteMultiplier, 1) *
+      finiteNumber(data.physicalInflictionMultiplier, 1);
+    const damageTakenMultiplier = finiteNumber(data.damageTakenMultiplier, 1);
+    const resistanceMultiplier =
+      damageType === 'true' ? 1 : Math.max(0, 1 - finiteNumber(data.enemyResistancePercent) / 100);
+    const contextRows: DetailRow[] = [];
+    if (skillType !== null) {
+      contextRows.push({ label: props.labels.skillType, value: props.skillTypeLabel(skillType) });
+    }
+    if (damageType !== null) {
+      contextRows.push({ label: props.labels.element, value: props.damageTypeLabel(damageType) });
+    }
+    const baseRows: DetailRow[] = [
+      { label: props.labels.attack, value: num(data.attack) },
+      ...(standardCalculation
+        ? [
+            {
+              label: props.labels.skillMultiplier,
+              value: `${finiteNumber(data.skillMultiplierPercent).toFixed(1)}%`,
+            },
+          ]
+        : []),
+      { label: props.labels.baseDamage, value: num(data.baseDamage) },
+    ];
+    const multiplierRows: DetailRow[] = [];
+    if (differsFromOne(damageScaleMultiplier)) {
+      multiplierRows.push({
+        label: props.labels.damageBonus,
+        detail: damageScaleMultiplier >= 1 ? `+${pct(damageScaleMultiplier - 1)}` : undefined,
+        value: mult(damageScaleMultiplier),
+      });
+    }
+    if (differsFromOne(criticalExpectation)) {
+      multiplierRows.push({
+        label: props.labels.criticalExpectation,
+        detail: `${pct(criticalRate)} x ${pct(criticalDamageIncrease)}`,
+        value: mult(criticalExpectation),
+      });
+    }
+    if (differsFromOne(directMultiplier)) {
+      multiplierRows.push({
+        label: props.labels.directMultiplier,
+        value: mult(directMultiplier),
+      });
+    }
+    if (differsFromOne(damageTakenMultiplier)) {
+      multiplierRows.push({
+        label: props.labels.damageTaken,
+        detail: damageTakenMultiplier >= 1 ? `+${pct(damageTakenMultiplier - 1)}` : undefined,
+        value: mult(damageTakenMultiplier),
+      });
+    }
+    multiplierRows.push({
+      label: props.labels.defenseMultiplier,
+      detail: props.labels.defenseDetail(Math.floor(finiteNumber(data.enemyDefense))),
+      value: mult(data.defenseMultiplier),
+    });
+    if (differsFromOne(resistanceMultiplier)) {
+      multiplierRows.push({
+        label: props.labels.resistanceMultiplier,
+        detail: pct(finiteNumber(data.enemyResistancePercent) / 100),
+        value: mult(resistanceMultiplier),
+      });
+    }
     return [
       {
         key: entry.sequence,
-        headline: fmt(data.value),
-        critical: data.isCritical === true,
-        contextRows: [
-          { label: props.labels.frame, value: frameLabel(entry) },
-          {
-            label: props.labels.damageType,
-            value: localized(data.damageType, props.damageTypeLabel),
-          },
-        ],
-        resultRows: [
-          { label: props.labels.actualDamage, value: fmt(data.actualDamage) },
-          { label: props.labels.remainingHealth, value: fmt(data.remainingHealth) },
-          { label: props.labels.isCritical, value: data.isCritical === true ? '✓' : '—' },
-        ],
-        multiplierRows: [
-          ...(criticalMultiplier === null || criticalMultiplier === 'x1.000'
-            ? []
-            : [{ label: props.labels.criticalMultiplier, value: criticalMultiplier }]),
-          ...(defenseMultiplier === null
-            ? []
-            : [{ label: props.labels.defenseMultiplier, value: defenseMultiplier }]),
-          ...(resistanceMultiplier === null || resistanceMultiplier === 'x1.000'
-            ? []
-            : [{ label: props.labels.resistanceMultiplier, value: resistanceMultiplier }]),
-        ],
+        headline: expectedDamage,
+        criticalDamage,
+        nonCriticalDamage,
+        canForceCritical: Math.abs(criticalDamage - nonCriticalDamage) > 0.000_001,
+        contextRows,
+        baseRows,
+        multiplierRows,
       },
     ];
   }),
 );
 
-const effectRows = computed<readonly DetailRow[]>(() =>
-  props.entries.flatMap(entry => {
-    const data = entry.data ?? {};
-    if (entry.event === 'ElementalInflictionApplied') {
-      return [
-        {
-          label: `${props.labels.element} · ${frameLabel(entry)}`,
-          value: [
-            localized(data.requestedElement, props.damageTypeLabel),
-            localized(data.outcomeKind, props.outcomeLabel),
-            `Lv${fmt(data.currentLayers)}`,
-          ]
-            .filter(value => value !== '—')
-            .join(' · '),
-        },
-      ];
-    }
-    if (entry.event === 'ElementalReactionApplied') {
-      return [
-        {
-          label: `${props.labels.reaction} · ${frameLabel(entry)}`,
-          value: `${localized(data.reaction, props.reactionLabel)} · Lv${fmt(data.level)}`,
-        },
-      ];
-    }
-    if (entry.event === 'ElementalReactionConsumed') {
-      return [
-        {
-          label: `${props.labels.reactionConsumed} · ${frameLabel(entry)}`,
-          value: `${localized(data.reaction, props.reactionLabel)} · Lv${fmt(data.level)}`,
-        },
-      ];
-    }
-    return [];
-  }),
+const canForceCritical = computed(() =>
+  damageDetails.value.some(detail => detail.canForceCritical),
 );
 
-function handleDocumentKeydown(event: KeyboardEvent): void {
-  if (!props.visible || event.key !== 'Escape') return;
-  event.preventDefault();
+function onClose(): void {
   emit('close');
 }
-
-onMounted(() => document.addEventListener('keydown', handleDocumentKeydown));
-onUnmounted(() => document.removeEventListener('keydown', handleDocumentKeydown));
 </script>
 
 <template>
-  <div v-if="visible" class="hit-detail-overlay" @click.self="emit('close')">
-    <section
-      class="hit-detail-dialog"
-      role="dialog"
-      aria-modal="true"
-      :aria-label="labels.dialogTitle"
-    >
-      <header class="hit-detail-header">
-        <div class="hit-detail-heading">
-          <strong>{{ labels.dialogTitle }}</strong>
-          <span :title="title">{{ title }}</span>
-        </div>
-        <button
-          type="button"
-          class="hit-detail-close"
-          :aria-label="labels.close"
-          :title="labels.close"
-          @click="emit('close')"
-        >
-          ×
-        </button>
-      </header>
-
-      <div class="hit-detail-body">
-        <template v-for="(detail, index) in damageDetails" :key="detail.key">
-          <div v-if="damageDetails.length > 1" class="hit-sequence">#{{ index + 1 }}</div>
+  <el-dialog
+    :model-value="visible"
+    :title="labels.dialogTitle"
+    width="420px"
+    class="hit-damage-detail-dialog"
+    :close-on-click-modal="true"
+    append-to-body
+    @update:model-value="onClose"
+  >
+    <div v-if="damageDetails.length > 0" class="hit-detail-content">
+      <template v-for="detail in damageDetails" :key="detail.key">
+        <template v-if="detail.contextRows.length > 0">
           <div class="section-label">{{ labels.context }}</div>
           <table class="stat-table">
             <tbody>
@@ -199,133 +204,80 @@ onUnmounted(() => document.removeEventListener('keydown', handleDocumentKeydown)
               </tr>
             </tbody>
           </table>
-
-          <div class="section-label">{{ labels.result }}</div>
-          <div class="damage-result">
-            <div class="headline-damage">
-              <span class="damage-label">{{ labels.damage }}</span
-              ><span class="damage-value" :class="{ critical: detail.critical }">{{
-                detail.headline
-              }}</span>
-            </div>
-            <table class="stat-table">
-              <tbody>
-                <tr v-for="row in detail.resultRows" :key="row.label" class="dim">
-                  <td class="label-cell">{{ row.label }}</td>
-                  <td class="value-cell">{{ row.value }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <template v-if="detail.multiplierRows.length > 0">
-            <div class="section-label">{{ labels.multipliers }}</div>
-            <table class="stat-table">
-              <tbody>
-                <tr v-for="row in detail.multiplierRows" :key="row.label">
-                  <td class="label-cell">{{ row.label }}</td>
-                  <td class="value-cell multiplier-value">{{ row.value }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </template>
         </template>
 
-        <template v-if="effectRows.length > 0">
-          <div class="section-label">{{ labels.effects }}</div>
+        <div class="section-label">{{ labels.result }}</div>
+        <div class="damage-result">
+          <div class="expected-damage">
+            <span class="damage-label">{{
+              forceCritical ? labels.forcedDamage : labels.expectedDamage
+            }}</span>
+            <span class="damage-value" :class="{ forced: forceCritical }">{{
+              num(forceCritical ? detail.criticalDamage : detail.headline)
+            }}</span>
+          </div>
           <table class="stat-table">
             <tbody>
-              <tr v-for="row in effectRows" :key="`${row.label}:${row.value}`">
-                <td class="label-cell">{{ row.label }}</td>
-                <td class="value-cell">{{ row.value }}</td>
+              <tr class="dim">
+                <td class="label-cell">{{ labels.criticalDamage }}</td>
+                <td class="value-cell">{{ num(detail.criticalDamage) }}</td>
+              </tr>
+              <tr class="dim">
+                <td class="label-cell">{{ labels.nonCriticalDamage }}</td>
+                <td class="value-cell">{{ num(detail.nonCriticalDamage) }}</td>
               </tr>
             </tbody>
           </table>
-        </template>
-        <div v-if="damageDetails.length === 0 && effectRows.length === 0" class="hit-detail-empty">
-          —
         </div>
+
+        <div class="section-label">{{ labels.base }}</div>
+        <table class="stat-table">
+          <tbody>
+            <tr
+              v-for="row in detail.baseRows"
+              :key="row.label"
+              :class="{ bold: row.label === labels.baseDamage }"
+            >
+              <td class="label-cell">{{ row.label }}</td>
+              <td class="value-cell">{{ row.value }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="section-label">{{ labels.multipliers }}</div>
+        <table class="stat-table">
+          <tbody>
+            <tr v-for="row in detail.multiplierRows" :key="row.label">
+              <td class="label-cell">
+                {{ row.label }}<span v-if="row.detail" class="mult-detail">{{ row.detail }}</span>
+              </td>
+              <td class="value-cell mult-value">{{ row.value }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </template>
+    </div>
+    <div v-else class="hit-detail-empty">—</div>
+
+    <template #footer>
+      <div class="dialog-footer">
+        <label v-if="canForceCritical" class="ea-check-rect ea-check-rect--sm force-crit-check">
+          <input
+            type="checkbox"
+            :checked="forceCritical"
+            @change="emit('toggleForceCritical', ($event.target as HTMLInputElement).checked)"
+          />
+          <span>{{ labels.forceCrit }}</span>
+        </label>
       </div>
-    </section>
-  </div>
+    </template>
+  </el-dialog>
 </template>
 
 <style scoped>
-.hit-detail-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  display: grid;
-  place-items: center;
-  background: rgb(0 0 0 / 45%);
-}
-.hit-detail-dialog {
-  width: 420px;
-  max-width: calc(100vw - 32px);
-  max-height: 78vh;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border: 1px solid var(--ea-border);
-  border-radius: 3px;
-  background: var(--ea-workbench-panel, #1b1d21);
-  color: var(--ea-fg);
-  box-shadow: 0 12px 38px var(--ea-shadow);
-  font: 13px/1.5 var(--ea-font-family, 'Segoe UI', sans-serif);
-}
-.hit-detail-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 16px 11px;
-  border-bottom: 1px solid var(--ea-border-soft);
-}
-.hit-detail-heading {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.hit-detail-heading strong {
-  font-size: 16px;
-  line-height: 22px;
-}
-.hit-detail-heading span {
-  overflow: hidden;
-  color: var(--ea-fg-muted);
-  font-size: 11px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.hit-detail-close {
-  width: 24px;
-  height: 24px;
-  flex: 0 0 auto;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--ea-fg-muted);
-  font:
-    20px/22px Arial,
-    sans-serif;
-  cursor: pointer;
-}
-.hit-detail-close:hover {
-  color: var(--ea-fg);
-}
-.hit-detail-body {
-  min-height: 0;
-  overflow-y: auto;
-  padding: 4px 16px 16px;
-}
-.hit-sequence {
-  margin-top: 10px;
-  color: var(--ea-gold);
-  font:
-    700 11px/1 Consolas,
-    monospace;
+.hit-detail-content {
+  color: var(--ea-fg, #f0f0f0);
+  font-size: 13px;
 }
 .section-label {
   margin: 12px 0 6px;
@@ -334,6 +286,9 @@ onUnmounted(() => document.removeEventListener('keydown', handleDocumentKeydown)
   font-weight: 600;
   letter-spacing: 0.5px;
   text-transform: uppercase;
+}
+.section-label:first-child {
+  margin-top: 0;
 }
 .stat-table {
   width: 100%;
@@ -353,9 +308,12 @@ onUnmounted(() => document.removeEventListener('keydown', handleDocumentKeydown)
 }
 .value-cell {
   color: var(--ea-fg, #eee);
-  font-family: Consolas, monospace;
+  font-family: monospace;
   text-align: right;
   white-space: nowrap;
+}
+.bold {
+  font-weight: 600;
 }
 .dim {
   opacity: 0.72;
@@ -364,7 +322,7 @@ onUnmounted(() => document.removeEventListener('keydown', handleDocumentKeydown)
 .damage-result {
   margin-bottom: 4px;
 }
-.headline-damage {
+.expected-damage {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -377,23 +335,47 @@ onUnmounted(() => document.removeEventListener('keydown', handleDocumentKeydown)
 }
 .damage-value {
   color: #e25555;
-  font-family: Consolas, monospace;
+  font-family: monospace;
   font-size: 20px;
   font-weight: 700;
 }
-.damage-value.critical {
-  color: var(--ea-gold, #ffd166);
-  text-shadow: 0 0 8px rgb(255 209 102 / 35%);
+.damage-value.forced {
+  color: var(--ea-gold);
+  text-shadow: none;
 }
-.multiplier-value {
+.mult-detail {
+  margin-left: 6px;
+  color: var(--ea-fg-muted, #888);
+  font-size: 11px;
+}
+.mult-value {
   color: #3b82c4;
 }
-:global(html[data-theme='dark']) .multiplier-value {
-  color: #b8d4ff;
+.dialog-footer {
+  min-height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.force-crit-check {
+  margin-right: auto;
 }
 .hit-detail-empty {
   padding: 24px 0 18px;
   color: var(--ea-fg-muted);
   text-align: center;
+}
+</style>
+
+<style>
+html[data-theme='dark'] .hit-damage-detail-dialog .damage-value {
+  color: #ff6b6b;
+}
+html[data-theme='dark'] .hit-damage-detail-dialog .damage-value.forced {
+  color: #ffd166;
+  text-shadow: 0 0 8px rgb(255 209 102 / 35%);
+}
+html[data-theme='dark'] .hit-damage-detail-dialog .mult-value {
+  color: #b8d4ff;
 }
 </style>

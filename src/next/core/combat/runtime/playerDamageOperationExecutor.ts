@@ -3,7 +3,7 @@
  * 调用方必须提供同一命中的属性快照和事件端口；此处顺序具有战斗语义，不能随意拆分或并行。
  */
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
-import type { ActionValueOperand } from '../../game-data/operatorDefinition';
+import type { ActionValueOperand, SkillType } from '../../game-data/operatorDefinition';
 import { calculateBreakingAttackValue } from '../damage/breakingAttackDamage';
 import { executeHealthDamage } from '../damage/healthDamage';
 import { calculatePlayerActiveDamage } from '../damage/playerActiveDamage';
@@ -56,12 +56,16 @@ export interface PlayerDamageOperationDependencies {
   readonly sourceOperatorId: string;
   /** 存档中的技能释放身份；伤害回执凭它与具体施放对应。单元测试程序可能缺失。 */
   readonly castId?: string;
+  /** 只用于把本次公式已经确定的技能分类写入伤害详情回执。 */
+  readonly skillType?: SkillType;
   readonly targetId: string;
   readonly targetVitals: CombatVitals;
   readonly clock: CombatClock;
   readonly receipt: CombatReceiptSink;
   readonly captureAttributeSnapshots: (step: DamageStep) => PlayerDamageAttributeSnapshots;
   readonly criticalSamples: CriticalSampleSource;
+  /** 场景显式指定的命中覆盖；只改变本次实际结算，不污染公式中的原始暴击率。 */
+  readonly isCriticalForced?: (step: DamageStep) => boolean;
   readonly resolveNonRandomRuntimeSnapshot: (
     step: DamageStep,
   ) => PlayerDamageNonRandomRuntimeSnapshot;
@@ -143,6 +147,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       });
       const finalAttackValue = context.resolveFinalAttackValue();
       const runtimeSnapshot = this.dependencies.resolveNonRandomRuntimeSnapshot(step);
+      const criticalForced = this.dependencies.isCriticalForced?.(step) === true;
       const formulaInput = resolvePlayerActiveDamageInput({
         step,
         finalAttackValue,
@@ -154,12 +159,31 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
             runtimeSnapshot.appliesPhysicalInflictionDamageMultiplier ||
             (step.parameters.features ?? []).includes('physicalInfliction'),
           criticalSample:
-            context.attackerAttributes.criticalRate > 0.00001
+            !criticalForced && context.attackerAttributes.criticalRate > 0.00001
               ? this.dependencies.criticalSamples.nextCriticalSample()
               : 0,
         },
       });
-      const damageResult = calculatePlayerActiveDamage(formulaInput);
+      const damageResult = calculatePlayerActiveDamage(
+        criticalForced ? { ...formulaInput, criticalRate: 1, criticalSample: 0 } : formulaInput,
+      );
+      const nonCriticalDamage = damageResult.value / damageResult.criticalMultiplier;
+      const criticalDamage =
+        nonCriticalDamage * (1 + context.attackerAttributes.criticalDamageIncrease);
+      const expectedDamage =
+        nonCriticalDamage *
+        (1 +
+          Math.min(Math.max(context.attackerAttributes.criticalRate, 0), 1) *
+            context.attackerAttributes.criticalDamageIncrease);
+      const standardCalculation =
+        step.kind === 'dealDamage' &&
+        (step.parameters.calculation === undefined || step.parameters.calculation === 'standard');
+      const damageScaleMultiplier = context.damageScales.getFinalValue();
+      const unscaledCalculationValue = context.baseValue * damageScaleMultiplier;
+      const calculationMultiplier =
+        Math.abs(unscaledCalculationValue) <= Number.EPSILON
+          ? 1
+          : finalAttackValue / unscaledCalculationValue;
       executeHealthDamage({
         sourceId: this.dependencies.sourceOperatorId,
         targetId: this.dependencies.targetId,
@@ -167,6 +191,33 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
         tags: step.parameters.tags,
         features: step.parameters.features ?? [],
         result: damageResult,
+        detail: {
+          ...(this.dependencies.skillType === undefined
+            ? {}
+            : { skillType: this.dependencies.skillType }),
+          attack: context.attackerAttributes.attack,
+          baseDamage: context.baseValue,
+          finalAttackValue,
+          standardCalculation,
+          ...(standardCalculation && context.attackerAttributes.attack !== 0
+            ? {
+                skillMultiplierPercent:
+                  (context.baseValue / context.attackerAttributes.attack) * 100,
+              }
+            : {}),
+          calculationMultiplier,
+          damageScaleMultiplier,
+          criticalRate: context.attackerAttributes.criticalRate,
+          criticalDamageIncrease: context.attackerAttributes.criticalDamageIncrease,
+          nonCriticalDamage,
+          criticalDamage,
+          expectedDamage,
+          enemyDefense: context.defenderAttributes.defense,
+          enemyResistancePercent: formulaInput.resistancePercent,
+          damageTakenMultiplier: formulaInput.damageTakenMultiplier,
+          weaknessDamageMultiplier: formulaInput.weaknessDamageMultiplier,
+          shelterDamageMultiplier: formulaInput.shelterDamageMultiplier,
+        },
         target: this.dependencies.targetVitals,
         clock: this.dependencies.clock,
         receipt: this.dependencies.receipt,

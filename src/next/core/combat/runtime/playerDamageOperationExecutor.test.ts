@@ -75,6 +75,7 @@ describe('PlayerDamageOperationExecutor', () => {
       receipt,
       captureAttributeSnapshots: () => createAttributeSnapshots(),
       criticalSamples: { nextCriticalSample },
+      isCriticalForced: step => step.key === 'forced',
       resolveNonRandomRuntimeSnapshot: () => ({
         runtimeExtensionMultiplier: 1,
         appliesIgniteDamageMultiplier: false,
@@ -102,6 +103,25 @@ describe('PlayerDamageOperationExecutor', () => {
       'source:outputDamage',
     ]);
     expect(receipt.entries.map(entry => entry.event)).toEqual(['DamageApplied', 'PoiseApplied']);
+    expect(receipt.entries[0]?.data).toMatchObject({
+      attack: 100,
+      baseDamage: 400,
+      finalAttackValue: 400,
+      standardCalculation: true,
+      skillMultiplierPercent: 400,
+      calculationMultiplier: 1,
+      damageScaleMultiplier: 1,
+      criticalRate: 0,
+      criticalDamageIncrease: 0.5,
+      nonCriticalDamage: 400,
+      criticalDamage: 600,
+      expectedDamage: 400,
+      enemyDefense: 0,
+      enemyResistancePercent: 0,
+      damageTakenMultiplier: 1,
+      weaknessDamageMultiplier: 1,
+      shelterDamageMultiplier: 0,
+    });
 
     executor.execute(
       {
@@ -115,6 +135,21 @@ describe('PlayerDamageOperationExecutor', () => {
       { blackboard: new ActionBlackboard({ attackScale: 1 }) },
     );
     expect(targetVitals.health).toBe(500);
+    expect(nextCriticalSample).not.toHaveBeenCalled();
+
+    executor.execute({
+      ...DAMAGE_STEP,
+      key: 'forced',
+      parameters: { ...DAMAGE_STEP.parameters, attackScale: 1, stagger: undefined },
+    });
+    expect(targetVitals.health).toBe(350);
+    expect(receipt.entries.at(-1)?.data).toMatchObject({
+      value: 150,
+      isCritical: true,
+      expectedDamage: 100,
+      criticalDamage: 150,
+      nonCriticalDamage: 100,
+    });
     expect(nextCriticalSample).not.toHaveBeenCalled();
   });
 

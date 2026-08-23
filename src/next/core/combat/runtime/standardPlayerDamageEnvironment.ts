@@ -306,6 +306,7 @@ export class StandardPlayerDamageEnvironment {
     const damage = new PlayerDamageOperationExecutor({
       sourceOperatorId: context.program.operatorId,
       castId: context.program.castId,
+      skillType: context.program.skillType,
       targetId: 'enemy',
       targetVitals: this.enemyVitals,
       clock: context.clock,
@@ -318,6 +319,9 @@ export class StandardPlayerDamageEnvironment {
           this.#enemyResistanceAttributes,
         ),
       criticalSamples: this.options.criticalSamples,
+      isCriticalForced: step =>
+        step.key !== undefined &&
+        (context.program.simulationInputs?.forcedCriticalStepKeys ?? []).includes(step.key),
       resolveNonRandomRuntimeSnapshot: step =>
         this.options.resolveNonRandomRuntimeSnapshot(context, step),
       applyDamageModifiers: (timing, side, damageContext) =>

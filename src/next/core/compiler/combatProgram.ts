@@ -325,6 +325,7 @@ export interface CompiledSkillProgram {
   readonly castId?: string;
   readonly simulationInputs?: {
     readonly cameraToTargetSignedAngleDegrees?: number;
+    readonly forcedCriticalStepKeys?: readonly string[];
   };
   readonly skillGroupKey: string;
   readonly skillId: string;

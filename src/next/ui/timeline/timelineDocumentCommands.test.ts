@@ -12,6 +12,7 @@ import {
   setSkillCastColor,
   setSkillCastCameraTargetAngle,
   setSkillCastDisabled,
+  setSkillCastForcedCritical,
   setSkillCastLocked,
   setSkillCastCustomDefinition,
   setTrackGear,
@@ -334,6 +335,19 @@ describe('moveSkillCast', () => {
     expect(() => setSkillCastCameraTargetAngle(original, 0, 'cast:1', Number.NaN)).toThrow(
       'between -180 and 180 degrees',
     );
+  });
+
+  it('stores forced critical hits by stable step key and removes empty simulation inputs', () => {
+    const original = scenario();
+    const forced = setSkillCastForcedCritical(original, 0, 'cast:1', 'damage:1', true);
+
+    expect(forced.tracks[0]!.skillCasts[0]!.simulationInputs?.forcedCriticalStepKeys).toEqual([
+      'damage:1',
+    ]);
+    expect(setSkillCastForcedCritical(forced, 0, 'cast:1', 'damage:1', true)).toBe(forced);
+
+    const cleared = setSkillCastForcedCritical(forced, 0, 'cast:1', 'damage:1', false);
+    expect(cleared.tracks[0]!.skillCasts[0]!.simulationInputs).toBeUndefined();
   });
 
   it('stores an independent complete custom definition and can return to the template', () => {

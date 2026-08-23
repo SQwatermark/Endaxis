@@ -391,6 +391,39 @@ export function setSkillCastCameraTargetAngle(
   return { ...scenario, tracks };
 }
 
+/** 切换一次释放中某个稳定伤害步骤的强制暴击输入。 */
+export function setSkillCastForcedCritical(
+  scenario: ScenarioDocument,
+  trackIndex: TrackIndex,
+  skillCastId: string,
+  stepKey: string,
+  forced: boolean,
+): ScenarioDocument {
+  if (stepKey.length === 0) throw new TypeError('forced-critical step key must not be empty');
+  const { track, castIndex, cast } = locateSkillCast(scenario, trackIndex, skillCastId);
+  const current = cast.simulationInputs?.forcedCriticalStepKeys ?? [];
+  const hasStep = current.includes(stepKey);
+  if (hasStep === forced) return scenario;
+
+  const forcedCriticalStepKeys = forced
+    ? [...current, stepKey]
+    : current.filter(value => value !== stepKey);
+  const remainingInputs = {
+    ...cast.simulationInputs,
+    ...(forcedCriticalStepKeys.length === 0 ? {} : { forcedCriticalStepKeys }),
+  };
+  if (forcedCriticalStepKeys.length === 0) delete remainingInputs.forcedCriticalStepKeys;
+  const skillCasts = [...track.skillCasts];
+  const { simulationInputs: _oldInputs, ...castWithoutInputs } = cast;
+  skillCasts[castIndex] =
+    Object.keys(remainingInputs).length === 0
+      ? castWithoutInputs
+      : { ...castWithoutInputs, simulationInputs: remainingInputs };
+  const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
+  tracks[trackIndex] = { ...track, skillCasts };
+  return { ...scenario, tracks };
+}
+
 /**
  * 用完整定义替换一次干员技能释放的模板逻辑。
  * 命令负责最后一道结构校验并复制定义，避免面板绕过项目约束或继续修改已提交状态。
