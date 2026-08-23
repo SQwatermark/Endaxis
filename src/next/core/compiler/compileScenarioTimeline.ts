@@ -236,8 +236,9 @@ function compileComboSkillRegistrations(
       ),
       ...(Object.keys(invalidCastBlackboard).length === 0 ? {} : { invalidCastBlackboard }),
       rules: registration.rules.map((rule, ruleIndex) => {
+        const { blackboard: ruleBlackboard, ...ruleWithoutBlackboard } = rule;
         const blackboard = Object.fromEntries(
-          Object.entries(rule.blackboard ?? {}).map(([key, value]) => [
+          Object.entries(ruleBlackboard ?? {}).map(([key, value]) => [
             key,
             resolveLevelValue(
               value,
@@ -247,7 +248,7 @@ function compileComboSkillRegistrations(
           ]),
         );
         return {
-          ...rule,
+          ...ruleWithoutBlackboard,
           ...(Object.keys(blackboard).length === 0 ? {} : { blackboard }),
         };
       }),
