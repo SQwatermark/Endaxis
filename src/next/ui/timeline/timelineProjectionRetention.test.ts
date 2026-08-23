@@ -93,4 +93,13 @@ describe('Next timeline simulation projection retention', () => {
     expect(source).toContain(':source-cast-ids="highlightedTimeDilationSourceIds"');
     expect(source.match(/<TimelineTimeDilationBands/g)).toHaveLength(1);
   });
+
+  it('keeps the legacy inherited label typography and lets narrow labels overflow', () => {
+    expect(actionBlockSource).toContain('font-family: inherit');
+    expect(actionBlockSource).toContain('font-size: inherit');
+    expect(actionBlockSource).toContain('font-weight: 700');
+    expect(actionBlockSource).toContain('line-height: normal');
+    expect(actionBlockSource).toMatch(/\.action-label\s*\{[^}]*overflow: visible/s);
+    expect(actionBlockSource).not.toContain('text-overflow: ellipsis');
+  });
 });

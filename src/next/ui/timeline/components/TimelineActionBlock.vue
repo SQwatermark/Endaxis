@@ -152,7 +152,10 @@ function markerStyle(marker: TimelineHitMarkerView): Record<string, string> {
   border-radius: 2px;
   background: var(--action-fill);
   color: var(--ea-action-fg, rgba(255, 255, 255, 0.9));
-  font: 700 13px/1 var(--ea-font-family, sans-serif);
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 700;
+  line-height: normal;
   text-shadow: var(--ea-action-fg-shadow, 0 1px 2px rgba(0, 0, 0, 0.8));
   white-space: nowrap;
   cursor: grab;
@@ -284,9 +287,7 @@ function markerStyle(marker: TimelineHitMarkerView): Record<string, string> {
 .action-label {
   position: relative;
   z-index: 2;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
 }
 
 .time-dilation-segment {
