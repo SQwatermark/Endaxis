@@ -1,6 +1,7 @@
 <script setup lang="ts">
 /** 结构与视觉以旧版 HitDamageDetailDialog 为规格；UI 只投影回执冻结值。 */
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import { ArrowRight } from '@element-plus/icons-vue';
 import type { CombatReceiptEntry } from '../../../core/combat/receipt/combatReceipt';
 
 const props = defineProps<{
@@ -23,6 +24,16 @@ const props = defineProps<{
     criticalDamage: string;
     nonCriticalDamage: string;
     attack: string;
+    basicTotal: string;
+    baseAttack: string;
+    operatorAttack: string;
+    weaponAttack: string;
+    attackBonus: string;
+    flatAttack: string;
+    percentageAttack: string;
+    attributeBonus: string;
+    attributeLabel: (attribute: string) => string;
+    fromSource: (name: string) => string;
     skillMultiplier: string;
     baseDamage: string;
     damageBonus: string;
@@ -49,10 +60,33 @@ interface DamageDetail {
   readonly criticalDamage: number;
   readonly nonCriticalDamage: number;
   readonly canForceCritical: boolean;
+  readonly attackValue: string;
+  readonly attackDetail: AttackDetail | null;
   readonly contextRows: readonly DetailRow[];
   readonly baseRows: readonly DetailRow[];
   readonly multiplierRows: readonly DetailRow[];
 }
+
+interface AttackAttributeContribution {
+  readonly key: string;
+  readonly value: number;
+  readonly contribution: number;
+  readonly isMain: boolean;
+  readonly isSecondary: boolean;
+}
+
+interface AttackDetail {
+  readonly basicTotal: number;
+  readonly baseAttackTotal: number;
+  readonly operatorBaseAttack: number;
+  readonly weaponBaseAttack: number;
+  readonly attackBonus: number;
+  readonly flatAttack: number;
+  readonly attackPercent: number;
+  readonly attributeContributions: readonly AttackAttributeContribution[];
+}
+
+const openAttackDetails = ref<ReadonlySet<number>>(new Set());
 
 function finiteNumber(value: unknown, fallback = 0): number {
   return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
@@ -60,6 +94,10 @@ function finiteNumber(value: unknown, fallback = 0): number {
 
 function num(value: unknown): string {
   return Math.floor(finiteNumber(value)).toLocaleString();
+}
+
+function ceilNum(value: unknown): string {
+  return Math.ceil(finiteNumber(value)).toLocaleString();
 }
 
 function pct(value: unknown): string {
@@ -72,6 +110,75 @@ function mult(value: unknown): string {
 
 function differsFromOne(value: number): boolean {
   return Math.abs(value - 1) > 0.000_001;
+}
+
+function projectAttackDetail(data: CombatReceiptEntry['data']): AttackDetail | null {
+  if (data === undefined || typeof data.attackDetailMainAttribute !== 'string') return null;
+  if (typeof data.attackDetailSecondaryAttribute !== 'string') return null;
+  const required = [
+    data.attackDetailOperatorBase,
+    data.attackDetailWeaponBase,
+    data.attackDetailAttackPercent,
+    data.attackDetailFlatAttack,
+    data.attackDetailStrength,
+    data.attackDetailAgility,
+    data.attackDetailIntellect,
+    data.attackDetailWill,
+    data.attackDetailStrengthCoefficient,
+    data.attackDetailAgilityCoefficient,
+    data.attackDetailIntellectCoefficient,
+    data.attackDetailWillCoefficient,
+  ];
+  if (required.some(value => typeof value !== 'number' || !Number.isFinite(value))) return null;
+  const operatorBaseAttack = finiteNumber(data.attackDetailOperatorBase);
+  const weaponBaseAttack = finiteNumber(data.attackDetailWeaponBase);
+  const attackPercent = finiteNumber(data.attackDetailAttackPercent);
+  const flatAttack = finiteNumber(data.attackDetailFlatAttack);
+  const baseAttackTotal = operatorBaseAttack + weaponBaseAttack;
+  const attributes = ['strength', 'agility', 'intellect', 'will'] as const;
+  const values = {
+    strength: finiteNumber(data.attackDetailStrength),
+    agility: finiteNumber(data.attackDetailAgility),
+    intellect: finiteNumber(data.attackDetailIntellect),
+    will: finiteNumber(data.attackDetailWill),
+  };
+  const coefficients = {
+    strength: finiteNumber(data.attackDetailStrengthCoefficient),
+    agility: finiteNumber(data.attackDetailAgilityCoefficient),
+    intellect: finiteNumber(data.attackDetailIntellectCoefficient),
+    will: finiteNumber(data.attackDetailWillCoefficient),
+  };
+  const attributeContributions = attributes
+    .map(key => ({
+      key,
+      value: values[key],
+      contribution: values[key] * coefficients[key],
+      isMain: key === data.attackDetailMainAttribute,
+      isSecondary: key === data.attackDetailSecondaryAttribute,
+    }))
+    .filter(row => coefficients[row.key] !== 0)
+    .sort(
+      (left, right) =>
+        Number(right.isMain) - Number(left.isMain) ||
+        Number(right.isSecondary) - Number(left.isSecondary),
+    );
+  return {
+    basicTotal: baseAttackTotal * (1 + attackPercent) + flatAttack,
+    baseAttackTotal,
+    operatorBaseAttack,
+    weaponBaseAttack,
+    attackBonus: baseAttackTotal * attackPercent + flatAttack,
+    flatAttack,
+    attackPercent,
+    attributeContributions,
+  };
+}
+
+function toggleAttackDetail(key: number): void {
+  const next = new Set(openAttackDetails.value);
+  if (next.has(key)) next.delete(key);
+  else next.add(key);
+  openAttackDetails.value = next;
 }
 
 const damageDetails = computed<readonly DamageDetail[]>(() =>
@@ -107,7 +214,6 @@ const damageDetails = computed<readonly DamageDetail[]>(() =>
       contextRows.push({ label: props.labels.element, value: props.damageTypeLabel(damageType) });
     }
     const baseRows: DetailRow[] = [
-      { label: props.labels.attack, value: num(data.attack) },
       ...(standardCalculation
         ? [
             {
@@ -165,6 +271,8 @@ const damageDetails = computed<readonly DamageDetail[]>(() =>
         criticalDamage,
         nonCriticalDamage,
         canForceCritical: Math.abs(criticalDamage - nonCriticalDamage) > 0.000_001,
+        attackValue: num(data.attack),
+        attackDetail: projectAttackDetail(entry.data),
         contextRows,
         baseRows,
         multiplierRows,
@@ -178,6 +286,7 @@ const canForceCritical = computed(() =>
 );
 
 function onClose(): void {
+  openAttackDetails.value = new Set();
   emit('close');
 }
 </script>
@@ -233,6 +342,77 @@ function onClose(): void {
         <div class="section-label">{{ labels.base }}</div>
         <table class="stat-table">
           <tbody>
+            <tr
+              class="expandable-row"
+              :class="{ 'is-disabled': detail.attackDetail === null }"
+              @click="detail.attackDetail === null ? undefined : toggleAttackDetail(detail.key)"
+            >
+              <td class="label-cell">
+                <el-icon
+                  v-if="detail.attackDetail !== null"
+                  class="expand-icon"
+                  :class="{ 'is-open': openAttackDetails.has(detail.key) }"
+                >
+                  <ArrowRight />
+                </el-icon>
+                {{ labels.attack }}
+              </td>
+              <td class="value-cell">{{ detail.attackValue }}</td>
+            </tr>
+            <template v-if="openAttackDetails.has(detail.key) && detail.attackDetail !== null">
+              <tr class="sub-row">
+                <td class="label-cell indent-1">{{ labels.basicTotal }}</td>
+                <td class="value-cell">{{ ceilNum(detail.attackDetail.basicTotal) }}</td>
+              </tr>
+              <tr class="sub-row">
+                <td class="label-cell indent-2">{{ labels.baseAttack }}</td>
+                <td class="value-cell">{{ ceilNum(detail.attackDetail.baseAttackTotal) }}</td>
+              </tr>
+              <tr class="sub-row dim">
+                <td class="label-cell indent-3">{{ labels.operatorAttack }}</td>
+                <td class="value-cell">{{ ceilNum(detail.attackDetail.operatorBaseAttack) }}</td>
+              </tr>
+              <tr class="sub-row dim">
+                <td class="label-cell indent-3">{{ labels.weaponAttack }}</td>
+                <td class="value-cell">{{ ceilNum(detail.attackDetail.weaponBaseAttack) }}</td>
+              </tr>
+              <tr class="sub-row">
+                <td class="label-cell indent-2">{{ labels.attackBonus }}</td>
+                <td class="value-cell">+{{ ceilNum(detail.attackDetail.attackBonus) }}</td>
+              </tr>
+              <tr class="sub-row dim">
+                <td class="label-cell indent-3">{{ labels.flatAttack }}</td>
+                <td class="value-cell">+{{ ceilNum(detail.attackDetail.flatAttack) }}</td>
+              </tr>
+              <tr class="sub-row dim">
+                <td class="label-cell indent-3">{{ labels.percentageAttack }}</td>
+                <td class="value-cell">{{ pct(detail.attackDetail.attackPercent) }}</td>
+              </tr>
+              <tr class="sub-row">
+                <td class="label-cell indent-1">{{ labels.attributeBonus }}</td>
+                <td class="value-cell">
+                  +{{
+                    (
+                      detail.attackDetail.attributeContributions.reduce(
+                        (sum, row) => sum + row.contribution,
+                        0,
+                      ) * 100
+                    ).toFixed(1)
+                  }}%
+                </td>
+              </tr>
+              <tr
+                v-for="row in detail.attackDetail.attributeContributions"
+                :key="row.key"
+                class="sub-row dim"
+                :class="{ 'is-main': row.isMain, 'is-sub': row.isSecondary }"
+              >
+                <td class="label-cell indent-2">
+                  {{ labels.fromSource(labels.attributeLabel(row.key)) }}
+                </td>
+                <td class="value-cell">+{{ (row.contribution * 100).toFixed(1) }}%</td>
+              </tr>
+            </template>
             <tr
               v-for="row in detail.baseRows"
               :key="row.label"
@@ -318,6 +498,52 @@ function onClose(): void {
 .dim {
   opacity: 0.72;
   font-size: 12px;
+}
+.indent-1 {
+  padding-left: 16px !important;
+}
+.indent-2 {
+  padding-left: 28px !important;
+}
+.indent-3 {
+  padding-left: 40px !important;
+}
+.expandable-row {
+  cursor: pointer;
+}
+.expandable-row:hover {
+  background: var(--ea-hover-fill, rgb(255 255 255 / 5%));
+}
+.expandable-row.is-disabled {
+  cursor: default;
+}
+.expandable-row.is-disabled:hover {
+  background: transparent;
+}
+.expand-icon {
+  margin-right: 4px;
+  vertical-align: -2px;
+  color: var(--ea-fg-muted, #888);
+  font-size: 12px;
+  transition:
+    transform 0.18s ease,
+    color 0.18s ease;
+}
+.expand-icon.is-open {
+  transform: rotate(90deg);
+  color: var(--ea-fg-secondary, #bbb);
+}
+.expandable-row:hover .expand-icon {
+  color: var(--ea-fg-secondary, #bbb);
+}
+.sub-row {
+  border-bottom-color: var(--ea-border-soft, rgb(255 255 255 / 3%)) !important;
+}
+tr.is-main {
+  background: color-mix(in srgb, var(--ea-gold, #ffc107) 10%, transparent);
+}
+tr.is-sub {
+  background: var(--ea-fill-soft, rgb(158 158 158 / 8%));
 }
 .damage-result {
   margin-bottom: 4px;

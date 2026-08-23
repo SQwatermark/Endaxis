@@ -88,6 +88,13 @@ export interface ResolvedOperatorPanel {
   readonly level: number;
   readonly attributes: OperatorPanelAttributes;
   readonly attack: number;
+  /** 旧版伤害详情攻击展开树需要的静态构筑分量；运行时攻击改变后不得继续冒充当前明细。 */
+  readonly attackDetail?: {
+    readonly operatorBaseAttack: number;
+    readonly weaponBaseAttack: number;
+    readonly attackPercent: number;
+    readonly flatAttack: number;
+  };
   /** 运行时重新计算攻击派生倍率所需的、尚未乘四维倍率的攻击值。 */
   readonly attackBeforeAttributeScalar: number;
   readonly mainAttribute: OperatorAttribute;
@@ -444,6 +451,12 @@ export function resolveOperatorPanel(build: ResolvedScenarioBuild): ResolvedOper
     level: build.operatorInstance.level,
     attributes: { ...values.attributes },
     attack,
+    attackDetail: {
+      operatorBaseAttack: values.operatorBaseAttack,
+      weaponBaseAttack: values.weaponBaseAttack,
+      attackPercent: values.panelStats.attackPercent,
+      flatAttack: values.panelStats.attackFlat,
+    },
     attackBeforeAttributeScalar,
     mainAttribute: build.operator.mainAttribute,
     secondaryAttribute: build.operator.secondaryAttribute,

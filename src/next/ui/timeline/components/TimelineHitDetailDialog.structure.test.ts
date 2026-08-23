@@ -16,6 +16,14 @@ describe('TimelineHitDetailDialog structure', () => {
     expect(source).toContain('labels.criticalDamage');
     expect(source).toContain('labels.nonCriticalDamage');
     expect(source).toContain('data.attack');
+    expect(source).toContain('projectAttackDetail');
+    expect(source).toContain('<ArrowRight />');
+    expect(source).toContain('labels.basicTotal');
+    expect(source).toContain('labels.baseAttack');
+    expect(source).toContain('labels.operatorAttack');
+    expect(source).toContain('labels.weaponAttack');
+    expect(source).toContain('labels.attackBonus');
+    expect(source).toContain('labels.attributeBonus');
     expect(source).toContain('data.skillMultiplierPercent');
     expect(source).toContain('data.baseDamage');
     expect(source).toContain('data.damageScaleMultiplier');

@@ -75,6 +75,17 @@ describe('PlayerDamageOperationExecutor', () => {
       receipt,
       captureAttributeSnapshots: () => createAttributeSnapshots(),
       criticalSamples: { nextCriticalSample },
+      attackDetail: {
+        panelAttack: 100,
+        operatorBaseAttack: 80,
+        weaponBaseAttack: 20,
+        attackPercent: 0,
+        flatAttack: 0,
+        mainAttribute: 'intellect',
+        secondaryAttribute: 'will',
+        attributes: { strength: 10, agility: 20, intellect: 30, will: 40 },
+        coefficients: { strength: 0, agility: 0, intellect: 0.001, will: 0.0005 },
+      },
       isCriticalForced: step => step.key === 'forced',
       resolveNonRandomRuntimeSnapshot: () => ({
         runtimeExtensionMultiplier: 1,
@@ -105,6 +116,16 @@ describe('PlayerDamageOperationExecutor', () => {
     expect(receipt.entries.map(entry => entry.event)).toEqual(['DamageApplied', 'PoiseApplied']);
     expect(receipt.entries[0]?.data).toMatchObject({
       attack: 100,
+      attackDetailOperatorBase: 80,
+      attackDetailWeaponBase: 20,
+      attackDetailAttackPercent: 0,
+      attackDetailFlatAttack: 0,
+      attackDetailMainAttribute: 'intellect',
+      attackDetailSecondaryAttribute: 'will',
+      attackDetailIntellect: 30,
+      attackDetailWill: 40,
+      attackDetailIntellectCoefficient: 0.001,
+      attackDetailWillCoefficient: 0.0005,
       baseDamage: 400,
       finalAttackValue: 400,
       standardCalculation: true,
@@ -151,6 +172,63 @@ describe('PlayerDamageOperationExecutor', () => {
       nonCriticalDamage: 100,
     });
     expect(nextCriticalSample).not.toHaveBeenCalled();
+  });
+
+  it('does not publish a stale panel attack tree after runtime attack changes', () => {
+    const targetVitals = new CombatVitals({
+      health: 1000,
+      maxHealth: 1000,
+      maxPoise: 0,
+      poise: 0,
+      poiseRecoveryTime: 0,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    const receipt = new CombatReceiptCollector();
+    const executor = new PlayerDamageOperationExecutor({
+      sourceOperatorId: 'perlica',
+      targetId: 'enemy',
+      targetVitals,
+      clock: new CombatClock(),
+      receipt,
+      captureAttributeSnapshots: () => createAttributeSnapshots(120),
+      criticalSamples: { nextCriticalSample: () => 1 },
+      attackDetail: {
+        panelAttack: 100,
+        operatorBaseAttack: 80,
+        weaponBaseAttack: 20,
+        attackPercent: 0,
+        flatAttack: 0,
+        mainAttribute: 'intellect',
+        secondaryAttribute: 'will',
+        attributes: { strength: 0, agility: 0, intellect: 0, will: 0 },
+        coefficients: { strength: 0, agility: 0, intellect: 0.001, will: 0.0005 },
+      },
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      applyDamageModifiers: () => undefined,
+      addInstantAttributeModifier: () => undefined,
+      clearInstantAttributeModifiers: () => undefined,
+      emitPreparationEvent: () => undefined,
+      resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),
+      emitHealthSourceEvent: () => undefined,
+      emitHealthTargetEvent: () => undefined,
+      emitPoiseSourceEvent: () => undefined,
+      emitPoiseTargetEvent: () => undefined,
+      delegate: { execute: vi.fn(() => true), evaluate: vi.fn(() => false) },
+    });
+
+    executor.execute({
+      ...DAMAGE_STEP,
+      parameters: { ...DAMAGE_STEP.parameters, attackScale: 1, stagger: undefined },
+    });
+
+    expect(receipt.entries[0]?.data?.attack).toBe(120);
+    expect(receipt.entries[0]?.data?.attackDetailOperatorBase).toBeUndefined();
   });
 
   it('applies the physical infliction multiplier when the generated damage feature requires it', () => {

@@ -40,6 +40,20 @@ export interface HealthDamageEventPayload {
 export interface HealthDamageReceiptDetail {
   readonly skillType?: string;
   readonly attack?: number;
+  readonly attackDetailOperatorBase?: number;
+  readonly attackDetailWeaponBase?: number;
+  readonly attackDetailAttackPercent?: number;
+  readonly attackDetailFlatAttack?: number;
+  readonly attackDetailMainAttribute?: string;
+  readonly attackDetailSecondaryAttribute?: string;
+  readonly attackDetailStrength?: number;
+  readonly attackDetailAgility?: number;
+  readonly attackDetailIntellect?: number;
+  readonly attackDetailWill?: number;
+  readonly attackDetailStrengthCoefficient?: number;
+  readonly attackDetailAgilityCoefficient?: number;
+  readonly attackDetailIntellectCoefficient?: number;
+  readonly attackDetailWillCoefficient?: number;
   readonly baseDamage?: number;
   readonly finalAttackValue?: number;
   readonly standardCalculation?: boolean;

@@ -13,9 +13,14 @@ import {
   CombatAttributeSet,
 } from '../attributes/combatAttributes';
 import {
+  ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE,
   createOperatorAttackAttributes,
   resolveOperatorAttack,
 } from '../attributes/operatorAttackAttributes';
+import {
+  MAIN_ATTRIBUTE_ATTACK_FACTOR,
+  SECONDARY_ATTRIBUTE_ATTACK_FACTOR,
+} from '../../game-data/battleConstants';
 import { CombatBuffContainer, type BuffFinishReason, type CombatBuff } from '../buffs/combatBuffs';
 import {
   compileCombatBuffDefinitions,
@@ -311,6 +316,26 @@ export class StandardPlayerDamageEnvironment {
       targetVitals: this.enemyVitals,
       clock: context.clock,
       receipt: context.receipt,
+      ...(context.panel?.attackDetail === undefined
+        ? {}
+        : {
+            attackDetail: {
+              panelAttack: context.panel.attack,
+              ...context.panel.attackDetail,
+              mainAttribute: context.panel.mainAttribute,
+              secondaryAttribute: context.panel.secondaryAttribute,
+              attributes: context.panel.attributes,
+              coefficients: Object.fromEntries(
+                Object.keys(ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE).map(attribute => [
+                  attribute,
+                  (context.panel!.mainAttribute === attribute ? MAIN_ATTRIBUTE_ATTACK_FACTOR : 0) +
+                    (context.panel!.secondaryAttribute === attribute
+                      ? SECONDARY_ATTRIBUTE_ATTACK_FACTOR
+                      : 0),
+                ]),
+              ) as Record<keyof typeof ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE, number>,
+            },
+          }),
       captureAttributeSnapshots: step =>
         resolveStaticPlayerDamageSnapshots(
           context,

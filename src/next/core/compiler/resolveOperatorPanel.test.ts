@@ -66,6 +66,12 @@ describe('resolveOperatorPanel', () => {
     });
     expect(panel).toMatchObject({
       attack: 803,
+      attackDetail: {
+        operatorBaseAttack: expect.any(Number),
+        weaponBaseAttack: 0,
+        attackPercent: 0,
+        flatAttack: 0,
+      },
       health: 5990,
       defense: 0,
       criticalRate: 0.05,
