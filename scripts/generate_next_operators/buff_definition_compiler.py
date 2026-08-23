@@ -49,6 +49,12 @@ BUFF_ATTRIBUTE_RUNTIME_KEYS = {
     "PhysicalDamageIncrease": "physicalDamageIncrease",
     "PulseDamageIncrease": "electricDamageIncrease",
     "CrystDamageIncrease": "cryoDamageIncrease",
+    "PhysicalEnhancedDmgIncrease": "physicalEnhancedDamageIncrease",
+    "FireEnhancedDmgIncrease": "heatEnhancedDamageIncrease",
+    "PulseEnhancedDmgIncrease": "electricEnhancedDamageIncrease",
+    "CrystEnhancedDmgIncrease": "cryoEnhancedDamageIncrease",
+    "NaturalEnhancedDmgIncrease": "natureEnhancedDamageIncrease",
+    "EtherEnhancedDmgIncrease": "etherEnhancedDamageIncrease",
 }
 
 DAMAGE_SIDES = {"Attacker": "attacker", "Defender": "defender"}
@@ -322,6 +328,39 @@ def compile_inline_buff_definition(
                 "},",
             ]
         )
+    if getattr(source, "childPresentations", ()):
+        fields.append("childPresentations: [")
+        for child in source.childPresentations:
+            child_presentation = child.presentation
+            icon_path = _resolve_buff_icon_path(child_presentation.spritePath)
+            fields.extend([
+                "  {",
+                f"    buffId: {ts_inline_literal(child.buffId)},",
+                "    presentation: {",
+                f"      visible: {ts_inline_literal(child_presentation.hasIcon)},",
+                *(
+                    []
+                    if not child_presentation.spritePath
+                    else [f"      iconId: {ts_inline_literal(child_presentation.spritePath)},"]
+                ),
+                *([] if icon_path is None else [f"      iconPath: {ts_inline_literal(icon_path)},"]),
+                f"      showInHeadBarCommon: {ts_inline_literal(child_presentation.showInHeadBarCommon)},",
+                f"      showInHeadBarAttached: {ts_inline_literal(child_presentation.showInHeadBarAttached)},",
+                f"      showInSquadIcon: {ts_inline_literal(child_presentation.showInSquadIcon)},",
+                "      onlyShowForMainCharacter: "
+                f"{ts_inline_literal(child_presentation.onlyShowForMainCharacter)},",
+                f"      iconStyleInSquad: {ts_inline_literal(child_presentation.iconStyleInSquad)},",
+                f"      abnormalColorType: {ts_inline_literal(child_presentation.abnormalColorType)},",
+                "      orderPriority: {",
+                "        useDirectoryValue: "
+                f"{ts_inline_literal(child_presentation.orderUseDirectoryValue)},",
+                f"        value: {ts_inline_literal(child_presentation.orderPriorityValue)},",
+                f"        category: {ts_inline_literal(child_presentation.orderPriorityEnum)},",
+                "      },",
+                "    },",
+                "  },",
+            ])
+        fields.append("],")
     if getattr(source, "useTimeDilationDt", False):
         fields.append(
             "timeClock: "

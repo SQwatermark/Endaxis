@@ -21,6 +21,7 @@ from source_models import (
     AbilityEntitySpawnPayload,
     AuxiliaryActionSource,
     BuffAttributeModifierSource,
+    BuffChildPresentationSource,
     BuffAnimationEndApplicationSource,
     BuffComboQteSource,
     BuffDamageModifierSource,
@@ -484,7 +485,7 @@ def parse_buff_child_slow_tag_ids(
                     and child_buff_id
                     == {"useBlackboardKey": False, "value": "", "blackboardKey": ""}
                     and action.get("asChildBuff") is True
-                    and isinstance(action.get("enhancingList"), list)
+                    and action.get("enhancingList") == []
                     and action.get("autoFinishByAction") is True
                 ):
                     projected += 1
@@ -1215,6 +1216,168 @@ def parse_buff_heal_modifiers(
     return tuple(result)
 
 
+ENHANCED_ACTION_ATTRIBUTE_TYPES = {
+    "All": (
+        "PhysicalEnhancedDmgIncrease",
+        "FireEnhancedDmgIncrease",
+        "PulseEnhancedDmgIncrease",
+        "CrystEnhancedDmgIncrease",
+        "NaturalEnhancedDmgIncrease",
+        "EtherEnhancedDmgIncrease",
+    ),
+    "Physical": ("PhysicalEnhancedDmgIncrease",),
+    "Spell": (
+        "FireEnhancedDmgIncrease",
+        "PulseEnhancedDmgIncrease",
+        "CrystEnhancedDmgIncrease",
+        "NaturalEnhancedDmgIncrease",
+    ),
+    "Fire": ("FireEnhancedDmgIncrease",),
+    "Pulse": ("PulseEnhancedDmgIncrease",),
+    "Crystal": ("CrystEnhancedDmgIncrease",),
+    "Natural": ("NaturalEnhancedDmgIncrease",),
+}
+
+
+def parse_buff_enhanced_action_modifiers(
+    buff: dict[str, Any],
+    source_name: str,
+    blackboard: dict[str, tuple[float, ...]],
+    *,
+    target_reference_is_plain: Callable[[Any], bool],
+) -> tuple[BuffAttributeModifierSource, ...]:
+    """把已复刻的 EnhancedAction 投影为对应元素的独立增幅区属性。"""
+    result: list[BuffAttributeModifierSource] = []
+    expected_fields = {
+        "$type", "isEnable", "priorityLevel", "priorityOffset",
+        "serverActionIndex", "source", "target", "duration", "rate",
+        "overrideChildBuffId", "childBuffId", "asChildBuff",
+        "enhancingList", "autoFinishByAction", "subType",
+    }
+    lifecycle_duration = parse_scalar(
+        buff.get("duration"), f"{source_name}.duration", blackboard
+    )
+    for event_index, raw_event in enumerate(
+        require_list(buff.get("buffEventAction", []), f"{source_name}.buffEventAction")
+    ):
+        event_path = f"{source_name}.buffEventAction[{event_index}]"
+        event = require_dict(raw_event, event_path)
+        if event.get("buffEvent") not in {"OnBuffStart", "DuringBuffEnable"}:
+            continue
+        for sequence_index, raw_sequence in enumerate(
+            require_list(event.get("actions"), f"{event_path}.actions")
+        ):
+            sequence_path = f"{event_path}.actions[{sequence_index}]"
+            sequence = require_dict(raw_sequence, sequence_path)
+            raw_action_data = sequence.get("actionData")
+            if not isinstance(raw_action_data, list):
+                continue
+            for action_index, raw_action in enumerate(
+                raw_action_data
+            ):
+                action_path = f"{sequence_path}.actionData[{action_index}]"
+                action = require_dict(raw_action, action_path)
+                if action_name(str(action.get("$type", ""))) != "EnhancedAction":
+                    continue
+                if set(action) != expected_fields:
+                    raise ValueError(f"{action_path}: unexpected EnhancedAction fields")
+                source = parse_target_reference(action.get("source"), f"{action_path}.source")
+                target = parse_target_reference(action.get("target"), f"{action_path}.target")
+                # Source-targeted carriers modify a possibly different entity from the Buff owner.
+                # The current Buff attribute registry is owner-scoped, so retain those actions in
+                # audit until source-side registration is modeled instead of misapplying them.
+                if target.targetSource != "Owner":
+                    continue
+                duration = parse_scalar(action.get("duration"), f"{action_path}.duration", blackboard)
+                subtype = action.get("subType")
+                child_buff = require_dict(action.get("childBuffId"), f"{action_path}.childBuffId")
+                duration_matches_lifecycle = (
+                    duration.blackboardKey is not None
+                    and duration.blackboardKey == lifecycle_duration.blackboardKey
+                ) or (
+                    buff.get("lifeType") == "Infinity"
+                    and duration.blackboardKey is None
+                    and duration.value == -1
+                )
+                if not (
+                    action.get("isEnable") is True
+                    and source.targetSource in {"Source", "Owner"}
+                    and target.targetSource == "Owner"
+                    and target_reference_is_plain(source)
+                    and target_reference_is_plain(target)
+                    and duration_matches_lifecycle
+                    and isinstance(action.get("overrideChildBuffId"), bool)
+                    and isinstance(child_buff.get("useBlackboardKey"), bool)
+                    and isinstance(child_buff.get("value"), str)
+                    and isinstance(child_buff.get("blackboardKey"), str)
+                    and (
+                        (
+                            action.get("overrideChildBuffId") is True
+                            and child_buff.get("useBlackboardKey") is False
+                            and bool(child_buff.get("value"))
+                            and child_buff.get("blackboardKey") == ""
+                        )
+                        or (
+                            action.get("overrideChildBuffId") is False
+                            and child_buff.get("useBlackboardKey") is False
+                            and child_buff.get("blackboardKey") == ""
+                        )
+                    )
+                    and action.get("asChildBuff") is True
+                    and action.get("enhancingList") == []
+                    and action.get("autoFinishByAction") is False
+                    and subtype in ENHANCED_ACTION_ATTRIBUTE_TYPES
+                ):
+                    raise ValueError(f"{action_path}: unsupported EnhancedAction semantics")
+                rate = parse_scalar(action.get("rate"), f"{action_path}.rate", blackboard)
+                result.extend(
+                    BuffAttributeModifierSource(
+                        targetType="Specific",
+                        attributeType=attribute_type,
+                        slot="BaseAddition",
+                        value=rate,
+                    )
+                    for attribute_type in ENHANCED_ACTION_ATTRIBUTE_TYPES[str(subtype)]
+                )
+    return tuple(result)
+
+
+def parse_buff_enhanced_action_child_presentations(
+    buff: dict[str, Any],
+    source_name: str,
+    buff_source_dir: Path,
+    *,
+    walk_actions: Callable[[Any], Iterable[dict[str, Any]]],
+) -> tuple[BuffChildPresentationSource, ...]:
+    """保存 overrideChildBuffId 指向的可见子 Buff 身份与完整图标元数据。"""
+    result: list[BuffChildPresentationSource] = []
+    seen: set[str] = set()
+    for item in walk_actions(buff.get("buffEventAction", [])):
+        if action_name(str(item.get("$type", ""))) != "EnhancedAction":
+            continue
+        target = parse_target_reference(item.get("target"), f"{source_name}.EnhancedAction.target")
+        if target.targetSource != "Owner" or item.get("overrideChildBuffId") is not True:
+            continue
+        child = require_dict(item.get("childBuffId"), f"{source_name}.EnhancedAction.childBuffId")
+        child_id = child.get("value")
+        if not isinstance(child_id, str) or not child_id or child_id in seen:
+            continue
+        child_path = buff_source_dir / f"{child_id}.json"
+        if not child_path.is_file():
+            raise FileNotFoundError(f"{source_name}: missing EnhancedAction child Buff {child_path}")
+        child_buff = require_dict(
+            json.loads(child_path.read_text(encoding="utf-8")), child_path.name
+        )
+        result.append(
+            BuffChildPresentationSource(
+                buffId=child_id,
+                presentation=parse_buff_presentation(child_buff, child_path.name),
+            )
+        )
+        seen.add(child_id)
+    return tuple(result)
+
+
 def parse_buff_start_vulnerability_enhancements(
     buff: dict[str, Any],
     source_name: str,
@@ -1578,6 +1741,12 @@ def resolve_buff_definitions(
         pause_time_actions = parse_buff_pause_time_actions(buff, source_file)
         shields = parse_buff_shields(buff, source_file, blackboard, services.damage_type_map)
         sustained_protections = parse_buff_sustained_protections(buff, source_file, blackboard)
+        enhanced_action_modifiers = parse_buff_enhanced_action_modifiers(
+            buff,
+            source_file,
+            blackboard,
+            target_reference_is_plain=services.target_reference_is_plain,
+        )
         event_actions = parse_buff_event_actions(
             buff,
             source_file,
@@ -1586,6 +1755,7 @@ def resolve_buff_definitions(
                 frozenset(
                     ({"SlowAction"} if child_slow_tag_ids else set())
                     | ({"SetSuperArmorAction"} if sustained_protections else set())
+                    | ({"EnhancedAction"} if enhanced_action_modifiers else set())
                 )
             ),
         )
@@ -1706,6 +1876,12 @@ def resolve_buff_definitions(
             sourceAvailable=True,
             lifecycle=parse_buff_lifecycle(buff, source_file, blackboard),
             presentation=parse_buff_presentation(buff, source_file),
+            childPresentations=parse_buff_enhanced_action_child_presentations(
+                buff,
+                source_file,
+                source_path.parent,
+                walk_actions=services.walk_actions,
+            ),
             blackboard=declared_blackboard,
             applyTagIds=tuple(
                 dict.fromkeys(
@@ -1713,8 +1889,9 @@ def resolve_buff_definitions(
                 )
             ),
             extendTagIds=parse_buff_extend_tag_ids(buff, source_file),
-            attributeModifiers=parse_buff_attribute_modifiers(
-                buff, source_file, blackboard
+            attributeModifiers=(
+                *parse_buff_attribute_modifiers(buff, source_file, blackboard),
+                *enhanced_action_modifiers,
             ),
             damageModifiers=damage_modifiers,
             keywordEnhancements=keyword_enhancements,

@@ -1388,6 +1388,46 @@ export const antalGeneratedOperator: OperatorDefinition = {
     },
     'buff_chr_0023_antal_utimate_skill': {
       stackingType: 'stack',
+      childPresentations: [
+        {
+          buffId: 'buff_chr_0023_antal_ultimate_icon_2',
+          presentation: {
+            visible: true,
+            iconId: 'icon_battle_affix_pulse_enhance',
+            iconPath: '/icons/icon_battle_affix_pulse_enhance.webp',
+            showInHeadBarCommon: true,
+            showInHeadBarAttached: false,
+            showInSquadIcon: true,
+            onlyShowForMainCharacter: false,
+            iconStyleInSquad: 'LifeTime',
+            abnormalColorType: 'Physical',
+            orderPriority: {
+              useDirectoryValue: false,
+              value: 0,
+              category: 'KeywordDebuff',
+            },
+          },
+        },
+        {
+          buffId: 'buff_chr_0023_antal_ultimate_icon',
+          presentation: {
+            visible: true,
+            iconId: 'icon_battle_affix_fire_enhance',
+            iconPath: '/icons/icon_battle_affix_fire_enhance.webp',
+            showInHeadBarCommon: true,
+            showInHeadBarAttached: false,
+            showInSquadIcon: true,
+            onlyShowForMainCharacter: false,
+            iconStyleInSquad: 'LifeTime',
+            abnormalColorType: 'Physical',
+            orderPriority: {
+              useDirectoryValue: false,
+              value: 0,
+              category: 'KeywordDebuff',
+            },
+          },
+        },
+      ],
       priority: 0,
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration' },
@@ -1397,6 +1437,18 @@ export const antalGeneratedOperator: OperatorDefinition = {
         'multiplier': 3,
         'rate': 0.4,
       },
+      attributeModifiers: [
+        {
+          attribute: 'electricEnhancedDamageIncrease',
+          slot: 'baseAddition',
+          value: { blackboardKey: 'rate' },
+        },
+        {
+          attribute: 'heatEnhancedDamageIncrease',
+          slot: 'baseAddition',
+          value: { blackboardKey: 'rate' },
+        },
+      ],
     },
     'buff_chr_0023_antal_talent_1_heal_trigger': {
       stackingType: 'unique',

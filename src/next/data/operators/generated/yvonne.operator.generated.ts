@@ -3335,6 +3335,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
           }),
         ),
         finish: sequence(
+          step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'robots', abilityEntityIds: ['abilityentity_chr_0017_yvonne_ultimate_skill', 'abilityentity_chr_0017_yvonne_ultimate_skill2', 'abilityentity_chr_0017_yvonne_ultimate_skill3'] }),
           forEachContextTarget(
             'robots',
             sequence(
@@ -3390,6 +3391,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
           priority: 0,
           sequence:
             sequence(
+              step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'robots', abilityEntityIds: ['abilityentity_chr_0017_yvonne_ultimate_skill', 'abilityentity_chr_0017_yvonne_ultimate_skill2', 'abilityentity_chr_0017_yvonne_ultimate_skill3'] }),
               forEachContextTarget(
                 'robots',
                 sequence(
@@ -3492,6 +3494,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
           priority: 0,
           sequence:
             sequence(
+              step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'robots', abilityEntityIds: ['abilityentity_chr_0017_yvonne_ultimate_skill', 'abilityentity_chr_0017_yvonne_ultimate_skill2', 'abilityentity_chr_0017_yvonne_ultimate_skill3'] }),
               forEachContextTarget(
                 'robots',
                 sequence(

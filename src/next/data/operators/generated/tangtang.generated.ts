@@ -3962,7 +3962,8 @@ export const tangtangGeneratedSource = {
             ]
           ],
           "pickIndexValue": null,
-          "pickIndexBlackboardKey": null
+          "pickIndexBlackboardKey": null,
+          "saveCountToBlackboardKey": "water_cnt"
         }
       ],
       "runtimeSkillSlotReplacements": [],
@@ -75823,7 +75824,8 @@ export const tangtangGeneratedSource = {
             ]
           ],
           "pickIndexValue": null,
-          "pickIndexBlackboardKey": null
+          "pickIndexBlackboardKey": null,
+          "saveCountToBlackboardKey": "normalskillwatermove_cnt"
         }
       ],
       "targetGroupControlFlowActions": [

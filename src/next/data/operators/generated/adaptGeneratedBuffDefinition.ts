@@ -76,6 +76,30 @@ export function adaptGeneratedBuffDefinition(
             },
           },
         }),
+    ...(source.childPresentations === undefined || source.childPresentations.length === 0
+      ? {}
+      : {
+          childPresentations: source.childPresentations.map(child => ({
+            buffId: child.buffId,
+            presentation: {
+              visible: child.presentation.hasIcon,
+              ...(child.presentation.spritePath === ''
+                ? {}
+                : { iconId: child.presentation.spritePath }),
+              showInHeadBarCommon: child.presentation.showInHeadBarCommon,
+              showInHeadBarAttached: child.presentation.showInHeadBarAttached,
+              showInSquadIcon: child.presentation.showInSquadIcon,
+              onlyShowForMainCharacter: child.presentation.onlyShowForMainCharacter,
+              iconStyleInSquad: child.presentation.iconStyleInSquad,
+              abnormalColorType: child.presentation.abnormalColorType,
+              orderPriority: {
+                useDirectoryValue: child.presentation.orderUseDirectoryValue,
+                value: child.presentation.orderPriorityValue,
+                category: child.presentation.orderPriorityEnum,
+              },
+            },
+          })),
+        }),
     applyTagIds: source.applyTagIds,
     extendTagIds: source.extendTagIds,
     stackingType: STACKING_TYPES[lifecycle.stackingType],

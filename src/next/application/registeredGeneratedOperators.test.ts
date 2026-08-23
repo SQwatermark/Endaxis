@@ -24,6 +24,7 @@ import {
   pogranichnik,
   snowshine,
   wulfgard,
+  xaihi,
   yvonne,
   zhuangFangyi,
 } from '../data/operators';
@@ -31,6 +32,91 @@ import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
 
 describe('registered generated operators', () => {
+  it('applies Xaihi ultimate Crystal enhancement to a later basic attack', () => {
+    expect(
+      xaihi.buffDefinitions?.['buff_chr_0011_seraph_atk_buff']?.childPresentations?.map(
+        child => child.buffId,
+      ),
+    ).toEqual(['buff_chr_0011_seraph_ultimate_effect', 'buff_chr_0011_seraph_ultimate_effect_2']);
+    const run = (withUltimate: boolean) => {
+      const scenario = createEmptyScenario(`scenario:xaihi:${withUltimate}`, '熙海终结技增幅回归');
+      scenario.battle.durationFrames = 180;
+      scenario.enemy.editable.hp = 10_000_000;
+      scenario.tracks[0] = {
+        id: 'track:xaihi',
+        operator: {
+          operatorSlug: xaihi.slug,
+          level: 90,
+          promoted: true,
+          potential: 0,
+          trustLevel: 4,
+          skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+          talentStates: { 0: 0, 1: 0 },
+        },
+        weapon: null,
+        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+        initialState: { ultimateEnergy: 80 },
+        skillCasts: [],
+      };
+      let nextId = 0;
+      const ids = { allocate: (kind: string) => `${kind}:xaihi:${++nextId}` };
+      let placed = scenario;
+      if (withUltimate) {
+        placed = placeSkillGroup({
+          scenario: placed,
+          trackIndex: 0,
+          operator: xaihi,
+          skillGroupKey: 'ultimate',
+          startFrame: 1,
+          ids,
+        }).scenario;
+      }
+      placed = placeSkillGroup({
+        scenario: placed,
+        trackIndex: 0,
+        operator: xaihi,
+        skillGroupKey: 'basicAttack',
+        startFrame: 100,
+        ids,
+      }).scenario;
+      return runStandardPlayerDamageScenarioSimulation({
+        scenario: placed,
+        endFrame: 180,
+        criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+        elementalInflictionDocument: elementalAttachments,
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        options: {
+          index: nextGameDataRepository,
+          resources: {
+            sharedSpGain: { baseGainEfficiency: 1 },
+            spRecoveryPauseDuration: 1.5,
+            normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+            ultimateEnergySystemUnlocked: true,
+          },
+        },
+      });
+    };
+
+    const damage = (result: ReturnType<typeof run>) =>
+      Number(
+        result.receiptEntries.find(
+          entry =>
+            entry.event === 'DamageApplied' &&
+            entry.sourceId === 'track:xaihi' &&
+            entry.frame >= 100,
+        )?.data?.value,
+      );
+    const base = damage(run(false));
+    const enhanced = damage(run(true));
+
+    expect(base).toBeGreaterThan(0);
+    expect(enhanced).toBeGreaterThan(base);
+  });
+
   it('applies Chen talent 2 poise damage from an explicit weakness-window output fact', () => {
     const scenario = createEmptyScenario('scenario:chen:talent2', '陈千语天赋二回归');
     scenario.battle.durationFrames = 2;

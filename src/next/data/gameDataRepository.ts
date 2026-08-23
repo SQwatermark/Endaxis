@@ -42,6 +42,7 @@ import {
   snowshine,
   tangtang,
   wulfgard,
+  xaihi,
   yvonne,
   zhuangFangyi,
 } from './operators';
@@ -154,6 +155,7 @@ export const nextGameDataRepository = createGameDataRepository({
     wulfgard,
     antal,
     alesh,
+    xaihi,
   ],
   weapons: sharedWeaponDefinitions,
   gears: sharedGearDefinitions,

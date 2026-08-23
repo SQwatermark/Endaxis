@@ -3959,7 +3959,8 @@
             ]
           ],
           "pickIndexValue": null,
-          "pickIndexBlackboardKey": null
+          "pickIndexBlackboardKey": null,
+          "saveCountToBlackboardKey": "water_cnt"
         }
       ],
       "runtimeSkillSlotReplacements": [],
@@ -74797,7 +74798,8 @@
             ]
           ],
           "pickIndexValue": null,
-          "pickIndexBlackboardKey": null
+          "pickIndexBlackboardKey": null,
+          "saveCountToBlackboardKey": "normalskillwatermove_cnt"
         }
       ],
       "timeDilations": [],

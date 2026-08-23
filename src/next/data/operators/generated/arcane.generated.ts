@@ -10433,7 +10433,56 @@ export const arcaneGeneratedSource = {
       ],
       "applyTagIds": [],
       "extendTagIds": [],
-      "attributeModifiers": [],
+      "attributeModifiers": [
+        {
+          "targetType": "Specific",
+          "attributeType": "FireEnhancedDmgIncrease",
+          "slot": "BaseAddition",
+          "value": {
+            "value": 0.0,
+            "blackboardKey": "enhance_rate",
+            "levelValues": [
+              0.1
+            ]
+          }
+        },
+        {
+          "targetType": "Specific",
+          "attributeType": "PulseEnhancedDmgIncrease",
+          "slot": "BaseAddition",
+          "value": {
+            "value": 0.0,
+            "blackboardKey": "enhance_rate",
+            "levelValues": [
+              0.1
+            ]
+          }
+        },
+        {
+          "targetType": "Specific",
+          "attributeType": "CrystEnhancedDmgIncrease",
+          "slot": "BaseAddition",
+          "value": {
+            "value": 0.0,
+            "blackboardKey": "enhance_rate",
+            "levelValues": [
+              0.1
+            ]
+          }
+        },
+        {
+          "targetType": "Specific",
+          "attributeType": "NaturalEnhancedDmgIncrease",
+          "slot": "BaseAddition",
+          "value": {
+            "value": 0.0,
+            "blackboardKey": "enhance_rate",
+            "levelValues": [
+              0.1
+            ]
+          }
+        }
+      ],
       "damageModifiers": [],
       "directDamageHits": [],
       "inflictions": [],
@@ -10442,39 +10491,7 @@ export const arcaneGeneratedSource = {
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
-      "eventActions": [
-        {
-          "eventSource": "buff",
-          "event": "OnBuffStart",
-          "orderedActionTypes": [
-            "EnhancedAction"
-          ],
-          "combatActions": [],
-          "damageUnits": [],
-          "buffApplications": [],
-          "createdBuffIds": [],
-          "forEachActions": [],
-          "targetGroupWrites": [],
-          "sequences": [
-            {
-              "onlyMainOperator": false,
-              "onlyGuard": false,
-              "orderedActionTypes": [
-                "EnhancedAction"
-              ],
-              "combatActions": [],
-              "buffApplications": [],
-              "actions": [],
-              "priority": 0
-            }
-          ],
-          "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": [],
-          "obtainAtbValueKeys": [],
-          "contextBuffIdQueries": [],
-          "collectedBuffReactionModifier": null
-        }
-      ],
+      "eventActions": [],
       "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],

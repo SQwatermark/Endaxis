@@ -140,6 +140,8 @@ export interface CombatOperationContext {
   readonly getCurrentBuffEnhanceCount?: () => number;
   /** 仅由 Buff 生命周期与事件响应提供；暂停只作用于当前实例。 */
   readonly setCurrentBuffTimePaused?: (paused: boolean) => void;
+  /** Buff 黑板写入后重建依赖动态键的属性修正；普通技能上下文不提供。 */
+  readonly refreshCurrentBuffAttributeModifiers?: () => void;
   /** 仅由宿主技能/能力实体子技能提供；普通操作不得缓存或跨宿主调用。 */
   readonly requestTimelineJump?: (destinationFrame: number) => void;
   /** 仅由技能时间轴宿主提供；结束当前技能且不改写局部帧。 */

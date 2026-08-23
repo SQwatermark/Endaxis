@@ -207,6 +207,10 @@ export interface CombatBuffDefinitionEntry {
   readonly id: string;
   /** Buff 的用户可观察图标身份和显示规则；不参与数值计算但不得在编译边界丢失。 */
   readonly presentation?: CombatBuffPresentation;
+  readonly childPresentations?: readonly {
+    readonly buffId: string;
+    readonly presentation: CombatBuffPresentation;
+  }[];
   /** 缺省为 default；仅在解包配置明确使用全局或实体时间时填写。 */
   readonly timeClock?: BuffTimeClock;
   /** 解包数据中的原始有符号 int32 applyTags。 */
@@ -329,6 +333,7 @@ export class CompiledCombatBuffDefinitions<
     const definition: CombatBuffDefinition<Key> = {
       id: entry.id,
       presentation: entry.presentation,
+      childPresentations: entry.childPresentations,
       timeClock: entry.timeClock,
       applyTags: entry.applyTagIds?.map(gameplayTagId),
       extendTags: entry.extendTagIds?.map(gameplayTagId),
@@ -447,6 +452,7 @@ export function parseCombatBuffDefinitionEntry(
   requireOnlyKeys(entry, path, [
     'id',
     'presentation',
+    'childPresentations',
     'timeClock',
     'applyTagIds',
     'extendTagIds',
@@ -473,6 +479,7 @@ export function parseCombatBuffDefinitionEntry(
   return {
     id: requireNonEmptyString(entry.id, `${path}.id`),
     ...parseOptionalPresentation(entry, path),
+    ...parseOptionalChildPresentations(entry, path),
     ...(entry.timeClock === undefined
       ? {}
       : {
@@ -502,6 +509,31 @@ export function parseCombatBuffDefinitionEntry(
     ...parseOptionalRole(entry, path),
     ...parseOptionalActions(entry, path),
     ...parseOptionalSpellBurst(entry, path),
+  };
+}
+
+function parseOptionalChildPresentations(
+  entry: Readonly<Record<string, unknown>>,
+  path: string,
+): { childPresentations?: CombatBuffDefinitionEntry['childPresentations'] } {
+  if (entry.childPresentations === undefined) return {};
+  if (!Array.isArray(entry.childPresentations)) {
+    throw new Error(`${path}.childPresentations: expected array`);
+  }
+  return {
+    childPresentations: entry.childPresentations.map((value, index) => {
+      const childPath = `${path}.childPresentations[${index}]`;
+      const child = requireObject(value, childPath);
+      requireOnlyKeys(child, childPath, ['buffId', 'presentation']);
+      const parsed = parseOptionalPresentation(child, childPath);
+      if (parsed.presentation === undefined) {
+        throw new Error(`${childPath}.presentation: required`);
+      }
+      return {
+        buffId: requireNonEmptyString(child.buffId, `${childPath}.buffId`),
+        presentation: parsed.presentation,
+      };
+    }),
   };
 }
 

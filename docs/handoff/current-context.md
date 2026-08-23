@@ -940,3 +940,23 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
   缺失能力实体模板的 audit。本轮门禁为生成器 463/463、全量生成与 `--check`、
   `type-check:next`、Next Vitest 202 文件 1424/1424。下一候选继续按“正常玩家行为可触发并影响
   输出、现有证据闭合”排序。
+
+### 2026-08-23：熙海正式生成与 EnhancedAction 闭环
+
+- 熙海 10 个技能入口、2 项天赋和 5 项潜能已加入正式 manifest、稳定导出与默认仓库，正式
+  `complete` 干员增至 26 名；尚未正式注册的官方干员剩 Avywenna、Catcher、Ardelia 三名，梨诺
+  仍因终结技能力实体模板缺失保持 audit。连携本体可显式放置，但未取得自动注册条件证据，因此
+  没有猜造 `comboSkillRegistrations`。
+- `combat-spec 6159868` 已从七份 1.4.4 公共增幅载体证明 `EnhancedAction` 的元素映射与独立伤害
+  乘区。Next 生成器现把 Owner 目标、父 Buff 同寿命、无加入边沿增强的严格子集转换为
+  `*EnhancedDamageIncrease/BaseAddition`；Spell 覆盖四种术法，单元素只进对应槽。Buff 生命周期中
+  `StoreAttributeValue`、黑板修改和二元计算写入后都会刷新动态属性修正，熙海终结技的智识换算与
+  固定增幅因此在同一次启动序列结束后生效。
+- 熙海终结技的结晶、自然两个 `overrideChildBuffId` 没有因数值内联而丢失：正式 Buff 定义以
+  `childPresentations` 保存两个子 Buff ID、图标路径、显示位置与排序元数据。标准生产场景先开大、
+  再放结晶普攻，实际伤害严格高于未开大基线；不是只检查生成文本。相同通用链也补齐安塔尔终结技
+  与诀天赋的既有增幅数据。
+- 当前证据边界没有被放宽：Source 目标的庄方宜增幅、`autoFinishByAction` 的梨诺载体和非空
+  `enhancingList` 仍需分别解决来源侧属性注册、动作句柄寿命与加入边沿 rate 改写，不能借 Owner
+  子集误投影。`tmp/` 继续只作 AKEDB 临时证据目录，不纳入提交。本轮门禁为生成器 466/466、
+  全量生成与 `--check`、`type-check:next`、Next Vitest 202 文件 1437/1437。

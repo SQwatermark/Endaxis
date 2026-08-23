@@ -505,6 +505,7 @@ def serialize_audit_value(value: Any) -> Any:
                         "comboQteActions",
                         "pauseTimeActions",
                         "healModifiers",
+                        "childPresentations",
                     }
                     and not getattr(value, field.name)
                 )

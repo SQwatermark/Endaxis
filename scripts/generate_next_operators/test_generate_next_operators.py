@@ -15,6 +15,7 @@ from operator_ability_entity_linker import link_operator_ability_entity_definiti
 from time_dilation_parser import parse_time_dilation_action, parse_time_scale_curve
 from target_group_parser import parse_circular_order_sort
 from target_parser import parse_spawned_entity_selector_identity
+from buff_definition_parser import parse_buff_enhanced_action_modifiers
 from action_payload_parser import (
     parse_knock_down_output_payload,
     parse_simple_buff_stack_read_payload,
@@ -799,6 +800,88 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
 
         self.assertEqual(crystal_modifiers[0].damageTypes, ("cryo",))
+
+    def test_projects_enhanced_action_into_native_element_damage_attributes(self) -> None:
+        action = {
+            "$type": "Beyond.Gameplay.Core.EnhancedAction+Data, Gameplay.Beyond",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 0,
+            "source": target_settings_fixture("Source"),
+            "target": target_settings_fixture("Owner"),
+            "duration": {
+                "useBlackboardKey": True,
+                "value": 0.0,
+                "blackboardKey": "duration",
+            },
+            "rate": {
+                "useBlackboardKey": True,
+                "value": 0.0,
+                "blackboardKey": "rate",
+            },
+            "overrideChildBuffId": True,
+            "childBuffId": {
+                "useBlackboardKey": False,
+                "value": "buff.fixture.icon",
+                "blackboardKey": "",
+            },
+            "asChildBuff": True,
+            "enhancingList": [],
+            "autoFinishByAction": False,
+            "subType": "Crystal",
+        }
+        buff = {
+            "lifeType": "Limited",
+            "duration": {
+                "useBlackboardKey": True,
+                "value": 12.0,
+                "blackboardKey": "duration",
+            },
+            "buffEventAction": [
+                {"buffEvent": "OnBuffStart", "actions": [{"actionData": [action]}]}
+            ],
+        }
+
+        modifiers = parse_buff_enhanced_action_modifiers(
+            buff,
+            "fixture",
+            {"duration": (12.0,), "rate": (0.24,)},
+            target_reference_is_plain=lambda target: (
+                target.targetGroupKey == "" and target.targetContextKey == ""
+            ),
+        )
+
+        self.assertEqual(len(modifiers), 1)
+        self.assertEqual(modifiers[0].attributeType, "CrystEnhancedDmgIncrease")
+        self.assertEqual(modifiers[0].slot, "BaseAddition")
+        self.assertEqual(modifiers[0].value.blackboardKey, "rate")
+
+        action["overrideChildBuffId"] = False
+        action["childBuffId"] = {
+            "useBlackboardKey": False,
+            "value": "",
+            "blackboardKey": "",
+        }
+        action["subType"] = "Spell"
+        spell_modifiers = parse_buff_enhanced_action_modifiers(
+            buff,
+            "fixture",
+            {"duration": (12.0,), "rate": (0.24,)},
+            target_reference_is_plain=lambda target: (
+                target.targetGroupKey == "" and target.targetContextKey == ""
+            ),
+        )
+        self.assertEqual(
+            tuple(modifier.attributeType for modifier in spell_modifiers),
+            (
+                "FireEnhancedDmgIncrease",
+                "PulseEnhancedDmgIncrease",
+                "CrystEnhancedDmgIncrease",
+                "NaturalEnhancedDmgIncrease",
+            ),
+        )
+
 
     def test_action_duration_slow_compiles_as_scoped_buff(self) -> None:
         action = slow_action_fixture()

@@ -2351,7 +2351,32 @@ export const antalGeneratedSource = {
       ],
       "applyTagIds": [],
       "extendTagIds": [],
-      "attributeModifiers": [],
+      "attributeModifiers": [
+        {
+          "targetType": "Specific",
+          "attributeType": "PulseEnhancedDmgIncrease",
+          "slot": "BaseAddition",
+          "value": {
+            "value": 0.0,
+            "blackboardKey": "rate",
+            "levelValues": [
+              0.4
+            ]
+          }
+        },
+        {
+          "targetType": "Specific",
+          "attributeType": "FireEnhancedDmgIncrease",
+          "slot": "BaseAddition",
+          "value": {
+            "value": 0.0,
+            "blackboardKey": "rate",
+            "levelValues": [
+              0.4
+            ]
+          }
+        }
+      ],
       "damageModifiers": [],
       "directDamageHits": [],
       "inflictions": [],
@@ -2361,39 +2386,6 @@ export const antalGeneratedSource = {
       "buffBlackboardReads": [],
       "buffFinishes": [],
       "eventActions": [
-        {
-          "eventSource": "buff",
-          "event": "OnBuffStart",
-          "orderedActionTypes": [
-            "EnhancedAction",
-            "EnhancedAction"
-          ],
-          "combatActions": [],
-          "damageUnits": [],
-          "buffApplications": [],
-          "createdBuffIds": [],
-          "forEachActions": [],
-          "targetGroupWrites": [],
-          "sequences": [
-            {
-              "onlyMainOperator": false,
-              "onlyGuard": false,
-              "orderedActionTypes": [
-                "EnhancedAction",
-                "EnhancedAction"
-              ],
-              "combatActions": [],
-              "buffApplications": [],
-              "actions": [],
-              "priority": 0
-            }
-          ],
-          "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": [],
-          "obtainAtbValueKeys": [],
-          "contextBuffIdQueries": [],
-          "collectedBuffReactionModifier": null
-        },
         {
           "eventSource": "buff",
           "event": "DuringBuffEnable",
@@ -2458,6 +2450,40 @@ export const antalGeneratedSource = {
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
       },
+      "childPresentations": [
+        {
+          "buffId": "buff_chr_0023_antal_ultimate_icon_2",
+          "presentation": {
+            "hasIcon": true,
+            "spritePath": "icon_battle_affix_pulse_enhance",
+            "showInHeadBarCommon": true,
+            "showInHeadBarAttached": false,
+            "showInSquadIcon": true,
+            "onlyShowForMainCharacter": false,
+            "iconStyleInSquad": "LifeTime",
+            "abnormalColorType": "Physical",
+            "orderUseDirectoryValue": false,
+            "orderPriorityValue": 0,
+            "orderPriorityEnum": "KeywordDebuff"
+          }
+        },
+        {
+          "buffId": "buff_chr_0023_antal_ultimate_icon",
+          "presentation": {
+            "hasIcon": true,
+            "spritePath": "icon_battle_affix_fire_enhance",
+            "showInHeadBarCommon": true,
+            "showInHeadBarAttached": false,
+            "showInSquadIcon": true,
+            "onlyShowForMainCharacter": false,
+            "iconStyleInSquad": "LifeTime",
+            "abnormalColorType": "Physical",
+            "orderUseDirectoryValue": false,
+            "orderPriorityValue": 0,
+            "orderPriorityEnum": "KeywordDebuff"
+          }
+        }
+      ],
       "keywordEnhancements": []
     },
     {

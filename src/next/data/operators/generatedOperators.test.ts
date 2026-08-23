@@ -31,6 +31,7 @@ import {
   snowshine,
   tangtang,
   wulfgard,
+  xaihi,
   yvonne,
   zhuangFangyi,
 } from './index';
@@ -58,6 +59,7 @@ const generatedOperators: readonly [OperatorDefinition, number][] = [
   [wulfgard, 9],
   [antal, 9],
   [alesh, 10],
+  [xaihi, 10],
 ];
 
 function hasUpgradeBehavior(

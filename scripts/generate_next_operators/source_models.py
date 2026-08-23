@@ -636,7 +636,16 @@ class BuffDefinitionSource:
     projectileLaunches: tuple[ProjectileLaunchSource, ...] = ()
     presentationOnlySwitchActionIndexes: tuple[int, ...] = ()
     presentation: BuffPresentationSource | None = None
+    childPresentations: tuple["BuffChildPresentationSource", ...] = ()
     keywordEnhancements: tuple["BuffKeywordEnhancementSource", ...] = ()
+
+
+@dataclass(frozen=True)
+class BuffChildPresentationSource:
+    """EnhancedAction 创建的表现子 Buff；数值仍由父载体属性修正承担。"""
+
+    buffId: str
+    presentation: BuffPresentationSource
 
 
 @dataclass(frozen=True)

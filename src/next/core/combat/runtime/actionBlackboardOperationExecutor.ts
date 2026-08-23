@@ -63,6 +63,7 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
         step.parameters.key,
         evaluateActionValueOperation(step.parameters.operation, oldValue, operand),
       );
+      context.refreshCurrentBuffAttributeModifiers?.();
       return true;
     }
     if (step.kind === 'calculateActionValue') {
@@ -77,6 +78,7 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
         step.parameters.key,
         evaluateActionValueCalculation(step.parameters.operation, left, right),
       );
+      context.refreshCurrentBuffAttributeModifiers?.();
       return true;
     }
     if (step.kind === 'storeSourceAttributeValue') {
@@ -97,6 +99,7 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
         resolveActionValueOperand(step.parameters.base, context.blackboard) +
         scaledAttribute * resolveActionValueOperand(step.parameters.multiplier, context.blackboard);
       context.blackboard.assignDynamic(step.parameters.targetKey, result);
+      context.refreshCurrentBuffAttributeModifiers?.();
       return true;
     }
     return context === undefined

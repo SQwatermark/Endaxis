@@ -192,10 +192,17 @@ export interface CombatBuffPresentation {
   };
 }
 
+export interface CombatBuffChildPresentation {
+  readonly buffId: string;
+  readonly presentation: CombatBuffPresentation;
+}
+
 /** 可复用、不可变的 Buff 定义；实例状态不应写回这里。 */
 export interface CombatBuffDefinition<Key extends string> {
   readonly id: string;
   readonly presentation?: CombatBuffPresentation;
+  /** 原生关键词载体创建的表现子 Buff，可同时显示多个元素图标。 */
+  readonly childPresentations?: readonly CombatBuffChildPresentation[];
   readonly timeClock?: BuffTimeClock;
   /** Buff 实例自身的原生分类标签；不等同于启用期间可能挂到所属实体的标签。 */
   readonly applyTags?: readonly GameplayTagId[];

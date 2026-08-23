@@ -195,6 +195,26 @@ describe('ActionBlackboardOperationExecutor', () => {
     expect(blackboard.getNumber('result')).toBe(2);
   });
 
+  it('refreshes current Buff attribute modifiers after blackboard writes', () => {
+    const refresh = vi.fn();
+    const blackboard = new ActionBlackboard({ value: 1 });
+    const executor = new ActionBlackboardOperationExecutor(delegate);
+
+    executor.execute(
+      {
+        kind: 'modifyActionValue',
+        parameters: {
+          key: 'value',
+          operation: 'add',
+          value: { kind: 'constant', value: 2 },
+        },
+      },
+      { blackboard, refreshCurrentBuffAttributeModifiers: refresh },
+    );
+
+    expect(refresh).toHaveBeenCalledOnce();
+  });
+
   it.each([
     ['add', 1.1, 2.2, Math.fround(Math.fround(1.1) + Math.fround(2.2))],
     ['multiply', 1.1, 2.2, Math.fround(Math.fround(1.1) * Math.fround(2.2))],

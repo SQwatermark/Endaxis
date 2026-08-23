@@ -356,3 +356,10 @@ Ardelia 五名；梨诺仍因终结技能力实体模板缺失保持 audit。下
 数据边界：`CheckBuffIdInContext.checkType` 是 ID/Tag 查询的判别字段，非活动分支残留的序列化
 字段不得被误读为合取条件。剩余正式化对象为 Xaihi、Avywenna、Catcher、Ardelia 四名；继续按
 输出相关性逐名闭环，梨诺模板缺口不阻塞其他干员推进。
+
+熙海现作为第 26 名 `complete` 干员加入正式链路，10 个技能与完整养成槽均可从默认仓库编译和
+模拟。她的终结技不是普通攻击力 Buff：`combat-spec 6159868` 证明 `EnhancedAction` 把 rate 写入
+结晶/自然独立增幅区；Next 已按同一映射接入动态属性刷新，并在生产场景证明开大后的结晶普攻伤害
+高于基线。两个表现子 Buff 的 ID、图标和显示位通过 `childPresentations` 保留。剩余正式化对象为
+Avywenna、Catcher、Ardelia 三名；下一步优先逐名补 manifest、完整养成与标准生产回归。梨诺的
+缺失能力实体模板和 EnhancedAction 动作句柄寿命都继续失败关闭，不用父 Buff 寿命猜造。

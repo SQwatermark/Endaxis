@@ -24,6 +24,8 @@ Aura 对目标的进入、离开和整体结束是实例生命周期，而不是
 
 `BuffData.shieldConfigs` 只按复刻库已经恢复的原生字段进入正式定义：有限/无限容量、按伤害类型的吸收比例与容量换算、有限/无限次数、耗尽一击处理、耗尽结束 Buff、消费优先级和受击特效选择位。空 `damageAbsorptions` 使用原生默认 `(ratio=1, scale=1)`，不能解释为不吸收。`SetSuperArmorAction` 的启用期句柄另投影为 Buff 持续霸体与冲击抗性，停用或结束时注销；表现特效不进入后端。证据与当前边界见 `combat-spec/docs/shield.md` 和 `combat-spec/docs/set-super-armor-action.md`。
 
+`EnhancedAction` 按 `combat-spec/docs/keyword-actions.md` 已复刻的 1.4.4 公共关键词载体映射进入独立元素增幅属性区：`Spell` 同时覆盖火/脉冲/结晶/自然，单元素只修改对应属性，`All` 另含物理与以太。动态 rate 依赖 Buff 黑板时，每次生命周期黑板写入后立即重建属性修正。`overrideChildBuffId=true` 指向的表现子 Buff 身份、图标路径和显示位以 `childPresentations` 保留，不能因数值已内联到父载体而丢弃。当前严格子集要求增幅目标为 Buff Owner、生命周期与载体一致且无 `enhancingList`；Source 目标、动作句柄寿命和加入边沿增强继续保留审计，不错误注册到宿主属性。
+
 能力实体内联 Buff 中的距离条件只在两端实例存在性均已证明时按零距离折叠。`OwnerSpawnedEntityFinder(AbilityEntity) + TagValidator` 会保留对象类型和完整 GameplayTag 查询，并只在查询结果包含当前正在执行的能力实体 ID 时证明命中；不能从“某个模板拥有该标签”反推该实例已经生成。该实体身份会显式穿过 Aura、Buff 应用与内联 Buff 生命周期。承伤事件中的 `Target == MainCharacter` 按原生事件上下文解释为伤害来源是否为当前主控干员；`OnPoiseZero` 则使用正常玩家失衡链发布的来源/目标事件，不转入外部事件系统。
 
 `OnAfterOutputWeaknessTriggered` 也不得归并为 `OnPoiseZero`。反编译确认它由敌方弱点窗口回投到攻击者 AbilitySystem，事件目标是弱点所属敌人；固定木桩无法自然创建该窗口，因此只允许由时间轴的 `operatorWeaknessTriggeredOutput` 外部事实显式补入。该事实没有数值负载，不模拟敌方技能、伤害或失衡过程。证据见 `combat-spec/docs/weakness-trigger-output.md`。

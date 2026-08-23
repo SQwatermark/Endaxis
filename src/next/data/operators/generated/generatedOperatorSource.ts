@@ -369,6 +369,12 @@ export interface GeneratedBuffPresentationSource {
   readonly orderPriorityEnum: string;
 }
 
+/** EnhancedAction 等关键词载体覆盖出的可视化子 Buff；数值行为仍由父定义承载。 */
+export interface GeneratedBuffChildPresentationSource {
+  readonly buffId: string;
+  readonly presentation: GeneratedBuffPresentationSource;
+}
+
 /** 与应用位置解耦的 Buff 定义；包含由直接依赖递归发现的事件依赖，并以 buffId 去重。 */
 export interface GeneratedBuffDefinitionSource {
   readonly buffId: string;
@@ -380,6 +386,8 @@ export interface GeneratedBuffDefinitionSource {
   readonly onlyUseSelfTimeDilation: boolean;
   /** 旧生成快照可能缺失；新转换不得丢弃原生图标身份与显示规则。 */
   readonly presentation?: GeneratedBuffPresentationSource;
+  /** 数值已内联但仍需作为独立图标呈现的原生子 Buff。 */
+  readonly childPresentations?: readonly GeneratedBuffChildPresentationSource[];
   readonly lifecycle: GeneratedBuffLifecycleSource | null;
   readonly blackboard: readonly GeneratedDeclaredBlackboardValueSource[];
   /** 原生有符号 int32 GameplayTag ID，不得与 DamageTag 混用。 */

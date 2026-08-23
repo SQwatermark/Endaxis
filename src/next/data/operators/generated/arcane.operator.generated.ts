@@ -2769,6 +2769,28 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
       blackboard: {
         'enhance_rate': 0.1,
       },
+      attributeModifiers: [
+        {
+          attribute: 'heatEnhancedDamageIncrease',
+          slot: 'baseAddition',
+          value: { blackboardKey: 'enhance_rate' },
+        },
+        {
+          attribute: 'electricEnhancedDamageIncrease',
+          slot: 'baseAddition',
+          value: { blackboardKey: 'enhance_rate' },
+        },
+        {
+          attribute: 'cryoEnhancedDamageIncrease',
+          slot: 'baseAddition',
+          value: { blackboardKey: 'enhance_rate' },
+        },
+        {
+          attribute: 'natureEnhancedDamageIncrease',
+          slot: 'baseAddition',
+          value: { blackboardKey: 'enhance_rate' },
+        },
+      ],
     },
     'buff_chr_0032_lizhiyan_ultimate_skill_abilityentity_finish_self': {
       stackingType: 'unique',
@@ -2948,6 +2970,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
             ),
             { alwaysNext: true },
           ),
+          step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'ult_aura', abilityEntityIds: ['abilityentity_chr_0032_lizhiyan_ultimate_skill'], sameSourceSkillCast: true }),
           forEachContextTarget(
             'ult_aura',
             sequence(
@@ -3355,6 +3378,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                             durationSeconds: { kind: 'constant', value: 0.4 },
                                                             autoFinishByAction: false,
                                                           }),
+                                                          step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'ult_aura', abilityEntityIds: ['abilityentity_chr_0032_lizhiyan_ultimate_skill'] }),
                                                           branch(
                                                             {
                                                               kind: 'buffIdStackCompare',
@@ -3378,6 +3402,11 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                       blackboard: {
                                                                         'atk_scale_laser': 10,
                                                                         'trigger_time': 0,
+                                                                      },
+                                                                      lifecycleSequences: {
+                                                                        start: sequence(
+                                                                          step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'ult_aura', abilityEntityIds: ['abilityentity_chr_0032_lizhiyan_ultimate_skill'] }),
+                                                                        ),
                                                                       },
                                                                       scheduledSequences: [
                                                                         scheduled(
@@ -3466,6 +3495,11 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                           blackboard: {
                                                                             'atk_scale_laser': 10,
                                                                             'trigger_time': 0,
+                                                                          },
+                                                                          lifecycleSequences: {
+                                                                            start: sequence(
+                                                                              step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'ult_aura', abilityEntityIds: ['abilityentity_chr_0032_lizhiyan_ultimate_skill'] }),
+                                                                            ),
                                                                           },
                                                                           scheduledSequences: [
                                                                             scheduled(
@@ -3620,6 +3654,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                     operation: 'assign',
                                                     value: { kind: 'constant', value: 1 },
                                                   }),
+                                                  step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'ult_aura', abilityEntityIds: ['abilityentity_chr_0032_lizhiyan_ultimate_skill'] }),
                                                   branch(
                                                     {
                                                       kind: 'buffIdStackCompare',
@@ -3643,6 +3678,11 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                               blackboard: {
                                                                 'atk_scale_laser': 10,
                                                                 'trigger_time': 0,
+                                                              },
+                                                              lifecycleSequences: {
+                                                                start: sequence(
+                                                                  step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'ult_aura', abilityEntityIds: ['abilityentity_chr_0032_lizhiyan_ultimate_skill'] }),
+                                                                ),
                                                               },
                                                               scheduledSequences: [
                                                                 scheduled(
@@ -3731,6 +3771,11 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                   blackboard: {
                                                                     'atk_scale_laser': 10,
                                                                     'trigger_time': 0,
+                                                                  },
+                                                                  lifecycleSequences: {
+                                                                    start: sequence(
+                                                                      step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'ult_aura', abilityEntityIds: ['abilityentity_chr_0032_lizhiyan_ultimate_skill'] }),
+                                                                    ),
                                                                   },
                                                                   scheduledSequences: [
                                                                     scheduled(
@@ -3936,6 +3981,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                             durationSeconds: { kind: 'constant', value: 0.4 },
                                                             autoFinishByAction: false,
                                                           }),
+                                                          step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'ult_aura', abilityEntityIds: ['abilityentity_chr_0032_lizhiyan_ultimate_skill'] }),
                                                           branch(
                                                             {
                                                               kind: 'buffIdStackCompare',
@@ -3959,6 +4005,11 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                       blackboard: {
                                                                         'atk_scale_laser': 10,
                                                                         'trigger_time': 0,
+                                                                      },
+                                                                      lifecycleSequences: {
+                                                                        start: sequence(
+                                                                          step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'ult_aura', abilityEntityIds: ['abilityentity_chr_0032_lizhiyan_ultimate_skill'] }),
+                                                                        ),
                                                                       },
                                                                       scheduledSequences: [
                                                                         scheduled(
@@ -4047,6 +4098,11 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                           blackboard: {
                                                                             'atk_scale_laser': 10,
                                                                             'trigger_time': 0,
+                                                                          },
+                                                                          lifecycleSequences: {
+                                                                            start: sequence(
+                                                                              step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'ult_aura', abilityEntityIds: ['abilityentity_chr_0032_lizhiyan_ultimate_skill'] }),
+                                                                            ),
                                                                           },
                                                                           scheduledSequences: [
                                                                             scheduled(
@@ -4201,6 +4257,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                     operation: 'assign',
                                                     value: { kind: 'constant', value: 1 },
                                                   }),
+                                                  step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'ult_aura', abilityEntityIds: ['abilityentity_chr_0032_lizhiyan_ultimate_skill'] }),
                                                   branch(
                                                     {
                                                       kind: 'buffIdStackCompare',
@@ -4224,6 +4281,11 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                               blackboard: {
                                                                 'atk_scale_laser': 10,
                                                                 'trigger_time': 0,
+                                                              },
+                                                              lifecycleSequences: {
+                                                                start: sequence(
+                                                                  step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'ult_aura', abilityEntityIds: ['abilityentity_chr_0032_lizhiyan_ultimate_skill'] }),
+                                                                ),
                                                               },
                                                               scheduledSequences: [
                                                                 scheduled(
@@ -4312,6 +4374,11 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                                   blackboard: {
                                                                     'atk_scale_laser': 10,
                                                                     'trigger_time': 0,
+                                                                  },
+                                                                  lifecycleSequences: {
+                                                                    start: sequence(
+                                                                      step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'ult_aura', abilityEntityIds: ['abilityentity_chr_0032_lizhiyan_ultimate_skill'] }),
+                                                                    ),
                                                                   },
                                                                   scheduledSequences: [
                                                                     scheduled(

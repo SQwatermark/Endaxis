@@ -66,6 +66,52 @@ describe('adaptGeneratedBuffDefinition', () => {
     });
   });
 
+  it('preserves presentation-only child Buff identities after numeric behavior is inlined', () => {
+    const source = requireBuff('buff_chr_0030_zhuangfy_ult_skill_free');
+    expect(
+      adaptGeneratedBuffDefinition({
+        ...source,
+        childPresentations: [
+          {
+            buffId: 'buff_child_icon',
+            presentation: {
+              hasIcon: true,
+              spritePath: 'icon_battle_affix_cryst_enhance',
+              showInHeadBarCommon: true,
+              showInHeadBarAttached: false,
+              showInSquadIcon: true,
+              onlyShowForMainCharacter: false,
+              iconStyleInSquad: 'LifeTime',
+              abnormalColorType: 'Physical',
+              orderUseDirectoryValue: false,
+              orderPriorityValue: 0,
+              orderPriorityEnum: 'KeywordDebuff',
+            },
+          },
+        ],
+      }).childPresentations,
+    ).toEqual([
+      {
+        buffId: 'buff_child_icon',
+        presentation: {
+          visible: true,
+          iconId: 'icon_battle_affix_cryst_enhance',
+          showInHeadBarCommon: true,
+          showInHeadBarAttached: false,
+          showInSquadIcon: true,
+          onlyShowForMainCharacter: false,
+          iconStyleInSquad: 'LifeTime',
+          abnormalColorType: 'Physical',
+          orderPriority: {
+            useDirectoryValue: false,
+            value: 0,
+            category: 'KeywordDebuff',
+          },
+        },
+      },
+    ]);
+  });
+
   it('recognizes extend tags but still rejects other unsupported behavior', () => {
     expect(requireBuff('buff_chr_0030_zhuangfy_ult_base').extendTagIds).not.toEqual([]);
     expect(() =>
