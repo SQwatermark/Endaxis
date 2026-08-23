@@ -260,6 +260,72 @@ class ProgressionRendererTests(unittest.TestCase):
                 effects,
             )
 
+    def test_talent_can_combine_multilevel_skill_patches_and_attached_buff(self) -> None:
+        growth = {
+            "talentNodeMap": {
+                f"level.{level}": {
+                    "passiveSkillNodeInfo": {
+                        "index": 0,
+                        "level": level,
+                        "talentEffectId": f"effect.level{level}",
+                    }
+                }
+                for level in (1, 2)
+            }
+        }
+        effects: dict[str, object] = {}
+        for level, value in ((1, 0.1), (2, 0.2)):
+            attached = effect_entry(attr_type=0, value=0)
+            attached["modifyType"] = 5
+            attached["attachBuff"] = {
+                "buffId": "buff.talent",
+                "blackboard": [{"key": "rate", "value": value, "valueStr": ""}],
+            }
+            effects[f"effect.level{level}"] = {
+                "dataList": [
+                    skill_blackboard_entry(
+                        skill_id="skill.battle",
+                        blackboard_key="scale",
+                        value=value,
+                    ),
+                    attached,
+                ]
+            }
+        definition = SimpleNamespace(
+            buffId="buff.talent",
+            blackboard=(SimpleNamespace(key="rate"),),
+        )
+        with patch(
+            "progression_renderer.compile_inline_buff_definition",
+            return_value="stackingType: 'unique',",
+        ):
+            rendered = render_talents(
+                {
+                    "slug": "operator",
+                    "charId": "char",
+                    "talents": [
+                        {
+                            "index": 0,
+                            "key": "talent1",
+                            "compile": "skillBlackboardPatchAndAttachedBuff",
+                        }
+                    ],
+                    "skillGroups": [
+                        {"key": "battleSkill", "skillKeys": ["battleSkill"]}
+                    ],
+                },
+                [SimpleNamespace(key="battleSkill", skillId="skill.battle")],
+                growth,
+                effects,
+                buff_definitions={"buff.talent": definition},
+            )
+
+        self.assertEqual(rendered[0].count("modifiers: ["), 1)
+        self.assertIn("blackboardKey: 'scale'", rendered[0])
+        self.assertIn("value: [0.1, 0.2]", rendered[0])
+        self.assertIn("key: 'buff.talent'", rendered[0])
+        self.assertIn("'rate': [0.1, 0.2]", rendered[0])
+
     def test_renders_akekuri_combo_imbue_from_exact_talent_patches(self) -> None:
         rendered = render_talents(
             {

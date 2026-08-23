@@ -14,6 +14,7 @@ import {
   alesh,
   antal,
   arcane,
+  avywenna,
   camille,
   chenQianyu,
   daPan,
@@ -32,6 +33,61 @@ import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
 
 describe('registered generated operators', () => {
+  it('runs Avywenna standalone battle skill through the registered production pipeline', () => {
+    const scenario = createEmptyScenario('scenario:avywenna:battle', 'Avywenna 战技生产回归');
+    scenario.battle.durationFrames = 80;
+    scenario.enemy.editable.hp = 10_000_000;
+    scenario.tracks[0] = {
+      id: 'track:avywenna',
+      operator: {
+        operatorSlug: avywenna.slug,
+        level: 90,
+        promoted: true,
+        potential: 5,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 2, 1: 2 },
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    let nextId = 0;
+    const placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: avywenna,
+      skillGroupKey: 'battleSkill',
+      startFrame: 1,
+      ids: { allocate: (kind: string) => `${kind}:avywenna:${++nextId}` },
+    }).scenario;
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      endFrame: 80,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+      elementalInflictionDocument: elementalAttachments,
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+          ultimateEnergySystemUnlocked: true,
+        },
+      },
+    });
+
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({ event: 'DamageApplied', sourceId: 'track:avywenna' }),
+    );
+  });
+
   it('applies Xaihi ultimate Crystal enhancement to a later basic attack', () => {
     expect(
       xaihi.buffDefinitions?.['buff_chr_0011_seraph_atk_buff']?.childPresentations?.map(

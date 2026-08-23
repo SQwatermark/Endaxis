@@ -2460,23 +2460,38 @@ def resolve_progression_buff_definitions(
         if not effect_id:
             continue
         index = require_non_negative_int(passive.get("index"), "passiveSkillNodeInfo.index")
-        if talent_configs.get(index, {}).get("compile") not in {
+        talent_compile = talent_configs.get(index, {}).get("compile")
+        if talent_compile not in {
             "consumedInflictionVulnerability",
             "consumedNoGuardPhysicalDamage",
             "attachedBuff",
+            "skillBlackboardPatchAndAttachedBuff",
             "simulationNoEffectOnTakeDamage",
             "simulationNoEffectOnBeforeTakeSpellInfliction",
         }:
             continue
         effect = table_row(effects, str(effect_id), "PotentialTalentEffectTable")
         entries = require_list(effect.get("dataList"), f"{effect_id}.dataList")
-        if len(entries) != 1:
-            raise ValueError(f"{effect_id}: attached-Buff talent expects one entry")
-        entry = require_dict(entries[0], f"{effect_id}.dataList[0]")
-        attach = require_dict(entry.get("attachBuff"), f"{effect_id}.dataList[0].attachBuff")
+        attached_entries: list[tuple[int, dict[str, Any]]] = []
+        for entry_index, raw_entry in enumerate(entries):
+            entry = require_dict(raw_entry, f"{effect_id}.dataList[{entry_index}]")
+            attach = require_dict(
+                entry.get("attachBuff"),
+                f"{effect_id}.dataList[{entry_index}].attachBuff",
+            )
+            if attach.get("buffId"):
+                attached_entries.append((entry_index, entry))
+        if len(attached_entries) != 1:
+            raise ValueError(f"{effect_id}: attached-Buff talent expects one attached Buff entry")
+        entry_index, entry = attached_entries[0]
+        attach = require_dict(
+            entry.get("attachBuff"), f"{effect_id}.dataList[{entry_index}].attachBuff"
+        )
         buff_id = attach.get("buffId")
         if not isinstance(buff_id, str) or not buff_id:
-            raise ValueError(f"{effect_id}.dataList[0].attachBuff.buffId: expected non-empty id")
+            raise ValueError(
+                f"{effect_id}.dataList[{entry_index}].attachBuff.buffId: expected non-empty id"
+            )
         buff_ids.add(buff_id)
 
     if "potentials" not in operator:
@@ -3189,7 +3204,7 @@ def collect_conditional_buff_ids(condition: ConditionalActionSource) -> frozense
                 visit_actions(once_actions)
             for field in ("projectileTriggeredSkills", "conditionalAbilityEntityHits"):
                 for child in getattr(action, field, ()) or ():
-                    result.update(collect_nested_conditional_buff_ids(child))
+                    result.update(collect_nested_combat_node_buff_ids(child))
 
     def visit_condition(current: ConditionalActionSource) -> None:
         visit_actions(current.succeedActions)
@@ -3214,7 +3229,7 @@ def collect_nested_combat_node_buff_ids(node: Any) -> frozenset[str]:
     result.update(
         buff.buffId
         for aura in getattr(node, "auraActions", ())
-        for application in aura.actionWhenExitAuraBuffApplications
+        for application in getattr(aura, "actionWhenExitAuraBuffApplications", ())
         for buff in application.buffs
     )
     for condition in getattr(node, "conditionalActions", ()):

@@ -960,3 +960,21 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
   `enhancingList` 仍需分别解决来源侧属性注册、动作句柄寿命与加入边沿 rate 改写，不能借 Owner
   子集误投影。`tmp/` 继续只作 AKEDB 临时证据目录，不纳入提交。本轮门禁为生成器 466/466、
   全量生成与 `--check`、`type-check:next`、Next Vitest 202 文件 1437/1437。
+
+### 2026-08-23：Avywenna 正式生成与条件投射物 Buff 闭包
+
+- Avywenna 10 个技能入口、2 项天赋和 5 项潜能已进入正式 manifest、稳定导出和默认仓库，定义
+  自报 `complete`；正式完整干员现为 27 名，未正式注册的官方干员剩 Catcher、Ardelia，梨诺仍因
+  终结技能力实体模板与动作句柄寿命缺口保持 audit。
+- 条件分支中的投射物子技能以前只递归收集“子技能中的条件 Buff”，会漏掉子技能根部直接
+  `CreateBuffAction`。Avywenna 的终结技长枪回收因此在编译时找不到
+  `buff_chr_0012_avywen_lance_pulse_check`。闭包收集现统一走完整子战斗节点，保留这个 0.3 秒
+  自检 Buff 的脉冲附着行为，并有最小回归防止再次漏依赖。
+- 天赋 1 的每一级同时包含三项技能黑板补丁和一个常驻 Buff。养成转换器新增严格组合模式：逐级
+  对齐技能补丁、每级恰好接受一个同 ID 附着 Buff，并分别生成 `modifiers` 与 `passiveSkills`；其他
+  混合载荷失败关闭。正式结果同时保留战技/连携/终结技的失衡能量补丁和天赋监听 Buff。
+- 数据边界：AKEDB 2026-08-23 公共 BuffData 清单缺少上述长枪脉冲自检 Buff；默认
+  `vfs-index-browser/combat-spec/artifacts/BuffData` 中存在由 1.4.4 JsonData 解包得到的完整定义。
+  正式生成与 `--check` 必须使用默认解包工件，不能用仅含 AKEDB 公共清单的 `tmp` 镜像替代。
+  本轮门禁为生成器 468/468、默认解包源全量生成与 `--check`、`type-check:next`、Next Vitest
+  202 文件 1442/1442。

@@ -25,6 +25,7 @@ from generate_next_operators import (
     ELEMENT_TYPE_MAP,
     collect_blackboard_keys,
     collect_conditional_blackboard_keys,
+    collect_conditional_buff_ids,
     collect_compiled_blackboard_keys,
     collect_unresolved_combat_actions,
     decode_damage_decorate_mask,
@@ -483,6 +484,39 @@ def extract_step_key(source: str) -> str | None:
 
 
 class GenerateNextOperatorsTests(unittest.TestCase):
+    def test_conditional_projectile_direct_buff_is_in_definition_closure(self) -> None:
+        projectile = SimpleNamespace(
+            auxiliaryActions=(
+                SimpleNamespace(
+                    actionType="CreateBuffAction",
+                    sourceId="buff.projectile.marker",
+                ),
+            ),
+            auraActions=(),
+            conditionalActions=(),
+            abilityEntityHits=(),
+            nestedAbilityEntityHits=(),
+            projectileTriggeredSkills=(),
+            nestedProjectileTriggeredSkills=(),
+        )
+        condition = SimpleNamespace(
+            succeedActions=(
+                SimpleNamespace(
+                    buffApplication=None,
+                    nestedCondition=None,
+                    onceActions=None,
+                    projectileTriggeredSkills=(projectile,),
+                    conditionalAbilityEntityHits=(),
+                ),
+            ),
+            failActions=(),
+        )
+
+        self.assertEqual(
+            collect_conditional_buff_ids(condition),
+            frozenset({"buff.projectile.marker"}),
+        )
+
     def test_knock_down_output_preserves_native_dead_filter(self) -> None:
         action = {
             "$type": "Example.KnockDownAction+Data, Example",

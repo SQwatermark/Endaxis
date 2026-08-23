@@ -164,7 +164,10 @@ python scripts/download_akedb_next_sources.py
 SkillData/BuffData。2026-08-15 的公共 JSON `sharedRevision` 与该 manifest 的 `latest` 配对，
 是当前正式生成基线。AKEDB 只对 TableCfg 提供历史版本路径；`public/Json` 会随热更新覆盖，
 因此以后更新前仍须先确认 `latest` 与所选 TableCfg 一致，不能把新的公共 JSON 与旧表混合后
-直接覆盖正式生成物。只需补齐表文件时可追加 `--tables-only`。
+直接覆盖正式生成物。只需补齐表文件时可追加 `--tables-only`。公开 BuffData 清单不是 VFS 的
+完整性证明：Avywenna 长枪回收引用的 `buff_chr_0012_avywen_lance_pulse_check` 未出现在 2026-08-23
+AKEDB 公共清单，但已由 `vfs-index-browser` 从 1.4.4 JsonData 解包并保存到默认 `artifacts/BuffData`；
+因此正式 `--check` 使用默认解包工件目录，不能用仅含公开清单的临时下载目录替代该证据源。
 
 审计全干员天赋/潜能载荷：
 

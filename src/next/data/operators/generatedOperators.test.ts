@@ -14,6 +14,7 @@ import {
   alesh,
   antal,
   akekuri,
+  avywenna,
   camille,
   chenQianyu,
   daPan,
@@ -60,6 +61,7 @@ const generatedOperators: readonly [OperatorDefinition, number][] = [
   [antal, 9],
   [alesh, 10],
   [xaihi, 10],
+  [avywenna, 10],
 ];
 
 function hasUpgradeBehavior(
@@ -75,6 +77,17 @@ function hasUpgradeBehavior(
 }
 
 describe('新增的完整技能转换干员', () => {
+  it('Avywenna 长枪回收保留脉冲附着检查，天赋一同时保留技能补丁与常驻 Buff', () => {
+    expect(avywenna.conversionSupport).toEqual({
+      completeness: 'complete',
+      missingCapabilities: [],
+    });
+    expect(avywenna.buffDefinitions?.buff_chr_0012_avywen_lance_pulse_check).toBeDefined();
+    expect(JSON.stringify(avywenna)).toContain('buff_chr_0012_avywen_lance_pulse_check');
+    expect(avywenna.talents[0]?.modifiers).toHaveLength(3);
+    expect(avywenna.talents[0]?.passiveSkills?.[0]?.key).toBe('buff_chr_0012_avywen_talent_0');
+  });
+
   it('管理员只暴露一套以女管理员数据生成的规范技能入口', () => {
     expect(endministrator.skillGroups.map(group => group.key)).toEqual([
       'basicAttack',

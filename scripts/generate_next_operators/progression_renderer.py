@@ -1130,6 +1130,8 @@ def _render_multilevel_attached_buff_talent(
     compile_buff_definition: Callable[
         [BuffDefinitionSource, str, dict[str, BuffDefinitionSource]], str
     ],
+    *,
+    include_empty_modifiers: bool = True,
 ) -> str:
     """把各天赋等级的同一 AddBuff 合并为按等级解析黑板的常驻被动。"""
     buff_id: str | None = None
@@ -1202,7 +1204,12 @@ def _render_multilevel_attached_buff_talent(
                 f"attached Buff talent: redundant max_stack does not match child lifecycle"
             )
         values.pop("max_stack")
-    lines = ["  modifiers: [],", "  passiveSkills: [", "    {", f"      key: {ts_inline_literal(buff_id)},"]
+    lines = [
+        *(["  modifiers: [],"] if include_empty_modifiers else []),
+        "  passiveSkills: [",
+        "    {",
+        f"      key: {ts_inline_literal(buff_id)},",
+    ]
     if values:
         lines.append("      blackboard: {")
         for key, level_values in values.items():
@@ -1225,6 +1232,56 @@ def _render_multilevel_attached_buff_talent(
         lines.append("          },")
     lines.extend(["        }),", "      ),", "    },", "  ],"])
     return "\n".join(lines)
+
+
+def _render_multilevel_skill_blackboard_patch_and_attached_buff_talent(
+    effect_entries: list[tuple[str, list[dict[str, Any]]]],
+    operator: dict[str, Any],
+    skills: list[SkillSource],
+    buff_definitions: dict[str, BuffDefinitionSource],
+    compile_buff_definition: Callable[
+        [BuffDefinitionSource, str, dict[str, BuffDefinitionSource]], str
+    ],
+) -> str:
+    """严格拆分每级天赋中的技能补丁和唯一常驻 Buff，并保持两者等级对齐。"""
+    patch_entries_by_level: list[list[dict[str, Any]]] = []
+    attach_entries: list[tuple[str, list[dict[str, Any]]]] = []
+    for effect_id, data_list in effect_entries:
+        patches: list[dict[str, Any]] = []
+        attached: list[dict[str, Any]] = []
+        for index, entry in enumerate(data_list):
+            entry_path = f"{effect_id}.dataList[{index}]"
+            kinds = _effect_payload_kinds(entry, entry_path)
+            if kinds == ("skillBbModifier",):
+                patches.append(entry)
+            elif kinds == ("attachBuff",):
+                attached.append(entry)
+            else:
+                raise ValueError(
+                    f"{entry_path}: expected only skillBbModifier or attachBuff"
+                )
+        if not patches or len(attached) != 1:
+            raise ValueError(
+                f"{effect_id}: expected at least one skill patch and exactly one attached Buff"
+            )
+        patch_entries_by_level.append(patches)
+        attach_entries.append((effect_id, attached))
+    return "\n".join(
+        [
+            _render_multilevel_skill_blackboard_patch_modifiers(
+                patch_entries_by_level,
+                "CharGrowthTable.talentNodeMap",
+                operator,
+                skills,
+            ),
+            _render_multilevel_attached_buff_talent(
+                attach_entries,
+                buff_definitions,
+                compile_buff_definition,
+                include_empty_modifiers=False,
+            ),
+        ]
+    )
 
 
 def _render_skill_and_passive_blackboard_patch_modifiers(
@@ -2386,6 +2443,24 @@ def render_talents(
                         f"  levels: {len(entries)},",
                         _render_multilevel_attached_buff_talent(
                             attach_entries,
+                            buff_definitions,
+                            compile_buff_definition,
+                        ),
+                        "}",
+                    ]
+                )
+            )
+        elif kind == "skillBlackboardPatchAndAttachedBuff":
+            result.append(
+                "\n".join(
+                    [
+                        "{",
+                        f"  key: {ts_inline_literal(key)},",
+                        f"  levels: {len(entries)},",
+                        _render_multilevel_skill_blackboard_patch_and_attached_buff_talent(
+                            attach_entries,
+                            operator,
+                            skills,
                             buff_definitions,
                             compile_buff_definition,
                         ),
