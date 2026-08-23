@@ -1784,6 +1784,7 @@ class TargetGroupWriteSource:
     circularOrderRangeCheckTarget: TargetReferenceSource | None = None
     pickIndexValue: float | None = None
     pickIndexBlackboardKey: str | None = None
+    saveCountToBlackboardKey: str | None = None
 
 
 @dataclass(frozen=True)

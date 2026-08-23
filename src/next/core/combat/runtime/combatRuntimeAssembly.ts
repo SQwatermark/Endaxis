@@ -1363,8 +1363,24 @@ export class CombatRuntimeAssembly {
         this.#changeSkillSlot(operatorId, skillGroupKey, targetSkillKey, inheritCooldownProgress),
       delegate: cooldownOperations,
     });
-    const timeDilationOperations = this.#wrapTimeDilationOperations(
+    let reactiveOperations: CombatOperationExecutor | undefined;
+    const abilityEntityOperations = new AbilityEntityOperationExecutor(
+      operatorId,
+      this.abilityEntities,
       slotOperations,
+      {
+        resolveOperations: () => {
+          if (reactiveOperations === undefined) {
+            throw new Error('reactive combat operation chain is not fully initialized');
+          }
+          return reactiveOperations;
+        },
+        semanticEvents: this.semanticEvents,
+      },
+      abilityEntityId => operator.abilityEntityDefinitions?.[abilityEntityId],
+    );
+    const timeDilationOperations = this.#wrapTimeDilationOperations(
+      abilityEntityOperations,
       operatorId,
       sourceActionId,
       options.isOperatorControlled,
@@ -1454,7 +1470,7 @@ export class CombatRuntimeAssembly {
             read: options.readSourceAttributeValue,
           },
     );
-    const operations = new SkillResourceOperationExecutor({
+    reactiveOperations = new SkillResourceOperationExecutor({
       sourceOperatorId: operatorId,
       sourceActionId,
       clock: this.clock,
@@ -1467,9 +1483,9 @@ export class CombatRuntimeAssembly {
     });
     const bindingKey = `${operatorId}\u0000${sourceActionId}`;
     if (!this.#reactiveOperationBindings.has(bindingKey)) {
-      this.#reactiveOperationBindings.set(bindingKey, operations);
+      this.#reactiveOperationBindings.set(bindingKey, reactiveOperations);
     }
-    return operations;
+    return reactiveOperations;
   }
 
   #createReactiveTerminal(

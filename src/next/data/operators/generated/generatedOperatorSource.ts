@@ -1331,6 +1331,8 @@ export interface GeneratedTargetGroupWriteSource {
   readonly circularOrderRangeCheckTarget?: GeneratedTargetReferenceSource | null;
   readonly pickIndexValue?: number | null;
   readonly pickIndexBlackboardKey?: string | null;
+  /** 原生 CheckEntityNum 与本次查询绑定时保存的实际集合数量。 */
+  readonly saveCountToBlackboardKey?: string | null;
 }
 
 export interface GeneratedBuffEventActionSource {

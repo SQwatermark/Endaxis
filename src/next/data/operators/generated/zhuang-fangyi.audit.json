@@ -2055,7 +2055,8 @@
                 ]
               ],
               "pickIndexValue": null,
-              "pickIndexBlackboardKey": null
+              "pickIndexBlackboardKey": null,
+              "saveCountToBlackboardKey": "swordsNum"
             }
           ],
           "obtainAtbValueKeys": [],

@@ -1704,6 +1704,15 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
             left: { kind: 'blackboard', key: 'atk_scale' },
             right: { kind: 'blackboard', key: 'atk_up_final' },
           }),
+          branch(
+            { kind: 'not', condition: { kind: 'singleEnemyPresent' } },
+            sequence(
+              step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'swordTar', abilityEntityIds: ['abilityentity_chr_0030_zhuangfy_normal_skill_fake_target'] }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+          step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'sword', abilityEntityIds: ['abilityentity_chr_0030_zhuangfy_normal_skill_sword'] }),
         ),
         finish: sequence(
           step('finishBuffsByTag', {
@@ -1722,23 +1731,26 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
               right: { kind: 'blackboard', key: 'EntityBB_SwordNum' },
             },
             sequence(
-              forEachContextTarget(
-                'swordInst',
-                sequence(
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0030_zhuangfy_sword_triggerd',
-                    target: 'currentAbilityEntity',
-                    inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: {
-                      'swordIndex': { kind: 'blackboard', key: 'swordIndex' },
-                      'swordCnt': { kind: 'blackboard', key: 'EntityBB_SwordNum' },
-                      'atk_scale': { kind: 'blackboard', key: 'atk_scale' },
-                      'poise': { kind: 'blackboard', key: 'poise' },
-                      'usp_extra': { kind: 'blackboard', key: 'usp_extra' },
-                      'remain_sword_limit': { kind: 'blackboard', key: 'remain_sword_limit' },
-                      'final_rate': { kind: 'blackboard', key: 'final_rate' },
-                    },
-                  }),
+              sequence(
+                step('pickContextTarget', { sourceContextKey: 'sword', saveToContextKey: 'swordInst', index: { kind: 'blackboard', key: 'swordIndex' } }),
+                forEachContextTarget(
+                  'swordInst',
+                  sequence(
+                    step('applyBuff', {
+                      buffId: 'buff_chr_0030_zhuangfy_sword_triggerd',
+                      target: 'currentAbilityEntity',
+                      inheritSourceSkillCastInfo: true,
+                      blackboardAssignments: {
+                        'swordIndex': { kind: 'blackboard', key: 'swordIndex' },
+                        'swordCnt': { kind: 'blackboard', key: 'EntityBB_SwordNum' },
+                        'atk_scale': { kind: 'blackboard', key: 'atk_scale' },
+                        'poise': { kind: 'blackboard', key: 'poise' },
+                        'usp_extra': { kind: 'blackboard', key: 'usp_extra' },
+                        'remain_sword_limit': { kind: 'blackboard', key: 'remain_sword_limit' },
+                        'final_rate': { kind: 'blackboard', key: 'final_rate' },
+                      },
+                    }),
+                  ),
                 ),
               ),
               step('modifyActionValue', {
@@ -1933,6 +1945,7 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
       },
       lifecycleSequences: {
         trigger: sequence(
+          step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'swordsInRange', abilityEntityIds: ['abilityentity_chr_0030_zhuangfy_normal_skill_sword'], saveCountToBlackboardKey: 'swordsNum' }),
           step('modifyActionValue', {
             key: 'EntityBB_SwordNum',
             operation: 'assign',

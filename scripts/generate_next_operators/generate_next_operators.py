@@ -464,6 +464,7 @@ TARGET_GROUP_WRITE_OPTIONAL_EVIDENCE_KEYS = frozenset(
         "circularOrderHeightOffset",
         "circularOrderRangeThreshold",
         "circularOrderRangeCheckTarget",
+        "saveCountToBlackboardKey",
     }
 )
 
@@ -5474,6 +5475,14 @@ def _make_conditional_leaf_services() -> ConditionalLeafServices:
         compile_knock_down_output=compile_knock_down_output,
         compile_physical_infliction=compile_physical_infliction,
         compile_resource_gain=compile_resource_gain,
+        compile_skill_target_group_ability_entity_query=lambda write, path, **kwargs: (
+            compile_skill_target_group_ability_entity_query(
+                write,
+                load_ability_entity_template_evidence(),
+                path,
+                **kwargs,
+            )
+        ),
         compile_time_dilation=compile_time_dilation,
         compile_timed_marker_application=compile_timed_marker_application,
         contains_equivalent_projectile_projection=contains_equivalent_projectile_projection,
@@ -6511,7 +6520,7 @@ def target_group_write_ability_entity_collection_identity(
         or write.validatorTypes.count("TagValidator") != 1
         or write.validatorTypes.count("SkillCastIdValidator") > 1
         or any(
-            validator not in {"TagValidator", "SkillCastIdValidator"}
+            validator not in {"TagValidator", "SkillCastIdValidator", "DistanceValidator"}
             for validator in write.validatorTypes
         )
         or len(write.validatorTagQueries)

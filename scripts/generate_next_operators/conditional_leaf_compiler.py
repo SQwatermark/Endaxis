@@ -42,6 +42,7 @@ class ConditionalLeafServices:
     compile_knock_down_output: Callable[..., Any]
     compile_physical_infliction: Callable[..., Any]
     compile_resource_gain: Callable[..., Any]
+    compile_skill_target_group_ability_entity_query: Callable[..., Any]
     compile_time_dilation: Callable[..., Any]
     compile_timed_marker_application: Callable[..., Any]
     contains_equivalent_projectile_projection: Callable[..., Any]
@@ -98,6 +99,33 @@ def guarded_context_group_is_unique_enemy(
     )
 
 
+def compile_pick_target_group_write(write: TargetGroupWriteSource, path: str) -> str:
+    """把已解析的 PickTarget 写入编译为单体 Context 选择。"""
+    if write.producerType != "PickTargetAction" or len(write.inputTargets) != 1:
+        raise ValueError(f"{path}: PickTargetAction has no unique input group")
+    source = write.inputTargets[0]
+    if (
+        source.targetSource != "Context"
+        or not source.targetGroupKey
+        or source.finderType is not None
+        or source.validatorTypes
+        or source.postProcessorTypes
+    ):
+        raise ValueError(f"{path}: unsupported PickTargetAction input")
+    index = (
+        "{ kind: 'blackboard', key: "
+        f"{ts_inline_literal(write.pickIndexBlackboardKey)} }}"
+        if write.pickIndexBlackboardKey is not None
+        else "{ kind: 'constant', value: "
+        f"{write.pickIndexValue} }}"
+    )
+    return (
+        "step('pickContextTarget', { sourceContextKey: "
+        f"{ts_inline_literal(source.targetGroupKey)}, saveToContextKey: "
+        f"{ts_inline_literal(write.targetGroupKey)}, index: {index} }})"
+    )
+
+
 def compile_conditional_branch_action(
     action: ConditionalBranchActionSource,
     path: str,
@@ -148,6 +176,9 @@ def compile_conditional_branch_action(
     compile_knock_down_output = services.compile_knock_down_output
     compile_physical_infliction = services.compile_physical_infliction
     compile_resource_gain = services.compile_resource_gain
+    compile_skill_target_group_ability_entity_query = (
+        services.compile_skill_target_group_ability_entity_query
+    )
     compile_time_dilation = services.compile_time_dilation
     compile_timed_marker_application = services.compile_timed_marker_application
     contains_equivalent_projectile_projection = services.contains_equivalent_projectile_projection
@@ -200,34 +231,45 @@ def compile_conditional_branch_action(
         if len(matches) != 1:
             raise ValueError(f"{path}: PickTargetAction requires one exact target-group write")
         write = matches[0]
-        if len(write.inputTargets) != 1:
-            raise ValueError(f"{path}: PickTargetAction has no unique input group")
-        source = write.inputTargets[0]
-        if (
-            source.targetSource != "Context"
-            or not source.targetGroupKey
-            or source.finderType is not None
-            or source.validatorTypes
-            or source.postProcessorTypes
-        ):
-            raise ValueError(f"{path}: unsupported PickTargetAction input")
-        index = (
-            "{ kind: 'blackboard', key: "
-            f"{ts_inline_literal(write.pickIndexBlackboardKey)} }}"
-            if write.pickIndexBlackboardKey is not None
-            else "{ kind: 'constant', value: "
-            f"{write.pickIndexValue} }}"
-        )
-        return (
-            "step('pickContextTarget', { sourceContextKey: "
-            f"{ts_inline_literal(source.targetGroupKey)}, saveToContextKey: "
-            f"{ts_inline_literal(write.targetGroupKey)}, index: {index} }})"
-        )
+        return compile_pick_target_group_write(write, path)
     if action.actionType in {
         "ContinuousFindTargetAction",
         "FindTargetAction",
         "MergeTargetAction",
     }:
+        if current_buff_environment and action.actionType in {
+            "ContinuousFindTargetAction",
+            "FindTargetAction",
+        }:
+            matches = tuple(
+                write
+                for write in target_group_writes
+                if write.producerType == action.actionType
+                and write.actionPath == action.actionPath
+            )
+            if not matches:
+                matches = tuple(
+                    write
+                    for write in target_group_writes
+                    if write.producerType == action.actionType
+                    and write.actionIndex == action.serverActionIndex
+                )
+                original_matches = tuple(write for write in matches if write.actionPath)
+                if original_matches:
+                    matches = original_matches
+            if (
+                len(matches) == 1
+                and target_group_write_ability_entity_collection_identity(
+                    matches[0], target_group_writes
+                )
+                is not None
+            ):
+                return compile_skill_target_group_ability_entity_query(
+                    matches[0],
+                    path,
+                    save_count_to_blackboard_key=matches[0].saveCountToBlackboardKey,
+                    allow_action_source_owner=True,
+                )
         # 目标组生产者只为后续 Context 身份溯源服务，不是独立战斗效果。
         return "sequence()"
     if getattr(action, "nestedCondition", None) is not None:
@@ -810,6 +852,7 @@ def compile_conditional_branch_action(
             return "sequence()"
         context_application_target = None
         ability_entity_collection_key = None
+        ability_entity_collection_prelude = None
         if buff_application.targetSource == "Context":
             write = resolve_latest_target_group_write_at(
                 read_frame=getattr(context_action, "startFrame", 0),
@@ -858,6 +901,10 @@ def compile_conditional_branch_action(
             ):
                 context_application_target = "currentAbilityEntity"
                 ability_entity_collection_key = buff_application.targetGroupKey
+                if write is not None and write.producerType == "PickTargetAction":
+                    ability_entity_collection_prelude = compile_pick_target_group_write(
+                        write, f"{path}.targetGroupWrite"
+                    )
         compiled_buff = compile_conditional_buff_application(
             buff_application,
             path,
@@ -879,13 +926,22 @@ def compile_conditional_branch_action(
             return compiled_buff
         buff_lines = indent_source(compiled_buff, 4)
         buff_lines[-1] += ","
+        for_each_lines = [
+            "forEachContextTarget(",
+            f"  {ts_inline_literal(ability_entity_collection_key)},",
+            "  sequence(",
+            *buff_lines,
+            "  ),",
+            ")",
+        ]
+        if ability_entity_collection_prelude is None:
+            return "\n".join(for_each_lines)
         return "\n".join(
             [
-                "forEachContextTarget(",
-                f"  {ts_inline_literal(ability_entity_collection_key)},",
-                "  sequence(",
-                *buff_lines,
-                "  ),",
+                "sequence(",
+                f"  {ability_entity_collection_prelude},",
+                *[f"  {line}" for line in for_each_lines[:-1]],
+                f"  {for_each_lines[-1]},",
                 ")",
             ]
         )

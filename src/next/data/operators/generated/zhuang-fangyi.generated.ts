@@ -2036,7 +2036,8 @@ export const zhuangFangyiGeneratedSource = {
                 ]
               ],
               "pickIndexValue": null,
-              "pickIndexBlackboardKey": null
+              "pickIndexBlackboardKey": null,
+              "saveCountToBlackboardKey": "swordsNum"
             }
           ],
           "obtainAtbValueKeys": [],

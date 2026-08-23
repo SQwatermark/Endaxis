@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from typing import Any
 
 from source_models import TargetGroupInputSource, TargetGroupWriteSource, TargetReferenceSource
@@ -203,6 +204,42 @@ def parse_target_group_writes(
         if isinstance(value, list):
             for index, child in enumerate(value):
                 visit(child, start_frame, end_frame, (*path, f"[{index}]"))
+                if not isinstance(child, dict) or child.get("isEnable") is False:
+                    continue
+                if action_name(str(child.get("$type", ""))) != "CheckEntityNum":
+                    continue
+                store_key = child.get("storeKey")
+                target = child.get("checkTarget")
+                if (
+                    not isinstance(store_key, str)
+                    or not store_key
+                    or not isinstance(target, dict)
+                ):
+                    continue
+                target_group_key = target.get("targetGroupKey")
+                if (
+                    target.get("targetSource") != "Context"
+                    or not isinstance(target_group_key, str)
+                    or not target_group_key
+                ):
+                    continue
+                check_index = require_server_action_index(
+                    child, f"{source_name}.{'.'.join((*path, f'[{index}]'))}"
+                )
+                candidates = [
+                    (result_index, write)
+                    for result_index, write in enumerate(result)
+                    if write.startFrame == start_frame
+                    and write.endFrame == end_frame
+                    and write.targetGroupKey == target_group_key
+                    and write.actionIndex < check_index
+                    and write.actionPath[:-1] == path
+                ]
+                if candidates:
+                    result_index, write = max(candidates, key=lambda item: item[1].actionIndex)
+                    result[result_index] = replace(
+                        write, saveCountToBlackboardKey=store_key
+                    )
             return
         if not isinstance(value, dict) or value.get("isEnable") is False:
             return

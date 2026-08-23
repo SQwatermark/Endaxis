@@ -1867,6 +1867,50 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             circular_query,
         )
 
+    def test_buff_start_owner_spawned_query_survives_persistent_write_alias(self) -> None:
+        write = TargetGroupWriteSource(
+            startFrame=0,
+            endFrame=0,
+            actionIndex=5,
+            actionPath=("timelineActions[0]", "actionData", "[3]"),
+            targetGroupKey="sword",
+            producerType="FindTargetAction",
+            finderType="OwnerSpawnedEntityFinder",
+            finderFactionTarget=None,
+            finderTargetObjectType=None,
+            finderCheckAlive=None,
+            validatorTypes=("TagValidator", "DistanceValidator"),
+            postProcessorTypes=("PriorityFilter",),
+            inputTargets=(),
+            intervalSeconds=None,
+            finderSpawnedObjectType="AbilityEntity",
+            validatorTagQueries=(("HasAny", (-13979809,)),),
+            center="ActionSource",
+            selectorOwner="ActionSource",
+            saveCountToBlackboardKey="swordsNum",
+        )
+        persistent_alias = replace(write, startFrame=-1, actionPath=())
+        action = ConditionalBranchActionSource(
+            "FindTargetAction",
+            3,
+            actionPath=("eventWrapper", "succeedActions", "[3]"),
+            serverActionIndex=5,
+        )
+        with patch(
+            "generate_next_operators.load_ability_entity_template_evidence",
+            return_value={"abilityentity.sword": {"bornTagIds": [-13979809]}},
+        ):
+            compiled = compile_conditional_branch_action(
+                action,
+                "fixture.buffStart.findSword",
+                target_group_writes=(write, persistent_alias),
+                current_buff_environment=True,
+            )
+        self.assertIn("findOwnerSpawnedAbilityEntities", compiled)
+        self.assertIn("saveToContextKey: 'sword'", compiled)
+        self.assertIn("abilityEntityIds: ['abilityentity.sword']", compiled)
+        self.assertIn("saveCountToBlackboardKey: 'swordsNum'", compiled)
+
     def test_target_group_non_empty_proof_covers_exhaustive_enemy_or_point_paths(
         self,
     ) -> None:
