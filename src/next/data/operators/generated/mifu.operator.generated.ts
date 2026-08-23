@@ -1238,7 +1238,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                     sequence(
                       step('applyBuff', {
                         buffId: 'buff_physical_handle_cryst_break',
-                        target: 'enemy',
+                        target: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                       }),
                     ),
@@ -1247,7 +1247,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                 finish: sequence(
                   step('applyBuff', {
                     buffId: 'buff_physical_no_guard_fake',
-                    target: 'enemy',
+                    target: 'buffOwner',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
@@ -1267,7 +1267,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                     sequence(
                       step('applyBuff', {
                         buffId: 'buff_physical_handle_cryst_break',
-                        target: 'enemy',
+                        target: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                       }),
                     ),
@@ -1316,7 +1316,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                     value: { kind: 'blackboard', key: 'dmg_multiplier' },
                   }),
                   step('finishBuffsById', {
-                    target: 'enemy',
+                    target: 'buffOwner',
                     buffIds: ['buff_physical_no_guard'],
                     reason: 'early',
                   }),
@@ -1328,7 +1328,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                   }, '29:buff_physical_crushed:start:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[4]11:actionOrder1:4'),
                   step('applyBuff', {
                     buffId: 'buff_physical_handle_cryst_break',
-                    target: 'enemy',
+                    target: 'buffOwner',
                     inheritSourceSkillCastInfo: true,
                   }),
                   step('igniteBuffs', {
@@ -1961,7 +1961,7 @@ export const mifuGeneratedOperator: OperatorDefinition = {
       lifecycleSequences: {
         start: sequence(
           step('finishBuffsById', {
-            target: 'caster',
+            target: 'buffOwner',
             buffIds: ['buff_chr_0031_mifu_normalskill_3'],
             reason: 'other',
           }),
@@ -2096,7 +2096,7 @@ export const mifuGeneratedOperator: OperatorDefinition = {
       lifecycleSequences: {
         start: sequence(
           step('finishBuffsById', {
-            target: 'caster',
+            target: 'buffOwner',
             buffIds: ['buff_chr_0031_mifu_normalskill_2'],
             reason: 'other',
           }),

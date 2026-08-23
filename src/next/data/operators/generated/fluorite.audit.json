@@ -87,7 +87,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0022_bounda_potential_4",
@@ -198,7 +199,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0022_bounda_potential_5_auro",
@@ -482,7 +484,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0022_bounda_potential_5_cd",
@@ -831,7 +834,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0022_bounda_talent_1",
@@ -955,7 +959,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0022_bounda_talent_2",
@@ -2574,7 +2579,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0022_bounda_talent_2_atkup",
@@ -2685,7 +2691,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0022_bounda_ultimate_skill",
@@ -2770,7 +2777,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_common_damage_immune_talent",
@@ -2928,7 +2936,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -3054,7 +3063,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_common_full_immune_medium",
@@ -3187,7 +3197,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -3320,7 +3331,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -3411,7 +3423,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     }
   ],
   "passiveSkills": [

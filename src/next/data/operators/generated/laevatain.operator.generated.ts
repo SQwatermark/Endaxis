@@ -1811,7 +1811,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
       lifecycleSequences: {
         finish: sequence(
           step('finishBuffsById', {
-            target: 'caster',
+            target: 'buffOwner',
             buffIds: ['buff_chr_0016_laevat_wpn_vfx'],
             reason: 'other',
           }),
@@ -1845,7 +1845,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
       lifecycleSequences: {
         finish: sequence(
           step('finishBuffsById', {
-            target: 'caster',
+            target: 'buffOwner',
             buffIds: ['buff_chr_0016_laevat_ring_start_asset', 'buff_chr_0016_laevat_ultimate_sfx_loop'],
             reason: 'other',
           }),
@@ -1906,12 +1906,12 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
           sequence(
             step('applyBuff', {
               buffId: 'buff_chr_0016_laevat_ring_start_asset',
-              target: 'caster',
+              target: 'buffOwner',
               inheritSourceSkillCastInfo: true,
             }),
             step('applyBuff', {
               buffId: 'buff_chr_0016_laevat_ult_end',
-              target: 'caster',
+              target: 'buffOwner',
               inheritSourceSkillCastInfo: true,
             }),
           ),
@@ -1950,7 +1950,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
       lifecycleSequences: {
         start: sequence(
           step('finishBuffsById', {
-            target: 'caster',
+            target: 'buffOwner',
             buffIds: ['buff_chr_0016_laevat_wpn_vfx'],
             reason: 'other',
           }),
@@ -2012,7 +2012,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
         start: sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0016_laevat_ignore_fire_resist',
-            target: 'caster',
+            target: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             blackboardAssignments: {
               'ignore_fire_resist_duration': { kind: 'blackboard', key: 'ignore_fire_resist_duration' },
@@ -2037,13 +2037,13 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
       lifecycleSequences: {
         start: sequence(
           step('readBuffBlackboard', {
-            target: 'caster',
+            target: 'buffOwner',
             query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
             desiredKey: 'ignore_fire_resist',
             outputKey: 'ignore_fire_resist',
           }),
           step('readBuffBlackboard', {
-            target: 'caster',
+            target: 'buffOwner',
             query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
             desiredKey: 'ignore_fire_resist_duration',
             outputKey: 'ignore_fire_resist_duration',
@@ -2051,14 +2051,14 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
         ),
         finish: sequence(
           step('finishBuffsById', {
-            target: 'caster',
+            target: 'buffOwner',
             buffIds: ['buff_chr_0016_laevat_energy_icon_5'],
             reason: 'other',
           }),
         ),
         enhanceChanged: sequence(
           step('readBuffStackCount', {
-            target: 'caster',
+            target: 'buffOwner',
             outputKey: 'count',
             query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
           }),
@@ -2072,7 +2072,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
             sequence(
               step('applyBuff', {
                 buffId: 'buff_chr_0016_laevat_energy_icon_5',
-                target: 'caster',
+                target: 'buffOwner',
                 inheritSourceSkillCastInfo: true,
                 blackboardAssignments: {
                   'ignore_fire_resist': { kind: 'blackboard', key: 'ignore_fire_resist' },
@@ -2097,7 +2097,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
           sequence(
             step('applyBuff', {
               buffId: 'buff_chr_0016_laevat_energy',
-              target: 'caster',
+              target: 'buffOwner',
               inheritSourceSkillCastInfo: true,
             }),
           ),
@@ -2119,7 +2119,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
       lifecycleSequences: {
         start: sequence(
           step('readBuffStackCount', {
-            target: 'caster',
+            target: 'buffOwner',
             outputKey: 'count',
             query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_combo_skill_usp'] },
           }),
@@ -2217,14 +2217,14 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
               stagger: { kind: 'blackboard', key: 'poise' },
             }, '36:buff_chr_0016_laevat_combo_skill_hit4:buff36:buff_chr_0016_laevat_combo_skill_hit11:actionOrder1:1'),
             step('finishBuffsByTag', {
-              target: 'enemy',
+              target: 'buffOwner',
               tagQueryType: 'hasAny',
               buffTagIds: [-1110095722],
               reason: 'early',
             }),
             step('applyBuff', {
               buffId: 'buff_chr_0016_laevat_combo_skill_usp',
-              target: 'caster',
+              target: 'buffSource',
               inheritSourceSkillCastInfo: true,
             }),
           ),
@@ -2248,7 +2248,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
         trigger: sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0016_laevat_combo_skill_hit',
-            target: 'enemy',
+            target: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             blackboardAssignments: {
               'poise': { kind: 'blackboard', key: 'poise' },
@@ -2283,7 +2283,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
       lifecycleSequences: {
         start: sequence(
           step('finishBuffsByTag', {
-            target: 'enemy',
+            target: 'buffOwner',
             tagQueryType: 'hasAny',
             buffTagIds: [-1558844517],
             reason: 'early',
@@ -2306,18 +2306,18 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
           sequence:
             sequence(
               step('readBuffStackCount', {
-                target: 'enemy',
+                target: 'buffOwner',
                 outputKey: 'count',
                 query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [-1558844517] },
               }),
               step('applyBuff', {
                 buffId: 'buff_chr_0016_laevat_absorb_fire_inflict',
-                target: 'enemy',
+                target: 'buffOwner',
                 inheritSourceSkillCastInfo: true,
               }),
               step('applyBuff', {
                 buffId: 'buff_chr_0016_laevat_energy',
-                target: 'caster',
+                target: 'buffSource',
                 inheritSourceSkillCastInfo: true,
                 count: { kind: 'blackboard', key: 'count' },
               }),
@@ -2360,11 +2360,11 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                     sequence(
                       step('applyBuff', {
                         buffId: 'buff_chr_0016_laevat_passive_teammate_cd',
-                        target: 'caster',
+                        target: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                       }),
                       step('readBuffStackCount', {
-                        target: 'enemy',
+                        target: 'eventTarget',
                         outputKey: 'count',
                         query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [-1558844517] },
                       }),
@@ -2377,14 +2377,14 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                         },
                         sequence(
                           step('finishBuffsByTag', {
-                            target: 'enemy',
+                            target: 'eventTarget',
                             tagQueryType: 'hasAny',
                             buffTagIds: [-1558844517],
                             reason: 'absorbed',
                           }),
                           step('applyBuff', {
                             buffId: 'buff_chr_0016_laevat_energy',
-                            target: 'caster',
+                            target: 'buffSource',
                             inheritSourceSkillCastInfo: true,
                           }),
                         ),
@@ -2398,7 +2398,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                             },
                             sequence(
                               step('finishBuffsByTag', {
-                                target: 'enemy',
+                                target: 'eventTarget',
                                 tagQueryType: 'hasAny',
                                 buffTagIds: [-1558844517],
                                 reason: 'absorbed',
@@ -2406,11 +2406,11 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                               }),
                               step('applyBuff', {
                                 buffId: 'buff_chr_0016_laevat_energy',
-                                target: 'caster',
+                                target: 'buffSource',
                                 inheritSourceSkillCastInfo: true,
                               }),
                               step('finishBuffsByTag', {
-                                target: 'enemy',
+                                target: 'eventTarget',
                                 tagQueryType: 'hasAny',
                                 buffTagIds: [-1558844517],
                                 reason: 'absorbed',
@@ -2418,7 +2418,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                               }),
                               step('applyBuff', {
                                 buffId: 'buff_chr_0016_laevat_energy',
-                                target: 'caster',
+                                target: 'buffSource',
                                 inheritSourceSkillCastInfo: true,
                               }),
                             ),
@@ -2432,7 +2432,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                 },
                                 sequence(
                                   step('finishBuffsByTag', {
-                                    target: 'enemy',
+                                    target: 'eventTarget',
                                     tagQueryType: 'hasAny',
                                     buffTagIds: [-1558844517],
                                     reason: 'absorbed',
@@ -2440,11 +2440,11 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                   }),
                                   step('applyBuff', {
                                     buffId: 'buff_chr_0016_laevat_energy',
-                                    target: 'caster',
+                                    target: 'buffSource',
                                     inheritSourceSkillCastInfo: true,
                                   }),
                                   step('finishBuffsByTag', {
-                                    target: 'enemy',
+                                    target: 'eventTarget',
                                     tagQueryType: 'hasAny',
                                     buffTagIds: [-1558844517],
                                     reason: 'absorbed',
@@ -2452,11 +2452,11 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                   }),
                                   step('applyBuff', {
                                     buffId: 'buff_chr_0016_laevat_energy',
-                                    target: 'caster',
+                                    target: 'buffSource',
                                     inheritSourceSkillCastInfo: true,
                                   }),
                                   step('finishBuffsByTag', {
-                                    target: 'enemy',
+                                    target: 'eventTarget',
                                     tagQueryType: 'hasAny',
                                     buffTagIds: [-1558844517],
                                     reason: 'absorbed',
@@ -2464,7 +2464,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                   }),
                                   step('applyBuff', {
                                     buffId: 'buff_chr_0016_laevat_energy',
-                                    target: 'caster',
+                                    target: 'buffSource',
                                     inheritSourceSkillCastInfo: true,
                                   }),
                                 ),
@@ -2478,7 +2478,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                     },
                                     sequence(
                                       step('finishBuffsByTag', {
-                                        target: 'enemy',
+                                        target: 'eventTarget',
                                         tagQueryType: 'hasAny',
                                         buffTagIds: [-1558844517],
                                         reason: 'absorbed',
@@ -2486,11 +2486,11 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                       }),
                                       step('applyBuff', {
                                         buffId: 'buff_chr_0016_laevat_energy',
-                                        target: 'caster',
+                                        target: 'buffSource',
                                         inheritSourceSkillCastInfo: true,
                                       }),
                                       step('finishBuffsByTag', {
-                                        target: 'enemy',
+                                        target: 'eventTarget',
                                         tagQueryType: 'hasAny',
                                         buffTagIds: [-1558844517],
                                         reason: 'absorbed',
@@ -2498,11 +2498,11 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                       }),
                                       step('applyBuff', {
                                         buffId: 'buff_chr_0016_laevat_energy',
-                                        target: 'caster',
+                                        target: 'buffSource',
                                         inheritSourceSkillCastInfo: true,
                                       }),
                                       step('finishBuffsByTag', {
-                                        target: 'enemy',
+                                        target: 'eventTarget',
                                         tagQueryType: 'hasAny',
                                         buffTagIds: [-1558844517],
                                         reason: 'absorbed',
@@ -2510,11 +2510,11 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                       }),
                                       step('applyBuff', {
                                         buffId: 'buff_chr_0016_laevat_energy',
-                                        target: 'caster',
+                                        target: 'buffSource',
                                         inheritSourceSkillCastInfo: true,
                                       }),
                                       step('finishBuffsByTag', {
-                                        target: 'enemy',
+                                        target: 'eventTarget',
                                         tagQueryType: 'hasAny',
                                         buffTagIds: [-1558844517],
                                         reason: 'absorbed',
@@ -2522,7 +2522,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                       }),
                                       step('applyBuff', {
                                         buffId: 'buff_chr_0016_laevat_energy',
-                                        target: 'caster',
+                                        target: 'buffSource',
                                         inheritSourceSkillCastInfo: true,
                                       }),
                                     ),
@@ -2602,7 +2602,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                   sequence(
                     step('applyBuff', {
                       buffId: 'buff_chr_0016_laevat_ult_end',
-                      target: 'caster',
+                      target: 'buffOwner',
                       inheritSourceSkillCastInfo: true,
                       blackboardAssignments: {
                         'duration': { kind: 'blackboard', key: 'extend_duration' },
@@ -2610,7 +2610,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                     }),
                     step('applyBuff', {
                       buffId: 'buff_chr_0016_laevat_show_weapon',
-                      target: 'caster',
+                      target: 'buffOwner',
                       inheritSourceSkillCastInfo: true,
                       blackboardAssignments: {
                         'duration': { kind: 'blackboard', key: 'extend_duration' },
@@ -2682,13 +2682,13 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                   lifecycleSequences: {
                     start: sequence(
                       step('readBuffBlackboard', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
                         desiredKey: 'ignore_fire_resist',
                         outputKey: 'ignore_fire_resist',
                       }),
                       step('readBuffBlackboard', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
                         desiredKey: 'ignore_fire_resist_duration',
                         outputKey: 'ignore_fire_resist_duration',
@@ -2696,14 +2696,14 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                     ),
                     finish: sequence(
                       step('finishBuffsById', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         buffIds: ['buff_chr_0016_laevat_energy_icon_5'],
                         reason: 'other',
                       }),
                     ),
                     enhanceChanged: sequence(
                       step('readBuffStackCount', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         outputKey: 'count',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
                       }),
@@ -2772,7 +2772,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                         },
                                       ],
                                     },
-                                    target: 'caster',
+                                    target: 'buffOwner',
                                     inheritSourceSkillCastInfo: true,
                                     blackboardAssignments: {
                                       'ignore_fire_resist_duration': { kind: 'blackboard', key: 'ignore_fire_resist_duration' },
@@ -2782,7 +2782,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                 ),
                               },
                             },
-                            target: 'caster',
+                            target: 'buffOwner',
                             inheritSourceSkillCastInfo: true,
                             blackboardAssignments: {
                               'ignore_fire_resist': { kind: 'blackboard', key: 'ignore_fire_resist' },
@@ -2837,13 +2837,13 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                   lifecycleSequences: {
                     start: sequence(
                       step('readBuffBlackboard', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
                         desiredKey: 'ignore_fire_resist',
                         outputKey: 'ignore_fire_resist',
                       }),
                       step('readBuffBlackboard', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
                         desiredKey: 'ignore_fire_resist_duration',
                         outputKey: 'ignore_fire_resist_duration',
@@ -2851,14 +2851,14 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                     ),
                     finish: sequence(
                       step('finishBuffsById', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         buffIds: ['buff_chr_0016_laevat_energy_icon_5'],
                         reason: 'other',
                       }),
                     ),
                     enhanceChanged: sequence(
                       step('readBuffStackCount', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         outputKey: 'count',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
                       }),
@@ -2927,7 +2927,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                         },
                                       ],
                                     },
-                                    target: 'caster',
+                                    target: 'buffOwner',
                                     inheritSourceSkillCastInfo: true,
                                     blackboardAssignments: {
                                       'ignore_fire_resist_duration': { kind: 'blackboard', key: 'ignore_fire_resist_duration' },
@@ -2937,7 +2937,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                 ),
                               },
                             },
-                            target: 'caster',
+                            target: 'buffOwner',
                             inheritSourceSkillCastInfo: true,
                             blackboardAssignments: {
                               'ignore_fire_resist': { kind: 'blackboard', key: 'ignore_fire_resist' },
@@ -2987,13 +2987,13 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                   lifecycleSequences: {
                     start: sequence(
                       step('readBuffBlackboard', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
                         desiredKey: 'ignore_fire_resist',
                         outputKey: 'ignore_fire_resist',
                       }),
                       step('readBuffBlackboard', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
                         desiredKey: 'ignore_fire_resist_duration',
                         outputKey: 'ignore_fire_resist_duration',
@@ -3001,14 +3001,14 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                     ),
                     finish: sequence(
                       step('finishBuffsById', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         buffIds: ['buff_chr_0016_laevat_energy_icon_5'],
                         reason: 'other',
                       }),
                     ),
                     enhanceChanged: sequence(
                       step('readBuffStackCount', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         outputKey: 'count',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
                       }),
@@ -3077,7 +3077,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                         },
                                       ],
                                     },
-                                    target: 'caster',
+                                    target: 'buffOwner',
                                     inheritSourceSkillCastInfo: true,
                                     blackboardAssignments: {
                                       'ignore_fire_resist_duration': { kind: 'blackboard', key: 'ignore_fire_resist_duration' },
@@ -3087,7 +3087,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                 ),
                               },
                             },
-                            target: 'caster',
+                            target: 'buffOwner',
                             inheritSourceSkillCastInfo: true,
                             blackboardAssignments: {
                               'ignore_fire_resist': { kind: 'blackboard', key: 'ignore_fire_resist' },
@@ -3137,13 +3137,13 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                   lifecycleSequences: {
                     start: sequence(
                       step('readBuffBlackboard', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
                         desiredKey: 'ignore_fire_resist',
                         outputKey: 'ignore_fire_resist',
                       }),
                       step('readBuffBlackboard', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
                         desiredKey: 'ignore_fire_resist_duration',
                         outputKey: 'ignore_fire_resist_duration',
@@ -3151,14 +3151,14 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                     ),
                     finish: sequence(
                       step('finishBuffsById', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         buffIds: ['buff_chr_0016_laevat_energy_icon_5'],
                         reason: 'other',
                       }),
                     ),
                     enhanceChanged: sequence(
                       step('readBuffStackCount', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         outputKey: 'count',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
                       }),
@@ -3227,7 +3227,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                         },
                                       ],
                                     },
-                                    target: 'caster',
+                                    target: 'buffOwner',
                                     inheritSourceSkillCastInfo: true,
                                     blackboardAssignments: {
                                       'ignore_fire_resist_duration': { kind: 'blackboard', key: 'ignore_fire_resist_duration' },
@@ -3237,7 +3237,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                 ),
                               },
                             },
-                            target: 'caster',
+                            target: 'buffOwner',
                             inheritSourceSkillCastInfo: true,
                             blackboardAssignments: {
                               'ignore_fire_resist': { kind: 'blackboard', key: 'ignore_fire_resist' },
@@ -3287,13 +3287,13 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                   lifecycleSequences: {
                     start: sequence(
                       step('readBuffBlackboard', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
                         desiredKey: 'ignore_fire_resist',
                         outputKey: 'ignore_fire_resist',
                       }),
                       step('readBuffBlackboard', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
                         desiredKey: 'ignore_fire_resist_duration',
                         outputKey: 'ignore_fire_resist_duration',
@@ -3301,14 +3301,14 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                     ),
                     finish: sequence(
                       step('finishBuffsById', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         buffIds: ['buff_chr_0016_laevat_energy_icon_5'],
                         reason: 'other',
                       }),
                     ),
                     enhanceChanged: sequence(
                       step('readBuffStackCount', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         outputKey: 'count',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
                       }),
@@ -3377,7 +3377,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                         },
                                       ],
                                     },
-                                    target: 'caster',
+                                    target: 'buffOwner',
                                     inheritSourceSkillCastInfo: true,
                                     blackboardAssignments: {
                                       'ignore_fire_resist_duration': { kind: 'blackboard', key: 'ignore_fire_resist_duration' },
@@ -3387,7 +3387,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                 ),
                               },
                             },
-                            target: 'caster',
+                            target: 'buffOwner',
                             inheritSourceSkillCastInfo: true,
                             blackboardAssignments: {
                               'ignore_fire_resist': { kind: 'blackboard', key: 'ignore_fire_resist' },
@@ -3437,13 +3437,13 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                   lifecycleSequences: {
                     start: sequence(
                       step('readBuffBlackboard', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
                         desiredKey: 'ignore_fire_resist',
                         outputKey: 'ignore_fire_resist',
                       }),
                       step('readBuffBlackboard', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
                         desiredKey: 'ignore_fire_resist_duration',
                         outputKey: 'ignore_fire_resist_duration',
@@ -3451,14 +3451,14 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                     ),
                     finish: sequence(
                       step('finishBuffsById', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         buffIds: ['buff_chr_0016_laevat_energy_icon_5'],
                         reason: 'other',
                       }),
                     ),
                     enhanceChanged: sequence(
                       step('readBuffStackCount', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         outputKey: 'count',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
                       }),
@@ -3527,7 +3527,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                         },
                                       ],
                                     },
-                                    target: 'caster',
+                                    target: 'buffOwner',
                                     inheritSourceSkillCastInfo: true,
                                     blackboardAssignments: {
                                       'ignore_fire_resist_duration': { kind: 'blackboard', key: 'ignore_fire_resist_duration' },
@@ -3537,7 +3537,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                 ),
                               },
                             },
-                            target: 'caster',
+                            target: 'buffOwner',
                             inheritSourceSkillCastInfo: true,
                             blackboardAssignments: {
                               'ignore_fire_resist': { kind: 'blackboard', key: 'ignore_fire_resist' },
@@ -3587,13 +3587,13 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                   lifecycleSequences: {
                     start: sequence(
                       step('readBuffBlackboard', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
                         desiredKey: 'ignore_fire_resist',
                         outputKey: 'ignore_fire_resist',
                       }),
                       step('readBuffBlackboard', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
                         desiredKey: 'ignore_fire_resist_duration',
                         outputKey: 'ignore_fire_resist_duration',
@@ -3601,14 +3601,14 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                     ),
                     finish: sequence(
                       step('finishBuffsById', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         buffIds: ['buff_chr_0016_laevat_energy_icon_5'],
                         reason: 'other',
                       }),
                     ),
                     enhanceChanged: sequence(
                       step('readBuffStackCount', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         outputKey: 'count',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
                       }),
@@ -3677,7 +3677,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                         },
                                       ],
                                     },
-                                    target: 'caster',
+                                    target: 'buffOwner',
                                     inheritSourceSkillCastInfo: true,
                                     blackboardAssignments: {
                                       'ignore_fire_resist_duration': { kind: 'blackboard', key: 'ignore_fire_resist_duration' },
@@ -3687,7 +3687,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                 ),
                               },
                             },
-                            target: 'caster',
+                            target: 'buffOwner',
                             inheritSourceSkillCastInfo: true,
                             blackboardAssignments: {
                               'ignore_fire_resist': { kind: 'blackboard', key: 'ignore_fire_resist' },
@@ -3737,13 +3737,13 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                   lifecycleSequences: {
                     start: sequence(
                       step('readBuffBlackboard', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
                         desiredKey: 'ignore_fire_resist',
                         outputKey: 'ignore_fire_resist',
                       }),
                       step('readBuffBlackboard', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
                         desiredKey: 'ignore_fire_resist_duration',
                         outputKey: 'ignore_fire_resist_duration',
@@ -3751,14 +3751,14 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                     ),
                     finish: sequence(
                       step('finishBuffsById', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         buffIds: ['buff_chr_0016_laevat_energy_icon_5'],
                         reason: 'other',
                       }),
                     ),
                     enhanceChanged: sequence(
                       step('readBuffStackCount', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         outputKey: 'count',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
                       }),
@@ -3827,7 +3827,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                         },
                                       ],
                                     },
-                                    target: 'caster',
+                                    target: 'buffOwner',
                                     inheritSourceSkillCastInfo: true,
                                     blackboardAssignments: {
                                       'ignore_fire_resist_duration': { kind: 'blackboard', key: 'ignore_fire_resist_duration' },
@@ -3837,7 +3837,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                 ),
                               },
                             },
-                            target: 'caster',
+                            target: 'buffOwner',
                             inheritSourceSkillCastInfo: true,
                             blackboardAssignments: {
                               'ignore_fire_resist': { kind: 'blackboard', key: 'ignore_fire_resist' },
@@ -3887,13 +3887,13 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                   lifecycleSequences: {
                     start: sequence(
                       step('readBuffBlackboard', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
                         desiredKey: 'ignore_fire_resist',
                         outputKey: 'ignore_fire_resist',
                       }),
                       step('readBuffBlackboard', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
                         desiredKey: 'ignore_fire_resist_duration',
                         outputKey: 'ignore_fire_resist_duration',
@@ -3901,14 +3901,14 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                     ),
                     finish: sequence(
                       step('finishBuffsById', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         buffIds: ['buff_chr_0016_laevat_energy_icon_5'],
                         reason: 'other',
                       }),
                     ),
                     enhanceChanged: sequence(
                       step('readBuffStackCount', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         outputKey: 'count',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
                       }),
@@ -3977,7 +3977,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                         },
                                       ],
                                     },
-                                    target: 'caster',
+                                    target: 'buffOwner',
                                     inheritSourceSkillCastInfo: true,
                                     blackboardAssignments: {
                                       'ignore_fire_resist_duration': { kind: 'blackboard', key: 'ignore_fire_resist_duration' },
@@ -3987,7 +3987,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                 ),
                               },
                             },
-                            target: 'caster',
+                            target: 'buffOwner',
                             inheritSourceSkillCastInfo: true,
                             blackboardAssignments: {
                               'ignore_fire_resist': { kind: 'blackboard', key: 'ignore_fire_resist' },
@@ -4037,13 +4037,13 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                   lifecycleSequences: {
                     start: sequence(
                       step('readBuffBlackboard', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
                         desiredKey: 'ignore_fire_resist',
                         outputKey: 'ignore_fire_resist',
                       }),
                       step('readBuffBlackboard', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
                         desiredKey: 'ignore_fire_resist_duration',
                         outputKey: 'ignore_fire_resist_duration',
@@ -4051,14 +4051,14 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                     ),
                     finish: sequence(
                       step('finishBuffsById', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         buffIds: ['buff_chr_0016_laevat_energy_icon_5'],
                         reason: 'other',
                       }),
                     ),
                     enhanceChanged: sequence(
                       step('readBuffStackCount', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         outputKey: 'count',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
                       }),
@@ -4127,7 +4127,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                         },
                                       ],
                                     },
-                                    target: 'caster',
+                                    target: 'buffOwner',
                                     inheritSourceSkillCastInfo: true,
                                     blackboardAssignments: {
                                       'ignore_fire_resist_duration': { kind: 'blackboard', key: 'ignore_fire_resist_duration' },
@@ -4137,7 +4137,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                 ),
                               },
                             },
-                            target: 'caster',
+                            target: 'buffOwner',
                             inheritSourceSkillCastInfo: true,
                             blackboardAssignments: {
                               'ignore_fire_resist': { kind: 'blackboard', key: 'ignore_fire_resist' },
@@ -4187,13 +4187,13 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                   lifecycleSequences: {
                     start: sequence(
                       step('readBuffBlackboard', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
                         desiredKey: 'ignore_fire_resist',
                         outputKey: 'ignore_fire_resist',
                       }),
                       step('readBuffBlackboard', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
                         desiredKey: 'ignore_fire_resist_duration',
                         outputKey: 'ignore_fire_resist_duration',
@@ -4201,14 +4201,14 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                     ),
                     finish: sequence(
                       step('finishBuffsById', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         buffIds: ['buff_chr_0016_laevat_energy_icon_5'],
                         reason: 'other',
                       }),
                     ),
                     enhanceChanged: sequence(
                       step('readBuffStackCount', {
-                        target: 'caster',
+                        target: 'buffOwner',
                         outputKey: 'count',
                         query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
                       }),
@@ -4277,7 +4277,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                         },
                                       ],
                                     },
-                                    target: 'caster',
+                                    target: 'buffOwner',
                                     inheritSourceSkillCastInfo: true,
                                     blackboardAssignments: {
                                       'ignore_fire_resist_duration': { kind: 'blackboard', key: 'ignore_fire_resist_duration' },
@@ -4287,7 +4287,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                 ),
                               },
                             },
-                            target: 'caster',
+                            target: 'buffOwner',
                             inheritSourceSkillCastInfo: true,
                             blackboardAssignments: {
                               'ignore_fire_resist': { kind: 'blackboard', key: 'ignore_fire_resist' },

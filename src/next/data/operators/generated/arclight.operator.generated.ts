@@ -860,7 +860,7 @@ export const arclightGeneratedOperator: OperatorDefinition = {
             },
           }),
           step('finishBuffsById', {
-            target: 'caster',
+            target: 'buffOwner',
             buffIds: ['buff_chr_0007_ikut_normal_skill_extra_count'],
             reason: 'other',
           }),
@@ -880,7 +880,7 @@ export const arclightGeneratedOperator: OperatorDefinition = {
       lifecycleSequences: {
         start: sequence(
           step('finishBuffsById', {
-            target: 'caster',
+            target: 'buffOwner',
             buffIds: ['buff_chr_0007_ikut_normal_skill_extra_count'],
             reason: 'other',
           }),

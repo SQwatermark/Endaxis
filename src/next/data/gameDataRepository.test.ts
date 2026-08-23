@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  antal,
   akekuri,
   arcane,
   arclight,
@@ -66,6 +67,7 @@ describe('gameDataRepository', () => {
       yvonne,
       snowshine,
       wulfgard,
+      antal,
     ]);
     expect(nextGameDataRepository.getOperator(perlica.slug)).toBe(perlica);
     expect(nextGameDataRepository.getOperator(arcane.slug)).toBe(arcane);
@@ -90,6 +92,7 @@ describe('gameDataRepository', () => {
     expect(nextGameDataRepository.getOperator(pogranichnik.slug)).toBe(pogranichnik);
     expect(nextGameDataRepository.getOperator(snowshine.slug)).toBe(snowshine);
     expect(nextGameDataRepository.getOperator(wulfgard.slug)).toBe(wulfgard);
+    expect(nextGameDataRepository.getOperator(antal.slug)).toBe(antal);
     expect(nextGameDataRepository.getOperator('missing')).toBeNull();
   });
 

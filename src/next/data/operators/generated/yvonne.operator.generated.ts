@@ -2740,7 +2740,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
       lifecycleSequences: {
         start: sequence(
           step('finishBuffsById', {
-            target: 'caster',
+            target: 'buffOwner',
             buffIds: ['buff_chr_0017_yvonne_potential_5_effect'],
             reason: 'other',
           }),
@@ -2748,7 +2748,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
         finish: sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0017_yvonne_potential_5_effect',
-            target: 'caster',
+            target: 'buffOwner',
             inheritSourceSkillCastInfo: true,
           }),
         ),
@@ -2869,7 +2869,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                           },
                           sequence(
                             step('readBuffStackCount', {
-                              target: 'enemy',
+                              target: 'buffOwner',
                               outputKey: 'count',
                               query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [1570888476] },
                             }),
@@ -2921,7 +2921,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                           ),
                           sequence(
                             step('readBuffStackCount', {
-                              target: 'enemy',
+                              target: 'buffOwner',
                               outputKey: 'count',
                               query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [-1411846745] },
                             }),
@@ -3064,7 +3064,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                           },
                           sequence(
                             step('readBuffStackCount', {
-                              target: 'enemy',
+                              target: 'buffOwner',
                               outputKey: 'count',
                               query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [1570888476] },
                             }),
@@ -3109,7 +3109,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                           ),
                           sequence(
                             step('readBuffStackCount', {
-                              target: 'enemy',
+                              target: 'buffOwner',
                               outputKey: 'count',
                               query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [-1411846745] },
                             }),
@@ -3319,7 +3319,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
             sequence(
               step('applyBuff', {
                 buffId: 'buff_chr_0017_yvonne_potential_5_new',
-                target: 'caster',
+                target: 'buffSource',
                 inheritSourceSkillCastInfo: true,
                 blackboardAssignments: {
                   'atk_up': { kind: 'blackboard', key: 'atk_up' },
@@ -3329,7 +3329,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
             ),
           ),
           step('finishBuffsById', {
-            target: 'caster',
+            target: 'buffOwner',
             buffIds: ['buff_chr_0017_yvonne_ultimate_skill_layer_effect'],
             reason: 'other',
           }),
@@ -3346,32 +3346,32 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
             ),
           ),
           step('finishBuffsById', {
-            target: 'caster',
+            target: 'buffSource',
             buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
             reason: 'other',
           }),
           step('finishBuffsById', {
-            target: 'caster',
+            target: 'buffSource',
             buffIds: ['buff_chr_0017_yvonne_ultimate_skill_environment'],
             reason: 'other',
           }),
           step('finishBuffsById', {
-            target: 'caster',
+            target: 'buffSource',
             buffIds: ['buff_chr_0017_yvonne_ultimate_skill_potential4_valid'],
             reason: 'other',
           }),
           step('finishBuffsById', {
-            target: 'caster',
+            target: 'buffSource',
             buffIds: ['buff_chr_0017_yvonne_ultimate_skill_full_effect'],
             reason: 'other',
           }),
           step('finishBuffsById', {
-            target: 'caster',
+            target: 'buffOwner',
             buffIds: ['buff_chr_0017_yvonne_ultimate_skill_layer'],
             reason: 'other',
           }),
           step('finishBuffsById', {
-            target: 'caster',
+            target: 'buffOwner',
             buffIds: ['buff_chr_0017_yvonne_ultimate_skill_layer_effect'],
             reason: 'other',
           }),
@@ -3445,7 +3445,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
             sequence(
               step('applyBuff', {
                 buffId: 'buff_chr_0017_yvonne_ultimate_skill_potential4_valid',
-                target: 'caster',
+                target: 'buffSource',
                 inheritSourceSkillCastInfo: true,
                 blackboardAssignments: {
                   'ex_usp_up': { kind: 'blackboard', key: 'ex_usp_up' },
@@ -3463,7 +3463,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
             sequence(
               step('applyBuff', {
                 buffId: 'buff_chr_0017_yvonne_potential_5_new',
-                target: 'caster',
+                target: 'buffSource',
                 inheritSourceSkillCastInfo: true,
                 blackboardAssignments: {
                   'atk_up': { kind: 'blackboard', key: 'atk_up' },
@@ -3476,7 +3476,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
         finish: sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0017_yvonne_ultimate_skill_end',
-            target: 'caster',
+            target: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             blackboardAssignments: {
               'atk_up': { kind: 'blackboard', key: 'atk_up' },
@@ -3522,7 +3522,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
         start: sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0017_yvonne_ultimate_skill_camera_child',
-            target: 'caster',
+            target: 'buffSource',
             inheritSourceSkillCastInfo: true,
           }),
         ),
@@ -3531,13 +3531,13 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
             { kind: 'singleEnemyPresent' },
             sequence(
               step('finishBuffsById', {
-                target: 'caster',
+                target: 'buffSource',
                 buffIds: ['buff_chr_0017_yvonne_ultimate_skill_camera_child'],
                 reason: 'other',
               }),
               step('applyBuff', {
                 buffId: 'buff_chr_0017_yvonne_ultimate_skill_camera_child',
-                target: 'caster',
+                target: 'buffSource',
                 inheritSourceSkillCastInfo: true,
               }),
             ),
@@ -3671,7 +3671,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                     sequence(
                       step('applyBuff', {
                         buffId: 'buff_chr_0017_yvonne_talent_1_valid',
-                        target: 'caster',
+                        target: 'buffSource',
                         inheritSourceSkillCastInfo: true,
                         blackboardAssignments: {
                           'dmg_up': { kind: 'blackboard', key: 'dmg_up' },
@@ -3954,7 +3954,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                                                             ),
                                                           },
                                                         },
-                                                        target: 'enemy',
+                                                        target: 'buffOwner',
                                                         inheritSourceSkillCastInfo: true,
                                                         blackboardAssignments: {
                                                           'duration': { kind: 'blackboard', key: 'duration' },
@@ -3963,7 +3963,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                                                     ),
                                                   },
                                                 },
-                                                target: 'enemy',
+                                                target: 'buffOwner',
                                                 inheritSourceSkillCastInfo: true,
                                                 blackboardAssignments: {
                                                   'duration': { kind: 'blackboard', key: 'duration' },
@@ -3982,7 +3982,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                                                   waitFirstTriggerInterval: false,
                                                   maxTriggerCount: 1,
                                                 },
-                                                target: 'enemy',
+                                                target: 'buffOwner',
                                                 inheritSourceSkillCastInfo: true,
                                               }),
                                               step('storeSourceAttributeValue', {
@@ -4005,13 +4005,13 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                                                   waitFirstTriggerInterval: true,
                                                   maxTriggerCount: 1,
                                                 },
-                                                target: 'enemy',
+                                                target: 'buffOwner',
                                                 inheritSourceSkillCastInfo: true,
                                               }),
                                             ),
                                           },
                                         },
-                                        target: 'enemy',
+                                        target: 'buffOwner',
                                         inheritSourceSkillCastInfo: true,
                                         blackboardAssignments: {
                                           'count': { kind: 'blackboard', key: 'count' },
@@ -4066,7 +4066,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                             ),
                           },
                         },
-                        target: 'currentAbilityEntity',
+                        target: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                         blackboardAssignments: {
                           'atk_scale_boom': { kind: 'blackboard', key: 'atk_scale_boom' },

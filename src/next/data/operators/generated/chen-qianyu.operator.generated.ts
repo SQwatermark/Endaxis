@@ -728,7 +728,7 @@ export const chenQianyuGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0005_chen_talent_0_1',
-                    target: 'caster',
+                    target: 'buffOwner',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
                       'atk': { kind: 'blackboard', key: 'atk' },
@@ -753,7 +753,7 @@ export const chenQianyuGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0005_chen_talent_0_1',
-                    target: 'caster',
+                    target: 'buffOwner',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
                       'atk': { kind: 'blackboard', key: 'atk' },
@@ -778,7 +778,7 @@ export const chenQianyuGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0005_chen_talent_0_1',
-                    target: 'caster',
+                    target: 'buffOwner',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
                       'atk': { kind: 'blackboard', key: 'atk' },

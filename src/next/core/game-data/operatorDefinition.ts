@@ -148,20 +148,25 @@ export const TIME_DILATION_IGNORE_TARGETS = [...COMBAT_TARGETS, 'controlled'] as
 /** 全局时间膨胀还可在动作执行帧排除当前主控干员。 */
 export type TimeDilationIgnoreTarget = (typeof TIME_DILATION_IGNORE_TARGETS)[number];
 
-export const BUFF_APPLICATION_TARGETS = [
+export const BUFF_SINGLE_TARGETS = [
   ...COMBAT_TARGETS,
+  'currentAbilityEntity',
+  'eventTarget',
+  'buffOwner',
+  'buffSource',
+] as const;
+/** 需要解析到单个 Buff 容器的实例级目标。 */
+export type BuffSingleTarget = (typeof BUFF_SINGLE_TARGETS)[number];
+
+export const BUFF_APPLICATION_TARGETS = [
+  ...BUFF_SINGLE_TARGETS,
   'party',
   'partyExceptCaster',
   'casterAndControlledOperator',
   'casterAndLowestHealthRatioOperatorExceptCaster',
-  'currentAbilityEntity',
-  'eventTarget',
-  'buffOwner',
 ] as const;
 /** Buff 施加允许面向单体、能力实体，以及由原生队伍选择器严格证明的集合。 */
 export type BuffApplicationTarget = (typeof BUFF_APPLICATION_TARGETS)[number];
-/** 单实例 Buff 操作可使用静态战斗目标，也可沿当前事件或 Buff 生命周期寻址。 */
-export type BuffSingleTarget = CombatTarget | 'currentAbilityEntity' | 'eventTarget' | 'buffOwner';
 
 export const BUFF_APPLICATION_SOURCES = [...COMBAT_TARGETS, 'currentAbilityEntity'] as const;
 /** Buff 来源允许保留能力实体 ActionOwner 的稳定身份。 */
@@ -294,7 +299,7 @@ export type CombatCondition =
   | {
       /** 按原生 Buff 标签查询累计强化层数，并使用原生容差比较。 */
       kind: 'buffStackCompare';
-      target: CombatTarget;
+      target: BuffSingleTarget;
       tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
       buffTagIds: readonly number[];
       sameSourceSkillCast?: boolean;
@@ -311,7 +316,7 @@ export type CombatCondition =
   | {
       /** 按Buff 定义 身份查询累计强化层数；ID 列表按“任一匹配”处理。 */
       kind: 'buffIdStackCompare';
-      target: CombatTarget | 'currentAbilityEntity';
+      target: BuffSingleTarget;
       buffIds: readonly string[];
       sameSourceSkillCast?: boolean;
       operator: ComparisonOperator;
@@ -779,7 +784,7 @@ export interface CombatStepParameters {
   };
   /** 以原生点燃类型同步触发目标身上所有匹配响应；来源与接收目标保持独立。 */
   igniteBuffs: {
-    target: CombatTarget;
+    target: BuffSingleTarget;
     source: CombatTarget | 'currentBuffSource';
     igniteType: string;
   };

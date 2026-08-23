@@ -153,7 +153,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_atkup_owner",
@@ -303,7 +304,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_buff_atkup",
@@ -594,7 +596,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_end",
@@ -687,7 +690,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_endtag_finish",
@@ -843,7 +847,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "KeywordDebuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_animation_hitl",
@@ -1236,7 +1241,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "KeywordDebuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_animation_hitr",
@@ -1629,7 +1635,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "KeywordDebuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_animation_musicloop",
@@ -1821,7 +1828,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "KeywordDebuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_cd_uishow",
@@ -1978,7 +1986,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "AttentionDebuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_cry_vfx",
@@ -2095,7 +2104,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "KeywordDebuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_damage",
@@ -2810,7 +2820,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "KeywordDebuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_smile_vfx",
@@ -2927,7 +2938,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "KeywordDebuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_tag",
@@ -3880,7 +3892,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "AttentionDebuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_vfx",
@@ -4338,7 +4351,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "KeywordDebuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_music_vfx_airflow",
@@ -4455,7 +4469,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "KeywordDebuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_spelllnfliction_check",
@@ -4780,7 +4795,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_spelllnfliction_extraattack",
@@ -5563,7 +5579,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_spelllnfliction_hit",
@@ -5656,7 +5673,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_normalskill_ui_vfx",
@@ -6519,7 +6537,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_potential",
@@ -6791,7 +6810,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_potential_enterfight",
@@ -6876,7 +6896,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide",
@@ -7177,7 +7198,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_attack",
@@ -7478,7 +7500,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_audio",
@@ -7779,7 +7802,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_audio_finish",
@@ -7927,7 +7951,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_audio_fire",
@@ -8050,7 +8075,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_audio_ultskill",
@@ -8167,7 +8193,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_finish",
@@ -8315,7 +8342,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_fire",
@@ -8471,7 +8499,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_showhide_ultskill",
@@ -8708,7 +8737,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_spellenhance",
@@ -8847,7 +8877,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_talent_shelter",
@@ -8999,7 +9030,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_talent_shelter_finishtime",
@@ -9151,7 +9183,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_talent_shelter_finishtime_normalskill",
@@ -9427,7 +9460,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_talent_shelter_finishtime_ultskill",
@@ -9703,7 +9737,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_talent_shelter_normalskill",
@@ -9977,7 +10012,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_talent_shelter_ultskill",
@@ -10251,7 +10287,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_buff_atkup",
@@ -10545,7 +10582,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_music_damage",
@@ -11572,7 +11610,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "KeywordDebuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_music_heal",
@@ -11856,7 +11895,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_music_heal_start",
@@ -12109,7 +12149,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_music_tag",
@@ -13022,7 +13063,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "AttentionDebuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_music_vfx",
@@ -13249,7 +13291,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "KeywordDebuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_refrainobtainusp",
@@ -13374,7 +13417,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_weaponvisible",
@@ -13573,7 +13617,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0035_liino_ultskill_weaponvisible_show",
@@ -13772,7 +13817,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -13869,7 +13915,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -14002,7 +14049,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -14093,7 +14141,8 @@ export const liinoGeneratedSource = {
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     }
   ],
   "skills": [

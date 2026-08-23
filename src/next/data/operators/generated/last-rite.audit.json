@@ -181,7 +181,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0026_lastrite_combo_skill_sound",
@@ -386,7 +387,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0026_lastrite_normal_skill",
@@ -1369,7 +1371,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0026_lastrite_normal_skill_main_start",
@@ -1643,7 +1646,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0026_lastrite_normal_skill_phantom",
@@ -1847,7 +1851,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0026_lastrite_normal_skill_phantom_main",
@@ -2030,7 +2035,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0026_lastrite_normal_skill_self",
@@ -2444,7 +2450,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0026_lastrite_normal_skill_tag",
@@ -2783,7 +2790,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0026_lastrite_talent_1",
@@ -3112,7 +3120,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0026_lastrite_talent_1_vul",
@@ -3284,7 +3293,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -3381,7 +3391,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -3507,7 +3518,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -3640,7 +3652,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -3731,7 +3744,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     }
   ],
   "skills": [

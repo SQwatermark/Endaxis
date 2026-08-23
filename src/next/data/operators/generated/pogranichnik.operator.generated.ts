@@ -692,7 +692,7 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
                     sequence(
                       step('applyBuff', {
                         buffId: 'buff_physical_handle_cryst_break',
-                        target: 'enemy',
+                        target: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                       }),
                     ),
@@ -701,7 +701,7 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
                 finish: sequence(
                   step('applyBuff', {
                     buffId: 'buff_physical_no_guard_fake',
-                    target: 'enemy',
+                    target: 'buffOwner',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
@@ -721,7 +721,7 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
                     sequence(
                       step('applyBuff', {
                         buffId: 'buff_physical_handle_cryst_break',
-                        target: 'enemy',
+                        target: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                       }),
                     ),
@@ -746,7 +746,7 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
                 start: sequence(
                   step('applyBuff', {
                     buffId: 'buff_physical_do_fracture',
-                    target: 'enemy',
+                    target: 'buffOwner',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
                       'duration': { kind: 'blackboard', key: 'duration' },
@@ -1701,14 +1701,14 @@ export const pogranichnikGeneratedOperator: OperatorDefinition = {
                 { kind: 'not', condition: { kind: 'timedMarkerPresent', target: 'caster', markerId: 'chr_0029_pograni_soldier_attacked' } },
                 sequence(
                   step('finishBuffsById', {
-                    target: 'caster',
+                    target: 'buffSource',
                     buffIds: ['buff_chr_0029_pograni_ultimate_skill_count'],
                     reason: 'other',
                     count: { kind: 'constant', value: 1 },
                   }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0029_pograni_ultimate_skill_finall_rush',
-                    target: 'enemy',
+                    target: 'buffOwner',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
                       'atk_scale_final': { kind: 'blackboard', key: 'atk_scale_final' },
@@ -1723,31 +1723,31 @@ export const pogranichnikGeneratedOperator: OperatorDefinition = {
                     autoFinishByAction: false,
                   }),
                   step('readBuffBlackboard', {
-                    target: 'caster',
+                    target: 'buffSource',
                     query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent2'] },
                     desiredKey: 'duration',
                     outputKey: 'duration_temp',
                   }),
                   step('readBuffBlackboard', {
-                    target: 'caster',
+                    target: 'buffSource',
                     query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent1_exist'] },
                     desiredKey: 'atk_up',
                     outputKey: 'atk_up_temp',
                   }),
                   step('readBuffBlackboard', {
-                    target: 'caster',
+                    target: 'buffSource',
                     query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent1_exist'] },
                     desiredKey: 'physpell_up',
                     outputKey: 'physpell_up_temp',
                   }),
                   step('readBuffBlackboard', {
-                    target: 'caster',
+                    target: 'buffSource',
                     query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent1_exist'] },
                     desiredKey: 'max_stack_owner',
                     outputKey: 'max_stack_owner_temp',
                   }),
                   step('readBuffBlackboard', {
-                    target: 'caster',
+                    target: 'buffSource',
                     query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent1_exist'] },
                     desiredKey: 'max_stack_team',
                     outputKey: 'max_stack_team_temp',
@@ -1796,7 +1796,7 @@ export const pogranichnikGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('spawnAbilityEntity', { abilityEntityId: 'abilityentity_chr_0029_pograni_ultimate_skill', definition: { lifetime: { kind: 'limited', durationSeconds: 50 } }, dieWhenSourceDies: false, inheritActionBlackboard: true, target: 'caster' }),
                   step('finishBuffsById', {
-                    target: 'caster',
+                    target: 'buffSource',
                     buffIds: ['buff_chr_0029_pograni_ultimate_skill_count'],
                     reason: 'other',
                     count: { kind: 'constant', value: 1 },
@@ -1808,31 +1808,31 @@ export const pogranichnikGeneratedOperator: OperatorDefinition = {
                     autoFinishByAction: false,
                   }),
                   step('readBuffBlackboard', {
-                    target: 'caster',
+                    target: 'buffSource',
                     query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent2'] },
                     desiredKey: 'duration',
                     outputKey: 'duration_temp',
                   }),
                   step('readBuffBlackboard', {
-                    target: 'caster',
+                    target: 'buffSource',
                     query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent1_exist'] },
                     desiredKey: 'atk_up',
                     outputKey: 'atk_up_temp',
                   }),
                   step('readBuffBlackboard', {
-                    target: 'caster',
+                    target: 'buffSource',
                     query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent1_exist'] },
                     desiredKey: 'physpell_up',
                     outputKey: 'physpell_up_temp',
                   }),
                   step('readBuffBlackboard', {
-                    target: 'caster',
+                    target: 'buffSource',
                     query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent1_exist'] },
                     desiredKey: 'max_stack_owner',
                     outputKey: 'max_stack_owner_temp',
                   }),
                   step('readBuffBlackboard', {
-                    target: 'caster',
+                    target: 'buffSource',
                     query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent1_exist'] },
                     desiredKey: 'max_stack_team',
                     outputKey: 'max_stack_team_temp',
@@ -1890,14 +1890,14 @@ export const pogranichnikGeneratedOperator: OperatorDefinition = {
                         },
                         sequence(
                           step('finishBuffsById', {
-                            target: 'caster',
+                            target: 'buffSource',
                             buffIds: ['buff_chr_0029_pograni_ultimate_skill_count'],
                             reason: 'other',
                             count: { kind: 'constant', value: 1 },
                           }),
                           step('applyBuff', {
                             buffId: 'buff_chr_0029_pograni_ultimate_skill_finall_rush',
-                            target: 'enemy',
+                            target: 'buffOwner',
                             inheritSourceSkillCastInfo: true,
                             blackboardAssignments: {
                               'atk_scale_final': { kind: 'blackboard', key: 'atk_scale_final' },
@@ -1912,32 +1912,32 @@ export const pogranichnikGeneratedOperator: OperatorDefinition = {
                             autoFinishByAction: false,
                           }),
                           step('readBuffBlackboard', {
-                            target: 'caster',
+                            target: 'buffSource',
                             query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent2'] },
                             desiredKey: 'duration',
                             outputKey: 'duration_temp',
                           }),
                           step('readBuffBlackboard', {
-                            target: 'caster',
+                            target: 'buffSource',
                             query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent1_exist'] },
                             desiredKey: 'atk_up',
                             outputKey: 'atk_up_temp',
                           }),
                           step('readBuffBlackboard', {
-                            target: 'caster',
+                            target: 'buffSource',
                             query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent1_exist'] },
                             desiredKey: 'physpell_up',
                             outputKey: 'physpell_up_temp',
                           }),
                           step('readBuffBlackboard', {
-                            target: 'caster',
+                            target: 'buffSource',
                             query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent1_exist'] },
                             desiredKey: 'max_stack_owner',
                             outputKey: 'max_stack_owner_temp',
                           }),
                           step('applyBuff', {
                             buffId: 'buff_chr_0029_pograni_talent1',
-                            target: 'caster',
+                            target: 'buffSource',
                             inheritSourceSkillCastInfo: true,
                             blackboardAssignments: {
                               'duration': { kind: 'blackboard', key: 'duration_temp' },
@@ -1974,7 +1974,7 @@ export const pogranichnikGeneratedOperator: OperatorDefinition = {
                         sequence(
                           step('spawnAbilityEntity', { abilityEntityId: 'abilityentity_chr_0029_pograni_ultimate_skill', definition: { lifetime: { kind: 'limited', durationSeconds: 50 } }, dieWhenSourceDies: false, inheritActionBlackboard: true, target: 'caster' }),
                           step('finishBuffsById', {
-                            target: 'caster',
+                            target: 'buffSource',
                             buffIds: ['buff_chr_0029_pograni_ultimate_skill_count'],
                             reason: 'other',
                             count: { kind: 'constant', value: 1 },
@@ -1986,32 +1986,32 @@ export const pogranichnikGeneratedOperator: OperatorDefinition = {
                             autoFinishByAction: false,
                           }),
                           step('readBuffBlackboard', {
-                            target: 'caster',
+                            target: 'buffSource',
                             query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent2'] },
                             desiredKey: 'duration',
                             outputKey: 'duration_temp',
                           }),
                           step('readBuffBlackboard', {
-                            target: 'caster',
+                            target: 'buffSource',
                             query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent1_exist'] },
                             desiredKey: 'atk_up',
                             outputKey: 'atk_up_temp',
                           }),
                           step('readBuffBlackboard', {
-                            target: 'caster',
+                            target: 'buffSource',
                             query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent1_exist'] },
                             desiredKey: 'physpell_up',
                             outputKey: 'physpell_up_temp',
                           }),
                           step('readBuffBlackboard', {
-                            target: 'caster',
+                            target: 'buffSource',
                             query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent1_exist'] },
                             desiredKey: 'max_stack_owner',
                             outputKey: 'max_stack_owner_temp',
                           }),
                           step('applyBuff', {
                             buffId: 'buff_chr_0029_pograni_talent1',
-                            target: 'caster',
+                            target: 'buffSource',
                             inheritSourceSkillCastInfo: true,
                             blackboardAssignments: {
                               'duration': { kind: 'blackboard', key: 'duration_temp' },
@@ -2091,7 +2091,7 @@ export const pogranichnikGeneratedOperator: OperatorDefinition = {
         start: sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0029_pograni_ultimate_skill_count',
-            target: 'caster',
+            target: 'buffSource',
             inheritSourceSkillCastInfo: true,
             count: { kind: 'blackboard', key: 'count' },
             blackboardAssignments: {
@@ -2101,7 +2101,7 @@ export const pogranichnikGeneratedOperator: OperatorDefinition = {
         ),
         finish: sequence(
           step('finishBuffsById', {
-            target: 'caster',
+            target: 'buffSource',
             buffIds: ['buff_chr_0029_pograni_ultimate_skill_effect_layer'],
             reason: 'other',
           }),

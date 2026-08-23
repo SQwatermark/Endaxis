@@ -174,7 +174,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_abilityentity_effect",
@@ -308,7 +309,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_abilityentity_effect_line",
@@ -425,7 +427,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_precheck",
@@ -1390,7 +1393,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal",
@@ -2884,7 +2888,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal2",
@@ -3592,7 +3597,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "AttentionDebuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_bunshin_end_listener",
@@ -4205,7 +4211,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_effect",
@@ -4343,7 +4350,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_effect_again",
@@ -4539,7 +4547,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_finish_count",
@@ -4624,7 +4633,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_finisher",
@@ -4887,7 +4897,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_finisher_wisd",
@@ -5530,7 +5541,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_listener",
@@ -7094,7 +7106,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_seal_total",
@@ -9506,7 +9519,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_spell_vulnerable",
@@ -9752,7 +9766,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "KeywordDebuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_combo_skill_spell_vulnerable_pre",
@@ -9956,7 +9971,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "KeywordDebuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_passive",
@@ -10270,7 +10286,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_talent1",
@@ -10388,7 +10405,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_talent1_enhance",
@@ -10511,7 +10529,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_talent1_vulnerable",
@@ -10710,7 +10729,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "KeywordDebuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_talent2",
@@ -11018,7 +11038,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_ultimate_skill_abilityentity_finish_self",
@@ -11135,7 +11156,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_ultimate_skill_inaura",
@@ -12931,7 +12953,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser1",
@@ -15146,7 +15169,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser2",
@@ -17361,7 +17385,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_ultimate_skill_layer",
@@ -17563,7 +17588,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_ultimate_skill_listener",
@@ -18275,7 +18301,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "AttentionDebuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_ultimate_skill_listener_abilityentity",
@@ -18427,7 +18454,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_ultimate_skill_listener_owner",
@@ -19460,7 +19488,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "AttentionDebuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_ultimate_skill_target_mark",
@@ -20279,7 +20308,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_chr_0032_lizhiyan_ultimate_skill_time_dilation_listener",
@@ -20364,7 +20394,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_common_damage_immune_medium",
@@ -20461,7 +20492,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_common_damage_immune_ult_skill",
@@ -20587,7 +20619,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_common_natural_natural_corrupt_do",
@@ -21326,7 +21359,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "AttachedAndAbnormal"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_common_natural_natural_corrupt_triggered",
@@ -21974,7 +22008,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_common_obtain_ultimate_sp",
@@ -22107,7 +22142,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     },
     {
       "buffId": "buff_common_power_attack_disable_cast_skill",
@@ -22198,7 +22234,8 @@
         "orderUseDirectoryValue": false,
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
-      }
+      },
+      "keywordEnhancements": []
     }
   ],
   "passiveSkills": [

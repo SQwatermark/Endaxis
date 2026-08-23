@@ -8668,7 +8668,7 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     lifecycleSequences: {
                       start: sequence(
                         step('finishBuffsById', {
-                          target: 'caster',
+                          target: 'buffOwner',
                           buffIds: ['buff_chr_0027_tangtang_comboskill_waterbuff_outaura'],
                           reason: 'other',
                         }),
@@ -8680,7 +8680,7 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                             maxStackCount: 1,
                             durationSeconds: 1,
                           },
-                          target: 'caster',
+                          target: 'buffOwner',
                           inheritSourceSkillCastInfo: true,
                         }),
                       ),

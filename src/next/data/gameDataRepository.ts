@@ -19,6 +19,7 @@ import type {
 } from '../core/game-data/operatorDefinition';
 import type { EnemyDefinition } from '../core/game-data/enemyDefinition';
 import {
+  antal,
   akekuri,
   arcane,
   arclight,
@@ -150,6 +151,7 @@ export const nextGameDataRepository = createGameDataRepository({
     yvonne,
     snowshine,
     wulfgard,
+    antal,
   ],
   weapons: sharedWeaponDefinitions,
   gears: sharedGearDefinitions,

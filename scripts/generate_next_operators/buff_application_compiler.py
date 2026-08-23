@@ -47,6 +47,7 @@ def compile_buff_application_values(
         "casterAndLowestHealthRatioOperatorExceptCaster",
         "currentAbilityEntity",
         "eventTarget",
+        "buffSource",
     ] | None = None,
     input_target: Literal["caster", "enemy"] | None = None,
     allow_dynamic_count: bool = False,
@@ -96,9 +97,23 @@ def compile_buff_application_values(
         "casterAndControlledOperator",
         "casterAndLowestHealthRatioOperatorExceptCaster",
         "currentAbilityEntity",
+        "buffSource",
+        "buffOwner",
     ] | None
     if target_source == "Context" and context_application_target is not None:
         target = context_application_target
+    elif (
+        current_buff_environment
+        and target_source == "Owner"
+        and not target_group_key
+    ):
+        target = "buffOwner"
+    elif (
+        current_buff_environment
+        and target_source == "Source"
+        and not target_group_key
+    ):
+        target = "buffSource"
     elif (
         target_source == "InstantSearch"
         and target_finder_type == "CharacterTeamFinder"
@@ -123,13 +138,6 @@ def compile_buff_application_values(
         target = "enemy"
     elif (
         current_buff_environment
-        and buff_owner_target is not None
-        and target_source == "Owner"
-        and not target_group_key
-    ):
-        target = buff_owner_target
-    elif (
-        current_buff_environment
         and current_event_target
         and target_source == "Target"
         and not target_group_key
@@ -138,12 +146,20 @@ def compile_buff_application_values(
     elif (
         current_buff_environment
         and not current_event_target
-        and buff_owner_target is not None
+        and input_target == "caster"
+        and target_source == "Target"
+        and not target_group_key
+    ):
+        # OnIgnite 的 Target 是 igniteSource.selfTargetHandle；运行时以本次 ignite source 保留。
+        target = "buffSource"
+    elif (
+        current_buff_environment
+        and not current_event_target
         and target_source == "Target"
         and not target_group_key
     ):
         # Buff 生命周期动作以宿主作为 InputTarget；TargetSource.Target 解析该输入句柄。
-        target = buff_owner_target
+        target = "buffOwner"
     elif target_source == "Owner" and current_ability_entity_owner:
         target = "currentAbilityEntity"
     elif (

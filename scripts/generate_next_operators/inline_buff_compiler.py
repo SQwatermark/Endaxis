@@ -283,6 +283,24 @@ def compile_inline_buff_event_responses(
         ):
             # 标准木桩模拟没有离战、队伍遣返或清空候选连携事件；保留审计事实但不伪造触发点。
             continue
+        if (
+            event.eventSource == "ability"
+            and event.event == "OnOwnerDead"
+            and (
+                buff_owner_target in {"caster", "enemy"}
+                or (
+                    buff_owner_target == "buffSource"
+                    and source.buffId == "buff_chr_0023_antal_tageffect"
+                )
+            )
+        ):
+            # 1.4.4 的 BaseController.OnDie 在实体已经死亡后向该实体 AbilitySystem 派发
+            # OnOwnerDead。标准木桩不主动伤害干员，故 caster 死亡不可达；唯一木桩死亡又是模拟
+            # 终点。保留解析与审计事实，但不虚构玩家死亡、第二目标或死后战斗阶段。能力实体死亡
+            # 可由正常技能链产生，currentAbilityEntity 仍必须走严格编译，不能在这里一并省略。
+            # 安塔尔 tageffect 的 buffSource 由外层 normal_skill 的 InputTarget 明确固定为唯一敌人；
+            # 这里只承认该条完整来源链，不把一般 buffSource 猜成敌人。
+            continue
         event_path = f"{path}[{event_index}]"
         event_damage_tags: list[str] = []
         for damage_index, damage in enumerate(event.damageUnits):

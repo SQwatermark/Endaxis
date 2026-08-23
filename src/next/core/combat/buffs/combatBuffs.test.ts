@@ -120,6 +120,48 @@ function createDefinition(
 }
 
 describe('CombatBuffContainer', () => {
+  it('applies keyword enhancements on the matching Buff add edge without merging sibling rates', () => {
+    const container = new CombatBuffContainer<never>('enemy', new CombatAttributeSet<never>());
+    const vulnerable = requireAddedBuff(
+      container.add(
+        {
+          id: 'vulnerable',
+          stackingType: 'stack',
+          blackboard: { rate: 0.2, potentialRate: 0.05 },
+          keywordEnhancements: [
+            {
+              triggerBuffIds: ['potential-trigger'],
+              operation: 'add',
+              targetKey: '__heat_rate',
+              initialValue: { blackboardKey: 'rate' },
+              value: { blackboardKey: 'potentialRate' },
+            },
+            {
+              triggerBuffIds: ['potential-trigger'],
+              operation: 'add',
+              targetKey: '__electric_rate',
+              initialValue: { blackboardKey: 'rate' },
+              value: { blackboardKey: 'potentialRate' },
+            },
+          ],
+        },
+        'operator',
+      ),
+    );
+
+    const trigger = requireAddedBuff(
+      container.add(
+        { id: 'potential-trigger', stackingType: 'stack', durationSeconds: 0.1 },
+        'operator',
+      ),
+    );
+    expect(vulnerable.blackboard.getNumber('__heat_rate')).toBeCloseTo(0.25);
+    expect(vulnerable.blackboard.getNumber('__electric_rate')).toBeCloseTo(0.25);
+
+    trigger.finish('lifetime');
+    expect(vulnerable.blackboard.getNumber('__heat_rate')).toBeCloseTo(0.25);
+  });
+
   it('有限 Buff 接受原生负时长并在首次 Tick 的生命周期阶段结束', () => {
     const events: string[] = [];
     const container = new CombatBuffContainer<never>('operator', new CombatAttributeSet<never>());

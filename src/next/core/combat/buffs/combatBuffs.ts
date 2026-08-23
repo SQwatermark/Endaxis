@@ -212,6 +212,7 @@ export interface CombatBuffDefinition<Key extends string> {
   readonly maxTriggerCount?: BuffTriggerCount;
   readonly blackboard?: Readonly<Record<string, ActionBlackboardValue>>;
   readonly damageModifiers?: readonly DamageModifierDefinition[];
+  readonly keywordEnhancements?: readonly BuffKeywordEnhancementDefinition[];
   readonly healModifiers?: readonly HealModifierDefinition[];
   readonly attributeModifiers?: readonly BuffAttributeModifierDefinition<Key>[];
   /**
@@ -222,6 +223,15 @@ export interface CombatBuffDefinition<Key extends string> {
   readonly shields?: readonly BuffShieldDefinition[];
   readonly sustainedProtection?: BuffSustainedProtectionDefinition;
   readonly actions?: BuffLifecycleActions<Key>;
+}
+
+/** 原生 KeywordEnhance：由普通 Buff 的加入边沿持久改写关键词 rate。 */
+export interface BuffKeywordEnhancementDefinition {
+  readonly triggerBuffIds: readonly string[];
+  readonly operation: 'assign' | 'add' | 'multiply';
+  readonly targetKey: string;
+  readonly initialValue: BuffDuration;
+  readonly value: BuffDuration;
 }
 
 /** 添加 Buff 实例时由具体行为提供的初始黑板和层数。 */
@@ -271,6 +281,21 @@ export class CombatBuff<Key extends string> {
   ) {
     this.blackboard = new ActionBlackboard(definition.blackboard, owner.entityBlackboard);
     this.blackboard.assign(options?.blackboardValues);
+    const initializedKeywordRates = new Set<string>();
+    for (const enhancement of definition.keywordEnhancements ?? []) {
+      if (initializedKeywordRates.has(enhancement.targetKey)) continue;
+      const initialValue = resolveOptionalBuffNumber(
+        definition.id,
+        'keyword initial rate',
+        enhancement.initialValue,
+        this.blackboard,
+      );
+      if (initialValue === null) {
+        throw new Error(`buff '${definition.id}' keyword initial rate is missing`);
+      }
+      this.blackboard.assignDynamic(enhancement.targetKey, initialValue);
+      initializedKeywordRates.add(enhancement.targetKey);
+    }
     this.sourceActionId = options?.sourceActionId ?? definition.id;
     this.skillCastInfo = options?.skillCastInfo === undefined ? null : { ...options.skillCastInfo };
     this.priority = resolveBuffPriority(definition, this.blackboard);
@@ -349,6 +374,37 @@ export class CombatBuff<Key extends string> {
 
   get enhanceCount(): number {
     return this.#enhanceCount;
+  }
+
+  applyKeywordEnhancements(onAddedBuffId: string): boolean {
+    let changed = false;
+    for (const enhancement of this.definition.keywordEnhancements ?? []) {
+      if (!enhancement.triggerBuffIds.includes(onAddedBuffId)) continue;
+      const operand = resolveOptionalBuffNumber(
+        this.definition.id,
+        'keyword enhancement value',
+        enhancement.value,
+        this.blackboard,
+      );
+      if (operand === null) {
+        throw new Error(`buff '${this.definition.id}' keyword enhancement value is missing`);
+      }
+      const current = this.blackboard.getNumber(enhancement.targetKey);
+      if (current === undefined) {
+        throw new Error(
+          `buff '${this.definition.id}' keyword target '${enhancement.targetKey}' is missing or not numeric`,
+        );
+      }
+      const next =
+        enhancement.operation === 'assign'
+          ? operand
+          : enhancement.operation === 'add'
+            ? current + operand
+            : current * operand;
+      this.blackboard.assignDynamic(enhancement.targetKey, next);
+      changed = true;
+    }
+    return changed;
   }
 
   get attributeModifiers(): readonly CombatAttributeModifier<Key>[] {
@@ -779,6 +835,9 @@ export class CombatBuffContainer<Key extends string> {
   ): CombatBuff<Key> {
     const buff = new CombatBuff(definition, this, sourceId, this.#nextInstanceId++, options);
     this.#buffs.push(buff);
+    for (const active of this.#buffs) {
+      if (!active.isFinished) active.applyKeywordEnhancements(definition.id);
+    }
     return buff;
   }
 

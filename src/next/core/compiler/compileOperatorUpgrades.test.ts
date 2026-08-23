@@ -335,7 +335,7 @@ describe('operator upgrade compilation', () => {
                       {
                         kind: 'finishBuffsById',
                         parameters: {
-                          target: 'caster',
+                          target: 'buffOwner',
                           buffIds: ['buff_chr_0007_ikut_normal_skill_extra_count'],
                         },
                       },

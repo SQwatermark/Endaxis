@@ -893,7 +893,7 @@ export const gilbertaGeneratedOperator: OperatorDefinition = {
         start: sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0013_aglina_talent_0_effectbuff_Add',
-            target: 'caster',
+            target: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             blackboardAssignments: {
               'add': { kind: 'blackboard', key: 'add' },
@@ -1042,7 +1042,7 @@ export const gilbertaGeneratedOperator: OperatorDefinition = {
                         },
                         sequence(
                           step('readBuffStackCount', {
-                            target: 'enemy',
+                            target: 'buffOwner',
                             outputKey: 'BuffStack',
                             query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [1075718177] },
                           }),
@@ -1126,7 +1126,7 @@ export const gilbertaGeneratedOperator: OperatorDefinition = {
                             },
                           ],
                         },
-                        target: 'enemy',
+                        target: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                         blackboardAssignments: {
                           'rate': { kind: 'blackboard', key: 'FinalRate' },

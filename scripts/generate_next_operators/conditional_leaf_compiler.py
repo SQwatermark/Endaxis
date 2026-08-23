@@ -447,6 +447,7 @@ def compile_conditional_branch_action(
             context_target_is_enemy=context_target_is_enemy,
             buff_owner_target=buff_owner_target,
             current_buff_environment=current_buff_environment,
+            current_event_target=buff_ability_damage_event,
         )
     if getattr(action, "buffFinish", None) is not None:
         finish = action.buffFinish
@@ -481,6 +482,7 @@ def compile_conditional_branch_action(
             input_target=input_target,
             buff_owner_target=buff_owner_target,
             current_buff_environment=current_buff_environment,
+            current_event_target=buff_ability_damage_event,
             context_finish_target=context_finish_target,
         )
     if getattr(action, "buffStackRead", None) is not None:
@@ -493,6 +495,7 @@ def compile_conditional_branch_action(
             input_target=input_target,
             buff_owner_target=buff_owner_target,
             current_buff_environment=current_buff_environment,
+            current_event_target=buff_ability_damage_event,
         )
     cooldown_adjustment = getattr(action, "skillCooldownAdjustment", None)
     if cooldown_adjustment is not None:
@@ -718,11 +721,28 @@ def compile_conditional_branch_action(
         finish_target = None
         if (
             current_buff_environment
-            and buff_owner_target is not None
-            and legacy_finish.target.targetSource in {"Source", "Owner"}
+            and legacy_finish.target.targetSource == "Owner"
             and not legacy_finish.target.targetGroupKey
         ):
-            finish_target = buff_owner_target
+            finish_target = "buffOwner"
+        elif (
+            current_buff_environment
+            and legacy_finish.target.targetSource == "Source"
+            and not legacy_finish.target.targetGroupKey
+        ):
+            finish_target = "buffSource"
+        elif (
+            current_buff_environment
+            and legacy_finish.target.targetSource == "Target"
+            and not legacy_finish.target.targetGroupKey
+        ):
+            finish_target = (
+                "eventTarget"
+                if buff_ability_damage_event
+                else "buffSource"
+                if input_target == "caster"
+                else "buffOwner"
+            )
         elif (
             legacy_finish.target.targetSource == "Context"
         ):
@@ -911,6 +931,8 @@ def compile_conditional_branch_action(
             action.globalCooldownApplication,
             path,
             root_skill_context=root_skill_context,
+            current_buff_environment=current_buff_environment,
+            buff_owner_target=buff_owner_target,
         )
     if getattr(action, "storeCurrentTimelineFrame", None) is not None:
         return (

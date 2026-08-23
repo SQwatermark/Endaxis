@@ -11,6 +11,7 @@ import {
   rossiUltimate,
 } from './generated/rossi.operator.generated';
 import {
+  antal,
   akekuri,
   camille,
   chenQianyu,
@@ -54,6 +55,7 @@ const generatedOperators: readonly [OperatorDefinition, number][] = [
   [pogranichnik, 10],
   [snowshine, 8],
   [wulfgard, 9],
+  [antal, 9],
 ];
 
 function hasUpgradeBehavior(

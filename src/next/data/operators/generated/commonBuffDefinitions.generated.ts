@@ -110,7 +110,7 @@ export const generatedCommonBuffDefinitions = {
       enable: sequence(
         step('applyBuff', {
           buffId: 'buff_common_burning_status',
-          target: 'enemy',
+          target: 'buffOwner',
           inheritSourceSkillCastInfo: true,
           blackboardAssignments: {
             'burning_atk_scale': { kind: 'blackboard', key: 'burning_atk_scale' },
@@ -125,12 +125,12 @@ export const generatedCommonBuffDefinitions = {
         }),
         step('applyBuff', {
           buffId: 'buff_common_fire_triggered_start',
-          target: 'enemy',
+          target: 'buffOwner',
           inheritSourceSkillCastInfo: true,
         }),
         step('applyBuff', {
           buffId: 'buff_common_fire_triggered_fx',
-          target: 'enemy',
+          target: 'buffOwner',
           inheritSourceSkillCastInfo: true,
         }),
       ),
@@ -171,20 +171,20 @@ export const generatedCommonBuffDefinitions = {
     lifecycleSequences: {
       start: sequence(
         step('readBuffBlackboard', {
-          target: 'enemy',
+          target: 'buffOwner',
           query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [1535684437] },
           desiredKey: 'count',
           outputKey: 'count',
         }),
         step('finishBuffsByTag', {
-          target: 'enemy',
+          target: 'buffOwner',
           tagQueryType: 'hasAny',
           buffTagIds: [1535684437],
           reason: 'early',
         }),
         step('applyBuff', {
           buffId: 'buff_common_cryst_triggered_physical_break',
-          target: 'enemy',
+          target: 'buffOwner',
           inheritSourceSkillCastInfo: true,
           blackboardAssignments: {
             'atk_scale': { kind: 'blackboard', key: 'atk_scale' },
@@ -307,82 +307,6 @@ export const generatedCommonBuffDefinitions = {
       'duration': 1,
     },
   },
-  'buff_physical_no_guard': {
-    stackingType: 'enhanceAndRefresh',
-    presentation: {
-      visible: true,
-      iconId: 'icon_shadow_attribute_penetrate',
-      showInHeadBarCommon: false,
-      showInHeadBarAttached: true,
-      showInSquadIcon: false,
-      onlyShowForMainCharacter: false,
-      iconStyleInSquad: 'Default',
-      abnormalColorType: 'Physical',
-      orderPriority: {
-        useDirectoryValue: false,
-        value: 0,
-        category: 'CommonCharBuff',
-      },
-    },
-    priority: 100,
-    maxStackCount: 4,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTagIds: [1075718177],
-    blackboard: {
-      'atk_scale': 0,
-      'count': 0,
-      'duration': 20,
-      'skip_handle_cryst_break': 0,
-    },
-    lifecycleSequences: {
-      start: sequence(
-        branch(
-          {
-            kind: 'actionValueCompare',
-            left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
-            operator: 'equal',
-            right: { kind: 'constant', value: 0 },
-          },
-          sequence(
-            step('applyBuff', {
-              buffId: 'buff_physical_handle_cryst_break',
-              target: 'enemy',
-              inheritSourceSkillCastInfo: true,
-            }),
-          ),
-        ),
-      ),
-      finish: sequence(
-        step('applyBuff', {
-          buffId: 'buff_physical_no_guard_fake',
-          target: 'enemy',
-          inheritSourceSkillCastInfo: true,
-        }),
-      ),
-      afterEnhance: sequence(
-        step('igniteBuffs', {
-          target: 'enemy',
-          source: 'currentBuffSource',
-          igniteType: 'NoGuard',
-        }),
-        branch(
-          {
-            kind: 'actionValueCompare',
-            left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
-            operator: 'equal',
-            right: { kind: 'constant', value: 0 },
-          },
-          sequence(
-            step('applyBuff', {
-              buffId: 'buff_physical_handle_cryst_break',
-              target: 'enemy',
-              inheritSourceSkillCastInfo: true,
-            }),
-          ),
-        ),
-      ),
-    },
-  },
   'buff_physical_do_fracture': {
     stackingType: 'stack',
     presentation: {
@@ -441,16 +365,16 @@ export const generatedCommonBuffDefinitions = {
         }),
         step('applyBuff', {
           buffId: 'buff_physical_handle_cryst_break',
-          target: 'enemy',
+          target: 'buffOwner',
           inheritSourceSkillCastInfo: true,
         }),
         step('igniteBuffs', {
-          target: 'enemy',
+          target: 'buffOwner',
           source: 'caster',
           igniteType: 'PhysicalStatus',
         }),
         step('finishBuffsById', {
-          target: 'enemy',
+          target: 'buffOwner',
           buffIds: ['buff_physical_no_guard'],
           reason: 'early',
         }),
@@ -563,6 +487,97 @@ export const generatedCommonBuffDefinitions = {
             ),
           ),
           { alwaysNext: true },
+        ),
+      ),
+    },
+  },
+  'buff_common_damage_immune_talent': {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 0,
+    durationSeconds: { blackboardKey: 'duration' },
+    applyTagIds: [782082172, -104052028, -1128398902],
+    blackboard: {
+      'duration': 9999,
+    },
+    sustainedProtection: {
+      target: 'owner',
+      superArmor: 35,
+      impactResistance: 100,
+    },
+  },
+  'buff_physical_no_guard': {
+    stackingType: 'enhanceAndRefresh',
+    presentation: {
+      visible: true,
+      iconId: 'icon_shadow_attribute_penetrate',
+      showInHeadBarCommon: false,
+      showInHeadBarAttached: true,
+      showInSquadIcon: false,
+      onlyShowForMainCharacter: false,
+      iconStyleInSquad: 'Default',
+      abnormalColorType: 'Physical',
+      orderPriority: {
+        useDirectoryValue: false,
+        value: 0,
+        category: 'CommonCharBuff',
+      },
+    },
+    priority: 100,
+    maxStackCount: 4,
+    durationSeconds: { blackboardKey: 'duration' },
+    applyTagIds: [1075718177],
+    blackboard: {
+      'atk_scale': 0,
+      'count': 0,
+      'duration': 20,
+      'skip_handle_cryst_break': 0,
+    },
+    lifecycleSequences: {
+      start: sequence(
+        branch(
+          {
+            kind: 'actionValueCompare',
+            left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+            operator: 'equal',
+            right: { kind: 'constant', value: 0 },
+          },
+          sequence(
+            step('applyBuff', {
+              buffId: 'buff_physical_handle_cryst_break',
+              target: 'buffOwner',
+              inheritSourceSkillCastInfo: true,
+            }),
+          ),
+        ),
+      ),
+      finish: sequence(
+        step('applyBuff', {
+          buffId: 'buff_physical_no_guard_fake',
+          target: 'buffOwner',
+          inheritSourceSkillCastInfo: true,
+        }),
+      ),
+      afterEnhance: sequence(
+        step('igniteBuffs', {
+          target: 'enemy',
+          source: 'currentBuffSource',
+          igniteType: 'NoGuard',
+        }),
+        branch(
+          {
+            kind: 'actionValueCompare',
+            left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+            operator: 'equal',
+            right: { kind: 'constant', value: 0 },
+          },
+          sequence(
+            step('applyBuff', {
+              buffId: 'buff_physical_handle_cryst_break',
+              target: 'buffOwner',
+              inheritSourceSkillCastInfo: true,
+            }),
+          ),
         ),
       ),
     },
@@ -683,7 +698,7 @@ export const generatedCommonBuffDefinitions = {
       start: sequence(
         step('applyBuff', {
           buffId: 'buff_common_pulse_triggered_start',
-          target: 'enemy',
+          target: 'buffOwner',
           inheritSourceSkillCastInfo: true,
         }),
         step('storeSourceAttributeValue', {
@@ -702,7 +717,7 @@ export const generatedCommonBuffDefinitions = {
         }),
         step('applyBuff', {
           buffId: 'buff_common_pulse_triggered_fx',
-          target: 'enemy',
+          target: 'buffOwner',
           inheritSourceSkillCastInfo: true,
         }),
       ),
@@ -742,7 +757,7 @@ export const generatedCommonBuffDefinitions = {
         ),
         step('applyBuff', {
           buffId: 'buff_common_pulse_pulse_conduct_triggered_do',
-          target: 'enemy',
+          target: 'buffOwner',
           inheritSourceSkillCastInfo: true,
           blackboardAssignments: {
             'duration': { kind: 'blackboard', key: 'real_duration' },
@@ -753,21 +768,6 @@ export const generatedCommonBuffDefinitions = {
           },
         }),
       ),
-    },
-  },
-  'buff_common_damage_immune_talent': {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTagIds: [782082172, -104052028, -1128398902],
-    blackboard: {
-      'duration': 9999,
-    },
-    sustainedProtection: {
-      target: 'owner',
-      superArmor: 35,
-      impactResistance: 100,
     },
   },
   'buff_common_natural_natural_corrupt_do': {
@@ -965,7 +965,7 @@ export const generatedCommonBuffDefinitions = {
           },
           sequence(
             step('readBuffBlackboard', {
-              target: 'enemy',
+              target: 'buffOwner',
               query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [-421286163] },
               desiredKey: 'def_decrease',
               outputKey: 'def_decrease',
@@ -976,7 +976,7 @@ export const generatedCommonBuffDefinitions = {
         ),
         step('applyBuff', {
           buffId: 'buff_common_natural_natural_corrupt_do',
-          target: 'enemy',
+          target: 'buffOwner',
           inheritSourceSkillCastInfo: true,
           blackboardAssignments: {
             'def_decrease': { kind: 'blackboard', key: 'def_decrease' },
@@ -1284,20 +1284,20 @@ export const generatedCommonBuffDefinitions = {
             { kind: 'combatActive' },
             sequence(
               step('readBuffBlackboard', {
-                target: 'caster',
+                target: 'buffSource',
                 query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
                 desiredKey: 'atk_up',
                 outputKey: 'atk_up_dynamic',
               }),
               step('readBuffBlackboard', {
-                target: 'caster',
+                target: 'buffSource',
                 query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
                 desiredKey: 'duration',
                 outputKey: 'duration_dynamic',
               }),
               step('applyBuff', {
                 buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
-                target: 'caster',
+                target: 'buffSource',
                 inheritSourceSkillCastInfo: true,
                 blackboardAssignments: {
                   'duration': { kind: 'blackboard', key: 'duration_dynamic' },
@@ -1305,7 +1305,7 @@ export const generatedCommonBuffDefinitions = {
                 },
               }),
               step('readBuffBlackboard', {
-                target: 'caster',
+                target: 'buffSource',
                 query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_potential2'] },
                 desiredKey: 'ratio',
                 outputKey: 'teammate_ratio',
@@ -1337,7 +1337,7 @@ export const generatedCommonBuffDefinitions = {
             { kind: 'combatActive' },
             sequence(
               step('readBuffBlackboard', {
-                target: 'caster',
+                target: 'buffSource',
                 query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_potential3'] },
                 desiredKey: 'usp',
                 outputKey: 'endmin_usp',
@@ -1375,20 +1375,20 @@ export const generatedCommonBuffDefinitions = {
             { kind: 'combatActive' },
             sequence(
               step('readBuffBlackboard', {
-                target: 'caster',
+                target: 'buffSource',
                 query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
                 desiredKey: 'atk_up',
                 outputKey: 'atk_up_dynamic',
               }),
               step('readBuffBlackboard', {
-                target: 'caster',
+                target: 'buffSource',
                 query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
                 desiredKey: 'duration',
                 outputKey: 'duration_dynamic',
               }),
               step('applyBuff', {
                 buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
-                target: 'caster',
+                target: 'buffSource',
                 inheritSourceSkillCastInfo: true,
                 blackboardAssignments: {
                   'duration': { kind: 'blackboard', key: 'duration_dynamic' },
@@ -1396,7 +1396,7 @@ export const generatedCommonBuffDefinitions = {
                 },
               }),
               step('readBuffBlackboard', {
-                target: 'caster',
+                target: 'buffSource',
                 query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_potential2'] },
                 desiredKey: 'ratio',
                 outputKey: 'teammate_ratio',
@@ -1447,20 +1447,20 @@ export const generatedCommonBuffDefinitions = {
             { kind: 'combatActive' },
             sequence(
               step('readBuffBlackboard', {
-                target: 'caster',
+                target: 'buffSource',
                 query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
                 desiredKey: 'atk_up',
                 outputKey: 'atk_up_dynamic',
               }),
               step('readBuffBlackboard', {
-                target: 'caster',
+                target: 'buffSource',
                 query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_talent_1'] },
                 desiredKey: 'duration',
                 outputKey: 'duration_dynamic',
               }),
               step('applyBuff', {
                 buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
-                target: 'caster',
+                target: 'buffSource',
                 inheritSourceSkillCastInfo: true,
                 blackboardAssignments: {
                   'duration': { kind: 'blackboard', key: 'duration_dynamic' },
@@ -1468,7 +1468,7 @@ export const generatedCommonBuffDefinitions = {
                 },
               }),
               step('readBuffBlackboard', {
-                target: 'caster',
+                target: 'buffSource',
                 query: { kind: 'id', buffIds: ['buff_chr_0003_endminf_potential2'] },
                 desiredKey: 'ratio',
                 outputKey: 'teammate_ratio',
@@ -1550,7 +1550,7 @@ export const generatedCommonBuffDefinitions = {
       enable: sequence(
         step('applyBuff', {
           buffId: 'buff_common_do_frozen',
-          target: 'enemy',
+          target: 'buffOwner',
           inheritSourceSkillCastInfo: true,
           blackboardAssignments: {
             'duration': { kind: 'blackboard', key: 'duration' },
@@ -1612,7 +1612,7 @@ export const generatedCommonBuffDefinitions = {
       enable: sequence(
         step('applyBuff', {
           buffId: 'buff_common_frozen',
-          target: 'enemy',
+          target: 'buffOwner',
           inheritSourceSkillCastInfo: true,
           blackboardAssignments: {
             'duration': { kind: 'blackboard', key: 'duration' },
@@ -1622,7 +1622,7 @@ export const generatedCommonBuffDefinitions = {
       start: sequence(
         step('applyBuff', {
           buffId: 'buff_common_cryst_triggered_start',
-          target: 'enemy',
+          target: 'buffOwner',
           inheritSourceSkillCastInfo: true,
         }),
         step('storeSourceAttributeValue', {
@@ -1636,7 +1636,7 @@ export const generatedCommonBuffDefinitions = {
         }),
         step('applyBuff', {
           buffId: 'buff_common_cryst_triggered_fx',
-          target: 'enemy',
+          target: 'buffOwner',
           inheritSourceSkillCastInfo: true,
         }),
       ),
@@ -1663,7 +1663,7 @@ export const generatedCommonBuffDefinitions = {
         }),
         step('applyBuff', {
           buffId: 'buff_common_cryst_cryst_frozen_triggered_do',
-          target: 'enemy',
+          target: 'buffOwner',
           inheritSourceSkillCastInfo: true,
           blackboardAssignments: {
             'count': { kind: 'blackboard', key: 'count' },

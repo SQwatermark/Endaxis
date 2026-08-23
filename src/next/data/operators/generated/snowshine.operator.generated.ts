@@ -691,7 +691,7 @@ export const snowshineGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0014_aurora_potential_1',
-                    target: 'caster',
+                    target: 'buffOwner',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
@@ -736,7 +736,7 @@ export const snowshineGeneratedOperator: OperatorDefinition = {
         finish: sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0014_aurora_reduce_damage_remain',
-            target: 'caster',
+            target: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             blackboardAssignments: {
               'duration': { kind: 'constant', value: 0.5 },
@@ -781,7 +781,7 @@ export const snowshineGeneratedOperator: OperatorDefinition = {
         trigger: sequence(
           step('applyBuff', {
             buffId: 'buff_common_cryst_cryst_frozen_triggered',
-            target: 'enemy',
+            target: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             blackboardAssignments: {
               'extra_duration': { kind: 'blackboard', key: 'extra_duration' },
@@ -1077,7 +1077,7 @@ export const snowshineGeneratedOperator: OperatorDefinition = {
                                                       ),
                                                     },
                                                   },
-                                                  target: 'enemy',
+                                                  target: 'buffOwner',
                                                   inheritSourceSkillCastInfo: true,
                                                   blackboardAssignments: {
                                                     'duration': { kind: 'blackboard', key: 'duration' },
@@ -1086,7 +1086,7 @@ export const snowshineGeneratedOperator: OperatorDefinition = {
                                               ),
                                             },
                                           },
-                                          target: 'enemy',
+                                          target: 'buffOwner',
                                           inheritSourceSkillCastInfo: true,
                                           blackboardAssignments: {
                                             'duration': { kind: 'blackboard', key: 'duration' },
@@ -1105,7 +1105,7 @@ export const snowshineGeneratedOperator: OperatorDefinition = {
                                             waitFirstTriggerInterval: false,
                                             maxTriggerCount: 1,
                                           },
-                                          target: 'enemy',
+                                          target: 'buffOwner',
                                           inheritSourceSkillCastInfo: true,
                                         }),
                                         step('storeSourceAttributeValue', {
@@ -1128,13 +1128,13 @@ export const snowshineGeneratedOperator: OperatorDefinition = {
                                             waitFirstTriggerInterval: true,
                                             maxTriggerCount: 1,
                                           },
-                                          target: 'enemy',
+                                          target: 'buffOwner',
                                           inheritSourceSkillCastInfo: true,
                                         }),
                                       ),
                                     },
                                   },
-                                  target: 'enemy',
+                                  target: 'buffOwner',
                                   inheritSourceSkillCastInfo: true,
                                   blackboardAssignments: {
                                     'count': { kind: 'blackboard', key: 'count' },
@@ -1146,7 +1146,7 @@ export const snowshineGeneratedOperator: OperatorDefinition = {
                               ),
                             },
                           },
-                          target: 'enemy',
+                          target: 'buffOwner',
                           inheritSourceSkillCastInfo: true,
                           blackboardAssignments: {
                             'extra_duration': { kind: 'blackboard', key: 'extra_duration' },

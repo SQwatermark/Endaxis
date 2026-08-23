@@ -2550,7 +2550,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                             stagger: { kind: 'blackboard', key: 'poise_early_finish' },
                           }, '59:buff_chr_0032_lizhiyan_combo_skill_seal2:beforeTakeDamage:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[6]11:actionOrder1:6'),
                           step('finishBuffsById', {
-                            target: 'enemy',
+                            target: 'buffOwner',
                             buffIds: ['buff_chr_0032_lizhiyan_combo_skill_seal', 'buff_chr_0032_lizhiyan_combo_skill_seal_effect'],
                             reason: 'early',
                           }),
@@ -2812,7 +2812,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
       lifecycleSequences: {
         start: sequence(
           step('finishBuffsById', {
-            target: 'caster',
+            target: 'buffOwner',
             buffIds: ['buff_chr_0032_lizhiyan_ultimate_skill_listener_owner'],
             reason: 'other',
           }),
@@ -2826,7 +2826,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
             },
             sequence(
               step('readBuffBlackboard', {
-                target: 'caster',
+                target: 'buffSource',
                 query: { kind: 'id', buffIds: ['buff_chr_0032_lizhiyan_talent1'] },
                 desiredKey: 'enhance_rate',
                 outputKey: 'enhance_rate',
@@ -2841,7 +2841,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0032_lizhiyan_talent1_enhance',
-                    target: 'caster',
+                    target: 'buffSource',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
                       'enhance_rate': { kind: 'blackboard', key: 'enhance_rate' },
@@ -2854,7 +2854,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
         ),
         finish: sequence(
           step('finishBuffsById', {
-            target: 'caster',
+            target: 'buffOwner',
             buffIds: ['buff_chr_0032_lizhiyan_ultimate_skill_layer'],
             reason: 'other',
           }),
@@ -2907,7 +2907,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
             },
             sequence(
               step('readBuffBlackboard', {
-                target: 'caster',
+                target: 'buffSource',
                 query: { kind: 'id', buffIds: ['buff_chr_0032_lizhiyan_talent1'] },
                 desiredKey: 'enhance_rate',
                 outputKey: 'enhance_rate',
@@ -2922,7 +2922,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0032_lizhiyan_talent1_enhance',
-                    target: 'caster',
+                    target: 'buffSource',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
                       'enhance_rate': { kind: 'blackboard', key: 'enhance_rate' },
@@ -2977,7 +2977,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_listener',
-                    target: 'caster',
+                    target: 'buffSource',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
@@ -3254,7 +3254,7 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                   lifecycleSequences: {
                     finish: sequence(
                       step('finishBuffsById', {
-                        target: 'caster',
+                        target: 'buffSource',
                         buffIds: ['buff_chr_0032_lizhiyan_ultimate_skill_layer'],
                         reason: 'other',
                       }),
@@ -3548,14 +3548,14 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                               lifecycleSequences: {
                                                                 enhanceChanged: sequence(
                                                                   step('readBuffStackCount', {
-                                                                    target: 'caster',
+                                                                    target: 'buffOwner',
                                                                     outputKey: 'count',
                                                                     query: { kind: 'environment' },
                                                                   }),
                                                                 ),
                                                               },
                                                             },
-                                                            target: 'caster',
+                                                            target: 'buffSource',
                                                             inheritSourceSkillCastInfo: true,
                                                           }),
                                                         ),
@@ -3813,14 +3813,14 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                       lifecycleSequences: {
                                                         enhanceChanged: sequence(
                                                           step('readBuffStackCount', {
-                                                            target: 'caster',
+                                                            target: 'buffOwner',
                                                             outputKey: 'count',
                                                             query: { kind: 'environment' },
                                                           }),
                                                         ),
                                                       },
                                                     },
-                                                    target: 'caster',
+                                                    target: 'buffSource',
                                                     inheritSourceSkillCastInfo: true,
                                                   }),
                                                 ),
@@ -4129,14 +4129,14 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                               lifecycleSequences: {
                                                                 enhanceChanged: sequence(
                                                                   step('readBuffStackCount', {
-                                                                    target: 'caster',
+                                                                    target: 'buffOwner',
                                                                     outputKey: 'count',
                                                                     query: { kind: 'environment' },
                                                                   }),
                                                                 ),
                                                               },
                                                             },
-                                                            target: 'caster',
+                                                            target: 'buffSource',
                                                             inheritSourceSkillCastInfo: true,
                                                           }),
                                                         ),
@@ -4394,14 +4394,14 @@ export const arcaneGeneratedOperator: OperatorDefinition = {
                                                       lifecycleSequences: {
                                                         enhanceChanged: sequence(
                                                           step('readBuffStackCount', {
-                                                            target: 'caster',
+                                                            target: 'buffOwner',
                                                             outputKey: 'count',
                                                             query: { kind: 'environment' },
                                                           }),
                                                         ),
                                                       },
                                                     },
-                                                    target: 'caster',
+                                                    target: 'buffSource',
                                                     inheritSourceSkillCastInfo: true,
                                                   }),
                                                 ),

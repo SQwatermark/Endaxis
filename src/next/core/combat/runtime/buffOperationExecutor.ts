@@ -398,7 +398,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     }
 
     if (step.kind === 'igniteBuffs') {
-      const target = this.dependencies.resolveTarget(step.parameters.target);
+      const target = this.#resolveSingleTarget(step.parameters.target, context);
       if (target.ignite === undefined) {
         throw new Error(`Buff target '${target.ownerId}' does not support ignite events`);
       }
@@ -443,6 +443,16 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         throw new Error('buffOwner Buff application is not configured');
       }
       return [resolve(context.buffOwnerId)];
+    }
+    if (target === 'buffSource') {
+      if (context?.buffSourceId === undefined) {
+        throw new Error('buffSource Buff application requires a Buff lifecycle context');
+      }
+      const resolve = this.dependencies.resolveEventTarget;
+      if (resolve === undefined) {
+        throw new Error('buffSource Buff application is not configured');
+      }
+      return [resolve(context.buffSourceId)];
     }
     if (target === 'eventTarget') {
       if (context?.event === undefined) {
@@ -526,16 +536,14 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       if (context === undefined) {
         throw new Error('buffStackCompare requires a combat operation context');
       }
-      const count = this.dependencies
-        .resolveTarget(condition.target)
-        .getCountByTags(
-          condition.buffTagIds.map(gameplayTagId),
-          condition.tagQueryType,
-          false,
-          condition.sameSourceSkillCast
-            ? this.#requireSkillCastId(context, 'buffStackCompare')
-            : undefined,
-        );
+      const count = this.#resolveSingleTarget(condition.target, context).getCountByTags(
+        condition.buffTagIds.map(gameplayTagId),
+        condition.tagQueryType,
+        false,
+        condition.sameSourceSkillCast
+          ? this.#requireSkillCastId(context, 'buffStackCompare')
+          : undefined,
+      );
       return compareCombatNumbers(
         count,
         resolveActionValueOperand(condition.value, context.blackboard),
@@ -569,7 +577,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
   }
 
   #resolveSingleTarget(
-    target: CombatTarget | 'currentAbilityEntity' | 'eventTarget' | 'buffOwner',
+    target: CombatTarget | 'currentAbilityEntity' | 'eventTarget' | 'buffOwner' | 'buffSource',
     context: Parameters<CombatOperationExecutor['execute']>[1],
   ): BuffOperationTarget {
     if (target === 'buffOwner') {
@@ -581,6 +589,16 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         throw new Error('buffOwner Buff operation is not configured');
       }
       return resolve(context.buffOwnerId);
+    }
+    if (target === 'buffSource') {
+      if (context?.buffSourceId === undefined) {
+        throw new Error('buffSource Buff operation requires a Buff lifecycle context');
+      }
+      const resolve = this.dependencies.resolveEventTarget;
+      if (resolve === undefined) {
+        throw new Error('buffSource Buff operation is not configured');
+      }
+      return resolve(context.buffSourceId);
     }
     if (target === 'eventTarget') {
       if (context?.event === undefined) {

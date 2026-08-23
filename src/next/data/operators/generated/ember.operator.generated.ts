@@ -874,7 +874,7 @@ export const emberGeneratedOperator: OperatorDefinition = {
             sequence(
               step('applyBuff', {
                 buffId: 'buff_chr_0009_azrila_ultimate_skill_shield_extraattack',
-                target: 'caster',
+                target: 'buffOwner',
                 inheritSourceSkillCastInfo: true,
                 blackboardAssignments: {
                   'extraattack': { kind: 'blackboard', key: 'extraattack' },
@@ -941,7 +941,7 @@ export const emberGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0009_azrila_talent_2_buff',
-                    target: 'caster',
+                    target: 'buffOwner',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
                       'attack': { kind: 'blackboard', key: 'attack' },

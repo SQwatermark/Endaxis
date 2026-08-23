@@ -114,6 +114,7 @@ from buff_definition_parser import (
     parse_buff_lifecycle as parse_buff_lifecycle_backend,
     parse_buff_source_death_finish as parse_buff_source_death_finish_backend,
     parse_buff_start_vulnerability as parse_buff_start_vulnerability_backend,
+    parse_buff_start_vulnerability_enhancements as parse_buff_start_vulnerability_enhancements_backend,
     resolve_buff_definitions as resolve_buff_definitions_backend,
 )
 from projectile_graph_parser import (
@@ -2534,6 +2535,18 @@ def resolve_progression_buff_definitions(
     )
 
 
+def parse_buff_start_vulnerability_enhancements(
+    buff: dict[str, Any],
+    source_name: str,
+    blackboard: dict[str, tuple[float, ...]],
+):
+    return parse_buff_start_vulnerability_enhancements_backend(
+        buff,
+        source_name,
+        blackboard,
+    )
+
+
 def collect_operator_passive_skills(
     char_id: str,
     growth: dict[str, Any],
@@ -4246,20 +4259,24 @@ def compile_buff_blackboard_read(
     path: str,
     *,
     root_skill_context: bool = False,
-    input_target: Literal["enemy"] | None = None,
+    input_target: Literal["caster", "enemy"] | None = None,
     context_target_is_enemy: bool = False,
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
     current_buff_environment: bool = False,
+    current_event_target: bool = False,
 ) -> str:
     """编译 Buff 黑板读取；目标身份和 ID/Tag 查询类型彼此独立。"""
     target = (
-        buff_owner_target
-        if (
-            current_buff_environment
-            and buff_owner_target is not None
-            and read.targetSource == "Owner"
-            and not read.targetGroupKey
-        )
+        "buffOwner"
+        if current_buff_environment and read.targetSource == "Owner" and not read.targetGroupKey
+        else "buffSource"
+        if current_buff_environment and read.targetSource == "Source" and not read.targetGroupKey
+        else "eventTarget"
+        if current_buff_environment and current_event_target and read.targetSource == "Target" and not read.targetGroupKey
+        else "buffSource"
+        if current_buff_environment and not current_event_target and input_target == "caster" and read.targetSource == "Target" and not read.targetGroupKey
+        else "buffOwner"
+        if current_buff_environment and not current_event_target and input_target != "caster" and read.targetSource == "Target" and not read.targetGroupKey
         else resolve_fixed_combat_target(
             read.targetSource,
             read.targetGroupKey,
@@ -4303,6 +4320,7 @@ def compile_buff_finish(
     context_target_is_enemy: bool = False,
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
     current_buff_environment: bool = False,
+    current_event_target: bool = False,
     context_finish_target: Literal["enemy", "party", "partyExceptCaster"] | None = None,
 ) -> str:
     """编译目标身份和 Buff 查询方式均已闭环的全量结束分支。"""
@@ -4324,6 +4342,41 @@ def compile_buff_finish(
     target = (
         context_finish_target
         if finish.targetSource == "Context" and context_finish_target is not None
+        else "buffOwner"
+        if (
+            current_buff_environment
+            and finish.targetSource == "Owner"
+            and not finish.targetGroupKey
+        )
+        else "buffSource"
+        if (
+            current_buff_environment
+            and finish.targetSource == "Source"
+            and not finish.targetGroupKey
+        )
+        else "eventTarget"
+        if (
+            current_buff_environment
+            and current_event_target
+            and finish.targetSource == "Target"
+            and not finish.targetGroupKey
+        )
+        else "buffOwner"
+        if (
+            current_buff_environment
+            and not current_event_target
+            and input_target != "caster"
+            and finish.targetSource == "Target"
+            and not finish.targetGroupKey
+        )
+        else "buffSource"
+        if (
+            current_buff_environment
+            and not current_event_target
+            and input_target == "caster"
+            and finish.targetSource == "Target"
+            and not finish.targetGroupKey
+        )
         else buff_owner_target
         if (
             buff_owner_target is not None
@@ -4383,7 +4436,14 @@ def compile_buff_finish(
                 "})",
             ]
         )
-    raise ValueError(f"{path}: unsupported buff finish target or identity")
+    raise ValueError(
+        f"{path}: unsupported buff finish target or identity "
+        f"(targetSource={finish.targetSource!r}, "
+        f"targetGroupKey={finish.targetGroupKey!r}, "
+        f"resolvedTarget={target!r}, buffCheckType={finish.buffCheckType!r}, "
+        f"buffIds={finish.buffIds!r}, tagQueryType={finish.tagQueryType!r}, "
+        f"buffTagIds={finish.buffTagIds!r}, finishAll={finish.finishAll!r})"
+    )
 
 
 def compile_buff_hold(hold: BuffHoldSource, path: str) -> str:
@@ -4955,12 +5015,23 @@ def compile_global_cooldown_application(
     path: str,
     *,
     root_skill_context: bool,
+    current_buff_environment: bool = False,
+    buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
 ) -> str:
     """将原生全局冷却写入映射到 Next 的角色定时标记。"""
-    if not (
-        payload.targetSource == "Source"
+    target = (
+        "caster"
+        if payload.targetSource == "Source"
         or (root_skill_context and payload.targetSource == "Owner")
-    ) or payload.targetGroupKey:
+        else buff_owner_target
+        if (
+            current_buff_environment
+            and payload.targetSource == "Owner"
+            and buff_owner_target in {"caster", "enemy"}
+        )
+        else None
+    )
+    if target is None or payload.targetGroupKey:
         raise ValueError(
             f"{path}: unsupported global cooldown target "
             f"{payload.targetSource!r}/{payload.targetGroupKey!r}"
@@ -4968,7 +5039,7 @@ def compile_global_cooldown_application(
     return "\n".join(
         [
             "step('createTimedMarker', {",
-            "  target: 'caster',",
+            f"  target: {ts_inline_literal(target)},",
             f"  markerId: {ts_inline_literal(payload.buffId)},",
             "  durationSeconds: "
             f"{compile_condition_operand(payload.duration, f'{path}.duration')},",
@@ -4985,22 +5056,26 @@ def compile_buff_stack_read(
     action: ConditionalActionSource | None = None,
     target_group_writes: tuple[TargetGroupWriteSource, ...] = (),
     root_skill_context: bool = False,
-    input_target: Literal["enemy"] | None = None,
+    input_target: Literal["caster", "enemy"] | None = None,
     context_target_is_enemy: bool = False,
     buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
     current_buff_environment: bool = False,
+    current_event_target: bool = False,
 ) -> str:
     """把原生 Buff 层数查询编译为动作黑板写入步骤。"""
     if payload.countType != "BuffCount":
         raise ValueError(f"{path}: unsupported Buff count type {payload.countType!r}")
     target = (
-        buff_owner_target
-        if (
-            current_buff_environment
-            and buff_owner_target is not None
-            and payload.targetSource == "Owner"
-            and not payload.targetGroupKey
-        )
+        "buffOwner"
+        if current_buff_environment and payload.targetSource == "Owner" and not payload.targetGroupKey
+        else "buffSource"
+        if current_buff_environment and payload.targetSource == "Source" and not payload.targetGroupKey
+        else "eventTarget"
+        if current_buff_environment and current_event_target and payload.targetSource == "Target" and not payload.targetGroupKey
+        else "buffSource"
+        if current_buff_environment and not current_event_target and input_target == "caster" and payload.targetSource == "Target" and not payload.targetGroupKey
+        else "buffOwner"
+        if current_buff_environment and not current_event_target and input_target != "caster" and payload.targetSource == "Target" and not payload.targetGroupKey
         else resolve_fixed_combat_target(
             payload.targetSource,
             payload.targetGroupKey,
@@ -7267,7 +7342,7 @@ def evaluate_zero_distance_condition(
     condition: DistanceConditionSource,
     *,
     root_skill_context: bool,
-    input_target: Literal["enemy"] | None = None,
+    input_target: Literal["caster", "enemy"] | None = None,
     ability_entity_current_target: bool = False,
     current_ability_entity_id: str | None = None,
     current_buff_environment: bool = False,

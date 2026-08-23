@@ -4683,7 +4683,7 @@ export const rossiGeneratedOperator: OperatorDefinition = {
             branch(
               {
                 kind: 'buffStackCompare',
-                target: 'enemy',
+                target: 'buffOwner',
                 tagQueryType: 'hasAny',
                 buffTagIds: [-1110095722],
                 operator: 'greater',
@@ -4739,7 +4739,7 @@ export const rossiGeneratedOperator: OperatorDefinition = {
                   sequence(
                     step('applyBuff', {
                       buffId: 'buff_chr_0028_wulfa_talent2_heal_effect',
-                      target: 'caster',
+                      target: 'buffSource',
                       inheritSourceSkillCastInfo: true,
                     }),
                   ),
@@ -4785,7 +4785,7 @@ export const rossiGeneratedOperator: OperatorDefinition = {
                   sequence(
                     step('applyBuff', {
                       buffId: 'buff_chr_0028_wulfa_talent2_heal_effect',
-                      target: 'caster',
+                      target: 'buffSource',
                       inheritSourceSkillCastInfo: true,
                     }),
                   ),
@@ -4879,7 +4879,7 @@ export const rossiGeneratedOperator: OperatorDefinition = {
           }, '42:buff_chr_0028_wulfa_normal_bleed:trigger:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder1:2'),
           step('applyBuff', {
             buffId: 'buff_chr_0028_wulfa_normal_bleed_effect',
-            target: 'enemy',
+            target: 'buffOwner',
             inheritSourceSkillCastInfo: true,
           }),
         ),
@@ -4910,7 +4910,7 @@ export const rossiGeneratedOperator: OperatorDefinition = {
                         sequence(
                           step('applyBuff', {
                             buffId: 'buff_chr_0028_wulfa_normal_bleed_crit_extra_damage',
-                            target: 'enemy',
+                            target: 'buffOwner',
                             inheritSourceSkillCastInfo: false,
                             blackboardAssignments: {
                               'atk_scale': { kind: 'blackboard', key: 'extra_atk_scale' },
@@ -5151,7 +5151,7 @@ export const rossiGeneratedOperator: OperatorDefinition = {
         finish: sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0028_wulfa_combo_2_damage',
-            target: 'enemy',
+            target: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             blackboardAssignments: {
               'atk_scale': { kind: 'blackboard', key: 'atk_scale' },
@@ -5319,7 +5319,7 @@ export const rossiGeneratedOperator: OperatorDefinition = {
           sequence(
             step('applyBuff', {
               buffId: 'buff_chr_0028_wulfa_combo_2_qte_timer',
-              target: 'caster',
+              target: 'buffOwner',
               inheritSourceSkillCastInfo: true,
               blackboardAssignments: {
                 'duration': { kind: 'blackboard', key: 'time_succeed' },
@@ -5332,14 +5332,14 @@ export const rossiGeneratedOperator: OperatorDefinition = {
           sequence(
             step('applyBuff', {
               buffId: 'buff_chr_0028_wulfa_tut_comboskill_failure',
-              target: 'caster',
+              target: 'buffOwner',
               inheritSourceSkillCastInfo: true,
               blackboardAssignments: {
                 'duration': { kind: 'constant', value: 0.2 },
               },
             }),
             step('finishBuffsById', {
-              target: 'caster',
+              target: 'buffOwner',
               buffIds: ['buff_train_output_succbuff_or_failbuff_by_id'],
               reason: 'early',
             }),
@@ -5360,7 +5360,7 @@ export const rossiGeneratedOperator: OperatorDefinition = {
       lifecycleSequences: {
         finish: sequence(
           step('finishBuffsById', {
-            target: 'caster',
+            target: 'buffOwner',
             buffIds: ['buff_chr_0028_wulfa_combo_usecount'],
             reason: 'other',
           }),

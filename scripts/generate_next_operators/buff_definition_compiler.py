@@ -165,8 +165,17 @@ def _event_actions_are_projected(source: BuffDefinitionSource) -> bool:
         for event in source.eventActions
         if getattr(event, "eventSource", None) == "buff"
         and getattr(event, "event", None) in {"OnBuffStart", "DuringBuffEnable"}
-        and getattr(event, "orderedActionTypes", ())
-        in {("VulnerableAction",), ("SaveBuffLifeTime", "VulnerableAction")}
+        and (
+            getattr(event, "orderedActionTypes", ())
+            and all(
+                action_type == "VulnerableAction"
+                for action_type in (
+                    getattr(event, "orderedActionTypes", ())[1:]
+                    if getattr(event, "orderedActionTypes", ())[0] == "SaveBuffLifeTime"
+                    else getattr(event, "orderedActionTypes", ())
+                )
+            )
+        )
     )
     return bool(vulnerable_events) and len(vulnerable_events) == len(source.eventActions) and any(
         not modifier.tagIds
@@ -611,6 +620,24 @@ def compile_inline_buff_definition(
                     ]
                 )
             fields.extend(["    ],", "  },"])
+        fields.append("],")
+    if getattr(source, "keywordEnhancements", ()):
+        fields.append("keywordEnhancements: [")
+        for enhancement in source.keywordEnhancements:
+            operation = {
+                "Assign": "assign",
+                "Add": "add",
+                "Multiply": "multiply",
+            }[enhancement.operation]
+            fields.extend([
+                "  {",
+                f"    triggerBuffIds: {ts_inline_literal(enhancement.triggerBuffIds)},",
+                f"    operation: {ts_inline_literal(operation)},",
+                f"    targetKey: {ts_inline_literal(enhancement.targetKey)},",
+                f"    initialValue: {_compile_scalar(enhancement.initialValue)},",
+                f"    value: {_compile_scalar(enhancement.value)},",
+                "  },",
+            ])
         fields.append("],")
     if getattr(source, "healModifiers", ()):
         fields.append("healModifiers: [")

@@ -392,6 +392,7 @@ export interface GeneratedBuffDefinitionSource {
   readonly attributeModifiersConverted?: boolean;
   /** Buff 启用期间注册的原生伤害修正；条件与计算区仍保留数据源身份。 */
   readonly damageModifiers: readonly GeneratedBuffDamageModifierSource[];
+  readonly keywordEnhancements?: readonly GeneratedBuffKeywordEnhancementSource[];
   /** Buff 启用期间注册到治疗包两侧的原生治疗结果修正。 */
   readonly healModifiers?: readonly GeneratedBuffHealModifierSource[];
   readonly directDamageHits: readonly GeneratedTimedDamageSource[];
@@ -682,6 +683,15 @@ export interface GeneratedTargetReferenceSource {
   readonly finderSpawnedObjectType?: string | null;
   /** TagValidator 的完整查询类型与原生有符号 GameplayTag ID。 */
   readonly validatorTagQueries?: readonly (readonly [string, readonly number[]])[];
+}
+
+/** 普通 Buff 加入时对现有关键词 Buff rate 执行的一次性增强。 */
+export interface GeneratedBuffKeywordEnhancementSource {
+  readonly triggerBuffIds: readonly string[];
+  readonly operation: 'Assign' | 'Add' | 'Multiply';
+  readonly targetKey: string;
+  readonly initialValue: GeneratedScalarSource;
+  readonly value: GeneratedScalarSource;
 }
 
 export interface GeneratedVector3Source {

@@ -1558,7 +1558,7 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
           sequence(
             step('applyBuff', {
               buffId: 'buff_chr_0030_zhuangfy_talent1_mark',
-              target: 'caster',
+              target: 'buffSource',
               inheritSourceSkillCastInfo: true,
             }),
             branch(
@@ -1626,7 +1626,7 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
           sequence(
             step('applyBuff', {
               buffId: 'buff_chr_0030_zhuangfy_talent1_mark',
-              target: 'caster',
+              target: 'buffSource',
               inheritSourceSkillCastInfo: true,
             }),
             step('calculateActionValue', {
@@ -1665,7 +1665,7 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
           9,
           sequence(
             step('finishBuffsById', {
-              target: 'caster',
+              target: 'buffSource',
               buffIds: ['buff_chr_0030_zhuangfy_normal_skill_trigger_sword'],
               reason: 'other',
             }),
@@ -1765,7 +1765,7 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
         finish: sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0030_zhuangfy_ult_hide_model',
-            target: 'caster',
+            target: 'buffOwner',
             inheritSourceSkillCastInfo: false,
           }),
         ),
@@ -1798,7 +1798,7 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
                     sequence(
                       step('applyBuff', {
                         buffId: 'buff_chr_0030_zhuangfy_dash_hide',
-                        target: 'caster',
+                        target: 'buffSource',
                         inheritSourceSkillCastInfo: true,
                       }),
                     ),
@@ -1893,19 +1893,19 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
         enable: sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0030_zhuangfy_ult_hide_model_holder',
-            target: 'caster',
+            target: 'buffOwner',
             inheritSourceSkillCastInfo: true,
           }),
           step('applyBuff', {
             buffId: 'buff_chr_0030_zhuangfy_ult_body_vfx',
-            target: 'caster',
+            target: 'buffSource',
             inheritSourceSkillCastInfo: true,
           }),
         ),
         start: sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0030_zhuangfy_ult_skill_free',
-            target: 'caster',
+            target: 'buffSource',
             inheritSourceSkillCastInfo: true,
           }),
         ),
@@ -1985,7 +1985,7 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
           sequence:
             sequence(
               step('finishBuffsById', {
-                target: 'caster',
+                target: 'buffSource',
                 buffIds: ['buff_chr_0030_zhuangfy_potential1_more_sword'],
                 reason: 'other',
               }),
@@ -2005,7 +2005,7 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
             sequence(
               step('applyBuff', {
                 buffId: 'buff_chr_0030_zhuangfy_potential1_more_sword',
-                target: 'caster',
+                target: 'buffSource',
                 inheritSourceSkillCastInfo: true,
               }),
             ),

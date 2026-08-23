@@ -811,7 +811,7 @@ export const lastRiteGeneratedOperator: OperatorDefinition = {
                 reason: 'other',
               }),
               step('finishBuffsById', {
-                target: 'caster',
+                target: 'buffOwner',
                 buffIds: ['buff_chr_0026_lastrite_normal_skill_tag'],
                 reason: 'other',
               }),
@@ -985,7 +985,7 @@ export const lastRiteGeneratedOperator: OperatorDefinition = {
                               }),
                               step('applyBuff', {
                                 buffId: 'buff_chr_0026_lastrite_normal_skill_tag',
-                                target: 'caster',
+                                target: 'buffSource',
                                 inheritSourceSkillCastInfo: true,
                               }),
                             ),
@@ -1000,7 +1000,7 @@ export const lastRiteGeneratedOperator: OperatorDefinition = {
                               }),
                               step('applyBuff', {
                                 buffId: 'buff_chr_0026_lastrite_normal_skill_tag',
-                                target: 'caster',
+                                target: 'buffSource',
                                 inheritSourceSkillCastInfo: true,
                               }),
                             ),

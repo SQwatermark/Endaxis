@@ -842,17 +842,24 @@ describe('BuffOperationExecutor', () => {
     const executor = new BuffOperationExecutor({
       sourceId: 'operator',
       resolveTarget: () => target,
+      resolveEventTarget: id => {
+        expect(id).toBe('enemy');
+        return target;
+      },
       delegate,
     });
     const condition = {
       kind: 'buffStackCompare' as const,
-      target: 'enemy' as const,
+      target: 'buffOwner' as const,
       tagQueryType: 'hasAny' as const,
       buffTagIds: [gameplayTagIdFromPath(path)],
       operator: 'greaterOrEqual' as const,
       value: { kind: 'constant' as const, value: 2.000009 },
     };
-    const context = { blackboard: new ActionBlackboard({ threshold: 2.000011 }) };
+    const context = {
+      blackboard: new ActionBlackboard({ threshold: 2.000011 }),
+      buffOwnerId: 'enemy',
+    };
 
     expect(executor.evaluate(condition, context)).toBe(true);
     expect(

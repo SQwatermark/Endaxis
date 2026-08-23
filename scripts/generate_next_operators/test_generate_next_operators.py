@@ -52,6 +52,7 @@ from generate_next_operators import (
     parse_skill_event_listeners,
     parse_buff_event_actions,
     parse_buff_start_vulnerability,
+    parse_buff_start_vulnerability_enhancements,
     parse_buff_skill_replacements,
     parse_timed_skill_replacements,
     parse_ordered_action_sequence,
@@ -723,8 +724,39 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(modifiers[0].processors[0].addition.blackboardKey, "rate")
         self.assertEqual(modifiers[0].damageTypes, ("physical",))
 
-        buff["lifeType"] = "Infinity"
         action = buff["buffEventAction"][0]["actions"][0]["actionData"][0]
+        action["enhancingList"] = [
+            {
+                "buffIds": ["buff.potential.trigger"],
+                "operationType": "Add",
+                "value": {
+                    "useBlackboardKey": True,
+                    "value": 0.0,
+                    "blackboardKey": "potential_rate",
+                },
+            }
+        ]
+        enhanced_modifiers = parse_buff_start_vulnerability(
+            buff,
+            "fixture",
+            {"duration": (6.0,), "rate": (0.15,), "potential_rate": (0.05,)},
+        )
+        enhancements = parse_buff_start_vulnerability_enhancements(
+            buff,
+            "fixture",
+            {"duration": (6.0,), "rate": (0.15,), "potential_rate": (0.05,)},
+        )
+        self.assertEqual(
+            enhanced_modifiers[0].processors[0].addition.blackboardKey,
+            "__keyword_rate_0_0_0",
+        )
+        self.assertEqual(enhancements[0].operation, "Add")
+        self.assertEqual(enhancements[0].targetKey, "__keyword_rate_0_0_0")
+        self.assertEqual(enhancements[0].initialValue.blackboardKey, "rate")
+        self.assertEqual(enhancements[0].value.blackboardKey, "potential_rate")
+        action["enhancingList"] = []
+
+        buff["lifeType"] = "Infinity"
         action["duration"] = {
             "useBlackboardKey": False,
             "value": -1.0,
@@ -4495,7 +4527,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             current_buff_environment=True,
         )
 
-        self.assertIn("target: 'enemy'", source)
+        self.assertIn("target: 'buffOwner'", source)
 
     def test_buff_lifecycle_target_application_reuses_current_buff_owner(self) -> None:
         source = compile_buff_application_values(
@@ -4512,7 +4544,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             current_buff_environment=True,
         )
 
-        self.assertIn("target: 'enemy'", source)
+        self.assertIn("target: 'buffOwner'", source)
 
     def test_buff_ability_event_target_application_uses_event_target(self) -> None:
         source = compile_buff_application_values(
@@ -4554,7 +4586,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             current_buff_environment=True,
         )
 
-        self.assertIn("target: 'enemy'", source)
+        self.assertIn("target: 'buffOwner'", source)
 
     def test_buff_application_compiles_unfiltered_instant_team_search_as_party(self) -> None:
         action = AuxiliaryActionSource(
@@ -5676,7 +5708,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             buff_owner_target="currentAbilityEntity",
             current_buff_environment=True,
         )
-        self.assertIn("target: 'currentAbilityEntity'", environment)
+        self.assertIn("target: 'buffOwner'", environment)
         self.assertIn("query: { kind: 'environment' }", environment)
         with self.assertRaisesRegex(ValueError, "unsupported Buff target"):
             compile_buff_stack_read(read, "fixture.read")
@@ -7700,6 +7732,14 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("step('createTimedMarker'", compiled)
         self.assertIn("key: 'cooldown'", compiled)
         self.assertIn("autoFinishByAction: false", compiled)
+
+        buff_compiled = compile_conditional_action(
+            action,
+            "fixture.buffCondition",
+            current_buff_environment=True,
+            buff_owner_target="enemy",
+        )
+        self.assertEqual(buff_compiled.count("target: 'enemy'"), 2)
 
     def test_camera_condition_with_audited_presentation_write_is_omitted(self) -> None:
         condition = ConditionSource(
@@ -15515,6 +15555,38 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             )
         )
 
+    def test_enemy_owner_dead_buff_event_is_after_the_unique_dummy_terminal(self) -> None:
+        event = SimpleNamespace(
+            eventSource="ability",
+            event="OnOwnerDead",
+            orderedActionTypes=("CompareFloat", "ObtainCostAction"),
+            sequences=(
+                SimpleNamespace(
+                    onlyMainOperator=False,
+                    onlyGuard=False,
+                    orderedActionTypes=("CompareFloat", "ObtainCostAction"),
+                    actions=(SimpleNamespace(actionType="ObtainCostAction"),),
+                ),
+            ),
+        )
+        source = SimpleNamespace(
+            buffId="buff.enemy.death.listener",
+            blackboard=(),
+            eventActions=(event,),
+        )
+
+        for owner_target in ("caster", "enemy"):
+            with self.subTest(owner_target=owner_target):
+                self.assertEqual(
+                    "",
+                    compile_inline_buff_behaviors(
+                        source,
+                        "fixture.eventActions",
+                        buff_owner_target=owner_target,
+                        buff_definitions={},
+                    ),
+                )
+
     def test_damage_mask_condition_splits_mixed_native_properties(self) -> None:
         condition = SimpleNamespace(
             sourceType="CheckDamageDecorateMask",
@@ -16151,7 +16223,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertIn("event: 'beforeTakeDamage'", compiled)
         self.assertIn("priority: 7", compiled)
-        self.assertIn("target: 'enemy'", compiled)
+        self.assertIn("target: 'buffOwner'", compiled)
         self.assertIn("buffIds: ['seal', 'seal-effect']", compiled)
         self.assertIn("step('finishCurrentBuff', { reason: 'early' })", compiled)
 
@@ -16216,7 +16288,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
             buff_definitions={},
         )
 
-        self.assertEqual(compiled.count("target: 'caster'"), 2)
+        self.assertEqual(compiled.count("target: 'buffSource'"), 2)
         self.assertEqual(compiled.count("{ alwaysNext: true }"), 2)
         self.assertLess(compiled.index("buff.first"), compiled.index("buff.second"))
 
@@ -16450,7 +16522,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertIn("finish: sequence(", compiled)
         self.assertIn("buffId: 'after-finish'", compiled)
-        self.assertIn("target: 'enemy'", compiled)
+        self.assertIn("target: 'buffOwner'", compiled)
 
         after_enhance_event = SimpleNamespace(
             **{**vars(event), "event": "OnBuffAfterTryEnhanced"}
@@ -16575,7 +16647,7 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         )
 
         self.assertIn("finish: sequence(", compiled)
-        self.assertIn("target: 'enemy'", compiled)
+        self.assertIn("target: 'buffOwner'", compiled)
 
     def test_buff_local_timeline_compiles_on_instance_frames(self) -> None:
         calculation = SimpleNamespace(

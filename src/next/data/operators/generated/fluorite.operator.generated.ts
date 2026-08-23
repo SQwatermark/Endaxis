@@ -759,7 +759,7 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
                           sequence(
                             step('applyBuff', {
                               buffId: 'buff_common_damage_immune_talent',
-                              target: 'caster',
+                              target: 'buffSource',
                               inheritSourceSkillCastInfo: true,
                               blackboardAssignments: {
                                 'duration': { kind: 'constant', value: 0.01 },
@@ -767,7 +767,7 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
                             }),
                             step('applyBuff', {
                               buffId: 'buff_chr_0022_bounda_talent_2_atkup',
-                              target: 'caster',
+                              target: 'buffSource',
                               inheritSourceSkillCastInfo: true,
                               blackboardAssignments: {
                                 'atk_up': { kind: 'blackboard', key: 'atk_up' },
@@ -808,7 +808,7 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
                           sequence(
                             step('applyBuff', {
                               buffId: 'buff_common_damage_immune_talent',
-                              target: 'caster',
+                              target: 'buffSource',
                               inheritSourceSkillCastInfo: true,
                               blackboardAssignments: {
                                 'duration': { kind: 'constant', value: 0.01 },
@@ -816,7 +816,7 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
                             }),
                             step('applyBuff', {
                               buffId: 'buff_chr_0022_bounda_talent_2_atkup',
-                              target: 'caster',
+                              target: 'buffSource',
                               inheritSourceSkillCastInfo: true,
                               blackboardAssignments: {
                                 'atk_up': { kind: 'blackboard', key: 'atk_up' },
@@ -857,7 +857,7 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
                           sequence(
                             step('applyBuff', {
                               buffId: 'buff_common_damage_immune_talent',
-                              target: 'caster',
+                              target: 'buffSource',
                               inheritSourceSkillCastInfo: true,
                               blackboardAssignments: {
                                 'duration': { kind: 'constant', value: 0.01 },
@@ -865,7 +865,7 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
                             }),
                             step('applyBuff', {
                               buffId: 'buff_chr_0022_bounda_talent_2_atkup',
-                              target: 'caster',
+                              target: 'buffSource',
                               inheritSourceSkillCastInfo: true,
                               blackboardAssignments: {
                                 'atk_up': { kind: 'blackboard', key: 'atk_up' },
@@ -906,7 +906,7 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
                           sequence(
                             step('applyBuff', {
                               buffId: 'buff_common_damage_immune_talent',
-                              target: 'caster',
+                              target: 'buffSource',
                               inheritSourceSkillCastInfo: true,
                               blackboardAssignments: {
                                 'duration': { kind: 'constant', value: 0.01 },
@@ -914,7 +914,7 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
                             }),
                             step('applyBuff', {
                               buffId: 'buff_chr_0022_bounda_talent_2_atkup',
-                              target: 'caster',
+                              target: 'buffSource',
                               inheritSourceSkillCastInfo: true,
                               blackboardAssignments: {
                                 'atk_up': { kind: 'blackboard', key: 'atk_up' },

@@ -36,6 +36,7 @@ __all__ = [
     "UnparsedBuffPayloadSource",
     "BuffAttributeModifierSource",
     "BuffDamageModifierSource",
+    "BuffKeywordEnhancementSource",
     "BuffDamageNumberComparisonSource",
     "BuffDamageScaleProcessorSource",
     "BuffEventActionSource",
@@ -635,6 +636,7 @@ class BuffDefinitionSource:
     projectileLaunches: tuple[ProjectileLaunchSource, ...] = ()
     presentationOnlySwitchActionIndexes: tuple[int, ...] = ()
     presentation: BuffPresentationSource | None = None
+    keywordEnhancements: tuple["BuffKeywordEnhancementSource", ...] = ()
 
 
 @dataclass(frozen=True)
@@ -756,6 +758,15 @@ class BuffDamageScaleProcessorSource:
     side: str
     zone: str
     addition: ScalarSource
+
+
+@dataclass(frozen=True)
+class BuffKeywordEnhancementSource:
+    triggerBuffIds: tuple[str, ...]
+    operation: Literal["Assign", "Add", "Multiply"]
+    targetKey: str
+    initialValue: ScalarSource
+    value: ScalarSource
 
 
 @dataclass(frozen=True)

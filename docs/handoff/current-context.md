@@ -908,3 +908,22 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
   已完成养成转换。
 - 本轮门禁：生成器 Python 462/462、全量生成及 `--check`、`type-check:next`、Next Vitest
   202 文件 1415/1415 全部通过。`tmp/` 仍为未跟踪临时目录，未纳入提交。
+
+### 2026-08-23：安塔尔关键词增强与 Buff 实例目标闭环
+
+- 1.4.4 `AbilitySystem.TryEnhancingKeywordBuff` 已由实际安装包 `GameAssembly.dll` 的 RVA
+  `0x037C2EC0` 反汇编闭环：普通 Buff 添加时按 `onAddedBuffId` 匹配当前关键词 Buff 的
+  `KeywordEnhance.buffIds`，读取其黑板 `rate`，再按 Assign/Add/Multiply 原地修改；短时触发 Buff
+  移除后不会回滚。`combat-spec a00ac5b` 先加入该运行时原语、真实字段适配、测试和证据记录。
+- Next 的 Buff 定义新增严格 `keywordEnhancements`。安塔尔战技易伤同时包含电、热两项独立伤害
+  修正，生成器为两者分配独立可变 rate 键，避免潜能 5 在共享键上重复累加。标准场景在战技施加
+  易伤 20 秒后让佩丽卡普攻，验证潜能 5 的实际伤害高于潜能 4。安塔尔 9 个技能、2 项天赋、5 项
+  潜能已加入正式 manifest、稳定导出和默认仓库，正式 `complete` 干员增至 24 名。
+- Buff 定义不再因“从根技能还是嵌套 Buff 引用”而把实例身份固化为 caster/enemy。施加、结束、
+  黑板读取、层数查询与点燃统一保留 `buffOwner`、`buffSource`、`eventTarget`；OnIgnite 的
+  `Target` 依据已确认的 `igniteSource.selfTargetHandle` 走本次 `buffSource`。运行时单目标解析、DSL
+  类型和结构校验同步接入。该修复使莱万汀深层 Buff 树可稳定提升为干员级定义，也避免能力实体
+  持有 Buff 时错误操作角色或敌人容器。
+- 全量 25 项配置生成及 `--check`、生成器 463/463、`type-check:next`、Next Vitest 202 文件
+  1420/1420 已通过。尚未正式注册的官方干员剩 Xaihi、Alesh、Avywenna、Catcher、Ardelia 五名；
+  梨诺继续因终结技真实能力实体模板缺失保持 audit。

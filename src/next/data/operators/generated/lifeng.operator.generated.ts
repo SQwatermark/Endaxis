@@ -705,7 +705,7 @@ export const lifengGeneratedOperator: OperatorDefinition = {
         trigger: sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0015_lifeng_potential_5_1',
-            target: 'caster',
+            target: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             blackboardAssignments: {
               'atk_scale_potential5': { kind: 'blackboard', key: 'atk_scale_potential5' },
@@ -714,7 +714,7 @@ export const lifengGeneratedOperator: OperatorDefinition = {
             },
           }),
           step('finishBuffsById', {
-            target: 'caster',
+            target: 'buffOwner',
             buffIds: ['buff_chr_0015_lifeng_potential_5'],
             reason: 'other',
           }),
@@ -751,19 +751,19 @@ export const lifengGeneratedOperator: OperatorDefinition = {
                 },
                 sequence(
                   step('readBuffBlackboard', {
-                    target: 'caster',
+                    target: 'buffOwner',
                     query: { kind: 'id', buffIds: ['buff_chr_0015_lifeng_potential_5_1'] },
                     desiredKey: 'atk_scale_potential5',
                     outputKey: 'atk_scale_potential5',
                   }),
                   step('readBuffBlackboard', {
-                    target: 'caster',
+                    target: 'buffOwner',
                     query: { kind: 'id', buffIds: ['buff_chr_0015_lifeng_potential_5_1'] },
                     desiredKey: 'interval',
                     outputKey: 'interval',
                   }),
                   step('readBuffBlackboard', {
-                    target: 'caster',
+                    target: 'buffOwner',
                     query: { kind: 'id', buffIds: ['buff_chr_0015_lifeng_potential_5_1'] },
                     desiredKey: 'poise_potential5',
                     outputKey: 'poise_potential5',
@@ -781,13 +781,13 @@ export const lifengGeneratedOperator: OperatorDefinition = {
                     stagger: { kind: 'blackboard', key: 'poise_potential5' },
                   }, '47:buff_chr_0015_lifeng_talent_2:outputKnockDown:011:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]14:succeedActions10:actionData3:[4]11:actionOrder1:6'),
                   step('finishBuffsById', {
-                    target: 'caster',
+                    target: 'buffOwner',
                     buffIds: ['buff_chr_0015_lifeng_potential_5_1'],
                     reason: 'other',
                   }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0015_lifeng_potential_5',
-                    target: 'caster',
+                    target: 'buffOwner',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
                       'interval': { kind: 'blackboard', key: 'interval' },

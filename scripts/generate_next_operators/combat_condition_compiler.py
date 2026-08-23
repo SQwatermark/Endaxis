@@ -906,17 +906,26 @@ def compile_combat_condition(
         cooldown = source.globalCooldown
         if cooldown is None:
             raise ValueError(f"{path}: missing global cooldown condition payload")
-        if not (
-            cooldown.targetSource == "Source"
+        target = (
+            "caster"
+            if cooldown.targetSource == "Source"
             or (root_skill_context and cooldown.targetSource == "Owner")
-        ) or cooldown.targetGroupKey:
+            else buff_owner_target
+            if (
+                current_buff_environment
+                and cooldown.targetSource == "Owner"
+                and buff_owner_target in {"caster", "enemy"}
+            )
+            else None
+        )
+        if target is None or cooldown.targetGroupKey:
             raise ValueError(
                 f"{path}: unsupported global cooldown target "
                 f"{cooldown.targetSource!r}/{cooldown.targetGroupKey!r}"
             )
         # 原生检查在对应全局定时项不存在时成功，和普通标记检查的反向极性一致。
         present = (
-            "{ kind: 'timedMarkerPresent', target: 'caster', markerId: "
+            f"{{ kind: 'timedMarkerPresent', target: {ts_inline_literal(target)}, markerId: "
             f"{ts_inline_literal(cooldown.buffId)} }}"
         )
         return f"{{ kind: 'not', condition: {present} }}"

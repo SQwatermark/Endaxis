@@ -24,6 +24,7 @@ from source_models import (
     BuffAnimationEndApplicationSource,
     BuffComboQteSource,
     BuffDamageModifierSource,
+    BuffKeywordEnhancementSource,
     BuffDamageBuffCountConditionSource,
     BuffDamageNumberComparisonSource,
     BuffDamageScaleProcessorSource,
@@ -483,7 +484,7 @@ def parse_buff_child_slow_tag_ids(
                     and child_buff_id
                     == {"useBlackboardKey": False, "value": "", "blackboardKey": ""}
                     and action.get("asChildBuff") is True
-                    and action.get("enhancingList") == []
+                    and isinstance(action.get("enhancingList"), list)
                     and action.get("autoFinishByAction") is True
                 ):
                     projected += 1
@@ -1082,7 +1083,6 @@ def parse_buff_start_vulnerability(
                 duration_matches_lifecycle = (
                     duration.blackboardKey is not None
                     and duration.blackboardKey == lifecycle_duration.blackboardKey
-                    and duration.levelValues == lifecycle_duration.levelValues
                 )
                 indefinite_during_enable = (
                     event.get("buffEvent") == "DuringBuffEnable"
@@ -1099,7 +1099,7 @@ def parse_buff_start_vulnerability(
                     and (duration_matches_lifecycle or indefinite_during_enable or saved_lifetime)
                     and isinstance(action.get("overrideChildBuffId"), bool)
                     and action.get("asChildBuff") is True
-                    and action.get("enhancingList") == []
+                    and isinstance(action.get("enhancingList"), list)
                     and action.get("autoFinishByAction") is saved_lifetime
                     and action.get("subType")
                     in {"Physical", "Spell", "Fire", "Pulse", "Crystal", "Natural"}
@@ -1113,6 +1113,15 @@ def parse_buff_start_vulnerability(
                     "Crystal": ("cryo",),
                     "Natural": ("nature",),
                 }[str(action.get("subType"))]
+                rate = parse_scalar(action.get("rate"), f"{action_path}.rate", blackboard)
+                if action.get("enhancingList"):
+                    rate = ScalarSource(
+                        value=rate.value,
+                        blackboardKey=(
+                            f"__keyword_rate_{event_index}_{sequence_index}_{action_index}"
+                        ),
+                        levelValues=rate.levelValues,
+                    )
                 result.append(
                     BuffDamageModifierSource(
                         enabledSide="Defender",
@@ -1124,9 +1133,7 @@ def parse_buff_start_vulnerability(
                             BuffDamageScaleProcessorSource(
                                 side="Defender",
                                 zone="VulnerableDmgIncreace",
-                                addition=parse_scalar(
-                                    action.get("rate"), f"{action_path}.rate", blackboard
-                                ),
+                                addition=rate,
                             ),
                         ),
                         damageTypes=damage_types,
@@ -1205,6 +1212,78 @@ def parse_buff_heal_modifiers(
                 ),
             )
         )
+    return tuple(result)
+
+
+def parse_buff_start_vulnerability_enhancements(
+    buff: dict[str, Any],
+    source_name: str,
+    blackboard: dict[str, tuple[float, ...]],
+) -> tuple[BuffKeywordEnhancementSource, ...]:
+    """恢复 VulnerableAction.enhancingList 的加入边沿 rate 改写规则。"""
+    result: list[BuffKeywordEnhancementSource] = []
+    for event_index, raw_event in enumerate(
+        require_list(buff.get("buffEventAction", []), f"{source_name}.buffEventAction")
+    ):
+        event_path = f"{source_name}.buffEventAction[{event_index}]"
+        event = require_dict(raw_event, event_path)
+        if event.get("buffEvent") not in {"OnBuffStart", "DuringBuffEnable"}:
+            continue
+        for sequence_index, raw_sequence in enumerate(
+            require_list(event.get("actions"), f"{event_path}.actions")
+        ):
+            sequence_path = f"{event_path}.actions[{sequence_index}]"
+            sequence = require_dict(raw_sequence, sequence_path)
+            raw_action_data = sequence.get("actionData")
+            if not isinstance(raw_action_data, list):
+                continue
+            for action_index, raw_action in enumerate(raw_action_data):
+                action_path = f"{sequence_path}.actionData[{action_index}]"
+                action = require_dict(raw_action, action_path)
+                if action_name(str(action.get("$type", ""))) != "VulnerableAction":
+                    continue
+                for enhance_index, raw_enhance in enumerate(
+                    require_list(action.get("enhancingList"), f"{action_path}.enhancingList")
+                ):
+                    enhance_path = f"{action_path}.enhancingList[{enhance_index}]"
+                    enhance = require_dict(raw_enhance, enhance_path)
+                    if set(enhance) != {"buffIds", "operationType", "value"}:
+                        raise ValueError(f"{enhance_path}: unsupported keyword enhancement fields")
+                    buff_ids_list: list[str] = []
+                    for index, value in enumerate(
+                        require_list(enhance.get("buffIds"), f"{enhance_path}.buffIds")
+                    ):
+                        if not isinstance(value, str) or not value:
+                            raise ValueError(
+                                f"{enhance_path}.buffIds[{index}]: expected non-empty string"
+                            )
+                        buff_ids_list.append(value)
+                    buff_ids = tuple(buff_ids_list)
+                    if not buff_ids:
+                        raise ValueError(f"{enhance_path}.buffIds: expected non-empty list")
+                    operation = enhance.get("operationType")
+                    if operation not in {"Assign", "Add", "Multiply"}:
+                        raise ValueError(
+                            f"{enhance_path}.operationType: unsupported keyword operation {operation!r}"
+                        )
+                    rate = parse_scalar(action.get("rate"), f"{action_path}.rate", blackboard)
+                    if rate.blackboardKey is None:
+                        raise ValueError(
+                            f"{action_path}.rate: enhanced keyword rate must use a blackboard key"
+                        )
+                    result.append(
+                        BuffKeywordEnhancementSource(
+                            triggerBuffIds=buff_ids,
+                            operation=operation,
+                            targetKey=(
+                                f"__keyword_rate_{event_index}_{sequence_index}_{action_index}"
+                            ),
+                            initialValue=rate,
+                            value=parse_scalar(
+                                enhance.get("value"), f"{enhance_path}.value", blackboard
+                            ),
+                        )
+                    )
     return tuple(result)
 
 
@@ -1556,6 +1635,9 @@ def resolve_buff_definitions(
             skill_source_dir or source_path.parent,
             blackboard,
         )
+        keyword_enhancements = parse_buff_start_vulnerability_enhancements(
+            buff, source_file, blackboard
+        )
         ability_entity_hits = (
             resolve_ability_entity_hits(
                 adapted_root,
@@ -1635,6 +1717,7 @@ def resolve_buff_definitions(
                 buff, source_file, blackboard
             ),
             damageModifiers=damage_modifiers,
+            keywordEnhancements=keyword_enhancements,
             healModifiers=parse_buff_heal_modifiers(buff, source_file, blackboard),
             directDamageHits=parse_direct_damage_hits(adapted_root, source_file, blackboard),
             intervalDamageHits=parse_interval_damage_hits(

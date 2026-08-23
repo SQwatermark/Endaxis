@@ -1296,12 +1296,12 @@ export const camilleGeneratedOperator: OperatorDefinition = {
           }),
           step('applyBuff', {
             buffId: 'buff_chr_0033_camille_ult_henshin_end_1',
-            target: 'caster',
+            target: 'buffSource',
             inheritSourceSkillCastInfo: true,
           }),
           step('applyBuff', {
             buffId: 'buff_chr_0033_camille_ult_henshin_end_2',
-            target: 'caster',
+            target: 'buffSource',
             inheritSourceSkillCastInfo: true,
           }),
         ),

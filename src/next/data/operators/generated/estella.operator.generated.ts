@@ -619,7 +619,7 @@ export const estellaGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0021_whiten_talent_0_active',
-                    target: 'caster',
+                    target: 'buffSource',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
                       'atb': { kind: 'blackboard', key: 'atb' },

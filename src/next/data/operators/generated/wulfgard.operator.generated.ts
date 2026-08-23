@@ -908,7 +908,7 @@ export const wulfgardGeneratedOperator: OperatorDefinition = {
                 sequence(
                   step('applyBuff', {
                     buffId: 'buff_chr_0006_wolfgd_talent_0_effectbuff',
-                    target: 'caster',
+                    target: 'buffSource',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
                       'duration': { kind: 'blackboard', key: 'duration' },

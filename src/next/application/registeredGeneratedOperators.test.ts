@@ -11,6 +11,7 @@ import { nextGameDataRepository } from '../data/gameDataRepository';
 import { elementalAttachments } from '../data/buffs/elementalAttachments';
 import { scheduled, sequence, step } from '../data/operators/definitionHelpers';
 import {
+  antal,
   arcane,
   camille,
   chenQianyu,
@@ -1280,5 +1281,91 @@ describe('registered generated operators', () => {
         targetId: 'enemy',
       }),
     );
+  });
+
+  it('applies Antal battle-skill vulnerability and its potential-5 keyword enhancement', () => {
+    const run = (potential: number) => {
+      const scenario = createEmptyScenario(`scenario:antal:${potential}`, '安塔尔关键词增强回归');
+      scenario.battle.durationFrames = 1_340;
+      scenario.tracks[0] = {
+        id: 'track:antal',
+        operator: {
+          operatorSlug: antal.slug,
+          level: 90,
+          promoted: true,
+          potential,
+          trustLevel: 4,
+          skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+          talentStates: { 0: 2, 1: 2 },
+        },
+        weapon: null,
+        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+        initialState: { ultimateEnergy: 0 },
+        skillCasts: [],
+      };
+      scenario.tracks[1] = {
+        id: 'track:perlica',
+        operator: {
+          operatorSlug: perlica.slug,
+          level: 90,
+          promoted: true,
+          potential: 0,
+          trustLevel: 4,
+          skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+          talentStates: { 0: 0, 1: 0 },
+        },
+        weapon: null,
+        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+        initialState: { ultimateEnergy: 0 },
+        skillCasts: [],
+      };
+      let placed = placeSkillGroup({
+        scenario,
+        trackIndex: 0,
+        operator: antal,
+        skillGroupKey: 'battleSkill',
+        startFrame: 1,
+        ids: { allocate: kind => `${kind}:antal:${potential}` },
+      }).scenario;
+      placed = placeSkillGroup({
+        scenario: placed,
+        trackIndex: 1,
+        operator: perlica,
+        skillGroupKey: 'basicAttack',
+        startFrame: 1_280,
+        ids: { allocate: kind => `${kind}:perlica:${potential}` },
+      }).scenario;
+      return runStandardPlayerDamageScenarioSimulation({
+        scenario: placed,
+        endFrame: 1_340,
+        criticalSamples: new ExplicitCriticalSampleSource(Array(40).fill(1)),
+        elementalInflictionDocument: elementalAttachments,
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        options: {
+          index: nextGameDataRepository,
+          resources: {
+            sharedSpGain: { baseGainEfficiency: 1 },
+            spRecoveryPauseDuration: 1.5,
+            normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+            ultimateEnergySystemUnlocked: false,
+          },
+        },
+      });
+    };
+
+    const base = run(4);
+    const enhanced = run(5);
+    const perlicaDamage = (result: typeof enhanced) =>
+      Number(
+        result.receiptEntries.find(
+          entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:perlica',
+        )?.data?.value,
+      );
+    expect(perlicaDamage(base)).toBeGreaterThan(0);
+    expect(perlicaDamage(enhanced)).toBeGreaterThan(perlicaDamage(base));
   });
 });

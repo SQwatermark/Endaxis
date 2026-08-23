@@ -16,6 +16,7 @@ import {
 import type { ActionBlackboardValue } from '../runtime/actionBlackboard';
 import type {
   BuffDuration,
+  BuffKeywordEnhancementDefinition,
   BuffLifecycleActions,
   BuffPriority,
   BuffShieldDefinition,
@@ -223,6 +224,7 @@ export interface CombatBuffDefinitionEntry {
   readonly blackboard?: Readonly<Record<string, ActionBlackboardValue>>;
   readonly attributeModifiers?: readonly CombatBuffDefinitionAttributeModifier[];
   readonly damageModifiers?: readonly CombatBuffDefinitionDamageModifier[];
+  readonly keywordEnhancements?: readonly BuffKeywordEnhancementDefinition[];
   readonly healModifiers?: readonly HealModifierDefinition[];
   readonly shields?: readonly BuffShieldDefinition[];
   readonly sustainedProtection?: BuffSustainedProtectionDefinition;
@@ -352,6 +354,7 @@ export class CompiledCombatBuffDefinitions<
             : ATTRIBUTE_MODIFIER_SOURCES.buff,
       })),
       damageModifiers: entry.damageModifiers,
+      keywordEnhancements: entry.keywordEnhancements,
       healModifiers: entry.healModifiers,
       shields: entry.shields,
       sustainedProtection: entry.sustainedProtection,
@@ -458,6 +461,7 @@ export function parseCombatBuffDefinitionEntry(
     'blackboard',
     'attributeModifiers',
     'damageModifiers',
+    'keywordEnhancements',
     'healModifiers',
     'shields',
     'sustainedProtection',
@@ -491,6 +495,7 @@ export function parseCombatBuffDefinitionEntry(
     ...parseOptionalBlackboard(entry, path),
     ...parseOptionalAttributeModifiers(entry, path),
     ...parseOptionalDamageModifiers(entry, path),
+    ...parseOptionalKeywordEnhancements(entry, path),
     ...parseOptionalHealModifiers(entry, path),
     ...parseOptionalShields(entry, path),
     ...parseOptionalSustainedProtection(entry, path),
@@ -681,6 +686,45 @@ function parseOptionalDamageModifiers(
         processors: modifier.processors.map((processor, processorIndex) =>
           parseDamageModifierProcessor(processor, `${modifierPath}.processors[${processorIndex}]`),
         ),
+      };
+    }),
+  };
+}
+
+function parseOptionalKeywordEnhancements(
+  entry: Readonly<Record<string, unknown>>,
+  path: string,
+): { keywordEnhancements?: readonly import('./combatBuffs').BuffKeywordEnhancementDefinition[] } {
+  if (entry.keywordEnhancements === undefined) return {};
+  if (!Array.isArray(entry.keywordEnhancements)) {
+    throw new Error(`${path}.keywordEnhancements: expected array`);
+  }
+  return {
+    keywordEnhancements: entry.keywordEnhancements.map((input, index) => {
+      const itemPath = `${path}.keywordEnhancements[${index}]`;
+      const item = requireObject(input, itemPath);
+      requireOnlyKeys(item, itemPath, [
+        'triggerBuffIds',
+        'operation',
+        'targetKey',
+        'initialValue',
+        'value',
+      ]);
+      if (!Array.isArray(item.triggerBuffIds) || item.triggerBuffIds.length === 0) {
+        throw new Error(`${itemPath}.triggerBuffIds: expected non-empty array`);
+      }
+      return {
+        triggerBuffIds: item.triggerBuffIds.map((value, idIndex) =>
+          requireNonEmptyString(value, `${itemPath}.triggerBuffIds[${idIndex}]`),
+        ),
+        operation: requireEnum(
+          item.operation,
+          ['assign', 'add', 'multiply'] as const,
+          `${itemPath}.operation`,
+        ),
+        targetKey: requireNonEmptyString(item.targetKey, `${itemPath}.targetKey`),
+        initialValue: parseDefinitionNumberOperand(item.initialValue, `${itemPath}.initialValue`),
+        value: parseDefinitionNumberOperand(item.value, `${itemPath}.value`),
       };
     }),
   };

@@ -1698,7 +1698,7 @@ export class CombatRuntimeAssembly {
     isOperatorControlled: CombatRuntimeAssemblyOptions['isOperatorControlled'],
     resolveOperatorVitals: CombatRuntimeAssemblyOptions['resolveOperatorVitals'],
   ): readonly BuffOperationTarget[] {
-    if (target === 'eventTarget' || target === 'buffOwner') {
+    if (target === 'eventTarget' || target === 'buffOwner' || target === 'buffSource') {
       throw new Error(`${target} must be resolved from the active operation context`);
     }
     if (target === 'party' || target === 'partyExceptCaster') {

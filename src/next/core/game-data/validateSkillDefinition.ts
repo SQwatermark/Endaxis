@@ -12,6 +12,7 @@ import {
   ACTION_VALUE_OPERATIONS,
   BUFF_APPLICATION_TARGETS,
   BUFF_APPLICATION_SOURCES,
+  BUFF_SINGLE_TARGETS,
   COMBAT_CONDITION_KINDS,
   COMBAT_RESOURCES,
   COMBAT_STEP_KINDS,
@@ -57,6 +58,7 @@ const COMBAT_TARGETS_SET = new Set<string>(COMBAT_TARGETS);
 const HEALTH_TARGETS_SET = new Set<string>([...COMBAT_TARGETS, ...HEAL_TARGETS]);
 const TIME_DILATION_IGNORE_TARGETS_SET = new Set<string>(TIME_DILATION_IGNORE_TARGETS);
 const BUFF_APPLICATION_TARGETS_SET = new Set<string>(BUFF_APPLICATION_TARGETS);
+const BUFF_SINGLE_TARGETS_SET = new Set<string>(BUFF_SINGLE_TARGETS);
 const BUFF_APPLICATION_SOURCES_SET = new Set<string>(BUFF_APPLICATION_SOURCES);
 const RESOURCE_RECIPIENTS_SET = new Set<string>(RESOURCE_RECIPIENTS);
 const COMPARISON_OPERATORS_SET = new Set<string>(COMPARISON_OPERATORS);
@@ -518,7 +520,7 @@ function validateCombatCondition(
       }
       break;
     case 'buffStackCompare':
-      requireEnum(record, 'target', COMBAT_TARGETS_SET, path, out);
+      requireEnum(record, 'target', BUFF_SINGLE_TARGETS_SET, path, out);
       requireEnum(record, 'tagQueryType', TAG_QUERY_TYPES_SET, path, out);
       validateNonEmptyIntegerArray(record.buffTagIds, `${path}.buffTagIds`, out);
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
@@ -533,7 +535,7 @@ function validateCombatCondition(
       validateNonEmptyIntegerArray(record.tagIds, `${path}.tagIds`, out);
       break;
     case 'buffIdStackCompare':
-      requireEnum(record, 'target', COMBAT_TARGETS_SET, path, out);
+      requireEnum(record, 'target', BUFF_SINGLE_TARGETS_SET, path, out);
       validateNonEmptyStringArray(record.buffIds, `${path}.buffIds`, out);
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
       validateLevelValuesOrActionValueOperand(record.value, `${path}.value`, out);
@@ -1538,7 +1540,7 @@ function validateCombatStep(
       requireBoolean(parameters, 'paused', `${path}.parameters`, out);
       break;
     case 'igniteBuffs':
-      requireEnum(parameters, 'target', COMBAT_TARGETS_SET, `${path}.parameters`, out);
+      requireEnum(parameters, 'target', BUFF_SINGLE_TARGETS_SET, `${path}.parameters`, out);
       requireEnum(
         parameters,
         'source',
