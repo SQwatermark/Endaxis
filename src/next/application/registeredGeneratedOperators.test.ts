@@ -11,6 +11,7 @@ import { nextGameDataRepository } from '../data/gameDataRepository';
 import { elementalAttachments } from '../data/buffs/elementalAttachments';
 import { scheduled, sequence, step } from '../data/operators/definitionHelpers';
 import {
+  alesh,
   antal,
   arcane,
   camille,
@@ -1278,6 +1279,64 @@ describe('registered generated operators', () => {
       expect.objectContaining({
         event: 'DamageApplied',
         sourceId: 'track:wulfgard',
+        targetId: 'enemy',
+      }),
+    );
+  });
+
+  it('runs Alesh basic attack through the registered production repository', () => {
+    const scenario = createEmptyScenario('scenario:alesh:registered', '阿列什默认仓库回归');
+    scenario.battle.durationFrames = 120;
+    scenario.tracks[0] = {
+      id: 'track:alesh',
+      operator: {
+        operatorSlug: alesh.slug,
+        level: 90,
+        promoted: true,
+        potential: 5,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 2, 1: 2 },
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    const placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: alesh,
+      skillGroupKey: 'basicAttack',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:alesh` },
+    }).scenario;
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      endFrame: 120,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+      elementalInflictionDocument: elementalAttachments,
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+          ultimateEnergySystemUnlocked: false,
+        },
+      },
+    });
+
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'DamageApplied',
+        sourceId: 'track:alesh',
         targetId: 'enemy',
       }),
     );

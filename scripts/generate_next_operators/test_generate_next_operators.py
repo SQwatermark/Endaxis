@@ -15164,7 +15164,11 @@ class GenerateNextOperatorsTests(unittest.TestCase):
                                                             "serverActionIndex": 2,
                                                             "checkType": "Id",
                                                             "buffIdList": [{"buffId": "buff_a"}],
-                                                            "query": {"queryType": "HasAny"},
+                                                            "query": {
+                                                                "queryType": "HasAny",
+                                                                # Id 是判别字段；原生对象仍可能携带不参与查询的 Tag 残值。
+                                                                "tags": [{"tagId": 1535684437}],
+                                                            },
                                                         },
                                                         {
                                                             "$type": "Example.CheckDamageDecorateMask+Data, Example",

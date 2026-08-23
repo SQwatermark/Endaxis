@@ -11,6 +11,7 @@ import {
   rossiUltimate,
 } from './generated/rossi.operator.generated';
 import {
+  alesh,
   antal,
   akekuri,
   camille,
@@ -56,6 +57,7 @@ const generatedOperators: readonly [OperatorDefinition, number][] = [
   [snowshine, 8],
   [wulfgard, 9],
   [antal, 9],
+  [alesh, 10],
 ];
 
 function hasUpgradeBehavior(

@@ -19,6 +19,7 @@ import type {
 } from '../core/game-data/operatorDefinition';
 import type { EnemyDefinition } from '../core/game-data/enemyDefinition';
 import {
+  alesh,
   antal,
   akekuri,
   arcane,
@@ -152,6 +153,7 @@ export const nextGameDataRepository = createGameDataRepository({
     snowshine,
     wulfgard,
     antal,
+    alesh,
   ],
   weapons: sharedWeaponDefinitions,
   gears: sharedGearDefinitions,

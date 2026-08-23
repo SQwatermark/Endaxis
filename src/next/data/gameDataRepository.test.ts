@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  alesh,
   antal,
   akekuri,
   arcane,
@@ -68,8 +69,10 @@ describe('gameDataRepository', () => {
       snowshine,
       wulfgard,
       antal,
+      alesh,
     ]);
     expect(nextGameDataRepository.getOperator(perlica.slug)).toBe(perlica);
+    expect(nextGameDataRepository.getOperator(alesh.slug)).toBe(alesh);
     expect(nextGameDataRepository.getOperator(arcane.slug)).toBe(arcane);
     expect(nextGameDataRepository.getOperator(zhuangFangyi.slug)).toBe(zhuangFangyi);
     expect(nextGameDataRepository.getOperator(arclight.slug)).toBe(arclight);

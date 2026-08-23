@@ -26,3 +26,4 @@ export { ember } from './ember';
 export { snowshine } from './snowshine';
 export { wulfgard } from './wulfgard';
 export { antal } from './antal';
+export { alesh } from './alesh';

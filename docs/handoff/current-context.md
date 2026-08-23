@@ -927,3 +927,16 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 全量 25 项配置生成及 `--check`、生成器 463/463、`type-check:next`、Next Vitest 202 文件
   1420/1420 已通过。尚未正式注册的官方干员剩 Xaihi、Alesh、Avywenna、Catcher、Ardelia 五名；
   梨诺继续因终结技真实能力实体模板缺失保持 audit。
+
+### 2026-08-23：阿列什正式生成接入
+
+- 阿列什横向审计的 10 个入口已全部提升为正式 manifest：五段普攻、重击、下落攻击、战技、连携
+  和终结技均走统一 `resolvedSequence`，两项天赋与五项潜能复用 attached Buff、技能黑板补丁、
+  静态属性和终结技费用编译器。稳定导出、默认仓库和真实时间轴基础攻击回归已接入。
+- `CheckBuffIdInContext` 现严格以 `checkType` 选择 ID 或 Tag 查询。阿列什天赋的 ID 模式真实对象在
+  `buffIdList` 有有效冻结 Buff 身份，同时仍携带序列化 Tag 残值；该 Tag 不构成额外合取条件。
+  Tag 模式同理不因空或陈旧 ID 占位失败，未知 checkType 仍失败关闭。
+- 正式 `complete` 干员增至 25 名，剩余 Xaihi、Avywenna、Catcher、Ardelia 四名；梨诺仍保持
+  缺失能力实体模板的 audit。本轮门禁为生成器 463/463、全量生成与 `--check`、
+  `type-check:next`、Next Vitest 202 文件 1424/1424。下一候选继续按“正常玩家行为可触发并影响
+  输出、现有证据闭合”排序。

@@ -506,6 +506,21 @@ export const generatedCommonBuffDefinitions = {
       impactResistance: 100,
     },
   },
+  'buff_common_full_immune_medium': {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 0,
+    durationSeconds: { blackboardKey: 'duration' },
+    applyTagIds: [-808036568, -279045144, 1643653132, 2056757668, 195489960, 2136825092, 486381712, 782082172, -104052028, -886962248],
+    blackboard: {
+      'duration': 9999,
+    },
+    sustainedProtection: {
+      target: 'owner',
+      superArmor: 40,
+      impactResistance: 100,
+    },
+  },
   'buff_physical_no_guard': {
     stackingType: 'enhanceAndRefresh',
     presentation: {
@@ -1499,21 +1514,6 @@ export const generatedCommonBuffDefinitions = {
         ),
       },
     ],
-  },
-  'buff_common_full_immune_medium': {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTagIds: [-808036568, -279045144, 1643653132, 2056757668, 195489960, 2136825092, 486381712, 782082172, -104052028, -886962248],
-    blackboard: {
-      'duration': 9999,
-    },
-    sustainedProtection: {
-      target: 'owner',
-      superArmor: 40,
-      impactResistance: 100,
-    },
   },
   'buff_common_do_frozen': {
     stackingType: 'stack',

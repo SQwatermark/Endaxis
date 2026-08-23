@@ -136,7 +136,6 @@ def compile_combat_condition(
             context_buff.checkType == "Id"
             and context_buff.queryType == "HasAny"
             and context_buff.buffIds
-            and not context_buff.buffTagIds
         ):
             return "\n".join(
                 [
@@ -150,7 +149,6 @@ def compile_combat_condition(
             context_buff.checkType == "Tag"
             and context_buff.queryType in {"HasAny", "HasAll", "ExceptAny", "ExceptAll"}
             and context_buff.buffTagIds
-            and not context_buff.buffIds
         ):
             return "\n".join(
                 [
