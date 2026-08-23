@@ -162,6 +162,71 @@ describe('CombatBuffContainer', () => {
     expect(vulnerable.blackboard.getNumber('__heat_rate')).toBeCloseTo(0.25);
   });
 
+  it('refreshes source-targeted attribute modifiers after a keyword add edge', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
+    const container = new CombatBuffContainer('operator', attributes);
+    const carrier = requireAddedBuff(
+      container.add(
+        {
+          id: 'source-enhance',
+          stackingType: 'unique',
+          blackboard: { rate: 0.2, enhanceRate: 0.05 },
+          keywordEnhancements: [
+            {
+              triggerBuffIds: ['mark'],
+              operation: 'add',
+              targetKey: '__rate',
+              initialValue: { blackboardKey: 'rate' },
+              value: { blackboardKey: 'enhanceRate' },
+            },
+          ],
+          attributeModifiers: [
+            {
+              attribute: 'attack',
+              values: { slot: 'baseMultiplier', blackboardKey: '__rate' },
+              timing: 'runtime',
+              target: 'buffSource',
+            },
+          ],
+        },
+        'operator',
+      ),
+    );
+
+    expect(attributes.get('attack')).toBeCloseTo(120);
+    requireAddedBuff(container.add({ id: 'mark', stackingType: 'stack' }, 'operator'));
+    expect(carrier.blackboard.getNumber('__rate')).toBeCloseTo(0.25);
+    expect(attributes.get('attack')).toBeCloseTo(125);
+
+    carrier.finish('lifetime');
+    expect(attributes.get('attack')).toBeCloseTo(100);
+  });
+
+  it('rejects a distinct buff source instead of treating it as the owner', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
+    const container = new CombatBuffContainer('owner', attributes);
+
+    expect(() =>
+      container.add(
+        {
+          id: 'distinct-source-enhance',
+          stackingType: 'unique',
+          attributeModifiers: [
+            {
+              attribute: 'attack',
+              values: attributeModifierValues('baseMultiplier', 0.2),
+              timing: 'runtime',
+              target: 'buffSource',
+            },
+          ],
+        },
+        'source',
+      ),
+    ).toThrow("targets distinct buff source 'source'");
+  });
+
   it('有限 Buff 接受原生负时长并在首次 Tick 的生命周期阶段结束', () => {
     const events: string[] = [];
     const container = new CombatBuffContainer<never>('operator', new CombatAttributeSet<never>());

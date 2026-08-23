@@ -3864,7 +3864,18 @@ export const zhuangFangyiGeneratedSource = {
       ],
       "applyTagIds": [],
       "extendTagIds": [],
-      "attributeModifiers": [],
+      "attributeModifiers": [
+        {
+          "targetType": "BuffSource",
+          "attributeType": "PulseEnhancedDmgIncrease",
+          "slot": "BaseAddition",
+          "value": {
+            "value": 0.0,
+            "blackboardKey": "__keyword_rate_0_0_0",
+            "levelValues": null
+          }
+        }
+      ],
       "damageModifiers": [],
       "directDamageHits": [],
       "inflictions": [],
@@ -3873,39 +3884,7 @@ export const zhuangFangyiGeneratedSource = {
       "blackboardMutations": [],
       "buffBlackboardReads": [],
       "buffFinishes": [],
-      "eventActions": [
-        {
-          "eventSource": "buff",
-          "event": "DuringBuffEnable",
-          "orderedActionTypes": [
-            "EnhancedAction"
-          ],
-          "combatActions": [],
-          "damageUnits": [],
-          "buffApplications": [],
-          "createdBuffIds": [],
-          "forEachActions": [],
-          "targetGroupWrites": [],
-          "sequences": [
-            {
-              "onlyMainOperator": false,
-              "onlyGuard": false,
-              "orderedActionTypes": [
-                "EnhancedAction"
-              ],
-              "combatActions": [],
-              "buffApplications": [],
-              "actions": [],
-              "priority": 0
-            }
-          ],
-          "finishAfterIgnited": false,
-          "runtimeTargetGroupWrites": [],
-          "obtainAtbValueKeys": [],
-          "contextBuffIdQueries": [],
-          "collectedBuffReactionModifier": null
-        }
-      ],
+      "eventActions": [],
       "igniteEventActions": [],
       "sourceDeathFinish": null,
       "resourceGains": [],
@@ -3938,7 +3917,29 @@ export const zhuangFangyiGeneratedSource = {
         "orderPriorityValue": 0,
         "orderPriorityEnum": "CommonCharBuff"
       },
-      "keywordEnhancements": []
+      "keywordEnhancements": [
+        {
+          "triggerBuffIds": [
+            "buff_chr_0030_zhuangfy_talent1_mark"
+          ],
+          "operation": "Add",
+          "targetKey": "__keyword_rate_0_0_0",
+          "initialValue": {
+            "value": 0.0,
+            "blackboardKey": "base_rate",
+            "levelValues": [
+              0.0
+            ]
+          },
+          "value": {
+            "value": 0.0,
+            "blackboardKey": "enhance_rate",
+            "levelValues": [
+              0.0
+            ]
+          }
+        }
+      ]
     },
     {
       "buffId": "buff_chr_0030_zhuangfy_talent1_mark",

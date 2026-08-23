@@ -93,6 +93,8 @@ export interface BuffAttributeModifierDefinition<Key extends string> {
   readonly values: BuffAttributeModifierValues;
   readonly timing: AttributeModifierTiming;
   readonly source?: AttributeModifierSource;
+  /** 原生属性修正目标；buffSource 不得静默退化为 Buff Owner。 */
+  readonly target?: 'owner' | 'buffSource';
 }
 
 /** Buff 启用期间注册到整场战斗共享 SP 系统的一项固定值修正。 */
@@ -417,6 +419,7 @@ export class CombatBuff<Key extends string> {
       this.blackboard.assignDynamic(enhancement.targetKey, next);
       changed = true;
     }
+    if (changed) this.refreshAttributeModifierValues();
     return changed;
   }
 
@@ -463,6 +466,7 @@ export class CombatBuff<Key extends string> {
     }
 
     try {
+      this.assertAttributeModifierTargetsSupported();
       this.owner.registerDamageModifiers(this.damageModifiers);
       this.owner.registerHealModifiers(this.healModifiers);
       this.owner.registerShields(this.shields);
@@ -682,6 +686,16 @@ export class CombatBuff<Key extends string> {
         );
       }),
     );
+  }
+
+  private assertAttributeModifierTargetsSupported(): void {
+    for (const modifier of this.definition.attributeModifiers ?? []) {
+      if (modifier.target === 'buffSource' && this.sourceId !== this.owner.ownerId) {
+        throw new Error(
+          `buff '${this.definition.id}' targets distinct buff source '${this.sourceId}' for attribute modifier`,
+        );
+      }
+    }
   }
 
   private replaceAttributeModifiers(replacements: readonly CombatAttributeModifier<Key>[]): void {

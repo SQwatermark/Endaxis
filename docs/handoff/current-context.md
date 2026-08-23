@@ -963,6 +963,20 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
   子集误投影。`tmp/` 继续只作 AKEDB 临时证据目录，不纳入提交。本轮门禁为生成器 466/466、
   全量生成与 `--check`、`type-check:next`、Next Vitest 202 文件 1437/1437。
 
+### 2026-08-23：庄方宜天地造化电磁增幅闭环
+
+- 用户发现庄方宜天赋 1“天地造化”的电磁增幅没有进入战技 hit。AKEDB 原始
+  `buff_chr_0030_zhuangfy_talent1_base` 证明它不是普通 Owner 属性 Buff，而是
+  `DuringBuffEnable + Source -> Source + Pulse EnhancedAction`：基础 rate 来自 `base_rate`，
+  `buff_chr_0030_zhuangfy_talent1_mark` 每次加入时再按 `Add(enhance_rate)` 改写载体。
+- `combat-spec faad9f1` 在既有反编译证据上补齐动作对象转交 `enhancingList`，并以真实庄方宜形状
+  固化 Source 目标、动态黑板值和加入边沿刷新。Endaxis 生成器现把 Source 身份保留为
+  `buffSource`；当前只在来源实体等于载体 Owner 时注册属性，跨实体会原地报错，绝不默认为 Owner。
+- Next Buff 运行时在关键词 rate 被加入边沿改写后立即重建动态属性修正；标记结束不回退，载体结束
+  才撤销整项增幅。庄方宜正式生成物因此包含 `electricEnhancedDamageIncrease/baseAddition` 及对应
+  mark 的 `keywordEnhancements`。标准生产回归用相同战技与暴击样本证明：天赋一级伤害高于关闭，
+  二级又高于一级，增幅已实际进入 `DamageApplied`/hit，而非只存在于生成文本。
+
 ### 2026-08-23：Avywenna 正式生成与条件投射物 Buff 闭包
 
 - Avywenna 10 个技能入口、2 项天赋和 5 项潜能已进入正式 manifest、稳定导出和默认仓库，定义

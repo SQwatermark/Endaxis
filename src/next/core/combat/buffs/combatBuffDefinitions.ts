@@ -165,6 +165,7 @@ export interface CombatBuffDefinitionAttributeModifier {
   readonly attribute: string;
   readonly slot: AttributeModifierSlot;
   readonly value: number | { readonly blackboardKey: string };
+  readonly target?: 'owner' | 'buffSource';
   /** 原生 isConvertedAttribute=true 时保留 converted 来源身份。 */
   readonly source?: 'converted';
 }
@@ -348,6 +349,7 @@ export class CompiledCombatBuffDefinitions<
       blackboard: entry.blackboard,
       attributeModifiers: entry.attributeModifiers?.map(modifier => ({
         attribute: modifier.attribute as Key,
+        target: modifier.target,
         values:
           typeof modifier.value === 'number'
             ? attributeModifierValues(modifier.slot, modifier.value)
@@ -1064,7 +1066,7 @@ function parseOptionalAttributeModifiers(
     attributeModifiers: entry.attributeModifiers.map((input, index) => {
       const modifierPath = `${path}.attributeModifiers[${index}]`;
       const modifier = requireObject(input, modifierPath);
-      requireOnlyKeys(modifier, modifierPath, ['attribute', 'slot', 'value', 'source']);
+      requireOnlyKeys(modifier, modifierPath, ['attribute', 'slot', 'value', 'source', 'target']);
       const rawValue = modifier.value;
       const value =
         typeof rawValue === 'number' && Number.isFinite(rawValue)
@@ -1074,6 +1076,15 @@ function parseOptionalAttributeModifiers(
         attribute: requireNonEmptyString(modifier.attribute, `${modifierPath}.attribute`),
         slot: requireEnum(modifier.slot, ATTRIBUTE_MODIFIER_SLOTS, `${modifierPath}.slot`),
         value,
+        ...(modifier.target === undefined
+          ? {}
+          : {
+              target: requireEnum(
+                modifier.target,
+                ['owner', 'buffSource'] as const,
+                `${modifierPath}.target`,
+              ),
+            }),
         ...(modifier.source === undefined
           ? {}
           : {

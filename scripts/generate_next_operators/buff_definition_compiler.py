@@ -471,7 +471,7 @@ def compile_inline_buff_definition(
     if source.attributeModifiers:
         fields.append("attributeModifiers: [")
         for modifier in source.attributeModifiers:
-            if modifier.targetType != "Specific":
+            if modifier.targetType not in {"Specific", "BuffSource"}:
                 raise ValueError(
                     f"{path}: Buff {source.buffId!r} uses unsupported attribute target "
                     f"{modifier.targetType!r}"
@@ -483,6 +483,11 @@ def compile_inline_buff_definition(
                     f"{ts_inline_literal(BUFF_ATTRIBUTE_RUNTIME_KEYS.get(modifier.attributeType, modifier.attributeType))},",
                     f"    slot: {ts_inline_literal(ATTRIBUTE_SLOTS[modifier.slot])},",
                     f"    value: {_compile_scalar(modifier.value)},",
+                    *(
+                        ["    target: 'buffSource',"]
+                        if modifier.targetType == "BuffSource"
+                        else []
+                    ),
                     *(
                         ["    source: 'converted',"]
                         if getattr(source, "attributeModifiersConverted", False)

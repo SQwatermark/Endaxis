@@ -1309,11 +1309,6 @@ def parse_buff_enhanced_action_modifiers(
                     raise ValueError(f"{action_path}: unexpected EnhancedAction fields")
                 source = parse_target_reference(action.get("source"), f"{action_path}.source")
                 target = parse_target_reference(action.get("target"), f"{action_path}.target")
-                # Source-targeted carriers modify a possibly different entity from the Buff owner.
-                # The current Buff attribute registry is owner-scoped, so retain those actions in
-                # audit until source-side registration is modeled instead of misapplying them.
-                if target.targetSource != "Owner":
-                    continue
                 duration = parse_scalar(action.get("duration"), f"{action_path}.duration", blackboard)
                 subtype = action.get("subType")
                 child_buff = require_dict(action.get("childBuffId"), f"{action_path}.childBuffId")
@@ -1328,7 +1323,11 @@ def parse_buff_enhanced_action_modifiers(
                 if not (
                     action.get("isEnable") is True
                     and source.targetSource in {"Source", "Owner"}
-                    and target.targetSource == "Owner"
+                    and target.targetSource in {"Source", "Owner"}
+                    and (
+                        target.targetSource != "Source"
+                        or source.targetSource == "Source"
+                    )
                     and target_reference_is_plain(source)
                     and target_reference_is_plain(target)
                     and duration_matches_lifecycle
@@ -1350,7 +1349,7 @@ def parse_buff_enhanced_action_modifiers(
                         )
                     )
                     and action.get("asChildBuff") is True
-                    and action.get("enhancingList") == []
+                    and isinstance(action.get("enhancingList"), list)
                     and (
                         action.get("autoFinishByAction") is False
                         or (
@@ -1362,15 +1361,95 @@ def parse_buff_enhanced_action_modifiers(
                 ):
                     raise ValueError(f"{action_path}: unsupported EnhancedAction semantics")
                 rate = parse_scalar(action.get("rate"), f"{action_path}.rate", blackboard)
+                if action.get("enhancingList"):
+                    rate = ScalarSource(
+                        value=0.0,
+                        blackboardKey=(
+                            f"__keyword_rate_{event_index}_{sequence_index}_{action_index}"
+                        ),
+                        levelValues=None,
+                    )
                 result.extend(
                     BuffAttributeModifierSource(
-                        targetType="Specific",
+                        targetType=(
+                            "BuffSource" if target.targetSource == "Source" else "Specific"
+                        ),
                         attributeType=attribute_type,
                         slot="BaseAddition",
                         value=rate,
                     )
                     for attribute_type in ENHANCED_ACTION_ATTRIBUTE_TYPES[str(subtype)]
                 )
+    return tuple(result)
+
+
+def parse_buff_enhanced_action_enhancements(
+    buff: dict[str, Any],
+    source_name: str,
+    blackboard: dict[str, tuple[float, ...]],
+) -> tuple[BuffKeywordEnhancementSource, ...]:
+    """恢复 EnhancedAction.enhancingList 的加入边沿 rate 改写规则。"""
+    result: list[BuffKeywordEnhancementSource] = []
+    for event_index, raw_event in enumerate(
+        require_list(buff.get("buffEventAction", []), f"{source_name}.buffEventAction")
+    ):
+        event_path = f"{source_name}.buffEventAction[{event_index}]"
+        event = require_dict(raw_event, event_path)
+        if event.get("buffEvent") not in {"OnBuffStart", "DuringBuffEnable"}:
+            continue
+        for sequence_index, raw_sequence in enumerate(
+            require_list(event.get("actions"), f"{event_path}.actions")
+        ):
+            sequence_path = f"{event_path}.actions[{sequence_index}]"
+            sequence = require_dict(raw_sequence, sequence_path)
+            raw_action_data = sequence.get("actionData")
+            if not isinstance(raw_action_data, list):
+                continue
+            for action_index, raw_action in enumerate(raw_action_data):
+                action_path = f"{sequence_path}.actionData[{action_index}]"
+                action = require_dict(raw_action, action_path)
+                if action_name(str(action.get("$type", ""))) != "EnhancedAction":
+                    continue
+                enhancing_list = require_list(
+                    action.get("enhancingList"), f"{action_path}.enhancingList"
+                )
+                if not enhancing_list:
+                    continue
+                rate = parse_scalar(action.get("rate"), f"{action_path}.rate", blackboard)
+                target_key = f"__keyword_rate_{event_index}_{sequence_index}_{action_index}"
+                for enhance_index, raw_enhance in enumerate(enhancing_list):
+                    enhance_path = f"{action_path}.enhancingList[{enhance_index}]"
+                    enhance = require_dict(raw_enhance, enhance_path)
+                    if set(enhance) != {"buffIds", "operationType", "value"}:
+                        raise ValueError(f"{enhance_path}: unsupported keyword enhancement fields")
+                    buff_ids_list: list[str] = []
+                    for index, value in enumerate(
+                        require_list(enhance.get("buffIds"), f"{enhance_path}.buffIds")
+                    ):
+                        if not isinstance(value, str) or not value:
+                            raise ValueError(
+                                f"{enhance_path}.buffIds[{index}]: expected non-empty string"
+                            )
+                        buff_ids_list.append(value)
+                    buff_ids = tuple(buff_ids_list)
+                    if not buff_ids:
+                        raise ValueError(f"{enhance_path}.buffIds: expected non-empty list")
+                    operation = enhance.get("operationType")
+                    if operation not in {"Assign", "Add", "Multiply"}:
+                        raise ValueError(
+                            f"{enhance_path}.operationType: unsupported keyword operation {operation!r}"
+                        )
+                    result.append(
+                        BuffKeywordEnhancementSource(
+                            triggerBuffIds=buff_ids,
+                            operation=operation,
+                            targetKey=target_key,
+                            initialValue=rate,
+                            value=parse_scalar(
+                                enhance.get("value"), f"{enhance_path}.value", blackboard
+                            ),
+                        )
+                    )
     return tuple(result)
 
 
@@ -1837,8 +1916,9 @@ def resolve_buff_definitions(
             skill_source_dir or source_path.parent,
             blackboard,
         )
-        keyword_enhancements = parse_buff_start_vulnerability_enhancements(
-            buff, source_file, blackboard
+        keyword_enhancements = (
+            *parse_buff_start_vulnerability_enhancements(buff, source_file, blackboard),
+            *parse_buff_enhanced_action_enhancements(buff, source_file, blackboard),
         )
         ability_entity_hits = (
             resolve_ability_entity_hits(

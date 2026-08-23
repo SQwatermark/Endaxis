@@ -16,7 +16,10 @@ from generation_pipeline import validate_complete_skill_compile_configs
 from time_dilation_parser import parse_time_dilation_action, parse_time_scale_curve
 from target_group_parser import parse_circular_order_sort
 from target_parser import parse_spawned_entity_selector_identity
-from buff_definition_parser import parse_buff_enhanced_action_modifiers
+from buff_definition_parser import (
+    parse_buff_enhanced_action_enhancements,
+    parse_buff_enhanced_action_modifiers,
+)
 from action_payload_parser import (
     parse_knock_down_output_payload,
     parse_simple_buff_stack_read_payload,
@@ -943,6 +946,44 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(modifiers[0].attributeType, "CrystEnhancedDmgIncrease")
         self.assertEqual(modifiers[0].slot, "BaseAddition")
         self.assertEqual(modifiers[0].value.blackboardKey, "rate")
+
+        action["target"] = target_settings_fixture("Source")
+        action["enhancingList"] = [
+            {
+                "buffIds": ["buff.fixture.mark"],
+                "operationType": "Add",
+                "value": {
+                    "useBlackboardKey": True,
+                    "value": 0.0,
+                    "blackboardKey": "enhance_rate",
+                },
+            }
+        ]
+        source_modifiers = parse_buff_enhanced_action_modifiers(
+            buff,
+            "fixture",
+            {"duration": (12.0,), "rate": (0.24,), "enhance_rate": (0.03,)},
+            target_reference_is_plain=lambda target: (
+                target.targetGroupKey == "" and target.targetContextKey == ""
+            ),
+        )
+        source_enhancements = parse_buff_enhanced_action_enhancements(
+            buff,
+            "fixture",
+            {"duration": (12.0,), "rate": (0.24,), "enhance_rate": (0.03,)},
+        )
+        self.assertEqual(source_modifiers[0].targetType, "BuffSource")
+        self.assertEqual(
+            source_modifiers[0].value.blackboardKey,
+            "__keyword_rate_0_0_0",
+        )
+        self.assertEqual(len(source_enhancements), 1)
+        self.assertEqual(source_enhancements[0].triggerBuffIds, ("buff.fixture.mark",))
+        self.assertEqual(source_enhancements[0].initialValue.blackboardKey, "rate")
+        self.assertEqual(source_enhancements[0].value.blackboardKey, "enhance_rate")
+
+        action["target"] = target_settings_fixture("Owner")
+        action["enhancingList"] = []
 
         action["overrideChildBuffId"] = False
         action["childBuffId"] = {

@@ -1662,6 +1662,75 @@ describe('registered generated operators', () => {
     ).toBe(2);
   });
 
+  it('applies Zhuang Fangyi talent 1 electromagnetic enhancement to battle-skill hits', () => {
+    const run = (talentLevel: 0 | 1 | 2) => {
+      const scenario = createEmptyScenario(
+        `scenario:zhuang-fangyi:talent1:${talentLevel}`,
+        '庄方宜天地造化生产回归',
+      );
+      scenario.battle.durationFrames = 90;
+      scenario.battle.resourceRules = {
+        ...scenario.battle.resourceRules,
+        initialSp: 100,
+        spRecoveryPerSecond: 0,
+      };
+      scenario.enemy.editable.hp = 10_000_000;
+      scenario.tracks[0] = {
+        id: 'track:zhuang-fangyi',
+        operator: {
+          operatorSlug: zhuangFangyi.slug,
+          level: 90,
+          promoted: true,
+          potential: 0,
+          trustLevel: 4,
+          skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+          talentStates: { 0: talentLevel, 1: 0 },
+        },
+        weapon: null,
+        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+        initialState: { ultimateEnergy: 0 },
+        skillCasts: [],
+      };
+      const placed = placeSkillGroup({
+        scenario,
+        trackIndex: 0,
+        operator: zhuangFangyi,
+        skillGroupKey: 'battleSkill',
+        startFrame: 1,
+        ids: { allocate: kind => `${kind}:zhuang-fangyi:talent1:${talentLevel}` },
+      }).scenario;
+      return runStandardPlayerDamageScenarioSimulation({
+        scenario: placed,
+        endFrame: 90,
+        criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+        elementalInflictionDocument: elementalAttachments,
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        options: {
+          index: nextGameDataRepository,
+          resources: {
+            sharedSpGain: { baseGainEfficiency: 1 },
+            spRecoveryPauseDuration: 1.5,
+            normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+            ultimateEnergySystemUnlocked: true,
+          },
+        },
+      });
+    };
+    const damage = (talentLevel: 0 | 1 | 2) =>
+      run(talentLevel)
+        .receiptEntries.filter(
+          entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:zhuang-fangyi',
+        )
+        .reduce((total, entry) => total + Number(entry.data?.value), 0);
+
+    expect(damage(1)).toBeGreaterThan(damage(0));
+    expect(damage(2)).toBeGreaterThan(damage(1));
+  });
+
   it('runs Snowshine combo ability entity and records full-health healing', () => {
     const scenario = createEmptyScenario('scenario:snowshine:registered', '雪绒默认仓库回归');
     scenario.battle.durationFrames = 150;

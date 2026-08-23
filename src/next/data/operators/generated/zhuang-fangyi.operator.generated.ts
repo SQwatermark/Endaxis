@@ -1964,6 +1964,23 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
         'duration': 0,
         'enhance_rate': 0,
       },
+      attributeModifiers: [
+        {
+          attribute: 'electricEnhancedDamageIncrease',
+          slot: 'baseAddition',
+          value: { blackboardKey: '__keyword_rate_0_0_0' },
+          target: 'buffSource',
+        },
+      ],
+      keywordEnhancements: [
+        {
+          triggerBuffIds: ['buff_chr_0030_zhuangfy_talent1_mark'],
+          operation: 'add',
+          targetKey: '__keyword_rate_0_0_0',
+          initialValue: { blackboardKey: 'base_rate' },
+          value: { blackboardKey: 'enhance_rate' },
+        },
+      ],
     },
     'buff_chr_0030_zhuangfy_talent2_heal': {
       stackingType: 'unique',
