@@ -1515,6 +1515,62 @@ describe('registered generated operators', () => {
     ).toBe(true);
   });
 
+  it('binds the standard battle before Zhuang Fangyi frame-zero Buff initialization without casts', () => {
+    const scenario = createEmptyScenario(
+      'scenario:zhuang-fangyi:initialization-only',
+      '庄方宜开局 Buff 回归',
+    );
+    scenario.tracks[0] = {
+      id: 'track:zhuang-fangyi',
+      operator: {
+        operatorSlug: zhuangFangyi.slug,
+        level: 90,
+        promoted: true,
+        potential: 5,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 2, 1: 2 },
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario,
+      endFrame: 0,
+      criticalSamples: new ExplicitCriticalSampleSource([]),
+      elementalInflictionDocument: elementalAttachments,
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          ultimateEnergySystemUnlocked: true,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+        },
+      },
+    });
+
+    expect(
+      result.receiptEntries
+        .filter(entry => entry.event === 'BuffApplied' && entry.frame === 0)
+        .map(entry => entry.data?.buffId),
+    ).toEqual(
+      expect.arrayContaining([
+        'buff_chr_0030_zhuangfy_passive_check_sword',
+        'buff_chr_0030_zhuangfy_potential1',
+        'buff_chr_0030_zhuangfy_potential5',
+      ]),
+    );
+  });
+
   it('lets a standalone Zhuang Fangyi battle skill find its spawned sword and produce hits', () => {
     const scenario = createEmptyScenario(
       'scenario:zhuang-fangyi:battle-only',

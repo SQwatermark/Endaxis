@@ -167,6 +167,19 @@ export interface CombatOperationExecutorContext {
   readonly semanticEvents: CombatSemanticEventRuntime;
 }
 
+/** 装配根在任何开局程序执行前交给外部战斗环境的一次性运行时上下文。 */
+export interface CombatBattleRuntimeContext {
+  readonly enemy: CombatEnemyProgram;
+  readonly clock: CombatClock;
+  readonly resources: CombatResources;
+  readonly receipt: CombatReceiptSink;
+}
+
+/** 外部环境完成绑定后才可创建、需要由装配根逐帧推进的运行时。 */
+export interface BoundCombatBattleRuntimes {
+  readonly enemyVitalsRuntime?: (FrameRuntime & { advance?(deltaSeconds: number): void }) | null;
+}
+
 /** 配装事件中未被通用执行器消费的操作，由环境按明确来源决定是否支持。 */
 export interface EquipmentEventOperationExecutorContext extends EquipmentEventExecutionContext {
   readonly enemy: CombatEnemyProgram;
@@ -188,6 +201,10 @@ export interface CombatRuntimeAssemblyOptions {
   ) => number;
   /** 由场景敌人实例编译得到，操作执行器不得另行读取定义默认值。 */
   readonly enemy: CombatEnemyProgram;
+  /** 必须先于养成初始化和常驻被动执行，使帧 0 行为拥有同一时钟、回执和资源账本。 */
+  readonly bindBattleRuntime?: (
+    context: CombatBattleRuntimeContext,
+  ) => BoundCombatBattleRuntimes | void;
   /** 当前单敌人模型中的目标 Buff 查询端口。 */
   readonly enemyBuffRuntime: EnemyBuffRuntime;
   /** 缺省表示场景不启用时间膨胀；存在相关技能步骤时必须配置。 */
@@ -356,6 +373,13 @@ export class CombatRuntimeAssembly {
       ultimateEnergyGainMultiplier: options.resolveUltimateEnergyGainMultiplier,
     });
     this.receipt = options.receipt ?? new CombatReceiptCollector();
+    const boundBattleRuntimes =
+      options.bindBattleRuntime?.({
+        enemy: options.enemy,
+        clock: this.clock,
+        resources: this.resources,
+        receipt: this.receipt,
+      }) ?? {};
     this.timeDilation =
       options.timeDilation === undefined
         ? null
@@ -747,8 +771,8 @@ export class CombatRuntimeAssembly {
       },
     });
     // 失衡恢复计时与状态到期一样，在本帧输入和技能动作前推进。
-    if (options.enemyVitalsRuntime !== undefined && options.enemyVitalsRuntime !== null) {
-      const enemyVitalsRuntime = options.enemyVitalsRuntime;
+    const enemyVitalsRuntime = boundBattleRuntimes.enemyVitalsRuntime ?? options.enemyVitalsRuntime;
+    if (enemyVitalsRuntime !== undefined && enemyVitalsRuntime !== null) {
       this.simulation.add({
         advanceFrame: () => {
           if (this.timeDilation === null || enemyVitalsRuntime.advance === undefined) {

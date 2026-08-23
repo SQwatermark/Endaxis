@@ -54,6 +54,7 @@ import type { CriticalSampleSource } from '../random/criticalSampleSource';
 import type { ProbabilitySampleSource } from '../random/probabilitySampleSource';
 import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
 import type {
+  CombatBattleRuntimeContext,
   CombatOperationExecutorContext,
   CombatRuntimeAssemblyOptions,
 } from './combatRuntimeAssembly';
@@ -77,6 +78,7 @@ type DamageStep = Extract<ResolvedCombatStep, { kind: 'dealDamage' | 'dealFixedD
 type EnvironmentOptions = Pick<
   CombatRuntimeAssemblyOptions,
   | 'enemyBuffRuntime'
+  | 'bindBattleRuntime'
   | 'enemyVitalsRuntime'
   | 'createOperatorBuffRuntime'
   | 'createAbilityEntityBuffRuntime'
@@ -184,6 +186,7 @@ export class StandardPlayerDamageEnvironment {
   #enemyVitalsRuntime: CombatVitalsRuntime | null = null;
   #enemyIdentity: CombatOperationExecutorContext['enemy'] | null = null;
   #resources: CombatResources | null = null;
+  #boundByAssembly = false;
 
   constructor(readonly options: StandardPlayerDamageEnvironmentOptions) {
     const enemyAttributes = new CombatAttributeSet<string>();
@@ -220,11 +223,18 @@ export class StandardPlayerDamageEnvironment {
         ? {}
         : { probabilitySamples: options.probabilitySamples }),
       enemyBuffRuntime: this.#enemyBuffRuntime,
+      bindBattleRuntime: context => {
+        this.#bindBattleRuntime(context, true);
+        return { enemyVitalsRuntime: this.#enemyVitalsRuntime };
+      },
       get enemyVitalsRuntime() {
         return vitalsRuntimeOf();
       },
       createOperatorBuffRuntime: (operatorId, panel) => {
-        if (panel !== undefined) this.#ensureOperatorVitals(operatorId, panel);
+        if (panel !== undefined) {
+          this.#operatorPanels.set(operatorId, panel);
+          this.#ensureOperatorVitals(operatorId, panel);
+        }
         return this.#operatorBuffRuntime(operatorId, panel);
       },
       resolveUltimateEnergyGainMultiplier: operatorId =>
@@ -299,10 +309,7 @@ export class StandardPlayerDamageEnvironment {
   }
 
   #createOperationExecutor(context: CombatOperationExecutorContext): CombatOperationExecutor {
-    this.#bindEnemy(context);
-    this.#resources = context.resources;
-    this.#clock = context.clock;
-    this.#receipt = context.receipt;
+    this.#bindBattleRuntime(context);
     if (context.panel !== undefined) {
       this.#operatorPanels.set(context.program.operatorId, context.panel);
       this.#ensureOperatorVitals(context.program.operatorId, context.panel);
@@ -567,11 +574,26 @@ export class StandardPlayerDamageEnvironment {
     });
   }
 
-  #bindEnemy(context: CombatOperationExecutorContext): void {
+  #bindBattleRuntime(context: CombatBattleRuntimeContext, byAssembly = false): void {
+    if (this.#boundByAssembly && this.#clock !== context.clock) {
+      throw new Error('standard player damage environment cannot be shared across battle clocks');
+    }
+    if (this.#boundByAssembly && this.#receipt !== context.receipt) {
+      throw new Error('standard player damage environment cannot be shared across battle receipts');
+    }
+    if (this.#boundByAssembly && this.#resources !== context.resources) {
+      throw new Error(
+        'standard player damage environment cannot be shared across battle resources',
+      );
+    }
     if (this.#enemyIdentity !== null && this.#enemyIdentity !== context.enemy) {
       throw new Error('standard player damage environment cannot be shared across enemies');
     }
+    this.#clock = context.clock;
+    this.#receipt = context.receipt;
+    this.#resources = context.resources;
     this.#enemyIdentity = context.enemy;
+    if (byAssembly) this.#boundByAssembly = true;
     if (!this.#enemyResistanceAttributes.has('FireResistance')) {
       initializeEnemyResistanceAttributes(
         this.#enemyResistanceAttributes,
