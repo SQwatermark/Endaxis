@@ -58,7 +58,7 @@ export function createPlayerActiveOperationExecutor(
     sourceOperatorId: options.context.program.operatorId,
     skillType: options.context.program.skillType,
     isCriticalForced: (
-      step: Parameters<PlayerDamageOperationDependencies['isCriticalForced']>[0],
+      step: Parameters<NonNullable<PlayerDamageOperationDependencies['isCriticalForced']>>[0],
     ) =>
       step.key !== undefined &&
       (options.context.program.simulationInputs?.forcedCriticalStepKeys ?? []).includes(step.key),

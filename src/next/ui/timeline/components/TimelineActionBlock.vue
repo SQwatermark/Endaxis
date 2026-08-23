@@ -103,14 +103,14 @@ function markerStyle(marker: TimelineHitMarkerView): Record<string, string> {
       v-for="hit in hits ?? []"
       :key="hit.hitId"
       class="hit-marker"
+      :class="{ 'is-forced-crit': hit.forcedCritical }"
       :style="markerStyle(hit)"
       :title="hit.title ?? ''"
       :data-connection-action-id="actionId"
       :data-connection-port="`hit:${hit.hitId}`"
       draggable="false"
       @pointerdown.stop
-      @mousedown.stop.prevent
-      @click.stop="$emit('hitClick', hit.hitId)"
+      @mousedown.stop.prevent="$emit('hitClick', hit.hitId)"
     ></span>
     <span v-if="warning" class="warning-mark" aria-label="warning"></span>
     <EditPen
@@ -422,7 +422,13 @@ function markerStyle(marker: TimelineHitMarkerView): Record<string, string> {
     box-shadow 0.15s ease,
     transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   pointer-events: auto;
-  cursor: pointer;
+  cursor: default;
+}
+
+.hit-marker.is-forced-crit {
+  background-color: #ff6b6b;
+  border-color: #ffd166;
+  box-shadow: 0 0 8px rgba(255, 209, 102, 0.9);
 }
 
 .hit-marker:hover {

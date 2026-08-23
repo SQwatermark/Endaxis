@@ -1138,7 +1138,10 @@ function castHitMarkers(trackIndex: TrackIndex, castId: string): TimelineHitMark
   const castModel = viewModel.value.tracks[trackIndex]?.skillCasts.find(
     candidate => candidate.id === castId,
   );
-  if (castModel === undefined) return [];
+  const cast = scenario.value.tracks[trackIndex]?.skillCasts.find(
+    candidate => candidate.id === castId,
+  );
+  if (castModel === undefined || cast === undefined) return [];
   const effects = castHitEffects.value.get(castId);
   const publishedStartFrame = skillCastActualStartFrames.value.get(castId) ?? castModel.startFrame;
   return castModel.hitMarkers
@@ -1152,6 +1155,9 @@ function castHitMarkers(trackIndex: TrackIndex, castId: string): TimelineHitMark
         ((hitActualFrames.value.get(marker.hitId) ?? publishedStartFrame + marker.frameOffset) -
           publishedStartFrame) *
         pxPerFrame.value,
+      forcedCritical: (cast.simulationInputs?.forcedCriticalStepKeys ?? []).includes(
+        marker.stepKey,
+      ),
       ...(effects === undefined ? {} : { title: hitMarkerTitle(effects.get(marker.hitId)) }),
     }));
 }
@@ -1951,7 +1957,8 @@ const hasModalPanel = computed(
     showSkillDefinitionEditor.value ||
     showWeaponBuildDialog.value ||
     showGearBuildDialog.value ||
-    panelDialogTrack.value !== null,
+    panelDialogTrack.value !== null ||
+    hitDetailTarget.value !== null,
 );
 
 useKeyboardShortcutScope({

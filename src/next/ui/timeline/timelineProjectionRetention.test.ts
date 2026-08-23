@@ -54,6 +54,23 @@ describe('Next timeline simulation projection retention', () => {
     expect(source).toContain('candidate.hitId === target.hitId');
   });
 
+  it('keeps legacy hit-marker press timing and forced-critical feedback', () => {
+    expect(actionBlockSource).toContain("'is-forced-crit': hit.forcedCritical");
+    expect(actionBlockSource).toContain('@mousedown.stop.prevent="$emit(\'hitClick\', hit.hitId)"');
+    expect(actionBlockSource).not.toContain('@click.stop="$emit(\'hitClick\', hit.hitId)"');
+    expect(actionBlockSource).toMatch(/\.hit-marker\.is-forced-crit\s*\{[^}]*#ff6b6b/s);
+    expect(source).toContain('forcedCriticalStepKeys');
+  });
+
+  it('blocks timeline shortcuts while the hit detail is open', () => {
+    const modalGuard = projectionSource(
+      'const hasModalPanel = computed',
+      '\nuseKeyboardShortcutScope',
+    );
+
+    expect(modalGuard).toContain('hitDetailTarget.value !== null');
+  });
+
   it('writes cast movement directly in the actual-time domain', () => {
     const gesture = projectionSource(
       'interface TimelineCastMoveGesture',
