@@ -14,6 +14,7 @@ import {
   alesh,
   antal,
   arcane,
+  ardelia,
   avywenna,
   catcher,
   camille,
@@ -34,6 +35,73 @@ import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
 
 describe('registered generated operators', () => {
+  it('applies Ardelia potential 1 vulnerability increase to her battle-skill damage', () => {
+    const run = (potential: number) => {
+      const scenario = createEmptyScenario(
+        `scenario:ardelia:potential-${potential}`,
+        'Ardelia 潜能一生产回归',
+      );
+      scenario.battle.durationFrames = 80;
+      scenario.enemy.editable.hp = 10_000_000;
+      scenario.tracks[0] = {
+        id: 'track:ardelia',
+        operator: {
+          operatorSlug: ardelia.slug,
+          level: 90,
+          promoted: true,
+          potential,
+          trustLevel: 4,
+          skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+          talentStates: { 0: 2, 1: 0 },
+        },
+        weapon: null,
+        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+        initialState: { ultimateEnergy: 0 },
+        skillCasts: [],
+      };
+      const placed = placeSkillGroup({
+        scenario,
+        trackIndex: 0,
+        operator: ardelia,
+        skillGroupKey: 'battleSkill',
+        startFrame: 1,
+        ids: { allocate: (kind: string) => `${kind}:ardelia:${potential}` },
+      }).scenario;
+      return runStandardPlayerDamageScenarioSimulation({
+        scenario: placed,
+        endFrame: 80,
+        criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+        elementalInflictionDocument: elementalAttachments,
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        options: {
+          index: nextGameDataRepository,
+          resources: {
+            sharedSpGain: { baseGainEfficiency: 1 },
+            spRecoveryPauseDuration: 1.5,
+            normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+            ultimateEnergySystemUnlocked: true,
+          },
+        },
+      });
+    };
+    const base = run(0);
+    const enhanced = run(1);
+    const damage = (result: typeof base) =>
+      result.receiptEntries.filter(
+        entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:ardelia',
+      );
+
+    expect(damage(base)).toHaveLength(1);
+    expect(damage(enhanced)).toHaveLength(1);
+    expect(Number(damage(enhanced)[0]?.data?.value)).toBeGreaterThan(
+      Number(damage(base)[0]?.data?.value),
+    );
+  });
+
   it('applies Catcher potential 1 defense-scaled damage after each ultimate hit', () => {
     const run = (potential: number) => {
       const scenario = createEmptyScenario(

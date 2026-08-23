@@ -14,6 +14,7 @@ import {
   alesh,
   antal,
   akekuri,
+  ardelia,
   avywenna,
   catcher,
   camille,
@@ -64,6 +65,7 @@ const generatedOperators: readonly [OperatorDefinition, number][] = [
   [xaihi, 10],
   [avywenna, 10],
   [catcher, 9],
+  [ardelia, 9],
 ];
 
 function hasUpgradeBehavior(
@@ -79,6 +81,29 @@ function hasUpgradeBehavior(
 }
 
 describe('新增的完整技能转换干员', () => {
+  it('Ardelia 保留战技易伤、潜能一黑板增幅与潜能五连携改写', () => {
+    expect(ardelia.conversionSupport).toEqual({
+      completeness: 'complete',
+      missingCapabilities: [],
+    });
+    expect(ardelia.buffDefinitions?.buff_chr_0025_ardelia_normal_skill_vulnerable).toBeDefined();
+    expect(ardelia.potentials[0]?.modifiers).toContainEqual(
+      expect.objectContaining({
+        kind: 'patchSkillBlackboard',
+        skillGroupKey: 'battleSkill',
+        blackboardKey: 'rate_vul_base',
+        operation: 'add',
+        value: 0.08,
+      }),
+    );
+    expect(ardelia.potentials[4]?.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ kind: 'addSkillCooldownFrames', frames: -60 }),
+        expect.objectContaining({ blackboardKey: 'potential5_dmg_rate', value: 1.2 }),
+      ]),
+    );
+  });
+
   it('Catcher 保留意志换防御、属性护盾与防御倍率追加伤害', () => {
     expect(catcher.conversionSupport).toEqual({
       completeness: 'complete',
