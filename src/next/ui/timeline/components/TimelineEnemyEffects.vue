@@ -6,9 +6,11 @@
  */
 import { computed } from 'vue';
 import type { EnemyEffectViz } from '../../../core/projection/enemyEffectViz';
+import type { PositionedBuffTimelineSegment } from '../../../core/projection/buffTimelineViz';
 
 const props = defineProps<{
   viz: EnemyEffectViz;
+  buffs: readonly PositionedBuffTimelineSegment[];
   timelineWidth: number;
   prepFrames: number;
   pxPerFrame: number;
@@ -91,11 +93,40 @@ const markers = computed(() =>
     };
   }),
 );
+
+const buffLaneOffset = computed(() => (props.viz.segments.length > 0 ? 1 : 0));
+const buffs = computed(() =>
+  props.buffs.map(buff => {
+    const left = pointX(buff.startFrame);
+    const right = pointX(buff.endFrame);
+    return {
+      ...buff,
+      key: `${buff.buffId}:${buff.instanceId}:${buff.startFrame}`,
+      icon: buff.iconPath ?? (buff.iconId ? `/icons/${buff.iconId}.webp` : null),
+      left,
+      top: ICON_TOP + (buff.lane + buffLaneOffset.value) * 22,
+      barWidthPx: Math.max(0, right - left - ICON_SIZE - 2),
+    };
+  }),
+);
+
+const rowCount = computed(() =>
+  Math.max(
+    props.viz.segments.length > 0 || props.viz.markers.length > 0 ? 1 : 0,
+    ...buffs.value.map(buff => buff.lane + buffLaneOffset.value + 1),
+  ),
+);
+const height = computed(() => Math.max(24, rowCount.value * 22 + 2));
 </script>
 
 <template>
-  <div class="enemy-effects" :style="{ width: `${width}px` }">
-    <div v-if="segments.length === 0 && markers.length === 0" class="enemy-effects__empty">—</div>
+  <div class="enemy-effects" :style="{ width: `${width}px`, height: `${height}px` }">
+    <div
+      v-if="segments.length === 0 && markers.length === 0 && buffs.length === 0"
+      class="enemy-effects__empty"
+    >
+      —
+    </div>
     <template v-else>
       <div
         v-for="segment in segments"
@@ -125,6 +156,26 @@ const markers = computed(() =>
       >
         <img :src="marker.icon" class="marker-icon" alt="" />
       </span>
+      <div
+        v-for="buff in buffs"
+        :key="buff.key"
+        class="attachment-item"
+        :style="{ left: `${buff.left}px`, top: `${buff.top}px` }"
+        :title="buff.buffId"
+      >
+        <span class="anomaly-icon-box">
+          <img v-if="buff.icon" :src="buff.icon" class="anomaly-icon" alt="" />
+          <span v-else class="buff-fallback">+</span>
+          <span v-if="buff.layers > 1" class="anomaly-stacks">{{ buff.layers }}</span>
+        </span>
+        <span
+          v-if="buff.barWidthPx > 0"
+          class="anomaly-duration-bar generic-buff-bar"
+          :style="{ width: `${buff.barWidthPx}px` }"
+        >
+          <span class="striped-bg"></span>
+        </span>
+      </div>
     </template>
   </div>
 </template>
@@ -185,6 +236,12 @@ const markers = computed(() =>
   object-fit: cover;
 }
 
+.buff-fallback {
+  color: #eef6ff;
+  font-size: 10px;
+  font-weight: 700;
+}
+
 .anomaly-stacks {
   position: absolute;
   bottom: -2px;
@@ -205,6 +262,10 @@ const markers = computed(() =>
   box-sizing: border-box;
   border-radius: 2px;
   box-shadow: 0 1px 2px rgb(0 0 0 / 50%);
+}
+
+.generic-buff-bar {
+  background: var(--ea-mark-soft, #596a7a);
 }
 
 .striped-bg {

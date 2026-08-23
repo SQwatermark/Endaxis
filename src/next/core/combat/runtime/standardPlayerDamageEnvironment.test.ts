@@ -865,6 +865,15 @@ describe('StandardPlayerDamageEnvironment', () => {
     // 第一次施加附着；第二次触发爆发 Buff，等待 1 秒触发间隔后打出伤害。
     expect(executor.execute(step)).toBe(true);
     expect(executor.execute(step)).toBe(true);
+    expect(receipt.entries.find(entry => entry.event === 'BuffApplied')).toMatchObject({
+      sourceId: 'operator',
+      targetId: 'enemy',
+      data: {
+        buffId: 'attachment.electric',
+        instanceId: 1,
+        layers: 1,
+      },
+    });
     const buffRuntime = environment.runtimeOptions.enemyBuffRuntime;
     for (let frame = 0; frame < 31; frame += 1) buffRuntime.advanceFrame();
     const burst = receipt.entries.find(entry => entry.event === 'SpellBurstApplied');
@@ -1073,8 +1082,65 @@ describe('StandardPlayerDamageEnvironment', () => {
       targetId: 'enemy',
       data: {
         buffId: 'attachment.electric',
+        instanceId: 1,
         reason: 'lifetime',
         layers: 1,
+      },
+    });
+  });
+
+  it('records visible operator Buff instances with their native icon identity', () => {
+    const context = createContext();
+    const receipt = context.receipt as CombatReceiptCollector;
+    const environment = createEnvironment();
+    environment.runtimeOptions.createOperationExecutor(context);
+    const runtime = environment.runtimeOptions.createOperatorBuffRuntime!('operator');
+
+    expect(
+      runtime.apply!({
+        buffId: 'buff:operator-visible',
+        sourceId: 'operator',
+        blackboardValues: {},
+        definition: {
+          stackingType: 'unique',
+          durationSeconds: 5,
+          presentation: {
+            visible: true,
+            iconId: 'icon_battle_buff_atk_up',
+            iconPath: '/icons/icon_battle_buff_atk_up.webp',
+          },
+          childPresentations: [
+            {
+              buffId: 'buff:operator-visible:child',
+              presentation: {
+                visible: true,
+                iconPath: '/icons/icon_battle_buff_child.webp',
+              },
+            },
+          ],
+        },
+      }),
+    ).toBe(true);
+    expect(receipt.entries.find(entry => entry.event === 'BuffApplied')).toMatchObject({
+      event: 'BuffApplied',
+      sourceId: 'operator',
+      targetId: 'operator',
+      data: {
+        buffId: 'buff:operator-visible',
+        instanceId: 1,
+        layers: 1,
+        visible: true,
+        iconId: 'icon_battle_buff_atk_up',
+        iconPath: '/icons/icon_battle_buff_atk_up.webp',
+      },
+    });
+    expect(receipt.entries.find(entry => entry.event === 'BuffPresentationStarted')).toMatchObject({
+      targetId: 'operator',
+      data: {
+        buffId: 'buff:operator-visible:child',
+        parentBuffId: 'buff:operator-visible',
+        instanceId: 1,
+        iconPath: '/icons/icon_battle_buff_child.webp',
       },
     });
   });

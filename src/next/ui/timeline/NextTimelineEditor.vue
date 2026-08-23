@@ -36,6 +36,7 @@ import TimelineResourceCurves from './components/TimelineResourceCurves.vue';
 import TimelineTrackGauge from './components/TimelineTrackGauge.vue';
 import TimelineTimeDilationBands from './components/TimelineTimeDilationBands.vue';
 import TimelineEnemyEffects from './components/TimelineEnemyEffects.vue';
+import TimelineBuffBands from './components/TimelineBuffBands.vue';
 import SimulationPerformanceAudit from './components/SimulationPerformanceAudit.vue';
 import NextEnemySettingsPanel from './components/NextEnemySettingsPanel.vue';
 import NextGlobalResourcePanel from './components/NextGlobalResourcePanel.vue';
@@ -47,6 +48,12 @@ import { ScenarioSimulationService } from '../../application/scenarioSimulationS
 import { useScenarioSimulation } from './useScenarioSimulation';
 import { sampleStepCurve } from '../../core/projection/curveSampling';
 import { projectEnemyEffectViz } from '../../core/projection/enemyEffectViz';
+import {
+  layoutBuffTimelineSegments,
+  projectBuffTimelineViz,
+  type BuffTimelineSegment,
+  type PositionedBuffTimelineSegment,
+} from '../../core/projection/buffTimelineViz';
 import type { OperatorUltimateEnergyCurve } from '../../core/projection/resourceCurves';
 import {
   PROJECT_FPS,
@@ -1071,6 +1078,30 @@ const enemyEffectViz = computed(() => {
   // 新模拟完成后 simulationRun 会整体替换，效果条随之原子更新，避免来回闪烁。
   return projectEnemyEffectViz(current.receiptEntries, current.frame);
 });
+
+/** 普通 Buff 与元素效果共用模拟回执，但分别投影，避免 UI 反推运行时状态。 */
+const buffTimelineSegments = computed(() => {
+  const current = simulationRun.value;
+  return current === null ? [] : projectBuffTimelineViz(current.receiptEntries, current.frame);
+});
+
+const positionedBuffsByTarget = computed(() => {
+  const grouped = new Map<string, BuffTimelineSegment[]>();
+  for (const segment of buffTimelineSegments.value) {
+    const list = grouped.get(segment.targetId) ?? [];
+    list.push(segment);
+    grouped.set(segment.targetId, list);
+  }
+  const positioned = new Map<string, PositionedBuffTimelineSegment[]>();
+  for (const [targetId, segments] of grouped) {
+    positioned.set(targetId, [...layoutBuffTimelineSegments(segments)]);
+  }
+  return positioned;
+});
+
+function buffSegmentsForTarget(targetId: string | null): readonly PositionedBuffTimelineSegment[] {
+  return targetId === null ? [] : (positionedBuffsByTarget.value.get(targetId) ?? []);
+}
 
 function damageElementLabel(element: string): string {
   const key = `hitEditor.elements.${element}`;
@@ -2349,6 +2380,12 @@ function setPanelDialogVisible(visible: boolean): void {
                 :duration-frames="scenario.battle.durationFrames"
                 :px-per-frame="pxPerFrame"
               />
+              <TimelineBuffBands
+                :segments="buffSegmentsForTarget(track.operatorInstanceId)"
+                :prep-frames="scenario.battle.prepFrames"
+                :px-per-frame="pxPerFrame"
+                placement="lower"
+              />
               <div
                 class="prep-zone"
                 :style="{ width: `${scenario.battle.prepFrames * pxPerFrame}px` }"
@@ -2467,6 +2504,7 @@ function setPanelDialogVisible(visible: boolean): void {
         <div v-if="simulationRun !== null" class="simulation-curves">
           <TimelineEnemyEffects
             :viz="enemyEffectViz"
+            :buffs="buffSegmentsForTarget('enemy')"
             :timeline-width="timelineWidth"
             :prep-frames="scenario.battle.prepFrames"
             :px-per-frame="pxPerFrame"

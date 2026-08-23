@@ -204,7 +204,10 @@ export class StandardPlayerDamageEnvironment {
       },
       undefined,
       this.#buffAbilityEventRegistrar('enemy'),
-      event => this.#emit('enemy', 'addedBuff', event),
+      event => {
+        this.#recordOwnedBuffApplied('enemy', event, this.#enemyBuffs);
+        this.#emit('enemy', 'addedBuff', event);
+      },
       event => this.#emit(event.sourceId, 'beforeOutputBuff', event),
       event => this.#emit(event.sourceId, 'outputBuff', event),
     );
@@ -680,24 +683,28 @@ export class StandardPlayerDamageEnvironment {
   ): BuffDefinitionOperationTarget<string> {
     let runtime = this.#operatorBuffRuntimes.get(operatorId);
     if (runtime === undefined) {
+      const container = new CombatBuffContainer(
+        operatorId,
+        panel === undefined
+          ? new CombatAttributeSet<string>()
+          : createOperatorAttackAttributes(panel),
+        this.options.tagRegistry,
+        null,
+        undefined,
+        (buff, reason) => this.#recordOwnedBuffFinished(operatorId, buff, reason),
+      );
       runtime = new BuffDefinitionOperationTarget(
-        new CombatBuffContainer(
-          operatorId,
-          panel === undefined
-            ? new CombatAttributeSet<string>()
-            : createOperatorAttackAttributes(panel),
-          this.options.tagRegistry,
-          null,
-          undefined,
-          (buff, reason) => this.#recordOwnedBuffFinished(operatorId, buff, reason),
-        ),
+        container,
         {
           get: () => undefined,
           compile: entry => this.#compileInlineBuffDefinition(entry),
         },
         undefined,
         this.#buffAbilityEventRegistrar(operatorId),
-        event => this.#emit(operatorId, 'addedBuff', event),
+        event => {
+          this.#recordOwnedBuffApplied(operatorId, event, container);
+          this.#emit(operatorId, 'addedBuff', event);
+        },
         event => this.#emit(event.sourceId, 'beforeOutputBuff', event),
         event => this.#emit(event.sourceId, 'outputBuff', event),
       );
@@ -782,7 +789,10 @@ export class StandardPlayerDamageEnvironment {
         operatorId,
         this.#ensureElementalDefinitions(),
         undefined,
-        event => this.#emit('enemy', 'addedBuff', event),
+        event => {
+          this.#recordOwnedBuffApplied('enemy', event, this.#enemyBuffs);
+          this.#emit('enemy', 'addedBuff', event);
+        },
         resolveCompoundStatusBlackboard,
       );
       this.#inflictionAdapters.set(operatorId, adapter);
@@ -1008,6 +1018,66 @@ export class StandardPlayerDamageEnvironment {
     this.#recordOwnedBuffFinished('enemy', buff, reason);
   }
 
+  /** Buff 施加成功后记录实例身份与原生展示数据，供时间轴还原生命周期和图标。 */
+  #recordOwnedBuffApplied(
+    ownerId: string,
+    event: import('./buffOperationExecutor').BuffAppliedEvent,
+    container: CombatBuffContainer<string>,
+  ): void {
+    if (this.#clock === null || this.#receipt === null) {
+      throw new Error(
+        `Buff on '${ownerId}' was applied before the environment was bound to a battle`,
+      );
+    }
+    const clock = this.#clock;
+    const receipt = this.#receipt;
+    const buff = [...container.buffs]
+      .reverse()
+      .find(candidate => !candidate.isFinished && candidate.definition.id === event.buffId);
+    if (buff === undefined) {
+      throw new Error(`Applied Buff '${event.buffId}' on '${ownerId}' has no active instance`);
+    }
+    const presentation = buff.definition.presentation;
+    const recordPresentation = (
+      eventName: 'BuffApplied' | 'BuffPresentationStarted',
+      buffId: string,
+      currentPresentation:
+        NonNullable<CombatBuff<string>['definition']['presentation']> | undefined,
+      parentBuffId?: string,
+    ): void =>
+      receipt.record({
+        frame: clock.frame,
+        time: clock.time,
+        event: eventName,
+        sourceId: event.sourceId,
+        targetId: ownerId,
+        data: {
+          buffId,
+          instanceId: buff.instanceId,
+          layers: buff.enhanceCount,
+          ...(parentBuffId === undefined ? {} : { parentBuffId }),
+          ...(currentPresentation?.iconId === undefined
+            ? {}
+            : { iconId: currentPresentation.iconId }),
+          ...(currentPresentation?.iconPath === undefined
+            ? {}
+            : { iconPath: currentPresentation.iconPath }),
+          ...(currentPresentation?.visible === undefined
+            ? {}
+            : { visible: currentPresentation.visible }),
+        },
+      });
+    recordPresentation('BuffApplied', buff.definition.id, presentation);
+    for (const child of buff.definition.childPresentations ?? []) {
+      recordPresentation(
+        'BuffPresentationStarted',
+        child.buffId,
+        child.presentation,
+        buff.definition.id,
+      );
+    }
+  }
+
   #recordOwnedBuffFinished(
     ownerId: string,
     buff: CombatBuff<string>,
@@ -1023,10 +1093,26 @@ export class StandardPlayerDamageEnvironment {
       targetId: ownerId,
       data: {
         buffId: buff.definition.id,
+        instanceId: buff.instanceId,
         reason,
         layers: buff.enhanceCount,
       },
     });
+    for (const child of buff.definition.childPresentations ?? []) {
+      this.#receipt.record({
+        frame: this.#clock.frame,
+        time: this.#clock.time,
+        event: 'BuffPresentationFinished',
+        targetId: ownerId,
+        data: {
+          buffId: child.buffId,
+          parentBuffId: buff.definition.id,
+          instanceId: buff.instanceId,
+          reason,
+          layers: buff.enhanceCount,
+        },
+      });
+    }
     this.#emit(ownerId, 'finishedBuff', {
       sourceId: ownerId,
       targetId: ownerId,
