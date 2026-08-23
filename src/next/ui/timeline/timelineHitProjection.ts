@@ -7,6 +7,8 @@
  */
 import type {
   OperatorAbilityEntityDefinitions,
+  OperatorBuffDefinitions,
+  SkillBuffDefinition,
   SkillDefinition,
   CombatStepDefinition,
 } from '../../core/game-data/operatorDefinition';
@@ -62,6 +64,8 @@ function collectDamageSteps(
   cast: SkillCastDocument,
   frameOffset: number,
   abilityEntityDefinitions?: OperatorAbilityEntityDefinitions,
+  buffDefinitions?: OperatorBuffDefinitions,
+  visitedBuffIds: Set<string> = new Set(),
 ): void {
   if (step.kind === 'dealDamage' || step.kind === 'dealFixedDamage') {
     if (step.key === undefined || step.key.length === 0) {
@@ -80,27 +84,89 @@ function collectDamageSteps(
   if (step.kind === 'conditional') {
     // 条件分支里的步骤跑不跑取决于当时条件，一律标记为 conditional。
     for (const nested of step.whenTrue.steps)
-      collectDamageSteps(nested, true, markers, cast, frameOffset, abilityEntityDefinitions);
+      collectDamageSteps(
+        nested,
+        true,
+        markers,
+        cast,
+        frameOffset,
+        abilityEntityDefinitions,
+        buffDefinitions,
+        visitedBuffIds,
+      );
     for (const nested of step.whenFalse?.steps ?? []) {
-      collectDamageSteps(nested, true, markers, cast, frameOffset, abilityEntityDefinitions);
+      collectDamageSteps(
+        nested,
+        true,
+        markers,
+        cast,
+        frameOffset,
+        abilityEntityDefinitions,
+        buffDefinitions,
+        visitedBuffIds,
+      );
     }
     return;
   }
   if (step.kind === 'once') {
     for (const nested of step.body.steps)
-      collectDamageSteps(nested, conditional, markers, cast, frameOffset, abilityEntityDefinitions);
+      collectDamageSteps(
+        nested,
+        conditional,
+        markers,
+        cast,
+        frameOffset,
+        abilityEntityDefinitions,
+        buffDefinitions,
+        visitedBuffIds,
+      );
     return;
   }
   if (step.kind === 'repeatEachTick' || step.kind === 'forEachContextTarget') {
     for (const nested of step.body.steps)
-      collectDamageSteps(nested, conditional, markers, cast, frameOffset, abilityEntityDefinitions);
+      collectDamageSteps(
+        nested,
+        conditional,
+        markers,
+        cast,
+        frameOffset,
+        abilityEntityDefinitions,
+        buffDefinitions,
+        visitedBuffIds,
+      );
     return;
   }
   if (step.kind === 'listenForCombatEvents') {
     for (const response of step.parameters.responses) {
       for (const nested of response.sequence.steps) {
-        collectDamageSteps(nested, true, markers, cast, frameOffset, abilityEntityDefinitions);
+        collectDamageSteps(
+          nested,
+          true,
+          markers,
+          cast,
+          frameOffset,
+          abilityEntityDefinitions,
+          buffDefinitions,
+          visitedBuffIds,
+        );
       }
+    }
+    return;
+  }
+  if (step.kind === 'applyBuff') {
+    const buffId = step.parameters.buffId;
+    const definition = step.parameters.definition ?? buffDefinitions?.[buffId];
+    if (definition !== undefined && !visitedBuffIds.has(buffId)) {
+      visitedBuffIds.add(buffId);
+      collectBuffDamageSteps(
+        definition,
+        markers,
+        cast,
+        frameOffset,
+        abilityEntityDefinitions,
+        buffDefinitions,
+        visitedBuffIds,
+      );
     }
     return;
   }
@@ -121,10 +187,49 @@ function collectDamageSteps(
           cast,
           frameOffset + scheduled.startFrame,
           abilityEntityDefinitions,
+          buffDefinitions,
+          visitedBuffIds,
         );
       }
     }
   }
+}
+
+/** Buff 后代伤害仍归创建它的技能释放；无模拟时一律作为条件候选，不伪造必定命中。 */
+function collectBuffDamageSteps(
+  definition: SkillBuffDefinition,
+  markers: TimelineHitMarker[],
+  cast: SkillCastDocument,
+  frameOffset: number,
+  abilityEntityDefinitions: OperatorAbilityEntityDefinitions | undefined,
+  buffDefinitions: OperatorBuffDefinitions | undefined,
+  visitedBuffIds: Set<string>,
+): void {
+  const collectSequence = (
+    sequence: { readonly steps: readonly CombatStepDefinition[] },
+    offset = frameOffset,
+  ): void => {
+    for (const nested of sequence.steps) {
+      collectDamageSteps(
+        nested,
+        true,
+        markers,
+        cast,
+        offset,
+        abilityEntityDefinitions,
+        buffDefinitions,
+        visitedBuffIds,
+      );
+    }
+  };
+  for (const scheduled of definition.scheduledSequences ?? []) {
+    collectSequence(scheduled.sequence, frameOffset + scheduled.startFrame);
+  }
+  for (const sequence of Object.values(definition.lifecycleSequences ?? {})) {
+    if (sequence !== undefined) collectSequence(sequence);
+  }
+  for (const response of definition.abilityEventResponses ?? []) collectSequence(response.sequence);
+  for (const response of definition.igniteEventResponses ?? []) collectSequence(response.sequence);
 }
 
 /**
@@ -135,8 +240,10 @@ export function projectCastHitMarkers(
   cast: SkillCastDocument,
   definition: SkillDefinition,
   abilityEntityDefinitions?: OperatorAbilityEntityDefinitions,
+  buffDefinitions?: OperatorBuffDefinitions,
 ): readonly TimelineHitMarker[] {
   const markers: TimelineHitMarker[] = [];
+  const visitedBuffIds = new Set<string>();
   for (const scheduled of definition.scheduledSequences) {
     for (const step of scheduled.sequence.steps) {
       collectDamageSteps(
@@ -146,6 +253,8 @@ export function projectCastHitMarkers(
         cast,
         scheduled.startFrame,
         abilityEntityDefinitions,
+        buffDefinitions,
+        visitedBuffIds,
       );
     }
   }
@@ -165,11 +274,19 @@ export function projectCastHitMarkersWithReplacements(
   definition: SkillDefinition,
   replacements: readonly SkillDefinition[],
   abilityEntityDefinitions?: OperatorAbilityEntityDefinitions,
+  buffDefinitions?: OperatorBuffDefinitions,
 ): readonly TimelineHitMarker[] {
-  const markers = [...projectCastHitMarkers(cast, definition, abilityEntityDefinitions)];
+  const markers = [
+    ...projectCastHitMarkers(cast, definition, abilityEntityDefinitions, buffDefinitions),
+  ];
   const seen = new Set(markers.map(marker => marker.hitId));
   for (const replacement of replacements) {
-    for (const marker of projectCastHitMarkers(cast, replacement, abilityEntityDefinitions)) {
+    for (const marker of projectCastHitMarkers(
+      cast,
+      replacement,
+      abilityEntityDefinitions,
+      buffDefinitions,
+    )) {
       if (seen.has(marker.hitId)) continue;
       seen.add(marker.hitId);
       markers.push({ ...marker, conditional: true });

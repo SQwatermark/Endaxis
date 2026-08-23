@@ -106,6 +106,7 @@ function projectSkillCast(
   resolved: ResolvedSkillDefinition | null,
   resolutionIssue: string | undefined,
   abilityEntityDefinitions?: OperatorDefinition['abilityEntityDefinitions'],
+  buffDefinitions?: OperatorDefinition['buffDefinitions'],
 ): TimelineSkillCastViewModel {
   const skillType = resolved?.group.skillType ?? null;
   return {
@@ -124,6 +125,7 @@ function projectSkillCast(
               ...(resolved.group.routedReplacementSkills ?? []).map(item => item.skill),
             ],
             abilityEntityDefinitions,
+            buffDefinitions,
           )
         : [],
     disabled: skillCast.presentation?.disabled ?? false,
@@ -215,6 +217,7 @@ function projectTrack(
       resolved,
       resolutionIssue,
       operator?.abilityEntityDefinitions,
+      operator?.buffDefinitions,
     );
   });
 

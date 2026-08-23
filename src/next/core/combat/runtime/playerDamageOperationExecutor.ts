@@ -34,6 +34,7 @@ import type { CombatClock } from './combatClock';
 import type { CombatVitals } from './combatVitals';
 import type { CombatOperationExecutor } from './skillRuntime';
 import { resolveActionValueOperand } from './actionBlackboard';
+import { deriveHitId } from '../timeline/deriveHitId';
 
 type RuntimeOperation = ResolvedCombatOperationStep;
 type DamageStep = Extract<RuntimeOperation, { kind: 'dealDamage' | 'dealFixedDamage' }>;
@@ -203,6 +204,11 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       const hasExactAttackDetail =
         attackDetail !== undefined &&
         Math.abs(attackDetail.panelAttack - context.attackerAttributes.attack) <= Number.EPSILON;
+      const hitId =
+        step.hitId ??
+        (this.dependencies.castId === undefined || step.key === undefined
+          ? undefined
+          : deriveHitId(this.dependencies.castId, step.key));
       executeHealthDamage({
         sourceId: this.dependencies.sourceOperatorId,
         targetId: this.dependencies.targetId,
@@ -260,7 +266,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
         receipt: this.dependencies.receipt,
         ...(this.dependencies.castId === undefined ? {} : { castId: this.dependencies.castId }),
         ...(step.key === undefined ? {} : { stepKey: step.key }),
-        ...(step.hitId === undefined ? {} : { hitId: step.hitId }),
+        ...(hitId === undefined ? {} : { hitId }),
         emitSourceEvent: this.dependencies.emitHealthSourceEvent,
         emitTargetEvent: this.dependencies.emitHealthTargetEvent,
         ...(this.dependencies.absorbHealthDamage === undefined

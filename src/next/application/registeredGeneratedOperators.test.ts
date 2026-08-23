@@ -32,6 +32,11 @@ import {
   zhuangFangyi,
 } from '../data/operators';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
+import { projectTimelineEditor } from '../ui/timeline/timelineEditorViewModel';
+import {
+  projectHitEffectsByCast,
+  projectTimelineHitActualFrames,
+} from '../ui/timeline/timelineHitEffects';
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
 
 describe('registered generated operators', () => {
@@ -1642,6 +1647,19 @@ describe('registered generated operators', () => {
         entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:zhuang-fangyi',
       ),
     ).toBe(true);
+    const castModel = projectTimelineEditor(placed, nextGameDataRepository).tracks[0]!
+      .skillCasts[0]!;
+    const actualHitFrames = projectTimelineHitActualFrames(result.receiptEntries);
+    const visibleMarkers = castModel.hitMarkers.filter(marker => actualHitFrames.has(marker.hitId));
+    expect(visibleMarkers.map(marker => actualHitFrames.get(marker.hitId))).toEqual([25, 28]);
+    expect(
+      projectHitEffectsByCast(
+        placed,
+        result.receiptEntries,
+        placed.tracks[0]!.skillCasts[0]!.id,
+        castModel.hitMarkers,
+      ).size,
+    ).toBe(2);
   });
 
   it('runs Snowshine combo ability entity and records full-health healing', () => {

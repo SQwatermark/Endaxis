@@ -197,6 +197,56 @@ describe('projectCastHitMarkers', () => {
       conditional: false,
     });
   });
+
+  it('collects recursively applied Buff damage as receipt-gated cast hits', () => {
+    const cast = createCast([
+      {
+        kind: 'applyBuff',
+        parameters: { buffId: 'buff:root', target: 'caster' },
+      },
+    ]);
+    const buffDefinitions = {
+      'buff:root': {
+        stackingType: 'unique',
+        lifecycleSequences: {
+          start: {
+            steps: [
+              {
+                kind: 'applyBuff',
+                parameters: { buffId: 'buff:damage', target: 'caster' },
+              },
+            ],
+          },
+        },
+      },
+      'buff:damage': {
+        stackingType: 'unique',
+        scheduledSequences: [
+          {
+            startFrame: 3,
+            sequence: {
+              steps: [
+                damageStep('buff-hit', 'buff-hit'),
+                {
+                  kind: 'applyBuff',
+                  parameters: { buffId: 'buff:root', target: 'caster' },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    } as const;
+
+    expect(
+      projectCastHitMarkers(cast, fixtureDef(cast), undefined, buffDefinitions),
+    ).toContainEqual({
+      hitId: deriveHitId('cast:1', 'buff-hit'),
+      frameOffset: 13,
+      stepKey: 'buff-hit',
+      conditional: true,
+    });
+  });
 });
 
 describe('shouldDisplayTimelineHitMarker', () => {

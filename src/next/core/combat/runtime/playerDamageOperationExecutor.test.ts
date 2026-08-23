@@ -9,6 +9,7 @@ import { CombatClock } from './combatClock';
 import { CombatVitals } from './combatVitals';
 import { ActionBlackboard } from './actionBlackboard';
 import { PlayerDamageOperationExecutor } from './playerDamageOperationExecutor';
+import { deriveHitId } from '../timeline/deriveHitId';
 
 const DAMAGE_STEP: Extract<ResolvedCombatStep, { kind: 'dealDamage' }> = {
   kind: 'dealDamage',
@@ -69,6 +70,7 @@ describe('PlayerDamageOperationExecutor', () => {
     const nextCriticalSample = vi.fn(() => 1);
     const executor = new PlayerDamageOperationExecutor({
       sourceOperatorId: 'perlica',
+      castId: 'cast:buff-source',
       targetId: 'enemy',
       targetVitals,
       clock: new CombatClock(),
@@ -104,7 +106,8 @@ describe('PlayerDamageOperationExecutor', () => {
       delegate: { execute: vi.fn(() => true), evaluate: vi.fn(() => false) },
     });
 
-    expect(executor.execute(DAMAGE_STEP)).toBe(true);
+    const keyedDamageStep = { ...DAMAGE_STEP, key: 'buff-child-hit' };
+    expect(executor.execute(keyedDamageStep)).toBe(true);
     expect(targetVitals.health).toBe(600);
     expect(targetVitals.poise).toBe(40);
     expect(healthEvents).toEqual([
@@ -115,6 +118,9 @@ describe('PlayerDamageOperationExecutor', () => {
     ]);
     expect(receipt.entries.map(entry => entry.event)).toEqual(['DamageApplied', 'PoiseApplied']);
     expect(receipt.entries[0]?.data).toMatchObject({
+      castId: 'cast:buff-source',
+      stepKey: 'buff-child-hit',
+      hitId: deriveHitId('cast:buff-source', 'buff-child-hit'),
       attack: 100,
       attackDetailOperatorBase: 80,
       attackDetailWeaponBase: 20,
