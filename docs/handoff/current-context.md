@@ -7,6 +7,23 @@
 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
+### 2026-08-24：武器基础攻击成长 checkpoint
+
+- `WeaponBasicTable` 现只有一个严格源行解析器，被动技能发现和基础攻击成长共同消费它；不再各自
+  复制 13 字段表结构。武器 ID、技能顺序、成长/突破/潜能模板、最高等级和原生身份均由同一入口
+  校验。
+- 基础攻击严格沿 `WeaponBasicTable.levelTemplateId -> WeaponUpgradeTemplateTable.list` 读取。
+  每条成长行保留导出 `baseAtk` 和原生 float 单精度运行值；解析器拒绝重复等级、负攻击和最高等级
+  缺行。
+- 只有精确命中的武器等级才产生公共属性修正 `Specific / Atk / BaseAddition`；缺行返回空，不插值、
+  不夹取、不沿用最近等级。突破、潜能、基质和武器被动不混进基础攻击路径。
+- 1.4.4 全量覆盖 77 把武器、9 条实际引用模板、6930 个武器等级行，6930/6930 修正成功；额外
+  91 级探针 77/77 返回空。当前运行值范围 29–510 只是版本审计事实，不固化为规则。
+- 代码 checkpoint 为 `3f506eb3 feat(data): parse weapon base attack growth`。门禁为
+  `npm run type-check:game-data` 通过，27 个测试文件、119 项测试通过。
+- 下一阶段不再继续堆表读取器，而是建立武器与装备的正式定义投影：先把公共属性修正映射到 Next
+  构筑属性并保留无法投影项的审计，再组装单件装备、套装和武器定义，最后进入生产模拟验证。
+
 ### 2026-08-24：单件装备属性修正 checkpoint
 
 - 交接中旧称的“`ItemTable` 单件装备属性修正”已经按真实表纠正边界：`ItemTable` 只提供物品 ID、
@@ -23,9 +40,7 @@ TypeScript 游戏数据编译器。唯一新入口为
   `BaseFinalAddition`、`BaseFinalMultiplier`。这些是本版本审计事实，不固化成通用规则。
 - 代码 checkpoint 为 `c01afc12 feat(data): parse equipment attribute modifiers`。门禁为
   `npm run type-check:game-data` 通过，26 个测试文件、116 项测试通过。
-- 下一项是严格读取 `WeaponBasicTable.levelTemplateId -> WeaponUpgradeTemplateTable` 的武器基础攻击
-  成长，按精确武器等级产生 `Atk/BaseAddition`；缺行返回空，不插值。随后再把装备与武器源 IR 接入
-  正式定义投影和同口径模拟审计。
+- 武器基础攻击成长已由后续 checkpoint 完成；当前下一项为装备与武器正式定义投影和同口径模拟审计。
 
 ### 2026-08-24：统一游戏数据编译器 checkpoint
 
@@ -91,7 +106,7 @@ TypeScript 游戏数据编译器。唯一新入口为
 
 - 当前工作树：`D:\Projects\Endaxis`（台式机，即旧文档所称“远程”）
 - 当前分支：`refactor/common-game-data`
-- 当前代码 checkpoint：`c01afc12 feat(data): parse equipment attribute modifiers`；统一编译器基线为
+- 当前代码 checkpoint：`3f506eb3 feat(data): parse weapon base attack growth`；统一编译器基线为
   `fd61a59e`，后续仍以实际 `git log` 为准。
 - `tmp/` 永远不得提交；新编译器全部位于 `tools/game-data-compiler`。
 - `vfs-index-browser/combat-spec` 有同步规格提交，且曾混有同轮其他证据改动；两个仓库必须分别提交、

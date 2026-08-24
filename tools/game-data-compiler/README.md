@@ -333,6 +333,9 @@ npm run test:game-data
   `tagId` 依次计算并限制上限；缺突破行返回空、缺潜能行保留突破结果，不按星级或槽位猜规则；
   原生按技能列表索引读取边界，因此边界不足明确失败，而三星模板中未被技能列表引用的尾部
   `(0, 0)` 占位允许保留并忽略；
+- 武器基础攻击成长：被动发现和成长读取共用同一 `WeaponBasicTable` 严格源行；成长只沿声明的
+  `levelTemplateId` 读取 `WeaponUpgradeTemplateTable`，保留导出值和原生 float 运行值，只有精确等级
+  行产生 `Specific/Atk/BaseAddition`，缺行返回空且不插值；
 - 装备套装发现入口：按 `EquipSuitTable.list` 的原生顺序产生相同的公共请求，保留每个阈值的
   `equipCnt`、`skillID` 和 `skillLv`；当前数据碰巧都是三件套一级技能，但实现不固化这些值；
 - 公共 Attribute Modifier 枚举身份：Buff/CardSkill 的字符串枚举和表格中的数字枚举进入同一套
@@ -347,10 +350,9 @@ npm run test:game-data
   突破/潜能/基质算法解析的实例等级；选级后再应用请求额外黑板，复现同名值最终覆盖顺序；
 - Python oracle JSON 差分通道及真实 SkillPatch 导出切片。
 
-下一阶段：严格接入 `WeaponBasicTable.levelTemplateId -> WeaponUpgradeTemplateTable` 的武器基础攻击
-成长，只为精确等级行产生 `Atk/BaseAddition`，缺行返回空且不插值。随后把已经闭合的武器、单件
-装备与套装来源 IR 接入正式定义投影、审计和模拟；仍缺定义的 AbilityEntity/Projectile 引用继续
-失败关闭。
+下一阶段：把已经闭合的武器、单件装备与套装来源 IR 接入正式定义投影、审计和模拟。先建立公共
+属性修正到 Next 构筑属性的有证据映射，并对暂不可投影的原生属性留下明确诊断；仍缺定义的
+AbilityEntity/Projectile 引用继续失败关闭。
 
 当前 2459 份 `skill-data-cdn` 真实导出扫描结果：MergeTargetAction 138/138、
 PickTargetAction 20/20、SimpleCalcBBAction 159/159 解析成功；ModifyDynamicBlackboard
@@ -442,6 +444,8 @@ Projectile 定义容器，随后才能对选定干员、武器或装备根给出
 全量武器成长审计覆盖 31 条基质定义、1925 组真实突破与潜能组合、5650 个技能槽结果，当前
 0 失败。5 件三星武器的两项技能合法消费三项模板边界中的前两项，尾部 `(0, 0)` 是未引用占位；
 该边界已同步回 combat-spec 并由两边测试固定。
+基础攻击成长另覆盖 77 把武器、9 条实际引用模板和 6930 个等级行，精确等级修正 6930/6930 成功；
+77 个 91 级缺行探针全部返回空。当前基础攻击运行值范围 29–510 仅作为 1.4.4 审计事实记录。
 当前 23 个 `EquipSuitTable` 套装产生 23 条阈值请求、23 个唯一 SkillData，全部能在完整 SkillData
 仓中找到定义。发现层不使用显示名，不把当前样本中的 `equipCnt=3` 或 `skillLv=1` 当成固定规则。
 当前 220 个 `EquipTable` 单件装备与对应 `ItemTable` 身份全部严格读取，合计 915 条属性修正；
