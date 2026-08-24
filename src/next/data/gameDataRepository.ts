@@ -68,7 +68,11 @@ export interface GameDataRepositoryInput {
   readonly operators?: readonly OperatorDefinition[];
   readonly weapons?: readonly WeaponDefinition[];
   readonly gears?: readonly GearDefinition[];
+  /** 只用于解析旧项目身份；浏览器仍只枚举规范定义。 */
+  readonly gearAliases?: Readonly<Record<string, string>>;
   readonly gearSets?: readonly GearSetDefinition[];
+  /** 原生套装 ID 与旧项目 slug 并存期间的身份兼容映射。 */
+  readonly gearSetAliases?: Readonly<Record<string, string>>;
   readonly enemies?: readonly EnemyDefinition[];
   readonly mechanics?: readonly MechanicDefinitionRef[];
 }
@@ -84,6 +88,29 @@ function indexDefinitions<T>(
     if (id.length === 0) throw new Error(`${kind} identity must not be empty`);
     if (indexed.has(id)) throw new Error(`duplicate ${kind} definition '${id}'`);
     indexed.set(id, definition);
+  }
+  return indexed;
+}
+
+function indexSlugAliases<T extends { readonly slug: string }>(
+  aliases: Readonly<Record<string, string>> | undefined,
+  definitions: ReadonlyMap<string, T>,
+  kind: string,
+): ReadonlyMap<string, T> {
+  const indexed = new Map<string, T>();
+  for (const [alias, target] of Object.entries(aliases ?? {}).sort(([left], [right]) =>
+    left.localeCompare(right),
+  )) {
+    if (alias.length === 0 || target.length === 0) {
+      throw new Error(`${kind} alias identity and target must not be empty`);
+    }
+    if (alias === target) throw new Error(`redundant ${kind} alias '${alias}'`);
+    if (definitions.has(alias)) throw new Error(`${kind} alias '${alias}' shadows a definition`);
+    const definition = definitions.get(target);
+    if (definition === undefined) {
+      throw new Error(`${kind} alias '${alias}' targets unknown definition '${target}'`);
+    }
+    indexed.set(alias, Object.freeze({ ...definition, slug: alias }));
   }
   return indexed;
 }
@@ -106,6 +133,8 @@ export function createGameDataRepository(
   const weapons = indexDefinitions(weaponList, value => value.slug, 'weapon');
   const gears = indexDefinitions(gearList, value => value.slug, 'gear');
   const gearSets = indexDefinitions(gearSetList, value => value.slug, 'gear set');
+  const gearAliases = indexSlugAliases(input.gearAliases, gears, 'gear');
+  const gearSetAliases = indexSlugAliases(input.gearSetAliases, gearSets, 'gear set');
   const enemies = indexDefinitions(enemyList, value => value.id, 'enemy');
   const mechanics = indexDefinitions(input.mechanics ?? [], value => value.id, 'mechanic');
 
@@ -120,8 +149,8 @@ export function createGameDataRepository(
     getEnemies: () => enemyList,
     getOperator: (slug: string) => operators.get(slug) ?? null,
     getWeapon: (slug: string) => weapons.get(slug) ?? null,
-    getGear: (slug: string) => gears.get(slug) ?? null,
-    getGearSet: (slug: string) => gearSets.get(slug) ?? null,
+    getGear: (slug: string) => gears.get(slug) ?? gearAliases.get(slug) ?? null,
+    getGearSet: (slug: string) => gearSets.get(slug) ?? gearSetAliases.get(slug) ?? null,
     getEnemy: (id: string) => enemies.get(id) ?? null,
     getMechanic: (id: string) => mechanics.get(id) ?? null,
   });
