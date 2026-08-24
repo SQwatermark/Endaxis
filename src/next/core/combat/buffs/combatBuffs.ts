@@ -1027,6 +1027,21 @@ export class CombatBuffContainer<Key extends string> {
       .reduce((count, buff) => count + buff.enhanceCount, 0);
   }
 
+  /** 统计所有未结束且分类标签满足查询的 Buff 实例数，不把 Enhance 层数计入结果。 */
+  getInstanceCountByTags(
+    tags: readonly GameplayTagId[],
+    type: GameplayTagQueryType = 'hasAny',
+    exact = false,
+    skillCastId?: number,
+  ): number {
+    return this.#buffs.filter(
+      buff =>
+        !buff.isFinished &&
+        (skillCastId === undefined || buff.skillCastInfo?.skillCastId === skillCastId) &&
+        this.tagRegistry.query(buff.definition.applyTags ?? [], tags, type, exact),
+    ).length;
+  }
+
   /** 按容器插入顺序返回首个未结束且分类标签满足查询的 Buff。 */
   findFirstByTags(
     tags: readonly GameplayTagId[],

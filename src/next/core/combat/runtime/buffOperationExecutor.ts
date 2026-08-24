@@ -59,6 +59,12 @@ export interface BuffOperationTarget {
     exact?: boolean,
     skillCastId?: number,
   ): number;
+  getInstanceCountByTags?(
+    tags: readonly GameplayTagId[],
+    type: GameplayTagQueryType,
+    exact?: boolean,
+    skillCastId?: number,
+  ): number;
   matchesEntityTags(
     tags: readonly GameplayTagId[],
     type: GameplayTagQueryType,
@@ -546,6 +552,28 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     condition: Parameters<CombatOperationExecutor['evaluate']>[0],
     context?: Parameters<CombatOperationExecutor['evaluate']>[1],
   ): boolean {
+    if (condition.kind === 'eventTargetBuffCountCompare') {
+      if (context?.event === undefined || !('targetId' in context.event)) {
+        throw new Error('eventTargetBuffCountCompare requires an event target identity');
+      }
+      const resolveTarget = this.dependencies.resolveEventTarget;
+      if (resolveTarget === undefined) {
+        throw new Error('eventTargetBuffCountCompare requires an event target resolver');
+      }
+      const target = resolveTarget(context.event.targetId);
+      if (target.getInstanceCountByTags === undefined) {
+        throw new Error('eventTargetBuffCountCompare requires Buff instance counting');
+      }
+      const count = target.getInstanceCountByTags(
+        condition.buffTagIds.map(gameplayTagId),
+        condition.tagQueryType,
+      );
+      return compareCombatNumbers(
+        count,
+        resolveActionValueOperand(condition.value, context.blackboard),
+        condition.operator,
+      );
+    }
     if (condition.kind === 'buffStackCompare') {
       if (context === undefined) {
         throw new Error('buffStackCompare requires a combat operation context');

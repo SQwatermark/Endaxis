@@ -606,6 +606,12 @@ function validateCombatCondition(
       requireEnum(record, 'match', TAG_QUERY_TYPES_SET, path, out);
       validateNonEmptyIntegerArray(record.buffTagIds, `${path}.buffTagIds`, out);
       break;
+    case 'eventTargetBuffCountCompare':
+      requireEnum(record, 'tagQueryType', TAG_QUERY_TYPES_SET, path, out);
+      validateNonEmptyIntegerArray(record.buffTagIds, `${path}.buffTagIds`, out);
+      requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
+      validateActionValueOperand(record.value, `${path}.value`, out);
+      break;
     case 'eventHealTagsMatch':
       requireEnum(record, 'match', TAG_QUERY_TYPES_SET, path, out);
       validateNonEmptyIntegerArray(record.tagIds, `${path}.tagIds`, out);

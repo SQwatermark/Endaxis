@@ -121,6 +121,157 @@ describe('装备套装 Buff 运行时投影', () => {
       ).abilityEventResponses,
     ).toBeUndefined();
   });
+
+  it('把 OnOutputBuff 的标签条件投影为公共事件 Buff 条件', () => {
+    const source = sourceFixture();
+    const nativeEvent = source.graph.abilityEvents[0]!;
+    const nativeSequence = nativeEvent.actions[0]!;
+    const tagSource: BuffRuntimeSource = {
+      ...source,
+      graph: {
+        ...source.graph,
+        abilityEvents: [
+          {
+            ...nativeEvent,
+            event: 'OnOutputBuff',
+            actions: [
+              {
+                ...nativeSequence,
+                actions: [
+                  {
+                    ...nativeSequence.actions[0]!,
+                    body: {
+                      kind: 'leaf',
+                      value: {
+                        family: 'condition',
+                        action: {
+                          kind: 'contextBuff',
+                          sourceType: 'CheckBuffIdInContext',
+                          checkType: 'Tag',
+                          buffIds: [],
+                          queryType: 'HasAny',
+                          buffTagIds: [1466867135],
+                        },
+                      },
+                    },
+                  },
+                  nativeSequence.actions[1]!,
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    };
+
+    expect(compileEquipmentBuffRuntimeDefinitionSource(tagSource).abilityEventResponses).toEqual([
+      {
+        event: 'outputBuff',
+        priority: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'conditional',
+              parameters: {
+                condition: {
+                  kind: 'eventBuffTagsMatch',
+                  match: 'hasAny',
+                  buffTagIds: [1466867135],
+                },
+              },
+              whenTrue: expect.any(Object),
+            },
+          ],
+        },
+      },
+    ]);
+  });
+
+  it('保留线性事件链中段按真实事件目标统计 Buff 实例数的守卫', () => {
+    const source = sourceFixture();
+    const nativeEvent = source.graph.abilityEvents[0]!;
+    const nativeSequence = nativeEvent.actions[0]!;
+    const apply = nativeSequence.actions[1]!;
+    const countCondition = {
+      ...nativeSequence.actions[0]!,
+      sourcePath: 'BuffData.buff_root.count',
+      body: {
+        kind: 'leaf' as const,
+        value: {
+          family: 'condition' as const,
+          action: {
+            kind: 'buffStack' as const,
+            sourceType: 'CheckBuffStackNumAdvanced',
+            targetSource: 'Target',
+            targetGroupKey: '',
+            buffCheckType: 'Tag',
+            buffIds: [],
+            tagQueryType: 'hasAny' as const,
+            buffTagIds: [1075718177],
+            countType: 'BuffCount',
+            comparison: 'GE',
+            value: { value: 3, blackboardKey: 'stack_cond', levelValues: [3] },
+            limitSkillCastId: false,
+          },
+        },
+      },
+    };
+    const countSource: BuffRuntimeSource = {
+      ...source,
+      graph: {
+        ...source.graph,
+        declaredBlackboard: [
+          ...source.graph.declaredBlackboard,
+          { key: 'stack_cond', value: 3, isDynamic: false },
+        ],
+        abilityEvents: [
+          {
+            ...nativeEvent,
+            event: 'OnOutputBuff',
+            actions: [
+              {
+                ...nativeSequence,
+                actions: [nativeSequence.actions[0]!, apply, countCondition, apply],
+              },
+            ],
+          },
+        ],
+      },
+    };
+
+    const steps =
+      compileEquipmentBuffRuntimeDefinitionSource(countSource).abilityEventResponses?.[0]?.sequence
+        .steps;
+    expect(steps).toEqual([
+      {
+        kind: 'conditional',
+        parameters: {
+          condition: {
+            kind: 'eventSkillTypeIn',
+            skillTypes: ['battleSkill'],
+          },
+        },
+        whenTrue: {
+          steps: [
+            expect.objectContaining({ kind: 'applyBuff' }),
+            {
+              kind: 'conditional',
+              parameters: {
+                condition: {
+                  kind: 'eventTargetBuffCountCompare',
+                  tagQueryType: 'hasAny',
+                  buffTagIds: [1075718177],
+                  operator: 'greaterOrEqual',
+                  value: { kind: 'blackboard', key: 'stack_cond' },
+                },
+              },
+              whenTrue: { steps: [expect.objectContaining({ kind: 'applyBuff' })] },
+            },
+          ],
+        },
+      },
+    ]);
+  });
 });
 
 function sourceFixture(): BuffRuntimeSource {

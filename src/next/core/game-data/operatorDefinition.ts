@@ -388,6 +388,14 @@ export type CombatCondition =
       buffTagIds: readonly number[];
     }
   | {
+      /** 按当前事件真实目标统计匹配标签的 Buff 实例数；不累计 Buff 增强层数。 */
+      kind: 'eventTargetBuffCountCompare';
+      tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+      buffTagIds: readonly number[];
+      operator: ComparisonOperator;
+      value: ActionValueOperand;
+    }
+  | {
       /** 匹配当前治疗事件携带的原生治疗标签。 */
       kind: 'eventHealTagsMatch';
       match: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
@@ -463,6 +471,7 @@ export const COMBAT_CONDITION_KINDS = [
   'eventBuffIdMatch',
   'eventBuffEndedEarly',
   'eventBuffTagsMatch',
+  'eventTargetBuffCountCompare',
   'eventHealTagsMatch',
   'eventSourceTargetMatch',
   'eventOverheal',

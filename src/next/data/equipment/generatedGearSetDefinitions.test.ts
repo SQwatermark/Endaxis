@@ -186,4 +186,92 @@ describe('生成套装正式定义', () => {
       iconPath: '/icons/icon_battle_buff_def_up.webp',
     });
   });
+
+  it('让两组元素附着输出事件安装对应的限时元素增伤 Buff', () => {
+    const cases = [
+      {
+        slug: 'suit_fire_natr01',
+        rootBuffId: 'buff_equipsuit_fninflict_01',
+        tagId: -1110095722,
+        childBuffId: 'buff_equipsuit_fninflict_01_firedamageadd',
+      },
+      {
+        slug: 'suit_pulse_cryst01',
+        rootBuffId: 'buff_equipsuit_cpinflict_01',
+        tagId: 1466867135,
+        childBuffId: 'buff_equipsuit_cpinflict_01_elecdamageadd',
+      },
+    ] as const;
+
+    for (const fixture of cases) {
+      const definition = generatedGearSetDefinitions.find(item => item.slug === fixture.slug)!;
+      expect(validateGearSetDefinition(definition, `$.${fixture.slug}`)).toEqual([]);
+      const compiled = compileGearSetContribution(definition, {
+        main: perlica.mainAttribute,
+        secondary: perlica.secondaryAttribute,
+      });
+      expect(compiled.modifiers).toEqual([{ kind: 'panelStat', stat: 'artsIntensity', value: 30 }]);
+      const response = compiled.buffDefinitions?.[fixture.rootBuffId]?.abilityEventResponses?.[0];
+      expect(response?.event).toBe('outputBuff');
+      expect(response?.sequence.steps[0]).toMatchObject({
+        kind: 'conditional',
+        parameters: {
+          condition: {
+            kind: 'eventBuffTagsMatch',
+            match: 'hasAny',
+            buffTagIds: [fixture.tagId],
+          },
+        },
+        whenTrue: {
+          steps: [
+            {
+              kind: 'applyBuff',
+              parameters: { buffId: fixture.childBuffId, target: 'caster' },
+            },
+          ],
+        },
+      });
+    }
+  });
+
+  it('让失衡套按事件目标上的失衡 Buff 实例数追加两段物理增伤', () => {
+    const definition = generatedGearSetDefinitions.find(item => item.slug === 'suit_poise01')!;
+    expect(validateGearSetDefinition(definition, '$.suit_poise01')).toEqual([]);
+    const compiled = compileGearSetContribution(definition, {
+      main: perlica.mainAttribute,
+      secondary: perlica.secondaryAttribute,
+    });
+    expect(compiled.modifiers).toEqual([{ kind: 'panelStat', stat: 'attackPercent', value: 0.08 }]);
+    const response =
+      compiled.buffDefinitions?.buff_equipsuit_poisedmg_01?.abilityEventResponses?.[0];
+    expect(response?.event).toBe('outputBuff');
+    expect(response?.sequence.steps[0]).toMatchObject({
+      parameters: {
+        condition: {
+          kind: 'eventBuffTagsMatch',
+          match: 'hasAny',
+          buffTagIds: [1075718177],
+        },
+      },
+      whenTrue: {
+        steps: [
+          { parameters: { buffId: 'buff_equipsuit_poisedmg_01_damagebuff' } },
+          {
+            parameters: {
+              condition: {
+                kind: 'eventTargetBuffCountCompare',
+                tagQueryType: 'hasAny',
+                buffTagIds: [1075718177],
+                operator: 'greaterOrEqual',
+                value: { kind: 'blackboard', key: 'stack_cond' },
+              },
+            },
+            whenTrue: {
+              steps: [{ parameters: { buffId: 'buff_equipsuit_poisedmg_01_attackbuff' } }],
+            },
+          },
+        ],
+      },
+    });
+  });
 });

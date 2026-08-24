@@ -134,6 +134,9 @@ function setComparison(event: Event): void {
     case 'buffStackCompare':
       emit('update', { ...condition, operator });
       break;
+    case 'eventTargetBuffCountCompare':
+      emit('update', { ...condition, operator });
+      break;
     case 'buffIdStackCompare':
       emit('update', { ...condition, operator });
       break;
@@ -157,6 +160,8 @@ function setOperand(
   else if (condition.kind === 'cameraToTargetAngleCompare' && field === 'value')
     emit('update', { ...condition, value });
   else if (condition.kind === 'buffStackCompare' && field === 'value')
+    emit('update', { ...condition, value });
+  else if (condition.kind === 'eventTargetBuffCountCompare' && field === 'value')
     emit('update', { ...condition, value });
   else if (condition.kind === 'actionValueCompare' && field === 'left')
     emit('update', { ...condition, left: value });
@@ -198,6 +203,8 @@ function setGameplayTagIds(values: readonly number[]): void {
     emit('update', { ...props.condition, tagIds: values });
   else if (props.condition.kind === 'eventBuffTagsMatch')
     emit('update', { ...props.condition, buffTagIds: values });
+  else if (props.condition.kind === 'eventTargetBuffCountCompare')
+    emit('update', { ...props.condition, buffTagIds: values });
 }
 
 function setBuffIds(event: Event): void {
@@ -233,6 +240,8 @@ function setTagQueryType(event: Event): void {
     .value as (typeof TAG_QUERY_TYPES)[number];
   if (!TAG_QUERY_TYPES.includes(tagQueryType)) return;
   if (props.condition.kind === 'buffStackCompare')
+    emit('update', { ...props.condition, tagQueryType });
+  else if (props.condition.kind === 'eventTargetBuffCountCompare')
     emit('update', { ...props.condition, tagQueryType });
   else if (props.condition.kind === 'entityTagMatch')
     emit('update', { ...props.condition, tagQueryType });
@@ -705,7 +714,13 @@ function removeChild(index: number): void {
       /></label>
     </template>
 
-    <template v-if="condition.kind === 'buffStackCompare' || condition.kind === 'entityTagMatch'">
+    <template
+      v-if="
+        condition.kind === 'buffStackCompare' ||
+        condition.kind === 'eventTargetBuffCountCompare' ||
+        condition.kind === 'entityTagMatch'
+      "
+    >
       <label class="condition-editor__field"
         ><EditorFieldLabel
           :label="t('nextTimeline.skillEditing.tagQueryType')"
@@ -721,11 +736,14 @@ function removeChild(index: number): void {
           :label="t('nextTimeline.skillEditing.buffTagIds')"
           :help="t('nextTimeline.skillEditing.fieldHelp.buffTagIds')"
         /><GameplayTagIdsEditor
-          :ids="condition.kind === 'buffStackCompare' ? condition.buffTagIds : condition.tagIds"
+          :ids="condition.kind === 'entityTagMatch' ? condition.tagIds : condition.buffTagIds"
           @update="setGameplayTagIds"
         />
       </label>
-      <template v-if="condition.kind === 'buffStackCompare'"
+      <template
+        v-if="
+          condition.kind === 'buffStackCompare' || condition.kind === 'eventTargetBuffCountCompare'
+        "
         ><label class="condition-editor__field"
           ><EditorFieldLabel
             :label="t('nextTimeline.skillEditing.comparisonOperator')"

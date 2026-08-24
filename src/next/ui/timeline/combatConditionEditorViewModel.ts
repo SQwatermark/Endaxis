@@ -111,6 +111,14 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
       return { kind };
     case 'eventBuffTagsMatch':
       return { kind, match: 'hasAny', buffTagIds: [0] };
+    case 'eventTargetBuffCountCompare':
+      return {
+        kind,
+        tagQueryType: 'hasAny',
+        buffTagIds: [0],
+        operator: 'greaterOrEqual',
+        value: { kind: 'constant', value: 1 },
+      };
     case 'eventHealTagsMatch':
       return { kind, match: 'hasAny', tagIds: [0] };
     case 'eventSourceTargetMatch':

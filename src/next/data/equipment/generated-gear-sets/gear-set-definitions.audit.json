@@ -1,8 +1,8 @@
 {
   "format": "EndaxisGeneratedGearSetAudit",
   "version": 1,
-  "definitionCount": 8,
-  "buffDefinitionCount": 15,
+  "definitionCount": 11,
+  "buffDefinitionCount": 24,
   "diagnostics": [
     {
       "status": "scenario-omitted",
@@ -13,6 +13,21 @@
       "status": "scenario-omitted",
       "sourcePath": "BuffData.buff_equipsuit_wisdwill_01.abilityEventAction",
       "reason": "enemy-defeated response occurs after the fixed single target simulation has ended"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "BuffData.buff_common_vfx_char_atk_up.stackingSettings.stackEffects",
+      "reason": "particle-only stack effect does not affect the fixed-target damage simulation"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "BuffData.buff_common_vfx_char_atk_up.stackingSettings.stackEffects",
+      "reason": "particle-only stack effect does not affect the fixed-target damage simulation"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "BuffData.buff_common_vfx_char_atk_up.stackingSettings.stackEffects",
+      "reason": "particle-only stack effect does not affect the fixed-target damage simulation"
     },
     {
       "status": "scenario-omitted",

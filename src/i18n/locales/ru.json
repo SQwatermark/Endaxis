@@ -1428,6 +1428,7 @@
         "abilityEntityRemainingDurationCompare": "Оставшееся время сущности способности",
         "statusActive": "Статус активен",
         "buffStackCompare": "Сравнение слоёв Buff по тегу",
+        "eventTargetBuffCountCompare": "Число экземпляров Buff у цели события",
         "entityTagMatch": "Теги сущности",
         "buffIdStackCompare": "Сравнение слоёв Buff по ID",
         "timedMarkerPresent": "Есть временная метка",

@@ -12,6 +12,64 @@ const delegate: CombatOperationExecutor = {
 };
 
 describe('BuffOperationExecutor', () => {
+  it('compares matching Buff instances on the real event target without counting enhance layers', () => {
+    const path = 'buff/status/poise';
+    const tag = gameplayTagIdFromPath(path);
+    const target = new CombatBuffContainer(
+      'enemy',
+      new CombatAttributeSet(),
+      new GameplayTagRegistry([path]),
+    );
+    target.add({ id: 'enhanced', stackingType: 'enhance', applyTags: [tag] }, 'operator');
+    target.add({ id: 'enhanced', stackingType: 'enhance', applyTags: [tag] }, 'operator');
+    target.add({ id: 'separate', stackingType: 'unlimited', applyTags: [tag] }, 'operator');
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => target,
+      resolveEventTarget: targetId => {
+        expect(targetId).toBe('enemy');
+        return target;
+      },
+      delegate,
+    });
+    const context = {
+      blackboard: new ActionBlackboard({ required: 2 }),
+      event: {
+        kind: 'buffApplied' as const,
+        targetId: 'enemy',
+        sourceId: 'operator',
+        buffId: 'latest',
+        buffTagIds: [tag],
+      },
+    };
+
+    expect(
+      executor.evaluate(
+        {
+          kind: 'eventTargetBuffCountCompare',
+          tagQueryType: 'hasAny',
+          buffTagIds: [tag],
+          operator: 'greaterOrEqual',
+          value: { kind: 'blackboard', key: 'required' },
+        },
+        context,
+      ),
+    ).toBe(true);
+    context.blackboard.assignDynamic('required', 3);
+    expect(
+      executor.evaluate(
+        {
+          kind: 'eventTargetBuffCountCompare',
+          tagQueryType: 'hasAny',
+          buffTagIds: [tag],
+          operator: 'greaterOrEqual',
+          value: { kind: 'blackboard', key: 'required' },
+        },
+        context,
+      ),
+    ).toBe(false);
+  });
+
   it('applies the first no-guard layer before executing the fracture Buff chain', () => {
     let noGuardCount = 0;
     const applied: string[] = [];

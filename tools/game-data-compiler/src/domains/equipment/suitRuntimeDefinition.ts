@@ -51,10 +51,26 @@ export interface CompiledBuffAttributeModifierSource {
   readonly value: CompiledBuffNumberSource;
 }
 
-export type CompiledEquipmentBuffConditionSource = {
-  readonly kind: 'eventSkillTypeIn';
-  readonly skillTypes: readonly ('battleSkill' | 'comboSkill' | 'ultimate')[];
-};
+export type CompiledEquipmentBuffConditionSource =
+  | {
+      readonly kind: 'eventSkillTypeIn';
+      readonly skillTypes: readonly ('battleSkill' | 'comboSkill' | 'ultimate')[];
+    }
+  | {
+      readonly kind: 'eventBuffTagsMatch';
+      readonly match: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+      readonly buffTagIds: readonly number[];
+    }
+  | {
+      readonly kind: 'eventTargetBuffCountCompare';
+      readonly tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+      readonly buffTagIds: readonly number[];
+      readonly operator:
+        'equal' | 'notEqual' | 'greater' | 'greaterOrEqual' | 'less' | 'lessOrEqual';
+      readonly value:
+        | { readonly kind: 'constant'; readonly value: number }
+        | { readonly kind: 'blackboard'; readonly key: string };
+    };
 
 export type CompiledEquipmentBuffStepSource =
   | {
@@ -100,7 +116,7 @@ export interface CompiledEquipmentBuffDefinitionSource {
   readonly attributeModifiers: readonly CompiledBuffAttributeModifierSource[];
   readonly lifecycleSequences?: { readonly enable: CompiledEquipmentBuffSequenceSource };
   readonly abilityEventResponses?: readonly {
-    readonly event: 'beforeCastSkill';
+    readonly event: 'beforeCastSkill' | 'outputBuff';
     readonly priority: 0;
     readonly sequence: CompiledEquipmentBuffSequenceSource;
   }[];
@@ -404,12 +420,19 @@ export function compileEquipmentBuffRuntimeDefinitionSource(
     }
   }
   const beforeCastSteps: CompiledEquipmentBuffStepSource[] = [];
+  const outputBuffSteps: CompiledEquipmentBuffStepSource[] = [];
   for (const event of source.graph.abilityEvents) {
     if (omittedAbilityEvents.has(event.event)) continue;
-    if (event.event !== 'OnBeforeCastSkill')
+    const target =
+      event.event === 'OnBeforeCastSkill'
+        ? beforeCastSteps
+        : event.event === 'OnOutputBuff'
+          ? outputBuffSteps
+          : null;
+    if (target === null)
       throw new Error(`unsupported ability event ${JSON.stringify(event.event)}`);
     for (const sequence of event.actions)
-      beforeCastSteps.push(...compileLinearSequence(sequence, visualOnlyIds).steps);
+      target.push(...compileLinearSequence(sequence, visualOnlyIds).steps);
   }
   const blackboard = Object.fromEntries(
     source.graph.declaredBlackboard.map(item => [item.key, item.value]),
@@ -471,15 +494,28 @@ export function compileEquipmentBuffRuntimeDefinitionSource(
     ...(enableSequences.length === 0
       ? {}
       : { lifecycleSequences: { enable: mergeSequences(enableSequences) } }),
-    ...(beforeCastSteps.length === 0
+    ...(beforeCastSteps.length === 0 && outputBuffSteps.length === 0
       ? {}
       : {
           abilityEventResponses: [
-            {
-              event: 'beforeCastSkill' as const,
-              priority: 0 as const,
-              sequence: { steps: beforeCastSteps },
-            },
+            ...(beforeCastSteps.length === 0
+              ? []
+              : [
+                  {
+                    event: 'beforeCastSkill' as const,
+                    priority: 0 as const,
+                    sequence: { steps: beforeCastSteps },
+                  },
+                ]),
+            ...(outputBuffSteps.length === 0
+              ? []
+              : [
+                  {
+                    event: 'outputBuff' as const,
+                    priority: 0 as const,
+                    sequence: { steps: outputBuffSteps },
+                  },
+                ]),
           ],
         }),
   };
@@ -493,37 +529,81 @@ function compileLinearSequence(
     throw new Error('sequence owner/guard root filters are not yet supported');
   }
   const nodes = source.actions.filter(node => node.metadata.enabled);
-  if (nodes.length === 0) return { steps: [] };
-  const first = nodes[0]!;
-  const condition = compileSkillTypeCondition(first);
-  if (condition !== null) {
-    const body = nodes.slice(1).flatMap(node => compileActionNode(node, visualOnlyIds));
-    if (body.length === 0) return { steps: [] };
-    return {
-      steps: [{ kind: 'conditional', parameters: { condition }, whenTrue: { steps: body } }],
-    };
-  }
-  return { steps: nodes.flatMap(node => compileActionNode(node, visualOnlyIds)) };
+  return { steps: compileLinearNodes(nodes, visualOnlyIds) };
 }
 
-function compileSkillTypeCondition(
+function compileLinearNodes(
+  nodes: readonly NativeActionNodeSource<KnownNativeActionLeafSource>[],
+  visualOnlyIds: ReadonlySet<string>,
+): CompiledEquipmentBuffStepSource[] {
+  if (nodes.length === 0) return [];
+  const [first, ...rest] = nodes;
+  const condition = compileEventCondition(first!);
+  if (condition !== null) {
+    const body = compileLinearNodes(rest, visualOnlyIds);
+    return body.length === 0
+      ? []
+      : [{ kind: 'conditional', parameters: { condition }, whenTrue: { steps: body } }];
+  }
+  return [...compileActionNode(first!, visualOnlyIds), ...compileLinearNodes(rest, visualOnlyIds)];
+}
+
+function compileEventCondition(
   node: NativeActionNodeSource<KnownNativeActionLeafSource>,
 ): CompiledEquipmentBuffConditionSource | null {
-  if (
-    node.body.kind !== 'leaf' ||
-    node.body.value.family !== 'condition' ||
-    node.body.value.action.kind !== 'skillType'
-  )
-    return null;
-  return {
-    kind: 'eventSkillTypeIn',
-    skillTypes: node.body.value.action.skillTypes.map(skillType => {
-      const mapped = SKILL_TYPES[skillType];
-      if (mapped === undefined)
-        throw new Error(`unsupported native skill type ${JSON.stringify(skillType)}`);
-      return mapped;
-    }),
-  };
+  if (node.body.kind !== 'leaf' || node.body.value.family !== 'condition') return null;
+  const condition = node.body.value.action;
+  if (condition.kind === 'skillType') {
+    return {
+      kind: 'eventSkillTypeIn',
+      skillTypes: condition.skillTypes.map(skillType => {
+        const mapped = SKILL_TYPES[skillType];
+        if (mapped === undefined)
+          throw new Error(`unsupported native skill type ${JSON.stringify(skillType)}`);
+        return mapped;
+      }),
+    };
+  }
+  if (condition.kind === 'contextBuff') {
+    if (condition.checkType !== 'Tag' || condition.buffIds.length > 0) {
+      throw new Error(`${node.sourcePath}: unsupported event Buff identity condition`);
+    }
+    const match = TAG_QUERY_TYPES[condition.queryType];
+    if (match === undefined) {
+      throw new Error(
+        `${node.sourcePath}: unsupported event Buff tag query ${JSON.stringify(condition.queryType)}`,
+      );
+    }
+    return { kind: 'eventBuffTagsMatch', match, buffTagIds: condition.buffTagIds };
+  }
+  if (condition.kind === 'buffStack') {
+    if (
+      condition.targetSource !== 'Target' ||
+      condition.targetGroupKey !== '' ||
+      condition.buffCheckType !== 'Tag' ||
+      condition.buffIds.length > 0 ||
+      condition.countType !== 'BuffCount' ||
+      condition.limitSkillCastId
+    ) {
+      throw new Error(`${node.sourcePath}: unsupported event target Buff count condition`);
+    }
+    const tagQueryType = condition.tagQueryType;
+    const operator = COMPARISON_OPERATORS[condition.comparison];
+    if (operator === undefined) {
+      throw new Error(`${node.sourcePath}: unsupported event target Buff count comparison`);
+    }
+    return {
+      kind: 'eventTargetBuffCountCompare',
+      tagQueryType,
+      buffTagIds: condition.buffTagIds,
+      operator,
+      value:
+        condition.value.blackboardKey === null
+          ? { kind: 'constant', value: condition.value.value }
+          : { kind: 'blackboard', key: condition.value.blackboardKey },
+    };
+  }
+  return null;
 }
 
 function compileActionNode(
@@ -668,4 +748,20 @@ const SKILL_TYPES: Readonly<Record<string, 'battleSkill' | 'comboSkill' | 'ultim
   NormalSkill: 'battleSkill',
   ComboSkill: 'comboSkill',
   UltimateSkill: 'ultimate',
+};
+const TAG_QUERY_TYPES: Readonly<Record<string, 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll'>> = {
+  HasAny: 'hasAny',
+  HasAll: 'hasAll',
+  ExceptAny: 'exceptAny',
+  ExceptAll: 'exceptAll',
+};
+const COMPARISON_OPERATORS: Readonly<
+  Record<string, 'equal' | 'notEqual' | 'greater' | 'greaterOrEqual' | 'less' | 'lessOrEqual'>
+> = {
+  EQ: 'equal',
+  NE: 'notEqual',
+  GT: 'greater',
+  GE: 'greaterOrEqual',
+  LT: 'less',
+  LE: 'lessOrEqual',
 };

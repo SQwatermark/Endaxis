@@ -1545,6 +1545,7 @@
         "abilityEntityRemainingDurationCompare": "能力实体剩余时长比较",
         "statusActive": "状态生效中",
         "buffStackCompare": "按标签比较 Buff 层数",
+        "eventTargetBuffCountCompare": "比较事件目标的 Buff 实例数",
         "entityTagMatch": "实体标签匹配",
         "buffIdStackCompare": "按身份比较 Buff 层数",
         "timedMarkerPresent": "存在定时标记",

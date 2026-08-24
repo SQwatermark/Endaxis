@@ -263,6 +263,14 @@ export class BuffDefinitionOperationTarget<Key extends string>
     return this.container.getCountByTags(tags, type, exact);
   }
 
+  getInstanceCountByTags(
+    tags: readonly GameplayTagId[],
+    type: GameplayTagQueryType,
+    exact?: boolean,
+  ): number {
+    return this.container.getInstanceCountByTags(tags, type, exact);
+  }
+
   matchesEntityTags(
     tags: readonly GameplayTagId[],
     type: GameplayTagQueryType,

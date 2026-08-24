@@ -289,12 +289,32 @@ describe('CombatBuffContainer', () => {
     requireAddedBuff(container.add(definition, 'skill'));
 
     expect(container.getCountByTags([gameplayTagIdFromPath('Combat/Buff/Pulse')])).toBe(2);
+    expect(container.getInstanceCountByTags([gameplayTagIdFromPath('Combat/Buff/Pulse')])).toBe(1);
     expect(
       container.findFirstByTags([gameplayTagIdFromPath('Combat/Buff/Pulse')])?.definition.id,
     ).toBe('pulse-triggered');
     expect(
       container.getCountByTags([gameplayTagIdFromPath('Combat/Buff/Pulse')], 'hasAny', true),
     ).toBe(0);
+  });
+
+  it('separates matching Buff instance count from accumulated enhance layers', () => {
+    const path = 'Combat/Buff/Poise';
+    const container = new CombatBuffContainer(
+      'enemy',
+      new CombatAttributeSet(),
+      new GameplayTagRegistry([path]),
+    );
+    const tag = gameplayTagIdFromPath(path);
+    const enhanced = { id: 'enhanced', applyTags: [tag], stackingType: 'enhance' as const };
+    const unlimited = { id: 'unlimited', applyTags: [tag], stackingType: 'unlimited' as const };
+
+    requireAddedBuff(container.add(enhanced, 'operator'));
+    requireAddedBuff(container.add(enhanced, 'operator'));
+    requireAddedBuff(container.add(unlimited, 'operator'));
+
+    expect(container.getCountByTags([tag])).toBe(3);
+    expect(container.getInstanceCountByTags([tag])).toBe(2);
   });
 
   it('registers independent modifiers and follows enable-disable-finish lifecycle', () => {

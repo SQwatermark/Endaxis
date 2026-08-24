@@ -1551,6 +1551,7 @@
         "abilityEntityRemainingDurationCompare": "Ability entity remaining duration",
         "statusActive": "Status active",
         "buffStackCompare": "Buff tag stack comparison",
+        "eventTargetBuffCountCompare": "Event target Buff instance count",
         "entityTagMatch": "Entity tag match",
         "buffIdStackCompare": "Buff identity stack comparison",
         "timedMarkerPresent": "Timed marker present",
