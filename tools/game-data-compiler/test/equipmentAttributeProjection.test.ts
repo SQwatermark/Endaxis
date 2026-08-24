@@ -61,6 +61,7 @@ describe('单件装备属性投影', () => {
     ['PulseDamageIncrease', 'electric'],
     ['CrystDamageIncrease', 'cryo'],
     ['NaturalDamageIncrease', 'nature'],
+    ['EtherDamageIncrease', 'ether'],
     ['DamageToBrokenUnitIncrease', 'staggeredEnemy'],
   ] as const)('maps %s to damage scale %s', (attribute, target) => {
     expect(
@@ -68,6 +69,29 @@ describe('单件装备属性投影', () => {
     ).toMatchObject({
       status: 'supported',
       modifier: { kind: 'damageScale', target, value: 0.25 },
+    });
+  });
+
+  it('preserves native poise-output addition and combo cooldown multiplier semantics', () => {
+    expect(
+      projectEquipmentAttributeModifier(
+        fixture('specific', 'PoiseDamageOutputScalar', 'baseAddition'),
+      ),
+    ).toMatchObject({
+      status: 'supported',
+      modifier: { kind: 'panelStat', stat: 'staggerDamagePercent', value: 0.25 },
+    });
+    expect(
+      projectEquipmentAttributeModifier(
+        fixture('specific', 'ComboSkillCooldownScalar', 'baseFinalMultiplier'),
+      ),
+    ).toMatchObject({
+      status: 'supported',
+      modifier: {
+        kind: 'skillCooldownMultiplier',
+        skillTypes: 'comboSkill',
+        value: 0.25,
+      },
     });
   });
 

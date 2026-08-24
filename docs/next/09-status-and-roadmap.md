@@ -6,8 +6,9 @@
 > `tools/game-data-compiler`。该 TypeScript 工具先建立干员、武器、装备共用的严格来源 IR、公共
 > 被动编译和领域安装请求，再接正式 Next 定义；旧 Python 生成器只保留为迁移 oracle。当前
 > 285 条真实领域请求汇聚为 155 个唯一被动 SkillData，155/155 批量编译成功；77 件武器的
-> 1925 组突破/潜能组合和 5650 个技能槽结果全部闭合。下一步接单件装备属性修正和武器基础攻击
-> 成长。详细恢复说明见 `docs/handoff/current-context.md` 和编译器 README。
+> 1925 组突破/潜能组合和 5650 个技能槽结果全部闭合。243 件现行单件装备已正式生成并注册；
+> 23 套 CardSkill 静态候选达到 33 条支持、6 条木桩省略、0 阻塞，下一步闭合其 49 个 BuffData
+> 运行时行为后注册完整套装，再推进全武器。详细恢复说明见 `docs/handoff/current-context.md` 和编译器 README。
 
 ## 1. 当前状态
 

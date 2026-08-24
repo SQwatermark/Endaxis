@@ -78,6 +78,7 @@ const EQUIPMENT_DAMAGE_SCALE_ATTRIBUTE: Readonly<
   electric: 'electricDamageIncrease',
   cryo: 'cryoDamageIncrease',
   nature: 'natureDamageIncrease',
+  ether: 'etherDamageIncrease',
   staggeredEnemy: 'damageToStaggeredEnemyIncrease',
 };
 

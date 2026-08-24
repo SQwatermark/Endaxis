@@ -265,9 +265,13 @@ function applyEquipmentContribution(
         operation: modifier.stat.endsWith('Percent') ? 'percent' : 'flat',
         value: modifier.value,
       });
-    } else if (modifier.kind === 'damageBonus' || modifier.kind === 'damageScale') {
+    } else if (
+      modifier.kind === 'damageBonus' ||
+      modifier.kind === 'damageScale' ||
+      modifier.kind === 'skillCooldownMultiplier'
+    ) {
       combatModifiers.push(modifier);
-    } else {
+    } else if (modifier.kind === 'staticHealingIncrease') {
       combatModifiers.push({
         kind: 'staticHealingIncrease',
         target: modifier.target,

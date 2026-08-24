@@ -12,7 +12,8 @@ export type ProjectedEquipmentPanelStat =
   | 'healthPercent'
   | 'criticalRate'
   | 'artsIntensity'
-  | 'ultimateEnergyGainEfficiency';
+  | 'ultimateEnergyGainEfficiency'
+  | 'staggerDamagePercent';
 
 export type ProjectedEquipmentDamageScale =
   | 'normalAttack'
@@ -24,6 +25,7 @@ export type ProjectedEquipmentDamageScale =
   | 'electric'
   | 'cryo'
   | 'nature'
+  | 'ether'
   | 'staggeredEnemy';
 
 export type ProjectedEquipmentModifierSource =
@@ -46,6 +48,11 @@ export type ProjectedEquipmentModifierSource =
   | {
       readonly kind: 'staticHealingIncrease';
       readonly target: 'output';
+      readonly value: number;
+    }
+  | {
+      readonly kind: 'skillCooldownMultiplier';
+      readonly skillTypes: 'comboSkill';
       readonly value: number;
     };
 
@@ -87,6 +94,7 @@ const DAMAGE_SCALE_ATTRIBUTES: Readonly<
   PulseDamageIncrease: 'electric',
   CrystDamageIncrease: 'cryo',
   NaturalDamageIncrease: 'nature',
+  EtherDamageIncrease: 'ether',
   DamageToBrokenUnitIncrease: 'staggeredEnemy',
 };
 
@@ -167,6 +175,17 @@ export function projectEquipmentAttributeModifier(
     });
   }
 
+  if (source.declaredAttributeType === 'ComboSkillCooldownScalar') {
+    if (source.target !== 'specific' || source.slot !== 'baseFinalMultiplier') {
+      return blocked(source, 'ComboSkillCooldownScalar requires Specific/BaseFinalMultiplier');
+    }
+    return supported(source, {
+      kind: 'skillCooldownMultiplier',
+      skillTypes: 'comboSkill',
+      value: source.value,
+    });
+  }
+
   return blocked(
     source,
     `unsupported equipment attribute shape ${source.target}/${source.declaredAttributeType}/${source.slot}`,
@@ -187,6 +206,7 @@ function projectPanelStat(
     'CriticalRate/baseAddition': 'criticalRate',
     'PhysicalAndSpellInflictionEnhance/baseAddition': 'artsIntensity',
     'UltimateSpGainScalar/baseAddition': 'ultimateEnergyGainEfficiency',
+    'PoiseDamageOutputScalar/baseAddition': 'staggerDamagePercent',
   }[key] as ProjectedEquipmentPanelStat | undefined;
   return stat === undefined ? null : { kind: 'panelStat', stat, value: source.value };
 }

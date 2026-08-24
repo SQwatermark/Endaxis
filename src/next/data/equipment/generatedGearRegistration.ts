@@ -179,6 +179,9 @@ function modifierProjection(
     case 'staticHealingIncrease':
       identity = `staticHealingIncrease:${modifier.target}`;
       break;
+    case 'skillCooldownMultiplier':
+      identity = `skillCooldownMultiplier:${JSON.stringify(modifier.skillTypes)}`;
+      break;
     case 'damageBonus': {
       const skillTypes = Array.isArray(modifier.skillTypes)
         ? modifier.skillTypes

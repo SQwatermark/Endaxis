@@ -34,7 +34,8 @@ export type CompiledEquipmentModifierDefinitionSource =
         | 'healthPercent'
         | 'criticalRate'
         | 'artsIntensity'
-        | 'ultimateEnergyGainEfficiency';
+        | 'ultimateEnergyGainEfficiency'
+        | 'staggerDamagePercent';
       readonly value: readonly number[];
     }
   | {
@@ -45,6 +46,11 @@ export type CompiledEquipmentModifierDefinitionSource =
   | {
       readonly kind: 'staticHealingIncrease';
       readonly target: 'output';
+      readonly value: readonly number[];
+    }
+  | {
+      readonly kind: 'skillCooldownMultiplier';
+      readonly skillTypes: 'comboSkill';
       readonly value: readonly number[];
     };
 
@@ -298,6 +304,12 @@ function toFormalModifier(
         target: modifier.target,
         value: modifier.value,
       };
+    case 'skillCooldownMultiplier':
+      return {
+        kind: 'skillCooldownMultiplier',
+        skillTypes: modifier.skillTypes,
+        value: modifier.value,
+      };
   }
 }
 
@@ -311,5 +323,7 @@ function modifierIdentity(modifier: ProjectedEquipmentModifierSource): string {
       return `${modifier.kind}/${modifier.target}`;
     case 'staticHealingIncrease':
       return `${modifier.kind}/${modifier.target}`;
+    case 'skillCooldownMultiplier':
+      return `${modifier.kind}/${modifier.skillTypes}`;
   }
 }

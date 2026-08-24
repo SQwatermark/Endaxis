@@ -730,6 +730,29 @@ describe('StandardPlayerDamageEnvironment', () => {
     expect(receipt.entries.some(entry => entry.event === 'PoiseRecovered')).toBe(true);
   });
 
+  it('applies the resolved equipment poise-output addition to every stagger hit', () => {
+    const base = createContext();
+    const context = {
+      ...base,
+      panel: { ...base.panel!, staggerDamagePercent: 0.2 },
+    };
+    const receipt = context.receipt as CombatReceiptCollector;
+    const environment = createEnvironment();
+    const executor = environment.runtimeOptions.createOperationExecutor(context);
+
+    expect(
+      executor.execute({
+        ...damageStep,
+        parameters: { ...damageStep.parameters, stagger: 10 },
+      }),
+    ).toBe(true);
+    expect(environment.enemyVitals.poise).toBe(288);
+    expect(receipt.entries.at(-1)).toMatchObject({
+      event: 'PoiseApplied',
+      data: { calculatedDamage: 12, requestedDelta: -12, currentPoise: 288 },
+    });
+  });
+
   it('executes index elemental infliction and consumes attachments on bursts', () => {
     const context = createContext();
     const receipt = context.receipt as CombatReceiptCollector;

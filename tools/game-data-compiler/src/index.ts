@@ -193,6 +193,12 @@ export {
   type EquipmentSuitSourceClosure,
 } from './domains/equipment/suitSourceClosure.ts';
 export {
+  compileEquipmentSuitStaticDefinitionBatchSource,
+  type CompiledEquipmentSuitStaticDefinitionBatchSource,
+  type CompiledGearSetRuntimeDependencySource,
+  type CompiledGearSetStaticDefinitionSource,
+} from './domains/equipment/suitStaticDefinition.ts';
+export {
   EQUIPMENT_PART_TYPES,
   parseEquipmentItemSources,
   resolveEquipmentAttributeModifiers,

@@ -46,6 +46,7 @@ export const EQUIPMENT_DAMAGE_SCALE_TARGETS = [
   'electric',
   'cryo',
   'nature',
+  'ether',
   'staggeredEnemy',
 ] as const;
 /** 原生常驻伤害倍率属性；运行时按命中分类、元素或目标失衡状态选择。 */
@@ -83,6 +84,12 @@ export type EquipmentModifierDefinition =
       /** 原生 HealOutputIncrease / HealTakenIncrease 的构筑期基础加算。 */
       readonly kind: 'staticHealingIncrease';
       readonly target: 'output' | 'taken';
+      readonly value: LevelValues;
+    }
+  | {
+      /** 原生技能冷却时长倍率；保留乘区，禁止改写成不等价的“缩减百分比”。 */
+      readonly kind: 'skillCooldownMultiplier';
+      readonly skillTypes: SkillType | readonly SkillType[];
       readonly value: LevelValues;
     };
 

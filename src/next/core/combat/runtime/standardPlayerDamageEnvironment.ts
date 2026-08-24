@@ -392,8 +392,11 @@ export class StandardPlayerDamageEnvironment {
         this.#buffContainer(side, operatorBuffs).attributes.clearInstantModifiers(),
       emitPreparationEvent: (event, payload) =>
         this.#emit(context.program.operatorId, event, payload),
-      // 失衡倍率目前只有证据不足的来源；装备/处决失衡增益接入后在此聚合。
-      resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),
+      // PoiseDamageOutputScalar 的基础值为 1；构筑面板保存 BaseAddition 的增量。
+      resolvePoiseMultipliers: () => ({
+        output: 1 + (context.panel?.staggerDamagePercent ?? 0),
+        taken: 1,
+      }),
       emitHealthSourceEvent: (event, payload) => {
         if (event === 'afterKillEntity') {
           context.semanticEvents.emit({

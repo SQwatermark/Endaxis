@@ -129,6 +129,7 @@ function createAssembly(
     typeof CombatRuntimeAssembly
   >[0]['operators'][number]['buffDefinitions'],
   passivePrograms?: readonly CompiledOperatorPassiveProgram[],
+  panel?: ConstructorParameters<typeof CombatRuntimeAssembly>[0]['operators'][number]['panel'],
 ): CombatRuntimeAssembly {
   return new CombatRuntimeAssembly({
     enemy,
@@ -160,6 +161,7 @@ function createAssembly(
         ...(skillSlotGroups === undefined ? {} : { skillSlotGroups }),
         ...(initialEntityBlackboard === undefined ? {} : { initialEntityBlackboard }),
         ...(passivePrograms === undefined ? {} : { passivePrograms }),
+        ...(panel === undefined ? {} : { panel }),
       },
     ],
     createOperationExecutor: () => rejectingExecutor,
@@ -813,6 +815,76 @@ describe('CombatRuntimeAssembly', () => {
         data: expect.objectContaining({ castId: 'cast:2', skillId: 'skill' }),
       }),
     );
+  });
+
+  it('applies a scoped native cooldown multiplier to the shared combo-skill ledger', () => {
+    const panel = {
+      operatorId: 'operator',
+      level: 90,
+      attributes: { strength: 0, agility: 0, intellect: 0, will: 0 },
+      attack: 1,
+      attackBeforeAttributeScalar: 1,
+      mainAttribute: 'strength' as const,
+      secondaryAttribute: 'agility' as const,
+      health: 1,
+      defense: 0,
+      criticalRate: 0,
+      criticalDamage: 0,
+      artsIntensity: 0,
+      ultimateEnergyGainEfficiency: 1,
+      skillCooldownReduction: 0,
+      staggerDamagePercent: 0,
+      combatModifiers: [
+        {
+          kind: 'skillCooldownMultiplier' as const,
+          skillTypes: 'comboSkill' as const,
+          value: 0.85,
+        },
+      ],
+      receipt: [],
+    };
+    const programs = ['cast:1', 'cast:2', 'cast:3'].map(castId =>
+      skill({
+        castId,
+        skillGroupKey: 'comboSkill',
+        skillType: 'comboSkill',
+        cooldownFrames: 10,
+        costs: [],
+        costFrame: 0,
+      }),
+    );
+    const assembly = createAssembly(
+      programs,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      panel,
+    );
+
+    expect(assembly.tryStartSkill('operator', 'skill', 'cast:1')).toBe(true);
+    for (let frame = 0; frame < 8; frame += 1) assembly.advanceFrame();
+    expect(assembly.tryStartSkill('operator', 'skill', 'cast:2')).toBe(true);
+    assembly.advanceFrame();
+    expect(assembly.tryStartSkill('operator', 'skill', 'cast:3')).toBe(true);
+
+    const cooldownEvents = assembly.receipt.entries.filter(entry =>
+      entry.event.startsWith('SkillCooldown'),
+    );
+    expect(cooldownEvents.map(entry => entry.event)).toEqual([
+      'SkillCooldownReserved',
+      'SkillCooldownUnavailableAtStart',
+      'SkillCooldownReady',
+      'SkillCooldownReserved',
+    ]);
   });
 
   it('inherits normalized cooldown progress when changing a skill slot', () => {

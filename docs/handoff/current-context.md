@@ -7,6 +7,22 @@
 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
+### 2026-08-24：套装静态定义与运行时乘区 checkpoint
+
+- 23 个三件套 CardSkill 已由公共被动安装器选择确切等级并进入正式静态定义编译边界；结果为
+  33 条支持修正、6 条木桩场景玩家承伤省略、0 条阻塞。审计见
+  `docs/research/equipment-suit-static-definitions.json/.md`，候选仍单列启动 Buff、ToggleBuff 与动作图
+  依赖；49 个 BuffData 行为闭合前不得把静态候选冒充完整套装注册。
+- 补齐的原生语义包括以太增伤、全局失衡输出加算与连携冷却时长倍率。`0.85` 的
+  `ComboSkillCooldownScalar/BaseFinalMultiplier` 保留为仅连携技的乘法修正，没有偷换成 15% 加算型
+  “冷却缩减”；共享冷却账本允许小数有效周期，10 帧样本在 8.5 帧恢复。失衡输出则在每次失衡
+  结算读取面板增量，20% 样本把 10 点失衡变为 12。
+- 当前门禁：公共编译器 34 文件 / 163 项、Next 206 文件 / 1496 项全部通过；两套类型检查通过。
+  `GeneratedBuffAttributeModifierSource` 也已恢复对来源枚举 `BuffSource` 的忠实承载，但运行时适配仍会
+  对尚未支持的目标失败关闭，没有臆造其语义。
+- 下一项按 49 个已闭合 BuffData 的真实行为做横向分类，优先接入会影响对敌伤害的启动/事件/条件
+  Buff；纯玩家承伤继续按木桩模型显式省略。每套只有在静态修正和运行时依赖都闭合后才正式注册。
+
 ### 2026-08-24：全量单件装备正式接入 checkpoint
 
 - 固定客户端版本 `1.4.4@9433094-12` 的 `EquipTable + ItemTable` 已生成 243 件正式

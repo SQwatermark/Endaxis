@@ -1,0 +1,497 @@
+{
+  "format": "EndaxisEquipmentSuitStaticDefinitionAudit",
+  "version": 1,
+  "clientVersion": "1.4.4-9433094-12",
+  "definitionCount": 23,
+  "modifierCount": 33,
+  "modifierKindCounts": {
+    "attribute": 4,
+    "damageScale": 12,
+    "panelStat": 14,
+    "skillCooldownMultiplier": 2,
+    "staticHealingIncrease": 1
+  },
+  "scenarioOmissionCount": 6,
+  "blockedCount": 0,
+  "definitions": [
+    {
+      "slug": "suit_agi01",
+      "modifiers": [
+        {
+          "kind": "attribute",
+          "attribute": "agility",
+          "operation": "flat",
+          "value": [50]
+        }
+      ]
+    },
+    {
+      "slug": "suit_atb01",
+      "modifiers": [
+        {
+          "kind": "skillCooldownMultiplier",
+          "skillTypes": "comboSkill",
+          "value": [0.85]
+        }
+      ]
+    },
+    {
+      "slug": "suit_atk01",
+      "modifiers": [
+        {
+          "kind": "damageScale",
+          "target": "battleSkill",
+          "value": [0.24]
+        },
+        {
+          "kind": "damageScale",
+          "target": "comboSkill",
+          "value": [0.24]
+        },
+        {
+          "kind": "damageScale",
+          "target": "ultimate",
+          "value": [0.24]
+        }
+      ]
+    },
+    {
+      "slug": "suit_atk02",
+      "modifiers": [
+        {
+          "kind": "panelStat",
+          "stat": "attackPercent",
+          "value": [0.15]
+        }
+      ]
+    },
+    {
+      "slug": "suit_attri01",
+      "modifiers": [
+        {
+          "kind": "panelStat",
+          "stat": "attackPercent",
+          "value": [0.15]
+        }
+      ]
+    },
+    {
+      "slug": "suit_burst01",
+      "modifiers": [
+        {
+          "kind": "damageScale",
+          "target": "comboSkill",
+          "value": [0.2]
+        },
+        {
+          "kind": "damageScale",
+          "target": "battleSkill",
+          "value": [0.2]
+        },
+        {
+          "kind": "damageScale",
+          "target": "ultimate",
+          "value": [0.2]
+        }
+      ]
+    },
+    {
+      "slug": "suit_combo_cd01",
+      "modifiers": [
+        {
+          "kind": "skillCooldownMultiplier",
+          "skillTypes": "comboSkill",
+          "value": [0.85]
+        }
+      ]
+    },
+    {
+      "slug": "suit_criti01",
+      "modifiers": [
+        {
+          "kind": "panelStat",
+          "stat": "criticalRate",
+          "value": [0.05]
+        }
+      ]
+    },
+    {
+      "slug": "suit_crush_fracture",
+      "modifiers": [
+        {
+          "kind": "panelStat",
+          "stat": "attackPercent",
+          "value": [0.08]
+        }
+      ]
+    },
+    {
+      "slug": "suit_expend_spell01",
+      "modifiers": [
+        {
+          "kind": "panelStat",
+          "stat": "attackPercent",
+          "value": [0.1]
+        }
+      ]
+    },
+    {
+      "slug": "suit_fire_natr01",
+      "modifiers": [
+        {
+          "kind": "panelStat",
+          "stat": "artsIntensity",
+          "value": [30]
+        }
+      ]
+    },
+    {
+      "slug": "suit_generaltype",
+      "modifiers": [
+        {
+          "kind": "panelStat",
+          "stat": "ultimateEnergyGainEfficiency",
+          "value": [0.1]
+        },
+        {
+          "kind": "damageScale",
+          "target": "physical",
+          "value": [0.2]
+        },
+        {
+          "kind": "damageScale",
+          "target": "electric",
+          "value": [0.2]
+        },
+        {
+          "kind": "damageScale",
+          "target": "nature",
+          "value": [0.2]
+        },
+        {
+          "kind": "damageScale",
+          "target": "cryo",
+          "value": [0.2]
+        },
+        {
+          "kind": "damageScale",
+          "target": "heat",
+          "value": [0.2]
+        },
+        {
+          "kind": "damageScale",
+          "target": "ether",
+          "value": [0.2]
+        }
+      ]
+    },
+    {
+      "slug": "suit_heal01",
+      "modifiers": [
+        {
+          "kind": "staticHealingIncrease",
+          "target": "output",
+          "value": [0.2]
+        }
+      ]
+    },
+    {
+      "slug": "suit_phy01",
+      "modifiers": [
+        {
+          "kind": "panelStat",
+          "stat": "staggerDamagePercent",
+          "value": [0.2]
+        }
+      ]
+    },
+    {
+      "slug": "suit_poise01",
+      "modifiers": [
+        {
+          "kind": "panelStat",
+          "stat": "attackPercent",
+          "value": [0.08]
+        }
+      ]
+    },
+    {
+      "slug": "suit_pulse_cryst01",
+      "modifiers": [
+        {
+          "kind": "panelStat",
+          "stat": "artsIntensity",
+          "value": [30]
+        }
+      ]
+    },
+    {
+      "slug": "suit_str01",
+      "modifiers": [
+        {
+          "kind": "attribute",
+          "attribute": "strength",
+          "operation": "flat",
+          "value": [50]
+        }
+      ]
+    },
+    {
+      "slug": "suit_stragi01",
+      "modifiers": [
+        {
+          "kind": "panelStat",
+          "stat": "healthFlat",
+          "value": [500]
+        }
+      ]
+    },
+    {
+      "slug": "suit_usp01",
+      "modifiers": [
+        {
+          "kind": "panelStat",
+          "stat": "ultimateEnergyGainEfficiency",
+          "value": [0.2]
+        }
+      ]
+    },
+    {
+      "slug": "suit_usp02",
+      "modifiers": [
+        {
+          "kind": "panelStat",
+          "stat": "healthFlat",
+          "value": [1000]
+        }
+      ]
+    },
+    {
+      "slug": "suit_will01",
+      "modifiers": [
+        {
+          "kind": "attribute",
+          "attribute": "will",
+          "operation": "flat",
+          "value": [50]
+        }
+      ]
+    },
+    {
+      "slug": "suit_wisd01",
+      "modifiers": [
+        {
+          "kind": "attribute",
+          "attribute": "intellect",
+          "operation": "flat",
+          "value": [50]
+        }
+      ]
+    },
+    {
+      "slug": "suit_wisdwill01",
+      "modifiers": [
+        {
+          "kind": "panelStat",
+          "stat": "healthFlat",
+          "value": [500]
+        }
+      ]
+    }
+  ],
+  "runtimeDependencies": [
+    {
+      "suitId": "suit_agi01",
+      "skillId": "passive_equipsuit_agi_01",
+      "startupBuffIds": ["buff_equipsuit_agi_01"],
+      "toggleBuffIds": ["buff_equipsuit_agi_phydmg_01"],
+      "referencedBuffIds": ["buff_equipsuit_agi_01", "buff_equipsuit_agi_phydmg_01"]
+    },
+    {
+      "suitId": "suit_atb01",
+      "skillId": "passive_equipsuit_combosuit_01",
+      "startupBuffIds": ["buff_equipsuit_combosuit_01"],
+      "toggleBuffIds": [],
+      "referencedBuffIds": ["buff_equipsuit_combosuit_01"]
+    },
+    {
+      "suitId": "suit_atk01",
+      "skillId": "passive_equipsuit_atk_01",
+      "startupBuffIds": ["buff_equipsuit_atk_01"],
+      "toggleBuffIds": ["buff_equipsuit_wisdwill_01"],
+      "referencedBuffIds": ["buff_equipsuit_atk_01", "buff_equipsuit_wisdwill_01"]
+    },
+    {
+      "suitId": "suit_atk02",
+      "skillId": "passive_equipsuit_atk_02",
+      "startupBuffIds": ["buff_equipsuit_atk_02"],
+      "toggleBuffIds": [],
+      "referencedBuffIds": ["buff_equipsuit_atk_02"]
+    },
+    {
+      "suitId": "suit_attri01",
+      "skillId": "passive_equipsuit_attrisuit_01",
+      "startupBuffIds": ["buff_equipsuit_attrisuit_01"],
+      "toggleBuffIds": [],
+      "referencedBuffIds": ["buff_equipsuit_attrisuit_01"]
+    },
+    {
+      "suitId": "suit_burst01",
+      "skillId": "passive_equipsuit_burst_01",
+      "startupBuffIds": ["buff_equipsuit_will_01"],
+      "toggleBuffIds": ["buff_equipsuit_burst_01"],
+      "referencedBuffIds": ["buff_equipsuit_burst_01", "buff_equipsuit_will_01"]
+    },
+    {
+      "suitId": "suit_combo_cd01",
+      "skillId": "passive_equipsuit_combo_cd01",
+      "startupBuffIds": ["buff_equipsuit_combo_cd01"],
+      "toggleBuffIds": [],
+      "referencedBuffIds": ["buff_equipsuit_combo_cd01"]
+    },
+    {
+      "suitId": "suit_criti01",
+      "skillId": "passive_equipsuit_critsuit_01",
+      "startupBuffIds": ["buff_equipsuit_critsuit_01"],
+      "toggleBuffIds": [],
+      "referencedBuffIds": ["buff_equipsuit_critsuit_01"]
+    },
+    {
+      "suitId": "suit_crush_fracture",
+      "skillId": "passive_equipsuit_crush_fracture",
+      "startupBuffIds": ["buff_equipsuit_crush_fracture"],
+      "toggleBuffIds": [],
+      "referencedBuffIds": ["buff_equipsuit_crush_fracture"]
+    },
+    {
+      "suitId": "suit_expend_spell01",
+      "skillId": "passive_equipsuit_expend_spell01",
+      "startupBuffIds": ["buff_equipsuit_expend_spell01"],
+      "toggleBuffIds": [],
+      "referencedBuffIds": ["buff_equipsuit_expend_spell01"]
+    },
+    {
+      "suitId": "suit_fire_natr01",
+      "skillId": "passive_equipsuit_fninflict_01",
+      "startupBuffIds": ["buff_equipsuit_fninflict_01"],
+      "toggleBuffIds": [],
+      "referencedBuffIds": ["buff_equipsuit_fninflict_01"]
+    },
+    {
+      "suitId": "suit_generaltype",
+      "skillId": "passive_equipsuit_generaltype",
+      "startupBuffIds": [],
+      "toggleBuffIds": ["buff_equipsuit_str_reducedmg_01"],
+      "referencedBuffIds": ["buff_equipsuit_str_reducedmg_01"]
+    },
+    {
+      "suitId": "suit_heal01",
+      "skillId": "passive_equipsuit_healup_01",
+      "startupBuffIds": ["buff_equipsuit_healup_01"],
+      "toggleBuffIds": [],
+      "referencedBuffIds": ["buff_equipsuit_healup_01"]
+    },
+    {
+      "suitId": "suit_phy01",
+      "skillId": "passive_equipsuit_physuit_01",
+      "startupBuffIds": ["buff_equipsuit_physuit_01"],
+      "toggleBuffIds": [],
+      "referencedBuffIds": ["buff_equipsuit_physuit_01"]
+    },
+    {
+      "suitId": "suit_poise01",
+      "skillId": "passive_equipsuit_poisebreak_01",
+      "startupBuffIds": ["buff_equipsuit_poisedmg_01"],
+      "toggleBuffIds": [],
+      "referencedBuffIds": ["buff_equipsuit_poisedmg_01"]
+    },
+    {
+      "suitId": "suit_pulse_cryst01",
+      "skillId": "passive_equipsuit_cpinflict_01",
+      "startupBuffIds": ["buff_equipsuit_cpinflict_01"],
+      "toggleBuffIds": [],
+      "referencedBuffIds": ["buff_equipsuit_cpinflict_01"]
+    },
+    {
+      "suitId": "suit_str01",
+      "skillId": "passive_equipsuit_str_01",
+      "startupBuffIds": ["buff_equipsuit_str_01"],
+      "toggleBuffIds": ["buff_equipsuit_str_reducedmg_01"],
+      "referencedBuffIds": ["buff_equipsuit_str_01", "buff_equipsuit_str_reducedmg_01"]
+    },
+    {
+      "suitId": "suit_stragi01",
+      "skillId": "passive_equipsuit_stragi_01",
+      "startupBuffIds": ["buff_equipsuit_will_01"],
+      "toggleBuffIds": ["buff_equipsuit_stragi_01"],
+      "referencedBuffIds": ["buff_equipsuit_stragi_01", "buff_equipsuit_will_01"]
+    },
+    {
+      "suitId": "suit_usp01",
+      "skillId": "passive_equipsuit_usp_01",
+      "startupBuffIds": ["buff_equipsuit_will_01"],
+      "toggleBuffIds": ["buff_equipsuit_usp_01"],
+      "referencedBuffIds": ["buff_equipsuit_usp_01", "buff_equipsuit_will_01"]
+    },
+    {
+      "suitId": "suit_usp02",
+      "skillId": "passive_equipsuit_usp_02",
+      "startupBuffIds": ["buff_equipsuit_usp_02"],
+      "toggleBuffIds": [],
+      "referencedBuffIds": ["buff_equipsuit_usp_02"]
+    },
+    {
+      "suitId": "suit_will01",
+      "skillId": "passive_equipsuit_will_01",
+      "startupBuffIds": ["buff_equipsuit_will_01"],
+      "toggleBuffIds": ["buff_equipsuit_will_healrt_01"],
+      "referencedBuffIds": ["buff_equipsuit_will_01", "buff_equipsuit_will_healrt_01"]
+    },
+    {
+      "suitId": "suit_wisd01",
+      "skillId": "passive_equipsuit_wisd_01",
+      "startupBuffIds": ["buff_equipsuit_wisd_01"],
+      "toggleBuffIds": ["buff_equipsuit_wisd_spdmg_01"],
+      "referencedBuffIds": ["buff_equipsuit_wisd_01", "buff_equipsuit_wisd_spdmg_01"]
+    },
+    {
+      "suitId": "suit_wisdwill01",
+      "skillId": "passive_equipsuit_wisdwill_01",
+      "startupBuffIds": ["buff_equipsuit_will_01"],
+      "toggleBuffIds": ["buff_equipsuit_wisdwill_01"],
+      "referencedBuffIds": ["buff_equipsuit_will_01", "buff_equipsuit_wisdwill_01"]
+    }
+  ],
+  "diagnostics": [
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "SkillData.passive_equipsuit_generaltype.cardAttributeModifier.attributeModifiers[1]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "SkillData.passive_equipsuit_generaltype.cardAttributeModifier.attributeModifiers[2]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "SkillData.passive_equipsuit_generaltype.cardAttributeModifier.attributeModifiers[3]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "SkillData.passive_equipsuit_generaltype.cardAttributeModifier.attributeModifiers[4]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "SkillData.passive_equipsuit_generaltype.cardAttributeModifier.attributeModifiers[5]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "SkillData.passive_equipsuit_generaltype.cardAttributeModifier.attributeModifiers[6]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    }
+  ]
+}

@@ -543,7 +543,8 @@ export interface GeneratedUnparsedBuffPayloadSource {
 }
 
 export interface GeneratedBuffAttributeModifierSource {
-  readonly targetType: 'Specific' | 'Main' | 'Sub' | 'All';
+  /** 保留来源枚举；运行时适配器只在已闭环时接受具体目标。 */
+  readonly targetType: 'Specific' | 'Main' | 'Sub' | 'All' | 'BuffSource';
   readonly attributeType: string;
   readonly slot:
     | 'Addition'

@@ -29,6 +29,7 @@ python -m scripts.generate_next_equipment.generate_candidate_coverage
 python -m scripts.generate_next_equipment.generate_akedb_source_audit
 node scripts/generate_next_equipment/generate_formal_gear_definitions.ts --tables <TableCfg目录>
 node scripts/generate_next_equipment/generate_suit_source_audit.ts --tables <TableCfg目录> --skills <套装SkillData目录> --buffs <套装BuffData闭包目录> --client-version <版本>
+node scripts/generate_next_equipment/generate_suit_static_definition_audit.ts --tables <TableCfg目录> --skills <套装SkillData目录> --client-version <版本>
 ```
 
 最后一条命令默认原子更新 `src/next/data/equipment/generated`。输入必须是同一固定客户端版本配对
@@ -39,6 +40,10 @@ node scripts/generate_next_equipment/generate_suit_source_audit.ts --tables <Tab
 套装审计命令只接受由固定 `EquipSuitTable` 精确枚举的 SkillData，以及沿活动静态引用递归下载的
 BuffData 闭包。它要求目录不多不少、所有阈值均为当前 Next 能表达的三件套，并保存两类来源文件
 闭包哈希；不能用一整个无版本公共缓存掩盖缺失依赖。
+
+套装静态定义审计会把 CardSkill 中构筑期已确定的属性编译成正式 DSL 候选，同时把启动 Buff、
+ToggleBuff 和动作图引用保留为独立运行时依赖。候选只有在这些依赖完成后才能注册为完整套装，
+因此不会因“静态部分已通过”而静默少算战斗效果。
 
 默认生成：
 

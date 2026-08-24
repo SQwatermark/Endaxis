@@ -906,7 +906,7 @@ export class CombatRuntimeAssembly {
       resolveOperatorVitals,
       getNonReturnedSpCost: () => runtime.nonReturnedSpCost,
     });
-    const cooldownBinding = this.#resolveSkillCooldown(operatorId, program);
+    const cooldownBinding = this.#resolveSkillCooldown(operator, program);
     runtime = new SkillRuntime(program, {
       clock: this.clock,
       resources: this.resources,
@@ -937,15 +937,35 @@ export class CombatRuntimeAssembly {
   }
 
   #resolveSkillCooldown(
-    operatorId: string,
+    operator: CombatOperatorProgram,
     program: CompiledSkillProgram,
   ): { readonly cooldown?: SkillCooldown; readonly advancesCooldown?: boolean } {
+    const operatorId = operator.operatorId;
+    const cooldownMultiplier = (operator.panel?.combatModifiers ?? []).reduce(
+      (result, modifier) =>
+        modifier.kind === 'skillCooldownMultiplier' &&
+        (Array.isArray(modifier.skillTypes)
+          ? modifier.skillTypes.includes(program.skillType)
+          : modifier.skillTypes === program.skillType)
+          ? result * modifier.value
+          : result,
+      1,
+    );
+    if (!Number.isFinite(cooldownMultiplier) || cooldownMultiplier <= 0) {
+      throw new RangeError(
+        `skill '${program.skillId}' of '${operatorId}' has invalid cooldown multiplier ${cooldownMultiplier}`,
+      );
+    }
+    const periodFrames =
+      program.cooldownFrames === undefined
+        ? undefined
+        : program.cooldownFrames * cooldownMultiplier;
     const key = `${operatorId}\u0000${program.skillId}`;
     const existing = this.#skillCooldowns.get(key);
     if (existing !== undefined) {
       if (
-        existing.periodFrames !== program.cooldownFrames ||
-        (program.cooldownFrames !== undefined && existing.commitFrame !== program.costFrame)
+        existing.periodFrames !== periodFrames ||
+        (periodFrames !== undefined && existing.commitFrame !== program.costFrame)
       ) {
         throw new Error(
           `skill '${program.skillId}' of '${operatorId}' has inconsistent cooldown configuration`,
@@ -954,15 +974,15 @@ export class CombatRuntimeAssembly {
       return { cooldown: existing.cooldown, advancesCooldown: false };
     }
     const cooldown = new SkillCooldown(
-      program.cooldownFrames,
-      program.cooldownFrames === undefined ? undefined : program.costFrame,
+      periodFrames,
+      periodFrames === undefined ? undefined : program.costFrame,
     );
     this.#skillCooldowns.set(key, {
       cooldown,
-      ...(program.cooldownFrames === undefined
+      ...(periodFrames === undefined
         ? {}
         : {
-            periodFrames: program.cooldownFrames,
+            periodFrames,
             ...(program.costFrame === undefined ? {} : { commitFrame: program.costFrame }),
           }),
     });

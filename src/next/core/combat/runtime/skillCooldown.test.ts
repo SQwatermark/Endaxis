@@ -21,6 +21,16 @@ describe('SkillCooldown', () => {
     expect(cooldown.snapshot.ready).toBe(true);
   });
 
+  it('preserves fractional effective periods produced by native cooldown multipliers', () => {
+    const cooldown = new SkillCooldown(8.5, 0);
+    cooldown.tryReserve();
+
+    cooldown.advance(8);
+    expect(cooldown.snapshot.remainingFrames).toBeCloseTo(0.5);
+    expect(cooldown.advance(0.5)).toBe(true);
+    expect(cooldown.snapshot.ready).toBe(true);
+  });
+
   it('refunds a reserved charge only before the recovered commit frame', () => {
     const early = new SkillCooldown(10, 3);
     early.tryReserve();

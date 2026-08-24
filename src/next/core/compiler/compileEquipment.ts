@@ -56,6 +56,11 @@ export type ResolvedEquipmentModifier =
       readonly kind: 'staticHealingIncrease';
       readonly target: 'output' | 'taken';
       readonly value: number;
+    }
+  | {
+      readonly kind: 'skillCooldownMultiplier';
+      readonly skillTypes: SkillType | readonly SkillType[];
+      readonly value: number;
     };
 
 /** 动作序列已解析，但尚未注册到事件总线的一项配装监听器。 */
@@ -122,6 +127,8 @@ function compileModifier(
       return { kind: modifier.kind, target: modifier.target, value };
     case 'staticHealingIncrease':
       return { kind: modifier.kind, target: modifier.target, value };
+    case 'skillCooldownMultiplier':
+      return { kind: modifier.kind, skillTypes: modifier.skillTypes, value };
   }
 }
 

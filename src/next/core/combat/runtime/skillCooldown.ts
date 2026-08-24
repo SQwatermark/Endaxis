@@ -26,8 +26,8 @@ export class SkillCooldown {
       this.#periodFrames = 0;
       return;
     }
-    if (!Number.isInteger(periodFrames) || periodFrames <= 0) {
-      throw new RangeError('skill cooldown period must be a positive integer frame count');
+    if (!Number.isFinite(periodFrames) || periodFrames <= 0) {
+      throw new RangeError('skill cooldown period must be a positive finite frame count');
     }
     if (commitFrame !== undefined && (!Number.isInteger(commitFrame) || commitFrame < 0)) {
       throw new RangeError('skill cooldown commit frame must be a non-negative integer');
