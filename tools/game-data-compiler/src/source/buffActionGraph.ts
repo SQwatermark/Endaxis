@@ -9,6 +9,10 @@ import {
   requireRecord,
 } from './primitives.ts';
 import {
+  parseKnownNativeActionLeafSource,
+  type KnownNativeActionLeafSource,
+} from './actionLeaf.ts';
+import {
   collectSkillActionReferences,
   parseReferenceAwareActionLeafSource,
   type DefinitionReferenceSource,
@@ -82,11 +86,42 @@ export function parseReferenceAwareBuffActionGraphSource(
   sourcePath: string,
   inheritedBlackboard: BlackboardLevelValues,
 ): BuffActionGraphSource<ReferenceAwareActionLeafSource> {
+  return parseBuffActionGraphSource(
+    value,
+    sourcePath,
+    inheritedBlackboard,
+    parseReferenceAwareActionLeafSource,
+  );
+}
+
+/**
+ * 可执行投影专用的 Buff 动作图入口。与引用闭包入口不同，此处要求每个动作叶子都已进入
+ * 公共来源 IR；未知原生动作必须在精确路径失败，不能被投影层当成无效果动作跳过。
+ */
+export function parseKnownNativeBuffActionGraphSource(
+  value: unknown,
+  sourcePath: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): BuffActionGraphSource<KnownNativeActionLeafSource> {
+  return parseBuffActionGraphSource(
+    value,
+    sourcePath,
+    inheritedBlackboard,
+    parseKnownNativeActionLeafSource,
+  );
+}
+
+function parseBuffActionGraphSource<TLeaf>(
+  value: unknown,
+  sourcePath: string,
+  inheritedBlackboard: BlackboardLevelValues,
+  parseLeaf: (value: unknown, path: string, inherited: BlackboardLevelValues) => TLeaf,
+): BuffActionGraphSource<TLeaf> {
   const root = requireRecord(value, sourcePath);
   requireExactFields(root, BUFF_DATA_FIELDS, sourcePath);
   const parseSequence = (sequence: unknown, path: string) =>
     parseNativeSequenceSource(sequence, path, inheritedBlackboard, (leaf, leafPath) =>
-      parseReferenceAwareActionLeafSource(leaf, leafPath, inheritedBlackboard),
+      parseLeaf(leaf, leafPath, inheritedBlackboard),
     );
   return {
     buffId: requireNonEmptyString(root.id, `${sourcePath}.id`),
@@ -105,8 +140,7 @@ export function parseReferenceAwareBuffActionGraphSource(
           timeline,
           `${sourcePath}.timelineActions[${index}]`,
           inheritedBlackboard,
-          (leaf, leafPath) =>
-            parseReferenceAwareActionLeafSource(leaf, leafPath, inheritedBlackboard),
+          (leaf, leafPath) => parseLeaf(leaf, leafPath, inheritedBlackboard),
         ),
     ),
     buffEvents: parseNamedEvents(

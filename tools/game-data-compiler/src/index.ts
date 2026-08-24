@@ -22,11 +22,21 @@ export {
 } from './source/buffActions.ts';
 export {
   collectBuffActionReferences,
+  parseKnownNativeBuffActionGraphSource,
   parseReferenceAwareBuffActionGraphSource,
   type BuffActionGraphSource,
   type BuffIgniteActionEventSource,
   type BuffNamedActionEventSource,
 } from './source/buffActionGraph.ts';
+export {
+  BUFF_STACKING_TYPES,
+  parseBuffRuntimeSource,
+  type BuffLifecycleSource,
+  type BuffPresentationSource,
+  type BuffRuntimeSource,
+  type BuffStackingTypeSource,
+  type UnsupportedBuffPayloadSource,
+} from './source/buffRuntime.ts';
 export {
   parseNativeCalculationSource,
   type NativeCalculationSource,
