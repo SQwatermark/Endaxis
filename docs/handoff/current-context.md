@@ -3,9 +3,29 @@
 > 更新时间：2026-08-24（Asia/Shanghai）
 > 本文是变化最快、优先级最高的交接入口。完全不了解背景时，先读 [交接文档首页](./README.md)，再读本文和 [Next 文档入口](../next/README.md)。
 
-当前主线是在独立工作树 `C:\Users\sqwat\Projects\zmd\Endaxis-game-data-refactor` 的
-`refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
+当前主线是在台式机工作树 `D:\Projects\Endaxis` 的 `refactor/common-game-data` 分支重写统一
+TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
+
+### 2026-08-24：单件装备属性修正 checkpoint
+
+- 交接中旧称的“`ItemTable` 单件装备属性修正”已经按真实表纠正边界：`ItemTable` 只提供物品 ID、
+  图标、稀有度和物品类型等身份/展示事实；战斗属性来自 `EquipTable.equipAttrModifiers`。公共读取入口
+  必须联合校验两表身份，不能从 `displayAttrModifiers` 或显示文本反推战斗值。
+- `tools/game-data-compiler/src/source/attributeModifiers.ts` 现以同一套有类型枚举身份承载 Buff、
+  CardSkill、武器和装备属性修正。`EquipTable` 的数字枚举会严格映射为公共身份，同时在装备 IR 中
+  保留原始数字值和完整字段路径；未知枚举明确失败。
+- 单件装备 IR 保留 `attrIndex`、目标属性模式、属性、八槽公式位置和完整 `attrValues`。档位解析复现
+  combat-spec：按装备实例的 `attrIndex` 精确取精锻等级，缺少索引使用 0，越界直接失败，不插值、
+  不夹取、不回退。
+- AKEDB 1.4.4 真实全表 220/220 件通过，合计 915 条修正；`attrIndex` 为 0–3，当前值表均为四档，
+  目标覆盖 `Specific`、`Main`、`Sub`，公式槽覆盖 `BaseAddition`、`BaseMultiplier`、
+  `BaseFinalAddition`、`BaseFinalMultiplier`。这些是本版本审计事实，不固化成通用规则。
+- 代码 checkpoint 为 `c01afc12 feat(data): parse equipment attribute modifiers`。门禁为
+  `npm run type-check:game-data` 通过，26 个测试文件、116 项测试通过。
+- 下一项是严格读取 `WeaponBasicTable.levelTemplateId -> WeaponUpgradeTemplateTable` 的武器基础攻击
+  成长，按精确武器等级产生 `Atk/BaseAddition`；缺行返回空，不插值。随后再把装备与武器源 IR 接入
+  正式定义投影和同口径模拟审计。
 
 ### 2026-08-24：统一游戏数据编译器 checkpoint
 
@@ -30,8 +50,8 @@
   失败来自当前本地真实数据目录与既有库存断言不一致：Channeling 的 `ActionSource` 残留 context key、
   TimedMarker 59→87、GlobalCooldown 3→7、FinishBuffAdvanced 27→32。本轮没有为通过测试而改写这些
   无关库存数字，接手者应单独核对数据版本与断言。
-- 下一项：严格读取 `ItemTable` 单件装备属性修正并进入公共 Attribute Modifier IR，随后处理
-  `WeaponUpgradeTemplateTable` 武器基础攻击成长。必须先核对 combat-spec 和真实表，不能猜规则。
+- 单件装备属性修正已经由后续 checkpoint 完成；当前下一项为
+  `WeaponUpgradeTemplateTable` 武器基础攻击成长。必须继续先核对 combat-spec 和真实表，不能猜规则。
 
 ## 1. 当前目标与边界
 
@@ -69,11 +89,10 @@
 
 ## 2. Git 基线
 
-- 当前工作树：`C:\Users\sqwat\Projects\zmd\Endaxis-game-data-refactor`
+- 当前工作树：`D:\Projects\Endaxis`（台式机，即旧文档所称“远程”）
 - 当前分支：`refactor/common-game-data`
-- 本轮开始前 HEAD：`0e008e66 fix(next): apply Zhuang talent electromagnetic enhancement`；统一编译器
-  checkpoint 为 `fd61a59e`，后续仍以实际 `git log` 为准。
-- 原始工作树 `C:\Users\sqwat\Projects\zmd\Endaxis` 保持脏状态，本轮没有 reset、stash 或 clean。
+- 当前代码 checkpoint：`c01afc12 feat(data): parse equipment attribute modifiers`；统一编译器基线为
+  `fd61a59e`，后续仍以实际 `git log` 为准。
 - `tmp/` 永远不得提交；新编译器全部位于 `tools/game-data-compiler`。
 - `vfs-index-browser/combat-spec` 有同步规格提交，且曾混有同轮其他证据改动；两个仓库必须分别提交、
   推送和验证，不能从 Endaxis 工作树代替管理 combat-spec。

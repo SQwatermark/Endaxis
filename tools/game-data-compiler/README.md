@@ -335,15 +335,22 @@ npm run test:game-data
   `(0, 0)` 占位允许保留并忽略；
 - 装备套装发现入口：按 `EquipSuitTable.list` 的原生顺序产生相同的公共请求，保留每个阈值的
   `equipCnt`、`skillID` 和 `skillLv`；当前数据碰巧都是三件套一级技能，但实现不固化这些值；
+- 公共 Attribute Modifier 枚举身份：Buff/CardSkill 的字符串枚举和表格中的数字枚举进入同一套
+  `ModifyAttributeType`、`AttributeType`、`ModifierType` 身份；表格 IR 仍保留原始数字与完整路径，
+  未知枚举失败而不是降级成裸数字；
+- 单件装备来源入口：联合 `ItemTable` 的物品身份与 `EquipTable` 的战斗属性，严格保留每条
+  `attrIndex` 和逐精锻档 `attrValues`；实例缺少某索引时选择第 0 档，等级越界直接失败，不读取
+  展示修正、不插值也不夹取；
 - 公共被动批量编排：保留领域请求的顺序和重复安装来源，同时按 SkillData ID 去重编译共享定义；
   等级来源与运行时黑板留在请求上，公共定义保留完整 SkillPatch，不替武器或套装提前选级；
 - 被动安装实例化：套装使用表内 `skillLv`，天赋/潜能保持原生默认等级，武器要求调用方提供已由
   突破/潜能/基质算法解析的实例等级；选级后再应用请求额外黑板，复现同名值最终覆盖顺序；
 - Python oracle JSON 差分通道及真实 SkillPatch 导出切片。
 
-下一阶段：基于完整 SkillData 动作图统计尚未迁移的叶子，补齐高价值战斗 Action；随后建立
-Buff、能力实体、投射物和子技能引用图，再进入场景投影与规范化阶段。
-在公共控制流 IR 稳定前，不接入干员、武器或装备领域适配器。
+下一阶段：严格接入 `WeaponBasicTable.levelTemplateId -> WeaponUpgradeTemplateTable` 的武器基础攻击
+成长，只为精确等级行产生 `Atk/BaseAddition`，缺行返回空且不插值。随后把已经闭合的武器、单件
+装备与套装来源 IR 接入正式定义投影、审计和模拟；仍缺定义的 AbilityEntity/Projectile 引用继续
+失败关闭。
 
 当前 2459 份 `skill-data-cdn` 真实导出扫描结果：MergeTargetAction 138/138、
 PickTargetAction 20/20、SimpleCalcBBAction 159/159 解析成功；ModifyDynamicBlackboard
@@ -437,6 +444,9 @@ Projectile 定义容器，随后才能对选定干员、武器或装备根给出
 该边界已同步回 combat-spec 并由两边测试固定。
 当前 23 个 `EquipSuitTable` 套装产生 23 条阈值请求、23 个唯一 SkillData，全部能在完整 SkillData
 仓中找到定义。发现层不使用显示名，不把当前样本中的 `equipCnt=3` 或 `skillLv=1` 当成固定规则。
+当前 220 个 `EquipTable` 单件装备与对应 `ItemTable` 身份全部严格读取，合计 915 条属性修正；
+`attrIndex` 为 0–3，当前值表均为四档，目标模式为 `Specific/Main/Sub`，公式槽为四类基础槽。
+这些只作为 1.4.4 全量审计结果记录，解析器不把当前取值集合固化为规则。
 三类入口联合后共有 285 条安装请求、155 个唯一被动 SkillData；公共批量入口已在真实 1.4.4 数据上
 完成 155/155 编译。共享定义中 125 个携带 169 项 CardSkill 属性修正，另有 46 个启动 Buff 和
 85 个 Toggle 组；这些是同一 SkillData 的不同原生消费路径，后续投影不能只保留其中一类。
