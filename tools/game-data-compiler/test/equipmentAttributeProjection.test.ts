@@ -13,6 +13,8 @@ describe('单件装备属性投影', () => {
     ['specific', 'Agi', 'baseAddition', 'attribute', 'agility', 'flat'],
     ['specific', 'Wisd', 'baseAddition', 'attribute', 'intellect', 'flat'],
     ['specific', 'Will', 'baseAddition', 'attribute', 'will', 'flat'],
+    ['main', 'Level', 'baseAddition', 'attribute', 'main', 'flat'],
+    ['sub', 'Level', 'baseAddition', 'attribute', 'secondary', 'flat'],
     ['main', 'Level', 'baseMultiplier', 'attribute', 'main', 'percent'],
     ['sub', 'Level', 'baseMultiplier', 'attribute', 'secondary', 'percent'],
     ['specific', 'Def', 'baseAddition', 'panelStat', 'baseDefense', undefined],

@@ -130,14 +130,17 @@ export function projectEquipmentAttributeModifier(
     });
   }
 
-  if (source.declaredAttributeType === 'Level' && source.slot === 'baseMultiplier') {
+  if (
+    source.declaredAttributeType === 'Level' &&
+    (source.slot === 'baseAddition' || source.slot === 'baseMultiplier')
+  ) {
     if (source.target !== 'main' && source.target !== 'sub') {
-      return blocked(source, 'Level/BaseMultiplier requires Main or Sub target');
+      return blocked(source, 'Level target resolution requires Main or Sub target');
     }
     return supported(source, {
       kind: 'attribute',
       attribute: source.target === 'main' ? 'main' : 'secondary',
-      operation: 'percent',
+      operation: source.slot === 'baseAddition' ? 'flat' : 'percent',
       value: source.value,
     });
   }

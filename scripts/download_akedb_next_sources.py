@@ -21,6 +21,8 @@ TABLE_NAMES = (
     "PotentialTalentEffectTable",
     "SkillPatchTable",
     "WeaponBasicTable",
+    "WeaponUpgradeTemplateTable",
+    "EquipTable",
     "ItemTable",
     "EquipSuitTable",
 )
@@ -113,7 +115,7 @@ def main() -> None:
     parser.add_argument(
         "--output",
         type=Path,
-        default=project_root.parent / "vfs-index-browser" / "combat-spec" / "artifacts",
+        default=project_root.parent / "combat-spec" / "artifacts",
     )
     parser.add_argument("--workers", type=int, default=12)
     parser.add_argument(

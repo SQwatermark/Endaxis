@@ -257,6 +257,10 @@ npm run type-check:game-data
 npm run test:game-data
 ```
 
+固定版本输入统一由 `scripts/download_akedb_next_sources.py` 获取；装备与武器正式编译要求
+`WeaponUpgradeTemplateTable`、`EquipTable` 与其余 TableCfg 来自同一个 manifest 版本，不能把本地
+AKEDatabase 工作树中的当前文件混入版本化快照。默认输出位于独立 `combat-spec/artifacts` 仓库。
+
 ## 10. 迁移顺序
 
 1. 迁移严格读取原语、数值来源、类型名和原生单精度行为；
@@ -453,11 +457,11 @@ Projectile 定义容器，随后才能对选定干员、武器或装备根给出
 77 个 91 级缺行探针全部返回空。当前基础攻击运行值范围 29–510 仅作为 1.4.4 审计事实记录。
 当前 23 个 `EquipSuitTable` 套装产生 23 条阈值请求、23 个唯一 SkillData，全部能在完整 SkillData
 仓中找到定义。发现层不使用显示名，不把当前样本中的 `equipCnt=3` 或 `skillLv=1` 当成固定规则。
-当前 220 个 `EquipTable` 单件装备与对应 `ItemTable` 身份全部严格读取，合计 915 条属性修正；
+当前固定版本的 243 个 `EquipTable` 单件装备与对应 `ItemTable` 身份全部严格读取，合计 1012 条属性修正；
 `attrIndex` 为 0–3，当前值表均为四档，目标模式为 `Specific/Main/Sub`，公式槽为四类基础槽。
 这些只作为 1.4.4 全量审计结果记录，解析器不把当前取值集合固化为规则。
-正式定义组装同样达到 220/220、0 blocked：65 件护甲、56 件手套、99 件配件，共 610 条可见词条、
-647 个正式修正；另有 48 条只影响玩家承伤的原生修正按当前木桩模型记录为 `scenario-omitted`。
+正式定义组装同样达到 243/243、0 blocked：73 件护甲、65 件手套、105 件配件，共 672 条可见词条、
+721 个正式修正；另有 48 条只影响玩家承伤的原生修正按当前木桩模型记录为 `scenario-omitted`。
 三类入口联合后共有 285 条安装请求、155 个唯一被动 SkillData；公共批量入口已在真实 1.4.4 数据上
 完成 155/155 编译。共享定义中 125 个携带 169 项 CardSkill 属性修正，另有 46 个启动 Buff 和
 85 个 Toggle 组；这些是同一 SkillData 的不同原生消费路径，后续投影不能只保留其中一类。
