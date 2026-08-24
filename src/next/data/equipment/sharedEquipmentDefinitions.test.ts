@@ -7,6 +7,7 @@ import {
 import {
   getSharedEquipmentSupport,
   nextGearDefinitionRegistration,
+  nextGearSetDefinitionRegistration,
   nextGearDefinitions,
   sharedEquipmentAdaptationIssues,
   sharedGearDefinitions,
@@ -158,7 +159,8 @@ describe('sharedEquipmentDefinitions', () => {
     );
 
     for (const slug of referencedSets) {
-      expect(registeredSets.has(slug)).toBe(true);
+      const registeredSlug = nextGearSetDefinitionRegistration.aliases[slug] ?? slug;
+      expect(registeredSets.has(registeredSlug)).toBe(true);
       expect(getSharedEquipmentSupport('gearSet', slug)).not.toBeNull();
     }
   });

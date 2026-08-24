@@ -19,8 +19,14 @@ export interface CompiledGearSetRuntimeDependencySource {
   readonly suitId: string;
   readonly skillId: string;
   readonly startupBuffIds: readonly string[];
+  readonly startupBuffs: readonly CompiledGearSetBuffInstallationSource[];
   readonly toggleBuffIds: readonly string[];
   readonly referencedBuffIds: readonly string[];
+}
+
+export interface CompiledGearSetBuffInstallationSource {
+  readonly buffId: string;
+  readonly blackboardAssignments: Readonly<Record<string, number | string>>;
 }
 
 export interface CompiledEquipmentSuitStaticDefinitionBatchSource {
@@ -123,6 +129,9 @@ export function compileEquipmentSuitStaticDefinitionBatchSource(
       suitId: request.originId,
       skillId: request.skillId,
       startupBuffIds: skill.startupBuffs.map(entry => entry.buffId),
+      startupBuffs: skill.startupBuffs.map(entry =>
+        materializeBuffInstallation(entry, installation.blackboard, compiled.sourcePath),
+      ),
       toggleBuffIds: skill.toggleBuffs.flatMap(group => group.buffs.map(entry => entry.buffId)),
       referencedBuffIds: skill.references
         .filter(
@@ -137,6 +146,34 @@ export function compileEquipmentSuitStaticDefinitionBatchSource(
   }
 
   return { definitions, runtimeDependencies, diagnostics };
+}
+
+function materializeBuffInstallation(
+  source: import('../../source/skillBuffInstall.ts').SkillBuffInstallSource,
+  blackboard: Readonly<Record<string, number>>,
+  sourcePath: string,
+): CompiledGearSetBuffInstallationSource {
+  if (!source.assignBlackboard) return { buffId: source.buffId, blackboardAssignments: {} };
+  return {
+    buffId: source.buffId,
+    blackboardAssignments: Object.fromEntries(
+      source.assignments.map((assignment, index) => {
+        if (assignment.useDirectValue) {
+          return [
+            assignment.targetKey,
+            assignment.valueType === 'Numeric' ? assignment.numericValue : assignment.stringValue,
+          ];
+        }
+        const value = blackboard[assignment.inputValueKey];
+        if (value === undefined) {
+          throw new Error(
+            `${sourcePath}.buffs.assignItems[${index}]: missing materialized skill blackboard value ${JSON.stringify(assignment.inputValueKey)}`,
+          );
+        }
+        return [assignment.targetKey, value];
+      }),
+    ),
+  };
 }
 
 function toFormalModifier(

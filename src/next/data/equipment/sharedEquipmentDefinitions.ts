@@ -19,7 +19,9 @@ import {
 } from './adaptSharedEquipment';
 import { akedbWeaponDefinitions } from './akedbWeaponDefinitions';
 import { generatedGearDefinitions } from './generated/index.generated';
+import { generatedGearSetDefinitions } from './generated-gear-sets/index.generated';
 import { registerGeneratedGearDefinitions } from './generatedGearRegistration';
+import { registerGeneratedGearSetDefinitions } from './generatedGearSetRegistration';
 
 const weaponModules = import.meta.glob('../../../data/weapons/**/*.ts', {
   eager: true,
@@ -104,7 +106,6 @@ export const sharedWeaponDefinitions: readonly WeaponDefinition[] = Object.freez
   ...akedbWeaponDefinitions,
 ]);
 export const sharedGearDefinitions: readonly GearDefinition[] = gearEntries.definitions;
-export const sharedGearSetDefinitions: readonly GearSetDefinition[] = gearSetEntries.definitions;
 /**
  * 当前版本原生定义取代能按图标身份精确关联的旧模板；退出现行表的模板仍保留给旧项目。
  * 注册结果同时提供旧单件 slug 和原生套装 ID 的兼容映射。
@@ -115,6 +116,13 @@ export const nextGearDefinitionRegistration = registerGeneratedGearDefinitions(
 );
 export const nextGearDefinitions: readonly GearDefinition[] =
   nextGearDefinitionRegistration.definitions;
+export const nextGearSetDefinitionRegistration = registerGeneratedGearSetDefinitions(
+  generatedGearSetDefinitions,
+  gearSetEntries.definitions,
+  nextGearDefinitionRegistration.gearSetAliasesToLegacyDefinitions,
+);
+export const sharedGearSetDefinitions: readonly GearSetDefinition[] =
+  nextGearSetDefinitionRegistration.definitions;
 /** 未进入 Next 正式定义的全部原因；新增源数据出现陌生语义时测试应直接暴露。 */
 export const sharedEquipmentAdaptationIssues: readonly SharedEquipmentAdaptationIssue[] =
   Object.freeze([...weaponEntries.issues, ...gearEntries.issues, ...gearSetEntries.issues]);
@@ -133,6 +141,15 @@ const supportByIdentity = new Map(
     ),
     ...gearEntries.support,
     ...gearSetEntries.support,
+    ...generatedGearSetDefinitions.map(
+      definition =>
+        ({
+          sourceKind: 'gearSet',
+          slug: definition.slug,
+          completeness: 'complete',
+          issues: [],
+        }) satisfies SharedEquipmentSupport,
+    ),
   ].map(item => [`${item.sourceKind}:${item.slug}`, item]),
 );
 
@@ -141,5 +158,9 @@ export function getSharedEquipmentSupport(
   sourceKind: SharedEquipmentSupport['sourceKind'],
   slug: string,
 ): SharedEquipmentSupport | null {
-  return supportByIdentity.get(`${sourceKind}:${slug}`) ?? null;
+  const direct = supportByIdentity.get(`${sourceKind}:${slug}`);
+  if (direct !== undefined) return direct;
+  if (sourceKind !== 'gearSet') return null;
+  const canonical = nextGearSetDefinitionRegistration.aliases[slug];
+  return canonical === undefined ? null : (supportByIdentity.get(`gearSet:${canonical}`) ?? null);
 }

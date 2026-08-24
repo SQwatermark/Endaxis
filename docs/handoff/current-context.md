@@ -1316,3 +1316,18 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
   索引和 1 个审计文件，共 366670 字节；反转输入顺序输出不变，重复身份、危险路径和任意 blocked
   都会失败关闭。尚未接实际写盘和默认仓库注册，因为旧项目 slug 到原生装备 ID 的关联迁移必须先
   设计为稳定别名，不能为了批量上线让轴上已有装备实例断链。
+
+### 2026-08-25：首个真实套装进入正式模拟链
+
+- `suit_atk01` 已从 SkillPatch、SkillData 与 BuffData 生成并替换旧套装定义。公共 Buff 来源 IR 新增
+  严格生命周期、叠层、图标、标签、属性修正与完整已知动作入口；引用闭包仍保留宽松未跟踪叶子，
+  两种用途不再混用。
+- SkillPatch 物化的 `dmg_up=0.24`、`atk_up=0.05`、`duration=15` 通过帧 0 根安装动作传入，不能使用
+  BuffData 的零默认值。CardSkill 三类技能 24% 增伤、`OnBeforeCastSkill` 三分支和动态
+  `Atk/BaseMultiplier` 均进入正式贡献，攻击 Buff 的 `icon_battle_buff_atk_up` 完整保留。
+- `buff_common_vfx_char_atk_up` 的非空 stack effect 已结构化证明为专用 `EffectAction` 表现槽；粒子
+  在木桩数值模拟中记录为 `scenario-omitted`。残留 `OnAfterKillEntity` Toggle 链按“唯一敌人死亡即
+  模拟结束”的既定边界显式省略，均不是按 Buff 名称猜测。
+- 原生 `suit_atk01` 取代 `aburreys-legacy`，旧 slug 反向 alias 到新定义；其余未转换原生套装仍指向
+  旧模板。当前门禁为游戏数据编译器 37 文件 169/169、Next 208 文件 1499/1499，两个 typecheck
+  均通过。下一步先扫其余 22 套的投影诊断并按输出相关机制扩展公共 IR；`tmp/` 继续不提交。

@@ -206,8 +206,25 @@ export {
   compileEquipmentSuitStaticDefinitionBatchSource,
   type CompiledEquipmentSuitStaticDefinitionBatchSource,
   type CompiledGearSetRuntimeDependencySource,
+  type CompiledGearSetBuffInstallationSource,
   type CompiledGearSetStaticDefinitionSource,
 } from './domains/equipment/suitStaticDefinition.ts';
+export {
+  compileEquipmentSuitRuntimeBatchSource,
+  compileEquipmentBuffRuntimeDefinitionSource,
+  type CompiledBuffAttributeModifierSource,
+  type CompiledBuffNumberSource,
+  type CompiledBuffPresentationSource,
+  type CompiledEquipmentBuffConditionSource,
+  type CompiledEquipmentBuffDefinitionSource,
+  type CompiledEquipmentBuffSequenceSource,
+  type CompiledEquipmentBuffStepSource,
+  type CompiledEquipmentSuitRuntimeBatchSource,
+} from './domains/equipment/suitRuntimeDefinition.ts';
+export {
+  renderEquipmentSuitDefinitionFiles,
+  type RenderedEquipmentSuitDefinitionFileSource,
+} from './domains/equipment/renderSuitDefinitions.ts';
 export {
   EQUIPMENT_PART_TYPES,
   parseEquipmentItemSources,

@@ -35,6 +35,7 @@ describe('装备套装静态定义', () => {
         suitId: 'suit_fixture',
         skillId: 'passive_fixture',
         startupBuffIds: ['buff_fixture'],
+        startupBuffs: [{ buffId: 'buff_fixture', blackboardAssignments: {} }],
         toggleBuffIds: [],
         referencedBuffIds: ['buff_fixture'],
       },

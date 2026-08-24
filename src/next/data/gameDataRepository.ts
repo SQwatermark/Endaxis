@@ -51,6 +51,7 @@ import {
 } from './operators';
 import {
   nextGearDefinitionRegistration,
+  nextGearSetDefinitionRegistration,
   nextGearDefinitions,
   sharedGearSetDefinitions,
   sharedWeaponDefinitions,
@@ -197,6 +198,6 @@ export const nextGameDataRepository = createGameDataRepository({
   gears: nextGearDefinitions,
   gearAliases: nextGearDefinitionRegistration.gearAliases,
   gearSets: sharedGearSetDefinitions,
-  gearSetAliases: nextGearDefinitionRegistration.gearSetAliasesToLegacyDefinitions,
+  gearSetAliases: nextGearSetDefinitionRegistration.aliases,
   enemies: legacyEnemyDefinitions,
 });

@@ -191,7 +191,12 @@ function validateContribution(
               steps: [
                 {
                   kind: 'applyBuff',
-                  parameters: { buffId, target: 'caster', definition },
+                  parameters: {
+                    buffId,
+                    target: 'caster',
+                    definition,
+                    inheritSourceSkillCastInfo: true,
+                  },
                 },
               ],
             },
