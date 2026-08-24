@@ -156,6 +156,14 @@ export {
   type PassiveSkillLevelSource,
 } from './domains/passiveDiscovery.ts';
 export { discoverWeaponPassiveSkillRequests } from './domains/weapon/passiveDiscovery.ts';
+export { parseWeaponBasicSources, type WeaponBasicSource } from './domains/weapon/basicTable.ts';
+export {
+  parseWeaponBaseAttackSources,
+  resolveWeaponBaseAttackModifier,
+  type ResolvedWeaponBaseAttackModifierSource,
+  type WeaponBaseAttackSource,
+  type WeaponUpgradeLevelSource,
+} from './domains/weapon/baseAttack.ts';
 export {
   parseWeaponBreakthroughSkillLevels,
   parseWeaponGemTermDefinitions,
