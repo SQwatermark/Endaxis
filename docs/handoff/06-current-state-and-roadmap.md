@@ -4,6 +4,12 @@
 
 > **最新基线提示**：当前工作已转到 `feature/next`，本文后续部分保留较完整的阶段背景，其中部分测试数字和旧 `main` 基线仅供历史参考。恢复开发时必须优先阅读 `current-context.md`，以实际 Git HEAD 和工作树为准。当前生成器已接入条件减速、根来源时间膨胀目标，并新增大潘作为第九名（不含首个佩丽卡样本）技能主体可完整转换的正式干员。
 
+> **2026-08-24 公共数据编译器分支**：当前实际工作树为
+> `C:\Users\sqwat\Projects\zmd\Endaxis-game-data-refactor`，分支 `refactor/common-game-data`。
+> 新主线位于 `tools/game-data-compiler`，正在从干净主干以 TypeScript 重建干员、武器、装备共享的
+> 来源 IR 和编译管线。下文旧 Python 生成器完成度只作迁移背景；最新数字、证据边界和下一任务见
+> `current-context.md` 与 `tools/game-data-compiler/README.md`。
+
 当前代码基线为 `b6a9b66f feat(next): add generated Da Pan operator`。本页第 1、2、4 节中的旧 `main` 提交表和历史测试数量不再作为恢复工作的依据，保留它们只是为了说明此前阶段的演进背景。
 
 ## 1. 当前 Git 基线

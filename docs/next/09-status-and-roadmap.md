@@ -2,6 +2,13 @@
 
 本文只给出架构级状态。逐功能的定义、编译、执行和 UI 门槛以[功能迁移矩阵](../architecture/endaxis-next-feature-matrix.md)为准。
 
+> 2026-08-24：游戏数据生成主线已切到独立 `refactor/common-game-data` 工作树中的
+> `tools/game-data-compiler`。该 TypeScript 工具先建立干员、武器、装备共用的严格来源 IR、公共
+> 被动编译和领域安装请求，再接正式 Next 定义；旧 Python 生成器只保留为迁移 oracle。当前
+> 285 条真实领域请求汇聚为 155 个唯一被动 SkillData，155/155 批量编译成功；77 件武器的
+> 1925 组突破/潜能组合和 5650 个技能槽结果全部闭合。下一步接单件装备属性修正和武器基础攻击
+> 成长。详细恢复说明见 `docs/handoff/current-context.md` 和编译器 README。
+
 ## 1. 当前状态
 
 2026-08-23 已建立版本化 AKEDB 装备身份覆盖审计：统一下载器固定获取 `WeaponBasicTable`、`ItemTable` 与 `EquipSuitTable`，并与旧迁移快照严格对照。当前 `1.4.4@9433094-12` 的武器与真实套装身份均已覆盖（77/77、23/23）；旧目录缺失的 `wpn_lance_0014`（曜夜的首演）已由 SkillPatch、SkillData、BuffData 和真实卡米拉治疗生产场景闭环后进入 Next 正式仓库。其“治疗其他队员后加攻”使用来源角色治疗事件、施术者/目标不相等条件、目标级 0.1 秒定时标记和独立持续时间高优先级叠层 Buff；满血零实际治疗仍可触发。另有 `eternal-xiranite-gloves-t1` 与正式版共用同一 AKEDB 图标身份、但旧定义属性不同，必须等待真实 Item/装备属性表消歧，不能按图标合并。静态候选覆盖现为 909 条可生成、23 条 DSL 缺口；下一步按缺口类别补最终伤害减免、带技能范围的冷却/失衡修正和持久条件 Buff，再批量替换旧适配器定义。

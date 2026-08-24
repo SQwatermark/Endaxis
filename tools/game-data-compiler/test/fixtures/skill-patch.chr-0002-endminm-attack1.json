@@ -1,0 +1,29 @@
+{
+  "source": "AKEDB TableCfg-1.4.4-9163343-11/SkillPatchTable.json",
+  "sourceId": "chr_0002_endminm_attack1",
+  "note": "只保留原始记录前两级及公共解析器读取的字段，数值未改写。",
+  "entry": {
+    "SkillPatchDataBundle": [
+      {
+        "level": 1,
+        "blackboard": [
+          { "key": "atk_scale", "value": 0.23, "valueStr": "" },
+          { "key": "atb", "value": 0.0, "valueStr": "" }
+        ],
+        "coolDown": 0.0,
+        "costType": 0,
+        "costValue": 0.0
+      },
+      {
+        "level": 2,
+        "blackboard": [
+          { "key": "atk_scale", "value": 0.25, "valueStr": "" },
+          { "key": "atb", "value": 0.0, "valueStr": "" }
+        ],
+        "coolDown": 0.0,
+        "costType": 0,
+        "costValue": 0.0
+      }
+    ]
+  }
+}

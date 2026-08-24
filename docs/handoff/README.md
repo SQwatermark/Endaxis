@@ -15,6 +15,10 @@
 7. [操作与恢复手册](./07-operations-playbook.md)：仓库路径、命令、服务、验证方式、远程环境和恢复任务时的检查清单。
 8. [当前任务快照](./current-context.md)：变化最快的短期状态，只用于快速恢复当前会话。
 
+若当前分支为 `refactor/common-game-data`，还必须阅读
+[`tools/game-data-compiler/README.md`](../../tools/game-data-compiler/README.md)。它是统一 TypeScript
+游戏数据编译器的实现契约，优先于后文保留的旧 Python 生成器历史描述。
+
 ## 一句话总览
 
 Endaxis 是一个《明日方舟：终末地》战斗时间轴编辑器和模拟器。我们正在 `src/next` 中并行重写其领域模型、项目格式、数据编译、战斗运行时和 UI 接入；游戏事实来自 AKEDB、游戏本地 VFS、IL2CPP 反编译与运行时探针，先进入可审计的研究文档和 C# Combat Spec，再以行为一致、适合编辑器维护的形式进入 Endaxis Next。

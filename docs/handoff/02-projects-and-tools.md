@@ -18,6 +18,8 @@ Endaxis 是最终面向用户的应用。它不负责直接解密游戏文件，
 - `src/next/application`：打开项目、运行场景等用例；
 - `src/next/ui`：Vue 页面、组件、ViewModel、快捷键和主题；
 - `scripts/generate_next_operators`：从原始数据生成干员 DSL 和审计文件；
+- `tools/game-data-compiler`：正在替代领域专用 Python 生成器的统一 TypeScript 编译器；公共来源 IR、
+  Action/Condition/Buff/引用图和被动编译只实现一次，领域目录只负责入口、等级与安装来源；
 - `docs/next`：长期架构文档；
 - `docs/research`：具体机制和生成覆盖率证据；
 - `docs/handoff`：跨项目交接总览。

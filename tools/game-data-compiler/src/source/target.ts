@@ -1,0 +1,409 @@
+import {
+  requireArray,
+  requireBoolean,
+  requireExactFields,
+  requireInteger,
+  requireNonEmptyString,
+  requireNumber,
+  requireRecord,
+  requireString,
+} from './primitives.ts';
+import { parseTagQuerySource, type TagQuerySource } from './tagQuery.ts';
+
+export interface TargetReferenceSource {
+  readonly targetSource: string;
+  readonly targetGroupKey: string;
+  readonly selectorOwner: string;
+  readonly ownerContextKey: string;
+  readonly centerType: string;
+  readonly centerContextKey: string;
+  readonly centerToGround: boolean;
+  readonly target: string;
+  readonly targetContextKey: string;
+  readonly enableAdvancedDirection: boolean;
+  readonly selectorDirection: string;
+  readonly finderType: string | null;
+  readonly finderShape: ShapeFinderSource | null;
+  /** OwnerPartsFinder 对 owner 的部件 Tag 做查询；来源层不解释部件选择结果。 */
+  readonly finderOwnerPartsQuery: TagQuerySource | null;
+  readonly validatorTypes: readonly string[];
+  readonly postProcessorTypes: readonly string[];
+  readonly finderSpawnedObjectType: string | null;
+  readonly validatorTagQueries: ReadonlyArray<readonly [string, readonly number[]]>;
+}
+
+export interface SelectorSummarySource {
+  readonly finderType: string | null;
+  readonly finderFactionTarget: string | null;
+  readonly finderTargetObjectType: string | null;
+  readonly finderCheckAlive: boolean | null;
+  readonly finderShape: ShapeFinderSource | null;
+  readonly finderOwnerPartsQuery: TagQuerySource | null;
+  readonly validatorTypes: readonly string[];
+  readonly postProcessorTypes: readonly string[];
+}
+
+export interface SpawnedEntitySelectorIdentitySource {
+  readonly spawnedObjectType: string | null;
+  readonly tagQueries: Array<readonly [string, readonly number[]]>;
+}
+
+export interface ShapeFinderSource {
+  readonly checkAlive: boolean;
+  readonly autoSetTargetFaction: boolean;
+  readonly containsUnmarkable: boolean;
+  readonly factionTarget: string;
+  readonly targetFactionType: string | number;
+  readonly shape: string;
+  readonly rotationOffset: readonly [number, number, number];
+  readonly useExtentKey: boolean;
+  readonly extent: readonly [number, number, number];
+  readonly extentKeys: readonly [string, string, string];
+  readonly useCenterKey: boolean;
+  readonly center: readonly [number, number, number];
+  readonly centerKeys: readonly [string, string, string];
+  readonly height: number;
+  readonly heightKey: string;
+  readonly radius: number;
+  readonly radiusKey: string;
+  readonly limitHeight: boolean;
+  readonly maxHeight: number;
+  readonly limitAngle: boolean;
+  readonly angleKey: string;
+  readonly angle: number;
+}
+
+const TARGET_FIELDS = new Set([
+  'advancedDirection',
+  'centerContextKey',
+  'centerToGround',
+  'centerType',
+  'enableAdvancedDirection',
+  'ownerContextKey',
+  'selectorData',
+  'selectorDirection',
+  'selectorOwner',
+  'target',
+  'targetContextKey',
+  'targetGroupKey',
+  'targetSource',
+]);
+
+const KNOWN_FINDERS = new Set([
+  'CharacterTeamFinder',
+  'FixedPointFinder',
+  'HitBoxFinder',
+  'InFightEnemyFinder',
+  'MainTargetFinder',
+  'OwnerSpawnedEntityFinder',
+  'OwnerPartsFinder',
+  'PointFinder',
+  'RandomPointFinder',
+  'ShapeFinder',
+  'SmartTargetFinder',
+  'SnapPointFinder',
+  'SourceFinder',
+]);
+const KNOWN_VALIDATORS = new Set([
+  'DistanceValidator',
+  'ExcludeOwnerValidator',
+  'HittableObjectValidator',
+  'MainCharacterValidator',
+  'SkillCastIdValidator',
+  'TagValidator',
+  'TargetContainsValidator',
+]);
+const KNOWN_POST_PROCESSORS = new Set([
+  'CircularOrderSort',
+  'ConvertToPosition',
+  'ConvertToSlot',
+  'ExcludeTarget',
+  'PriorityFilter',
+  'ShuffleTarget',
+]);
+
+/**
+ * 读取 Selector 嵌套类型名。该格式形如 `...Selector+HitBoxFinder+Data`，
+ * 与普通 Action 的命名空间类型格式不同。
+ */
+export function selectorComponentName(value: unknown, path: string): string {
+  const item = requireRecord(value, path);
+  const typeName = requireString(item.$type, `${path}.$type`);
+  const parts = (typeName.split(',', 1)[0] ?? '').split('+');
+  const componentName = parts.at(-2) ?? '';
+  const dataTypeName = parts.at(-1) ?? '';
+  // ShapeFinder 的嵌套数据类名是 ShapeFinderData；其他已观察组件通常直接名为 Data。
+  if (
+    parts.length < 3 ||
+    !componentName ||
+    (dataTypeName !== 'Data' && dataTypeName !== `${componentName}Data`)
+  ) {
+    throw new Error(`${path}.$type: unsupported selector type ${JSON.stringify(typeName)}`);
+  }
+  return componentName;
+}
+
+/** 解析完整目标引用，但不在此阶段把它归约为 Endaxis 的 caster、enemy 或 party。 */
+export function parseTargetReferenceSource(value: unknown, path: string): TargetReferenceSource {
+  const target = requireRecord(value, path);
+  requireExactFields(target, TARGET_FIELDS, path);
+
+  const targetSource = requireNonEmptyString(target.targetSource, `${path}.targetSource`);
+  const selectorData = target.selectorData;
+  const selectorPath = `${path}.selectorData`;
+  const summary = parseSelectorSummarySource(
+    selectorData,
+    selectorPath,
+    targetSource === 'InstantSearch',
+  );
+  const spawnedIdentity = parseSpawnedEntitySelectorIdentitySource(selectorData, selectorPath);
+
+  return {
+    targetSource,
+    targetGroupKey: requireString(target.targetGroupKey, `${path}.targetGroupKey`),
+    selectorOwner: requireNonEmptyString(target.selectorOwner, `${path}.selectorOwner`),
+    ownerContextKey: requireString(target.ownerContextKey, `${path}.ownerContextKey`),
+    centerType: requireNonEmptyString(target.centerType, `${path}.centerType`),
+    centerContextKey: requireString(target.centerContextKey, `${path}.centerContextKey`),
+    centerToGround: requireBoolean(target.centerToGround, `${path}.centerToGround`),
+    target: requireNonEmptyString(target.target, `${path}.target`),
+    targetContextKey: requireString(target.targetContextKey, `${path}.targetContextKey`),
+    enableAdvancedDirection: requireBoolean(
+      target.enableAdvancedDirection,
+      `${path}.enableAdvancedDirection`,
+    ),
+    selectorDirection: requireNonEmptyString(target.selectorDirection, `${path}.selectorDirection`),
+    finderType: summary.finderType,
+    finderShape: summary.finderShape,
+    finderOwnerPartsQuery: summary.finderOwnerPartsQuery,
+    validatorTypes: summary.validatorTypes,
+    postProcessorTypes: summary.postProcessorTypes,
+    finderSpawnedObjectType: spawnedIdentity.spawnedObjectType,
+    validatorTagQueries: spawnedIdentity.tagQueries,
+  };
+}
+
+export function parseSelectorSummarySource(
+  value: unknown,
+  path: string,
+  finderRequired: boolean,
+): SelectorSummarySource {
+  const selector = requireRecord(value, path);
+  const expectedFields = new Set(['validatorData', 'postProcessorData']);
+  if (finderRequired || 'finderData' in selector) expectedFields.add('finderData');
+  requireExactFields(selector, expectedFields, path);
+
+  let finderType: string | null = null;
+  let finderFactionTarget: string | null = null;
+  let finderTargetObjectType: string | null = null;
+  let finderCheckAlive: boolean | null = null;
+  let finderShape: ShapeFinderSource | null = null;
+  let finderOwnerPartsQuery: TagQuerySource | null = null;
+  if ('finderData' in selector) {
+    const finder = requireRecord(selector.finderData, `${path}.finderData`);
+    finderType = selectorComponentName(finder, `${path}.finderData`);
+    if (!KNOWN_FINDERS.has(finderType)) {
+      throw new Error(`${path}.finderData: unsupported finder ${JSON.stringify(finderType)}`);
+    }
+    if (finderType === 'HitBoxFinder') {
+      finderFactionTarget = requireNonEmptyString(
+        finder.factionTarget,
+        `${path}.finderData.factionTarget`,
+      );
+      finderTargetObjectType = requireNonEmptyString(
+        finder.targetObjectType,
+        `${path}.finderData.targetObjectType`,
+      );
+      finderCheckAlive = requireBoolean(finder.checkAlive, `${path}.finderData.checkAlive`);
+    } else if (finderType === 'ShapeFinder') {
+      finderShape = parseShapeFinderSource(finder, `${path}.finderData`);
+    } else if (finderType === 'OwnerPartsFinder') {
+      requireExactFields(finder, new Set(['$type', 'partQuery']), `${path}.finderData`);
+      finderOwnerPartsQuery = parseTagQuerySource(finder.partQuery, `${path}.finderData.partQuery`);
+    }
+  } else if (finderRequired) {
+    throw new Error(`${path}.finderData: expected object`);
+  }
+
+  const validatorTypes = parseKnownComponents(
+    selector.validatorData,
+    `${path}.validatorData`,
+    KNOWN_VALIDATORS,
+    'validators',
+  );
+  const postProcessorTypes = parseKnownComponents(
+    selector.postProcessorData,
+    `${path}.postProcessorData`,
+    KNOWN_POST_PROCESSORS,
+    'processors',
+  );
+  return {
+    finderType,
+    finderFactionTarget,
+    finderTargetObjectType,
+    finderCheckAlive,
+    finderShape,
+    finderOwnerPartsQuery,
+    validatorTypes,
+    postProcessorTypes,
+  };
+}
+
+function parseShapeFinderSource(finder: Record<string, unknown>, path: string): ShapeFinderSource {
+  requireExactFields(
+    finder,
+    new Set([
+      '$type',
+      'checkAlive',
+      'autoSetTargetFaction',
+      'containsUnMarkable',
+      'factionTarget',
+      'targetFactionType',
+      'shapeData',
+      'limitHeight',
+      'maxHeight',
+      'limitAngle',
+      'angleKey',
+      'angle',
+    ]),
+    path,
+  );
+  const shapePath = `${path}.shapeData`;
+  const shape = requireRecord(finder.shapeData, shapePath);
+  requireExactFields(
+    shape,
+    new Set([
+      '_shape',
+      '_rotationOffset',
+      '_useExtentKey',
+      '_extent',
+      '_extentXKey',
+      '_extentYKey',
+      '_extentZKey',
+      '_useCenterKey',
+      '_center',
+      '_centerXKey',
+      '_centerYKey',
+      '_centerZKey',
+      '_heightKey',
+      '_height',
+      '_radiusKey',
+      '_radius',
+    ]),
+    shapePath,
+  );
+  const targetFactionType = finder.targetFactionType;
+  if (typeof targetFactionType !== 'string' && typeof targetFactionType !== 'number') {
+    throw new Error(`${path}.targetFactionType: expected enum name or number`);
+  }
+  return {
+    checkAlive: requireBoolean(finder.checkAlive, `${path}.checkAlive`),
+    autoSetTargetFaction: requireBoolean(
+      finder.autoSetTargetFaction,
+      `${path}.autoSetTargetFaction`,
+    ),
+    containsUnmarkable: requireBoolean(finder.containsUnMarkable, `${path}.containsUnMarkable`),
+    factionTarget: requireNonEmptyString(finder.factionTarget, `${path}.factionTarget`),
+    targetFactionType,
+    shape: requireNonEmptyString(shape._shape, `${shapePath}._shape`),
+    rotationOffset: parseVector3(shape._rotationOffset, `${shapePath}._rotationOffset`),
+    useExtentKey: requireBoolean(shape._useExtentKey, `${shapePath}._useExtentKey`),
+    extent: parseVector3(shape._extent, `${shapePath}._extent`),
+    extentKeys: [
+      requireString(shape._extentXKey, `${shapePath}._extentXKey`),
+      requireString(shape._extentYKey, `${shapePath}._extentYKey`),
+      requireString(shape._extentZKey, `${shapePath}._extentZKey`),
+    ],
+    useCenterKey: requireBoolean(shape._useCenterKey, `${shapePath}._useCenterKey`),
+    center: parseVector3(shape._center, `${shapePath}._center`),
+    centerKeys: [
+      requireString(shape._centerXKey, `${shapePath}._centerXKey`),
+      requireString(shape._centerYKey, `${shapePath}._centerYKey`),
+      requireString(shape._centerZKey, `${shapePath}._centerZKey`),
+    ],
+    height: requireNumber(shape._height, `${shapePath}._height`),
+    heightKey: requireString(shape._heightKey, `${shapePath}._heightKey`),
+    radius: requireNumber(shape._radius, `${shapePath}._radius`),
+    radiusKey: requireString(shape._radiusKey, `${shapePath}._radiusKey`),
+    limitHeight: requireBoolean(finder.limitHeight, `${path}.limitHeight`),
+    maxHeight: requireNumber(finder.maxHeight, `${path}.maxHeight`),
+    limitAngle: requireBoolean(finder.limitAngle, `${path}.limitAngle`),
+    angleKey: requireString(finder.angleKey, `${path}.angleKey`),
+    angle: requireNumber(finder.angle, `${path}.angle`),
+  };
+}
+
+function parseVector3(value: unknown, path: string): readonly [number, number, number] {
+  const vector = requireRecord(value, path);
+  requireExactFields(vector, new Set(['x', 'y', 'z']), path);
+  return [
+    requireNumber(vector.x, `${path}.x`),
+    requireNumber(vector.y, `${path}.y`),
+    requireNumber(vector.z, `${path}.z`),
+  ];
+}
+
+function parseKnownComponents(
+  value: unknown,
+  path: string,
+  knownTypes: ReadonlySet<string>,
+  label: 'validators' | 'processors',
+): string[] {
+  const types = requireArray(value, path).map((item, index) =>
+    selectorComponentName(item, `${path}[${index}]`),
+  );
+  const unknown = [...new Set(types.filter(type => !knownTypes.has(type)))].sort();
+  if (unknown.length > 0) {
+    throw new Error(`${path}: unsupported ${label} ${JSON.stringify(unknown)}`);
+  }
+  return types;
+}
+
+export function parseSpawnedEntitySelectorIdentitySource(
+  value: unknown,
+  path: string,
+): SpawnedEntitySelectorIdentitySource {
+  const selector = requireRecord(value, path);
+  let spawnedObjectType: string | null = null;
+  if ('finderData' in selector) {
+    const finder = requireRecord(selector.finderData, `${path}.finderData`);
+    if (selectorComponentName(finder, `${path}.finderData`) === 'OwnerSpawnedEntityFinder') {
+      requireExactFields(finder, new Set(['$type', 'spawnedObjectType']), `${path}.finderData`);
+      const rawObjectType = finder.spawnedObjectType;
+      if (rawObjectType === 0) {
+        // ObjectType 没有命名零成员；反编译证据表明零掩码不会命中子实体。
+        spawnedObjectType = '0';
+      } else if (typeof rawObjectType === 'string' && rawObjectType.length > 0) {
+        spawnedObjectType = rawObjectType;
+      } else {
+        throw new Error(
+          `${path}.finderData.spawnedObjectType: expected named ObjectType or numeric 0`,
+        );
+      }
+    }
+  }
+
+  const tagQueries: Array<readonly [string, readonly number[]]> = [];
+  requireArray(selector.validatorData, `${path}.validatorData`).forEach((rawValidator, index) => {
+    const validatorPath = `${path}.validatorData[${index}]`;
+    const validator = requireRecord(rawValidator, validatorPath);
+    if (selectorComponentName(validator, validatorPath) !== 'TagValidator') return;
+    if (Object.keys(validator).length === 1 && '$type' in validator) return;
+    requireExactFields(validator, new Set(['$type', 'query']), validatorPath);
+    const queryPath = `${validatorPath}.query`;
+    const query = requireRecord(validator.query, queryPath);
+    requireExactFields(query, new Set(['queryType', 'tags']), queryPath);
+    const queryType = requireString(query.queryType, `${queryPath}.queryType`);
+    if (!['HasAny', 'HasAll', 'ExceptAny', 'ExceptAll'].includes(queryType)) {
+      throw new Error(`${queryPath}.queryType: unsupported value ${JSON.stringify(queryType)}`);
+    }
+    const tags = requireArray(query.tags, `${queryPath}.tags`).map((rawTag, tagIndex) => {
+      const tagPath = `${queryPath}.tags[${tagIndex}]`;
+      const tag = requireRecord(rawTag, tagPath);
+      requireExactFields(tag, new Set(['tagId']), tagPath);
+      return requireInteger(tag.tagId, `${tagPath}.tagId`);
+    });
+    tagQueries.push([queryType, tags]);
+  });
+  return { spawnedObjectType, tagQueries };
+}

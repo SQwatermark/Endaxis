@@ -1,17 +1,43 @@
 # 当前任务快照
 
-> 更新时间：2026-08-23（Asia/Shanghai）
+> 更新时间：2026-08-24（Asia/Shanghai）
 > 本文是变化最快、优先级最高的交接入口。完全不了解背景时，先读 [交接文档首页](./README.md)，再读本文和 [Next 文档入口](../next/README.md)。
 
-2026-08-23 装备主线已从旧适配器转入版本化 AKEDB 来源审计。`scripts/download_akedb_next_sources.py` 现在同一版本下载 8 张表，新增 `WeaponBasicTable`、`ItemTable`、`EquipSuitTable`；`scripts.generate_next_equipment.generate_akedb_source_audit` 严格校验所有武器/套装 SkillPatch 引用和本地身份映射。当前 `1.4.4@9433094-12` 结果为武器 76/77、真实套装 23/23、单件装备 242 个定义对应 241 个唯一 Item 图标身份。缺失武器为 `wpn_lance_0014`（曜夜）；`eternal-xiranite-gloves-t1` 与 `eternal-xiranite-gloves` 共用 `item_equip_t4_suit_usp02_hand_01` 图标但旧第二属性不同，保持消歧缺口。旧报告已按当前目录刷新为 342 个定义、1049 个 effect；`no-set-bonuses` 是哨兵，不计入 AKEDB 23 套。身份覆盖不等于行为覆盖，后续先用曜夜贯通治疗输出事件、目标排除自身、0.1 秒标记限频和 20 秒四层攻击 Buff。
+当前主线是在独立工作树 `C:\Users\sqwat\Projects\zmd\Endaxis-game-data-refactor` 的
+`refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
+`tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
+
+### 2026-08-24：统一游戏数据编译器 checkpoint
+
+- `tools/game-data-compiler/README.md` 是当前实现契约，记录证据优先级、分层边界、场景简化、审计、
+  代码风格、原子输出和迁移门禁；继续开发前必须完整阅读。
+- 公共来源层已覆盖 SkillData/BuffData 动作图、29 类条件、控制流、Target、Blackboard、SkillPatch、
+  伤害、治疗、Buff、资源、引用动作、时间膨胀和定义引用图。2459/2459 SkillData、2678/2678
+  BuffData 可进入公共来源图。AbilityEntity/Projectile 因本地缺模板资产，只报告缺失定义，不猜造。
+- 295 个被动 SkillData 已进入统一入口，覆盖 282 个 `AddBuff`、13 个 `ToggleBuff` 和 180 项
+  CardSkill 属性修正。干员养成、武器、装备套装只发现安装请求，不再各写一套 Action/Buff 编译器。
+- `1.4.4@9433094-12` 联合结果为 285 条安装请求、155 个唯一被动 SkillData，公共批量编译
+  155/155 成功。请求保留来源顺序和重复安装，定义按 SkillData ID 去重。
+- 武器成长已严格复现突破、潜能、一级 SkillPatch `tagId` 与基质 `tagId` 匹配。全量覆盖 77 件
+  武器、31 条基质、1925 组突破/潜能组合、5650 个技能槽，0 失败。
+- 5 件三星武器只有两个技能而模板保留第三个 `(0,0)` 尾部占位。原生按技能列表长度索引，因此
+  只要求边界足够并忽略尾项；该修正已同步到 combat-spec 的规格、测试和文档。
+- SkillPatch 选级区分未指定等级、指定但缺补丁、精确命中三条原生路径；安装实例化最后应用额外
+  黑板，保持调用方同名值覆盖。
+- 门禁：`npm run type-check:game-data` 通过；25 个测试文件、113 项测试通过；combat-spec 武器等级
+  定向测试 7/7 通过。
+- 下一项：严格读取 `ItemTable` 单件装备属性修正并进入公共 Attribute Modifier IR，随后处理
+  `WeaponUpgradeTemplateTable` 武器基础攻击成长。必须先核对 combat-spec 和真实表，不能猜规则。
 
 ## 1. 当前目标与边界
 
-当前工作位于 `feature/next`，目标是在不修改旧版实现的前提下建设 Endaxis Next：以干员、武器、装备、敌人和用户操作序列为输入，准确模拟战斗过程，并由统一结果生成资源曲线、状态、伤害、诊断和日志。新版 UI 尽可能保持旧版布局与交互。
+当前工作位于 `refactor/common-game-data`，目标是从干净主干建立统一游戏数据编译器，再让 Next 的
+干员、武器和装备正式定义消费同一份公共语义。当前不修改旧版代码，也不继续扩展旧 Python 架构。
 
 固定优先级：准确与功能完备 > 清晰易维护 > 性能。游戏规则必须有解包、反编译、C# Combat Spec 或已验证游戏样本依据，不用猜测填空。
 
-当前继续推进干员 SkillData 到 Next DSL 的完整转换与模拟贯通。每轮只处理能够形成解析、DSL、运行时和测试闭环的机制，避免为了提高统计数字而静默省略动作。
+每轮只处理能够形成“证据 → 严格来源 IR → 公共编译 → 领域安装 → 测试/全量审计”闭环的机制。
+相同 SkillData、BuffData、Action、Condition、Blackboard 或属性修正结构必须复用同一实现。
 
 ### SkillSetting 与导电复合状态默认装配（2026-08-23）
 
@@ -39,13 +65,14 @@
 
 ## 2. Git 基线
 
-- 当前台式机仓库：`D:\Projects\Endaxis`（本文其他位置所称“远程”即当前环境）
-- 当前工作分支：`codex/time-dilation-curve-editor`（后续整合目标仍为 `feature/next`）。
-- 本轮开发前的 HEAD：`aba563b4 fix(next): project hits for replacement skills`；实际 HEAD 始终以 `git log` 为准。
-- `tmp/` 是未跟踪临时目录，绝对不要提交。
-- 工作树可能含用户改动；始终先运行 `git status --short`，不要重置或回退不属于当前任务的内容。
-
-能力实体定义内联重构已经落到当前工作树；新会话仍应以 Git 实际 HEAD 与 `git status --short` 为准。
+- 当前工作树：`C:\Users\sqwat\Projects\zmd\Endaxis-game-data-refactor`
+- 当前分支：`refactor/common-game-data`
+- 本轮开始前 HEAD：`0e008e66 fix(next): apply Zhuang talent electromagnetic enhancement`；提交后以
+  实际 `git log` 为准。
+- 原始工作树 `C:\Users\sqwat\Projects\zmd\Endaxis` 保持脏状态，本轮没有 reset、stash 或 clean。
+- `tmp/` 永远不得提交；新编译器全部位于 `tools/game-data-compiler`。
+- `vfs-index-browser/combat-spec` 有同步规格提交，且曾混有同轮其他证据改动；两个仓库必须分别提交、
+  推送和验证，不能从 Endaxis 工作树代替管理 combat-spec。
 
 ## 3. 能力实体最新架构
 
