@@ -206,14 +206,20 @@ export {
   type ProjectedEquipmentPanelStat,
 } from './domains/equipment/projection.ts';
 export {
+  compileEquipmentDefinitionBatchSource,
   compileEquipmentDefinitionSource,
   type CompiledEquipmentModifierDefinitionSource,
   type CompiledEquipmentDefinitionSource,
+  type CompiledEquipmentDefinitionBatchSource,
   type CompiledGearDefinitionSource,
   type CompiledGearSlotTypeSource,
   type CompiledGearTraitDefinitionSource,
   type EquipmentDefinitionDiagnosticSource,
 } from './domains/equipment/formalDefinition.ts';
+export {
+  renderEquipmentDefinitionFiles,
+  type RenderedEquipmentDefinitionFileSource,
+} from './domains/equipment/renderFormalDefinitions.ts';
 export {
   compilePassiveSkillSource,
   type CompiledPassiveSkillSource,

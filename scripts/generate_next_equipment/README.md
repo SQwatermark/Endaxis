@@ -12,6 +12,9 @@
 4. `generate_audit.py` 只有在全量校验成功后才原子更新 JSON 与 Markdown 报告。
 5. `migration_ir.py` 在同一严格审计之后，为每个 effect 生成无损迁移记录和后续能力需求。
 6. `candidate_definition_ir.py` 逐条核对构筑期静态贡献，并额外严格审计 33 条常驻战斗修正的静态/Buff 目的地；无法无歧义映射时只输出结构化缺口，不生成 raw 兜底。
+7. 新 TypeScript 编译器把 `EquipTable` 静态修正投影为正式 `GearDefinition`，再由纯渲染器按套装
+   目录生成单件文件、索引和审计。实际原子写盘与默认仓库替换仍需先闭合旧 slug 到原生 ID 的稳定
+   别名迁移，不能让已有项目实例引用断裂。
 
 这条路线不使用正则或字符串拼接解析 TypeScript。旧数据新增字段或类别时，审计会失败，维护者必须先确认语义并显式更新白名单。
 

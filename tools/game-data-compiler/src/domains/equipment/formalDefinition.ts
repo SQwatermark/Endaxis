@@ -69,6 +69,11 @@ export interface CompiledEquipmentDefinitionSource {
   readonly diagnostics: readonly EquipmentDefinitionDiagnosticSource[];
 }
 
+export interface CompiledEquipmentDefinitionBatchSource {
+  readonly definitions: readonly CompiledGearDefinitionSource[];
+  readonly diagnostics: readonly EquipmentDefinitionDiagnosticSource[];
+}
+
 const GEAR_SLOT_BY_PART_TYPE: Readonly<
   Partial<Record<EquipmentPartTypeSource, CompiledGearSlotTypeSource>>
 > = {
@@ -160,6 +165,28 @@ export function compileEquipmentDefinitionSource(
     },
     diagnostics,
   };
+}
+
+/** 批量入口固定按原生装备 ID 排序，并在渲染前关闭重复身份。 */
+export function compileEquipmentDefinitionBatchSource(
+  equipment: readonly EquipmentItemSource[],
+): CompiledEquipmentDefinitionBatchSource {
+  const ordered = [...equipment].sort((left, right) =>
+    left.equipmentId.localeCompare(right.equipmentId),
+  );
+  const identities = new Set<string>();
+  const definitions: CompiledGearDefinitionSource[] = [];
+  const diagnostics: EquipmentDefinitionDiagnosticSource[] = [];
+  for (const item of ordered) {
+    if (identities.has(item.equipmentId)) {
+      throw new Error(`duplicate equipment definition source ${JSON.stringify(item.equipmentId)}`);
+    }
+    identities.add(item.equipmentId);
+    const result = compileEquipmentDefinitionSource(item);
+    diagnostics.push(...result.diagnostics);
+    if (result.definition !== undefined) definitions.push(result.definition);
+  }
+  return { definitions, diagnostics };
 }
 
 function projectModifierLevels(source: EquipmentAttributeModifierSource): ProjectedModifierLevels {
