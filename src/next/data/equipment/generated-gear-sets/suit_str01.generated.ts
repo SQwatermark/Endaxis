@@ -1,0 +1,86 @@
+/** Projected from 1.4.4 SkillPatch, SkillData and BuffData by the game-data compiler. */
+import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinition';
+
+const definition = {
+  slug: 'suit_str01',
+  modifiers: [{ kind: 'attribute', attribute: 'strength', operation: 'flat', value: [50] }],
+  buffDefinitions: {
+    buff_equipsuit_str_01: {
+      stackingType: 'unlimited',
+      priority: 0,
+      maxStackCount: 0,
+      triggerIntervalSeconds: 0,
+      waitFirstTriggerInterval: true,
+      maxTriggerCount: 1,
+      applyTagIds: [],
+      extendTagIds: [],
+      blackboard: { dmg_taken_down: 0, hp_ratio: 0, str_up: 200 },
+      attributeModifiers: [],
+    },
+    buff_equipsuit_str_reducedmg_01: {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 0,
+      triggerIntervalSeconds: 0,
+      waitFirstTriggerInterval: true,
+      maxTriggerCount: 1,
+      presentation: {
+        visible: true,
+        iconId: 'icon_battle_buff_def_up',
+        iconPath: '/icons/icon_battle_buff_def_up.webp',
+        showInHeadBarCommon: false,
+        showInHeadBarAttached: false,
+        showInSquadIcon: true,
+        onlyShowForMainCharacter: false,
+        iconStyleInSquad: 'Default',
+        abnormalColorType: 'Physical',
+        orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
+      },
+      applyTagIds: [],
+      extendTagIds: [],
+      blackboard: { dmg_taken_down: 0.8, hp_ratio: 0, str_up: 200 },
+      attributeModifiers: [
+        {
+          attribute: 'PhysicalDamageTakenScalar',
+          slot: 'baseFinalMultiplier',
+          value: { blackboardKey: 'dmg_taken_down' },
+        },
+        {
+          attribute: 'FireDamageTakenScalar',
+          slot: 'baseFinalMultiplier',
+          value: { blackboardKey: 'dmg_taken_down' },
+        },
+        {
+          attribute: 'PulseDamageTakenScalar',
+          slot: 'baseFinalMultiplier',
+          value: { blackboardKey: 'dmg_taken_down' },
+        },
+        {
+          attribute: 'CrystDamageTakenScalar',
+          slot: 'baseFinalMultiplier',
+          value: { blackboardKey: 'dmg_taken_down' },
+        },
+        {
+          attribute: 'NaturalDamageTakenScalar',
+          slot: 'baseFinalMultiplier',
+          value: { blackboardKey: 'dmg_taken_down' },
+        },
+        {
+          attribute: 'EtherDamageTakenScalar',
+          slot: 'baseFinalMultiplier',
+          value: { blackboardKey: 'dmg_taken_down' },
+        },
+      ],
+    },
+  },
+  initializationSequence: {
+    steps: [
+      {
+        kind: 'applyBuff',
+        parameters: { buffId: 'buff_equipsuit_str_01', target: 'caster' },
+      },
+    ],
+  },
+} as const satisfies GearSetDefinition;
+
+export default definition;

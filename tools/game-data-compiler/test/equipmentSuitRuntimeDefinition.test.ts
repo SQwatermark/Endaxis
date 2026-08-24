@@ -96,6 +96,31 @@ describe('装备套装 Buff 运行时投影', () => {
       }),
     ).toBeNull();
   });
+
+  it('只在调用方明确声明木桩边界时省略玩家受击事件', () => {
+    const source = sourceFixture();
+    const damageTakenSource: BuffRuntimeSource = {
+      ...source,
+      graph: {
+        ...source.graph,
+        abilityEvents: source.graph.abilityEvents.map(event => ({
+          ...event,
+          event: 'OnTakeDamage',
+        })),
+      },
+    };
+
+    expect(() => compileEquipmentBuffRuntimeDefinitionSource(damageTakenSource)).toThrow(
+      'unsupported ability event "OnTakeDamage"',
+    );
+    expect(
+      compileEquipmentBuffRuntimeDefinitionSource(
+        damageTakenSource,
+        new Set(),
+        new Set(['OnTakeDamage']),
+      ).abilityEventResponses,
+    ).toBeUndefined();
+  });
 });
 
 function sourceFixture(): BuffRuntimeSource {

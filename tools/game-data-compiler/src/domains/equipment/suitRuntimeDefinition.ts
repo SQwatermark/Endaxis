@@ -221,10 +221,21 @@ export function compileEquipmentSuitRuntimeBatchSource(
     let blocked = false;
     for (const [buffId, source] of sources) {
       if (visualOnlyIds.has(buffId)) continue;
+      const omittedAbilityEvents = new Set<string | number>();
+      for (const event of source.graph.abilityEvents) {
+        if (event.event !== 'OnTakeDamage') continue;
+        omittedAbilityEvents.add(event.event);
+        diagnostics.push({
+          status: 'scenario-omitted',
+          sourcePath: `BuffData.${buffId}.abilityEventAction`,
+          reason: 'player damage taken cannot occur without enemy active behavior',
+        });
+      }
       try {
         buffDefinitions[buffId] = compileEquipmentBuffRuntimeDefinitionSource(
           source,
           visualOnlyIds,
+          omittedAbilityEvents,
         );
       } catch (error) {
         blocked = true;
@@ -373,6 +384,7 @@ function collectRuntimeClosure(
 export function compileEquipmentBuffRuntimeDefinitionSource(
   source: BuffRuntimeSource,
   visualOnlyIds: ReadonlySet<string> = new Set(),
+  omittedAbilityEvents: ReadonlySet<string | number> = new Set(),
 ): CompiledEquipmentBuffDefinitionSource {
   if (source.unsupportedPayloads.length > 0) {
     throw new Error(
@@ -393,6 +405,7 @@ export function compileEquipmentBuffRuntimeDefinitionSource(
   }
   const beforeCastSteps: CompiledEquipmentBuffStepSource[] = [];
   for (const event of source.graph.abilityEvents) {
+    if (omittedAbilityEvents.has(event.event)) continue;
     if (event.event !== 'OnBeforeCastSkill')
       throw new Error(`unsupported ability event ${JSON.stringify(event.event)}`);
     for (const sequence of event.actions)

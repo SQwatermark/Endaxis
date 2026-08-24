@@ -1,8 +1,8 @@
 {
   "format": "EndaxisGeneratedGearSetAudit",
   "version": 1,
-  "definitionCount": 7,
-  "buffDefinitionCount": 13,
+  "definitionCount": 8,
+  "buffDefinitionCount": 15,
   "diagnostics": [
     {
       "status": "scenario-omitted",
@@ -18,6 +18,26 @@
       "status": "scenario-omitted",
       "sourcePath": "BuffData.buff_common_vfx_char_atk_up.stackingSettings.stackEffects",
       "reason": "particle-only stack effect does not affect the fixed-target damage simulation"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "SkillData.passive_equipsuit_str_01.toggleBuffs[0]",
+      "reason": "toggle Buff condition is false at fixed full health"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "BuffData.buff_common_vfx_char_def_up.stackingSettings.stackEffects",
+      "reason": "particle-only stack effect does not affect the fixed-target damage simulation"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "BuffData.buff_equipsuit_str_01.abilityEventAction",
+      "reason": "player damage taken cannot occur without enemy active behavior"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "SkillData.passive_equipsuit_str_01.buffs.buff_equipsuit_str_01.str",
+      "reason": "unmaterialized server passive skill blackboard value \"str\" is never read by the installed Buff"
     },
     {
       "status": "scenario-omitted",

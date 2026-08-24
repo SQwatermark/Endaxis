@@ -164,4 +164,26 @@ describe('生成套装正式定义', () => {
       }).modifiers,
     ).toEqual([{ kind: 'attribute', attribute: 'will', operation: 'flat', value: 50 }]);
   });
+
+  it('在无敌方主动伤害场景只保留力量套装的静态力量收益', () => {
+    const definition = generatedGearSetDefinitions.find(item => item.slug === 'suit_str01')!;
+    expect(validateGearSetDefinition(definition, '$.suit_str01')).toEqual([]);
+    const compiled = compileGearSetContribution(definition, {
+      main: perlica.mainAttribute,
+      secondary: perlica.secondaryAttribute,
+    });
+    expect(compiled.modifiers).toEqual([
+      { kind: 'attribute', attribute: 'strength', operation: 'flat', value: 50 },
+    ]);
+    expect(compiled.initializationSequence?.steps).toEqual([
+      {
+        kind: 'applyBuff',
+        parameters: { buffId: 'buff_equipsuit_str_01', target: 'caster' },
+      },
+    ]);
+    expect(compiled.buffDefinitions?.buff_equipsuit_str_reducedmg_01?.presentation).toMatchObject({
+      iconId: 'icon_battle_buff_def_up',
+      iconPath: '/icons/icon_battle_buff_def_up.webp',
+    });
+  });
 });
