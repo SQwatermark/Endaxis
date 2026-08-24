@@ -4,6 +4,7 @@
  */
 import type {
   EquipmentContributionDefinition,
+  EquipmentDamageScaleTarget,
   EquipmentEventHandlerDefinition,
   EquipmentModifierDefinition,
   EquipmentPanelStat,
@@ -44,6 +45,11 @@ export type ResolvedEquipmentModifier =
       readonly kind: 'damageBonus';
       readonly damageTypes: DamageType | readonly DamageType[];
       readonly skillTypes?: SkillType | readonly SkillType[];
+      readonly value: number;
+    }
+  | {
+      readonly kind: 'damageScale';
+      readonly target: EquipmentDamageScaleTarget;
       readonly value: number;
     }
   | {
@@ -112,6 +118,8 @@ function compileModifier(
         ...(modifier.skillTypes === undefined ? {} : { skillTypes: modifier.skillTypes }),
         value,
       };
+    case 'damageScale':
+      return { kind: modifier.kind, target: modifier.target, value };
     case 'staticHealingIncrease':
       return { kind: modifier.kind, target: modifier.target, value };
   }

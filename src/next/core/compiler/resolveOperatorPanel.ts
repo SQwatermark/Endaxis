@@ -265,7 +265,7 @@ function applyEquipmentContribution(
         operation: modifier.stat.endsWith('Percent') ? 'percent' : 'flat',
         value: modifier.value,
       });
-    } else if (modifier.kind === 'damageBonus') {
+    } else if (modifier.kind === 'damageBonus' || modifier.kind === 'damageScale') {
       combatModifiers.push(modifier);
     } else {
       combatModifiers.push({

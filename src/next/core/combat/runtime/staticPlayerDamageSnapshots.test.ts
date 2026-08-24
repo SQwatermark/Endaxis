@@ -230,6 +230,29 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
     });
   });
 
+  it('按原生属性身份冻结装备的完整伤害倍率', () => {
+    const snapshots = resolveStaticPlayerDamageSnapshots(
+      createContext({
+        panel: {
+          ...panel,
+          combatModifiers: [
+            { kind: 'damageScale', target: 'comboSkill', value: 0.16 },
+            { kind: 'damageScale', target: 'nature', value: 0.09 },
+            { kind: 'damageScale', target: 'staggeredEnemy', value: 0.12 },
+          ],
+        },
+      }),
+      electricDamage,
+      createOperatorAttackAttributes(panel),
+    );
+
+    expect(snapshots.attacker).toMatchObject({
+      comboSkillDamageIncrease: 0.16,
+      natureDamageIncrease: 0.09,
+      damageToStaggeredEnemyIncrease: 0.12,
+    });
+  });
+
   it('把运行时 Buff 的伤害属性修正叠加到静态构筑增伤', () => {
     const attributes = createOperatorAttackAttributes(panel);
     attributes.addModifier(

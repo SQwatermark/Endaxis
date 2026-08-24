@@ -36,6 +36,21 @@ export type EquipmentPanelStat = (typeof EQUIPMENT_PANEL_STATS)[number];
 /** 固定四维或相对当前装备者的主、副属性。相对身份由 Build Resolver 解析。 */
 export type EquipmentAttribute = OperatorAttribute | 'main' | 'secondary';
 
+export const EQUIPMENT_DAMAGE_SCALE_TARGETS = [
+  'normalAttack',
+  'battleSkill',
+  'comboSkill',
+  'ultimate',
+  'physical',
+  'heat',
+  'electric',
+  'cryo',
+  'nature',
+  'staggeredEnemy',
+] as const;
+/** 原生常驻伤害倍率属性；运行时按命中分类、元素或目标失衡状态选择。 */
+export type EquipmentDamageScaleTarget = (typeof EQUIPMENT_DAMAGE_SCALE_TARGETS)[number];
+
 /**
  * 一项常驻配装修正。百分比统一使用小数，例如 5% 写作 0.05。
  * `damageBonus` 独立建模，是为了禁止把筛选条件挂到不支持筛选的普通面板属性上。
@@ -56,6 +71,12 @@ export type EquipmentModifierDefinition =
       readonly kind: 'damageBonus';
       readonly damageTypes: DamageType | readonly DamageType[];
       readonly skillTypes?: SkillType | readonly SkillType[];
+      readonly value: LevelValues;
+    }
+  | {
+      /** 直接保留原生 AttributeType 的伤害倍率身份，避免转写成不等价的筛选条件。 */
+      readonly kind: 'damageScale';
+      readonly target: EquipmentDamageScaleTarget;
       readonly value: LevelValues;
     }
   | {

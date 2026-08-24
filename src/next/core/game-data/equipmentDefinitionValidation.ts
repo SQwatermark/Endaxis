@@ -10,7 +10,12 @@ import {
   OPERATOR_WEAPON_TYPES,
   SKILL_TYPES,
 } from './operatorDefinition';
-import { EQUIPMENT_PANEL_STATS, GEAR_SLOT_TYPES, WEAPON_RARITIES } from './equipmentDefinition';
+import {
+  EQUIPMENT_DAMAGE_SCALE_TARGETS,
+  EQUIPMENT_PANEL_STATS,
+  GEAR_SLOT_TYPES,
+  WEAPON_RARITIES,
+} from './equipmentDefinition';
 import {
   validateActionSequenceDefinition,
   validateCombatConditionDefinition,
@@ -28,6 +33,7 @@ const panelStats = new Set<unknown>(EQUIPMENT_PANEL_STATS);
 const attributes = new Set<unknown>([...OPERATOR_ATTRIBUTES, 'main', 'secondary']);
 const damageTypes = new Set<unknown>(DAMAGE_TYPES);
 const skillTypes = new Set<unknown>(SKILL_TYPES);
+const damageScaleTargets = new Set<unknown>(EQUIPMENT_DAMAGE_SCALE_TARGETS);
 
 function push(issues: EquipmentDefinitionValidationIssue[], path: string, message: string): void {
   issues.push({ path, message });
@@ -143,6 +149,9 @@ function validateModifier(
       if (record.skillTypes !== undefined) {
         validateEnumList(record.skillTypes, skillTypes, `${path}.skillTypes`, issues);
       }
+      break;
+    case 'damageScale':
+      requireEnum(record, 'target', damageScaleTargets, path, issues);
       break;
     case 'staticHealingIncrease':
       if (record.target !== 'output' && record.target !== 'taken') {

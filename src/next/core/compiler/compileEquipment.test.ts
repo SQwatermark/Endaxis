@@ -122,6 +122,25 @@ describe('compile equipment contributions', () => {
     });
   });
 
+  it('preserves native damage-scale identity at the selected gear level', () => {
+    const damageScaleGear: GearDefinition = {
+      ...xiranflowArmor,
+      traits: [
+        {
+          key: 'staggered-damage',
+          levelCount: 4,
+          modifiers: [
+            { kind: 'damageScale', target: 'staggeredEnemy', value: [0.1, 0.2, 0.3, 0.4] },
+          ],
+        },
+      ],
+    };
+
+    expect(compileGearContributions(damageScaleGear, [2], attributes)[0]!.modifiers).toEqual([
+      { kind: 'damageScale', target: 'staggeredEnemy', value: 0.3 },
+    ]);
+  });
+
   it('resolves relative main and secondary attributes from the equipped operator', () => {
     const relativeGear: GearDefinition = {
       ...xiranflowArmor,

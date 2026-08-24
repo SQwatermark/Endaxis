@@ -188,11 +188,13 @@ export {
 } from './domains/weapon/skillLevels.ts';
 export { discoverEquipmentSuitPassiveSkillRequests } from './domains/equipment/passiveDiscovery.ts';
 export {
+  EQUIPMENT_PART_TYPES,
   parseEquipmentItemSources,
   resolveEquipmentAttributeModifiers,
   type EquipmentAttributeModifierSource,
   type EquipmentItemIdentitySource,
   type EquipmentItemSource,
+  type EquipmentPartTypeSource,
   type ResolvedEquipmentAttributeModifierSource,
 } from './domains/equipment/attributeModifiers.ts';
 export {
@@ -203,6 +205,15 @@ export {
   type ProjectedEquipmentModifierSource,
   type ProjectedEquipmentPanelStat,
 } from './domains/equipment/projection.ts';
+export {
+  compileEquipmentDefinitionSource,
+  type CompiledEquipmentModifierDefinitionSource,
+  type CompiledEquipmentDefinitionSource,
+  type CompiledGearDefinitionSource,
+  type CompiledGearSlotTypeSource,
+  type CompiledGearTraitDefinitionSource,
+  type EquipmentDefinitionDiagnosticSource,
+} from './domains/equipment/formalDefinition.ts';
 export {
   compilePassiveSkillSource,
   type CompiledPassiveSkillSource,

@@ -79,6 +79,18 @@ export interface EquipmentItemIdentitySource {
   readonly itemType: number;
 }
 
+export const EQUIPMENT_PART_TYPES = ['Body', 'Hand', 'EDC', 'EndNum', 'Head', 'Ring'] as const;
+export type EquipmentPartTypeSource = (typeof EQUIPMENT_PART_TYPES)[number];
+
+const EQUIPMENT_PART_TYPE_BY_NATIVE_VALUE: Readonly<Record<number, EquipmentPartTypeSource>> = {
+  0: 'Body',
+  1: 'Hand',
+  2: 'EDC',
+  3: 'EndNum',
+  4: 'Head',
+  5: 'Ring',
+};
+
 /**
  * EquipAttributeModifierData 的公共源 IR。
  * 名称身份供公共属性修正编译器消费，native* 字段保留 TableCfg 的原始数值证据。
@@ -99,7 +111,8 @@ export interface EquipmentItemSource {
   readonly domainId: string;
   readonly suitId: string;
   readonly minimumWearLevel: number;
-  readonly partType: number;
+  readonly partType: EquipmentPartTypeSource;
+  readonly nativePartType: number;
   readonly attributeModifiers: readonly EquipmentAttributeModifierSource[];
 }
 
@@ -152,6 +165,14 @@ export function parseEquipmentItemSources(
       throw new Error(`${sourcePath}.equipAttrModifiers: expected at least one modifier`);
     }
 
+    const nativePartType = requireNonNegativeInteger(row.partType, `${sourcePath}.partType`);
+    const partType = EQUIPMENT_PART_TYPE_BY_NATIVE_VALUE[nativePartType];
+    if (partType === undefined) {
+      throw new Error(
+        `${sourcePath}.partType: unknown Beyond.GEnums.PartType value ${nativePartType}`,
+      );
+    }
+
     return {
       sourcePath,
       equipmentId,
@@ -159,7 +180,8 @@ export function parseEquipmentItemSources(
       domainId: requireString(row.domainId, `${sourcePath}.domainId`),
       suitId: requireString(row.suitID, `${sourcePath}.suitID`),
       minimumWearLevel: requireNonNegativeInteger(row.minWearLv, `${sourcePath}.minWearLv`),
-      partType: requireNonNegativeInteger(row.partType, `${sourcePath}.partType`),
+      partType,
+      nativePartType,
       attributeModifiers: modifiers,
     };
   });

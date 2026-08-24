@@ -30,7 +30,8 @@ describe('单件装备属性修正', () => {
       domainId: 'domain_1',
       suitId: '',
       minimumWearLevel: 10,
-      partType: 0,
+      partType: 'Body',
+      nativePartType: 0,
       identity: {
         itemId: fixture.equipmentId,
         iconId: fixture.equipmentId,
@@ -77,6 +78,10 @@ describe('单件装备属性修正', () => {
     };
     unknownEnum.equipAttrModifiers[0]!.modifierType = 2;
     expect(() => parseFixture(unknownEnum)).toThrow('unknown ModifierType value 2');
+
+    const unknownPartType = structuredClone(fixture.equipTableEntry) as Record<string, unknown>;
+    unknownPartType.partType = 6;
+    expect(() => parseFixture(unknownPartType)).toThrow('unknown Beyond.GEnums.PartType value 6');
 
     const drifted = structuredClone(fixture.equipTableEntry) as Record<string, unknown>;
     drifted.futureField = true;
