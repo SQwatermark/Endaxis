@@ -21,11 +21,15 @@
 - 武器成长已严格复现突破、潜能、一级 SkillPatch `tagId` 与基质 `tagId` 匹配。全量覆盖 77 件
   武器、31 条基质、1925 组突破/潜能组合、5650 个技能槽，0 失败。
 - 5 件三星武器只有两个技能而模板保留第三个 `(0,0)` 尾部占位。原生按技能列表长度索引，因此
-  只要求边界足够并忽略尾项；该修正已同步到 combat-spec 的规格、测试和文档。
+  只要求边界足够并忽略尾项；该修正已随其他同轮证据以 combat-spec `8debc31` 提交并推送 `main`。
 - SkillPatch 选级区分未指定等级、指定但缺补丁、精确命中三条原生路径；安装实例化最后应用额外
   黑板，保持调用方同名值覆盖。
-- 门禁：`npm run type-check:game-data` 通过；25 个测试文件、113 项测试通过；combat-spec 武器等级
-  定向测试 7/7 通过。
+- Endaxis checkpoint 为 `fd61a59e refactor(data): establish shared game data compiler`，已推送远端
+  `refactor/common-game-data`。门禁为 `npm run type-check:game-data` 通过，25 个测试文件、113 项测试通过。
+- combat-spec rebase 后相关适配器、装配和武器等级定向测试 33/33 通过。完整测试为 999/1003；4 项
+  失败来自当前本地真实数据目录与既有库存断言不一致：Channeling 的 `ActionSource` 残留 context key、
+  TimedMarker 59→87、GlobalCooldown 3→7、FinishBuffAdvanced 27→32。本轮没有为通过测试而改写这些
+  无关库存数字，接手者应单独核对数据版本与断言。
 - 下一项：严格读取 `ItemTable` 单件装备属性修正并进入公共 Attribute Modifier IR，随后处理
   `WeaponUpgradeTemplateTable` 武器基础攻击成长。必须先核对 combat-spec 和真实表，不能猜规则。
 
@@ -67,8 +71,8 @@
 
 - 当前工作树：`C:\Users\sqwat\Projects\zmd\Endaxis-game-data-refactor`
 - 当前分支：`refactor/common-game-data`
-- 本轮开始前 HEAD：`0e008e66 fix(next): apply Zhuang talent electromagnetic enhancement`；提交后以
-  实际 `git log` 为准。
+- 本轮开始前 HEAD：`0e008e66 fix(next): apply Zhuang talent electromagnetic enhancement`；统一编译器
+  checkpoint 为 `fd61a59e`，后续仍以实际 `git log` 为准。
 - 原始工作树 `C:\Users\sqwat\Projects\zmd\Endaxis` 保持脏状态，本轮没有 reset、stash 或 clean。
 - `tmp/` 永远不得提交；新编译器全部位于 `tools/game-data-compiler`。
 - `vfs-index-browser/combat-spec` 有同步规格提交，且曾混有同轮其他证据改动；两个仓库必须分别提交、
