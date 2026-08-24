@@ -55,4 +55,51 @@ describe('生成套装正式定义', () => {
       ],
     });
   });
+
+  it('让 suit_combo_cd01 的连携冷却和施放前叠层增伤进入正式编译', () => {
+    const definition = generatedGearSetDefinitions.find(item => item.slug === 'suit_combo_cd01');
+    expect(definition).toBeDefined();
+    expect(validateGearSetDefinition(definition!, '$.suit_combo_cd01')).toEqual([]);
+    const compiled = compileGearSetContribution(definition!, {
+      main: perlica.mainAttribute,
+      secondary: perlica.secondaryAttribute,
+    });
+    expect(compiled.modifiers).toEqual([
+      { kind: 'skillCooldownMultiplier', skillTypes: 'comboSkill', value: 0.85 },
+    ]);
+    expect(compiled.initializationSequence?.steps[0]).toMatchObject({
+      kind: 'applyBuff',
+      parameters: {
+        buffId: 'buff_equipsuit_combo_cd01',
+        blackboardAssignments: {
+          spell_up: { kind: 'constant', value: 0.2 },
+          max_stack: { kind: 'constant', value: 2 },
+          duration: { kind: 'constant', value: 15 },
+        },
+      },
+    });
+    expect(compiled.buffDefinitions?.buff_equipsuit_combo_cd01_spellup).toMatchObject({
+      stackingType: 'stack',
+      maxStackCount: { blackboardKey: 'max_stack' },
+      durationSeconds: { blackboardKey: 'duration' },
+      presentation: { iconId: 'icon_battle_buff_atk_up' },
+      attributeModifiers: [
+        {
+          attribute: 'ComboSkillDamageIncrease',
+          slot: 'baseAddition',
+          value: { blackboardKey: 'spell_up' },
+        },
+        {
+          attribute: 'NormalSkillDamageIncrease',
+          slot: 'baseAddition',
+          value: { blackboardKey: 'spell_up' },
+        },
+        {
+          attribute: 'UltimateSkillDamageIncrease',
+          slot: 'baseAddition',
+          value: { blackboardKey: 'spell_up' },
+        },
+      ],
+    });
+  });
 });

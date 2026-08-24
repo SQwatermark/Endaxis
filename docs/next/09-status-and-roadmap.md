@@ -10,8 +10,8 @@
 > 23 套 CardSkill 静态候选达到 33 条支持、6 条木桩省略、0 阻塞。配对的 49 个 BuffData 已先在
 > combat-spec 形成 49/49 严格解析闭包，Normal 治疗、过量治疗条件与非空 stack effect 均有真实装备
 > 回归。装备贡献现已能携带 Buff 蓝图与帧 0 初始化程序，并严格合入干员 Buff 运行时；首个真实
-> `suit_atk01` 已从 SkillPatch、SkillData 与 5 个 BuffData 生成并替换旧套装，贯通 24% 三技能增伤、
-> 施放前 15 秒 5% 攻击 Buff、原生图标和旧项目 alias。下一步按同一严格投影扩大其余 22 套，再推进全武器。
+> `suit_atk01` 与 `suit_combo_cd01` 已生成并替换旧套装，贯通静态乘区、施放前限时/叠层 Buff、
+> 原生图标和旧项目 alias。下一步按同一严格投影扩大其余 21 套，再推进全武器。
 > 详细恢复说明见 `docs/handoff/current-context.md` 和编译器 README。
 
 ## 1. 当前状态

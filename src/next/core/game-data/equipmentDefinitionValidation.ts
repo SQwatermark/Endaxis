@@ -158,6 +158,9 @@ function validateModifier(
         push(issues, `${path}.target`, "expected 'output' or 'taken'");
       }
       break;
+    case 'skillCooldownMultiplier':
+      validateEnumList(record.skillTypes, skillTypes, `${path}.skillTypes`, issues);
+      break;
     case null:
       break;
     default:
