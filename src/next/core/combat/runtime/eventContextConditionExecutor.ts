@@ -6,6 +6,7 @@
  */
 import type { CombatCondition, DamageFeature, DamageTag } from '../../game-data/operatorDefinition';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
+import type { GameplayTagQueryType } from '../tags/gameplayTags';
 
 type EventDamageTagsCondition = Extract<CombatCondition, { kind: 'eventDamageTagsMatch' }>;
 type EventDamageFeaturesCondition = Extract<CombatCondition, { kind: 'eventDamageFeaturesMatch' }>;
@@ -15,6 +16,12 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
     readonly delegate: CombatOperationExecutor,
     readonly isOperatorControlled?: (operatorId: string) => boolean,
     readonly resolveEntitySourceId?: (entityId: string) => string,
+    readonly matchBuffTagIds?: (
+      targetId: string,
+      ownedTagIds: readonly number[],
+      requiredTagIds: readonly number[],
+      match: GameplayTagQueryType,
+    ) => boolean,
   ) {}
 
   execute(
@@ -120,10 +127,15 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       );
     }
     if (condition.kind === 'eventBuffTagsMatch') {
-      return (
-        context.event.kind === 'buffApplied' &&
-        matchValues(context.event.buffTagIds, condition.buffTagIds, condition.match)
-      );
+      if (context.event.kind !== 'buffApplied') return false;
+      return this.matchBuffTagIds === undefined
+        ? matchValues(context.event.buffTagIds, condition.buffTagIds, condition.match)
+        : this.matchBuffTagIds(
+            context.event.targetId,
+            context.event.buffTagIds,
+            condition.buffTagIds,
+            condition.match,
+          );
     }
     if (condition.kind === 'eventHealTagsMatch') {
       const event = context.event;

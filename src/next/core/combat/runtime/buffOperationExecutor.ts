@@ -70,6 +70,12 @@ export interface BuffOperationTarget {
     type: GameplayTagQueryType,
     exact?: boolean,
   ): boolean;
+  matchesTagIds?(
+    ownedTags: readonly GameplayTagId[],
+    requiredTags: readonly GameplayTagId[],
+    type: GameplayTagQueryType,
+    exact?: boolean,
+  ): boolean;
   findFirstByTags(
     tags: readonly GameplayTagId[],
     type: GameplayTagQueryType,

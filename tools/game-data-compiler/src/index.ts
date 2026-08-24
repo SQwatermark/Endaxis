@@ -66,6 +66,11 @@ export {
   type CompiledAttributeModifierTargetSource,
 } from './compiler/attributeModifier.ts';
 export {
+  compileEventTargetSimpleDamageOperationSource,
+  type CompiledActionValueOperandSource,
+  type CompiledSimpleDamageOperationSource,
+} from './compiler/simpleDamageOperation.ts';
+export {
   parseNativeSequenceSource,
   type NativeActionBodySource,
   type NativeActionMetadataSource,

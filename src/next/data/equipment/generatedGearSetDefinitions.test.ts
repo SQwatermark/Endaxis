@@ -274,4 +274,65 @@ describe('生成套装正式定义', () => {
       },
     });
   });
+
+  it('让物理套在指定 Buff 输出后按十五秒冷却造成物理与失衡伤害', () => {
+    const definition = generatedGearSetDefinitions.find(item => item.slug === 'suit_phy01')!;
+    expect(validateGearSetDefinition(definition, '$.suit_phy01')).toEqual([]);
+    const compiled = compileGearSetContribution(definition, {
+      main: perlica.mainAttribute,
+      secondary: perlica.secondaryAttribute,
+    });
+    expect(compiled.modifiers).toEqual([
+      { kind: 'panelStat', stat: 'staggerDamagePercent', value: 0.2 },
+    ]);
+    expect(
+      compiled.buffDefinitions?.buff_equipsuit_physuit_01?.abilityEventResponses?.[0]?.sequence
+        .steps[0],
+    ).toMatchObject({
+      parameters: {
+        condition: {
+          kind: 'eventBuffTagsMatch',
+          match: 'hasAny',
+          buffTagIds: [-6380412],
+        },
+      },
+      whenTrue: {
+        steps: [
+          {
+            parameters: {
+              condition: {
+                kind: 'not',
+                condition: {
+                  kind: 'timedMarkerPresent',
+                  target: 'caster',
+                  markerId: 'buff_equipsuit_physuit_01',
+                },
+              },
+            },
+            whenTrue: {
+              steps: [
+                {
+                  kind: 'dealDamage',
+                  parameters: {
+                    damageType: 'physical',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                    stagger: { kind: 'blackboard', key: 'poise' },
+                    tags: [],
+                  },
+                },
+                {
+                  kind: 'createTimedMarker',
+                  parameters: {
+                    target: 'caster',
+                    markerId: 'buff_equipsuit_physuit_01',
+                    durationSeconds: { kind: 'blackboard', key: 'duration' },
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    });
+  });
 });

@@ -279,6 +279,15 @@ export class BuffDefinitionOperationTarget<Key extends string>
     return this.container.matchesEntityTags(tags, type, exact);
   }
 
+  matchesTagIds(
+    ownedTags: readonly GameplayTagId[],
+    requiredTags: readonly GameplayTagId[],
+    type: GameplayTagQueryType,
+    exact?: boolean,
+  ): boolean {
+    return this.container.matchesTagIds(ownedTags, requiredTags, type, exact);
+  }
+
   findFirstByTags(
     tags: readonly GameplayTagId[],
     type: GameplayTagQueryType,

@@ -1010,6 +1010,16 @@ export class CombatBuffContainer<Key extends string> {
     return this.tagRegistry.query(this.#entityTagCounts.keys(), tags, type, exact);
   }
 
+  /** 对任意一组原生标签执行同一目录的父级展开查询，供事件载荷匹配使用。 */
+  matchesTagIds(
+    ownedTags: readonly GameplayTagId[],
+    requiredTags: readonly GameplayTagId[],
+    type: GameplayTagQueryType,
+    exact = false,
+  ): boolean {
+    return this.tagRegistry.query(ownedTags, requiredTags, type, exact);
+  }
+
   /** 统计所有未结束且分类标签满足查询的 Buff 层数。 */
   getCountByTags(
     tags: readonly GameplayTagId[],

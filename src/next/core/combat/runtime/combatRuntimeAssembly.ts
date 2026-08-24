@@ -22,6 +22,7 @@ import type {
 } from '../../game-data/operatorDefinition';
 import type { EnemyRank } from '../../game-data/enemyRank';
 import { CombatReceiptCollector, type CombatReceiptSink } from '../receipt/combatReceipt';
+import { gameplayTagId } from '../tags/gameplayTags';
 import { AbilitySystemRuntime, type PostSkillCastRequest } from './abilitySystemRuntime';
 import { ActionBlackboardOperationExecutor } from './actionBlackboardOperationExecutor';
 import { EventContextConditionExecutor } from './eventContextConditionExecutor';
@@ -1329,6 +1330,12 @@ export class CombatRuntimeAssembly {
         ? undefined
         : sourceId => isOperatorControlled(sourceId, this.clock.frame),
       sourceId => this.#resolveAbilitySystemSourceId(sourceId),
+      (targetId, ownedTagIds, requiredTagIds, match) =>
+        this.#resolveBuffTargetById(targetId).matchesTagIds!(
+          ownedTagIds.map(gameplayTagId),
+          requiredTagIds.map(gameplayTagId),
+          match,
+        ),
     );
     const delegate = new ActionBlackboardOperationExecutor(
       eventConditions,
@@ -1505,6 +1512,12 @@ export class CombatRuntimeAssembly {
         ? undefined
         : sourceId => options.isOperatorControlled!(sourceId, this.clock.frame),
       sourceId => this.#resolveAbilitySystemSourceId(sourceId),
+      (targetId, ownedTagIds, requiredTagIds, match) =>
+        this.#resolveBuffTargetById(targetId).matchesTagIds!(
+          ownedTagIds.map(gameplayTagId),
+          requiredTagIds.map(gameplayTagId),
+          match,
+        ),
     );
     const blackboardOperations = new ActionBlackboardOperationExecutor(
       eventConditions,

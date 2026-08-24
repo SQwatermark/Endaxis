@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ActionBlackboard } from './actionBlackboard';
 import { EventContextConditionExecutor } from './eventContextConditionExecutor';
+import { GameplayTagRegistry, gameplayTagIdFromPath } from '../tags/gameplayTags';
 
 const terminal = {
   execute: () => true,
@@ -136,6 +137,43 @@ describe('EventContextConditionExecutor', () => {
       executor.evaluate(
         { kind: 'eventBuffTagsMatch', match: 'hasAny', buffTagIds: [202] },
         context,
+      ),
+    ).toBe(true);
+  });
+
+  it('matches an applied Buff child tag through the versioned GameplayTag hierarchy', () => {
+    const parentPath = 'Skill/Character/Common/PhysicalStatus';
+    const childPath = `${parentPath}/FractureStatus`;
+    const registry = new GameplayTagRegistry([parentPath, childPath]);
+    const executor = new EventContextConditionExecutor(
+      terminal,
+      undefined,
+      undefined,
+      (_targetId, ownedTagIds, requiredTagIds, match) =>
+        registry.query(
+          ownedTagIds.map(value => value as ReturnType<typeof gameplayTagIdFromPath>),
+          requiredTagIds.map(value => value as ReturnType<typeof gameplayTagIdFromPath>),
+          match,
+        ),
+    );
+
+    expect(
+      executor.evaluate(
+        {
+          kind: 'eventBuffTagsMatch',
+          match: 'hasAny',
+          buffTagIds: [gameplayTagIdFromPath(parentPath)],
+        },
+        {
+          blackboard: new ActionBlackboard(),
+          event: {
+            kind: 'buffApplied',
+            targetId: 'enemy',
+            sourceId: 'operator',
+            buffId: 'buff_physical_do_fracture',
+            buffTagIds: [gameplayTagIdFromPath(childPath)],
+          },
+        },
       ),
     ).toBe(true);
   });

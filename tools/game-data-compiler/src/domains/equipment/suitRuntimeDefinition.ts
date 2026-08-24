@@ -1,4 +1,8 @@
 import { compileResolvedAttributeModifierSource } from '../../compiler/attributeModifier.ts';
+import {
+  compileEventTargetSimpleDamageOperationSource,
+  type CompiledSimpleDamageOperationSource,
+} from '../../compiler/simpleDamageOperation.ts';
 import { collectBuffActionReferences } from '../../source/buffActionGraph.ts';
 import type { BuffApplicationActionSource } from '../../source/buffActions.ts';
 import type { NativeActionNodeSource, NativeSequenceSource } from '../../source/controlFlow.ts';
@@ -70,6 +74,15 @@ export type CompiledEquipmentBuffConditionSource =
       readonly value:
         | { readonly kind: 'constant'; readonly value: number }
         | { readonly kind: 'blackboard'; readonly key: string };
+    }
+  | {
+      readonly kind: 'timedMarkerPresent';
+      readonly target: 'caster';
+      readonly markerId: string;
+    }
+  | {
+      readonly kind: 'not';
+      readonly condition: CompiledEquipmentBuffConditionSource;
     };
 
 export type CompiledEquipmentBuffStepSource =
@@ -92,6 +105,18 @@ export type CompiledEquipmentBuffStepSource =
       readonly kind: 'conditional';
       readonly parameters: { readonly condition: CompiledEquipmentBuffConditionSource };
       readonly whenTrue: CompiledEquipmentBuffSequenceSource;
+    }
+  | CompiledSimpleDamageOperationSource
+  | {
+      readonly kind: 'createTimedMarker';
+      readonly parameters: {
+        readonly target: 'caster';
+        readonly markerId: string;
+        readonly durationSeconds:
+          | { readonly kind: 'constant'; readonly value: number }
+          | { readonly kind: 'blackboard'; readonly key: string };
+        readonly autoFinishByAction: false;
+      };
     };
 
 export interface CompiledEquipmentBuffSequenceSource {
@@ -603,6 +628,19 @@ function compileEventCondition(
           : { kind: 'blackboard', key: condition.value.blackboardKey },
     };
   }
+  if (condition.kind === 'globalCooldown') {
+    if (
+      condition.targetSource !== 'Owner' ||
+      condition.targetGroupKey !== '' ||
+      condition.buffId.length === 0
+    ) {
+      throw new Error(`${node.sourcePath}: unsupported global cooldown condition target`);
+    }
+    return {
+      kind: 'not',
+      condition: { kind: 'timedMarkerPresent', target: 'caster', markerId: condition.buffId },
+    };
+  }
   return null;
 }
 
@@ -610,10 +648,40 @@ function compileActionNode(
   node: NativeActionNodeSource<KnownNativeActionLeafSource>,
   visualOnlyIds: ReadonlySet<string>,
 ): CompiledEquipmentBuffStepSource[] {
-  if (node.body.kind !== 'leaf' || node.body.value.family !== 'buffApplication') {
+  if (node.body.kind !== 'leaf') {
     throw new Error(`${node.sourcePath}: unsupported suit Buff action`);
   }
-  return compileBuffApplication(node.body.value.action, visualOnlyIds, node.sourcePath);
+  if (node.body.value.family === 'buffApplication') {
+    return compileBuffApplication(node.body.value.action, visualOnlyIds, node.sourcePath);
+  }
+  if (node.body.value.family === 'damage') {
+    return [compileEventTargetSimpleDamageOperationSource(node.body.value.action, node.sourcePath)];
+  }
+  if (node.body.value.family === 'globalCooldown') {
+    const action = node.body.value.action;
+    if (
+      action.target.targetSource !== 'Source' ||
+      action.target.targetGroupKey !== '' ||
+      action.buffId.length === 0
+    ) {
+      throw new Error(`${node.sourcePath}: unsupported global cooldown application target`);
+    }
+    return [
+      {
+        kind: 'createTimedMarker',
+        parameters: {
+          target: 'caster',
+          markerId: action.buffId,
+          durationSeconds:
+            action.duration.blackboardKey === null
+              ? { kind: 'constant', value: action.duration.value }
+              : { kind: 'blackboard', key: action.duration.blackboardKey },
+          autoFinishByAction: false,
+        },
+      },
+    ];
+  }
+  throw new Error(`${node.sourcePath}: unsupported suit Buff action`);
 }
 
 function compileBuffApplication(

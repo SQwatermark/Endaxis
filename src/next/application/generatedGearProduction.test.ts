@@ -7,6 +7,8 @@ import type { ScenarioDocument, TrackDocument } from '../core/project/schema';
 import { nextGearDefinitions } from '../data/equipment';
 import { nextGameDataRepository } from '../data/gameDataRepository';
 import { perlicaGeneratedOperator } from '../data/operators/generated/perlica.operator.generated';
+import { pogranichnikGeneratedOperator } from '../data/operators/generated/pogranichnik.operator.generated';
+import { elementalAttachments } from '../data/buffs/elementalAttachments';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
 
@@ -60,6 +62,96 @@ describe('generated gear production integration', () => {
         }),
       ],
     });
+  });
+
+  it('runs the physical-status set proc once while its 15-second marker is active', () => {
+    const scenario = createEmptyScenario('scenario:physical-set', '物理异常套装生产回归');
+    scenario.battle.durationFrames = 260;
+    scenario.battle.resourceRules.maxSp = 400;
+    scenario.battle.resourceRules.initialSp = 400;
+    scenario.enemy.editable.hp = 10_000_000;
+    scenario.tracks[0] = {
+      id: 'track:pogranichnik',
+      operator: {
+        operatorSlug: pogranichnikGeneratedOperator.slug,
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 0, 1: 0 },
+      },
+      weapon: null,
+      gears: {
+        armor: {
+          gearSlug: 'item_equip_t4_suit_phy01_body_01',
+          artificingLevels: [0, 0, 0],
+        },
+        gloves: {
+          gearSlug: 'item_equip_t4_suit_phy01_hand_01',
+          artificingLevels: [0, 0, 0],
+        },
+        accessory1: {
+          gearSlug: 'item_equip_t4_suit_phy01_edc_01',
+          artificingLevels: [0, 0],
+        },
+        accessory2: null,
+      },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    let placed = scenario;
+    let nextId = 0;
+    for (const startFrame of [1, 61, 121, 181]) {
+      placed = placeSkillGroup({
+        scenario: placed,
+        trackIndex: 0,
+        operator: pogranichnikGeneratedOperator,
+        skillGroupKey: 'battleSkill',
+        startFrame,
+        ids: { allocate: kind => `${kind}:physical-set:${++nextId}` },
+      }).scenario;
+    }
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          ultimateEnergySystemUnlocked: true,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+        },
+      },
+      endFrame: 260,
+      criticalSamples: new ExplicitCriticalSampleSource(Array.from({ length: 40 }, () => 1)),
+      elementalInflictionDocument: elementalAttachments,
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+    });
+    const setProcDamage = result.receiptEntries.filter(
+      entry =>
+        entry.event === 'DamageApplied' &&
+        entry.data?.castId === 'upgrade-initialization:gear-set:suit_phy01',
+    );
+    expect(setProcDamage).toHaveLength(1);
+    expect(setProcDamage[0]).toMatchObject({
+      sourceId: 'track:pogranichnik',
+      targetId: 'enemy',
+      data: { damageType: 'physical', skillMultiplierPercent: 250 },
+    });
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'PoiseApplied',
+        sourceId: 'track:pogranichnik',
+        targetId: 'enemy',
+        data: expect.objectContaining({ calculationValue: 10 }),
+      }),
+    );
   });
 });
 

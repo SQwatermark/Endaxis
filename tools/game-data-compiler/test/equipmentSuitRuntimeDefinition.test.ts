@@ -5,6 +5,8 @@ import {
   compileEquipmentBuffRuntimeDefinitionSource,
   evaluateFixedFullHealthToggleCondition,
   type BuffRuntimeSource,
+  type DamageActionSource,
+  type TargetReferenceSource,
 } from '../src/index.ts';
 
 describe('装备套装 Buff 运行时投影', () => {
@@ -272,7 +274,231 @@ describe('装备套装 Buff 运行时投影', () => {
       },
     ]);
   });
+
+  it('把输出 Buff 后的全局冷却、简单伤害和冷却写入保留为同一短路线性链', () => {
+    const source = sourceFixture();
+    const nativeEvent = source.graph.abilityEvents[0]!;
+    const nativeSequence = nativeEvent.actions[0]!;
+    const metadata = nativeSequence.actions[0]!.metadata;
+    const eventTagNode = {
+      ...nativeSequence.actions[0]!,
+      body: {
+        kind: 'leaf' as const,
+        value: {
+          family: 'condition' as const,
+          action: {
+            kind: 'contextBuff' as const,
+            sourceType: 'CheckBuffIdInContext',
+            checkType: 'Tag',
+            buffIds: [],
+            queryType: 'HasAny',
+            buffTagIds: [-6380412],
+          },
+        },
+      },
+    };
+    const cooldownNode = {
+      sourcePath: 'BuffData.buff_root.cooldown',
+      metadata: { ...metadata, serverActionIndex: 1 },
+      body: {
+        kind: 'leaf' as const,
+        value: {
+          family: 'condition' as const,
+          action: {
+            kind: 'globalCooldown' as const,
+            sourceType: 'CheckGlobalCDTimerAction',
+            targetSource: 'Owner',
+            targetGroupKey: '',
+            buffId: 'buff_equipsuit_physuit_01',
+          },
+        },
+      },
+    };
+    const damageNode = {
+      sourcePath: 'BuffData.buff_root.damage',
+      metadata: { ...metadata, serverActionIndex: 2 },
+      body: {
+        kind: 'leaf' as const,
+        value: { family: 'damage' as const, action: simpleDamageFixture() },
+      },
+    };
+    const cooldownWriteNode = {
+      sourcePath: 'BuffData.buff_root.cooldownWrite',
+      metadata: { ...metadata, serverActionIndex: 3 },
+      body: {
+        kind: 'leaf' as const,
+        value: {
+          family: 'globalCooldown' as const,
+          action: {
+            kind: 'globalCooldownApplication' as const,
+            target: fixedTarget('Source'),
+            buffId: 'buff_equipsuit_physuit_01',
+            duration: { value: 0, blackboardKey: 'duration', levelValues: [15] },
+          },
+        },
+      },
+    };
+    const runtimeSource: BuffRuntimeSource = {
+      ...source,
+      graph: {
+        ...source.graph,
+        declaredBlackboard: [
+          ...source.graph.declaredBlackboard,
+          { key: 'atk_scale', value: 1, isDynamic: false },
+          { key: 'poise', value: 0, isDynamic: false },
+        ],
+        abilityEvents: [
+          {
+            ...nativeEvent,
+            event: 'OnOutputBuff',
+            actions: [
+              {
+                ...nativeSequence,
+                actions: [eventTagNode, cooldownNode, damageNode, cooldownWriteNode],
+              },
+            ],
+          },
+        ],
+      },
+    };
+
+    expect(
+      compileEquipmentBuffRuntimeDefinitionSource(runtimeSource).abilityEventResponses?.[0]
+        ?.sequence.steps,
+    ).toEqual([
+      {
+        kind: 'conditional',
+        parameters: {
+          condition: {
+            kind: 'eventBuffTagsMatch',
+            match: 'hasAny',
+            buffTagIds: [-6380412],
+          },
+        },
+        whenTrue: {
+          steps: [
+            {
+              kind: 'conditional',
+              parameters: {
+                condition: {
+                  kind: 'not',
+                  condition: {
+                    kind: 'timedMarkerPresent',
+                    target: 'caster',
+                    markerId: 'buff_equipsuit_physuit_01',
+                  },
+                },
+              },
+              whenTrue: {
+                steps: [
+                  {
+                    kind: 'dealDamage',
+                    parameters: {
+                      damageType: 'physical',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: [],
+                      stagger: { kind: 'blackboard', key: 'poise' },
+                    },
+                  },
+                  {
+                    kind: 'createTimedMarker',
+                    parameters: {
+                      target: 'caster',
+                      markerId: 'buff_equipsuit_physuit_01',
+                      durationSeconds: { kind: 'blackboard', key: 'duration' },
+                      autoFinishByAction: false,
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    ]);
+  });
 });
+
+function fixedTarget(targetSource: string): TargetReferenceSource {
+  return {
+    targetSource,
+    targetGroupKey: targetSource === 'Target' ? 'ignored-residual' : '',
+    selectorOwner: 'ActionOwner',
+    ownerContextKey: '',
+    centerType: 'ActionSource',
+    centerContextKey: '',
+    centerToGround: false,
+    target: 'ActionSource',
+    targetContextKey: '',
+    enableAdvancedDirection: false,
+    selectorDirection: 'SourceForward',
+    finderType: null,
+    finderShape: null,
+    finderOwnerPartsQuery: null,
+    validatorTypes: [],
+    postProcessorTypes: [],
+    finderSpawnedObjectType: null,
+    validatorTagQueries: [],
+  };
+}
+
+function simpleDamageFixture(): DamageActionSource {
+  const common = {
+    damageType: 'Physical',
+    simpleCalculation: true,
+    takeAttackSnapshot: false,
+    damageDecorateMask: 0,
+    controlEffectRoll: true,
+    onlyEnableForMainOperator: false,
+    processors: [],
+    ignoreDamageImmuneLevel: 'None',
+    ignorePoiseImmune: false,
+    reduceDamageForGuard: false,
+    reduceDamageForGuardRatio: 1,
+    gainCost: false,
+    costs: [],
+    enablePoiseBreakTimeDilation: true,
+    visualImportance: 'Level1',
+    visualCoalitionEnabled: false,
+    visualCoalitionGroupKey: '',
+    alwaysStartNewCoalition: false,
+    alwaysEndCoalition: false,
+    updatePositionOnCoalition: true,
+  } as const;
+  return {
+    kind: 'damage',
+    alwaysNext: true,
+    attacker: 'ActionOwner',
+    target: fixedTarget('Target'),
+    effectSource: fixedTarget('Owner'),
+    hitEnvironment: false,
+    units: [
+      {
+        ...common,
+        attributeType: 'Hp',
+        attackScale: { value: 0, blackboardKey: 'atk_scale', levelValues: [2.5] },
+        serializedAttackCalculationPresent: false,
+        attackCalculation: null,
+        serializedPoiseCalculationPresent: false,
+        poiseCalculation: null,
+      },
+      {
+        ...common,
+        attributeType: 'Poise',
+        attackScale: { value: 0, blackboardKey: null, levelValues: null },
+        serializedAttackCalculationPresent: false,
+        attackCalculation: null,
+        serializedPoiseCalculationPresent: true,
+        poiseCalculation: {
+          kind: 'definite',
+          value: { value: 0, blackboardKey: 'poise', levelValues: [10] },
+          applyScale: false,
+          valueScale: { value: 0, blackboardKey: null, levelValues: null },
+        },
+      },
+    ],
+  };
+}
 
 function sourceFixture(): BuffRuntimeSource {
   const metadata = {

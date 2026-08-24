@@ -1,0 +1,98 @@
+/** Projected from 1.4.4 SkillPatch, SkillData and BuffData by the game-data compiler. */
+import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinition';
+
+const definition = {
+  slug: 'suit_phy01',
+  modifiers: [{ kind: 'panelStat', stat: 'staggerDamagePercent', value: [0.2] }],
+  buffDefinitions: {
+    buff_equipsuit_physuit_01: {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 0,
+      triggerIntervalSeconds: 0,
+      waitFirstTriggerInterval: true,
+      maxTriggerCount: 1,
+      applyTagIds: [],
+      extendTagIds: [],
+      blackboard: { atk_scale: 1, duration: 0, poise: 0, poise_up: 0.1 },
+      attributeModifiers: [],
+      abilityEventResponses: [
+        {
+          event: 'outputBuff',
+          priority: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'conditional',
+                parameters: {
+                  condition: {
+                    kind: 'eventBuffTagsMatch',
+                    match: 'hasAny',
+                    buffTagIds: [-6380412],
+                  },
+                },
+                whenTrue: {
+                  steps: [
+                    {
+                      kind: 'conditional',
+                      parameters: {
+                        condition: {
+                          kind: 'not',
+                          condition: {
+                            kind: 'timedMarkerPresent',
+                            target: 'caster',
+                            markerId: 'buff_equipsuit_physuit_01',
+                          },
+                        },
+                      },
+                      whenTrue: {
+                        steps: [
+                          {
+                            kind: 'dealDamage',
+                            parameters: {
+                              damageType: 'physical',
+                              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                              tags: [],
+                              stagger: { kind: 'blackboard', key: 'poise' },
+                            },
+                          },
+                          {
+                            kind: 'createTimedMarker',
+                            parameters: {
+                              target: 'caster',
+                              markerId: 'buff_equipsuit_physuit_01',
+                              durationSeconds: { kind: 'blackboard', key: 'duration' },
+                              autoFinishByAction: false,
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    },
+  },
+  initializationSequence: {
+    steps: [
+      {
+        kind: 'applyBuff',
+        parameters: {
+          buffId: 'buff_equipsuit_physuit_01',
+          target: 'caster',
+          blackboardAssignments: {
+            atk_scale: { kind: 'constant', value: 2.5 },
+            poise: { kind: 'constant', value: 10 },
+            duration: { kind: 'constant', value: 15 },
+          },
+        },
+      },
+    ],
+  },
+} as const satisfies GearSetDefinition;
+
+export default definition;
