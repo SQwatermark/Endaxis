@@ -1,9 +1,14 @@
 {
   "format": "EndaxisGeneratedGearSetAudit",
   "version": 1,
-  "definitionCount": 2,
-  "buffDefinitionCount": 6,
+  "definitionCount": 7,
+  "buffDefinitionCount": 13,
   "diagnostics": [
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "SkillData.passive_equipsuit_agi_01.buffs.buff_equipsuit_agi_01.agi",
+      "reason": "unmaterialized server passive skill blackboard value \"agi\" is never read by the installed Buff"
+    },
     {
       "status": "scenario-omitted",
       "sourcePath": "BuffData.buff_equipsuit_wisdwill_01.abilityEventAction",
@@ -18,6 +23,41 @@
       "status": "scenario-omitted",
       "sourcePath": "BuffData.buff_common_vfx_char_atk_up.stackingSettings.stackEffects",
       "reason": "particle-only stack effect does not affect the fixed-target damage simulation"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "BuffData.buff_equipsuit_stragi_01.abilityEventAction",
+      "reason": "enemy-defeated response occurs after the fixed single target simulation has ended"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "SkillData.passive_equipsuit_stragi_01.buffs.buff_equipsuit_will_01.wil",
+      "reason": "unmaterialized server passive skill blackboard value \"will\" is never read by the installed Buff"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "SkillData.passive_equipsuit_will_01.toggleBuffs[0]",
+      "reason": "toggle Buff condition is false at fixed full health"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "SkillData.passive_equipsuit_will_01.buffs.buff_equipsuit_will_01.wil",
+      "reason": "unmaterialized server passive skill blackboard value \"will\" is never read by the installed Buff"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "SkillData.passive_equipsuit_wisd_01.buffs.buff_equipsuit_wisd_01.wisd",
+      "reason": "unmaterialized server passive skill blackboard value \"wisd\" is never read by the installed Buff"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "BuffData.buff_equipsuit_wisdwill_01.abilityEventAction",
+      "reason": "enemy-defeated response occurs after the fixed single target simulation has ended"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "SkillData.passive_equipsuit_wisdwill_01.buffs.buff_equipsuit_will_01.wil",
+      "reason": "unmaterialized server passive skill blackboard value \"will\" is never read by the installed Buff"
     }
   ]
 }

@@ -21,12 +21,35 @@ export interface CompiledGearSetRuntimeDependencySource {
   readonly startupBuffIds: readonly string[];
   readonly startupBuffs: readonly CompiledGearSetBuffInstallationSource[];
   readonly toggleBuffIds: readonly string[];
+  readonly toggleBuffs: readonly CompiledGearSetToggleBuffGroupSource[];
   readonly referencedBuffIds: readonly string[];
+}
+
+export interface CompiledGearSetToggleBuffGroupSource {
+  readonly conditions: readonly CompiledGearSetToggleConditionSource[];
+  readonly buffs: readonly CompiledGearSetBuffInstallationSource[];
+}
+
+export interface CompiledGearSetToggleConditionSource {
+  readonly kind: 'currentHpRatio';
+  readonly comparison: string;
+  readonly value: number | UnresolvedSkillBlackboardValueSource;
 }
 
 export interface CompiledGearSetBuffInstallationSource {
   readonly buffId: string;
-  readonly blackboardAssignments: Readonly<Record<string, number | string>>;
+  readonly blackboardAssignments: Readonly<
+    Record<string, number | string | UnresolvedSkillBlackboardValueSource>
+  >;
+}
+
+/**
+ * 服务端战斗被动技能可以携带客户端 SkillData/SkillPatch 中不存在的额外黑板值。
+ * 静态阶段不能把它补成 0，也不能在尚未读取 BuffData 时断言该值一定会被消费。
+ */
+export interface UnresolvedSkillBlackboardValueSource {
+  readonly kind: 'unresolvedSkillBlackboard';
+  readonly key: string;
 }
 
 export interface CompiledEquipmentSuitStaticDefinitionBatchSource {
@@ -130,9 +153,36 @@ export function compileEquipmentSuitStaticDefinitionBatchSource(
       skillId: request.skillId,
       startupBuffIds: skill.startupBuffs.map(entry => entry.buffId),
       startupBuffs: skill.startupBuffs.map(entry =>
-        materializeBuffInstallation(entry, installation.blackboard, compiled.sourcePath),
+        materializeBuffInstallation(entry, installation.blackboard),
       ),
       toggleBuffIds: skill.toggleBuffs.flatMap(group => group.buffs.map(entry => entry.buffId)),
+      toggleBuffs: skill.toggleBuffs.map((group, groupIndex) => ({
+        conditions: group.conditions.map((condition, conditionIndex) => {
+          if (condition.kind !== 'currentHpRatio') {
+            throw new Error(
+              `${compiled.sourcePath}.toggleBuffs[${groupIndex}].conditions[${conditionIndex}]: unsupported equipment toggle condition ${JSON.stringify(condition.kind)}`,
+            );
+          }
+          const value =
+            condition.value.blackboardKey === null
+              ? condition.value.value
+              : installation.blackboard[condition.value.blackboardKey];
+          if (value === undefined) {
+            return {
+              kind: 'currentHpRatio' as const,
+              comparison: condition.comparison,
+              value: {
+                kind: 'unresolvedSkillBlackboard' as const,
+                key: condition.value.blackboardKey!,
+              },
+            };
+          }
+          return { kind: 'currentHpRatio' as const, comparison: condition.comparison, value };
+        }),
+        buffs: group.buffs.map(entry =>
+          materializeBuffInstallation(entry, installation.blackboard),
+        ),
+      })),
       referencedBuffIds: skill.references
         .filter(
           (
@@ -151,13 +201,12 @@ export function compileEquipmentSuitStaticDefinitionBatchSource(
 function materializeBuffInstallation(
   source: import('../../source/skillBuffInstall.ts').SkillBuffInstallSource,
   blackboard: Readonly<Record<string, number>>,
-  sourcePath: string,
 ): CompiledGearSetBuffInstallationSource {
   if (!source.assignBlackboard) return { buffId: source.buffId, blackboardAssignments: {} };
   return {
     buffId: source.buffId,
     blackboardAssignments: Object.fromEntries(
-      source.assignments.map((assignment, index) => {
+      source.assignments.map(assignment => {
         if (assignment.useDirectValue) {
           return [
             assignment.targetKey,
@@ -166,9 +215,13 @@ function materializeBuffInstallation(
         }
         const value = blackboard[assignment.inputValueKey];
         if (value === undefined) {
-          throw new Error(
-            `${sourcePath}.buffs.assignItems[${index}]: missing materialized skill blackboard value ${JSON.stringify(assignment.inputValueKey)}`,
-          );
+          return [
+            assignment.targetKey,
+            {
+              kind: 'unresolvedSkillBlackboard' as const,
+              key: assignment.inputValueKey,
+            },
+          ];
         }
         return [assignment.targetKey, value];
       }),

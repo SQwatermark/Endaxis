@@ -102,4 +102,66 @@ describe('生成套装正式定义', () => {
       ],
     });
   });
+
+  it('完整注册两套只剩木桩场景静态生命收益的原生套装', () => {
+    for (const slug of ['suit_stragi01', 'suit_wisdwill01'] as const) {
+      const definition = generatedGearSetDefinitions.find(item => item.slug === slug);
+      expect(definition).toBeDefined();
+      expect(validateGearSetDefinition(definition!, `$.${slug}`)).toEqual([]);
+
+      const compiled = compileGearSetContribution(definition!, {
+        main: perlica.mainAttribute,
+        secondary: perlica.secondaryAttribute,
+      });
+      expect(compiled.modifiers).toEqual([{ kind: 'panelStat', stat: 'healthFlat', value: 500 }]);
+      expect(compiled.initializationSequence?.steps).toEqual([
+        {
+          kind: 'applyBuff',
+          parameters: { buffId: 'buff_equipsuit_will_01', target: 'caster' },
+        },
+      ]);
+    }
+  });
+
+  it('在固定满血场景安装敏捷与智识套装的常驻增伤 Buff', () => {
+    const agility = generatedGearSetDefinitions.find(item => item.slug === 'suit_agi01')!;
+    const intellect = generatedGearSetDefinitions.find(item => item.slug === 'suit_wisd01')!;
+
+    expect(validateGearSetDefinition(agility, '$.suit_agi01')).toEqual([]);
+    expect(validateGearSetDefinition(intellect, '$.suit_wisd01')).toEqual([]);
+    const compiledAgility = compileGearSetContribution(agility, {
+      main: perlica.mainAttribute,
+      secondary: perlica.secondaryAttribute,
+    });
+    const compiledIntellect = compileGearSetContribution(intellect, {
+      main: perlica.mainAttribute,
+      secondary: perlica.secondaryAttribute,
+    });
+    expect(compiledAgility.modifiers).toEqual([
+      { kind: 'attribute', attribute: 'agility', operation: 'flat', value: 50 },
+    ]);
+    expect(compiledAgility.initializationSequence?.steps[1]).toMatchObject({
+      parameters: {
+        buffId: 'buff_equipsuit_agi_phydmg_01',
+        blackboardAssignments: { phy_dmg_up: { kind: 'constant', value: 0.2 } },
+      },
+    });
+    expect(compiledIntellect.initializationSequence?.steps[1]).toMatchObject({
+      parameters: {
+        buffId: 'buff_equipsuit_wisd_spdmg_01',
+        blackboardAssignments: { spell_dmg_up: { kind: 'constant', value: 0.2 } },
+      },
+    });
+  });
+
+  it('在固定满血场景只保留意志套装的静态意志收益', () => {
+    const definition = generatedGearSetDefinitions.find(item => item.slug === 'suit_will01')!;
+    expect(validateGearSetDefinition(definition, '$.suit_will01')).toEqual([]);
+    expect(
+      compileGearSetContribution(definition, {
+        main: perlica.mainAttribute,
+        secondary: perlica.secondaryAttribute,
+      }).modifiers,
+    ).toEqual([{ kind: 'attribute', attribute: 'will', operation: 'flat', value: 50 }]);
+  });
 });

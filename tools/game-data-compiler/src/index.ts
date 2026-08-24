@@ -207,11 +207,16 @@ export {
   type CompiledEquipmentSuitStaticDefinitionBatchSource,
   type CompiledGearSetRuntimeDependencySource,
   type CompiledGearSetBuffInstallationSource,
+  type CompiledGearSetToggleBuffGroupSource,
+  type CompiledGearSetToggleConditionSource,
   type CompiledGearSetStaticDefinitionSource,
+  type UnresolvedSkillBlackboardValueSource,
 } from './domains/equipment/suitStaticDefinition.ts';
 export {
+  buffRuntimeReadsBlackboardKey,
   compileEquipmentSuitRuntimeBatchSource,
   compileEquipmentBuffRuntimeDefinitionSource,
+  evaluateFixedFullHealthToggleCondition,
   type CompiledBuffAttributeModifierSource,
   type CompiledBuffNumberSource,
   type CompiledBuffPresentationSource,

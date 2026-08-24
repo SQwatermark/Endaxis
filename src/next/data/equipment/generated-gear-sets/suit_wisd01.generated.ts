@@ -1,0 +1,72 @@
+/** Projected from 1.4.4 SkillPatch, SkillData and BuffData by the game-data compiler. */
+import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinition';
+
+const definition = {
+  slug: 'suit_wisd01',
+  modifiers: [{ kind: 'attribute', attribute: 'intellect', operation: 'flat', value: [50] }],
+  buffDefinitions: {
+    buff_equipsuit_wisd_01: {
+      stackingType: 'unlimited',
+      priority: 0,
+      maxStackCount: 0,
+      triggerIntervalSeconds: 0,
+      waitFirstTriggerInterval: true,
+      maxTriggerCount: 1,
+      applyTagIds: [],
+      extendTagIds: [],
+      blackboard: { wisd: 200 },
+      attributeModifiers: [],
+    },
+    buff_equipsuit_wisd_spdmg_01: {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 0,
+      triggerIntervalSeconds: 0,
+      waitFirstTriggerInterval: true,
+      maxTriggerCount: 1,
+      applyTagIds: [],
+      extendTagIds: [],
+      blackboard: { spell_dmg_up: 0.05 },
+      attributeModifiers: [
+        {
+          attribute: 'FireDamageIncrease',
+          slot: 'baseAddition',
+          value: { blackboardKey: 'spell_dmg_up' },
+        },
+        {
+          attribute: 'PulseDamageIncrease',
+          slot: 'baseAddition',
+          value: { blackboardKey: 'spell_dmg_up' },
+        },
+        {
+          attribute: 'NaturalDamageIncrease',
+          slot: 'baseAddition',
+          value: { blackboardKey: 'spell_dmg_up' },
+        },
+        {
+          attribute: 'CrystDamageIncrease',
+          slot: 'baseAddition',
+          value: { blackboardKey: 'spell_dmg_up' },
+        },
+      ],
+    },
+  },
+  initializationSequence: {
+    steps: [
+      {
+        kind: 'applyBuff',
+        parameters: { buffId: 'buff_equipsuit_wisd_01', target: 'caster' },
+      },
+      {
+        kind: 'applyBuff',
+        parameters: {
+          buffId: 'buff_equipsuit_wisd_spdmg_01',
+          target: 'caster',
+          blackboardAssignments: { spell_dmg_up: { kind: 'constant', value: 0.2 } },
+        },
+      },
+    ],
+  },
+} as const satisfies GearSetDefinition;
+
+export default definition;

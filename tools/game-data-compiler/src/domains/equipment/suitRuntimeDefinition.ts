@@ -11,7 +11,11 @@ import {
 } from '../../source/buffRuntime.ts';
 import type { KnownNativeActionLeafSource } from '../../source/actionLeaf.ts';
 import type { ScalarSource } from '../../source/scalar.ts';
-import type { CompiledGearSetStaticDefinitionSource } from './suitStaticDefinition.ts';
+import type {
+  CompiledGearSetStaticDefinitionSource,
+  CompiledGearSetToggleBuffGroupSource,
+  UnresolvedSkillBlackboardValueSource,
+} from './suitStaticDefinition.ts';
 import type { EquipmentDefinitionDiagnosticSource } from './formalDefinition.ts';
 
 export type CompiledBuffNumberSource = number | { readonly blackboardKey: string };
@@ -118,16 +122,16 @@ export function compileEquipmentSuitRuntimeBatchSource(
   definitions: readonly CompiledGearSetStaticDefinitionSource[],
   dependencies: readonly {
     readonly suitId: string;
+    readonly skillId: string;
     readonly startupBuffIds: readonly string[];
     readonly startupBuffs?: readonly {
       readonly buffId: string;
-      readonly blackboardAssignments: Readonly<Record<string, number | string>>;
+      readonly blackboardAssignments: Readonly<
+        Record<string, number | string | UnresolvedSkillBlackboardValueSource>
+      >;
     }[];
     readonly toggleBuffIds: readonly string[];
-    readonly toggleBuffs?: readonly {
-      readonly buffId: string;
-      readonly blackboardAssignments: Readonly<Record<string, number | string>>;
-    }[];
+    readonly toggleBuffs: readonly CompiledGearSetToggleBuffGroupSource[];
   }[],
   buffDataValue: unknown,
 ): CompiledEquipmentSuitRuntimeBatchSource {
@@ -146,35 +150,60 @@ export function compileEquipmentSuitRuntimeBatchSource(
       });
       continue;
     }
+    const activeToggleInstallations: CompiledGearSetToggleBuffGroupSource['buffs'][number][] = [];
     let toggleBlocked = false;
-    for (const buffId of dependency.toggleBuffIds) {
-      const raw = buffData[buffId];
-      if (raw === undefined)
-        throw new Error(`BuffData: missing toggle Buff ${JSON.stringify(buffId)}`);
-      const source = parseBuffRuntimeSource(raw, `BuffData.${buffId}`);
-      if (!isAfterEnemyDefeatedOnly(source)) {
+    for (const [groupIndex, group] of dependency.toggleBuffs.entries()) {
+      const conditionResults = group.conditions.map(condition =>
+        evaluateFixedFullHealthToggleCondition(condition),
+      );
+      if (conditionResults.some(result => result === null)) {
         toggleBlocked = true;
         diagnostics.push({
           status: 'blocked',
-          sourcePath: `BuffData.${buffId}`,
-          reason: 'toggle Buff installation is not yet supported for this behavior',
+          sourcePath: `SkillData.${dependency.skillId}.toggleBuffs[${groupIndex}]`,
+          reason: 'toggle Buff condition requires an unmaterialized server passive skill value',
         });
-      } else {
+        continue;
+      }
+      if (conditionResults.some(result => result === false)) {
         diagnostics.push({
           status: 'scenario-omitted',
-          sourcePath: `BuffData.${buffId}.abilityEventAction`,
-          reason:
-            'enemy-defeated response occurs after the fixed single target simulation has ended',
+          sourcePath: `SkillData.${dependency.skillId}.toggleBuffs[${groupIndex}]`,
+          reason: 'toggle Buff condition is false at fixed full health',
         });
+        continue;
+      }
+      for (const installation of group.buffs) {
+        const raw = buffData[installation.buffId];
+        if (raw === undefined)
+          throw new Error(`BuffData: missing toggle Buff ${JSON.stringify(installation.buffId)}`);
+        const source = parseBuffRuntimeSource(raw, `BuffData.${installation.buffId}`);
+        if (isAfterEnemyDefeatedOnly(source)) {
+          diagnostics.push({
+            status: 'scenario-omitted',
+            sourcePath: `BuffData.${installation.buffId}.abilityEventAction`,
+            reason:
+              'enemy-defeated response occurs after the fixed single target simulation has ended',
+          });
+          continue;
+        }
+        activeToggleInstallations.push(installation);
       }
     }
     if (toggleBlocked) continue;
-    if (dependency.startupBuffIds.length === 0) {
+    const startupInstallations =
+      dependency.startupBuffs ??
+      dependency.startupBuffIds.map(buffId => ({ buffId, blackboardAssignments: {} }));
+    const installations = [...startupInstallations, ...activeToggleInstallations];
+    if (installations.length === 0) {
       output.push(definition);
       continue;
     }
 
-    const sources = collectRuntimeClosure(dependency.startupBuffIds, buffData);
+    const sources = collectRuntimeClosure(
+      installations.map(installation => installation.buffId),
+      buffData,
+    );
     const visualOnlyIds = new Set(
       [...sources.entries()]
         .filter(([, source]) => isPresentationOnlyStackEffect(source))
@@ -207,36 +236,110 @@ export function compileEquipmentSuitRuntimeBatchSource(
       }
     }
     if (blocked) continue;
+    const initializationSteps: CompiledEquipmentBuffStepSource[] = [];
+    for (const installation of installations) {
+      if (visualOnlyIds.has(installation.buffId)) continue;
+      const rootSource = sources.get(installation.buffId);
+      if (rootSource === undefined) {
+        blocked = true;
+        diagnostics.push({
+          status: 'blocked',
+          sourcePath: `BuffData.${installation.buffId}`,
+          reason: 'startup Buff is missing from the compiled runtime closure',
+        });
+        continue;
+      }
+      const assignments: Record<
+        string,
+        { readonly kind: 'constant'; readonly value: number | string }
+      > = {};
+      for (const [targetKey, value] of Object.entries(installation.blackboardAssignments)) {
+        if (isUnresolvedSkillBlackboardValue(value)) {
+          if (buffRuntimeReadsBlackboardKey(rootSource, targetKey)) {
+            blocked = true;
+            diagnostics.push({
+              status: 'blocked',
+              sourcePath: `SkillData.${dependency.skillId}.buffs.${installation.buffId}.${targetKey}`,
+              reason: `server passive skill blackboard value ${JSON.stringify(value.key)} is required by the installed Buff`,
+            });
+          } else {
+            diagnostics.push({
+              status: 'scenario-omitted',
+              sourcePath: `SkillData.${dependency.skillId}.buffs.${installation.buffId}.${targetKey}`,
+              reason: `unmaterialized server passive skill blackboard value ${JSON.stringify(value.key)} is never read by the installed Buff`,
+            });
+          }
+          continue;
+        }
+        assignments[targetKey] = { kind: 'constant', value };
+      }
+      initializationSteps.push({
+        kind: 'applyBuff',
+        parameters: {
+          buffId: installation.buffId,
+          target: 'caster',
+          ...(Object.keys(assignments).length === 0 ? {} : { blackboardAssignments: assignments }),
+        },
+      });
+    }
+    if (blocked) continue;
     output.push({
       ...definition,
       buffDefinitions: Object.fromEntries(
         Object.entries(buffDefinitions).sort(([left], [right]) => left.localeCompare(right)),
       ),
       initializationSequence: {
-        steps: (
-          dependency.startupBuffs ??
-          dependency.startupBuffIds.map(buffId => ({ buffId, blackboardAssignments: {} }))
-        ).map(installation => ({
-          kind: 'applyBuff' as const,
-          parameters: {
-            buffId: installation.buffId,
-            target: 'caster' as const,
-            ...(Object.keys(installation.blackboardAssignments).length === 0
-              ? {}
-              : {
-                  blackboardAssignments: Object.fromEntries(
-                    Object.entries(installation.blackboardAssignments).map(([key, value]) => [
-                      key,
-                      { kind: 'constant' as const, value },
-                    ]),
-                  ),
-                }),
-          },
-        })),
+        steps: initializationSteps,
       },
     });
   }
   return { definitions: output, diagnostics };
+}
+
+export function evaluateFixedFullHealthToggleCondition(
+  condition: CompiledGearSetToggleBuffGroupSource['conditions'][number],
+): boolean | null {
+  if (isUnresolvedSkillBlackboardValue(condition.value)) return null;
+  const currentHpRatio = 1;
+  switch (condition.comparison) {
+    case 'GE':
+      return currentHpRatio >= condition.value;
+    case 'GT':
+      return currentHpRatio > condition.value;
+    case 'LE':
+      return currentHpRatio <= condition.value;
+    case 'LT':
+      return currentHpRatio < condition.value;
+    case 'EQ':
+      return currentHpRatio === condition.value;
+    case 'NE':
+      return currentHpRatio !== condition.value;
+    default:
+      throw new Error(
+        `unsupported current HP ratio comparison ${JSON.stringify(condition.comparison)}`,
+      );
+  }
+}
+
+function isUnresolvedSkillBlackboardValue(
+  value: number | string | UnresolvedSkillBlackboardValueSource,
+): value is UnresolvedSkillBlackboardValueSource {
+  return typeof value === 'object' && value.kind === 'unresolvedSkillBlackboard';
+}
+
+/** Whether any executable/lifecycle field consumes a value from this Buff's local blackboard. */
+export function buffRuntimeReadsBlackboardKey(source: BuffRuntimeSource, key: string): boolean {
+  const readFieldNames = new Set(['blackboardKey', 'inputValueKey', 'buffIdKey']);
+  const visit = (value: unknown): boolean => {
+    if (Array.isArray(value)) return value.some(visit);
+    if (value === null || typeof value !== 'object') return false;
+    for (const [field, child] of Object.entries(value)) {
+      if (readFieldNames.has(field) && child === key) return true;
+      if (visit(child)) return true;
+    }
+    return false;
+  };
+  return visit(source);
 }
 
 function collectRuntimeClosure(

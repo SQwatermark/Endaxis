@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  buffRuntimeReadsBlackboardKey,
   compileEquipmentBuffRuntimeDefinitionSource,
+  evaluateFixedFullHealthToggleCondition,
   type BuffRuntimeSource,
 } from '../src/index.ts';
 
@@ -61,6 +63,38 @@ describe('装备套装 Buff 运行时投影', () => {
         unsupportedPayloads: [{ field: 'damageModifier', entryCount: 1 }],
       }),
     ).toThrow('unsupported Buff payloads: damageModifier');
+  });
+
+  it('distinguishes declared-only blackboard values from executable reads', () => {
+    const source = sourceFixture();
+
+    expect(buffRuntimeReadsBlackboardKey(source, 'unused')).toBe(false);
+    expect(buffRuntimeReadsBlackboardKey(source, 'atk_up')).toBe(true);
+    expect(buffRuntimeReadsBlackboardKey(source, 'duration')).toBe(false);
+  });
+
+  it('严格归约固定满血场景的 ToggleBuff 条件', () => {
+    expect(
+      evaluateFixedFullHealthToggleCondition({
+        kind: 'currentHpRatio',
+        comparison: 'GE',
+        value: 0.8,
+      }),
+    ).toBe(true);
+    expect(
+      evaluateFixedFullHealthToggleCondition({
+        kind: 'currentHpRatio',
+        comparison: 'LE',
+        value: 0.5,
+      }),
+    ).toBe(false);
+    expect(
+      evaluateFixedFullHealthToggleCondition({
+        kind: 'currentHpRatio',
+        comparison: 'LE',
+        value: { kind: 'unresolvedSkillBlackboard', key: 'hp_ratio' },
+      }),
+    ).toBeNull();
   });
 });
 

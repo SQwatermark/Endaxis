@@ -7,6 +7,23 @@
 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
+### 2026-08-25：套装服务端黑板读集与固定满血 Toggle 归约
+
+- 装备被动的启动 Buff 赋值不能仅靠 SkillData/SkillPatch 全部物化：原生 `SERVER_SKILL.blackboard`
+  还可携带服务端额外值。编译器现在把缺失值保留为 `unresolvedSkillBlackboard`，直到读取目标
+  BuffData 后再判定；若可执行动作、生命周期或属性修正确实读取该 key，仍严格阻塞，绝不补 0。
+  当前 `agi/wisd/will -> 根 Buff` 样本经结构化读集证明均未消费，故只省略该次无效覆盖并保留 Buff。
+  复刻库先行证据记录为 `D:\Projects\combat-spec` 提交 `db2bcba`。
+- `ToggleBuff` 的生命比例条件和 Buff 参数已在套装依赖中完成等级物化。按既定木桩模型，干员没有
+  敌方主动伤害且保持满血，因此 `HP >= 80%` 可严格归约为帧 0 常驻，`HP <= 50%` 则明确记录为
+  `scenario-omitted`；缺失阈值仍阻塞，不能凭同类套装猜测。
+- 正式生成套装从 2/23 扩大到 7/23：新增 `suit_agi01`（敏捷 +50、满血物理增伤 20%）、
+  `suit_wisd01`（智识 +50、满血四类术法增伤 20%）、`suit_will01`（意志 +50），以及木桩场景
+  只剩生命 +500 的 `suit_stragi01`、`suit_wisdwill01`。击杀后响应继续按唯一敌人死亡即模拟结束省略。
+- 当前门禁：公共编译器 37 文件 / 173 项、Next 208 文件 / 1503 项及两套类型检查通过；
+  下一批优先处理 `OnOutputBuff`/附着输出事件和只依赖敌方主动伤害的事件省略，再处理 Aura 与少量
+  公共条件动作。`tmp/` 仍只作本机审计缓存，不提交。
+
 ### 2026-08-25：套装 Buff 进入装备贡献装配边界
 
 - `EquipmentContributionDefinition` 不再局限于静态 modifier 和事件监听器；武器词条、单件词条与套装
@@ -1331,5 +1348,5 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 原生 `suit_atk01` 取代 `aburreys-legacy`，旧 slug 反向 alias 到新定义；其余未转换原生套装仍指向
   旧模板。横向投影随后确认 `suit_combo_cd01` 无需新增规则并一并上线：连携冷却时长乘数 0.85、
   连携施放前最多两层且每层提升战技/连携/终结技伤害的限时 Buff，以及图标均进入正式定义。
-  当前已生成 2/23 套；下一步优先处理运行时四维属性安装这一组，再处理 `OnOutputBuff`、暴击/附着
-  事件、Aura 和少量公共条件动作。`tmp/` 继续不提交。
+  该 checkpoint 当时已生成 2/23 套；后续服务端黑板读集与固定满血 Toggle 归约已把当前进度推进到
+  7/23。剩余类别为 `OnOutputBuff`、暴击/附着事件、Aura 和少量公共条件动作。`tmp/` 继续不提交。

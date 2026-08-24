@@ -1,0 +1,31 @@
+/** Projected from 1.4.4 SkillPatch, SkillData and BuffData by the game-data compiler. */
+import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinition';
+
+const definition = {
+  slug: 'suit_stragi01',
+  modifiers: [{ kind: 'panelStat', stat: 'healthFlat', value: [500] }],
+  buffDefinitions: {
+    buff_equipsuit_will_01: {
+      stackingType: 'unlimited',
+      priority: 0,
+      maxStackCount: 0,
+      triggerIntervalSeconds: 0,
+      waitFirstTriggerInterval: true,
+      maxTriggerCount: 1,
+      applyTagIds: [],
+      extendTagIds: [],
+      blackboard: { will: 200 },
+      attributeModifiers: [],
+    },
+  },
+  initializationSequence: {
+    steps: [
+      {
+        kind: 'applyBuff',
+        parameters: { buffId: 'buff_equipsuit_will_01', target: 'caster' },
+      },
+    ],
+  },
+} as const satisfies GearSetDefinition;
+
+export default definition;

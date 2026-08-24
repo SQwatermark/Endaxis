@@ -37,7 +37,91 @@ describe('装备套装静态定义', () => {
         startupBuffIds: ['buff_fixture'],
         startupBuffs: [{ buffId: 'buff_fixture', blackboardAssignments: {} }],
         toggleBuffIds: [],
+        toggleBuffs: [],
         referencedBuffIds: ['buff_fixture'],
+      },
+    ]);
+  });
+
+  it('把只存在于服务端被动技能实例的 Buff 参数留到运行时判定', () => {
+    const passive = passiveFixture();
+    passive.buffs = [
+      {
+        buffId: 'buff_fixture',
+        assignBlackboard: true,
+        assignItems: [
+          {
+            targetKey: 'agi',
+            inputValueKey: 'agi',
+            useDirectValue: false,
+            directValueType: 'Numeric',
+            numericValue: 0,
+            stringValue: '',
+          },
+        ],
+      },
+    ];
+
+    const result = compileEquipmentSuitStaticDefinitionBatchSource(
+      { suit_fixture: suitFixture() },
+      { passive_fixture: passive },
+      {},
+    );
+
+    expect(result.runtimeDependencies[0]?.startupBuffs).toEqual([
+      {
+        buffId: 'buff_fixture',
+        blackboardAssignments: {
+          agi: { kind: 'unresolvedSkillBlackboard', key: 'agi' },
+        },
+      },
+    ]);
+  });
+
+  it('物化装备 ToggleBuff 的生命比例条件和参数', () => {
+    const passive = passiveFixture();
+    passive.blackboard = [
+      { key: 'hp_ratio', valueDouble: 0.8, valueStr: '', isDynamic: false },
+      { key: 'damage_up', valueDouble: 0.2, valueStr: '', isDynamic: false },
+    ];
+    passive.toggleBuffs = [
+      {
+        conditions: [
+          {
+            $type: 'Beyond.Gameplay.Core.Abilities.Condition.CheckCurHpRatio, Gameplay.Beyond',
+            compareType: 'GE',
+            value: { useBlackboardKey: true, value: 0, blackboardKey: 'hp_ratio' },
+          },
+        ],
+        buffs: [
+          {
+            buffId: 'buff_toggle',
+            assignBlackboard: true,
+            assignItems: [
+              {
+                targetKey: 'damage_up',
+                inputValueKey: 'damage_up',
+                useDirectValue: false,
+                directValueType: 'Numeric',
+                numericValue: 0,
+                stringValue: '',
+              },
+            ],
+          },
+        ],
+      },
+    ];
+
+    const result = compileEquipmentSuitStaticDefinitionBatchSource(
+      { suit_fixture: suitFixture() },
+      { passive_fixture: passive },
+      {},
+    );
+
+    expect(result.runtimeDependencies[0]?.toggleBuffs).toEqual([
+      {
+        conditions: [{ kind: 'currentHpRatio', comparison: 'GE', value: 0.8 }],
+        buffs: [{ buffId: 'buff_toggle', blackboardAssignments: { damage_up: 0.2 } }],
       },
     ]);
   });
