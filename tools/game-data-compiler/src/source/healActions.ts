@@ -30,14 +30,16 @@ export interface HealActionSource {
   readonly calculation: HealCalculationSource;
   readonly showHealText: boolean;
   readonly playHealEffect: boolean;
+  /** 表现层使用的原生治疗特效身份；战斗编译不得丢弃。 */
+  readonly effectName: string;
   readonly onlyPlayEffectOnActualHeal: boolean;
   readonly useHealTags: boolean;
   readonly healTagIds: readonly number[];
 }
 
 /**
- * 读取 HealAction 的战斗来源事实。特效对象只属于表现层，不复制进公共战斗 IR；
- * 但顶层播放开关仍保留，便于后续审计原生动作是否依赖实际治疗结果。
+ * 读取 HealAction 的公共来源事实。庞大的特效对象不进入战斗公式，但用于渲染的
+ * effectName 与顶层播放开关必须保留，不能因其不参与数值模拟而丢失。
  */
 export function parseHealActionSource(
   value: unknown,
@@ -64,8 +66,7 @@ export function parseHealActionSource(
     ]),
     path,
   );
-  // effectData 是庞大的表现配置；确认其对象形状存在，但不让它污染战斗 IR。
-  requireRecord(action.effectData, `${path}.effectData`);
+  const effectData = requireRecord(action.effectData, `${path}.effectData`);
   const useHealTags = requireBoolean(action.useHealTags, `${path}.useHealTags`);
   return {
     kind: 'heal',
@@ -81,6 +82,7 @@ export function parseHealActionSource(
     ),
     showHealText: requireBoolean(action.showHealText, `${path}.showHealText`),
     playHealEffect: requireBoolean(action.playHealEffect, `${path}.playHealEffect`),
+    effectName: requireString(effectData.effectName, `${path}.effectData.effectName`),
     onlyPlayEffectOnActualHeal: requireBoolean(
       action.onlyPlayEffectOnActualHeal,
       `${path}.onlyPlayEffectOnActualHeal`,

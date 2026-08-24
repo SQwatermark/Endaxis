@@ -2,13 +2,15 @@
 
 本文只给出架构级状态。逐功能的定义、编译、执行和 UI 门槛以[功能迁移矩阵](../architecture/endaxis-next-feature-matrix.md)为准。
 
-> 2026-08-24：游戏数据生成主线已切到独立 `refactor/common-game-data` 工作树中的
+> 2026-08-25：游戏数据生成主线已切到独立 `refactor/common-game-data` 工作树中的
 > `tools/game-data-compiler`。该 TypeScript 工具先建立干员、武器、装备共用的严格来源 IR、公共
 > 被动编译和领域安装请求，再接正式 Next 定义；旧 Python 生成器只保留为迁移 oracle。当前
 > 285 条真实领域请求汇聚为 155 个唯一被动 SkillData，155/155 批量编译成功；77 件武器的
 > 1925 组突破/潜能组合和 5650 个技能槽结果全部闭合。243 件现行单件装备已正式生成并注册；
-> 23 套 CardSkill 静态候选达到 33 条支持、6 条木桩省略、0 阻塞，下一步闭合其 49 个 BuffData
-> 运行时行为后注册完整套装，再推进全武器。详细恢复说明见 `docs/handoff/current-context.md` 和编译器 README。
+> 23 套 CardSkill 静态候选达到 33 条支持、6 条木桩省略、0 阻塞。配对的 49 个 BuffData 已先在
+> combat-spec 形成 49/49 严格解析闭包，Normal 治疗、过量治疗条件与非空 stack effect 均有真实装备
+> 回归；Endaxis 下一步据此接入启动、Toggle 与事件运行时行为，完成后才能注册完整套装，再推进全武器。
+> 详细恢复说明见 `docs/handoff/current-context.md` 和编译器 README。
 
 ## 1. 当前状态
 

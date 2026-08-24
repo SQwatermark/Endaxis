@@ -16,7 +16,7 @@ const BASE = {
   target: targetFixture('Target'),
   showHealText: true,
   playHealEffect: true,
-  effectData: {},
+  effectData: { effectName: 'P_common_heal_01_start' },
   onlyPlayEffectOnActualHeal: false,
   useHealTags: true,
   healTags: { predefinedTag: [{ tagId: -1480463572 }] },
@@ -49,6 +49,7 @@ describe('治疗动作公共载荷', () => {
       },
       useHealTags: true,
       healTagIds: [-1480463572],
+      effectName: 'P_common_heal_01_start',
     });
   });
 

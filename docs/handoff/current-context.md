@@ -1,11 +1,27 @@
 # 当前任务快照
 
-> 更新时间：2026-08-24（Asia/Shanghai）
+> 更新时间：2026-08-25（Asia/Shanghai）
 > 本文是变化最快、优先级最高的交接入口。完全不了解背景时，先读 [交接文档首页](./README.md)，再读本文和 [Next 文档入口](../next/README.md)。
 
 当前主线是在台式机工作树 `D:\Projects\Endaxis` 的 `refactor/common-game-data` 分支重写统一
 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
+
+### 2026-08-25：套装 Buff 复刻库闭包与公共治疗表现字段
+
+- `D:\Projects\combat-spec` 已先按原生证据补齐套装闭包最后四项，提交为
+  `035e35b feat(combat): close equipment buff simulation`。`HealAction` 现在执行 Normal 治疗计算、
+  双方治疗修正、MaxHp 钳制和满血仍发布的 Output/Receive 事件；`CheckOverHeal` 使用最终治疗量与
+  实际生命增量分流。真实 `buff_equipsuit_stragi_01` 与 `buff_equipsuit_healup_01` 已形成回归，
+  后者严格区分过量治疗 -40% 与非过量治疗 -20% 承伤修正。
+- 两个通用攻防 Buff 的非空 `stackEffects` 不再被当作未知载荷：复刻库按层数索引保留特效名、目标、
+  来源与动作释放位。49 个版本化装备 BuffData 现有自动依赖闭包测试，严格解析达到 49/49；这只证明
+  原生规格闭合，尚不等于 Endaxis 已把 23 套运行时行为全部注册。
+- 公共 TypeScript `HealActionSource` 同步保留 `effectData.effectName`，与既有播放开关、标签和计算
+  一起进入来源 IR。庞大粒子配置不进入数值公式，但渲染所需身份不能因“不参与模拟”被丢弃。
+- 当前门禁：公共编译器 34 文件 / 163 项通过，两套类型检查通过。下一项以复刻库 49/49 作为行为
+  参照，把套装启动 Buff、Toggle 条件和事件链投影到正式 `GearSetDefinition`；优先完成会改变对敌
+  输出的链路，治疗/图标/stack effect 同时保留，纯玩家承伤只做木桩场景明确省略。
 
 ### 2026-08-24：套装静态定义与运行时乘区 checkpoint
 
