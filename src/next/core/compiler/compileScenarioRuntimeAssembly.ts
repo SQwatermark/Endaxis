@@ -229,14 +229,37 @@ export function compileScenarioRuntimeAssembly(
       if (build === undefined || panel === undefined) {
         throw new Error(`timeline operator '${operator.operatorId}' has no resolved build panel`);
       }
+      const equipmentContributions = equipment.get(operator.operatorId) ?? [];
+      const equipmentBuffDefinitions = mergeEquipmentBuffDefinitions(
+        operator.operatorId,
+        operator.buffDefinitions ?? {},
+        equipmentContributions,
+      );
+      const equipmentInitializationPrograms = equipmentContributions.flatMap(contribution =>
+        contribution.initializationSequence === undefined
+          ? []
+          : [
+              {
+                key: equipmentContributionKey(contribution),
+                sequence: contribution.initializationSequence,
+              },
+            ],
+      );
       return {
         ...operator,
+        ...(Object.keys(equipmentBuffDefinitions).length === 0
+          ? {}
+          : { buffDefinitions: equipmentBuffDefinitions }),
+        initializationPrograms: [
+          ...(operator.initializationPrograms ?? []),
+          ...equipmentInitializationPrograms,
+        ],
         panel,
         initialEntityBlackboard: compileOperatorEntityBlackboardInitialValues(
           build.operator,
           panel,
         ),
-        equipmentContributions: equipment.get(operator.operatorId) ?? [],
+        equipmentContributions,
       };
     }),
     options.operatorRuntimeBindings,
@@ -253,4 +276,37 @@ export function compileScenarioRuntimeAssembly(
     isOperatorControlled: (operatorId, frame) =>
       isOperatorControlledAt(controlTimeline, operatorId, frame),
   };
+}
+
+function mergeEquipmentBuffDefinitions(
+  operatorId: string,
+  existing: NonNullable<CombatOperatorProgram['buffDefinitions']>,
+  contributions: readonly import('./compileEquipment').CompiledEquipmentContribution[],
+): NonNullable<CombatOperatorProgram['buffDefinitions']> {
+  const merged = { ...existing };
+  for (const contribution of contributions) {
+    for (const [buffId, definition] of Object.entries(contribution.buffDefinitions ?? {})) {
+      if (buffId in merged) {
+        throw new Error(
+          `operator '${operatorId}' equipment contribution '${equipmentContributionKey(contribution)}' duplicates Buff definition '${buffId}'`,
+        );
+      }
+      merged[buffId] = definition;
+    }
+  }
+  return merged;
+}
+
+function equipmentContributionKey(
+  contribution: import('./compileEquipment').CompiledEquipmentContribution,
+): string {
+  const source = contribution.source;
+  switch (source.kind) {
+    case 'gearSet':
+      return `gear-set:${source.slug}`;
+    case 'gearTrait':
+      return `gear-trait:${source.slug}:${source.traitKey}`;
+    case 'weaponTrait':
+      return `weapon-trait:${source.slug}:${source.traitKey}`;
+  }
 }

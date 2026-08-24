@@ -8,7 +8,11 @@ import type { CombatOperationExecutor } from '../combat/runtime/skillRuntime';
 import { createEmptyScenario } from '../project/createProject';
 import type { ScenarioDocument } from '../project/schema';
 import { perlica } from '../../data/operators/perlica';
-import type { WeaponDefinition } from '../game-data/equipmentDefinition';
+import type {
+  GearDefinition,
+  GearSetDefinition,
+  WeaponDefinition,
+} from '../game-data/equipmentDefinition';
 import { placeSkillGroup } from '../../ui/timeline/placeSkillGroup';
 import {
   compileOperatorEntityBlackboardInitialValues,
@@ -322,6 +326,57 @@ describe('compileScenarioRuntimeAssembly', () => {
   it('does not require empty runtime binding records', () => {
     const settings = options();
     expect(() => compileScenarioRuntimeAssembly(createScenario(), settings)).not.toThrow();
+  });
+
+  it('merges active equipment Buff blueprints and frame-zero installation programs', () => {
+    const scenario = createScenario();
+    const makeGear = (slug: string, slotType: GearDefinition['slotType']): GearDefinition => ({
+      slug,
+      slotType,
+      levelRequirement: 1,
+      baseDefense: 0,
+      gearSetSlug: 'runtime-set',
+      traits: [],
+    });
+    const armor = makeGear('runtime-set-armor', 'armor');
+    const gloves = makeGear('runtime-set-gloves', 'gloves');
+    const accessory = makeGear('runtime-set-accessory', 'accessory');
+    const gearSet: GearSetDefinition = {
+      slug: 'runtime-set',
+      buffDefinitions: { 'buff.runtime-set': { stackingType: 'unique' } },
+      initializationSequence: {
+        steps: [
+          { kind: 'applyBuff', parameters: { buffId: 'buff.runtime-set', target: 'caster' } },
+        ],
+      },
+    };
+    scenario.tracks[0]!.gears = {
+      armor: { gearSlug: armor.slug, artificingLevels: [] },
+      gloves: { gearSlug: gloves.slug, artificingLevels: [] },
+      accessory1: { gearSlug: accessory.slug, artificingLevels: [] },
+      accessory2: null,
+    };
+    const settings = options();
+    const gears = new Map([armor, gloves, accessory].map(entry => [entry.slug, entry]));
+
+    const compiled = compileScenarioRuntimeAssembly(scenario, {
+      ...settings,
+      index: {
+        ...settings.index,
+        getGear: slug => gears.get(slug) ?? null,
+        getGearSet: slug => (slug === gearSet.slug ? gearSet : null),
+      },
+    });
+
+    expect(compiled.operators[0]!.buffDefinitions?.['buff.runtime-set']).toMatchObject({
+      stackingType: 'unique',
+    });
+    expect(compiled.operators[0]!.initializationPrograms?.at(-1)).toMatchObject({
+      key: 'gear-set:runtime-set',
+      sequence: {
+        steps: [{ kind: 'applyBuff', parameters: { buffId: 'buff.runtime-set' } }],
+      },
+    });
   });
 
   it('fails when runtime bindings reference an inactive operator', () => {

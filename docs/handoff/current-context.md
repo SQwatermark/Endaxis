@@ -7,6 +7,23 @@
 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
+### 2026-08-25：套装 Buff 进入装备贡献装配边界
+
+- `EquipmentContributionDefinition` 不再局限于静态 modifier 和事件监听器；武器词条、单件词条与套装
+  现在可携带自己的 `buffDefinitions` 和一次性 `initializationSequence`。三件套因此能够在帧 0 安装
+  原生根 Buff，并直接复用干员已经贯通的 Buff 生命周期、事件响应、图标和时间轴回执，不另造套装
+  专用状态机。
+- 编译器会提前编译装备 Buff 蓝图和初始化序列，并明确拒绝其中尚未开放的 AbilityEntity 定义。
+  场景装配把活动贡献的蓝图严格合入干员公共/角色 Buff 目录；任意重复 ID 都原地报错，不允许后加载
+  的套装静默覆盖角色或公共规则。初始化程序保留精确来源 key（如 `gear-set:suit_atk01`），并在 Buff
+  生命周期绑定完成后执行。
+- 装备定义验证同步覆盖蓝图和初始化动作，不让新字段绕过只读目录门禁。回归贯通
+  `GearSetDefinition → compileScenarioEquipment → compileScenarioRuntimeAssembly`，确认满足三件规则后
+  蓝图和安装程序都到达正式干员运行时。
+- 当前门禁：Next 206 文件 / 1497 项、公共编译器 34 文件 / 163 项及两套类型检查全部通过。
+  下一项不再改装配架构，直接实现公共来源图到该契约的严格投影；先覆盖可由现有 Buff DSL 无损表达、
+  且改变对敌输出的启动/事件套装，再逐类补 Toggle 条件。
+
 ### 2026-08-25：套装 Buff 复刻库闭包与公共治疗表现字段
 
 - `D:\Projects\combat-spec` 已先按原生证据补齐套装闭包最后四项，提交为

@@ -9,6 +9,7 @@ import type {
   DamageType,
   LevelValues,
   OperatorAttribute,
+  OperatorBuffDefinitions,
   OperatorWeaponType,
   SkillType,
 } from './operatorDefinition';
@@ -107,6 +108,10 @@ export interface EquipmentEventHandlerDefinition {
 export interface EquipmentContributionDefinition {
   readonly modifiers?: readonly EquipmentModifierDefinition[];
   readonly eventHandlers?: readonly EquipmentEventHandlerDefinition[];
+  /** 该贡献安装行为所引用的 Buff 蓝图；与干员 Buff 共用同一运行时。 */
+  readonly buffDefinitions?: OperatorBuffDefinitions;
+  /** 构筑满足后在帧 0 执行一次，典型用途是安装套装根 Buff。 */
+  readonly initializationSequence?: ActionSequenceDefinition;
 }
 
 /** 一条按武器词条等级解析的能力。三星武器可只有两条，四星及以上通常为三条。 */

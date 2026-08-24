@@ -181,6 +181,36 @@ function validateContribution(
     }
   }
 
+  if (record.buffDefinitions !== undefined) {
+    const definitions = asRecord(record.buffDefinitions, `${path}.buffDefinitions`, issues);
+    if (definitions !== null) {
+      for (const [buffId, definition] of Object.entries(definitions)) {
+        issues.push(
+          ...validateActionSequenceDefinition(
+            {
+              steps: [
+                {
+                  kind: 'applyBuff',
+                  parameters: { buffId, target: 'caster', definition },
+                },
+              ],
+            },
+            `${path}.buffDefinitions.${buffId}`,
+          ),
+        );
+      }
+    }
+  }
+
+  if (record.initializationSequence !== undefined) {
+    issues.push(
+      ...validateActionSequenceDefinition(
+        record.initializationSequence,
+        `${path}.initializationSequence`,
+      ),
+    );
+  }
+
   if (record.eventHandlers === undefined) return;
   if (!Array.isArray(record.eventHandlers)) {
     push(issues, `${path}.eventHandlers`, 'expected an array');

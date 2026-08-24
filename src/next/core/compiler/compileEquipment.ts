@@ -19,8 +19,8 @@ import type {
   OperatorAttribute,
   SkillType,
 } from '../game-data/operatorDefinition';
-import type { ResolvedActionSequence } from './combatProgram';
-import { compileActionSequence } from './compileSkill';
+import type { ResolvedActionSequence, ResolvedSkillBuffDefinition } from './combatProgram';
+import { compileActionSequence, compileOperatorBuffResources } from './compileSkill';
 
 /** 一项编译结果来自哪件定义对象及其中哪条能力。 */
 export type EquipmentContributionSource =
@@ -79,6 +79,8 @@ export interface CompiledEquipmentContribution {
   readonly selectedLevel: number;
   readonly modifiers: readonly ResolvedEquipmentModifier[];
   readonly eventHandlers: readonly CompiledEquipmentEventHandler[];
+  readonly buffDefinitions?: Readonly<Record<string, ResolvedSkillBuffDefinition>>;
+  readonly initializationSequence?: ResolvedActionSequence;
 }
 
 /** 解析装备中 `main`、`secondary` 相对属性所需的干员构筑上下文。 */
@@ -162,6 +164,13 @@ function compileContribution(
   if (!Number.isInteger(selectedLevel) || selectedLevel <= 0 || selectedLevel > levelCount) {
     throw new RangeError(`${path} level must be an integer between 1 and ${levelCount}`);
   }
+  const resources = compileOperatorBuffResources(definition.buffDefinitions);
+  const abilityEntityIds = Object.keys(resources.abilityEntityDefinitions);
+  if (abilityEntityIds.length > 0) {
+    throw new Error(
+      `${path}.buffDefinitions: equipment Buffs cannot reference AbilityEntity definitions: ${abilityEntityIds.join(', ')}`,
+    );
+  }
   return {
     source,
     selectedLevel,
@@ -171,6 +180,16 @@ function compileContribution(
     eventHandlers: (definition.eventHandlers ?? []).map((handler, index) =>
       compileEventHandler(handler, selectedLevel, `${path}.eventHandlers[${index}]`),
     ),
+    buffDefinitions: resources.buffDefinitions,
+    ...(definition.initializationSequence === undefined
+      ? {}
+      : {
+          initializationSequence: compileActionSequence(
+            definition.initializationSequence,
+            selectedLevel,
+            `${path}.initializationSequence`,
+          ),
+        }),
   };
 }
 

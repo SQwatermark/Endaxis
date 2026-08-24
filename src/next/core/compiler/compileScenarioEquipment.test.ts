@@ -47,6 +47,10 @@ const accessory = gear('test-accessory', 'accessory');
 const gearSet: GearSetDefinition = {
   slug: 'test-set',
   modifiers: [{ kind: 'panelStat', stat: 'artsIntensity', value: 10 }],
+  buffDefinitions: { 'buff.test-set': { stackingType: 'unique' } },
+  initializationSequence: {
+    steps: [{ kind: 'applyBuff', parameters: { buffId: 'buff.test-set', target: 'caster' } }],
+  },
 };
 
 function scenario() {
@@ -121,6 +125,12 @@ describe('compileScenarioEquipment', () => {
       kind: 'panelStat',
       stat: 'artsIntensity',
       value: 10,
+    });
+    expect(compiled!.contributions.at(-1)).toMatchObject({
+      buffDefinitions: { 'buff.test-set': { stackingType: 'unique' } },
+      initializationSequence: {
+        steps: [{ kind: 'applyBuff', parameters: { buffId: 'buff.test-set' } }],
+      },
     });
   });
 

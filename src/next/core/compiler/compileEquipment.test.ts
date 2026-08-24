@@ -166,11 +166,27 @@ describe('compile equipment contributions', () => {
     const set: GearSetDefinition = {
       slug: 'hot-work',
       modifiers: [{ kind: 'panelStat', stat: 'artsIntensity', value: 30 }],
+      buffDefinitions: {
+        'buff.hot-work': { stackingType: 'unique' },
+      },
+      initializationSequence: {
+        steps: [
+          {
+            kind: 'applyBuff',
+            parameters: { buffId: 'buff.hot-work', target: 'caster' },
+          },
+        ],
+      },
     };
-    expect(compileGearSetContribution(set, attributes)).toMatchObject({
+    const compiled = compileGearSetContribution(set, attributes);
+    expect(compiled).toMatchObject({
       source: { kind: 'gearSet', slug: 'hot-work' },
       selectedLevel: 1,
       modifiers: [{ kind: 'panelStat', stat: 'artsIntensity', value: 30 }],
+      buffDefinitions: { 'buff.hot-work': { stackingType: 'unique' } },
+      initializationSequence: {
+        steps: [{ kind: 'applyBuff', parameters: { buffId: 'buff.hot-work', target: 'caster' } }],
+      },
     });
   });
 

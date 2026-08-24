@@ -77,6 +77,12 @@ describe('equipmentDefinitionValidation', () => {
       validateGearSetDefinition({
         slug: 'fixture-set',
         modifiers: [{ kind: 'panelStat', stat: 'attackPercent', value: 0.1 }],
+        buffDefinitions: { 'buff.fixture-set': { stackingType: 'unique' } },
+        initializationSequence: {
+          steps: [
+            { kind: 'applyBuff', parameters: { buffId: 'buff.fixture-set', target: 'caster' } },
+          ],
+        },
       }),
     ).toEqual([]);
   });
@@ -118,11 +124,17 @@ describe('equipmentDefinitionValidation', () => {
           sequence: { steps: [{ kind: 'unknown-step' }] },
         },
       ],
+      buffDefinitions: { 'buff.invalid': { stackingType: 'not-a-stacking-type' } },
+      initializationSequence: { steps: [{ kind: 'unknown-step' }] },
     });
 
     expect(issues.some(issue => issue.path === '$.eventHandlers[0].event.kind')).toBe(true);
     expect(issues.some(issue => issue.path === '$.eventHandlers[0].condition.kind')).toBe(true);
     expect(issues.some(issue => issue.path === '$.eventHandlers[0].sequence.steps[0].kind')).toBe(
+      true,
+    );
+    expect(issues.some(issue => issue.path.includes('$.buffDefinitions.buff.invalid'))).toBe(true);
+    expect(issues.some(issue => issue.path === '$.initializationSequence.steps[0].kind')).toBe(
       true,
     );
   });
