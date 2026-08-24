@@ -1,0 +1,109 @@
+{
+  "equipmentId": "item_equip_t0_parts_tundra01_body_01",
+  "equipTableEntry": {
+    "displayAttrModifiers": [
+      {
+        "attrIndex": 1,
+        "attrType": 39,
+        "attrValue": 15,
+        "compositeAttr": "",
+        "enhanceGuaranteeTimesRuleId": "",
+        "enhancedAttrIndex": 1,
+        "enhancedAttrValues": [],
+        "modifierType": 5
+      },
+      {
+        "attrIndex": 2,
+        "attrType": 40,
+        "attrValue": 10,
+        "compositeAttr": "",
+        "enhanceGuaranteeTimesRuleId": "",
+        "enhancedAttrIndex": 2,
+        "enhancedAttrValues": [],
+        "modifierType": 5
+      },
+      {
+        "attrIndex": 3,
+        "attrType": 1,
+        "attrValue": 46.3273721859878,
+        "compositeAttr": "",
+        "enhanceGuaranteeTimesRuleId": "",
+        "enhancedAttrIndex": 3,
+        "enhancedAttrValues": [],
+        "modifierType": 7
+      }
+    ],
+    "displayBaseAttrModifier": {
+      "attrIndex": 0,
+      "attrType": 3,
+      "attrValue": 8,
+      "compositeAttr": "",
+      "enhanceGuaranteeTimesRuleId": "",
+      "enhancedAttrIndex": 0,
+      "enhancedAttrValues": [],
+      "modifierType": 5
+    },
+    "domainId": "domain_1",
+    "equipAttrModifiers": [
+      {
+        "attrIndex": 0,
+        "attrType": 3,
+        "attrValues": [8, 8, 8, 8],
+        "modifierType": 5,
+        "modifyAttributeType": 0
+      },
+      {
+        "attrIndex": 1,
+        "attrType": 39,
+        "attrValues": [15, 15, 15, 15],
+        "modifierType": 5,
+        "modifyAttributeType": 0
+      },
+      {
+        "attrIndex": 2,
+        "attrType": 40,
+        "attrValues": [10, 10, 10, 10],
+        "modifierType": 5,
+        "modifyAttributeType": 0
+      },
+      {
+        "attrIndex": 3,
+        "attrType": 1,
+        "attrValues": [46.3273721859878, 46.3273721859878, 46.3273721859878, 46.3273721859878],
+        "modifierType": 7,
+        "modifyAttributeType": 0
+      }
+    ],
+    "itemId": "item_equip_t0_parts_tundra01_body_01",
+    "minWearLv": 10,
+    "partType": 0,
+    "suitID": ""
+  },
+  "itemTableEntry": {
+    "backpackCanDiscard": true,
+    "decoDesc": { "id": 6596239987841304542, "text": "" },
+    "desc": { "id": 3635360651638544893, "text": "" },
+    "iconCompositeId": "",
+    "iconId": "item_equip_t0_parts_tundra01_body_01",
+    "id": "item_equip_t0_parts_tundra01_body_01",
+    "maxBackpackStackCount": 1,
+    "maxStackCount": 1,
+    "modelKey": "int_drop_equip",
+    "name": { "id": -3608589854332251125, "text": "" },
+    "noObtainWayConditionId": [],
+    "noObtainWayHint": { "id": 0, "text": "" },
+    "noObtainWayId": [],
+    "notObtainShow": true,
+    "notObtainShowTimeId": "",
+    "obtainWayIds": ["item_obtain_equip"],
+    "outcomeItemIds": [],
+    "rarity": 1,
+    "showAllDepotCount": false,
+    "showingType": 9,
+    "sortId1": -50,
+    "sortId2": 1,
+    "type": 6,
+    "valuableDepotRedDot": false,
+    "valuableTabType": 3
+  }
+}

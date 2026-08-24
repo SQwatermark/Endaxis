@@ -32,8 +32,18 @@ export {
   type NativeCalculationSource,
 } from './source/calculation.ts';
 export {
+  ATTRIBUTE_TYPES,
+  MODIFY_ATTRIBUTE_TYPES,
+  MODIFIER_TYPES,
   parseCardAttributeModifierSource,
+  parseAttributeTypeValue,
+  parseModifierTypeValue,
+  parseModifyAttributeTypeValue,
+  type AttributeModifierIdentitySource,
+  type AttributeTypeSource,
   type CardAttributeModifierSource,
+  type ModifierTypeSource,
+  type ModifyAttributeTypeSource,
   type NativeAttributeModifierSource,
 } from './source/attributeModifiers.ts';
 export {
@@ -160,6 +170,14 @@ export {
   type WeaponSkillLevelBoundSource,
 } from './domains/weapon/skillLevels.ts';
 export { discoverEquipmentSuitPassiveSkillRequests } from './domains/equipment/passiveDiscovery.ts';
+export {
+  parseEquipmentItemSources,
+  resolveEquipmentAttributeModifiers,
+  type EquipmentAttributeModifierSource,
+  type EquipmentItemIdentitySource,
+  type EquipmentItemSource,
+  type ResolvedEquipmentAttributeModifierSource,
+} from './domains/equipment/attributeModifiers.ts';
 export {
   compilePassiveSkillSource,
   type CompiledPassiveSkillSource,

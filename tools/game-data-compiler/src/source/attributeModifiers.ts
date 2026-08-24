@@ -7,10 +7,138 @@ import {
 } from './primitives.ts';
 import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
 
-export interface NativeAttributeModifierSource {
-  readonly modifyAttributeType: string;
-  readonly attributeType: string;
-  readonly formulaItem: string;
+export const MODIFY_ATTRIBUTE_TYPES = ['Specific', 'Main', 'Sub', 'All'] as const;
+export type ModifyAttributeTypeSource = (typeof MODIFY_ATTRIBUTE_TYPES)[number];
+
+export const MODIFIER_TYPES = [
+  'Addition',
+  'Multiplier',
+  'FinalAddition',
+  'FinalMultiplier',
+  'BaseAddition',
+  'BaseMultiplier',
+  'BaseFinalAddition',
+  'BaseFinalMultiplier',
+  'None',
+  'Enum',
+] as const;
+export type ModifierTypeSource = (typeof MODIFIER_TYPES)[number];
+
+/** Beyond.GEnums.AttributeType 的 1.4.4 数字顺序；索引就是原生枚举值。 */
+export const ATTRIBUTE_TYPES = [
+  'Level',
+  'MaxHp',
+  'Atk',
+  'Def',
+  'PhysicalDamageTakenScalar',
+  'FireDamageTakenScalar',
+  'PulseDamageTakenScalar',
+  'CrystDamageTakenScalar',
+  'Weight',
+  'CriticalRate',
+  'CriticalDamageIncrease',
+  'Hatred',
+  'NormalAttackRange',
+  'MoveSpeedScalar',
+  'TurnRateScalar',
+  'AttackRate',
+  'SkillCooldownScalar',
+  'NormalAttackDamageIncrease',
+  'HpRecoveryPerSec',
+  'HpRecoveryPerSecByMaxHpRatio',
+  'MaxPoise',
+  'PoiseRecTime',
+  'MaxUltimateSp',
+  'ComboSkillCooldownFinalAddition',
+  'PoiseDamageTakenScalar',
+  'PhysicalInflictionDamageScalar',
+  'PoiseDamageOutputScalar',
+  'BreakingAttackDamageTakenScalar',
+  'UltimateSkillDamageIncrease',
+  'HealOutputIncrease',
+  'HealTakenIncrease',
+  'PoiseRecTimeScalar',
+  'NormalSkillDamageIncrease',
+  'ComboSkillDamageIncrease',
+  'KnockDownTimeAddition',
+  'FireBurstDamageIncrease',
+  'PulseBurstDamageIncrease',
+  'CrystBurstDamageIncrease',
+  'NaturalBurstDamageIncrease',
+  'Str',
+  'Agi',
+  'Wisd',
+  'Will',
+  'LifeSteal',
+  'UltimateSpGainScalar',
+  'AtbCostAddition',
+  'NormalSkillCooldownAddition',
+  'ComboSkillCooldownScalar',
+  'NaturalDamageTakenScalar',
+  'IgniteDamageScalar',
+  'PhysicalDamageIncrease',
+  'FireDamageIncrease',
+  'PulseDamageIncrease',
+  'CrystDamageIncrease',
+  'NaturalDamageIncrease',
+  'EtherDamageIncrease',
+  'FireAbnormalDamageIncrease',
+  'PulseAbnormalDamageIncrease',
+  'CrystAbnormalDamageIncrease',
+  'NaturalAbnormalDamageIncrease',
+  'EtherDamageTakenScalar',
+  'DamageToBrokenUnitIncrease',
+  'WeaknessDmgScalar',
+  'ShelterDmgScalar',
+  'PhysicalEnhancedDmgIncrease',
+  'FireEnhancedDmgIncrease',
+  'PulseEnhancedDmgIncrease',
+  'CrystEnhancedDmgIncrease',
+  'NaturalEnhancedDmgIncrease',
+  'EtherEnhancedDmgIncrease',
+  'PhysicalVulnerableDmgIncrease',
+  'FireVulnerableDmgIncrease',
+  'PulseVulnerableDmgIncrease',
+  'CrystVulnerableDmgIncrease',
+  'NaturalVulnerableDmgIncrease',
+  'EtherVulnerableDmgIncrease',
+  'AtkIncreaseFactorFromStr',
+  'AtkIncreaseFactorFromAgi',
+  'AtkIncreaseFactorFromWisd',
+  'AtkIncreaseFactorFromWill',
+  'PhysicalDmgResistScalar',
+  'NaturalDmgResistScalar',
+  'CrystDmgResistScalar',
+  'PulseDmgResistScalar',
+  'FireDmgResistScalar',
+  'EtherDmgResistScalar',
+  'SlowActionSpeedScalar',
+  'PhysicalAndSpellInflictionEnhance',
+  'ShieldOutputIncrease',
+  'ShieldTakenIncrease',
+  'NormalAttackStartRange',
+  'InAirMoveSpeedScalar',
+  'KeywordSpeedUpScalar',
+  'ComboSkillCooldownRecoveryScalar',
+  'PhysicalResistance',
+  'NaturalResistance',
+  'CrystResistance',
+  'PulseResistance',
+  'FireResistance',
+  'EtherResistance',
+  'ComboSkillCooldownDecrease',
+  'Enum',
+] as const;
+export type AttributeTypeSource = (typeof ATTRIBUTE_TYPES)[number];
+
+/** Buff、CardSkill、武器与装备属性修正共用的枚举身份。 */
+export interface AttributeModifierIdentitySource {
+  readonly modifyAttributeType: ModifyAttributeTypeSource;
+  readonly attributeType: AttributeTypeSource;
+  readonly formulaItem: ModifierTypeSource;
+}
+
+export interface NativeAttributeModifierSource extends AttributeModifierIdentitySource {
   readonly parameter: ScalarSource;
 }
 
@@ -46,15 +174,21 @@ export function parseCardAttributeModifierSource(
           modifierPath,
         );
         return {
-          modifyAttributeType: requireNonEmptyString(
+          modifyAttributeType: requireEnumName(
             modifier.modifyAttributeType,
+            MODIFY_ATTRIBUTE_TYPES,
             `${modifierPath}.modifyAttributeType`,
           ),
-          attributeType: requireNonEmptyString(
+          attributeType: requireEnumName(
             modifier.attributeType,
+            ATTRIBUTE_TYPES,
             `${modifierPath}.attributeType`,
           ),
-          formulaItem: requireNonEmptyString(modifier.formulaItem, `${modifierPath}.formulaItem`),
+          formulaItem: requireEnumName(
+            modifier.formulaItem,
+            MODIFIER_TYPES,
+            `${modifierPath}.formulaItem`,
+          ),
           parameter: parseScalarSource(
             modifier.param,
             `${modifierPath}.param`,
@@ -64,4 +198,65 @@ export function parseCardAttributeModifierSource(
       },
     ),
   };
+}
+
+export function parseModifyAttributeTypeValue(
+  value: unknown,
+  path: string,
+): ModifyAttributeTypeSource {
+  return requireEnumValue(value, MODIFY_ATTRIBUTE_TYPES, path);
+}
+
+export function parseAttributeTypeValue(value: unknown, path: string): AttributeTypeSource {
+  return requireEnumValue(value, ATTRIBUTE_TYPES, path);
+}
+
+/** ModifierType 的原生数值 2 未使用，因此不能直接用数组索引。 */
+export function parseModifierTypeValue(value: unknown, path: string): ModifierTypeSource {
+  if (typeof value !== 'number' || !Number.isInteger(value)) {
+    throw new Error(`${path}: expected integer enum value`);
+  }
+  const name = new Map<number, ModifierTypeSource>([
+    [0, 'Addition'],
+    [1, 'Multiplier'],
+    [3, 'FinalAddition'],
+    [4, 'FinalMultiplier'],
+    [5, 'BaseAddition'],
+    [6, 'BaseMultiplier'],
+    [7, 'BaseFinalAddition'],
+    [8, 'BaseFinalMultiplier'],
+    [9, 'None'],
+    [10, 'Enum'],
+  ]).get(value);
+  if (name === undefined) {
+    throw new Error(`${path}: unknown ModifierType value ${value}`);
+  }
+  return name;
+}
+
+function requireEnumValue<const T extends readonly string[]>(
+  value: unknown,
+  names: T,
+  path: string,
+): T[number] {
+  if (typeof value !== 'number' || !Number.isInteger(value)) {
+    throw new Error(`${path}: expected integer enum value`);
+  }
+  const name = names[value];
+  if (name === undefined) {
+    throw new Error(`${path}: unknown enum value ${value}`);
+  }
+  return name;
+}
+
+function requireEnumName<const T extends readonly string[]>(
+  value: unknown,
+  names: T,
+  path: string,
+): T[number] {
+  const name = requireNonEmptyString(value, path);
+  if (!names.includes(name)) {
+    throw new Error(`${path}: unknown enum name ${JSON.stringify(name)}`);
+  }
+  return name as T[number];
 }
