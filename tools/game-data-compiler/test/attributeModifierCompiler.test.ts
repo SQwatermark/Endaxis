@@ -1,0 +1,76 @@
+import { describe, expect, it } from 'vitest';
+
+import {
+  compileResolvedAttributeModifierSource,
+  resolveCompiledAttributeModifierTargets,
+  type ModifyAttributeTypeSource,
+  type ModifierTypeSource,
+} from '../src/index.ts';
+
+describe('公共属性修正编译器', () => {
+  it('把八个原生数字槽稳定映射到运行时槽位', () => {
+    const cases: readonly [ModifierTypeSource, string][] = [
+      ['Addition', 'addition'],
+      ['Multiplier', 'multiplier'],
+      ['FinalAddition', 'finalAddition'],
+      ['FinalMultiplier', 'finalMultiplier'],
+      ['BaseAddition', 'baseAddition'],
+      ['BaseMultiplier', 'baseMultiplier'],
+      ['BaseFinalAddition', 'baseFinalAddition'],
+      ['BaseFinalMultiplier', 'baseFinalMultiplier'],
+    ];
+    expect(cases.map(([formulaItem]) => compileFixture('Specific', formulaItem).slot)).toEqual(
+      cases.map(([, slot]) => slot),
+    );
+  });
+
+  it('按原生规则展开 Specific、Main、Sub、All，同时保留声明属性', () => {
+    const target = (modifyAttributeType: ModifyAttributeTypeSource) =>
+      compileFixture(modifyAttributeType, 'BaseAddition');
+    expect(resolveCompiledAttributeModifierTargets(target('Specific'), 'Wisd', 'Will')).toEqual([
+      'Atk',
+    ]);
+    expect(resolveCompiledAttributeModifierTargets(target('Main'), 'Wisd', 'Will')).toEqual([
+      'Wisd',
+    ]);
+    expect(resolveCompiledAttributeModifierTargets(target('Sub'), 'Wisd', 'Will')).toEqual([
+      'Will',
+    ]);
+    expect(resolveCompiledAttributeModifierTargets(target('All'), 'Wisd', 'Will')).toEqual([
+      'Str',
+      'Agi',
+      'Wisd',
+      'Will',
+    ]);
+    expect(resolveCompiledAttributeModifierTargets(target('Main'), null, 'Will')).toEqual([]);
+    expect(target('Main').declaredAttributeType).toBe('Atk');
+  });
+
+  it('拒绝非数值公式槽和非有限值', () => {
+    expect(() => compileFixture('Specific', 'None')).toThrow(
+      'ModifierType None is not a numeric formula slot',
+    );
+    expect(() =>
+      compileResolvedAttributeModifierSource({
+        sourcePath: 'fixture',
+        modifyAttributeType: 'Specific',
+        attributeType: 'Atk',
+        formulaItem: 'BaseAddition',
+        value: Number.NaN,
+      }),
+    ).toThrow('attribute modifier value must be finite');
+  });
+});
+
+function compileFixture(
+  modifyAttributeType: ModifyAttributeTypeSource,
+  formulaItem: ModifierTypeSource,
+) {
+  return compileResolvedAttributeModifierSource({
+    sourcePath: 'fixture.modifier',
+    modifyAttributeType,
+    attributeType: 'Atk',
+    formulaItem,
+    value: 1,
+  });
+}

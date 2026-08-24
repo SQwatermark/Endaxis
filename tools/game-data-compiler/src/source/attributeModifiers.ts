@@ -138,6 +138,12 @@ export interface AttributeModifierIdentitySource {
   readonly formulaItem: ModifierTypeSource;
 }
 
+/** 已选定数值、但尚未解释目标和八槽运行语义的一项属性修正。 */
+export interface ResolvedAttributeModifierSource extends AttributeModifierIdentitySource {
+  readonly sourcePath: string;
+  readonly value: number;
+}
+
 export interface NativeAttributeModifierSource extends AttributeModifierIdentitySource {
   readonly parameter: ScalarSource;
 }

@@ -1,4 +1,4 @@
-import type { AttributeModifierIdentitySource } from '../../source/attributeModifiers.ts';
+import type { ResolvedAttributeModifierSource } from '../../source/attributeModifiers.ts';
 import {
   requireArray,
   requireExactFields,
@@ -29,11 +29,9 @@ export interface WeaponBaseAttackSource {
   readonly upgradeLevels: readonly WeaponUpgradeLevelSource[];
 }
 
-export interface ResolvedWeaponBaseAttackModifierSource extends AttributeModifierIdentitySource {
-  readonly sourcePath: string;
+export interface ResolvedWeaponBaseAttackModifierSource extends ResolvedAttributeModifierSource {
   readonly weaponId: string;
   readonly weaponLevel: number;
-  readonly value: number;
 }
 
 /**

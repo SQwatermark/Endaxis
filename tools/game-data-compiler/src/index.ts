@@ -45,7 +45,16 @@ export {
   type ModifierTypeSource,
   type ModifyAttributeTypeSource,
   type NativeAttributeModifierSource,
+  type ResolvedAttributeModifierSource,
 } from './source/attributeModifiers.ts';
+export {
+  ATTRIBUTE_MODIFIER_SLOTS,
+  compileResolvedAttributeModifierSource,
+  resolveCompiledAttributeModifierTargets,
+  type AttributeModifierSlotSource,
+  type CompiledAttributeModifierSource,
+  type CompiledAttributeModifierTargetSource,
+} from './compiler/attributeModifier.ts';
 export {
   parseNativeSequenceSource,
   type NativeActionBodySource,
@@ -186,6 +195,14 @@ export {
   type EquipmentItemSource,
   type ResolvedEquipmentAttributeModifierSource,
 } from './domains/equipment/attributeModifiers.ts';
+export {
+  projectEquipmentAttributeModifier,
+  type EquipmentAttributeModifierProjectionSource,
+  type ProjectedEquipmentAttribute,
+  type ProjectedEquipmentDamageScale,
+  type ProjectedEquipmentModifierSource,
+  type ProjectedEquipmentPanelStat,
+} from './domains/equipment/projection.ts';
 export {
   compilePassiveSkillSource,
   type CompiledPassiveSkillSource,

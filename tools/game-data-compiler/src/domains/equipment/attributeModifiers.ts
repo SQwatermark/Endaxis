@@ -3,6 +3,7 @@ import {
   parseModifierTypeValue,
   parseModifyAttributeTypeValue,
   type AttributeModifierIdentitySource,
+  type ResolvedAttributeModifierSource,
 } from '../../source/attributeModifiers.ts';
 import {
   requireArray,
@@ -102,11 +103,9 @@ export interface EquipmentItemSource {
   readonly attributeModifiers: readonly EquipmentAttributeModifierSource[];
 }
 
-export interface ResolvedEquipmentAttributeModifierSource extends AttributeModifierIdentitySource {
-  readonly sourcePath: string;
+export interface ResolvedEquipmentAttributeModifierSource extends ResolvedAttributeModifierSource {
   readonly attributeIndex: number;
   readonly enhancementLevel: number;
-  readonly value: number;
 }
 
 /**
