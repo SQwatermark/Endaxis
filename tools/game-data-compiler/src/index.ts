@@ -188,6 +188,11 @@ export {
 } from './domains/weapon/skillLevels.ts';
 export { discoverEquipmentSuitPassiveSkillRequests } from './domains/equipment/passiveDiscovery.ts';
 export {
+  compileEquipmentSuitSourceClosure,
+  type CompiledEquipmentSuitSource,
+  type EquipmentSuitSourceClosure,
+} from './domains/equipment/suitSourceClosure.ts';
+export {
   EQUIPMENT_PART_TYPES,
   parseEquipmentItemSources,
   resolveEquipmentAttributeModifiers,

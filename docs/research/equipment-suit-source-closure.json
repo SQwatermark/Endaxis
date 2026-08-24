@@ -1,0 +1,202 @@
+{
+  "format": "EndaxisEquipmentSuitSourceClosureAudit",
+  "version": 1,
+  "clientVersion": "1.4.4@9433094-12",
+  "suitCount": 23,
+  "passiveSkillDefinitionCount": 23,
+  "buffDefinitionCount": 49,
+  "requiredCount": 3,
+  "skillDataClosureSha256": "210a5afade12af113f6e0640725442ef17203f9b67f7059589b9ccbc0d3de667",
+  "buffDataClosureSha256": "2ac287a0c2fb7435880b050b03d7eb0614951175d32da63dc00b559e711485f0",
+  "suits": [
+    {
+      "suitId": "suit_agi01",
+      "skillId": "passive_equipsuit_agi_01",
+      "skillLevel": 1,
+      "requiredCount": 3
+    },
+    {
+      "suitId": "suit_atb01",
+      "skillId": "passive_equipsuit_combosuit_01",
+      "skillLevel": 1,
+      "requiredCount": 3
+    },
+    {
+      "suitId": "suit_atk01",
+      "skillId": "passive_equipsuit_atk_01",
+      "skillLevel": 1,
+      "requiredCount": 3
+    },
+    {
+      "suitId": "suit_atk02",
+      "skillId": "passive_equipsuit_atk_02",
+      "skillLevel": 1,
+      "requiredCount": 3
+    },
+    {
+      "suitId": "suit_attri01",
+      "skillId": "passive_equipsuit_attrisuit_01",
+      "skillLevel": 1,
+      "requiredCount": 3
+    },
+    {
+      "suitId": "suit_burst01",
+      "skillId": "passive_equipsuit_burst_01",
+      "skillLevel": 1,
+      "requiredCount": 3
+    },
+    {
+      "suitId": "suit_combo_cd01",
+      "skillId": "passive_equipsuit_combo_cd01",
+      "skillLevel": 1,
+      "requiredCount": 3
+    },
+    {
+      "suitId": "suit_criti01",
+      "skillId": "passive_equipsuit_critsuit_01",
+      "skillLevel": 1,
+      "requiredCount": 3
+    },
+    {
+      "suitId": "suit_crush_fracture",
+      "skillId": "passive_equipsuit_crush_fracture",
+      "skillLevel": 1,
+      "requiredCount": 3
+    },
+    {
+      "suitId": "suit_expend_spell01",
+      "skillId": "passive_equipsuit_expend_spell01",
+      "skillLevel": 1,
+      "requiredCount": 3
+    },
+    {
+      "suitId": "suit_fire_natr01",
+      "skillId": "passive_equipsuit_fninflict_01",
+      "skillLevel": 1,
+      "requiredCount": 3
+    },
+    {
+      "suitId": "suit_generaltype",
+      "skillId": "passive_equipsuit_generaltype",
+      "skillLevel": 1,
+      "requiredCount": 3
+    },
+    {
+      "suitId": "suit_heal01",
+      "skillId": "passive_equipsuit_healup_01",
+      "skillLevel": 1,
+      "requiredCount": 3
+    },
+    {
+      "suitId": "suit_phy01",
+      "skillId": "passive_equipsuit_physuit_01",
+      "skillLevel": 1,
+      "requiredCount": 3
+    },
+    {
+      "suitId": "suit_poise01",
+      "skillId": "passive_equipsuit_poisebreak_01",
+      "skillLevel": 1,
+      "requiredCount": 3
+    },
+    {
+      "suitId": "suit_pulse_cryst01",
+      "skillId": "passive_equipsuit_cpinflict_01",
+      "skillLevel": 1,
+      "requiredCount": 3
+    },
+    {
+      "suitId": "suit_str01",
+      "skillId": "passive_equipsuit_str_01",
+      "skillLevel": 1,
+      "requiredCount": 3
+    },
+    {
+      "suitId": "suit_stragi01",
+      "skillId": "passive_equipsuit_stragi_01",
+      "skillLevel": 1,
+      "requiredCount": 3
+    },
+    {
+      "suitId": "suit_usp01",
+      "skillId": "passive_equipsuit_usp_01",
+      "skillLevel": 1,
+      "requiredCount": 3
+    },
+    {
+      "suitId": "suit_usp02",
+      "skillId": "passive_equipsuit_usp_02",
+      "skillLevel": 1,
+      "requiredCount": 3
+    },
+    {
+      "suitId": "suit_will01",
+      "skillId": "passive_equipsuit_will_01",
+      "skillLevel": 1,
+      "requiredCount": 3
+    },
+    {
+      "suitId": "suit_wisd01",
+      "skillId": "passive_equipsuit_wisd_01",
+      "skillLevel": 1,
+      "requiredCount": 3
+    },
+    {
+      "suitId": "suit_wisdwill01",
+      "skillId": "passive_equipsuit_wisdwill_01",
+      "skillLevel": 1,
+      "requiredCount": 3
+    }
+  ],
+  "buffDefinitionIds": [
+    "buff_common_dmgtk_down_equip_1",
+    "buff_common_vfx_char_atk_up",
+    "buff_common_vfx_char_def_up",
+    "buff_equipsuit_agi_01",
+    "buff_equipsuit_agi_phydmg_01",
+    "buff_equipsuit_atk_01",
+    "buff_equipsuit_atk_01_comboskill",
+    "buff_equipsuit_atk_01_normalskill",
+    "buff_equipsuit_atk_01_ultimateskill",
+    "buff_equipsuit_atk_02",
+    "buff_equipsuit_attrisuit_01",
+    "buff_equipsuit_attrisuitup_01",
+    "buff_equipsuit_attrisuitup_02",
+    "buff_equipsuit_burst_01",
+    "buff_equipsuit_burst_01_spelldmgup",
+    "buff_equipsuit_combo_cd01",
+    "buff_equipsuit_combo_cd01_spellup",
+    "buff_equipsuit_combosuit_01",
+    "buff_equipsuit_combosuit_01_adddamage",
+    "buff_equipsuit_cpinflict_01",
+    "buff_equipsuit_cpinflict_01_crystdamageadd",
+    "buff_equipsuit_cpinflict_01_elecdamageadd",
+    "buff_equipsuit_critsuit_01",
+    "buff_equipsuit_critsuitatk_01",
+    "buff_equipsuit_critsuitdmg_01",
+    "buff_equipsuit_crush_fracture",
+    "buff_equipsuit_crush_fracture_physicdamage",
+    "buff_equipsuit_expend_spell01",
+    "buff_equipsuit_expend_spelldamage",
+    "buff_equipsuit_fninflict_01",
+    "buff_equipsuit_fninflict_01_firedamageadd",
+    "buff_equipsuit_fninflict_01_poisedamageadd",
+    "buff_equipsuit_healup_01",
+    "buff_equipsuit_physuit_01",
+    "buff_equipsuit_poisedmg_01",
+    "buff_equipsuit_poisedmg_01_attackbuff",
+    "buff_equipsuit_poisedmg_01_damagebuff",
+    "buff_equipsuit_str_01",
+    "buff_equipsuit_str_reducedmg_01",
+    "buff_equipsuit_stragi_01",
+    "buff_equipsuit_usp_01",
+    "buff_equipsuit_usp_02",
+    "buff_equipsuit_usp_02_AddAttack",
+    "buff_equipsuit_will_01",
+    "buff_equipsuit_will_healrt_01",
+    "buff_equipsuit_wisd_01",
+    "buff_equipsuit_wisd_spdmg_01",
+    "buff_equipsuit_wisdwill_01",
+    "buff_equipsuit_wisdwill_02"
+  ]
+}

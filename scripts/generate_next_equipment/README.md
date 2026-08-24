@@ -28,12 +28,17 @@ python -m scripts.generate_next_equipment.generate_migration_matrix
 python -m scripts.generate_next_equipment.generate_candidate_coverage
 python -m scripts.generate_next_equipment.generate_akedb_source_audit
 node scripts/generate_next_equipment/generate_formal_gear_definitions.ts --tables <TableCfg目录>
+node scripts/generate_next_equipment/generate_suit_source_audit.ts --tables <TableCfg目录> --skills <套装SkillData目录> --buffs <套装BuffData闭包目录> --client-version <版本>
 ```
 
 最后一条命令默认原子更新 `src/next/data/equipment/generated`。输入必须是同一固定客户端版本配对
 下载的 `EquipTable.json` 与 `ItemTable.json`；生成目录内的单件文件、索引和审计视为一个完整批次。
 原生 `ItemTable.iconId` 不是物品主键：当前版本存在 6 组重复图标。旧 slug 迁移必须先按图标建立
 候选，再由槽位、等级、防御与词条语义唯一消解；不能按图标把多个物品折叠成一件。
+
+套装审计命令只接受由固定 `EquipSuitTable` 精确枚举的 SkillData，以及沿活动静态引用递归下载的
+BuffData 闭包。它要求目录不多不少、所有阈值均为当前 Next 能表达的三件套，并保存两类来源文件
+闭包哈希；不能用一整个无版本公共缓存掩盖缺失依赖。
 
 默认生成：
 
