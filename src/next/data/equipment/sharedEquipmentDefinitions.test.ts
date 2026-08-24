@@ -6,6 +6,8 @@ import {
 } from '../../core/game-data/equipmentDefinitionValidation';
 import {
   getSharedEquipmentSupport,
+  nextGearDefinitionRegistration,
+  nextGearDefinitions,
   sharedEquipmentAdaptationIssues,
   sharedGearDefinitions,
   sharedGearSetDefinitions,
@@ -66,12 +68,47 @@ describe('sharedEquipmentDefinitions', () => {
       ...sharedGearDefinitions.flatMap((definition, index) =>
         validateGearDefinition(definition, `$.gears[${index}]`),
       ),
+      ...nextGearDefinitions.flatMap((definition, index) =>
+        validateGearDefinition(definition, `$.nextGears[${index}]`),
+      ),
       ...sharedGearSetDefinitions.flatMap((definition, index) =>
         validateGearSetDefinition(definition, `$.gearSets[${index}]`),
       ),
     ];
 
     expect(issues).toEqual([]);
+  });
+
+  it('replaces matched legacy gear with 243 current native definitions without guessing presentation', () => {
+    const current = nextGearDefinitions.filter(definition => definition.slug.startsWith('item_'));
+    const retainedLegacy = nextGearDefinitions.filter(
+      definition => !definition.slug.startsWith('item_'),
+    );
+
+    expect(current).toHaveLength(243);
+    expect(retainedLegacy).toHaveLength(5);
+    expect(Object.keys(nextGearDefinitionRegistration.gearAliases)).toHaveLength(237);
+    expect(
+      Object.keys(nextGearDefinitionRegistration.gearSetAliasesToLegacyDefinitions),
+    ).toHaveLength(23);
+    expect(
+      nextGearDefinitionRegistration.issues.filter(
+        issue => issue.code === 'missingLegacyPresentation',
+      ),
+    ).toHaveLength(6);
+    expect(
+      nextGearDefinitionRegistration.issues.filter(
+        issue => issue.code === 'ambiguousLegacyAliases',
+      ),
+    ).toEqual([]);
+    expect(
+      nextGearDefinitionRegistration.issues.filter(
+        issue => issue.code === 'ambiguousGeneratedAssetIdentity',
+      ),
+    ).toEqual([]);
+    expect(
+      current.find(definition => definition.slug === 'item_equip_t4_suit_atk02_hand_02'),
+    ).toMatchObject({ iconPath: '/equipment/atk02/item_equip_t4_suit_atk02_hand_01.webp' });
   });
 
   it('registers reliable base definitions and exposes unsupported source semantics as partial', () => {

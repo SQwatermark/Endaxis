@@ -50,7 +50,8 @@ import {
   zhuangFangyi,
 } from './operators';
 import {
-  sharedGearDefinitions,
+  nextGearDefinitionRegistration,
+  nextGearDefinitions,
   sharedGearSetDefinitions,
   sharedWeaponDefinitions,
 } from './equipment';
@@ -193,7 +194,9 @@ export const nextGameDataRepository = createGameDataRepository({
     ardelia,
   ],
   weapons: sharedWeaponDefinitions,
-  gears: sharedGearDefinitions,
+  gears: nextGearDefinitions,
+  gearAliases: nextGearDefinitionRegistration.gearAliases,
   gearSets: sharedGearSetDefinitions,
+  gearSetAliases: nextGearDefinitionRegistration.gearSetAliasesToLegacyDefinitions,
   enemies: legacyEnemyDefinitions,
 });

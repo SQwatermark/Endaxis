@@ -1,0 +1,260 @@
+{
+  "format": "EndaxisGeneratedEquipmentAudit",
+  "version": 1,
+  "definitionCount": 243,
+  "traitCount": 672,
+  "modifierCount": 721,
+  "slotCounts": {
+    "accessory": 105,
+    "armor": 73,
+    "gloves": 65
+  },
+  "modifierKindCounts": {
+    "attribute": 448,
+    "damageScale": 155,
+    "panelStat": 108,
+    "staticHealingIncrease": 10
+  },
+  "diagnostics": [
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t1_suit_stragi01_body_01.equipAttrModifiers[3]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t1_suit_stragi01_body_01.equipAttrModifiers[4]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t1_suit_stragi01_body_01.equipAttrModifiers[5]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t1_suit_stragi01_body_01.equipAttrModifiers[6]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t1_suit_stragi01_body_01.equipAttrModifiers[7]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t1_suit_stragi01_body_01.equipAttrModifiers[8]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t1_suit_stragi01_edc_01.equipAttrModifiers[2]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t1_suit_stragi01_edc_01.equipAttrModifiers[3]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t1_suit_stragi01_edc_01.equipAttrModifiers[4]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t1_suit_stragi01_edc_01.equipAttrModifiers[5]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t1_suit_stragi01_edc_01.equipAttrModifiers[6]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t1_suit_stragi01_edc_01.equipAttrModifiers[7]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t1_suit_stragi01_edc_02.equipAttrModifiers[2]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t1_suit_stragi01_edc_02.equipAttrModifiers[3]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t1_suit_stragi01_edc_02.equipAttrModifiers[4]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t1_suit_stragi01_edc_02.equipAttrModifiers[5]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t1_suit_stragi01_edc_02.equipAttrModifiers[6]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t1_suit_stragi01_edc_02.equipAttrModifiers[7]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t1_suit_stragi01_hand_01.equipAttrModifiers[3]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t1_suit_stragi01_hand_01.equipAttrModifiers[4]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t1_suit_stragi01_hand_01.equipAttrModifiers[5]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t1_suit_stragi01_hand_01.equipAttrModifiers[6]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t1_suit_stragi01_hand_01.equipAttrModifiers[7]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t1_suit_stragi01_hand_01.equipAttrModifiers[8]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t2_suit_str01_hand_01.equipAttrModifiers[3]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t2_suit_str01_hand_01.equipAttrModifiers[4]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t2_suit_str01_hand_01.equipAttrModifiers[5]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t2_suit_str01_hand_01.equipAttrModifiers[6]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t2_suit_str01_hand_01.equipAttrModifiers[7]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t2_suit_str01_hand_01.equipAttrModifiers[8]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t3_parts_tundra01_edc_01.equipAttrModifiers[2]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t3_parts_tundra01_edc_01.equipAttrModifiers[3]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t3_parts_tundra01_edc_01.equipAttrModifiers[4]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t3_parts_tundra01_edc_01.equipAttrModifiers[5]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t3_parts_tundra01_edc_01.equipAttrModifiers[6]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t3_parts_tundra01_edc_01.equipAttrModifiers[7]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t4_parts_wuling01_edc_01.equipAttrModifiers[2]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t4_parts_wuling01_edc_01.equipAttrModifiers[3]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t4_parts_wuling01_edc_01.equipAttrModifiers[4]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t4_parts_wuling01_edc_01.equipAttrModifiers[5]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t4_parts_wuling01_edc_01.equipAttrModifiers[6]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t4_parts_wuling01_edc_01.equipAttrModifiers[7]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t4_suit_heal01_edc_01.equipAttrModifiers[3]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t4_suit_heal01_edc_01.equipAttrModifiers[4]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t4_suit_heal01_edc_01.equipAttrModifiers[5]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t4_suit_heal01_edc_01.equipAttrModifiers[6]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t4_suit_heal01_edc_01.equipAttrModifiers[7]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "EquipTable.item_equip_t4_suit_heal01_edc_01.equipAttrModifiers[8]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    }
+  ]
+}

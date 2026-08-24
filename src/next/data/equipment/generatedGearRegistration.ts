@@ -1,14 +1,21 @@
 /**
  * 将原生 ID 的生成装备接入仍保存旧 slug 的项目与展示目录。
- * 身份关联只接受生成定义的 ItemTable iconId 与旧定义 iconPath basename 精确相等。
+ * 身份关联先要求 ItemTable iconId 与旧 iconPath basename 精确相等；图标重复时再以正式字段唯一消解。
  */
 import type { GearDefinition } from '../../core/game-data/equipmentDefinition';
 
-export interface GeneratedGearRegistrationIssue {
-  readonly code: 'missingLegacyPresentation' | 'ambiguousLegacyAliases';
-  readonly canonicalSlug: string;
-  readonly legacySlugs: readonly string[];
-}
+export type GeneratedGearRegistrationIssue =
+  | {
+      readonly code: 'missingLegacyPresentation' | 'ambiguousLegacyAliases';
+      readonly canonicalSlug: string;
+      readonly legacySlugs: readonly string[];
+    }
+  | {
+      readonly code: 'ambiguousGeneratedAssetIdentity';
+      readonly assetSlug: string;
+      readonly canonicalSlugs: readonly string[];
+      readonly legacySlug: string;
+    };
 
 export interface GeneratedGearRegistration {
   readonly definitions: readonly GearDefinition[];
@@ -22,22 +29,33 @@ export function registerGeneratedGearDefinitions(
   generated: readonly GearDefinition[],
   legacy: readonly GearDefinition[],
 ): GeneratedGearRegistration {
-  const generatedByAsset = new Map<string, GearDefinition>();
+  const generatedByAsset = new Map<string, GearDefinition[]>();
   for (const definition of generated) {
     const identity = requireIdentity(definition.assetSlug, `generated gear '${definition.slug}'`);
-    if (generatedByAsset.has(identity)) {
-      throw new Error(`duplicate generated gear asset identity '${identity}'`);
-    }
-    generatedByAsset.set(identity, definition);
+    const candidates = generatedByAsset.get(identity) ?? [];
+    candidates.push(definition);
+    generatedByAsset.set(identity, candidates);
   }
 
   const legacyByGeneratedSlug = new Map<string, GearDefinition[]>();
   const unmatchedLegacy: GearDefinition[] = [];
+  const issues: GeneratedGearRegistrationIssue[] = [];
   for (const definition of legacy) {
     const identity = iconIdentity(definition);
-    const canonical = generatedByAsset.get(identity);
+    const candidates = generatedByAsset.get(identity) ?? [];
+    const compatible = candidates.filter(candidate => hasSameFormalShape(candidate, definition));
+    const canonical =
+      candidates.length === 1 ? candidates[0] : compatible.length === 1 ? compatible[0] : undefined;
     if (canonical === undefined) {
       unmatchedLegacy.push(definition);
+      if (candidates.length > 1) {
+        issues.push({
+          code: 'ambiguousGeneratedAssetIdentity',
+          assetSlug: identity,
+          canonicalSlugs: candidates.map(candidate => candidate.slug).sort(),
+          legacySlug: definition.slug,
+        });
+      }
       continue;
     }
     const aliases = legacyByGeneratedSlug.get(canonical.slug) ?? [];
@@ -47,7 +65,6 @@ export function registerGeneratedGearDefinitions(
 
   const gearAliases: Record<string, string> = {};
   const gearSetAliases: Record<string, string> = {};
-  const issues: GeneratedGearRegistrationIssue[] = [];
   const canonicalDefinitions = generated.map(definition => {
     const aliases = [...(legacyByGeneratedSlug.get(definition.slug) ?? [])].sort((left, right) =>
       left.slug.localeCompare(right.slug),
@@ -56,18 +73,25 @@ export function registerGeneratedGearDefinitions(
       if (alias.slug !== definition.slug) gearAliases[alias.slug] = definition.slug;
       collectGearSetAlias(definition, alias, gearSetAliases);
     }
+    const iconPaths = new Set(
+      legacy
+        .filter(alias => iconIdentity(alias) === definition.assetSlug)
+        .map(alias => alias.iconPath)
+        .filter(isNonEmptyString),
+    );
+    if (iconPaths.size > 1) {
+      throw new Error(`legacy assets for '${definition.slug}' disagree on iconPath`);
+    }
     if (aliases.length === 0) {
       issues.push({
         code: 'missingLegacyPresentation',
         canonicalSlug: definition.slug,
         legacySlugs: [],
       });
-      return definition;
-    }
-
-    const iconPaths = new Set(aliases.map(alias => alias.iconPath).filter(isNonEmptyString));
-    if (iconPaths.size > 1) {
-      throw new Error(`legacy aliases for '${definition.slug}' disagree on iconPath`);
+      return {
+        ...definition,
+        ...(iconPaths.size === 1 ? { iconPath: [...iconPaths][0]! } : {}),
+      };
     }
     if (aliases.length > 1) {
       issues.push({
@@ -101,6 +125,77 @@ export function registerGeneratedGearDefinitions(
     gearSetAliasesToLegacyDefinitions: sortRecord(gearSetAliases),
     issues,
   };
+}
+
+/**
+ * 原生 iconId 重复时，只接受已进入 Next 的可观测定义字段完全等价的唯一候选。
+ * 旧词条 key 是 skill1..3，原生 key 是 attrIndex，因此只比较有序贡献而不比较标签。
+ */
+function hasSameFormalShape(canonical: GearDefinition, legacy: GearDefinition): boolean {
+  const canonicalTraits = canonical.traits.filter(trait => (trait.modifiers?.length ?? 0) > 0);
+  const legacyTraits = legacy.traits.filter(trait => (trait.modifiers?.length ?? 0) > 0);
+  if (
+    canonical.slotType !== legacy.slotType ||
+    canonical.levelRequirement !== legacy.levelRequirement ||
+    canonical.baseDefense !== legacy.baseDefense ||
+    canonicalTraits.length !== legacyTraits.length
+  ) {
+    return false;
+  }
+  return canonicalTraits.every((trait, traitIndex) => {
+    const previous = legacyTraits[traitIndex]!;
+    const currentModifiers = trait.modifiers ?? [];
+    const previousModifiers = previous.modifiers ?? [];
+    return (
+      trait.levelCount === previous.levelCount &&
+      currentModifiers.length === previousModifiers.length &&
+      currentModifiers.every((modifier, modifierIndex) => {
+        const current = modifierProjection(modifier, trait.levelCount);
+        const old = modifierProjection(previousModifiers[modifierIndex]!, previous.levelCount);
+        return (
+          current.identity === old.identity &&
+          current.values.every((value, index) => Math.abs(value - old.values[index]!) <= 0.00051)
+        );
+      })
+    );
+  });
+}
+
+function modifierProjection(
+  modifier: NonNullable<GearDefinition['traits'][number]['modifiers']>[number],
+  levelCount: number,
+): { readonly identity: string; readonly values: readonly number[] } {
+  let identity: string;
+  switch (modifier.kind) {
+    case 'attribute':
+      identity = `attribute:${modifier.attribute}:${modifier.operation}`;
+      break;
+    case 'panelStat':
+      identity = `panelStat:${modifier.stat}`;
+      break;
+    case 'damageScale':
+      identity = `damageScale:${modifier.target}`;
+      break;
+    case 'staticHealingIncrease':
+      identity = `staticHealingIncrease:${modifier.target}`;
+      break;
+    case 'damageBonus': {
+      const skillTypes = Array.isArray(modifier.skillTypes)
+        ? modifier.skillTypes
+        : modifier.skillTypes === undefined
+          ? []
+          : [modifier.skillTypes];
+      identity =
+        skillTypes.length === 1
+          ? `damageScale:${skillTypes[0]}`
+          : `damageBonus:${JSON.stringify(modifier.damageTypes)}:${JSON.stringify(skillTypes)}`;
+      break;
+    }
+  }
+  const values = Array.isArray(modifier.value)
+    ? modifier.value
+    : Array.from({ length: levelCount }, () => modifier.value as number);
+  return { identity, values };
 }
 
 function collectGearSetAlias(

@@ -31,6 +31,8 @@ import {
   zhuangFangyi,
 } from './operators';
 import {
+  nextGearDefinitionRegistration,
+  nextGearDefinitions,
   sharedGearDefinitions,
   sharedGearSetDefinitions,
   sharedWeaponDefinitions,
@@ -113,10 +115,17 @@ describe('gameDataRepository', () => {
 
   it('registers complete and explicitly marked partial equipment definitions', () => {
     expect(nextGameDataRepository.getWeapons()).toEqual(sharedWeaponDefinitions);
-    expect(nextGameDataRepository.getGears()).toEqual(sharedGearDefinitions);
+    expect(nextGameDataRepository.getGears()).toEqual(nextGearDefinitions);
     expect(nextGameDataRepository.getGearSets()).toEqual(sharedGearSetDefinitions);
     expect(nextGameDataRepository.getWeapon('tarr-11')).not.toBeNull();
     expect(nextGameDataRepository.getGear('xiranflow-light-armor')).not.toBeNull();
+    const xiranflowAliasTarget =
+      nextGearDefinitionRegistration.gearAliases['xiranflow-light-armor'];
+    expect(xiranflowAliasTarget).toBeDefined();
+    expect(nextGameDataRepository.getGear('xiranflow-light-armor')?.slug).toBe(
+      'xiranflow-light-armor',
+    );
+    expect(nextGameDataRepository.getGear(xiranflowAliasTarget!)?.slug).toBe(xiranflowAliasTarget);
     expect(nextGameDataRepository.getGearSet('aic-fieldwork')).not.toBeNull();
     expect(nextGameDataRepository.getWeapon('lone-barge')).not.toBeNull();
     expect(nextGameDataRepository.getGearSet('xiranflow')).not.toBeNull();

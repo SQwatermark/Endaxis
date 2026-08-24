@@ -54,11 +54,40 @@ describe('generatedGearRegistration', () => {
     });
   });
 
-  it('拒绝重复原生资源身份、冲突套装映射和碰撞定义', () => {
-    expect(() => registerGeneratedGearDefinitions([generated('a'), generated('a')], [])).toThrow(
-      "duplicate generated gear asset identity 'a'",
+  it('用正式字段消解重复图标身份，无法唯一消解时保留旧定义并报告', () => {
+    const left = generated('left');
+    const right = { ...generated('right'), baseDefense: 64 };
+    const matched = legacy('old-left', 'shared');
+    const result = registerGeneratedGearDefinitions(
+      [
+        { ...left, assetSlug: 'shared' },
+        { ...right, assetSlug: 'shared' },
+      ],
+      [matched],
     );
 
+    expect(result.gearAliases).toEqual({ 'old-left': 'left' });
+    expect(result.issues.some(issue => issue.code === 'ambiguousGeneratedAssetIdentity')).toBe(
+      false,
+    );
+
+    const ambiguous = registerGeneratedGearDefinitions(
+      [
+        { ...left, assetSlug: 'shared' },
+        { ...generated('right'), assetSlug: 'shared' },
+      ],
+      [matched],
+    );
+    expect(ambiguous.definitions.map(definition => definition.slug)).toContain('old-left');
+    expect(ambiguous.issues).toContainEqual({
+      code: 'ambiguousGeneratedAssetIdentity',
+      assetSlug: 'shared',
+      canonicalSlugs: ['left', 'right'],
+      legacySlug: 'old-left',
+    });
+  });
+
+  it('拒绝冲突套装映射和碰撞定义', () => {
     expect(() =>
       registerGeneratedGearDefinitions(
         [generated('a', 'native-set'), generated('b', 'native-set')],

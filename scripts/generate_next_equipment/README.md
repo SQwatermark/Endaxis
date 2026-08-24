@@ -13,8 +13,8 @@
 5. `migration_ir.py` 在同一严格审计之后，为每个 effect 生成无损迁移记录和后续能力需求。
 6. `candidate_definition_ir.py` 逐条核对构筑期静态贡献，并额外严格审计 33 条常驻战斗修正的静态/Buff 目的地；无法无歧义映射时只输出结构化缺口，不生成 raw 兜底。
 7. 新 TypeScript 编译器把 `EquipTable` 静态修正投影为正式 `GearDefinition`，再由纯渲染器按套装
-   目录生成单件文件、索引和审计。实际原子写盘与默认仓库替换仍需先闭合旧 slug 到原生 ID 的稳定
-   别名迁移，不能让已有项目实例引用断裂。
+   目录生成单件文件、索引和审计。写盘器在同级暂存目录完成整个批次后原子替换目标目录，避免
+   生成失败时留下新旧文件混杂的半成品；Next 注册层再负责旧 slug 到原生 ID 的稳定别名迁移。
 
 这条路线不使用正则或字符串拼接解析 TypeScript。旧数据新增字段或类别时，审计会失败，维护者必须先确认语义并显式更新白名单。
 
@@ -27,7 +27,13 @@ python -m scripts.generate_next_equipment.generate_audit
 python -m scripts.generate_next_equipment.generate_migration_matrix
 python -m scripts.generate_next_equipment.generate_candidate_coverage
 python -m scripts.generate_next_equipment.generate_akedb_source_audit
+node scripts/generate_next_equipment/generate_formal_gear_definitions.ts --tables <TableCfg目录>
 ```
+
+最后一条命令默认原子更新 `src/next/data/equipment/generated`。输入必须是同一固定客户端版本配对
+下载的 `EquipTable.json` 与 `ItemTable.json`；生成目录内的单件文件、索引和审计视为一个完整批次。
+原生 `ItemTable.iconId` 不是物品主键：当前版本存在 6 组重复图标。旧 slug 迁移必须先按图标建立
+候选，再由槽位、等级、防御与词条语义唯一消解；不能按图标把多个物品折叠成一件。
 
 默认生成：
 

@@ -7,6 +7,26 @@
 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
+### 2026-08-24：全量单件装备正式接入 checkpoint
+
+- 固定客户端版本 `1.4.4@9433094-12` 的 `EquipTable + ItemTable` 已生成 243 件正式
+  `GearDefinition`，覆盖 73 件护甲、65 件手套、105 件配件；共 672 条可选词条、721 项正式修正。
+  其中 448 项四维、108 项面板、155 项伤害倍率、10 项治疗增幅。48 条玩家承伤修正按唯一木桩模型
+  明确记为 `scenario-omitted`，不是漏转或静默丢弃。
+- `generate_formal_gear_definitions.ts` 现在可从配对表一条命令重建整个
+  `src/next/data/equipment/generated`。写盘先在目标同级暂存完整批次，再原子替换目录；路径越界、重复
+  文件、阻塞诊断都会失败关闭，旧生成物不会与新批次混杂。
+- 正式注册层以原生物品 ID 为规范 slug，同时兼容旧项目保存的装备 slug。现有结果为 243 件现行
+  原生定义、237 个旧 slug 别名、5 个退出现行表但继续保留的旧模板、23 个原生套装 ID 到旧套装
+  定义的别名。别名查询返回保留请求 slug 的只读视图，浏览列表只枚举规范定义，不重复显示。
+- `ItemTable.iconId` 已证明并非唯一，共有 6 组重复图标。注册器不能只按图标强配；它会在同图标
+  候选中继续核对槽位、穿戴等级、防御和有序词条语义，并允许旧显示值的三位小数舍入误差。当前
+  所有旧关联均唯一闭合，0 个歧义；仍有 6 件现行装备没有旧身份，其中共享图标者只复用表中明确
+  相同的图标资源，不臆造名称或别名。
+- checkpoint 前门禁：`npm run type-check:game-data`、`npm run type-check:next` 通过；游戏数据编译器
+  32 个测试文件 / 158 项、Next 205 个测试文件 / 1491 项全部通过。下一步从默认项目配装入口验证
+  原生装备的精锻选择、Build 解析、静态快照与实际伤害变化，再转入套装/武器正式定义。
+
 ### 2026-08-24：武器基础攻击成长 checkpoint
 
 - `WeaponBasicTable` 现只有一个严格源行解析器，被动技能发现和基础攻击成长共同消费它；不再各自
@@ -106,8 +126,8 @@ TypeScript 游戏数据编译器。唯一新入口为
 
 - 当前工作树：`D:\Projects\Endaxis`（台式机，即旧文档所称“远程”）
 - 当前分支：`refactor/common-game-data`
-- 当前代码 checkpoint：`3f506eb3 feat(data): parse weapon base attack growth`；统一编译器基线为
-  `fd61a59e`，后续仍以实际 `git log` 为准。
+- 当前已提交 checkpoint：`e6440b87 feat(data): preserve legacy gear identities`；本节所述全量生成与
+  正式注册正在下一提交中，仍以实际 `git log` 为准。统一编译器基线为 `fd61a59e`。
 - `tmp/` 永远不得提交；新编译器全部位于 `tools/game-data-compiler`。
 - `vfs-index-browser/combat-spec` 有同步规格提交，且曾混有同轮其他证据改动；两个仓库必须分别提交、
   推送和验证，不能从 Endaxis 工作树代替管理 combat-spec。

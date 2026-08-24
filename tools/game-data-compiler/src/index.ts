@@ -220,6 +220,7 @@ export {
   renderEquipmentDefinitionFiles,
   type RenderedEquipmentDefinitionFileSource,
 } from './domains/equipment/renderFormalDefinitions.ts';
+export { writeEquipmentDefinitionFiles } from './domains/equipment/writeFormalDefinitions.ts';
 export {
   compilePassiveSkillSource,
   type CompiledPassiveSkillSource,

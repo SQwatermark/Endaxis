@@ -18,6 +18,8 @@ import {
   type SharedEquipmentAdaptationResult,
 } from './adaptSharedEquipment';
 import { akedbWeaponDefinitions } from './akedbWeaponDefinitions';
+import { generatedGearDefinitions } from './generated/index.generated';
+import { registerGeneratedGearDefinitions } from './generatedGearRegistration';
 
 const weaponModules = import.meta.glob('../../../data/weapons/**/*.ts', {
   eager: true,
@@ -103,6 +105,16 @@ export const sharedWeaponDefinitions: readonly WeaponDefinition[] = Object.freez
 ]);
 export const sharedGearDefinitions: readonly GearDefinition[] = gearEntries.definitions;
 export const sharedGearSetDefinitions: readonly GearSetDefinition[] = gearSetEntries.definitions;
+/**
+ * 当前版本原生定义取代能按图标身份精确关联的旧模板；退出现行表的模板仍保留给旧项目。
+ * 注册结果同时提供旧单件 slug 和原生套装 ID 的兼容映射。
+ */
+export const nextGearDefinitionRegistration = registerGeneratedGearDefinitions(
+  generatedGearDefinitions,
+  sharedGearDefinitions,
+);
+export const nextGearDefinitions: readonly GearDefinition[] =
+  nextGearDefinitionRegistration.definitions;
 /** 未进入 Next 正式定义的全部原因；新增源数据出现陌生语义时测试应直接暴露。 */
 export const sharedEquipmentAdaptationIssues: readonly SharedEquipmentAdaptationIssue[] =
   Object.freeze([...weaponEntries.issues, ...gearEntries.issues, ...gearSetEntries.issues]);
