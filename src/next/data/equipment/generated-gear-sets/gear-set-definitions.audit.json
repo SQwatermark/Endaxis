@@ -1,8 +1,8 @@
 {
   "format": "EndaxisGeneratedGearSetAudit",
   "version": 1,
-  "definitionCount": 21,
-  "buffDefinitionCount": 46,
+  "definitionCount": 22,
+  "buffDefinitionCount": 48,
   "diagnostics": [
     {
       "status": "scenario-omitted",
@@ -137,6 +137,11 @@
     {
       "status": "scenario-omitted",
       "sourcePath": "SkillData.passive_equipsuit_stragi_01.buffs.buff_equipsuit_will_01.wil",
+      "reason": "unmaterialized server passive skill blackboard value \"will\" is never read by the installed Buff"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "SkillData.passive_equipsuit_usp_01.buffs.buff_equipsuit_will_01.wil",
       "reason": "unmaterialized server passive skill blackboard value \"will\" is never read by the installed Buff"
     },
     {

@@ -551,3 +551,12 @@ ID 当作物品主键。当前 48 条玩家承伤修正只在木桩边界省略�
   `targetSource=Owner` 的语义由 combat-spec 端到端测试确认，未受内嵌未使用 selector 残留干扰。
 - 正式套装提升为 21/23、46 个 Buff 定义。剩余 `suit_usp01`、`suit_usp02`。
 - 门禁更新为游戏数据 251/251、Next 1532/1532，两套专用类型检查通过。
+
+### 2026-08-26：终结技能量套首战技返还正式闭环
+
+- `suit_usp01` 保留终结技能量回复效率 +20%，入战后只为首个战技按原生 `atb_recover=50` 返还
+  技力；一次性状态保存在根 Buff 实例的动态黑板，而不是技能实例或全局临时变量。
+- 公共投影接通 `OnEnterFight`、`CompareFloat` 和 Owner 自身 `ObtainCostAction`；生成定义继续使用
+  通用 `enterFight`、`actionValueCompare`、`changeResourceByActionValue` 运行步骤。
+- 正式套装提升为 22/23、48 个 Buff 定义。剩余 `suit_usp02`；门禁为游戏数据 251/251、Next
+  1534/1534，两套专用类型检查通过。

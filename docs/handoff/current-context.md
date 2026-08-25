@@ -7,6 +7,19 @@
 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
+### 2026-08-26：终结技能量套入战与首战技返还闭环
+
+- `suit_usp01` 已进入正式生成，套装覆盖提升为 **22/23**。静态终结技能量回复效率 +20%；入战时
+  把根 Buff 的动态 `has_gain_atb` 重置为 0，首个战技施放前改为 1 并按 `atb_recover=50` 返还技力，
+  后续战技因同一 Buff 实例中的动态黑板已置位而不再触发。
+- 公共 Buff 投影新增已有运行时语义的严格入口：`OnEnterFight -> enterFight`、
+  `CompareFloat -> actionValueCompare`、Owner 到 Owner 的 `ObtainCostAction ->
+changeResourceByActionValue`。资源类型、Gain/Return、来源、系数、百分比及终结技能量许可标签继续从
+  原生载荷保留，不凭套装文案手写结果。
+- 正式生成审计为 22 套、48 个 Buff 定义，当前只剩 **1/23**：`suit_usp02`。门禁为游戏数据
+  58 文件 251/251、Next 208 文件 1534/1534，两套专用类型检查通过；生产回归验证两次战技只产生
+  一次 50 点返还。
+
 ### 2026-08-26：法术异常消耗套事件 Buff 快照闭环
 
 - `suit_expend_spell01` 已进入正式生成，套装覆盖提升为 **21/23**。静态攻击 +10%；穿戴者作为

@@ -64,6 +64,86 @@ describe('generated gear production integration', () => {
     });
   });
 
+  it('refunds SP for only the first battle skill with the generated ultimate-energy set', () => {
+    const scenario = createEmptyScenario('scenario:ultimate-set', '终结技能量套生产回归');
+    scenario.battle.durationFrames = 300;
+    scenario.battle.resourceRules.maxSp = 400;
+    scenario.battle.resourceRules.initialSp = 200;
+    scenario.enemy.editable.hp = 10_000_000;
+    scenario.tracks[0] = {
+      id: 'track:pogranichnik-ultimate-set',
+      operator: {
+        operatorSlug: pogranichnikGeneratedOperator.slug,
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 0, 1: 0 },
+      },
+      weapon: null,
+      gears: {
+        armor: {
+          gearSlug: 'item_equip_t3_suit_usp01_body_01',
+          artificingLevels: [0, 0, 0],
+        },
+        gloves: {
+          gearSlug: 'item_equip_t3_suit_usp01_hand_01',
+          artificingLevels: [0, 0, 0],
+        },
+        accessory1: {
+          gearSlug: 'item_equip_t3_suit_usp01_edc_03',
+          artificingLevels: [0, 0, 0],
+        },
+        accessory2: null,
+      },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    let placed = scenario;
+    let nextId = 0;
+    for (const startFrame of [1, 181]) {
+      placed = placeSkillGroup({
+        scenario: placed,
+        trackIndex: 0,
+        operator: pogranichnikGeneratedOperator,
+        skillGroupKey: 'battleSkill',
+        startFrame,
+        ids: { allocate: kind => `${kind}:ultimate-set:${++nextId}` },
+      }).scenario;
+    }
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          ultimateEnergySystemUnlocked: true,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+        },
+      },
+      endFrame: 300,
+      criticalSamples: new ExplicitCriticalSampleSource(Array.from({ length: 40 }, () => 1)),
+      elementalInflictionDocument: elementalAttachments,
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+    });
+
+    expect(
+      result.receiptEntries.filter(
+        entry =>
+          entry.event === 'SpChanged' &&
+          entry.data?.gainKind === 'refund' &&
+          entry.data?.baseValue === 50,
+      ),
+    ).toHaveLength(1);
+  });
+
   it('runs the physical-status set proc once while its 15-second marker is active', () => {
     const scenario = createEmptyScenario('scenario:physical-set', '物理异常套装生产回归');
     scenario.battle.durationFrames = 260;

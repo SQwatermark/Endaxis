@@ -5,6 +5,87 @@ import { perlica } from '../operators/perlica';
 import { generatedGearSetDefinitions } from './generated-gear-sets/index.generated';
 
 describe('生成套装正式定义', () => {
+  it('让终结技能量套在入战时重置，并只为首个战技返还技力', () => {
+    const definition = generatedGearSetDefinitions.find(item => item.slug === 'suit_usp01')!;
+    expect(validateGearSetDefinition(definition, '$.suit_usp01')).toEqual([]);
+    const compiled = compileGearSetContribution(definition, {
+      main: perlica.mainAttribute,
+      secondary: perlica.secondaryAttribute,
+    });
+
+    expect(compiled.modifiers).toEqual([
+      { kind: 'panelStat', stat: 'ultimateEnergyGainEfficiency', value: 0.2 },
+    ]);
+    expect(compiled.buffDefinitions?.buff_equipsuit_usp_01).toMatchObject({
+      blackboard: { atb_recover: 50, has_gain_atb: 0 },
+      abilityEventResponses: [
+        {
+          event: 'beforeCastSkill',
+          sequence: {
+            steps: [
+              {
+                parameters: {
+                  condition: { kind: 'eventSkillTypeIn', skillTypes: ['battleSkill'] },
+                },
+                whenTrue: {
+                  steps: [
+                    {
+                      parameters: {
+                        condition: {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'has_gain_atb' },
+                          operator: 'equal',
+                          right: { kind: 'constant', value: 0 },
+                        },
+                      },
+                      whenTrue: {
+                        steps: [
+                          {
+                            kind: 'modifyActionValue',
+                            parameters: {
+                              key: 'has_gain_atb',
+                              operation: 'assign',
+                              value: { kind: 'constant', value: 1 },
+                            },
+                          },
+                          {
+                            kind: 'changeResourceByActionValue',
+                            parameters: {
+                              resource: 'sp',
+                              amount: { kind: 'blackboard', key: 'atb_recover' },
+                              coefficient: { kind: 'constant', value: 1 },
+                              recipient: 'team',
+                              spGainKind: 'refund',
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+        {
+          event: 'enterFight',
+          sequence: {
+            steps: [
+              {
+                kind: 'modifyActionValue',
+                parameters: {
+                  key: 'has_gain_atb',
+                  operation: 'assign',
+                  value: { kind: 'constant', value: 0 },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+  });
+
   it('让法术消耗套按被消费异常 Buff 的 count 给穿戴者叠元素增伤', () => {
     const definition = generatedGearSetDefinitions.find(
       item => item.slug === 'suit_expend_spell01',

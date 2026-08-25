@@ -87,6 +87,13 @@ export interface CompiledBuffDamageModifierSource {
 
 export type CompiledBuffConditionSource =
   | {
+      readonly kind: 'actionValueCompare';
+      readonly left: CompiledActionValueOperandSource;
+      readonly operator:
+        'equal' | 'notEqual' | 'greater' | 'greaterOrEqual' | 'less' | 'lessOrEqual';
+      readonly right: CompiledActionValueOperandSource;
+    }
+  | {
       readonly kind: 'eventOverheal';
       readonly overHealKey?: string;
       readonly finalHealKey?: string;
@@ -220,6 +227,20 @@ export type CompiledBuffStepSource =
           | { readonly kind: 'blackboard'; readonly key: string };
       };
     }
+  | {
+      readonly kind: 'changeResourceByActionValue';
+      readonly parameters: {
+        readonly resource: 'sp' | 'ultimateEnergy';
+        readonly amount: CompiledActionValueOperandSource;
+        readonly coefficient: CompiledActionValueOperandSource;
+        readonly recipient: 'caster' | 'team';
+        readonly spGainKind?: 'gain' | 'refund';
+        readonly spGainSource?: 'default' | 'normalAttack' | 'powerAttack' | 'skill';
+        readonly isPercentValue?: boolean;
+        readonly ultimateRecoveryTagId?: number;
+        readonly ignoreUltimateEnergyGainMultiplier?: boolean;
+      };
+    }
   | CompiledSimpleDamageOperationSource
   | {
       readonly kind: 'finishBuffsById';
@@ -284,6 +305,7 @@ export interface CompiledBuffDefinitionSource {
       | 'outputHeal'
       | 'skillEnd'
       | 'buffConsumed'
+      | 'enterFight'
       /** 已严格融合 CheckObtainAtbType(Skill, Gain) 的共享技力事实事件。 */
       | 'skillSpGained';
     readonly priority: 0;
@@ -381,6 +403,7 @@ export function compileBuffRuntimeDefinitionSource(
   const outputHealSteps: CompiledBuffStepSource[] = [];
   const skillSpGainedSteps: CompiledBuffStepSource[] = [];
   const buffConsumedSteps: CompiledBuffStepSource[] = [];
+  const enterFightSteps: CompiledBuffStepSource[] = [];
   const skillEndSteps: CompiledBuffStepSource[] = finishesWithSourceSkill
     ? [
         {
@@ -397,19 +420,21 @@ export function compileBuffRuntimeDefinitionSource(
     const target =
       event.event === 'OnBeforeCastSkill'
         ? beforeCastSteps
-        : event.event === 'OnOutputBuff'
-          ? outputBuffSteps
-          : event.event === 'OnBeforeOutputPhysicalInfliction'
-            ? beforeOutputPhysicalInflictionSteps
-            : event.event === 'OnOutputCriticalDamage'
-              ? outputCriticalDamageSteps
-              : event.event === 'OnOutputHeal'
-                ? outputHealSteps
-                : event.event === 'OnObtainAtb'
-                  ? skillSpGainedSteps
-                  : event.event === 'OnConsumeBuff'
-                    ? buffConsumedSteps
-                    : null;
+        : event.event === 'OnEnterFight'
+          ? enterFightSteps
+          : event.event === 'OnOutputBuff'
+            ? outputBuffSteps
+            : event.event === 'OnBeforeOutputPhysicalInfliction'
+              ? beforeOutputPhysicalInflictionSteps
+              : event.event === 'OnOutputCriticalDamage'
+                ? outputCriticalDamageSteps
+                : event.event === 'OnOutputHeal'
+                  ? outputHealSteps
+                  : event.event === 'OnObtainAtb'
+                    ? skillSpGainedSteps
+                    : event.event === 'OnConsumeBuff'
+                      ? buffConsumedSteps
+                      : null;
     if (target === null)
       throw new Error(`unsupported ability event ${JSON.stringify(event.event)}`);
     for (const sequence of event.actions) {
@@ -574,6 +599,15 @@ export function compileBuffRuntimeDefinitionSource(
                     event: 'buffConsumed' as const,
                     priority: 0 as const,
                     sequence: { steps: buffConsumedSteps },
+                  },
+                ]),
+            ...(enterFightSteps.length === 0
+              ? []
+              : [
+                  {
+                    event: 'enterFight' as const,
+                    priority: 0 as const,
+                    sequence: { steps: enterFightSteps },
                   },
                 ]),
           ],
@@ -775,6 +809,16 @@ function compileConditionLeaf(
   condition: Extract<KnownNativeActionLeafSource, { family: 'condition' }>['action'],
   sourcePath: string,
 ): CompiledBuffConditionSource {
+  if (condition.kind === 'floatCompare') {
+    const operator = COMPARISON_OPERATORS[condition.comparison];
+    if (operator === undefined) throw new Error(`${sourcePath}: unsupported float comparison`);
+    return {
+      kind: 'actionValueCompare',
+      left: actionValueOperand(condition.left),
+      operator,
+      right: actionValueOperand(condition.right),
+    };
+  }
   if (condition.kind === 'skillType') {
     return {
       kind: 'eventSkillTypeIn',
@@ -1080,6 +1124,36 @@ function compileActionNode(
           key: action.key,
           operation,
           value: actionValueOperand(action.value),
+        },
+      },
+    ];
+  }
+  if (node.body.value.family === 'resource') {
+    const action = node.body.value.action;
+    if (
+      action.source.targetSource !== 'Owner' ||
+      action.source.targetGroupKey !== '' ||
+      action.target.targetSource !== 'Owner' ||
+      action.target.targetGroupKey !== '' ||
+      action.onlyMainOperator
+    ) {
+      throw new Error(`${node.sourcePath}: unsupported resource gain source/target`);
+    }
+    return [
+      {
+        kind: 'changeResourceByActionValue',
+        parameters: {
+          resource: action.resource,
+          amount: actionValueOperand(action.amount),
+          coefficient: actionValueOperand(action.coefficient),
+          recipient: action.resource === 'sp' ? 'team' : 'caster',
+          ...(action.spGainKind === null ? {} : { spGainKind: action.spGainKind }),
+          ...(action.spGainSource === null ? {} : { spGainSource: action.spGainSource }),
+          ...(action.isPercentValue ? { isPercentValue: true } : {}),
+          ...(action.useUltimateRecoveryTag
+            ? { ultimateRecoveryTagId: action.ultimateRecoveryTagId }
+            : {}),
+          ...(action.ignoreUltimateGainScalar ? { ignoreUltimateEnergyGainMultiplier: true } : {}),
         },
       },
     ];
