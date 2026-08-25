@@ -197,6 +197,35 @@ describe('compileScenarioTimeline', () => {
     ]);
   });
 
+  it('keeps multiple placed inputs stable while sharing one runtime replacement slot', () => {
+    const scenario = place(createScenario(), 'battleSkill', 60);
+    const base = requireSingleSkill('battleSkill');
+    const comboInput = { ...base, key: 'battleSkillCombo' };
+    const operator = {
+      ...perlica,
+      skillGroups: perlica.skillGroups.map(group =>
+        group.key === 'battleSkill'
+          ? {
+              ...group,
+              skills: [base, comboInput],
+              replacementSkills: [{ ...base, key: 'battleSkillEnd' }],
+            }
+          : group,
+      ),
+    };
+
+    const compiled = compileScenarioTimeline(scenario, {
+      getOperator: slug => (slug === operator.slug ? operator : null),
+    });
+
+    expect(compiled.operators[0]!.skillSlotGroups).toContainEqual({
+      skillGroupKey: 'battleSkill',
+      baseSkillKey: 'battleSkill',
+      stableInputSkillKeys: ['battleSkill', 'battleSkillCombo'],
+      replacementSkillKeys: ['battleSkillEnd'],
+    });
+  });
+
   it('compiles a routed replacement with its execution type and level while keeping the slot identity', () => {
     const scenario = place(createScenario(), 'battleSkill', 60);
     scenario.tracks[0]!.operator!.skillLevels.battleSkill = 3;

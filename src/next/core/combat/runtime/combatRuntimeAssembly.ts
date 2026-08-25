@@ -1367,6 +1367,7 @@ export class CombatRuntimeAssembly {
             sourceId: operator.operatorId,
             read: this.#options.readSourceAttributeValue,
           },
+      ownerId => this.#abilitySystems.get(ownerId)?.currentSkillTimelineFrame,
     );
     rootOperations = new SkillResourceOperationExecutor({
       sourceOperatorId: operatorId,

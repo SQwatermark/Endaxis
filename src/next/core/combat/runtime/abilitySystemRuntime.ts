@@ -21,6 +21,8 @@ export interface AbilitySkillRuntime extends FrameRuntime {
   /** 场景技能块在宿主局部时钟中的可操作宽度；非场景测试运行时可省略。 */
   readonly timelineBlockFrames?: number;
   readonly state: RuntimeSkillState;
+  /** 当前技能局部整数执行帧；仅 casting 实例提供。 */
+  readonly currentTimelineFrame?: number;
   canStart(): boolean;
   /** 本次启动前合并进动作黑板的运行时参数，例如连携候选携带的黑板。 */
   prepareStartBlackboard?(values: Readonly<Record<string, number>>): void;
@@ -61,6 +63,7 @@ export interface AbilitySystemRuntimeOptions {
   readonly skillSlotGroups?: readonly {
     readonly skillGroupKey: string;
     readonly baseSkillKey: string;
+    readonly stableInputSkillKeys?: readonly string[];
     readonly replacementSkillKeys: readonly string[];
   }[];
   readonly actionRuntime?: FrameRuntime;
@@ -85,7 +88,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
       currentSkillKey: string;
     }
   >();
-  readonly #slotGroupByBaseSkill = new Map<string, string>();
+  readonly #slotGroupByStableInputSkill = new Map<string, string>();
   readonly #actionRuntime?: FrameRuntime;
   readonly #resolveTickDeltas: () => AbilityTickDeltas;
   readonly #beforePostSkillCastStart?: (request: PostSkillCastRequest) => void;
@@ -126,24 +129,41 @@ export class AbilitySystemRuntime implements FrameRuntime {
       if (this.#skillSlotGroups.has(group.skillGroupKey)) {
         throw new Error(`duplicate ability skill slot group '${group.skillGroupKey}'`);
       }
-      if (this.#slotGroupByBaseSkill.has(group.baseSkillKey)) {
-        throw new Error(`ability skill '${group.baseSkillKey}' owns multiple slot groups`);
+      const stableInputSkillKeys = group.stableInputSkillKeys ?? [group.baseSkillKey];
+      if (!stableInputSkillKeys.includes(group.baseSkillKey)) {
+        throw new Error(
+          `ability skill slot group '${group.skillGroupKey}' does not include its base skill`,
+        );
       }
-      const allowedSkillKeys = new Set([group.baseSkillKey, ...group.replacementSkillKeys]);
-      if (allowedSkillKeys.size !== group.replacementSkillKeys.length + 1) {
+      const allowedSkillKeys = new Set([...stableInputSkillKeys, ...group.replacementSkillKeys]);
+      if (
+        allowedSkillKeys.size !==
+        stableInputSkillKeys.length + group.replacementSkillKeys.length
+      ) {
         throw new Error(`ability skill slot group '${group.skillGroupKey}' has duplicate variants`);
+      }
+      for (const skillKey of stableInputSkillKeys) {
+        if (this.#slotGroupByStableInputSkill.has(skillKey)) {
+          throw new Error(`ability skill '${skillKey}' owns multiple slot groups`);
+        }
+        this.#slotGroupByStableInputSkill.set(skillKey, group.skillGroupKey);
       }
       this.#skillSlotGroups.set(group.skillGroupKey, {
         baseSkillKey: group.baseSkillKey,
         allowedSkillKeys,
         currentSkillKey: group.baseSkillKey,
       });
-      this.#slotGroupByBaseSkill.set(group.baseSkillKey, group.skillGroupKey);
     }
   }
 
   get currentSkillId(): string | null {
     return this.#currentSkill?.skillId ?? null;
+  }
+
+  get currentSkillTimelineFrame(): number | undefined {
+    return this.#currentSkill?.state === 'casting'
+      ? this.#currentSkill.currentTimelineFrame
+      : undefined;
   }
 
   /** 只改变后续释放的槽位解析；已经进入 casting 的实例保持原引用。 */
@@ -272,11 +292,13 @@ export class AbilitySystemRuntime implements FrameRuntime {
   }
 
   #requireSkill(skillId: string, castId?: string): AbilitySkillRuntime {
-    const slotGroupKey = this.#slotGroupByBaseSkill.get(skillId);
+    const slotGroupKey = this.#slotGroupByStableInputSkill.get(skillId);
+    const slotGroup =
+      slotGroupKey === undefined ? undefined : this.#skillSlotGroups.get(slotGroupKey)!;
     const resolvedSkillId =
-      slotGroupKey === undefined
+      slotGroup === undefined || slotGroup.currentSkillKey === slotGroup.baseSkillKey
         ? skillId
-        : this.#skillSlotGroups.get(slotGroupKey)!.currentSkillKey;
+        : slotGroup.currentSkillKey;
     const skill = this.#skillsById.get(abilitySkillKey({ skillId: resolvedSkillId, castId }));
     if (skill === undefined) {
       const suffix = castId === undefined ? '' : ` (cast ${castId})`;

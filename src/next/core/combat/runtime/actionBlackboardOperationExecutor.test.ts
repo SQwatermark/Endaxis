@@ -32,6 +32,28 @@ describe('ActionBlackboardOperationExecutor', () => {
     ).toThrow('storeCurrentTimelineFrame requires a timeline host');
   });
 
+  it('reads the Buff owner current skill frame and returns false when no skill is active', () => {
+    let currentFrame: number | undefined = 45;
+    const executor = new ActionBlackboardOperationExecutor(
+      delegate,
+      undefined,
+      undefined,
+      ownerId => (ownerId === 'operator' ? currentFrame : undefined),
+    );
+    const blackboard = new ActionBlackboard();
+    const step = {
+      kind: 'storeCurrentTimelineFrame',
+      parameters: { outputKey: 'frame' },
+    } as const;
+
+    expect(executor.execute(step, { blackboard, buffOwnerId: 'operator' })).toBe(true);
+    expect(blackboard.getNumber('frame')).toBe(45);
+
+    currentFrame = undefined;
+    expect(executor.execute(step, { blackboard, buffOwnerId: 'operator' })).toBe(false);
+    expect(blackboard.getNumber('frame')).toBe(45);
+  });
+
   it('stores the actual amount carried by an sp-gain event', () => {
     const blackboard = new ActionBlackboard();
     const executor = new ActionBlackboardOperationExecutor(delegate);

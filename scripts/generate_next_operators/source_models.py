@@ -1567,7 +1567,7 @@ class AbilityEntityDurationAssignmentPayload:
 
 @dataclass(frozen=True)
 class StoreCurrentTimelineFramePayload:
-    """把当前宿主技能的局部整数执行帧写入动作黑板。"""
+    """把 Owner AbilitySystem 当前技能的局部整数执行帧写入动作黑板。"""
 
     outputKey: str
 

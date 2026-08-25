@@ -28,6 +28,8 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
         >['parameters'],
       ) => number;
     },
+    /** Buff 内的 StoreCurSkillExecuteFrame 从 Owner AbilitySystem 读取当前技能，而非 Buff 时间。 */
+    readonly resolveOwnerCurrentSkillTimelineFrame?: (ownerId: string) => number | undefined,
   ) {}
 
   execute(
@@ -35,13 +37,22 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
     context?: CombatOperationContext,
   ): boolean {
     if (step.kind === 'storeCurrentTimelineFrame') {
-      if (context?.getCurrentTimelineFrame === undefined) {
+      const hostFrame = context?.getCurrentTimelineFrame?.();
+      const ownerFrame =
+        hostFrame === undefined && context?.buffOwnerId !== undefined
+          ? this.resolveOwnerCurrentSkillTimelineFrame?.(context.buffOwnerId)
+          : undefined;
+      const frame = hostFrame ?? ownerFrame;
+      if (frame === undefined) {
+        if (
+          context?.buffOwnerId !== undefined &&
+          this.resolveOwnerCurrentSkillTimelineFrame !== undefined
+        ) {
+          return false;
+        }
         throw new Error('storeCurrentTimelineFrame requires a timeline host');
       }
-      context.blackboard.assignDynamic(
-        step.parameters.outputKey,
-        context.getCurrentTimelineFrame(),
-      );
+      context!.blackboard.assignDynamic(step.parameters.outputKey, frame);
       return true;
     }
     if (step.kind === 'storeEventSpGainAmount') {

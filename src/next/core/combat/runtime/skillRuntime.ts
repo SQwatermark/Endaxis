@@ -260,6 +260,10 @@ export class SkillRuntime {
     return this.#passedFrames;
   }
 
+  get currentTimelineFrame(): number {
+    return roundToEven(this.#passedFrames);
+  }
+
   get appliedCost(): boolean {
     return this.#appliedCost;
   }

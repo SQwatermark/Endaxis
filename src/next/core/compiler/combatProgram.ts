@@ -361,6 +361,8 @@ export interface CompiledSkillProgram {
 /** 一个稳定技能组可在释放之间切换的已编译技能身份。 */
 export interface CompiledSkillSlotGroup {
   readonly skillGroupKey: string;
+  /** 未发生槽位覆盖时保持各自时间轴存档身份的可放置入口；省略表示只有 baseSkillKey。 */
+  readonly stableInputSkillKeys?: readonly string[];
   readonly baseSkillKey: string;
   readonly replacementSkillKeys: readonly string[];
 }

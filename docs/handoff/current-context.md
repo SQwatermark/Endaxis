@@ -7,6 +7,23 @@
 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
+### 2026-08-26：多稳定输入技能槽与梨诺战技闭环
+
+- `SkillGroup.skills` 中的多个直接技能是各自稳定的时间轴输入，不等于“一条必须整体替换的技能
+  链”。槽位编译结果现可登记多个 `stableInputSkillKeys`：默认状态执行输入自己保存的定义；只有
+  `ChangeSkillAction` 激活覆盖后，同槽输入才统一解析到 replacement。梨诺的 `battleSkill` 与
+  `battleSkillCombo` 因而能共享不可直接放置的 `battleSkillEnd`，轴上技能 key 不会被换槽改写。
+- 槽位限制解除后，梨诺普通战技暴露了 Buff 生命周期中的 `StoreCurSkillExecuteFrame`。combat-spec
+  已依据 1.4.4 `Gameplay.Beyond.dll` token `0x0600E1E7` / RVA `0x06D38C10` 固化语义：动作解析
+  Owner 目标，从其 AbilitySystem 读取当前技能执行秒数，乘 30 并偶数舍入；没有当前技能时返回
+  false。Next 的技能根时间线继续读取自身局部帧，Buff 则经 Owner AbilitySystem 读取，不用 Buff
+  存活帧或场景帧替代。
+- 梨诺两个战技入口均已从全技能失败清单删除，生产回归验证先释放普通战技、槽位被 Buff 换成结束
+  形态后，再从另一个稳定输入块实际启动 `battleSkillEnd`。当前基线为 **298/301 成功、3 项精确
+  失败**：Arcane 同优先级事件顺序、Yvonne `robots` 和 Ardelia `Sheep` 能力实体目标上下文。
+- 本轮门禁：生成器单测 379/379、全量生成 `--check`、`npm run type-check:next`、Next 207 个测试
+  文件 1838/1838 全部通过；combat-spec 的当前技能帧聚焦回归 4/4 通过。
+
 ### 2026-08-26：投射物实例实体黑板闭环
 
 - 艾斯黛拉战技的 `EntityBB_first_hit` 与汤汤普攻 5 的 `EntityBB_atk05_cnt` 均不在角色模板、根或

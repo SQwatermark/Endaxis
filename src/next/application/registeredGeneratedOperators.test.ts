@@ -42,6 +42,77 @@ import {
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
 
 describe('registered generated operators', () => {
+  it('routes both Liino battle-skill inputs through the shared runtime end slot', () => {
+    const scenario = createEmptyScenario('scenario:liino:battle-skill-slot', '梨诺战技换槽回归');
+    scenario.battle.durationFrames = 80;
+    scenario.tracks[0] = {
+      id: 'track:liino',
+      operator: {
+        operatorSlug: liino.slug,
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 0, 1: 0 },
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    const started = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: liino,
+      skillGroupKey: 'battleSkill',
+      skillKey: 'battleSkill',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:liino:battle-start` },
+    }).scenario;
+    const ended = placeSkillGroup({
+      scenario: started,
+      trackIndex: 0,
+      operator: liino,
+      skillGroupKey: 'battleSkill',
+      skillKey: 'battleSkillCombo',
+      startFrame: 2,
+      ids: { allocate: kind => `${kind}:liino:battle-end` },
+    }).scenario;
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: ended,
+      endFrame: 80,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+      elementalInflictionDocument: elementalAttachments,
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+          ultimateEnergySystemUnlocked: true,
+        },
+      },
+    });
+
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'SkillStarted',
+        sourceId: 'track:liino',
+        data: expect.objectContaining({
+          castId: 'skillCast:liino:battle-end',
+          skillId: 'battleSkillEnd',
+        }),
+      }),
+    );
+  });
+
   it('runs Liino ultimate damage and full-health healing through the production timeline', () => {
     const scenario = createEmptyScenario('scenario:liino:ultimate', '梨诺终结技生产回归');
     scenario.battle.durationFrames = 650;

@@ -896,7 +896,7 @@ export interface CombatStepParameters {
   };
   /** 修改当前技能实例的动作黑板；不得用于跨技能持久状态。 */
   storeCurrentTimelineFrame: {
-    /** 把宿主技能或能力实体子技能的局部整数执行帧写入动作黑板。 */
+    /** 把 Owner AbilitySystem 当前技能的局部整数执行帧写入动作黑板。 */
     outputKey: string;
   };
   /** 把当前 spGained 语义事件的实际获得量写入动作黑板。 */

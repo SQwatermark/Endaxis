@@ -170,4 +170,35 @@ describe('AbilitySystemRuntime', () => {
       'start:ultimate',
     ]);
   });
+
+  it('preserves each stable input until a shared slot replacement becomes active', () => {
+    const events: string[] = [];
+    const base = new FixtureRuntime('battleSkill', events, 'battleSkill');
+    const comboInput = new FixtureRuntime('battleSkillCombo', events, 'battleSkill');
+    const end = new FixtureRuntime('battleSkillEnd', events, 'battleSkill');
+    const ability = new AbilitySystemRuntime({
+      skills: [base, comboInput, end],
+      skillSlotGroups: [
+        {
+          skillGroupKey: 'battleSkill',
+          baseSkillKey: 'battleSkill',
+          stableInputSkillKeys: ['battleSkill', 'battleSkillCombo'],
+          replacementSkillKeys: ['battleSkillEnd'],
+        },
+      ],
+    });
+
+    expect(ability.tryStartSkill('battleSkillCombo')).toBe(true);
+    expect(ability.currentSkillId).toBe('battleSkillCombo');
+    comboInput.state = 'ended';
+
+    expect(ability.changeSkillSlot('battleSkill', 'battleSkillEnd')).toBe('battleSkill');
+    expect(ability.tryStartSkill('battleSkillCombo')).toBe(true);
+    expect(ability.currentSkillId).toBe('battleSkillEnd');
+    end.state = 'ended';
+
+    expect(ability.changeSkillSlot('battleSkill', 'battleSkill')).toBe('battleSkillEnd');
+    expect(ability.tryStartSkill('battleSkillCombo')).toBe(true);
+    expect(ability.currentSkillId).toBe('battleSkillCombo');
+  });
 });
