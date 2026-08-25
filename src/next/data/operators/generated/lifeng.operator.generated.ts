@@ -640,6 +640,37 @@ export const lifengGeneratedOperator: OperatorDefinition = {
       maxStackCount: 1,
       durationSeconds: 1,
     },
+    'buff_chr_0015_lifeng_passive': {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      abilityEventResponses: [
+        {
+          event: 'addedBuff',
+          priority: 0,
+          sequence:
+            sequence(
+              step('modifyActionValue', {
+                key: 'EntityBB_isCombo',
+                operation: 'assign',
+                value: { kind: 'constant', value: 1 },
+              }),
+            ),
+        },
+        {
+          event: 'skillEnd',
+          priority: 0,
+          sequence:
+            sequence(
+              step('modifyActionValue', {
+                key: 'EntityBB_isCombo',
+                operation: 'assign',
+                value: { kind: 'constant', value: 0 },
+              }),
+            ),
+        },
+      ],
+    },
     'buff_chr_0015_lifeng_talent_1': {
       stackingType: 'unique',
       priority: 0,
@@ -926,6 +957,18 @@ export const lifengGeneratedOperator: OperatorDefinition = {
         ],
     } },
   },
+  passiveSkills: [
+    {
+      key: 'chr_0015_lifeng_passive',
+      enableSequence: sequence(
+        step('applyBuff', {
+          buffId: 'buff_chr_0015_lifeng_passive',
+          target: 'caster',
+          inheritSourceSkillCastInfo: false,
+        }),
+      ),
+    },
+  ],
   talents: [
     {
       key: 'talent1',
