@@ -1711,6 +1711,13 @@ export class CombatRuntimeAssembly {
 
   #resolveBuffTargetById(targetId: string): BuffOperationTarget {
     if (targetId === 'enemy') return this.#enemyBuffRuntime;
+    const abilityEntityMatch = /^ability-entity:(\d+)$/.exec(targetId);
+    if (abilityEntityMatch !== null) {
+      return this.#resolveAbilityEntityBuffTarget(
+        { kind: 'abilityEntity', instanceId: Number(abilityEntityMatch[1]) },
+        this.#options,
+      );
+    }
     const target = this.#operatorBuffs.get(targetId);
     if (target === undefined) {
       throw new Error(`combat entity '${targetId}' has no Buff operation target`);

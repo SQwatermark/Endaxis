@@ -696,6 +696,15 @@ describe('CombatRuntimeAssembly', () => {
                                     lifecycleSequences: {
                                       trigger: {
                                         steps: [
+                                          {
+                                            kind: 'applyBuff',
+                                            parameters: {
+                                              buffId: 'entity-trigger-result',
+                                              target: 'buffOwner',
+                                              inheritSourceSkillCastInfo: true,
+                                              definition: { stackingType: 'unique' },
+                                            },
+                                          },
                                           { kind: 'finishCurrentAbilityEntity', parameters: {} },
                                         ],
                                       },
@@ -732,11 +741,15 @@ describe('CombatRuntimeAssembly', () => {
 
     expect(assembly.tryStartSkill('operator', 'skill', 'entity-buff-cast')).toBe(true);
     expect(createAbilityEntityBuffRuntime).toHaveBeenCalledOnce();
-    expect(entityBuffs?.buffs).toHaveLength(1);
+    expect(entityBuffs?.buffs.map(buff => buff.definition.id)).toEqual(['entity-monitor']);
     expect(assembly.abilityEntities.activeCount).toBe(1);
     assembly.advanceFrames(1);
     expect(assembly.abilityEntities.activeCount).toBe(0);
     expect(entityBuffs?.buffs[0]?.isFinished).toBe(true);
+    expect(entityBuffs?.buffs.map(buff => buff.definition.id)).toEqual([
+      'entity-monitor',
+      'entity-trigger-result',
+    ]);
     expect(ownerHpZeroCleanupStates).toEqual([false]);
     expect(assembly.receipt.entries).toContainEqual(
       expect.objectContaining({
