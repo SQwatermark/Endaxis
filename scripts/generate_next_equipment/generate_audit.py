@@ -15,7 +15,7 @@ from .source_snapshot import export_legacy_snapshot
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPOSITORY_ROOT = SCRIPT_DIR.parent.parent
-DEFAULT_JSON = REPOSITORY_ROOT / "docs/research/equipment-generation-audit.json"
+DEFAULT_JSON = REPOSITORY_ROOT / "tmp/equipment-generation-audit.json"
 DEFAULT_MARKDOWN = REPOSITORY_ROOT / "docs/research/equipment-generation-audit.md"
 PRETTIER = REPOSITORY_ROOT / "node_modules/prettier/bin/prettier.cjs"
 

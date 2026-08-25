@@ -19,7 +19,7 @@
 - `vfs-index-browser/combat-spec/artifacts/SkillData/*.json`
 - `combat-runtime-dumps/1.4.4/static/Gameplay.Beyond.dll.cs`
 - `combat-runtime-dumps/1.4.4/runtime-1/runtime-1-full.analysis.json`
-- `Endaxis/docs/research/all-operator-recursive-mechanism-audit.json`
+- `Endaxis/tmp/all-operator-recursive-mechanism-audit.json`（本地可重建审计，不进入 Git）
 
 审计索引记录为 7 个启用条件、4 名干员覆盖；随后直接检索完整 `SkillData`，得到相同数量和文件集合：
 

@@ -865,6 +865,11 @@ export class StandardPlayerDamageEnvironment {
     if (panel === undefined) {
       throw new Error(`combat attribute source operator '${sourceId}' has no resolved panel`);
     }
+    // 原生 StoreAttributeValue(Specific/Level) 读取当前角色等级；等级不是 Buff 可修改的
+    // CombatAttributeSet 槽位，因此从同一次构筑解析得到的面板身份直接返回。
+    if (request.attribute.kind === 'specific' && request.attribute.key === 'level') {
+      return panel.level;
+    }
     const attributes = this.#operatorBuffRuntime(sourceId, panel).container.attributes;
     const keys =
       request.attribute.kind === 'specific'

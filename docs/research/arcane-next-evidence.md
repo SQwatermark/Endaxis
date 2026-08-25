@@ -95,9 +95,9 @@
 ## 生成审计现状（1.4.4@9433094-12）
 
 当前生成清单以 `outputStage: complete` 收录诀（`arcane`）的连携、五段普攻、处决、下落攻击、战技和
-两个原生终结技入口，共 11 个技能。严格技能序列、养成与干员装配均可编译，并生成
-`arcane.generated.ts`、`arcane.audit.json` 与 `arcane.operator.generated.ts`；正式目录直接消费该
-`OperatorDefinition`。
+两个原生终结技入口，共 11 个技能。严格技能序列、养成与干员装配均可编译，正式生成
+`arcane.operator.generated.ts`；正式目录直接消费该 `OperatorDefinition`。原始来源树不再生成到
+源码目录，详细审计位于本地 `tmp/generated-next-operators/arcane.audit.json`，不进入 Git。
 
 以下四条曾是正式生成的主要证据/实现缺口，现均已闭环；保留详细过程作为规则边界：
 

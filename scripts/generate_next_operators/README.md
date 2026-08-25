@@ -44,7 +44,8 @@ Aura 对目标的进入、离开和整体结束是实例生命周期，而不是
 每名干员最多生成三个文件：
 
 - `<slug>.generated.ts`：完整、可审计的技能中间表示。
-- `<slug>.audit.json`：便于人工检查的来源、动作和未解析依赖报告。
+- `tmp/generated-next-operators/<slug>.audit.json`：便于本地检查的来源、动作和未解析依赖报告；
+  属于可重建中间产物，不进入 Git。
 - `<slug>.operator.generated.ts`：编译后的技能、面板基线、技能组、天赋和潜能组成的完整 `OperatorDefinition`；正式数据不拆成多个文件。
 
 清单可显式设置 `outputStage: audit`，用于已经能编译技能主体、但 Buff 或干员级语义尚未闭环的
@@ -174,7 +175,7 @@ AKEDB 公共清单，但已由 `vfs-index-browser` 从 1.4.4 JsonData 解包并�
 
 ```powershell
 python scripts/generate_next_operators/audit_operator_progression.py `
-  --json-output docs/research/all-operator-progression-audit.json
+  --json-output tmp/all-operator-progression-audit.json
 ```
 
 报告的 `summary.configuredProgression` 以正式 manifest 的天赋/潜能槽位为单位，分别给出

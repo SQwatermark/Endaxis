@@ -472,18 +472,25 @@ export function applyOperatorUpgradeSkillPatches(
       if (
         options.skipUncompiledSkillGroups === true &&
         'skillGroupKey' in modifier &&
-        !patched.some(program =>
-          modifier.kind === 'patchSkillBlackboard' ||
-          modifier.kind === 'multiplyEffectDuration' ||
-          modifier.kind === 'setEffectiveness' ||
-          modifier.kind === 'addSkillStat'
-            ? (program.executionSkillGroupKey ?? program.skillGroupKey) ===
-                modifier.skillGroupKey &&
-              (!('skillKey' in modifier) ||
-                modifier.skillKey === undefined ||
-                (program.executionSkillId ?? program.skillId) === modifier.skillKey)
-            : program.skillGroupKey === modifier.skillGroupKey,
-        )
+        !patched.some(program => {
+          const usesExecutionIdentity =
+            modifier.kind === 'patchSkillBlackboard' ||
+            modifier.kind === 'multiplyEffectDuration' ||
+            modifier.kind === 'setEffectiveness' ||
+            modifier.kind === 'addSkillStat';
+          const groupKey = usesExecutionIdentity
+            ? (program.executionSkillGroupKey ?? program.skillGroupKey)
+            : program.skillGroupKey;
+          const skillKey = usesExecutionIdentity
+            ? (program.executionSkillId ?? program.skillId)
+            : program.skillId;
+          return (
+            groupKey === modifier.skillGroupKey &&
+            (!('skillKey' in modifier) ||
+              modifier.skillKey === undefined ||
+              skillKey === modifier.skillKey)
+          );
+        })
       ) {
         // 场景只编译实际放置的技能；未放置组的构筑补丁留给完整定义门禁校验。
         continue;

@@ -9,7 +9,8 @@
 - 2 个潜能效果还包含 Next 尚无等价升级修正的已知战斗属性，只能部分转换；
 - 天赋效果中没有 `attrModifier`，因此本切片只扩展潜能转换。
 
-机器可查询的逐干员结果见 `all-operator-progression-audit.json` 的
+机器可查询的逐干员结果由脚本生成到本地
+`tmp/all-operator-progression-audit.json`（不进入 Git），见其
 `staticAttributeConversion`，汇总见 `summary.staticAttributePotentialCounts`。
 
 ## 数据依据

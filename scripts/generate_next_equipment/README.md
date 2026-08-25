@@ -52,7 +52,7 @@ ToggleBuff 和动作图引用保留为独立运行时依赖。候选只有在这
 
 默认生成：
 
-- `docs/research/equipment-generation-audit.json`：机器可读全量路径与统计；
+- `tmp/equipment-generation-audit.json`：机器可读全量路径与统计；它是本地中间产物，不进入 Git；
 - `docs/research/equipment-generation-audit.md`：便于评审的中文摘要。
 - `docs/research/equipment-generation-migration-matrix.json`：逐 effect 迁移 IR；
 - `docs/research/equipment-generation-migration-matrix.md`：迁移类别、代表样本和能力阻塞汇总。

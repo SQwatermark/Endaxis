@@ -344,6 +344,7 @@ DEFAULT_TABLES = (
     / "TableCfg-1.4.4-9433094-12"
 )
 DEFAULT_OUTPUT = REPOSITORY_ROOT / "src" / "next" / "data" / "operators" / "generated"
+DEFAULT_INTERMEDIATE_OUTPUT = REPOSITORY_ROOT / "tmp" / "generated-next-operators"
 DEFAULT_ABILITY_ENTITY_TEMPLATE_EVIDENCE = (
     REPOSITORY_ROOT
     / "src"
@@ -612,6 +613,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--source", type=Path, default=DEFAULT_SOURCE)
     parser.add_argument("--tables", type=Path, default=DEFAULT_TABLES)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument(
+        "--intermediate-output",
+        type=Path,
+        default=DEFAULT_INTERMEDIATE_OUTPUT,
+        help="审计和宽松中间产物目录；默认位于受 Git 忽略的 tmp/ 下",
+    )
     parser.add_argument("--operator", action="append", dest="operators")
     parser.add_argument("--check", action="store_true", help="校验现有输出是否与重新生成结果一致")
     return parser.parse_args()
@@ -1599,7 +1606,6 @@ def _make_generation_pipeline_services() -> GenerationPipelineServices:
         render_report=render_report,
         render_shared_buff_definitions_module=render_shared_buff_definitions_module,
         render_shared_ability_entity_definitions_module=render_shared_ability_entity_definitions_module,
-        render_typescript=render_typescript,
         resolve_operator_buff_definitions_for_stage=resolve_operator_buff_definitions_for_stage,
         resolve_passive_buff_definitions=resolve_passive_buff_definitions,
         resolve_progression_buff_definitions=resolve_progression_buff_definitions,
@@ -3714,25 +3720,6 @@ def parse_skill(
         source_dir,
         patch_table,
         services=_make_skill_source_builder_services(),
-    )
-
-
-def render_typescript(
-    export_name: str,
-    slug: str,
-    skills: list[SkillSource],
-    buff_definitions: tuple[BuffDefinitionSource, ...],
-) -> str:
-    payload = {
-        "slug": slug,
-        "buffDefinitions": [serialize_audit_value(item) for item in buff_definitions],
-        "skills": [serialize_audit_value(skill) for skill in skills],
-    }
-    return (
-        "/** 由 scripts/generate_next_operators 生成；不要手工编辑。 */\n"
-        "import type { GeneratedOperatorSource } from './generatedOperatorSource';\n\n"
-        "// prettier-ignore\n"
-        f"export const {export_name} = {ts_literal(payload)} as const satisfies GeneratedOperatorSource;\n"
     )
 
 

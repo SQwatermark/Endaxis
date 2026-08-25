@@ -268,6 +268,36 @@ class BuffDefinitionCompilerTests(unittest.TestCase):
         self.assertIn("attribute: 'electricDamageIncrease'", result)
         self.assertIn("source: 'converted'", result)
 
+    def test_maps_native_element_damage_modifiers_to_runtime_damage_attributes(self) -> None:
+        source = definition(
+            attributeModifiers=tuple(
+                SimpleNamespace(
+                    targetType="Specific",
+                    attributeType=attribute,
+                    slot="BaseAddition",
+                    value=scalar(0.2),
+                )
+                for attribute in (
+                    "FireDamageIncrease",
+                    "PulseDamageIncrease",
+                    "CrystDamageIncrease",
+                    "NaturalDamageIncrease",
+                    "EtherDamageIncrease",
+                )
+            ),
+        )
+
+        result = compile_inline_buff_definition(source, "fixture")
+
+        for attribute in (
+            "heatDamageIncrease",
+            "electricDamageIncrease",
+            "cryoDamageIncrease",
+            "natureDamageIncrease",
+            "etherDamageIncrease",
+        ):
+            self.assertIn(f"attribute: '{attribute}'", result)
+
     def test_maps_native_critical_modifiers_to_runtime_snapshot_attributes(self) -> None:
         source = definition(
             attributeModifiers=(

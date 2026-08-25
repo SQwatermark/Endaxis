@@ -28,6 +28,10 @@ deploy.ps1
 *.tsbuildinfo
 __pycache__/
 
+# 生成器审计、原始来源投影和本地证据探针只属于可重建中间产物。
+/tmp/
+*audit.json
+
 .eslintcache
 
 # Cypress

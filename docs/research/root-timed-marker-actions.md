@@ -10,7 +10,7 @@
 
 - `vfs-index-browser/combat-spec/artifacts/SkillData`
 - `vfs-index-browser/combat-spec/artifacts/BuffData`
-- `docs/research/all-operator-recursive-mechanism-audit.json`
+- `tmp/all-operator-recursive-mechanism-audit.json`（本地可重建审计，不进入 Git）
 - `scripts/generate_next_operators/generate_next_operators.py`
 - `combat-runtime-dumps/1.4.4` 与现有 `native-timed-marker-runtime.md`
 

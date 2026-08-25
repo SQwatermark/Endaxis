@@ -121,7 +121,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--json-output",
         type=Path,
-        default=generator.REPOSITORY_ROOT / "docs/research/all-operator-generation-audit.json",
+        default=generator.REPOSITORY_ROOT / "tmp/all-operator-generation-audit.json",
     )
     parser.add_argument(
         "--markdown-output",

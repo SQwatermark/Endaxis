@@ -2,6 +2,13 @@
 
 本文只给出架构级状态。逐功能的定义、编译、执行和 UI 门槛以[功能迁移矩阵](../architecture/endaxis-next-feature-matrix.md)为准。
 
+> 2026-08-26 全技能运行基线：默认游戏数据仓库的 30 名干员、301 个基础/变体技能现已全部
+> 逐项放入时间轴并执行正式模拟。基础构筑下 286/301 成功，15 个失败已用精确身份和错误
+> 文本锁定；该清单是待消除的证据边界，不是一般性豁免。当前 partial 只剩 Camille 战技、
+> Estella 战技和 Tangtang 终结技；前两者需行为/黑板证据，后者按木桩无数值影响闭环但保留
+> Buff 图标、时长和轴上表现。可重建的 `*.audit.json` 和原始生成源树已移出 Git，统一写入被忽略的
+> `tmp/`；正式干员产物只保留 `*.operator.generated.ts`。
+
 > 2026-08-25 架构纠偏：装备套装领域中重复出现的公共 Buff 运行时编译器已移回
 > `compiler/buffRuntimeProjection.ts`，被动请求与安装物化也已从领域层收回公共编译层。
 > `architectureBoundaries.test.ts` 现强制公共层不反向依赖领域、严格来源层不依赖编译层、领域之间

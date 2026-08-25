@@ -221,7 +221,6 @@ class GenerationPipelineServices:
     render_report: Callable[..., Any]
     render_shared_buff_definitions_module: Callable[..., Any]
     render_shared_ability_entity_definitions_module: Callable[..., Any]
-    render_typescript: Callable[..., Any]
     resolve_operator_buff_definitions_for_stage: Callable[..., Any]
     resolve_passive_buff_definitions: Callable[..., Any]
     resolve_progression_buff_definitions: Callable[..., Any]
@@ -279,7 +278,6 @@ def run_generation(*, services: GenerationPipelineServices) -> None:
     render_report = services.render_report
     render_shared_buff_definitions_module = services.render_shared_buff_definitions_module
     render_shared_ability_entity_definitions_module = services.render_shared_ability_entity_definitions_module
-    render_typescript = services.render_typescript
     resolve_operator_buff_definitions_for_stage = services.resolve_operator_buff_definitions_for_stage
     resolve_passive_buff_definitions = services.resolve_passive_buff_definitions
     resolve_progression_buff_definitions = services.resolve_progression_buff_definitions
@@ -483,24 +481,22 @@ def run_generation(*, services: GenerationPipelineServices) -> None:
         entity_blackboard_initializers = derive_entity_blackboard_initializers(
             passive_skills, audited_buff_definitions
         )
-        write_or_check(
-            args.output / f"{slug}.generated.ts",
-            render_typescript(str(operator["exportName"]), slug, skills, buff_definitions),
-            args.check,
-        )
-        write_or_check(
-            args.output / f"{slug}.audit.json",
-            render_report(
-                operator,
-                skills,
-                buff_definitions,
-                passive_skills,
-                passive_generation_issues,
-                buff_definition_resolution_issues,
-                entity_blackboard_initializers,
-            ),
-            args.check,
-        )
+        # 原始来源树和审计报告只服务于生成期排查；正式运行仅消费
+        # *.operator.generated.ts。check 模式不要求仓库保存这些中间产物，也不写工作树。
+        if not args.check:
+            write_or_check(
+                args.intermediate_output / f"{slug}.audit.json",
+                render_report(
+                    operator,
+                    skills,
+                    buff_definitions,
+                    passive_skills,
+                    passive_generation_issues,
+                    buff_definition_resolution_issues,
+                    entity_blackboard_initializers,
+                ),
+                False,
+            )
         if output_stage == "audit":
             presentation_only_buff_ids = {
                 definition.buffId
@@ -542,22 +538,23 @@ def run_generation(*, services: GenerationPipelineServices) -> None:
                     )
                 ],
             }
-            write_or_check(
-                args.output / f"{slug}.skills.audit.generated.ts",
-                # 审计产物允许保留尚未闭环的 Buff 身份；完整事实仍在同名 audit.json 中。
-                render_compiled_skills(
-                    audit_compile_operator,
-                    skills,
-                    entity_blackboard_initializers=entity_blackboard_initializers,
-                    skill_slot_replacement_relations=derive_skill_slot_replacement_relations(
-                        skills, audited_buff_definitions
+            if not args.check:
+                write_or_check(
+                    args.intermediate_output / f"{slug}.skills.audit.generated.ts",
+                    # 审计产物允许保留尚未闭环的 Buff 身份；完整事实仍在同名 audit.json 中。
+                    render_compiled_skills(
+                        audit_compile_operator,
+                        skills,
+                        entity_blackboard_initializers=entity_blackboard_initializers,
+                        skill_slot_replacement_relations=derive_skill_slot_replacement_relations(
+                            skills, audited_buff_definitions
+                        ),
+                        simulation_no_effect_buff_ids=inherited_simulation_no_effect_buff_ids,
                     ),
-                    simulation_no_effect_buff_ids=inherited_simulation_no_effect_buff_ids,
-                ),
-                args.check,
-            )
+                    False,
+                )
             generated += 1
-            print(f"[{slug}] audited {len(skills)} skills -> {args.output}")
+            print(f"[{slug}] audited {len(skills)} skills -> {args.intermediate_output}")
             continue
         remove_obsolete_generated_file(args.output / f"{slug}.skills.generated.ts", args.check)
         remove_obsolete_generated_file(

@@ -1341,7 +1341,7 @@ export const camilleGeneratedOperator: OperatorDefinition = {
       },
       attributeModifiers: [
         {
-          attribute: 'FireDamageIncrease',
+          attribute: 'heatDamageIncrease',
           slot: 'baseAddition',
           value: { blackboardKey: 'atk_up' },
         },

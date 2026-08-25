@@ -19,7 +19,7 @@ DEFAULT_BUFF_SOURCE = generator.DEFAULT_SOURCE.parent / "BuffData"
 DEFAULT_BUFF_FALLBACK = generator.DEFAULT_SOURCE.parent / "buff-data-current"
 DEFAULT_JSON_OUTPUT = (
     generator.REPOSITORY_ROOT
-    / "docs/research/all-operator-recursive-mechanism-audit.json"
+    / "tmp/all-operator-recursive-mechanism-audit.json"
 )
 DEFAULT_MARKDOWN_OUTPUT = (
     generator.REPOSITORY_ROOT

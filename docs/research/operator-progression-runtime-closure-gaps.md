@@ -4,7 +4,8 @@
 
 本文记录养成审计中需要运行时消费链才能无损转换的属性，并同步标明已经闭环的项目。这里的“缺口”并非不知道枚举含义，而是 Next 尚未具备与原生方向、公式和生命周期一致的消费链。
 
-结构化结果位于 `all-operator-progression-audit.json`：
+结构化结果由养成审计脚本生成到
+`tmp/all-operator-progression-audit.json`；它是可重建的本地中间产物，不进入 Git：
 
 - 单条属性事实：`staticAttributeConversion.attributeFacts[].runtimeClosure`；
 - 全量汇总：`summary.runtimeClosureGaps`。

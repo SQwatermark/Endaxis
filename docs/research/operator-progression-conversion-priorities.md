@@ -8,8 +8,8 @@
 2. 可以映射为通用规则，而不是根据字段名猜测单个干员语义；
 3. Endaxis Next 已经存在实际参与模拟的等价消费链。
 
-终结技能量消耗乘算现在同时满足以上条件，已开放自动转换。结构化结果位于
-`all-operator-progression-audit.json` 的 `summary.conversionCandidatePriorities`；它记录候选覆盖量、
+终结技能量消耗乘算现在同时满足以上条件，已开放自动转换。结构化结果由脚本生成到
+`tmp/all-operator-progression-audit.json` 的 `summary.conversionCandidatePriorities`；该文件是不进入 Git 的本地中间产物，记录候选覆盖量、
 原生参数、Next 定义、运行时状态和生成数量。
 
 正式 manifest 另按“养成槽位”而不是原始等级效果计数。当前 13 名正式生成干员共有 26 个天赋槽、
@@ -137,5 +137,6 @@ Next 已建立统一养成 Patch 阶段，`multiplySkillCost` 会修改目标技
 - Buff 修改的原生战斗属性若未进入对应运行时消费链，不能仅凭“Buff 已安装”标记为完成；
 - 隐藏被动引用的 Buff 存在未识别生命周期载荷时，生成器必须报错或保留未建模状态，不能降级为空效果。
 
-对应事实与阻塞原因位于各干员 `*.audit.json` 的 `passiveSkills`。合成测试覆盖可表达子集的完整输出；
+对应事实与阻塞原因位于本地 `tmp/generated-next-operators/*.audit.json` 的
+`passiveSkills`。合成测试覆盖可表达子集的完整输出；
 Lifeng 回归测试进一步覆盖真实生成定义到最终伤害的生产路径。

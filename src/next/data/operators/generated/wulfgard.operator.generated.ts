@@ -876,7 +876,7 @@ export const wulfgardGeneratedOperator: OperatorDefinition = {
       },
       attributeModifiers: [
         {
-          attribute: 'FireDamageIncrease',
+          attribute: 'heatDamageIncrease',
           slot: 'baseAddition',
           value: { blackboardKey: 'add' },
         },
