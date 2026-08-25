@@ -12,50 +12,15 @@ import {
   type EquipmentAttributeModifierProjectionSource,
   type ProjectedEquipmentModifierSource,
 } from './projection.ts';
+import type {
+  BuildDefinitionDiagnosticSource,
+  CompiledBuildModifierDefinitionSource,
+} from '../../compiler/formalBuildDefinition.ts';
 
-export interface EquipmentDefinitionDiagnosticSource {
-  readonly status: 'scenario-omitted' | 'blocked';
-  readonly sourcePath: string;
-  readonly reason: string;
-}
+export type EquipmentDefinitionDiagnosticSource = BuildDefinitionDiagnosticSource;
+export type CompiledEquipmentModifierDefinitionSource = CompiledBuildModifierDefinitionSource;
 
 export type CompiledGearSlotTypeSource = 'armor' | 'gloves' | 'accessory';
-export type CompiledEquipmentModifierDefinitionSource =
-  | {
-      readonly kind: 'attribute';
-      readonly attribute: 'strength' | 'agility' | 'intellect' | 'will' | 'main' | 'secondary';
-      readonly operation: 'flat' | 'percent';
-      readonly value: readonly number[];
-    }
-  | {
-      readonly kind: 'panelStat';
-      readonly stat:
-        | 'attackFlat'
-        | 'attackPercent'
-        | 'healthFlat'
-        | 'healthPercent'
-        | 'criticalRate'
-        | 'artsIntensity'
-        | 'ultimateEnergyGainEfficiency'
-        | 'staggerDamagePercent';
-      readonly value: readonly number[];
-    }
-  | {
-      readonly kind: 'damageScale';
-      readonly target: import('./projection.ts').ProjectedEquipmentDamageScale;
-      readonly value: readonly number[];
-    }
-  | {
-      readonly kind: 'staticHealingIncrease';
-      readonly target: 'output';
-      readonly value: readonly number[];
-    }
-  | {
-      readonly kind: 'skillCooldownMultiplier';
-      readonly skillTypes: 'comboSkill';
-      readonly value: readonly number[];
-    };
-
 export interface CompiledGearTraitDefinitionSource {
   readonly key: string;
   readonly levelCount: number;

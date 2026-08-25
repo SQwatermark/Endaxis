@@ -467,6 +467,12 @@ npm run download:game-data:operator-closure -- --vfs-fallback http://desktop:876
 - 武器基础攻击成长：被动发现和成长读取共用同一 `WeaponBasicTable` 严格源行；成长只沿声明的
   `levelTemplateId` 读取 `WeaponUpgradeTemplateTable`，保留导出值和原生 float 运行值，只有精确等级
   行产生 `Specific/Atk/BaseAddition`，缺行返回空且不插值；
+- 武器静态正式定义：以原生 `weaponId` 作为尚未引入产品身份表时的稳定候选身份，
+  只接受 1/20/40/60/80/90 级六个精确基础攻击节点和 Next 可表达的稀有度/武器类型；
+  CardSkill 属性按 SkillPatch 的完整等级黑板物化为逐档词条，而 Buff、Toggle 和动作闭包作为
+  显式运行依赖保留，不因静态定义已生成而冒充动态行为已闭环；
+- 公共构筑属性投影：武器与装备共用 `compiler/buildAttributeProjection.ts` 中的原生属性语义，
+  正式修正与诊断类型也归入公共编译层；两个领域不互相导入，装备旧公开名称只保留为薄兼容导出；
 - 装备套装发现入口：按 `EquipSuitTable.list` 的原生顺序产生相同的公共请求，保留每个阈值的
   `equipCnt`、`skillID` 和 `skillLv`；当前数据碰巧都是三件套一级技能，但实现不固化这些值；
 - 公共 Attribute Modifier 枚举身份：Buff/CardSkill 的字符串枚举和表格中的数字枚举进入同一套
@@ -488,11 +494,9 @@ npm run download:game-data:operator-closure -- --vfs-fallback http://desktop:876
   突破/潜能/基质算法解析的实例等级；选级后再应用请求额外黑板，复现同名值最终覆盖顺序；
 - Python oracle JSON 差分通道及真实 SkillPatch 导出切片。
 
-下一阶段：继续恢复 Operator 正式定义。静态头部、技能等级组、天赋/潜能联合载荷和构筑属性条件
-已经形成严格来源及领域组装 IR；接下来先为 manifest 增加显式产品身份，再用一个已正式生成的干员贯通主动技能、
-天赋、潜能、Buff 与能力实体的完整组装，并与旧 Python 产物做对象级和运行语义差分；随后逐个
-扩大正式干员覆盖。武器、单件装备和套装只保留已取得的来源 IR、正式样本和回归，不在 Operator
-等价门禁完成前继续扩展新的行为投影。仍缺定义的 AbilityEntity/Projectile 引用继续失败关闭。
+下一阶段：以当前 30 名干员、301 个技能的逐项模拟门禁为边界，先消除会影响对敌输出的已知
+干员失败和 partial 定义。随后对 77 件武器执行静态定义全量审计，补齐显式产品身份，再逐项闭合
+每个词条的 Buff、Toggle 和动作引用。仍缺定义的 AbilityEntity/Projectile 引用继续失败关闭。
 
 Operator 主动技能库可用以下命令批量审计；任何干员失败都会保留逐项诊断并使进程返回非零：
 

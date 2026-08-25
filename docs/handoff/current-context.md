@@ -7,6 +7,17 @@
 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
+### 2026-08-26：武器静态定义 checkpoint
+
+- 新统一编译器已能把严格 `WeaponBasicTable` 身份、六个精确基础攻击节点、原生稀有度/武器
+  类型与 CardSkill 逐档属性物化为静态 `WeaponDefinition` 候选。Buff、Toggle 和动作闭包仍作为显式
+  运行依赖保留，静态候选不等于武器动态行为已闭环。
+- 武器初版曾直接导入装备领域的属性投影与定义类型，已被架构门禁拦截。该语义现已提升到
+  `compiler/buildAttributeProjection.ts` 和 `compiler/formalBuildDefinition.ts`；武器、装备只消费公共结果，
+  装备的旧公开名称仅保留薄兼容导出，领域之间没有横向依赖。
+- 门禁：游戏数据编译器 59 文件 254/254，Next 207 文件 1828/1828，两套专用类型检查通过。
+  下一步先回到全干员逐技能失败，再对 77 件武器跑全量静态候选审计与动态依赖分类。
+
 ### 2026-08-26：全干员技能逐项模拟门禁与中间产物清理
 
 - 新增生产仓库级逐项审计：30 名干员的基础技能和变体共 **301 个**，每个都用

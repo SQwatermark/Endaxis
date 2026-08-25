@@ -370,6 +370,16 @@ export {
   type WeaponPotentialSkillLevelsSource,
   type WeaponSkillLevelBoundSource,
 } from './domains/weapon/skillLevels.ts';
+export {
+  compileWeaponStaticDefinitionBatchSource,
+  type CompiledWeaponStaticDefinitionBatchSource,
+  type CompiledWeaponStaticDefinitionSource,
+  type CompiledWeaponTraitLevelRuntimeDependencySource,
+  type CompiledWeaponTraitRuntimeDependencySource,
+  type CompiledWeaponTraitStaticDefinitionSource,
+  type CompiledWeaponToggleBuffGroupSource,
+  type CompiledWeaponToggleConditionSource,
+} from './domains/weapon/staticDefinition.ts';
 export { discoverEquipmentSuitPassiveSkillRequests } from './domains/equipment/passiveDiscovery.ts';
 export {
   compileEquipmentSuitSourceClosure,
