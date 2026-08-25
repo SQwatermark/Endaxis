@@ -46,6 +46,7 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       condition.kind !== 'eventDamageFeaturesMatch' &&
       condition.kind !== 'eventDamageTypeIn' &&
       condition.kind !== 'eventInflictionElementIn' &&
+      condition.kind !== 'eventPhysicalInflictionTypeIn' &&
       condition.kind !== 'eventSkillTypeIn' &&
       condition.kind !== 'eventSkillIdIn' &&
       condition.kind !== 'eventBuffIdMatch' &&
@@ -107,6 +108,13 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
         context.event.kind === 'abilitySpellInfliction' &&
         context.event.element !== undefined &&
         condition.elements.includes(context.event.element)
+      );
+    }
+    if (condition.kind === 'eventPhysicalInflictionTypeIn') {
+      return (
+        context.event.kind === 'abilityPhysicalInfliction' &&
+        context.event.type !== undefined &&
+        condition.types.includes(context.event.type)
       );
     }
     if (condition.kind === 'eventSkillIdIn') {

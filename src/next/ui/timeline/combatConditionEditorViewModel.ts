@@ -101,6 +101,8 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
       return { kind, damageTypes: ['physical'] };
     case 'eventInflictionElementIn':
       return { kind, elements: ['heat'] };
+    case 'eventPhysicalInflictionTypeIn':
+      return { kind, types: ['fracture'] };
     case 'eventSkillTypeIn':
       return { kind, skillTypes: ['battleSkill'] };
     case 'eventSkillIdIn':

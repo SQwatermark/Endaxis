@@ -48,9 +48,10 @@ export interface CombatAbilityDamageEvent {
 /** AbilitySystem 即将承受物理异常时的同步事件；来源是施加该异常的实体。 */
 export interface CombatAbilityPhysicalInflictionEvent {
   readonly kind: 'abilityPhysicalInfliction';
-  readonly event: 'beforeTakePhysicalInfliction';
+  readonly event: 'beforeTakePhysicalInfliction' | 'beforeOutputPhysicalInfliction';
   readonly sourceId: string;
   readonly targetId: string;
+  readonly type?: 'airborne' | 'knockDown' | 'fracture' | 'crush';
 }
 
 /** AbilitySystem 即将承受元素附着时的同步事件；当前木桩模型不会自行产生角色承术事件。 */

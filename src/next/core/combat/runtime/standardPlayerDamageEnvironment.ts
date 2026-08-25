@@ -102,6 +102,7 @@ export type StandardPlayerDamageEvent =
   | 'beforeCalculateDamage'
   | 'beforeTakeDamage'
   | 'beforeTakePhysicalInfliction'
+  | 'beforeOutputPhysicalInfliction'
   | 'beforeTakeSpellInfliction'
   | 'beforeOutputDamage'
   | 'beforeKillEntity'

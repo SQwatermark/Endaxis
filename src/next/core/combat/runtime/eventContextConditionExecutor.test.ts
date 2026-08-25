@@ -9,6 +9,30 @@ const terminal = {
 };
 
 describe('EventContextConditionExecutor', () => {
+  it('matches the physical-infliction type carried by a source output event', () => {
+    const executor = new EventContextConditionExecutor(terminal);
+    const context = {
+      blackboard: new ActionBlackboard(),
+      event: {
+        kind: 'abilityPhysicalInfliction' as const,
+        event: 'beforeOutputPhysicalInfliction' as const,
+        sourceId: 'operator',
+        targetId: 'enemy',
+        type: 'fracture' as const,
+      },
+    };
+
+    expect(
+      executor.evaluate(
+        { kind: 'eventPhysicalInflictionTypeIn', types: ['fracture', 'crush'] },
+        context,
+      ),
+    ).toBe(true);
+    expect(
+      executor.evaluate({ kind: 'eventPhysicalInflictionTypeIn', types: ['knockDown'] }, context),
+    ).toBe(false);
+  });
+
   it('matches only the requested element on an enemy infliction event', () => {
     const executor = new EventContextConditionExecutor(terminal);
     const condition = {

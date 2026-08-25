@@ -7,6 +7,24 @@
 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
+### 2026-08-25：物理异常输出事件与套装查询 IR checkpoint
+
+- `suit_crush_fracture` 的首层证据已按 `combat-spec` 现有反编译结论进入公共基础设施：
+  `CheckPhysicalInflictionType` 将 `Airborne/KnockDown/Fracture/Crush` 解释为事件类型位集；当前只允许
+  空 `savedKey` 的纯条件形状，非空写黑板路径仍保持未开放。
+- Next 新增独立的 `beforeOutputPhysicalInfliction` 来源 AbilitySystem 事件。它在物理异常尝试输出前
+  同步携带来源、目标和异常类型，不能与目标侧 `beforeTakePhysicalInfliction` 混用；公共条件
+  `eventPhysicalInflictionTypeIn` 已贯通定义、校验、执行与编辑器默认值。
+- 新 TypeScript 编译器的公共来源 IR 已接入 `SaveBuffStackNumAdvanced`，完整保留目标、ID/Tag 查询、
+  `BuffCount` 类型、同施法限制和输出黑板 key。这里只完成严格来源读取；套装领域尚未把后续动态
+  黑板乘法、OR 条件和 Buff 安装链投影成正式定义。
+- 因此正式套装进度仍是 **12/23**，`suit_crush_fracture` 不得在本 checkpoint 冒充已转换。下一步从
+  这份公共 IR 复用现有 `readBuffStackCount`、`modifyActionValue`、`poiseCompare` 和 Buff 应用运行时，
+  完整闭合后才生成并注册第 13 套。
+- 当前门禁：公共编译器 37 文件 / 179 项、Next 208 文件 / 1512 项及两套类型检查通过。
+- `D:\Projects\combat-spec` 当前 `main` 工作树干净并与 `origin/main` 同步；所需原生证据已在
+  `db2bcba` 及此前装备 Buff 规格提交中，无需为本次 Endaxis 接线制造空提交。
+
 ### 2026-08-25：物理异常套装伤害与全局冷却闭环
 
 - 正式生成套装推进到 12/23。`suit_phy01` 保留全局失衡输出 +20%，并在来源角色输出任意

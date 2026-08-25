@@ -1,4 +1,8 @@
 export {
+  parseBuffStackReadActionSource,
+  type BuffStackReadActionSource,
+} from './source/buffQueryActions.ts';
+export {
   parseBlackboardAssignmentsSource,
   type BlackboardAssignmentSource,
   type BlackboardAssignmentParseOptions,

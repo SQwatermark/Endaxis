@@ -230,6 +230,30 @@ describe('公共条件叶子 IR', () => {
       parseConditionLeafSource(condition('UnknownNativeCondition', {}), 'fixture.condition', {}),
     ).toThrow('condition parser has not migrated "UnknownNativeCondition"');
   });
+
+  it('严格解析物理异常事件类型位集并保留 savedKey 边界', () => {
+    expect(
+      parseConditionLeafSource(
+        condition('CheckPhysicalInflictionType', {
+          mask: 'Fracture, Crush',
+          savedKey: '',
+        }),
+        'fixture.physicalInflictionType',
+        {},
+      ),
+    ).toMatchObject({
+      kind: 'physicalInflictionType',
+      types: ['fracture', 'crush'],
+      savedKey: '',
+    });
+    expect(() =>
+      parseConditionLeafSource(
+        condition('CheckPhysicalInflictionType', { mask: 'Unknown', savedKey: '' }),
+        'fixture.physicalInflictionType',
+        {},
+      ),
+    ).toThrow("unknown physical infliction flag 'Unknown'");
+  });
 });
 
 function condition(sourceType: string, fields: Record<string, unknown>): Record<string, unknown> {

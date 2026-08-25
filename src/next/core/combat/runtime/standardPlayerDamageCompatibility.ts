@@ -100,6 +100,7 @@ function inspectCondition(
     case 'eventHealTagsMatch':
     case 'eventSourceTargetMatch':
     case 'eventInflictionElementIn':
+    case 'eventPhysicalInflictionTypeIn':
     case 'eventSkillTypeIn':
     case 'eventSkillIdIn':
     case 'eventBuffIdMatch':

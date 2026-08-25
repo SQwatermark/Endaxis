@@ -101,6 +101,12 @@ export type NativeConditionSource =
       readonly savedKey: string;
     })
   | (ConditionIdentity & {
+      /** 物理异常事件上下文的 0..3 类型位集；非空 savedKey 尚未进入运行投影。 */
+      readonly kind: 'physicalInflictionType';
+      readonly types: readonly ('airborne' | 'knockDown' | 'fracture' | 'crush')[];
+      readonly savedKey: string;
+    })
+  | (ConditionIdentity & {
       readonly kind: 'deckAttributeCompare';
       readonly targetSource: string;
       readonly targetGroupKey: string;
@@ -315,6 +321,13 @@ export function parseConditionLeafSource(
       return parseDamageType(condition, path, sourceType);
     case 'CheckSpellInflictionType':
       return parseInflictionType(condition, path, sourceType);
+    case 'CheckPhysicalInflictionType':
+      return {
+        kind: 'physicalInflictionType',
+        sourceType,
+        types: parsePhysicalInflictionMask(condition.mask, `${path}.mask`),
+        savedKey: requireString(condition.savedKey, `${path}.savedKey`),
+      };
     case 'CompareDeckAttr':
       return parseDeckAttribute(condition, path, sourceType, inheritedBlackboard);
     case 'CheckAbilityEntityCurDuration':
@@ -403,6 +416,26 @@ export function parseConditionLeafSource(
     default:
       throw new Error(`${path}: condition parser has not migrated ${JSON.stringify(sourceType)}`);
   }
+}
+
+function parsePhysicalInflictionMask(
+  value: unknown,
+  path: string,
+): readonly ('airborne' | 'knockDown' | 'fracture' | 'crush')[] {
+  const names = requireNonEmptyString(value, path)
+    .split(',')
+    .map(item => item.trim());
+  const mapping = {
+    Airborne: 'airborne',
+    KnockDown: 'knockDown',
+    Fracture: 'fracture',
+    Crush: 'crush',
+  } as const;
+  return names.map(name => {
+    const type = mapping[name as keyof typeof mapping];
+    if (type === undefined) throw new Error(`${path}: unknown physical infliction flag '${name}'`);
+    return type;
+  });
 }
 
 function parseMainOperator(
@@ -808,7 +841,7 @@ function parseTwoDirectionAngle(
   };
 }
 
-function parseBuffFindSettings(
+export function parseBuffFindSettings(
   value: unknown,
   path: string,
 ): {

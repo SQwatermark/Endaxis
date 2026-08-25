@@ -539,12 +539,15 @@ function normalizeBuffAbilityEvent(
       targetId: source.targetId,
     };
   }
-  if (event === 'beforeTakePhysicalInfliction') {
+  if (event === 'beforeTakePhysicalInfliction' || event === 'beforeOutputPhysicalInfliction') {
     return {
       kind: 'abilityPhysicalInfliction',
       event,
       sourceId: source.sourceId,
       targetId: source.targetId,
+      ...(source.type === undefined
+        ? {}
+        : { type: source.type as CombatAbilityPhysicalInflictionEvent['type'] }),
     };
   }
   if (event === 'beforeCalculateDamage') {

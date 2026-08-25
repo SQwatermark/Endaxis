@@ -583,6 +583,19 @@ function validateCombatCondition(
         });
       }
       break;
+    case 'eventPhysicalInflictionTypeIn': {
+      const known = new Set(['airborne', 'knockDown', 'fracture', 'crush']);
+      if (!Array.isArray(record.types) || record.types.length === 0) {
+        push(out, `${path}.types`, 'expected a non-empty array');
+      } else {
+        record.types.forEach((type, index) => {
+          if (typeof type !== 'string' || !known.has(type)) {
+            push(out, `${path}.types[${index}]`, 'unknown physical infliction type');
+          }
+        });
+      }
+      break;
+    }
     case 'eventSkillTypeIn':
       if (!Array.isArray(record.skillTypes) || record.skillTypes.length === 0) {
         push(out, `${path}.skillTypes`, 'expected a non-empty array');
@@ -1184,6 +1197,7 @@ function validateCombatStep(
                     response.event !== 'beforeTakeDamage' &&
                     response.event !== 'beforeCalculateDamage' &&
                     response.event !== 'beforeTakePhysicalInfliction' &&
+                    response.event !== 'beforeOutputPhysicalInfliction' &&
                     response.event !== 'beforeTakeSpellInfliction' &&
                     response.event !== 'beforeTakeInfliction' &&
                     response.event !== 'takeDamage' &&

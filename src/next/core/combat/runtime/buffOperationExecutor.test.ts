@@ -74,6 +74,7 @@ describe('BuffOperationExecutor', () => {
     let noGuardCount = 0;
     const applied: string[] = [];
     const consumed: Array<{ buffId: string; layers: number; sourceOperatorId: string }> = [];
+    const beforeOutput: Array<{ sourceId: string; targetId: string; type: string }> = [];
     const target = {
       ownerId: 'enemy',
       apply: (request: { buffId: string }) => {
@@ -97,6 +98,7 @@ describe('BuffOperationExecutor', () => {
       sourceActionId: 'comboSkill',
       resolveTarget: () => target,
       onBuffConsumed: event => consumed.push(event),
+      onBeforeOutputPhysicalInfliction: event => beforeOutput.push(event),
       delegate,
     });
     const step = {
@@ -122,6 +124,10 @@ describe('BuffOperationExecutor', () => {
 
     expect(executor.execute(step, context)).toBe(true);
     expect(executor.execute(step, context)).toBe(true);
+    expect(beforeOutput).toEqual([
+      { sourceId: 'antal', targetId: 'enemy', type: 'fracture' },
+      { sourceId: 'antal', targetId: 'enemy', type: 'fracture' },
+    ]);
     expect(applied).toEqual(['buff_physical_no_guard', 'buff_physical_fracture']);
     expect(consumed).toEqual([
       {

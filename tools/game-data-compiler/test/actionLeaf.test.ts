@@ -84,6 +84,37 @@ describe('公共 Action 叶子分派', () => {
       ),
     ).toThrow('fixture.unknown.$type: unsupported native action "UnknownCombatAction"');
   });
+
+  it('SaveBuffStackNumAdvanced 进入公共 Buff 查询 IR', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Example.SaveBuffStackNumAdvanced+Data, Example',
+          checkTarget: targetFixture('Target'),
+          buffSettings: {
+            checkType: 'Tag',
+            buffIdList: [],
+            tagQuery: { queryType: 'HasAny', tags: [{ tagId: 1075718177 }] },
+          },
+          buffStackNumType: 'BuffCount',
+          limitSkillCastId: false,
+          key: 'physical_layers',
+        },
+        'fixture.buffStackRead',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'buffQuery',
+      action: {
+        target: { targetSource: 'Target' },
+        checkType: 'Tag',
+        buffTagIds: [1075718177],
+        countType: 'BuffCount',
+        outputKey: 'physical_layers',
+      },
+    });
+  });
 });
 
 function sequence(actionData: unknown[]): Record<string, unknown> {

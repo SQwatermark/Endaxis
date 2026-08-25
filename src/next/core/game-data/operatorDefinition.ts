@@ -365,6 +365,11 @@ export type CombatCondition =
       elements: readonly InflictionElement[];
     }
   | {
+      /** 匹配来源 AbilitySystem 即将输出的物理异常类型。 */
+      kind: 'eventPhysicalInflictionTypeIn';
+      types: readonly ('airborne' | 'knockDown' | 'fracture' | 'crush')[];
+    }
+  | {
       /** 匹配触发 Buff 响应的待施放技能类型。 */
       kind: 'eventSkillTypeIn';
       skillTypes: readonly SkillType[];
@@ -466,6 +471,7 @@ export const COMBAT_CONDITION_KINDS = [
   'eventDamageFeaturesMatch',
   'eventDamageTypeIn',
   'eventInflictionElementIn',
+  'eventPhysicalInflictionTypeIn',
   'eventSkillTypeIn',
   'eventSkillIdIn',
   'eventBuffIdMatch',
@@ -1205,6 +1211,7 @@ export interface SkillBuffAbilityEventResponse {
     | 'beforeTakeDamage'
     | 'beforeCalculateDamage'
     | 'beforeTakePhysicalInfliction'
+    | 'beforeOutputPhysicalInfliction'
     | 'beforeTakeSpellInfliction'
     | 'beforeTakeInfliction'
     | 'takeDamage'

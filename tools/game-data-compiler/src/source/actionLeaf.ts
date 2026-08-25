@@ -15,6 +15,10 @@ import {
   type BuffApplicationActionSource,
   type BuffFinishActionSource,
 } from './buffActions.ts';
+import {
+  parseBuffStackReadActionSource,
+  type BuffStackReadActionSource,
+} from './buffQueryActions.ts';
 import { parseConditionLeafSource, type NativeConditionSource } from './condition.ts';
 import { parseNativeSequenceSource, type NativeSequenceSource } from './controlFlow.ts';
 import { parseDamageActionSource, type DamageActionSource } from './damageActions.ts';
@@ -64,6 +68,7 @@ const CONDITION_ACTION_NAMES = new Set([
   'CheckObjectTypeMatch',
   'CheckDamageType',
   'CheckSpellInflictionType',
+  'CheckPhysicalInflictionType',
   'CompareDeckAttr',
   'CheckAbilityEntityCurDuration',
   'CheckDamageDecorateMask',
@@ -92,6 +97,7 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'globalCooldown'; readonly action: GlobalCooldownApplicationSource }
   | { readonly family: 'buffApplication'; readonly action: BuffApplicationActionSource }
   | { readonly family: 'buffFinish'; readonly action: BuffFinishActionSource }
+  | { readonly family: 'buffQuery'; readonly action: BuffStackReadActionSource }
   | { readonly family: 'heal'; readonly action: HealActionSource }
   | { readonly family: 'lifecycle'; readonly action: FinishOwnerActionSource }
   | {
@@ -178,6 +184,11 @@ export function parseKnownNativeActionLeafSource(
       return {
         family: 'buffFinish',
         action: parseAdvancedBuffFinishActionSource(value, path, inheritedBlackboard),
+      };
+    case 'SaveBuffStackNumAdvanced':
+      return {
+        family: 'buffQuery',
+        action: parseBuffStackReadActionSource(value, path),
       };
     case 'HealAction':
       return { family: 'heal', action: parseHealActionSource(value, path, inheritedBlackboard) };

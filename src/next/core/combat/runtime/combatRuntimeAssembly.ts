@@ -269,7 +269,7 @@ export interface CombatRuntimeAssemblyOptions {
   /** 已闭环的 AbilitySystem 同步事件。 */
   readonly emitAbilityEvent?: (
     entityId: string,
-    event: 'beforeCastSkill' | 'skillEnd' | 'ownerHpZero',
+    event: 'beforeCastSkill' | 'skillEnd' | 'ownerHpZero' | 'beforeOutputPhysicalInfliction',
     payload:
       | {
           readonly sourceId: string;
@@ -1264,6 +1264,8 @@ export class CombatRuntimeAssembly {
       onBuffConsumed: event => this.semanticEvents.emit({ kind: 'buffConsumed', ...event }),
       onPhysicalInflictionApplied: event =>
         this.semanticEvents.emit({ kind: 'physicalInflictionApplied', ...event }),
+      onBeforeOutputPhysicalInfliction: payload =>
+        this.#options.emitAbilityEvent?.(operatorId, 'beforeOutputPhysicalInfliction', payload),
       delegate: timeDilationOperations,
     });
     const statusOperations = new StatusOperationExecutor({
@@ -1455,6 +1457,8 @@ export class CombatRuntimeAssembly {
       onBuffConsumed: event => this.semanticEvents.emit({ kind: 'buffConsumed', ...event }),
       onPhysicalInflictionApplied: event =>
         this.semanticEvents.emit({ kind: 'physicalInflictionApplied', ...event }),
+      onBeforeOutputPhysicalInfliction: payload =>
+        options.emitAbilityEvent?.(operatorId, 'beforeOutputPhysicalInfliction', payload),
       delegate: timeDilationOperations,
     });
     const statusRuntime = this.#operatorStatuses.get(operatorId);

@@ -145,6 +145,11 @@ export interface BuffOperationDependencies {
     readonly targetId: string;
     readonly type: 'fracture' | 'crush';
   }) => void;
+  readonly onBeforeOutputPhysicalInfliction?: (event: {
+    readonly sourceId: string;
+    readonly targetId: string;
+    readonly type: 'fracture' | 'crush';
+  }) => void;
   readonly delegate: CombatOperationExecutor;
 }
 
@@ -168,6 +173,11 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         );
       }
       const noGuardCount = target.getCountByIds([step.parameters.noGuardBuffId]);
+      this.dependencies.onBeforeOutputPhysicalInfliction?.({
+        sourceId: this.dependencies.sourceId,
+        targetId: target.ownerId,
+        type: step.parameters.type,
+      });
       const hasNoGuard = noGuardCount > 0;
       const crushBlackboardValues: Readonly<Record<string, number>> =
         hasNoGuard && step.parameters.type === 'crush'
