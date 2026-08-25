@@ -1285,6 +1285,7 @@ def compile_resolved_sequence(
             payload = cast(AuxiliaryActionSource, item.payload)
             context_application_target = None
             ability_entity_collection_key = None
+            ability_entity_collection_query = None
             if (
                 payload.targetSource == "Context"
                 and payload.targetGroupKey != "smart_target"
@@ -1317,6 +1318,15 @@ def compile_resolved_sequence(
                 ):
                     context_application_target = "currentAbilityEntity"
                     ability_entity_collection_key = payload.targetGroupKey
+                    if write is not None:
+                        ability_entity_collection_query = (
+                            compile_skill_target_group_ability_entity_query(
+                                write,
+                                ability_entity_templates,
+                                f"{skill.key}.schedule[{schedule_index}].buffApplication."
+                                "targetGroupWrite",
+                            )
+                        )
             if payload.classification == "skillCostUltimateEnergyGain":
                 # buff_common_obtain_ultimate_sp 的 CreateBuffAction 是原生
                 # “按非返还技力消耗为全队回能”的载体；不展开为 Buff 实例。
@@ -1361,6 +1371,11 @@ def compile_resolved_sequence(
                     nested_lines = [f"    {line}" for line in step_lines]
                     nested_lines[-1] += ","
                     step_lines = [
+                        *(
+                            [ability_entity_collection_query]
+                            if ability_entity_collection_query is not None
+                            else []
+                        ),
                         "forEachContextTarget(",
                         f"  {ts_inline_literal(ability_entity_collection_key)},",
                         "  sequence(",

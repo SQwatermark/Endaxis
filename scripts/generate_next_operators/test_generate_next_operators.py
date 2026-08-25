@@ -11103,6 +11103,84 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertIn("step('holdBuffsById'", source)
         self.assertIn("        18,\n      ),", source)
 
+    def test_resolved_sequence_queries_owner_entities_before_context_buff_loop(self) -> None:
+        write = TargetGroupWriteSource(
+            startFrame=7,
+            endFrame=7,
+            actionIndex=0,
+            actionPath=("timelineActions[0]", "actionData", "[0]"),
+            targetGroupKey="robots",
+            producerType="FindTargetAction",
+            finderType="OwnerSpawnedEntityFinder",
+            finderFactionTarget=None,
+            finderTargetObjectType=None,
+            finderCheckAlive=None,
+            validatorTypes=("TagValidator",),
+            postProcessorTypes=("PriorityFilter",),
+            inputTargets=(),
+            intervalSeconds=None,
+            finderSpawnedObjectType="AbilityEntity",
+            validatorTagQueries=(("HasAny", (123,)),),
+            center="ActionSource",
+            selectorOwner="ActionOwner",
+        )
+        application = AuxiliaryActionSource(
+            startFrame=7,
+            endFrame=7,
+            actionIndex=1,
+            actionType="CreateBuffAction",
+            sourceId="buff.robot.end",
+            classification=None,
+            targetSource="Context",
+            targetGroupKey="robots",
+            count=ScalarSource(1, None, None),
+            buffSource="ActionSource",
+            inheritSourceSkillCastInfo=True,
+            blackboardAssignments={},
+            nestedCombatActions=(),
+        )
+        skill = SimpleNamespace(
+            key="enhancedAttackEnd",
+            skillId="fixture.enhanced_attack_end",
+            skillType="basicAttack",
+            timelineBlockFrames=20,
+            patch=SimpleNamespace(
+                cooldownSeconds=(0,) * 12,
+                costTypes=(0,) * 12,
+                costValues=(0,) * 12,
+            ),
+            costFrame=0,
+            auxiliaryActions=(application,),
+            resourceGains=(),
+            inflictions=(),
+            projectileLaunches=(),
+            conditionalActions=(),
+            blackboardCalculations=(),
+            blackboardMutations=(),
+            buffBlackboardReads=(),
+            buffFinishes=(),
+            buffHolds=(),
+            targetGroupWrites=(write,),
+            targetGroupControlFlowActions=(),
+            unresolvedCombatActions=("CreateBuffAction",),
+            directDamageHits=(),
+            projectileTriggeredSkills=(),
+            abilityEntityHits=(),
+        )
+
+        with patch(
+            "generate_next_operators.load_ability_entity_template_evidence",
+            return_value={"abilityentity.robot": {"bornTagIds": [123]}},
+        ):
+            source = compile_resolved_sequence(skill, {}, require_damage=False)
+
+        query = "step('findOwnerSpawnedAbilityEntities'"
+        loop = "forEachContextTarget(\n            'robots'"
+        self.assertIn(query, source)
+        self.assertIn("abilityEntityIds: ['abilityentity.robot']", source)
+        self.assertIn(loop, source)
+        self.assertLess(source.index(query), source.index(loop))
+
     def test_resolved_damage_compiler_interleaves_condition_roots_by_native_order(self) -> None:
         unit = DamageUnitSource(
             damageType="Pulse",

@@ -7,6 +7,19 @@
 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
+### 2026-08-26：根技能能力实体查询恢复
+
+- 根技能同帧的 `FindTargetAction(OwnerSpawnedEntityFinder)` + Context Buff 施加此前只生成后半段
+  `forEachContextTarget`，导致 Context 从未创建。转换器现先按模板 GameplayTag 证据生成
+  `findOwnerSpawnedAbilityEntities`，再遍历结果；空结果是合法空集合，不再误报缺 Context。
+- 伊冯强化普攻末段的三次 `robots` 查询和阿黛拉下落攻击的 `Sheep` 查询均已恢复。伊冯门禁还会
+  先真实释放终结技，在第 61 局部帧开启强化且技能块结束后再放末段，未凭空创建机器人。
+- 当前基线为 **300/301 成功、1 项精确失败**。唯一剩项是 Arcane 连携同时注册两条
+  `beforeTakeDamage` 监听；原始数据均为 `Default + priorityOffset 0`，combat-spec 尚未闭环同优先级
+  稳定顺序，因此继续严格失败，下一步须查原生事件动作容器与排序实现，不能依赖 JS 注册顺序。
+- 本轮门禁：生成器单测 380/380、全量生成 `--check`、`npm run type-check:next`、Next 207 个测试
+  文件 1838/1838 全部通过。
+
 ### 2026-08-26：多稳定输入技能槽与梨诺战技闭环
 
 - `SkillGroup.skills` 中的多个直接技能是各自稳定的时间轴输入，不等于“一条必须整体替换的技能

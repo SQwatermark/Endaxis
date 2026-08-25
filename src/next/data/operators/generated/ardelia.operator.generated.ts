@@ -942,6 +942,7 @@ export const ardeliaPlungingAttack: SkillDefinition = withSkillBlackboard(
       scheduled(
         0,
         sequence(
+          step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'Sheep', abilityEntityIds: ['abilityentity_chr_0025_ardelia_air_attack'] }),
           forEachContextTarget(
             'Sheep',
             sequence(

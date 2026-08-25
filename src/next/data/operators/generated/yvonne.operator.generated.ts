@@ -2627,6 +2627,7 @@ export const yvonneUltimateAttackEnd: SkillDefinition = withSkillBlackboard(
       scheduled(
         7,
         sequence(
+          step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'robots', abilityEntityIds: ['abilityentity_chr_0017_yvonne_ultimate_skill', 'abilityentity_chr_0017_yvonne_ultimate_skill2', 'abilityentity_chr_0017_yvonne_ultimate_skill3'] }),
           forEachContextTarget(
             'robots',
             sequence(
@@ -2642,6 +2643,7 @@ export const yvonneUltimateAttackEnd: SkillDefinition = withSkillBlackboard(
       scheduled(
         12,
         sequence(
+          step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'robots', abilityEntityIds: ['abilityentity_chr_0017_yvonne_ultimate_skill', 'abilityentity_chr_0017_yvonne_ultimate_skill2', 'abilityentity_chr_0017_yvonne_ultimate_skill3'] }),
           forEachContextTarget(
             'robots',
             sequence(
@@ -2657,6 +2659,7 @@ export const yvonneUltimateAttackEnd: SkillDefinition = withSkillBlackboard(
       scheduled(
         17,
         sequence(
+          step('findOwnerSpawnedAbilityEntities', { saveToContextKey: 'robots', abilityEntityIds: ['abilityentity_chr_0017_yvonne_ultimate_skill', 'abilityentity_chr_0017_yvonne_ultimate_skill2', 'abilityentity_chr_0017_yvonne_ultimate_skill3'] }),
           forEachContextTarget(
             'robots',
             sequence(
