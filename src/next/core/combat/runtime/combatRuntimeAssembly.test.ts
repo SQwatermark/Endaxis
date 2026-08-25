@@ -7,7 +7,10 @@ import type {
 import { compileOperatorBuffDefinitions, compileSkill } from '../../compiler/compileSkill';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer } from '../buffs/combatBuffs';
-import { CompiledCombatBuffDefinitions } from '../buffs/combatBuffDefinitions';
+import {
+  CompiledCombatBuffDefinitions,
+  type CombatBuffDefinitionEntry,
+} from '../buffs/combatBuffDefinitions';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { GameplayTagRegistry, gameplayTagIdFromPath } from '../tags/gameplayTags';
 import { CombatStatusContainer } from '../status/combatStatuses';
@@ -174,6 +177,103 @@ function createAssembly(
 }
 
 describe('CombatRuntimeAssembly', () => {
+  it('resolves descendant Buff definitions from the source skill after crossing to a teammate', () => {
+    const sourceBuffs = new CombatBuffContainer('source', new CombatAttributeSet<string>());
+    const allyBuffs = new CombatBuffContainer('ally', new CombatAttributeSet<string>());
+    const compileInline = (entry: CombatBuffDefinitionEntry) => ({
+      id: entry.id,
+      stackingType: entry.stackingType,
+    });
+    const sourceRuntime = new BuffDefinitionOperationTarget(sourceBuffs, {
+      get: () => undefined,
+      compile: compileInline,
+    });
+    const allyRuntime = new BuffDefinitionOperationTarget(allyBuffs, {
+      get: () => undefined,
+      compile: compileInline,
+    });
+    const childDefinition = { stackingType: 'unique' as const };
+    const parentDefinition = {
+      stackingType: 'unique' as const,
+      lifecycleSequences: {
+        enable: {
+          steps: [
+            {
+              kind: 'applyBuff' as const,
+              parameters: {
+                buffId: 'source-child',
+                target: 'buffOwner' as const,
+                inheritSourceSkillCastInfo: true,
+              },
+            },
+          ],
+        },
+      },
+    };
+    const sourceSkill = skill({
+      operatorId: 'source',
+      skillId: 'support',
+      castId: 'support-cast',
+      costs: [],
+      costFrame: undefined,
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'applyBuff',
+                parameters: {
+                  buffId: 'source-parent',
+                  target: 'partyExceptCaster',
+                  inheritSourceSkillCastInfo: true,
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const assembly = new CombatRuntimeAssembly({
+      enemy: testEnemy,
+      resources: {
+        sp: 0,
+        maxSp: 300,
+        returnedSp: 0,
+        sharedSpGain: { baseGainEfficiency: 1 },
+        spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+        ultimateEnergySystemUnlocked: true,
+        normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+        squad: ['source', 'ally'].map(operatorId => ({
+          operatorId,
+          ultimateEnergy: 0,
+          maxUltimateEnergy: 100,
+          ultimateEnergyGainMultiplier: 1,
+          allowedUltimateEnergyRecoveryTagIds: null,
+        })),
+      },
+      enemyBuffRuntime: emptyEnemyBuffRuntime,
+      operators: [
+        {
+          operatorId: 'source',
+          skills: [sourceSkill],
+          buffRuntime: sourceRuntime,
+          buffDefinitions: {
+            'source-parent': parentDefinition,
+            'source-child': childDefinition,
+          },
+        },
+        { operatorId: 'ally', skills: [], buffRuntime: allyRuntime },
+      ],
+      createOperationExecutor: () => rejectingExecutor,
+    });
+
+    expect(assembly.tryStartSkill('source', 'support', 'support-cast')).toBe(true);
+    expect(allyBuffs.getCountById('source-parent')).toBe(1);
+    expect(allyBuffs.getCountById('source-child')).toBe(1);
+    expect(sourceBuffs.getCountById('source-child')).toBe(0);
+  });
+
   it('emits before-cast events for both direct and deferred skill starts', () => {
     const emitAbilityEvent = vi.fn();
     const first = skill({ skillId: 'first', costs: [], costFrame: undefined });

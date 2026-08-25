@@ -58,7 +58,6 @@ const knownFailures: Readonly<Record<string, string>> = {
     "operator 'liino' skill group 'battleSkill' cannot combine a placed skill chain with replacement skills",
   'liino/battleSkill/base/battleSkillCombo':
     "operator 'liino' skill group 'battleSkill' cannot combine a placed skill chain with replacement skills",
-  'liino/ultimate/base/ultimate': "unknown combat buff 'buff_chr_0035_liino_atkup'",
   'yvonne/basicAttack/enhancedBasicAttack/ultimateAttackEnd':
     "target context group 'robots' is missing",
   'yvonne/comboSkill/base/comboSkill':
@@ -71,7 +70,7 @@ describe('所有正式干员技能逐项放置与模拟', () => {
   it('覆盖默认仓库中的每个干员和每个基础/变体技能', () => {
     expect(nextGameDataRepository.getOperators()).toHaveLength(30);
     expect(cases).toHaveLength(301);
-    expect(Object.keys(knownFailures)).toHaveLength(13);
+    expect(Object.keys(knownFailures)).toHaveLength(12);
     expect(
       new Set(
         cases.map(

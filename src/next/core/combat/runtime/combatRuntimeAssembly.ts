@@ -1166,6 +1166,7 @@ export class CombatRuntimeAssembly {
         : { ...binding.program, operatorId: operationOperator.operatorId };
     return this.#createOperationChain({
       operator: operationOperator,
+      definitionOperator: binding.operator,
       program: operationProgram,
       enemy: options.enemy,
       statusRuntime:
@@ -1182,6 +1183,8 @@ export class CombatRuntimeAssembly {
 
   #createOperationChain(options: {
     readonly operator: CombatOperatorProgram;
+    /** 跨实体 Buff 生命周期仍从创建该定义的原始 AbilitySystem 解析后代资源。 */
+    readonly definitionOperator?: CombatOperatorProgram;
     readonly program: CompiledSkillProgram;
     readonly enemy: CombatEnemyProgram;
     readonly statusRuntime?: CombatStatusRuntime;
@@ -1202,6 +1205,7 @@ export class CombatRuntimeAssembly {
       resolveOperatorVitals,
       getNonReturnedSpCost,
     } = options;
+    const definitionOperator = options.definitionOperator ?? operator;
     const operatorId = operator.operatorId;
     const terminalDelegate = createDelegate({
       program,
@@ -1253,7 +1257,7 @@ export class CombatRuntimeAssembly {
       },
       abilityEntityId =>
         program.abilityEntityDefinitions?.[abilityEntityId] ??
-        operator.abilityEntityDefinitions?.[abilityEntityId],
+        definitionOperator.abilityEntityDefinitions?.[abilityEntityId],
     );
     const timeDilationOperations = this.#wrapTimeDilationOperations(
       abilityEntityOperations,
@@ -1275,7 +1279,7 @@ export class CombatRuntimeAssembly {
       resolveCurrentAbilityEntityTarget: target =>
         this.#resolveAbilityEntityBuffTarget(target, this.#options),
       resolveEventTarget: targetId => this.#resolveBuffTargetById(targetId),
-      resolveBuffDefinition: buffId => operator.buffDefinitions?.[buffId],
+      resolveBuffDefinition: buffId => definitionOperator.buffDefinitions?.[buffId],
       onBuffConsumed: event => this.semanticEvents.emit({ kind: 'buffConsumed', ...event }),
       onPhysicalInflictionApplied: event =>
         this.semanticEvents.emit({ kind: 'physicalInflictionApplied', ...event }),
