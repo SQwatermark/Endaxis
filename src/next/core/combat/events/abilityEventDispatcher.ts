@@ -1,6 +1,6 @@
 /**
  * 技能与 Buff 等 Ability 监听者共享的同步事件边界。
- * 注册动作必须使用已确认的整数优先级；同优先级仲裁未知时应拒绝配置，不能依赖插入顺序。
+ * 注册动作使用整数优先级；同优先级按原生双缓冲优先队列保持注册顺序。
  */
 /** 一次 Ability 事件的稳定身份和只读负载。 */
 export interface AbilityEventContext<Event, Payload = unknown> {
@@ -28,17 +28,18 @@ export interface AbilityEventRegistration {
 
 interface RegisteredAction<Event, Payload> {
   readonly priority: number;
+  readonly registrationOrder: number;
   readonly samePriorityKey?: string;
   readonly execute: AbilityEventHandler<Event, Payload>;
 }
 
 /**
- * 复现已确认的原生分发阶段。数据行为按优先级降序执行；
- * 在原生同优先级排序规则确认前，拒绝接受同优先级行为。
+ * 复现已确认的原生分发阶段。数据行为按优先级降序执行，同优先级先注册者先执行。
  */
 export class AbilityEventDispatcher<Event, Payload = unknown> {
   readonly #callbacks = new Map<Event, AbilityEventHandler<Event, Payload>[]>();
   readonly #actions = new Map<Event, RegisteredAction<Event, Payload>[]>();
+  #nextActionRegistrationOrder = 0;
 
   registerCallback(
     event: Event,
@@ -63,32 +64,21 @@ export class AbilityEventDispatcher<Event, Payload = unknown> {
       throw new TypeError('ability event action priority must be an integer');
     }
     const actions = this.#actions.get(event);
-    if (actions === undefined) {
-      const action = {
-        priority,
-        execute,
-        ...(samePriorityKey === undefined ? {} : { samePriorityKey }),
-      };
-      this.#actions.set(event, [action]);
-      return this.#createRegistration(this.#actions, event, action);
-    }
-    const samePriority = actions.filter(action => action.priority === priority);
-    if (
-      samePriority.length > 0 &&
-      (samePriorityKey === undefined ||
-        samePriority.some(action => action.samePriorityKey !== samePriorityKey))
-    ) {
-      throw new Error(
-        `ability event '${String(event)}' has multiple actions at unresolved priority ${priority}`,
-      );
-    }
     const action = {
       priority,
+      registrationOrder: this.#nextActionRegistrationOrder++,
       execute,
       ...(samePriorityKey === undefined ? {} : { samePriorityKey }),
     };
+    if (actions === undefined) {
+      this.#actions.set(event, [action]);
+      return this.#createRegistration(this.#actions, event, action);
+    }
     actions.push(action);
-    actions.sort((left, right) => right.priority - left.priority);
+    actions.sort(
+      (left, right) =>
+        right.priority - left.priority || left.registrationOrder - right.registrationOrder,
+    );
     return this.#createRegistration(this.#actions, event, action);
   }
 

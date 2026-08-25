@@ -18,21 +18,21 @@ describe('AbilityEventListenerStep', () => {
     expect(events).toEqual(['listener']);
   });
 
-  it('rolls back earlier registrations when a later map cannot be registered', () => {
+  it('keeps equal-priority maps in registration order and disposes only its own maps', () => {
     const events: string[] = [];
     const dispatcher = new AbilityEventDispatcher<'first' | 'second'>();
     dispatcher.registerAction('second', 10, () => events.push('existing'));
     const listener = new AbilityEventListenerStep<'first' | 'second'>(dispatcher, [
-      { event: 'first', priority: 10, execute: () => events.push('rolled-back') },
-      { event: 'second', priority: 10, execute: () => events.push('unreachable') },
+      { event: 'first', priority: 10, execute: () => events.push('listener:first') },
+      { event: 'second', priority: 10, execute: () => events.push('listener:second') },
     ]);
 
-    expect(() => listener.execute({})).toThrow(
-      "ability event 'second' has multiple actions at unresolved priority 10",
-    );
+    listener.execute({});
     dispatcher.dispatch({ event: 'first', payload: undefined }, []);
     dispatcher.dispatch({ event: 'second', payload: undefined }, []);
+    listener.end({});
+    dispatcher.dispatch({ event: 'second', payload: undefined }, []);
 
-    expect(events).toEqual(['existing']);
+    expect(events).toEqual(['listener:first', 'existing', 'listener:second', 'existing']);
   });
 });

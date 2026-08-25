@@ -7,6 +7,21 @@
 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
+### 2026-08-26：全干员技能横向门禁 301/301
+
+- 1.4.4 机器码确认 `AbilitySystem.ActionContainer` 使用
+  `DoubleBufferedPriorityQueue<SequenceAction>`：整数优先级降序；`SequenceAction.CompareTo` 在
+  同级时返回 0，而队列只在比较结果小于 0 时前插，因此同级动作保持注册顺序。
+- combat-spec 已把同优先级事件动作从 Unknown 提升为 Confirmed，并记录
+  `ActionContainer.RegisterAction/ExecuteInstant`、`SequenceAction.CompareTo` 与泛型队列 Add 的 RVA。
+  Next dispatcher 同步删除错误的同级拒绝，显式按 priority 降序、registration order 升序执行。
+- Arcane 连携的两条 `beforeTakeDamage` 监听现可同时注册。生产回归先释放连携建立封印，再释放
+  战技触发提前引爆，确认真实 `combo_skill_seal` 伤害回执，而不只是“不报错”。
+- 当前 30 名干员、301 个基础/变体技能均可在最小合法上下文中放轴并完成正式模拟，基线为
+  **301/301 成功、0 项豁免**。
+- 本轮门禁：Arcane 连携生产回归、`npm run type-check:next`、Next 207 个测试文件 1838/1838
+  全部通过；combat-spec `EventDispatchTests` 4/4 通过。
+
 ### 2026-08-26：根技能能力实体查询恢复
 
 - 根技能同帧的 `FindTargetAction(OwnerSpawnedEntityFinder)` + Context Buff 施加此前只生成后半段
@@ -1087,7 +1102,7 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 本轮门禁：Arcane 从 AKEDB 单干员重生成通过；生成器完整 Python 测试 417/417、`npm run type-check:next`、Next Vitest 198 文件 1324/1324、`git diff --check` 通过。此前记录的 15 个 Python 陈旧夹具错误与 3 个旧断言已经按新增可选字段和严格语义更新后清零。`tmp/` 仍未跟踪且不得提交。
 - 下一步优先补 Arcane 默认仓库生产场景，覆盖两种四维关系下的条件冷却/形态黑板、终结技 Buff 换槽与提前结束还原、连携能力实体伤害及腐蚀持续时间/效能；随后继续选择已横向完整的干员正式化。梨诺缺失模板仍保持失败关闭。
 - Arcane 默认仓库第一条生产回归已补：90 级智识构筑启用天赋 1 后，完整资源规则编译得到连携冷却 360 帧（基础 540、实际冷却修正 -180），实体初始黑板为智识形态；真实时间轴释放战技后生成 `abilityentity_chr_0032_lizhiyan_normal_skill` 并产生伤害回执。此次修复了完整运行时装配在“为资源上限重新编译全部技能”时漏传最终构筑属性的问题，条件养成现在与已放置技能使用同一面板。标准兼容预检也正式接纳已有运行时/面板读取端口的 `storeSourceAttributeValue`。
-- 连携技能的完整标准模拟仍有一个独立证据边界：它会同时激活多份优先级 0 的 `beforeTakeDamage` 事件动作；`combat-spec` 当前明确把“同优先级事件动作的稳定顺序”列为未闭环，Next 的 dispatcher 因此继续严格拒绝，不按 Buff 创建顺序猜测。后续须先在复刻库恢复原生容器的平级排序/遍历规则，再接连携提前引爆链；这不影响战技能力实体与构筑条件生产回归。
+- 连携技能曾因同时激活多份优先级 0 的 `beforeTakeDamage` 事件动作而严格失败；该边界现已由 1.4.4 `DoubleBufferedPriorityQueue<SequenceAction>` 机器码闭环：同级保持注册顺序。Next 已接通连携后战技触发的提前引爆伤害生产回归。
 - 奥义生产试跑也把形式生成与完整运行装配之间的下一层缺口定位清楚：玩家公共大招免伤在木桩输出模型中可按既有 `simulationNoEffectBuffIds` 证据省略，但奥义能力实体随后给敌人施加的 `ultimate_skill_inaura` 仍是 ID-only 引用，生成产物没有把能力实体条件分支及 Buff 调用隐藏子技能中的传递 Buff 闭包全部内联。继续严格展开后还会遇到已有 `combat-spec` 语义的 `StoreAttributeValue(MaxUltimateSp)`，以及 Buff 事件内生成能力实体。该链本轮没有以忽略项绕过；下一步应先补“Buff → 隐藏能力实体技能 → 条件/Aura Buff”的传递依赖收集，再接最大终结技能量属性读取和事件内实体生成。
 - 能力实体模板证据提取器此前只扫描 `SkillData`，因此漏掉仅由 `BuffData` 事件生成的实体。默认引用闭包现扩为 `chr_*.json + buff_chr_*.json`，同一 1.4.4 manifest 的可解析模板由 54 增至 59；Arcane 奥义所需 `ultimate_skill_death`、`ultimate_skill_laser`、`ultimate_skill_laser_target`、`ultimate_skill_place` 均取得真实 MonoBehaviour 生命周期与 born tag。梨诺缺失模板仍是唯一 unresolved reference。
 - `StoreAttributeValue(MaxUltimateSp, BaseNonConverted)` 已严格映射为 `maxUltimateEnergy`，运行时从本场 `CombatResources` 的干员账本读取构筑结算后的上限，不再误读静态面板。Arcane 真实数据已重新生成并通过专项规则/运行时测试。下一步重新开启传递 Buff 闭包时，应继续处理 Buff 本地时间线中携带子技能的 `SpawnAbilityEntity`；现已确认这类激光实体有真实模板，不能再当作模板缺失或纯表现动作跳过。

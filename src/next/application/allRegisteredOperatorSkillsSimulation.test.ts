@@ -43,16 +43,13 @@ const resources = {
  * 已复现并完成首轮归因、但尚未闭合的基础构筑失败边界。
  * 新失败不能自动进入此表；已修复项也必须从表中删除，否则“预期失败”会反向让门禁报错。
  */
-const knownFailures: Readonly<Record<string, string>> = {
-  'arcane/comboSkill/base/comboSkill':
-    "ability event 'beforeTakeDamage' has multiple actions at unresolved priority 0",
-};
+const knownFailures: Readonly<Record<string, string>> = {};
 
 describe('所有正式干员技能逐项放置与模拟', () => {
   it('覆盖默认仓库中的每个干员和每个基础/变体技能', () => {
     expect(nextGameDataRepository.getOperators()).toHaveLength(30);
     expect(cases).toHaveLength(301);
-    expect(Object.keys(knownFailures)).toHaveLength(1);
+    expect(Object.keys(knownFailures)).toHaveLength(0);
     expect(
       new Set(
         cases.map(

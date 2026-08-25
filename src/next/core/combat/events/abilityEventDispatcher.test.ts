@@ -71,12 +71,16 @@ describe('AbilityEventDispatcher', () => {
     expect(events).toEqual(['action']);
   });
 
-  it('rejects unresolved equal-priority action ordering', () => {
+  it('uses descending priority and stable registration order for equal priorities', () => {
+    const events: string[] = [];
     const dispatcher = new AbilityEventDispatcher<'event'>();
-    dispatcher.registerAction('event', 0, () => undefined);
+    dispatcher.registerAction('event', -1, () => events.push('low'));
+    dispatcher.registerAction('event', 7, () => events.push('equal:first'));
+    dispatcher.registerAction('event', 7, () => events.push('equal:second'));
+    dispatcher.registerAction('event', 20, () => events.push('high'));
 
-    expect(() => dispatcher.registerAction('event', 0, () => undefined)).toThrow(
-      "ability event 'event' has multiple actions at unresolved priority 0",
-    );
+    dispatcher.dispatch({ event: 'event', payload: undefined }, []);
+
+    expect(events).toEqual(['high', 'equal:first', 'equal:second', 'low']);
   });
 });

@@ -630,12 +630,20 @@ describe('registered generated operators', () => {
       initialState: { ultimateEnergy: 0 },
       skillCasts: [],
     };
-    const placed = placeSkillGroup({
+    const comboPlaced = placeSkillGroup({
       scenario,
       trackIndex: 0,
       operator: arcane,
-      skillGroupKey: 'battleSkill',
+      skillGroupKey: 'comboSkill',
       startFrame: 1,
+      ids: { allocate: kind => `${kind}:arcane:combo` },
+    }).scenario;
+    const placed = placeSkillGroup({
+      scenario: comboPlaced,
+      trackIndex: 0,
+      operator: arcane,
+      skillGroupKey: 'battleSkill',
+      startFrame: 30,
       ids: { allocate: kind => `${kind}:arcane` },
     }).scenario;
 
@@ -694,6 +702,14 @@ describe('registered generated operators', () => {
     expect(
       result.receiptEntries.some(
         entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:arcane',
+      ),
+    ).toBe(true);
+    expect(
+      result.receiptEntries.some(
+        entry =>
+          entry.event === 'DamageApplied' &&
+          entry.sourceId === 'track:arcane' &&
+          String(entry.data?.stepKey).includes('combo_skill_seal'),
       ),
     ).toBe(true);
   });
