@@ -349,6 +349,7 @@ export const estellaBattleSkill: SkillDefinition = withSkillBlackboard(
                 { alwaysNext: true },
               ),
             ),
+            { EntityBB_first_hit: 0 },
           ),
         ),
       ),
@@ -858,5 +859,5 @@ export const estellaGeneratedOperator: OperatorDefinition = {
       ),
     },
   ],
-  conversionSupport: { completeness: 'partial', missingCapabilities: [{ capability: 'runtimeDependencies', skillGroupKeys: ['battleSkill'] }] },
+  conversionSupport: { completeness: 'complete', missingCapabilities: [] },
 };

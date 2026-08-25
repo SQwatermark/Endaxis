@@ -363,11 +363,12 @@ class ProjectileSkillTriggerSource:
 
 @dataclass(frozen=True)
 class ActionBlackboardScopeSource:
-    """一次原生子 SkillData 调用独占的 direct blackboard。"""
+    """一次原生子 SkillData 调用独占的 direct blackboard 与可选宿主实体黑板。"""
 
     scopeKey: str
     initialValues: tuple[tuple[str, float], ...]
     inheritParent: bool
+    entityInitialValues: tuple[tuple[str, float], ...] = ()
 
 
 @dataclass(frozen=True)

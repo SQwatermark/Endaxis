@@ -424,13 +424,28 @@ function resolveStep(
         ...keyed,
         kind: step.kind,
         parameters: {
-          ...step.parameters,
+          scopeKey: step.parameters.scopeKey,
+          inheritParent: step.parameters.inheritParent,
           initialValues: Object.fromEntries(
             Object.entries(step.parameters.initialValues).map(([key, value]) => [
               key,
               resolveLevelValue(value, skillLevel, `${path}.parameters.initialValues.${key}`),
             ]),
           ),
+          ...(step.parameters.entityInitialValues === undefined
+            ? {}
+            : {
+                entityInitialValues: Object.fromEntries(
+                  Object.entries(step.parameters.entityInitialValues).map(([key, value]) => [
+                    key,
+                    resolveLevelValue(
+                      value,
+                      skillLevel,
+                      `${path}.parameters.entityInitialValues.${key}`,
+                    ),
+                  ]),
+                ),
+              }),
         },
         body: resolveActionSequence(step.body, skillLevel, `${path}.body`, abilityEntities),
       };

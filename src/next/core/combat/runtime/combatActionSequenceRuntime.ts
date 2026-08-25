@@ -396,6 +396,7 @@ export class CombatActionSequenceRuntime {
     const created = parent.createLocalScope(
       step.parameters.initialValues,
       step.parameters.inheritParent,
+      step.parameters.entityInitialValues,
     );
     this.#actionBlackboardScopes.set(step.parameters.scopeKey, created);
     return created;

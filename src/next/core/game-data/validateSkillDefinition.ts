@@ -1888,6 +1888,25 @@ function validateCombatStep(
       if (typeof parameters.inheritParent !== 'boolean') {
         push(out, `${path}.parameters.inheritParent`, 'expected a boolean');
       }
+      if (parameters.entityInitialValues !== undefined) {
+        const entityInitialValues = asRecord(
+          parameters.entityInitialValues,
+          `${path}.parameters.entityInitialValues`,
+          out,
+        );
+        if (entityInitialValues !== null) {
+          Object.entries(entityInitialValues).forEach(([key, value]) => {
+            if (!key.startsWith('EntityBB_')) {
+              push(
+                out,
+                `${path}.parameters.entityInitialValues.${key}`,
+                "expected an 'EntityBB_' key",
+              );
+            }
+            validateLevelValues(value, `${path}.parameters.entityInitialValues.${key}`, out);
+          });
+        }
+      }
       break;
     }
     case 'repeatEachTick':

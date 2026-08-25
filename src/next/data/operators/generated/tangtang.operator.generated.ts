@@ -311,6 +311,7 @@ export const tangtangBasicAttack5: SkillDefinition = withSkillBlackboard(
                 { alwaysNext: true },
               ),
             ),
+            { EntityBB_atk05_cnt: 0 },
           ),
         ),
       ),

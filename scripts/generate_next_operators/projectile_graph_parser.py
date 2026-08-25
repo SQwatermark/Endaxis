@@ -91,6 +91,7 @@ class ProjectileGraphParserServices:
     resolve_guaranteed_conditional_ability_entity_hits: Callable[..., Any]
     resolve_projectile_payload_triggers: Callable[..., Any]
     resolve_projectile_single_enemy_input_target: Callable[..., Any]
+    resolve_projectile_entity_blackboard: Callable[..., Any]
     mark_projected_conditional_children: Callable[..., Any]
     walk_actions: Callable[..., Any]
     walk_unconditional_actions: Callable[..., Any]
@@ -399,6 +400,9 @@ def resolve_projectile_payload_triggers(
                         if isinstance(item.value, float)
                     ),
                     inheritParent=payload.assignBlackboard,
+                    entityInitialValues=services.resolve_projectile_entity_blackboard(
+                        payload.projectileId
+                    ),
                 ),
             )
         )

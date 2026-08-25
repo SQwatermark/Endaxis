@@ -429,6 +429,7 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
     }
 )
 from projectile_target_evidence import resolve_projectile_single_enemy_input_target
+from projectile_blackboard_evidence import resolve_projectile_entity_blackboard
 
 EMPTY_SOURCE_SEQUENCE_KEYS = frozenset(
     {
@@ -1378,6 +1379,7 @@ def _make_projectile_graph_parser_services() -> ProjectileGraphParserServices:
         resolve_projectile_single_enemy_input_target=(
             resolve_projectile_single_enemy_input_target
         ),
+        resolve_projectile_entity_blackboard=resolve_projectile_entity_blackboard,
         mark_projected_conditional_children=mark_projected_conditional_children,
         walk_actions=walk_actions,
         walk_unconditional_actions=walk_unconditional_actions,

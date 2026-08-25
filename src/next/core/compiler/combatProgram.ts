@@ -228,6 +228,7 @@ export interface ResolvedCombatStepParameters {
     scopeKey: string;
     initialValues: Readonly<Record<string, number>>;
     inheritParent: boolean;
+    entityInitialValues?: Readonly<Record<string, number>>;
   };
   listenForCombatEvents: {
     responses: readonly {

@@ -987,6 +987,8 @@ export interface CombatStepParameters {
     initialValues: Readonly<Record<string, LevelValues>>;
     /** 原生 assignBlackboard：调用时把父 direct blackboard 覆盖到子初值之上。 */
     inheritParent: boolean;
+    /** 投射物等独立逻辑宿主在模板中声明的实体黑板；省略时继续共享父宿主实体层。 */
+    entityInitialValues?: Readonly<Record<string, LevelValues>>;
   };
   /** 在承载调度区间开始时以及之后每次宿主 Tick 中同步执行一次 body。 */
   repeatEachTick: Record<string, never>;

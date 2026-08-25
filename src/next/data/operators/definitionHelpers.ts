@@ -116,10 +116,18 @@ export function withActionBlackboardScope(
   initialValues: Readonly<Record<string, LevelValues>>,
   inheritParent: boolean,
   body: ActionSequenceDefinition,
+  entityInitialValues?: Readonly<Record<string, LevelValues>>,
 ): Extract<CombatStepDefinition, { kind: 'withActionBlackboardScope' }> {
   return {
     kind: 'withActionBlackboardScope',
-    parameters: { scopeKey, initialValues, inheritParent },
+    parameters: {
+      scopeKey,
+      initialValues,
+      inheritParent,
+      ...(entityInitialValues === undefined || Object.keys(entityInitialValues).length === 0
+        ? {}
+        : { entityInitialValues }),
+    },
     body,
   };
 }

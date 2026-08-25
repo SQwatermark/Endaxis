@@ -76,6 +76,39 @@ describe('CombatActionSequenceRuntime', () => {
     expect(parent.snapshot()).toEqual({ inherited: 7, childOnly: 99 });
   });
 
+  it('在同一投射物作用域内复用模板实体黑板，并在运行时重置后重新初始化', () => {
+    const observed: number[] = [];
+    const operations: CombatOperationExecutor = {
+      execute: (_step, context) => {
+        const blackboard = context!.blackboard;
+        observed.push(blackboard.getNumber('EntityBB_hitCount')!);
+        blackboard.assignDynamic('EntityBB_hitCount', observed.at(-1)! + 1);
+        return true;
+      },
+      evaluate: vi.fn(() => true),
+    };
+    const runtime = new CombatActionSequenceRuntime(operations, {
+      blackboard: new ActionBlackboard(),
+    });
+    const scoped: ResolvedCombatStep = {
+      kind: 'withActionBlackboardScope',
+      parameters: {
+        scopeKey: 'projectile:instance:1',
+        initialValues: {},
+        entityInitialValues: { EntityBB_hitCount: 0 },
+        inheritParent: true,
+      },
+      body: sequence(operation('hit')),
+    };
+
+    runtime.createSequence(sequence(scoped)).executeInstant({});
+    runtime.createSequence(sequence(scoped)).executeInstant({});
+    runtime.reset();
+    runtime.createSequence(sequence(scoped)).executeInstant({});
+
+    expect(observed).toEqual([0, 1, 0]);
+  });
+
   it('根据条件结果只执行对应分支', () => {
     const fixture = createFixture(false);
     const conditional: ResolvedCombatStep = {

@@ -1,0 +1,17 @@
+{
+  "version": "1.4.4",
+  "projectiles": [
+    {
+      "projectileId": "projectile_chr_0021_whiten_normal_skill",
+      "entityBlackboard": [{ "key": "EntityBB_first_hit", "value": 0, "isDynamic": true }],
+      "rawAssetSha256": "92b817a8316fed26869f4587419ed1fa2754eeac540471114b58f99fd3709c87",
+      "evidence": "ProjectileTemplateData -> AbilitySystemData.entityBlackboard；生命周期由 combat-spec docs/launch-projectile-skill-routing.md 固化"
+    },
+    {
+      "projectileId": "projectile_chr_0027_tangtang_attack5",
+      "entityBlackboard": [{ "key": "EntityBB_atk05_cnt", "value": 0, "isDynamic": true }],
+      "rawAssetSha256": "4325be19b2b2e03ec970db4a07e600e64722e09e4d0c765fa388bd1898b7a568",
+      "evidence": "ProjectileTemplateData -> AbilitySystemData.entityBlackboard；生命周期由 combat-spec docs/launch-projectile-skill-routing.md 固化"
+    }
+  ]
+}

@@ -7,6 +7,22 @@
 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
+### 2026-08-26：投射物实例实体黑板闭环
+
+- 艾斯黛拉战技的 `EntityBB_first_hit` 与汤汤普攻 5 的 `EntityBB_atk05_cnt` 均不在角色模板、根或
+  子 SkillData 的黑板中，不能依据缺键异常猜零。1.4.4 原始投射物资产明确在
+  `ProjectileTemplateData -> AbilitySystemData.entityBlackboard` 将两键声明为 dynamic 0；原始资产
+  SHA-256 和结构事实已固化到 `src/next/data/projectiles/projectile-entity-blackboards-1.4.4.json`。
+- combat-spec 现将投射物回调建模为拥有独立实体黑板的执行上下文；VFS 索引器也会从
+  `AbilitySystemData` 导出该字段。Next 生成器只消费严格版本证据：同一投射物实例的命中回调共享
+  键值，不同投射物实例及下一次技能运行重新初始化，不会污染干员实体黑板。
+- 艾斯黛拉战技与汤汤普攻 5 已从全技能预期失败清单删除；艾斯黛拉的
+  `runtimeDependencies` partial 标记同步移除。当前基础构筑基线为 **295/301 成功、6 项精确失败**。
+  剩余项是 Arcane 同优先级事件顺序、Rossi 多阶段 QTE 状态、Liino 两项技能替换冲突、Yvonne 与
+  Ardelia 的能力实体目标上下文，必须分别按来源闭环。
+- 本轮门禁：生成器 379 项、全量生成与 `--check`、`npm run type-check:next`、Next 207 个测试文件
+  1834 项全部通过。combat-spec 聚焦回归 3/3、VFS 投射物回归 3 项通过且 1 项本地 fixture 跳过。
+
 ### 2026-08-26：投射物子技能动作黑板作用域闭环
 
 - 安塔尔处决的命中子 `SkillData` 明确声明 `atb=0`，其条件回能读取的是子技能动作黑板；旧投影把

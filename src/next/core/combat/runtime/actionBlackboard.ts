@@ -58,14 +58,17 @@ export class ActionBlackboard {
     this.assign(values);
   }
 
-  /** 创建只共享 entity blackboard 的子 SkillData direct 作用域。 */
+  /** 创建子 SkillData direct 作用域；独立逻辑宿主可同时创建自己的 entity blackboard。 */
   createLocalScope(
     initialValues: Readonly<Record<string, ActionBlackboardValue>>,
     inheritDirect: boolean,
+    entityInitialValues?: Readonly<Record<string, ActionBlackboardValue>>,
   ): ActionBlackboard {
     return new ActionBlackboard(
       inheritDirect ? { ...initialValues, ...this.snapshot() } : initialValues,
-      this.#entityBlackboard,
+      entityInitialValues === undefined
+        ? this.#entityBlackboard
+        : new ActionBlackboard(entityInitialValues),
     );
   }
 

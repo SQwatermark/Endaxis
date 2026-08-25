@@ -62,4 +62,23 @@ describe('ActionBlackboard', () => {
     expect(parent.getNumber('childOnly')).toBeUndefined();
     expect(parent.getNumber('EntityBB_shared')).toBe(6);
   });
+
+  it('creates an independent entity layer for a projectile template scope', () => {
+    const operatorEntity = new ActionBlackboard({ EntityBB_shared: 4 });
+    const parent = new ActionBlackboard({ inherited: 7 }, operatorEntity);
+    const firstProjectile = parent.createLocalScope({ local: 1 }, true, {
+      EntityBB_projectileHitCount: 0,
+    });
+    const secondProjectile = parent.createLocalScope({ local: 1 }, true, {
+      EntityBB_projectileHitCount: 0,
+    });
+
+    firstProjectile.assignDynamic('EntityBB_projectileHitCount', 1);
+
+    expect(firstProjectile.getNumber('EntityBB_projectileHitCount')).toBe(1);
+    expect(secondProjectile.getNumber('EntityBB_projectileHitCount')).toBe(0);
+    expect(parent.getNumber('EntityBB_projectileHitCount')).toBeUndefined();
+    expect(firstProjectile.getNumber('EntityBB_shared')).toBeUndefined();
+    expect(parent.getNumber('EntityBB_shared')).toBe(4);
+  });
 });

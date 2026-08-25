@@ -20,7 +20,7 @@
 
 投射物子技能同时保留发射动作 `targetSettings` 的输入身份；固定单敌人模型只投影实际可触发的 `hit/reach/finish`，必定命中不会伪造 `block`。`PlayAnimationAction.onEndAction` 当前严格支持 `CreateBuffAction`：自然回调帧按复刻库确认的 `duration - blendOut` 向上投影到 30 FPS；`executeOnNormalEndOnly=false` 时同时接入 Buff 提前结束，并用同一实例的 `once` 作用域去重。`OnSkillEnd` 使用真实技能自然结束与中断事件，不按时间线块宽度另造事件；证据见 `combat-spec/docs/play-animation-action-lifecycle.md` 与 `combat-spec/docs/skill-end.md`。
 
-投射物命中回调引用的子 `SkillData` 拥有独立 direct blackboard，不能把它的声明值或动态写入摊进根技能实例。生成器只在编译后仍会读写动作黑板的子调度项外生成 `withActionBlackboardScope`；同一次子调用的调度项共享该作用域，不同调用彼此隔离。`LaunchProjectile.assignBlackboard=true` 时在实际命中创建作用域，并以父 direct blackboard 覆盖子技能声明初值；`EntityBB_` 仍回退到干员共享实体黑板。
+投射物命中回调引用的子 `SkillData` 拥有独立 direct blackboard，不能把它的声明值或动态写入摊进根技能实例。生成器只在编译后仍会读写动作黑板的子调度项外生成 `withActionBlackboardScope`；同一次子调用的调度项共享该作用域，不同调用彼此隔离。`LaunchProjectile.assignBlackboard=true` 时在实际命中创建作用域，并以父 direct blackboard 覆盖子技能声明初值。普通子 SkillData 的 `EntityBB_` 回退到干员共享实体黑板；若 `ProjectileTemplateData -> AbilitySystemData.entityBlackboard` 明确声明实体键，则每个投射物实例创建独立实体黑板，同一实例的命中回调共享、下一实例重新初始化。正式证据收录在 `src/next/data/projectiles/projectile-entity-blackboards-1.4.4.json`，不得用缺键异常反推默认值。
 
 Aura 对目标的进入、离开和整体结束是实例生命周期，而不是一次性的范围查询。Next 的零空间模型中，已证明命中全队/全体敌人的目标会持续留在 Aura 内直到宿主动作结束；因此 Aura 进入时施加的 Buff 使用 `finishByAction` 绑定宿主生命周期。若原生 `actionWhenExitAura` 只是按 ID、全量、无限来源地清理同一组 Aura Buff，生成器会严格核对 ID 集合后将它归并进这条生命周期，不重复生成第二次清理。证据见 `combat-spec/docs/aura-influence-lifecycle.md`。
 

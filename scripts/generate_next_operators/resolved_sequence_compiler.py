@@ -1495,6 +1495,11 @@ def compile_resolved_sequence(
                 "  sequence(",
                 *(f"    {line}" for line in step_lines),
                 "  ),",
+                *(
+                    [f"  {ts_inline_literal(dict(scope.entityInitialValues))},"]
+                    if scope.entityInitialValues
+                    else []
+                ),
                 ")",
             ]
         compiled_schedule.append((item, step_lines))
