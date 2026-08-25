@@ -191,6 +191,21 @@ function collectLeafReferences(
 ): void {
   if (leaf.family === 'untracked') return;
   switch (leaf.family) {
+    case 'aura': {
+      for (let index = 0; index < leaf.action.buffs.length; index += 1) {
+        output.push(
+          referenceFromIdentity(
+            'buff',
+            'aura',
+            enabled,
+            leaf.action.buffs[index]!.buffId,
+            null,
+            `${sourcePath}.buffInput[${index}]`,
+          ),
+        );
+      }
+      return;
+    }
     case 'buffApplication': {
       const action = leaf.action;
       for (let index = 0; index < action.buffs.length; index += 1) {

@@ -276,6 +276,7 @@ export interface CombatRuntimeAssemblyOptions {
           readonly targetId: string;
           readonly skillType: SkillType;
           readonly skillId: string;
+          readonly skillCastId: number;
         }
       | {
           readonly sourceId: string;
@@ -829,6 +830,8 @@ export class CombatRuntimeAssembly {
 
   #prepareSkillStart(operatorId: string, skillId: string, castId?: string): void {
     const ability = this.#requireAbilitySystem(operatorId);
+    const skillCastId = this.#skillCastIds.allocate();
+    ability.prepareSkillCastId(skillId, castId, skillCastId);
     const program = this.#skillPrograms.get(`${operatorId}\u0000${skillId}\u0000${castId ?? ''}`);
     if (program?.skillType === 'comboSkill') {
       const result = this.comboWindows.consume(operatorId, skillId);
@@ -864,6 +867,7 @@ export class CombatRuntimeAssembly {
         targetId: operatorId,
         skillType: program.skillType,
         skillId: program.sourceSkillId ?? program.skillId,
+        skillCastId,
       });
     }
   }
@@ -1795,7 +1799,12 @@ export class CombatRuntimeAssembly {
     isOperatorControlled: CombatRuntimeAssemblyOptions['isOperatorControlled'],
     resolveOperatorVitals: CombatRuntimeAssemblyOptions['resolveOperatorVitals'],
   ): readonly BuffOperationTarget[] {
-    if (target === 'eventTarget' || target === 'buffOwner' || target === 'buffSource') {
+    if (
+      target === 'eventTarget' ||
+      target === 'eventSource' ||
+      target === 'buffOwner' ||
+      target === 'buffSource'
+    ) {
       throw new Error(`${target} must be resolved from the active operation context`);
     }
     if (target === 'party' || target === 'partyExceptCaster') {

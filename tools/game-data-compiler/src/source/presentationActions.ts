@@ -30,6 +30,20 @@ export interface PlaySoundActionSource {
   readonly timeDilationFadeInDurationMilliseconds: number;
 }
 
+export interface DebugPrintActionSource {
+  readonly kind: 'debugPrint';
+  readonly logType: string;
+  readonly target: TargetReferenceSource;
+  readonly color: {
+    readonly r: number;
+    readonly g: number;
+    readonly b: number;
+    readonly a: number;
+  };
+  readonly blackboardKey: string;
+  readonly identifier: string;
+}
+
 /**
  * combat-spec 1.4.4 的 PlaySoundAction.ExecuteInternal 只解析目标并进入音频播放路径。
  * 来源层仍完整校验已知字段；投影层可据此将它保留为有证据的表现 no-op。
@@ -112,5 +126,41 @@ export function parsePlaySoundActionSource(value: unknown, path: string): PlaySo
       action.timeDilationFadeInDurationMs,
       `${path}.timeDilationFadeInDurationMs`,
     ),
+  };
+}
+
+/** DebugPrintAction 只写开发日志；完整校验载荷后在无日志渲染后端中作为表现 no-op。 */
+export function parseDebugPrintActionSource(value: unknown, path: string): DebugPrintActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'logType',
+      'target',
+      'color',
+      'bbKey',
+      'identifier',
+    ]),
+    path,
+  );
+  const color = requireRecord(action.color, `${path}.color`);
+  requireExactFields(color, new Set(['r', 'g', 'b', 'a']), `${path}.color`);
+  return {
+    kind: 'debugPrint',
+    logType: requireString(action.logType, `${path}.logType`),
+    target: parseTargetReferenceSource(action.target, `${path}.target`),
+    color: {
+      r: requireNumber(color.r, `${path}.color.r`),
+      g: requireNumber(color.g, `${path}.color.g`),
+      b: requireNumber(color.b, `${path}.color.b`),
+      a: requireNumber(color.a, `${path}.color.a`),
+    },
+    blackboardKey: requireString(action.bbKey, `${path}.bbKey`),
+    identifier: requireString(action.identifier, `${path}.identifier`),
   };
 }

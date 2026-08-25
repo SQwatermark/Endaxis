@@ -450,6 +450,7 @@ function validateCombatCondition(
     case 'eventSourceMatchesBuffSourceEntitySource':
     case 'eventSourceControlled':
     case 'buffSourceMatchesOwner':
+    case 'eventSkillCastMatchesBuffSource':
       break;
     case 'enemyRankIn':
       if (!Array.isArray(record.ranks)) {

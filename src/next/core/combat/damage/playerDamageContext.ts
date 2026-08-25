@@ -61,6 +61,7 @@ interface PlayerDamageContextInput {
   readonly targetHealthType: DamageTargetHealthType;
   readonly tags?: readonly DamageTag[];
   readonly features?: readonly DamageFeature[];
+  readonly skillCastId?: number;
   readonly ports: PlayerDamageContextPorts;
 }
 
@@ -72,6 +73,7 @@ export class PlayerDamageContext {
   readonly targetHealthType: DamageTargetHealthType;
   readonly tags: readonly DamageTag[];
   readonly features: readonly DamageFeature[];
+  readonly skillCastId: number | null;
   readonly damageScales = new DamageScaleAccumulator();
   readonly #ports: PlayerDamageContextPorts;
   #baseValue = 0;
@@ -89,6 +91,7 @@ export class PlayerDamageContext {
     this.targetHealthType = input.targetHealthType;
     this.tags = input.tags ?? [];
     this.features = input.features ?? [];
+    this.skillCastId = input.skillCastId ?? null;
     this.#ports = input.ports;
     this.#snapshots = input.ports.captureAttributeSnapshots();
   }

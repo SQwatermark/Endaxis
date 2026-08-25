@@ -93,6 +93,7 @@ export interface CombatAbilitySkillEvent {
   readonly targetId: string;
   readonly skillType: import('../../game-data/operatorDefinition').SkillType;
   readonly skillId: string;
+  readonly skillCastId: number;
 }
 
 /** 本场固定战斗在装配完成后向已注册 Buff 发布的一次实体入战事件。 */
@@ -200,6 +201,7 @@ export class SkillRuntime {
   #attemptedCost = false;
   #nonReturnedSpCost = 0;
   #skillCastId = 0;
+  #preparedSkillCastId = 0;
   #preparedStartBlackboard: Readonly<Record<string, number>> = {};
 
   constructor(program: CompiledSkillProgram, dependencies: SkillRuntimeDependencies) {
@@ -300,6 +302,16 @@ export class SkillRuntime {
     this.#preparedStartBlackboard = Object.freeze({ ...values });
   }
 
+  prepareSkillCastId(skillCastId: number): void {
+    if (this.#state === 'casting') {
+      throw new Error(`skill '${this.#program.skillId}' is already casting`);
+    }
+    if (!Number.isSafeInteger(skillCastId) || skillCastId <= 0) {
+      throw new RangeError('prepared skill cast id must be a positive safe integer');
+    }
+    this.#preparedSkillCastId = skillCastId;
+  }
+
   tryStart(): boolean {
     if (this.#state === 'casting') throw new Error(`skill '${this.#program.skillId}' is casting`);
     const cooldownReserved = this.#cooldown.tryReserve();
@@ -339,7 +351,11 @@ export class SkillRuntime {
     this.#appliedCost = false;
     this.#attemptedCost = false;
     this.#nonReturnedSpCost = 0;
-    this.#skillCastId = this.#dependencies.allocateSkillCastId();
+    this.#skillCastId =
+      this.#preparedSkillCastId === 0
+        ? this.#dependencies.allocateSkillCastId()
+        : this.#preparedSkillCastId;
+    this.#preparedSkillCastId = 0;
     if (!Number.isSafeInteger(this.#skillCastId) || this.#skillCastId <= 0) {
       throw new RangeError('allocated skill cast id must be a positive safe integer');
     }
@@ -515,6 +531,7 @@ export class SkillRuntime {
       targetId: this.#program.operatorId,
       skillType: this.#program.skillType,
       skillId: this.#program.sourceSkillId ?? this.#program.skillId,
+      skillCastId: this.#skillCastId,
     });
   }
 }

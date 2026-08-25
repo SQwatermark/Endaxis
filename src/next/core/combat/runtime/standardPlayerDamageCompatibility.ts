@@ -103,6 +103,7 @@ function inspectCondition(
     case 'eventPhysicalInflictionTypeIn':
     case 'eventSkillTypeIn':
     case 'eventSkillIdIn':
+    case 'eventSkillCastMatchesBuffSource':
     case 'eventBuffIdMatch':
     case 'eventBuffEndedEarly':
     case 'buffStackCompare':

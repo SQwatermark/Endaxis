@@ -488,6 +488,13 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     target: BuffApplicationTarget,
     context?: Parameters<CombatOperationExecutor['execute']>[1],
   ): readonly BuffOperationTarget[] {
+    if (target === 'eventSource') {
+      const resolve = this.dependencies.resolveEventTarget;
+      if (resolve === undefined) {
+        throw new Error('eventSource Buff application is not configured');
+      }
+      return [resolve(this.#requireEventSourceId(context))];
+    }
     if (target === 'buffOwner') {
       if (context?.buffOwnerId === undefined) {
         throw new Error('buffOwner Buff application requires a Buff lifecycle context');
@@ -556,6 +563,13 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     source: NonNullable<Extract<RuntimeOperation, { kind: 'applyBuff' }>['parameters']['source']>,
     context?: Parameters<CombatOperationExecutor['execute']>[1],
   ): BuffOperationTarget {
+    if (source === 'eventSource') {
+      const resolve = this.dependencies.resolveEventTarget;
+      if (resolve === undefined) {
+        throw new Error('eventSource Buff source is not configured');
+      }
+      return resolve(this.#requireEventSourceId(context));
+    }
     if (source !== 'currentAbilityEntity') return this.dependencies.resolveTarget(source);
     if (context?.currentTarget === undefined) {
       throw new Error('currentAbilityEntity Buff source requires a current target');
@@ -655,9 +669,22 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
   }
 
   #resolveSingleTarget(
-    target: CombatTarget | 'currentAbilityEntity' | 'eventTarget' | 'buffOwner' | 'buffSource',
+    target:
+      | CombatTarget
+      | 'currentAbilityEntity'
+      | 'eventTarget'
+      | 'eventSource'
+      | 'buffOwner'
+      | 'buffSource',
     context: Parameters<CombatOperationExecutor['execute']>[1],
   ): BuffOperationTarget {
+    if (target === 'eventSource') {
+      const resolve = this.dependencies.resolveEventTarget;
+      if (resolve === undefined) {
+        throw new Error('eventSource Buff operation is not configured');
+      }
+      return resolve(this.#requireEventSourceId(context));
+    }
     if (target === 'buffOwner') {
       if (context?.buffOwnerId === undefined) {
         throw new Error('buffOwner Buff operation requires a Buff lifecycle context');
@@ -710,6 +737,18 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       throw new Error('currentAbilityEntity Buff operation runtime is not configured');
     }
     return resolve(context.currentTarget);
+  }
+
+  #requireEventSourceId(context: Parameters<CombatOperationExecutor['execute']>[1]): string {
+    const event = context?.event;
+    if (event === undefined) {
+      throw new Error('eventSource Buff operation requires an event context');
+    }
+    if ('sourceId' in event && typeof event.sourceId === 'string') return event.sourceId;
+    if ('sourceOperatorId' in event && typeof event.sourceOperatorId === 'string') {
+      return event.sourceOperatorId;
+    }
+    throw new Error(`event '${event.kind}' does not expose a Buff source`);
   }
 
   #requireSkillCastId(

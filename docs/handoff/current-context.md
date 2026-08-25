@@ -1,11 +1,30 @@
 # 当前任务快照
 
-> 更新时间：2026-08-25（Asia/Shanghai）
+> 更新时间：2026-08-26（Asia/Shanghai）
 > 本文是变化最快、优先级最高的交接入口。完全不了解背景时，先读 [交接文档首页](./README.md)，再读本文和 [Next 文档入口](../next/README.md)。
 
-当前主线是在工作树 `C:\Users\sqwat\Projects\zmd\Endaxis-game-data-refactor` 的
+当前主线是在台式机（文档语义中的“远程”）工作树 `D:\Projects\Endaxis` 的
 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
+
+### 2026-08-26：战技叠层套 Aura、同施放连携增伤闭环
+
+- `suit_atk02` 已进入正式生成，套装覆盖提升为 **19/23**。静态部分为攻击 +15%；根 Buff 的
+  `GlobalAura` 只在 combat-spec 已证明的 Owner 根、零尺寸 Box、存活友方 Character、无过滤形状下
+  投影为固定小队，并由 Aura 动作句柄精确持有和结束各成员的侦测 Buff。
+- 公共 Buff 目标/来源新增显式 `eventSource`，保留原生 `CreateBuffAction` 的 `Source/ActionSource`，
+  不再把事件来源含糊映射成 caster、Target 或 Buff owner。每次战技施放前给实际施放者叠一层，连携
+  施放前读取自身该 Buff 的实例数、计算 `dmg_up * stack`，施加临时增伤后清空层数。
+- 技能 cast ID 现在由装配层在 `beforeCastSkill` 前分配，并贯穿 `beforeCastSkill`、伤害上下文和
+  `skillEnd`。`CheckSkillCastId` 因而能严格限制临时 Buff 只修改同一次连携施放产生、且原生
+  DamageDecorateMask 包含 8192（公共语义 `comboSkill`）的伤害；`SkillAffixAction` 在匹配的技能结束
+  时结束该 Buff，不会泄漏到下一次技能。
+- `SaveBuffStackNumAdvanced(Owner, Id, BuffCount)`、`FinishBuffAdvanced(Owner, Id)` 和
+  `DebugPrintAction` 只开放本链需要且完整校验的窄形状。Debug 仅为日志表现 no-op；Buff 图标仍保留，
+  没有借“表现省略”丢弃可视 Buff 数据。
+- 当前剩余 **4/23**：`suit_attri01`、`suit_expend_spell01`、`suit_usp01`、`suit_usp02`。本轮门禁为
+  游戏数据 58 文件 251/251、Next 208 文件 1528/1528，两个专用类型检查通过；正式生成审计为
+  19 套、41 个 Buff 定义。下一步优先复用本轮 `SkillAffixAction` 证据收口 `suit_attri01`。
 
 ### 2026-08-25：爆发套事件 Buff Advanced Tag 闭环
 

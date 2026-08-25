@@ -682,6 +682,7 @@ describe('attachBuffLifecycleSequences', () => {
           targetId: 'operator',
           skillType: 'finisher',
           skillId: 'native-power-attack',
+          skillCastId: 1,
         },
       },
       [],

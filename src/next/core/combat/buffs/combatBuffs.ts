@@ -331,7 +331,12 @@ export class CombatBuff<Key extends string> {
     }
     this.damageModifiers = (definition.damageModifiers ?? []).map(
       modifier =>
-        new DamageModifier(owner.ownerId, modifier, value => this.resolveDamageNumber(value)),
+        new DamageModifier(
+          owner.ownerId,
+          modifier,
+          value => this.resolveDamageNumber(value),
+          this.skillCastInfo?.skillCastId ?? null,
+        ),
     );
     this.healModifiers = (definition.healModifiers ?? []).map(
       modifier => new HealModifier(owner.ownerId, modifier, value => this.resolveHealNumber(value)),

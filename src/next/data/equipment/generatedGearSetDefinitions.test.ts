@@ -5,6 +5,90 @@ import { perlica } from '../operators/perlica';
 import { generatedGearSetDefinitions } from './generated-gear-sets/index.generated';
 
 describe('生成套装正式定义', () => {
+  it('让战技叠层套把战技次数转为同一次连携施放的动态增伤', () => {
+    const definition = generatedGearSetDefinitions.find(item => item.slug === 'suit_atk02')!;
+    expect(validateGearSetDefinition(definition, '$.suit_atk02')).toEqual([]);
+    const compiled = compileGearSetContribution(definition, {
+      main: perlica.mainAttribute,
+      secondary: perlica.secondaryAttribute,
+    });
+
+    expect(compiled.modifiers).toEqual([{ kind: 'panelStat', stat: 'attackPercent', value: 0.15 }]);
+    expect(
+      compiled.buffDefinitions?.buff_equipsuit_atk_02?.lifecycleSequences?.enable,
+    ).toMatchObject({
+      steps: [
+        {
+          kind: 'applyBuff',
+          parameters: {
+            buffId: 'buff_equipsuit_atk_02_aruadetect',
+            target: 'party',
+            finishByAction: true,
+          },
+        },
+      ],
+    });
+    expect(
+      compiled.buffDefinitions?.buff_equipsuit_atk_02_aruadetect?.abilityEventResponses?.[0],
+    ).toMatchObject({
+      event: 'beforeCastSkill',
+      sequence: {
+        steps: [
+          {
+            parameters: {
+              condition: { kind: 'eventSkillTypeIn', skillTypes: ['battleSkill'] },
+            },
+            whenTrue: {
+              steps: [
+                {
+                  parameters: {
+                    buffId: 'buff_equipsuit_atk_02_addcombodamage',
+                    target: 'eventSource',
+                    source: 'eventSource',
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    });
+    expect(compiled.buffDefinitions?.buff_equipsuit_atk_02_addcombodamage_buff).toMatchObject({
+      damageModifiers: [
+        {
+          condition: {
+            kind: 'all',
+            conditions: [
+              { kind: 'sourceSkillCastMatch' },
+              { kind: 'eventDamageTagsMatch', match: 'hasAll', tags: ['comboSkill'] },
+            ],
+          },
+          processors: [
+            {
+              kind: 'damageScale',
+              side: 'attacker',
+              zone: 'normal',
+              addition: { blackboardKey: 'dmg_up' },
+            },
+          ],
+        },
+      ],
+      abilityEventResponses: [
+        {
+          event: 'skillEnd',
+          sequence: {
+            steps: [
+              {
+                parameters: { condition: { kind: 'eventSkillCastMatchesBuffSource' } },
+                whenTrue: { steps: [{ kind: 'finishCurrentBuff' }] },
+              },
+            ],
+          },
+        },
+      ],
+    });
+  });
+
   it('让技力套在战技实际回能后给全队施加限时普通乘区增伤', () => {
     const definition = generatedGearSetDefinitions.find(item => item.slug === 'suit_atb01')!;
     expect(validateGearSetDefinition(definition, '$.suit_atb01')).toEqual([]);

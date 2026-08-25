@@ -521,3 +521,14 @@ ID 当作物品主键。当前 48 条玩家承伤修正只在木桩边界省略�
 - 正式套装提升为 18/23。剩余 `suit_atk02`、`suit_attri01`、`suit_expend_spell01`、
   `suit_usp01`、`suit_usp02`，继续按会影响对敌伤害且证据完整的链优先。
 - 门禁更新为游戏数据 251/251、Next 1525/1525，两套专用类型检查通过。
+
+### 2026-08-26：战技叠层套正式闭环
+
+- `suit_atk02` 的严格 `GlobalAura` 投影把侦测 Buff 安装到固定小队；战技施放者通过显式
+  `eventSource` 目标/来源获得叠层，不把 Source 猜成 caster 或 Target。
+- 连携施放前读取 Buff owner 身上的 ID 实例数，按层数放大 `dmg_up` 后清层。临时增伤同时检查同一
+  `skillCastId` 与 DamageDecorateMask 的 `comboSkill` 标签，并由 `SkillAffixAction` 在同一技能结束时
+  清理，因此不会污染其他伤害或下一次技能。
+- 正式套装提升为 19/23、41 个 Buff 定义。剩余 `suit_attri01`、`suit_expend_spell01`、
+  `suit_usp01`、`suit_usp02`；下一步优先收口同样依赖 SkillAffix 的 `suit_attri01`。
+- 门禁更新为游戏数据 251/251、Next 1528/1528，两套专用类型检查通过。

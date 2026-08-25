@@ -13,6 +13,7 @@ const scaleAttributes = Object.fromEntries(
 function createContext(
   damageType: 'physical' | 'lifeDrain' = 'physical',
   addInstantAttributeModifier: PlayerDamageContext['addInstantAttributeModifier'] = () => undefined,
+  skillCastId?: number,
 ) {
   const snapshots: PlayerDamageAttributeSnapshots = {
     attacker: {
@@ -44,6 +45,7 @@ function createContext(
     targetId: 'enemy',
     damageType,
     targetHealthType: 'normal',
+    ...(skillCastId === undefined ? {} : { skillCastId }),
     ports: {
       captureAttributeSnapshots: () => snapshots,
       applyModifiers: () => undefined,
@@ -54,6 +56,27 @@ function createContext(
 }
 
 describe('DamageModifier', () => {
+  it('only applies a source-skill-cast modifier to damage from the captured cast', () => {
+    const modifier = new DamageModifier(
+      'operator',
+      {
+        enabledSide: 'attacker',
+        condition: { kind: 'sourceSkillCastMatch' },
+        processors: [{ kind: 'damageScale', side: 'attacker', zone: 'normal', addition: 0.6 }],
+      },
+      value => (typeof value === 'number' ? value : 0),
+      42,
+    );
+    const matching = createContext('physical', () => undefined, 42);
+    const unrelated = createContext('physical', () => undefined, 43);
+
+    modifier.apply('afterCalculation', 'attacker', matching, () => true);
+    modifier.apply('afterCalculation', 'attacker', unrelated, () => true);
+
+    expect(matching.damageScales.getFinalValue()).toBeCloseTo(1.6);
+    expect(unrelated.damageScales.getFinalValue()).toBe(1);
+  });
+
   it('resolves a Buff value into a one-hit instant attribute modifier', () => {
     const addInstantAttributeModifier = vi.fn();
     const context = createContext('physical', addInstantAttributeModifier);

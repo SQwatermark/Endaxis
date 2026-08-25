@@ -749,6 +749,62 @@ describe('BuffOperationExecutor', () => {
     ]);
   });
 
+  it('uses the current ability event source as both Buff target and explicit source', () => {
+    const applied: unknown[] = [];
+    const source = {
+      ownerId: 'operator-b',
+      apply: (request: unknown) => {
+        applied.push(request);
+        return true;
+      },
+      getCountByIds: () => 0,
+      finishByIds: () => 0,
+      holdByIds: () => ({ release: () => undefined }),
+      getCountByTags: () => 0,
+      matchesEntityTags: () => false,
+      findFirstByIds: () => undefined,
+      findFirstByTags: () => undefined,
+      finishByTags: () => 0,
+    };
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator-a',
+      resolveTarget: () => source,
+      resolveEventTarget: id => {
+        expect(id).toBe('operator-b');
+        return source;
+      },
+      delegate,
+    });
+
+    expect(
+      executor.execute(
+        {
+          kind: 'applyBuff',
+          parameters: {
+            buffId: 'event-source-buff',
+            target: 'eventSource',
+            source: 'eventSource',
+          },
+        },
+        {
+          blackboard: new ActionBlackboard(),
+          event: {
+            event: 'beforeCastSkill',
+            kind: 'abilitySkill',
+            sourceId: 'operator-b',
+            targetId: 'operator-b',
+            skillType: 'battleSkill',
+            skillId: 'skill',
+            skillCastId: 7,
+          },
+        },
+      ),
+    ).toBe(true);
+    expect(applied).toEqual([
+      expect.objectContaining({ buffId: 'event-source-buff', sourceId: 'operator-b' }),
+    ]);
+  });
+
   it('uses an explicitly selected entity as the Buff source', () => {
     const applied: unknown[] = [];
     const targets = {

@@ -24,8 +24,18 @@ import { parseNativeSequenceSource, type NativeSequenceSource } from './controlF
 import { parseDamageActionSource, type DamageActionSource } from './damageActions.ts';
 import { parseHealActionSource, type HealActionSource } from './healActions.ts';
 import { parseFinishOwnerActionSource, type FinishOwnerActionSource } from './lifecycleActions.ts';
-import { nativeActionName, requireNonEmptyString, requireRecord } from './primitives.ts';
-import { parsePlaySoundActionSource, type PlaySoundActionSource } from './presentationActions.ts';
+import {
+  nativeActionName,
+  requireExactFields,
+  requireNonEmptyString,
+  requireRecord,
+} from './primitives.ts';
+import {
+  parseDebugPrintActionSource,
+  parsePlaySoundActionSource,
+  type DebugPrintActionSource,
+  type PlaySoundActionSource,
+} from './presentationActions.ts';
 import {
   parseAbilityEntitySpawnActionSource,
   parseProjectileLaunchActionSource,
@@ -43,6 +53,10 @@ import {
   type TimedMarkerApplicationSource,
 } from './resourceActions.ts';
 import type { BlackboardLevelValues } from './scalar.ts';
+import {
+  parseGlobalPartyAuraActionSource,
+  type GlobalPartyAuraActionSource,
+} from './auraActions.ts';
 import {
   parseTimeDilationActionSource,
   parseUltimateTimeActionSource,
@@ -80,6 +94,7 @@ const CONDITION_ACTION_NAMES = new Set([
   'CheckBuffIdInContextAdvanced',
   'CheckGlobalCDTimerAction',
   'CheckSkillHasHit',
+  'CheckSkillCastId',
   'CheckEnemyRank',
   'CheckSuperArmor',
   'CheckTwoDirectionAngle',
@@ -90,6 +105,7 @@ const CONDITION_ACTION_NAMES = new Set([
 /** 引用闭包需要严格读取的动作身份；集合与分派实现同属公共来源层，调用方不再复制 switch。 */
 const REFERENCE_CLOSURE_ACTION_NAMES = new Set([
   'CreateBuffAction',
+  'AuraAction',
   'FinishBuffAction',
   'FinishBuffAdvanced',
   'LaunchProjectile',
@@ -111,6 +127,8 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'timedMarker'; readonly action: TimedMarkerApplicationSource }
   | { readonly family: 'globalCooldown'; readonly action: GlobalCooldownApplicationSource }
   | { readonly family: 'buffApplication'; readonly action: BuffApplicationActionSource }
+  | { readonly family: 'aura'; readonly action: GlobalPartyAuraActionSource }
+  | { readonly family: 'skillAffix'; readonly action: { readonly kind: 'skillAffix' } }
   | { readonly family: 'buffFinish'; readonly action: BuffFinishActionSource }
   | { readonly family: 'buffQuery'; readonly action: BuffStackReadActionSource }
   | { readonly family: 'heal'; readonly action: HealActionSource }
@@ -120,7 +138,10 @@ export type KnownNativeActionLeafSource =
       readonly action: TimeDilationActionSource | UltimateTimeActionSource;
     }
   | { readonly family: 'damage'; readonly action: DamageActionSource }
-  | { readonly family: 'presentation'; readonly action: PlaySoundActionSource }
+  | {
+      readonly family: 'presentation';
+      readonly action: PlaySoundActionSource | DebugPrintActionSource;
+    }
   | { readonly family: 'projectile'; readonly action: ProjectileLaunchActionSource }
   | { readonly family: 'abilityEntity'; readonly action: AbilityEntitySpawnActionSource }
   | { readonly family: 'skillCast'; readonly action: SkillCastActionSource };
@@ -209,6 +230,18 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'buffApplication',
         action: parseBuffApplicationActionSource(value, path, inheritedBlackboard),
       };
+    case 'AuraAction':
+      return {
+        family: 'aura',
+        action: parseGlobalPartyAuraActionSource(value, path),
+      };
+    case 'SkillAffixAction':
+      requireExactFields(
+        action,
+        new Set(['$type', 'isEnable', 'priorityLevel', 'priorityOffset', 'serverActionIndex']),
+        path,
+      );
+      return { family: 'skillAffix', action: { kind: 'skillAffix' } };
     case 'FinishBuffAction':
       return {
         family: 'buffFinish',
@@ -242,6 +275,8 @@ export function tryParseKnownNativeActionLeafSource(
       };
     case 'PlaySoundAction':
       return { family: 'presentation', action: parsePlaySoundActionSource(value, path) };
+    case 'DebugPrintAction':
+      return { family: 'presentation', action: parseDebugPrintActionSource(value, path) };
     case 'LaunchProjectile':
       return { family: 'projectile', action: parseProjectileLaunchActionSource(value, path) };
     case 'SpawnAbilityEntity':

@@ -24,6 +24,8 @@ export interface AbilitySkillRuntime extends FrameRuntime {
   canStart(): boolean;
   /** 本次启动前合并进动作黑板的运行时参数，例如连携候选携带的黑板。 */
   prepareStartBlackboard?(values: Readonly<Record<string, number>>): void;
+  /** 装配层在施放前事件之前预分配的原生技能释放序号。 */
+  prepareSkillCastId?(skillCastId: number): void;
   tryStart(): boolean;
   interrupt(reason: RuntimeSkillInterruptReason): void;
   /** 时间膨胀启用后分别推进技能时间线和冷却。 */
@@ -177,6 +179,14 @@ export class AbilitySystemRuntime implements FrameRuntime {
       return;
     }
     skill.prepareStartBlackboard(values);
+  }
+
+  prepareSkillCastId(skillId: string, castId: string | undefined, skillCastId: number): void {
+    const skill = this.#requireSkill(skillId, castId);
+    if (skill.prepareSkillCastId === undefined) {
+      throw new Error(`skill '${skillId}' cannot receive a prepared skill cast id`);
+    }
+    skill.prepareSkillCastId(skillCastId);
   }
 
   tryStartSkill(skillId: string, castId?: string): boolean {

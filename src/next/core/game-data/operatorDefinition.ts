@@ -156,6 +156,7 @@ export const BUFF_SINGLE_TARGETS = [
   ...COMBAT_TARGETS,
   'currentAbilityEntity',
   'eventTarget',
+  'eventSource',
   'buffOwner',
   'buffSource',
 ] as const;
@@ -172,7 +173,11 @@ export const BUFF_APPLICATION_TARGETS = [
 /** Buff 施加允许面向单体、能力实体，以及由原生队伍选择器严格证明的集合。 */
 export type BuffApplicationTarget = (typeof BUFF_APPLICATION_TARGETS)[number];
 
-export const BUFF_APPLICATION_SOURCES = [...COMBAT_TARGETS, 'currentAbilityEntity'] as const;
+export const BUFF_APPLICATION_SOURCES = [
+  ...COMBAT_TARGETS,
+  'currentAbilityEntity',
+  'eventSource',
+] as const;
 /** Buff 来源允许保留能力实体 ActionOwner 的稳定身份。 */
 export type BuffApplicationSource = (typeof BUFF_APPLICATION_SOURCES)[number];
 
@@ -379,6 +384,8 @@ export type CombatCondition =
       kind: 'eventSkillIdIn';
       skillIds: readonly string[];
     }
+  /** 当前技能事件与持有此响应的 Buff 是否来自同一原生 SkillCastId。 */
+  | { kind: 'eventSkillCastMatchesBuffSource' }
   | {
       /** 匹配触发当前响应的新施加 Buff 身份。 */
       kind: 'eventBuffIdMatch';
@@ -474,6 +481,7 @@ export const COMBAT_CONDITION_KINDS = [
   'eventPhysicalInflictionTypeIn',
   'eventSkillTypeIn',
   'eventSkillIdIn',
+  'eventSkillCastMatchesBuffSource',
   'eventBuffIdMatch',
   'eventBuffEndedEarly',
   'eventBuffTagsMatch',

@@ -211,6 +211,7 @@ describe('CombatRuntimeAssembly', () => {
           targetId: 'operator',
           skillType: 'battleSkill',
           skillId: 'first',
+          skillCastId: 1,
         },
       ],
       [
@@ -223,6 +224,7 @@ describe('CombatRuntimeAssembly', () => {
           targetId: 'operator',
           skillType: 'battleSkill',
           skillId: 'first',
+          skillCastId: 1,
         },
       ],
       [
@@ -233,6 +235,7 @@ describe('CombatRuntimeAssembly', () => {
           targetId: 'operator',
           skillType: 'ultimate',
           skillId: 'second',
+          skillCastId: 2,
         },
       ],
     ]);

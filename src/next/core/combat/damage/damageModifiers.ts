@@ -68,6 +68,7 @@ export type DamageModifierExternalCondition =
 /** 伤害修正专用条件树；Buff 黑板只在持有该修正的实例内求值。 */
 export type DamageModifierCondition =
   | DamageModifierExternalCondition
+  | { readonly kind: 'sourceSkillCastMatch' }
   | {
       readonly kind: 'buffBlackboardCompare';
       readonly left: DamageModifierNumber;
@@ -126,6 +127,7 @@ export class DamageModifier {
         `damage modifier blackboard value '${value.blackboardKey}' cannot be resolved`,
       );
     },
+    readonly sourceSkillCastId: number | null = null,
   ) {}
 
   apply(
@@ -141,7 +143,7 @@ export class DamageModifier {
       if (evaluateCondition === undefined) {
         throw new Error('conditional damage modifier requires a condition evaluator');
       }
-      if (!this.#evaluateCondition(this.definition.condition, evaluateCondition)) return;
+      if (!this.#evaluateCondition(this.definition.condition, evaluateCondition, context)) return;
     }
     for (const processor of this.definition.processors) {
       applyProcessor(processor, timing, context, this.resolveNumber);
@@ -151,8 +153,15 @@ export class DamageModifier {
   #evaluateCondition(
     condition: DamageModifierCondition,
     evaluateExternal: DamageModifierConditionEvaluator,
+    context: PlayerDamageContext,
   ): boolean {
     switch (condition.kind) {
+      case 'sourceSkillCastMatch':
+        return (
+          this.sourceSkillCastId !== null &&
+          this.sourceSkillCastId > 0 &&
+          context.skillCastId === this.sourceSkillCastId
+        );
       case 'buffBlackboardCompare':
         return compareCombatNumbers(
           this.resolveNumber(condition.left),
@@ -160,13 +169,15 @@ export class DamageModifier {
           condition.operator,
         );
       case 'not':
-        return !this.#evaluateCondition(condition.condition, evaluateExternal);
+        return !this.#evaluateCondition(condition.condition, evaluateExternal, context);
       case 'all':
         return condition.conditions.every(child =>
-          this.#evaluateCondition(child, evaluateExternal),
+          this.#evaluateCondition(child, evaluateExternal, context),
         );
       case 'any':
-        return condition.conditions.some(child => this.#evaluateCondition(child, evaluateExternal));
+        return condition.conditions.some(child =>
+          this.#evaluateCondition(child, evaluateExternal, context),
+        );
       default:
         return evaluateExternal(condition, this.resolveNumber);
     }

@@ -129,6 +129,7 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
       return { kind };
     case 'eventSourceMatchesBuffSource':
     case 'eventSourceMatchesBuffSourceEntitySource':
+    case 'eventSkillCastMatchesBuffSource':
     case 'eventSourceControlled':
     case 'buffSourceMatchesOwner':
       return { kind };

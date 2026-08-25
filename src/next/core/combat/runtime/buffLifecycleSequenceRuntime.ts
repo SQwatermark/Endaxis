@@ -362,16 +362,26 @@ export function attachBuffLifecycleSequences<Key extends string>(
             payload => {
               const runtime = runtimeFor(buff);
               for (const response of group.responses) {
+                const event = normalizeBuffAbilityEvent(
+                  response.event as Exclude<
+                    ResolvedSkillBuffAbilityEventResponse['event'],
+                    'afterKillEntity' | 'outputKnockDown' | 'skillSpGained'
+                  >,
+                  payload,
+                );
                 runtime
                   .createSequence(response.sequence, {
                     ...runtime.context,
-                    event: normalizeBuffAbilityEvent(
-                      response.event as Exclude<
-                        ResolvedSkillBuffAbilityEventResponse['event'],
-                        'afterKillEntity' | 'outputKnockDown' | 'skillSpGained'
-                      >,
-                      payload,
-                    ),
+                    event,
+                    ...(event.kind === 'abilitySkill' && event.event === 'beforeCastSkill'
+                      ? {
+                          skillCastInfo: {
+                            skillCastId: event.skillCastId,
+                            originSkillId: event.skillId,
+                            nonReturnedSpCost: 0,
+                          },
+                        }
+                      : {}),
                   })
                   .executeInstant({});
               }
@@ -649,6 +659,9 @@ function normalizeBuffAbilityEvent(
     ) {
       throw new TypeError(`Buff ability event '${event}' payload has invalid skill type`);
     }
+    if (!Number.isSafeInteger(source.skillCastId) || (source.skillCastId as number) <= 0) {
+      throw new TypeError(`Buff ability event '${event}' payload has invalid skill cast id`);
+    }
     return {
       kind: 'abilitySkill',
       event,
@@ -663,6 +676,7 @@ function normalizeBuffAbilityEvent(
                 `Buff ability event '${event}' payload has invalid skill identity`,
               );
             })(),
+      skillCastId: source.skillCastId as number,
     };
   }
   if (event === 'poiseZero') {

@@ -886,6 +886,9 @@ function parseDamageModifierCondition(input: unknown, path: string): DamageModif
     case 'casterControlled':
       requireOnlyKeys(condition, path, ['kind']);
       return { kind: 'casterControlled' };
+    case 'sourceSkillCastMatch':
+      requireOnlyKeys(condition, path, ['kind']);
+      return { kind: 'sourceSkillCastMatch' };
     case 'buffIdCountCompare':
       requireOnlyKeys(condition, path, ['kind', 'target', 'buffIds', 'operator', 'value']);
       if (

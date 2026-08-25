@@ -57,6 +57,24 @@ export interface CompiledBuffAttributeModifierSource {
 
 export interface CompiledBuffDamageModifierSource {
   readonly enabledSide: 'attacker' | 'defender';
+  readonly condition?:
+    | { readonly kind: 'sourceSkillCastMatch' }
+    | {
+        readonly kind: 'eventDamageTagsMatch';
+        readonly match: 'hasAll';
+        readonly tags: readonly ['comboSkill'];
+      }
+    | {
+        readonly kind: 'all';
+        readonly conditions: readonly (
+          | { readonly kind: 'sourceSkillCastMatch' }
+          | {
+              readonly kind: 'eventDamageTagsMatch';
+              readonly match: 'hasAll';
+              readonly tags: readonly ['comboSkill'];
+            }
+        )[];
+      };
   readonly processors: readonly {
     readonly kind: 'damageScale';
     readonly side: 'attacker' | 'defender';
@@ -73,6 +91,7 @@ export type CompiledBuffConditionSource =
       readonly finalHealKey?: string;
       readonly realHealKey?: string;
     }
+  | { readonly kind: 'eventSkillCastMatchesBuffSource' }
   | {
       readonly kind: 'eventPhysicalInflictionTypeIn';
       readonly types: readonly ('airborne' | 'knockDown' | 'fracture' | 'crush')[];
@@ -146,8 +165,10 @@ export type CompiledBuffStepSource =
       readonly kind: 'applyBuff';
       readonly parameters: {
         readonly buffId: string;
-        readonly target: 'caster' | 'eventTarget' | 'buffOwner' | 'party';
+        readonly target: 'caster' | 'eventTarget' | 'eventSource' | 'buffOwner' | 'party';
+        readonly source?: 'eventSource';
         readonly inheritSourceSkillCastInfo?: boolean;
+        readonly finishByAction?: boolean;
         readonly blackboardAssignments?: Readonly<
           Record<
             string,
@@ -169,7 +190,7 @@ export type CompiledBuffStepSource =
   | {
       readonly kind: 'readBuffStackCount';
       readonly parameters: {
-        readonly target: 'eventTarget';
+        readonly target: 'eventTarget' | 'buffOwner';
         readonly outputKey: string;
         readonly countType?: 'instance';
         readonly query:
@@ -213,6 +234,10 @@ export type CompiledBuffStepSource =
           | { readonly kind: 'blackboard'; readonly key: string };
         readonly autoFinishByAction: false;
       };
+    }
+  | {
+      readonly kind: 'finishCurrentBuff';
+      readonly parameters: { readonly reason: 'other' };
     };
 
 export interface CompiledBuffSequenceSource {
@@ -249,6 +274,7 @@ export interface CompiledBuffDefinitionSource {
       | 'beforeOutputPhysicalInfliction'
       | 'outputCriticalDamage'
       | 'outputHeal'
+      | 'skillEnd'
       /** 已严格融合 CheckObtainAtbType(Skill, Gain) 的共享技力事实事件。 */
       | 'skillSpGained';
     readonly priority: 0;
@@ -317,6 +343,7 @@ export function compileBuffRuntimeDefinitionSource(
   const enableSequences: CompiledBuffSequenceSource[] = [];
   const enhanceChangedSequences: CompiledBuffSequenceSource[] = [];
   const finishSequences: CompiledBuffSequenceSource[] = [];
+  let finishesWithSourceSkill = false;
   for (const event of source.graph.buffEvents) {
     const target =
       event.event === 'OnBuffStart'
@@ -330,6 +357,10 @@ export function compileBuffRuntimeDefinitionSource(
               : null;
     if (target === null) throw new Error(`unsupported Buff event ${JSON.stringify(event.event)}`);
     for (const sequence of event.actions) {
+      if (event.event === 'DuringBuffEnable' && isDirectSkillAffixSequence(sequence)) {
+        finishesWithSourceSkill = true;
+        continue;
+      }
       const compiled = compileLinearSequence(sequence, visualOnlyIds);
       if (compiled.steps.length > 0) target.push(compiled);
     }
@@ -340,6 +371,17 @@ export function compileBuffRuntimeDefinitionSource(
   const outputCriticalDamageSteps: CompiledBuffStepSource[] = [];
   const outputHealSteps: CompiledBuffStepSource[] = [];
   const skillSpGainedSteps: CompiledBuffStepSource[] = [];
+  const skillEndSteps: CompiledBuffStepSource[] = finishesWithSourceSkill
+    ? [
+        {
+          kind: 'conditional',
+          parameters: { condition: { kind: 'eventSkillCastMatchesBuffSource' } },
+          whenTrue: {
+            steps: [{ kind: 'finishCurrentBuff', parameters: { reason: 'other' } }],
+          },
+        },
+      ]
+    : [];
   for (const event of source.graph.abilityEvents) {
     if (omittedAbilityEvents.has(event.event)) continue;
     const target =
@@ -444,7 +486,8 @@ export function compileBuffRuntimeDefinitionSource(
     beforeOutputPhysicalInflictionSteps.length === 0 &&
     outputCriticalDamageSteps.length === 0 &&
     outputHealSteps.length === 0 &&
-    skillSpGainedSteps.length === 0
+    skillSpGainedSteps.length === 0 &&
+    skillEndSteps.length === 0
       ? {}
       : {
           abilityEventResponses: [
@@ -502,22 +545,39 @@ export function compileBuffRuntimeDefinitionSource(
                     sequence: { steps: skillSpGainedSteps },
                   },
                 ]),
+            ...(skillEndSteps.length === 0
+              ? []
+              : [
+                  {
+                    event: 'skillEnd' as const,
+                    priority: 0 as const,
+                    sequence: { steps: skillEndSteps },
+                  },
+                ]),
           ],
         }),
   };
+}
+
+function isDirectSkillAffixSequence(
+  source: NativeSequenceSource<KnownNativeActionLeafSource>,
+): boolean {
+  if (source.onlyExecuteWhenSourceIsMainCharacter || source.onlyExecuteWhenSourceIsGuard) {
+    return false;
+  }
+  const nodes = source.actions.filter(node => node.metadata.enabled);
+  return (
+    nodes.length === 1 &&
+    nodes[0]!.body.kind === 'leaf' &&
+    nodes[0]!.body.value.family === 'skillAffix'
+  );
 }
 
 function compileBuffDamageModifiers(source: BuffRuntimeSource): {
   readonly damageModifiers?: readonly CompiledBuffDamageModifierSource[];
 } {
   const modifiers = source.damageModifiers.map((modifier, index) => {
-    if (
-      modifier.condition.onlyExecuteWhenSourceIsMainCharacter ||
-      modifier.condition.onlyExecuteWhenSourceIsGuard ||
-      modifier.condition.actions.some(node => node.metadata.enabled)
-    ) {
-      throw new Error(`damageModifier[${index}]: conditional damage modifiers are unsupported`);
-    }
+    const condition = compileDamageModifierCondition(modifier.condition, index);
     const enabledSide = DAMAGE_MODIFIER_SIDES[modifier.enabledSide];
     if (enabledSide === undefined) {
       throw new Error(
@@ -547,9 +607,43 @@ function compileBuffDamageModifiers(source: BuffRuntimeSource): {
     if (processors.length === 0) {
       throw new Error(`damageModifier[${index}]: expected at least one processor`);
     }
-    return { enabledSide, processors };
+    return { enabledSide, ...(condition === undefined ? {} : { condition }), processors };
   });
   return modifiers.length === 0 ? {} : { damageModifiers: modifiers };
+}
+
+function compileDamageModifierCondition(
+  source: NativeSequenceSource<KnownNativeActionLeafSource>,
+  modifierIndex: number,
+): CompiledBuffDamageModifierSource['condition'] | undefined {
+  if (source.onlyExecuteWhenSourceIsMainCharacter || source.onlyExecuteWhenSourceIsGuard) {
+    throw new Error(`damageModifier[${modifierIndex}]: root condition filters are unsupported`);
+  }
+  const conditions = source.actions
+    .filter(node => node.metadata.enabled)
+    .map(node => {
+      if (node.body.kind !== 'leaf' || node.body.value.family !== 'condition') {
+        throw new Error(`${node.sourcePath}: expected a damage modifier condition`);
+      }
+      const condition = node.body.value.action;
+      if (condition.kind === 'skillCastId') return { kind: 'sourceSkillCastMatch' as const };
+      if (
+        condition.kind === 'damageDecorateMask' &&
+        condition.checkType === 'HasAll' &&
+        condition.mask === 8192
+      ) {
+        return {
+          kind: 'eventDamageTagsMatch' as const,
+          match: 'hasAll' as const,
+          tags: ['comboSkill'] as const,
+        };
+      }
+      throw new Error(
+        `${node.sourcePath}: unsupported damage modifier condition ${condition.kind}`,
+      );
+    });
+  if (conditions.length === 0) return undefined;
+  return conditions.length === 1 ? conditions[0] : { kind: 'all', conditions };
 }
 
 function compileSkillSpGainSequence(
@@ -815,14 +909,47 @@ function compileActionNode(
       partyTargetGroups,
     );
   }
+  if (node.body.value.family === 'aura') {
+    return node.body.value.action.buffs.flatMap((entry, index) => {
+      if (visualOnlyIds.has(entry.buffId)) return [];
+      const assignments = entry.assignBlackboard
+        ? Object.fromEntries(
+            entry.assignments.map(item => [
+              item.targetKey,
+              item.useDirectValue
+                ? {
+                    kind: 'constant' as const,
+                    value: item.valueType === 'Numeric' ? item.numericValue : item.stringValue,
+                  }
+                : { kind: 'blackboard' as const, key: item.inputValueKey },
+            ]),
+          )
+        : {};
+      if (!entry.assignBlackboard && entry.assignments.length > 0) {
+        throw new Error(
+          `${node.sourcePath}.buffInput[${index}]: disabled Aura assignment is nonempty`,
+        );
+      }
+      return [
+        {
+          kind: 'applyBuff' as const,
+          parameters: {
+            buffId: entry.buffId,
+            target: 'party' as const,
+            finishByAction: true,
+            ...(Object.keys(assignments).length === 0
+              ? {}
+              : { blackboardAssignments: assignments }),
+          },
+        },
+      ];
+    });
+  }
   if (node.body.value.family === 'buffFinish') {
     const action = node.body.value.action;
     if (
-      action.kind !== 'buffFinishById' ||
       action.owner.targetSource !== 'Owner' ||
       action.owner.targetGroupKey !== '' ||
-      action.buffIds.length === 0 ||
-      action.buffIds.some(id => id.length === 0) ||
       action.limitSource ||
       action.buffSource.targetSource !== 'Source' ||
       action.buffSource.targetGroupKey !== '' ||
@@ -831,12 +958,24 @@ function compileActionNode(
     ) {
       throw new Error(`${node.sourcePath}: unsupported Buff finish target/source`);
     }
+    const buffIds =
+      action.kind === 'buffFinishById'
+        ? action.buffIds
+        : action.settings.checkType === 'Id' &&
+            action.settings.buffIds.length > 0 &&
+            action.settings.tagQuery.tagIds.length === 0 &&
+            !action.isAbsorbed
+          ? action.settings.buffIds
+          : null;
+    if (buffIds === null || buffIds.length === 0 || buffIds.some(id => id.length === 0)) {
+      throw new Error(`${node.sourcePath}: unsupported Buff finish query`);
+    }
     return [
       {
         kind: 'finishBuffsById',
         parameters: {
           target: 'buffOwner',
-          buffIds: action.buffIds,
+          buffIds,
           reason: action.isFinishedEarly ? 'early' : 'other',
           ...(action.finishAll ? {} : { count: actionValueOperand(action.finishLayerCount) }),
         },
@@ -849,7 +988,7 @@ function compileActionNode(
   if (node.body.value.family === 'buffQuery') {
     const action = node.body.value.action;
     if (
-      action.target.targetSource !== 'Target' ||
+      (action.target.targetSource !== 'Target' && action.target.targetSource !== 'Owner') ||
       action.target.targetGroupKey !== '' ||
       action.countType !== 'BuffCount' ||
       action.limitSkillCastId
@@ -857,22 +996,21 @@ function compileActionNode(
       throw new Error(`${node.sourcePath}: unsupported Buff stack read`);
     }
     const query =
-      action.checkType === 'Tag' && action.buffIds.length === 0
-        ? {
-            kind: 'tag' as const,
-            tagQueryType: action.tagQueryType,
-            buffTagIds: action.buffTagIds,
-          }
-        : null;
-    if (query === null)
-      throw new Error(
-        `${node.sourcePath}: BuffCount projection currently requires a tag query with instance counting`,
-      );
+      action.checkType === 'Id' && action.buffIds.length > 0 && action.buffTagIds.length === 0
+        ? { kind: 'id' as const, buffIds: action.buffIds }
+        : action.checkType === 'Tag' && action.buffIds.length === 0
+          ? {
+              kind: 'tag' as const,
+              tagQueryType: action.tagQueryType,
+              buffTagIds: action.buffTagIds,
+            }
+          : null;
+    if (query === null) throw new Error(`${node.sourcePath}: unsupported BuffCount query`);
     return [
       {
         kind: 'readBuffStackCount',
         parameters: {
-          target: 'eventTarget',
+          target: action.target.targetSource === 'Owner' ? 'buffOwner' : 'eventTarget',
           outputKey: action.outputKey,
           countType: 'instance',
           query,
@@ -973,13 +1111,21 @@ function compileBuffApplication(
   const target =
     (action.target.targetGroupKey ?? '') === '' && action.target.targetSource === 'Owner'
       ? ('buffOwner' as const)
-      : (action.target.targetGroupKey ?? '') === '' && action.target.targetSource === 'Target'
-        ? ('eventTarget' as const)
-        : action.target.targetSource === 'Context' &&
-            partyTargetGroups.has(action.target.targetGroupKey ?? '')
-          ? ('party' as const)
-          : null;
-  if (target === null || action.buffSource !== 'ActionOwner')
+      : (action.target.targetGroupKey ?? '') === '' && action.target.targetSource === 'Source'
+        ? ('eventSource' as const)
+        : (action.target.targetGroupKey ?? '') === '' && action.target.targetSource === 'Target'
+          ? ('eventTarget' as const)
+          : action.target.targetSource === 'Context' &&
+              partyTargetGroups.has(action.target.targetGroupKey ?? '')
+            ? ('party' as const)
+            : null;
+  const source =
+    action.buffSource === 'ActionOwner'
+      ? undefined
+      : action.buffSource === 'ActionSource'
+        ? ('eventSource' as const)
+        : null;
+  if (target === null || source === null)
     throw new Error(`${sourcePath}: unsupported Buff target/source`);
   return action.buffs.flatMap(entry => {
     if (visualOnlyIds.has(entry.buffId)) return [];
@@ -1002,6 +1148,7 @@ function compileBuffApplication(
         parameters: {
           buffId: entry.buffId,
           target,
+          ...(source === undefined ? {} : { source }),
           ...(action.inheritSourceSkillCastInfo ? { inheritSourceSkillCastInfo: true } : {}),
           ...(Object.keys(assignments).length === 0 ? {} : { blackboardAssignments: assignments }),
         },

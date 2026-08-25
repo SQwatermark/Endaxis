@@ -163,6 +163,7 @@ export type NativeConditionSource =
       readonly buffId: string;
     })
   | (ConditionIdentity & { readonly kind: 'skillHasHit' })
+  | (ConditionIdentity & { readonly kind: 'skillCastId' })
   | (ConditionIdentity & {
       readonly kind: 'enemyRank';
       readonly target: TargetReferenceSource;
@@ -412,6 +413,13 @@ export function parseConditionLeafSource(
     }
     case 'CheckSkillHasHit':
       return { kind: 'skillHasHit', sourceType };
+    case 'CheckSkillCastId':
+      requireExactFields(
+        condition,
+        new Set(['$type', 'isEnable', 'priorityLevel', 'priorityOffset', 'serverActionIndex']),
+        path,
+      );
+      return { kind: 'skillCastId', sourceType };
     case 'CheckEnemyRank':
       return {
         kind: 'enemyRank',
