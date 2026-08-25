@@ -314,7 +314,10 @@ function compileCastSkillPrograms(
   );
 }
 
-function compileSkillSlotGroups(operator: OperatorDefinition): readonly CompiledSkillSlotGroup[] {
+function compileSkillSlotGroups(
+  operator: OperatorDefinition,
+  placedSkillGroupKeys: ReadonlySet<string>,
+): readonly CompiledSkillSlotGroup[] {
   return operator.skillGroups.flatMap(group => {
     const replacements = [
       ...(group.replacementSkills ?? []),
@@ -322,7 +325,10 @@ function compileSkillSlotGroups(operator: OperatorDefinition): readonly Compiled
     ];
     if (replacements.length === 0) return [];
     const placedSkills = Array.isArray(group.skills) ? group.skills : [group.skills];
-    if (placedSkills.length !== 1) {
+    // 未放置的槽位仍须存在：其他技能/Buff 可能先修改它，供后续释放使用。但只有用户真的
+    // 放置该组时才需要把槽位身份绑定到具体 cast；此时多段链究竟整体替换还是只替换入口
+    // 尚无统一模型，必须原地失败，不能让它连带阻塞该干员完全无关的技能。
+    if (placedSkills.length !== 1 && placedSkillGroupKeys.has(group.key)) {
       throw new Error(
         `operator '${operator.slug}' skill group '${group.key}' cannot combine a placed skill chain with replacement skills`,
       );
@@ -446,6 +452,7 @@ function compileResolvedTimelineTracks(
     };
     const activeUpgrades = resolveActiveOperatorUpgrades(operatorInstance, operator);
     const skills: CompiledSkillProgram[] = [];
+    const placedSkillGroupKeys = new Set<string>();
     for (const cast of track.skillCasts) {
       if (cast.presentation?.disabled) continue;
       if (cast.source.kind === 'custom') {
@@ -454,6 +461,7 @@ function compileResolvedTimelineTracks(
         );
       }
       const resolved = resolveEffectiveSkillDefinition(cast, operator);
+      placedSkillGroupKeys.add(resolved.group.key);
       const level = requireSkillLevel(operatorInstance, resolved.levelSource);
       skills.push(
         ...compileCastSkillPrograms(
@@ -507,7 +515,7 @@ function compileResolvedTimelineTracks(
         ? {}
         : { abilityEntityDefinitions: buffAbilityEntityDefinitions }),
       comboSkillRegistrations: compileComboSkillRegistrations(operatorInstance, operator),
-      skillSlotGroups: compileSkillSlotGroups(operator),
+      skillSlotGroups: compileSkillSlotGroups(operator, placedSkillGroupKeys),
       initializationPrograms: compileOperatorInitializationPrograms(activeUpgrades),
       passivePrograms: compileOperatorPassivePrograms(
         activeUpgrades,

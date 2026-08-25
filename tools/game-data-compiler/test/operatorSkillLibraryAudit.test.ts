@@ -61,6 +61,8 @@ describe('Operator 技能库批量审计', () => {
 function operator(slug: string, charId: string, source: string) {
   return {
     slug,
+    gameId: slug.replaceAll('-', '_').toUpperCase(),
+    exportName: `${slug.replaceAll('-', '_')}GeneratedSource`,
     charId,
     skills: [{ key: 'basic', skillType: 'basicAttack', source }],
     skillGroups: [

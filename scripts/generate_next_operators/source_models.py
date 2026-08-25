@@ -1508,6 +1508,9 @@ class ProjectileLaunchPayload:
     assignBlackboard: bool = False
     entityBlackboardAssignments: tuple[EntityBlackboardAssignmentSource, ...] = ()
     target: TargetReferenceSource | None = None
+    # 由 ProjectileData.TargetFilter 在固定单敌人/全范围模型下证明的碰撞对象。
+    # None 表示证据不足，编译器不得仅凭 projectileId 名称猜测。
+    singleEnemyInputTarget: Literal["enemy", "caster"] | None = None
 
 
 @dataclass(frozen=True)

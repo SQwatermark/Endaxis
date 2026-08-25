@@ -707,7 +707,7 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
                 ),
                 afterEnhance: sequence(
                   step('igniteBuffs', {
-                    target: 'enemy',
+                    target: 'buffOwner',
                     source: 'currentBuffSource',
                     igniteType: 'NoGuard',
                   }),

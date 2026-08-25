@@ -151,19 +151,19 @@
       }
     ],
     "configuredProgression": {
-      "operatorCount": 29,
+      "operatorCount": 30,
       "talent": {
-        "totalCount": 58,
-        "definitionConvertedCount": 57,
-        "standardSimulationCompileReadyCount": 57
+        "totalCount": 60,
+        "definitionConvertedCount": 59,
+        "standardSimulationCompileReadyCount": 59
       },
       "potential": {
-        "totalCount": 145,
-        "definitionConvertedCount": 145,
-        "standardSimulationCompileReadyCount": 145
+        "totalCount": 150,
+        "definitionConvertedCount": 150,
+        "standardSimulationCompileReadyCount": 150
       },
-      "definitionCompleteOperatorCount": 28,
-      "standardSimulationCompileReadyOperatorCount": 28
+      "definitionCompleteOperatorCount": 29,
+      "standardSimulationCompileReadyOperatorCount": 29
     }
   },
   "operators": [
@@ -8681,7 +8681,76 @@
             }
           ]
         }
-      ]
+      ],
+      "configuredProgression": {
+        "characterId": "chr_0035_liino",
+        "slug": "liino",
+        "talent": {
+          "totalCount": 2,
+          "definitionConvertedCount": 2,
+          "standardSimulationCompileReadyCount": 2
+        },
+        "potential": {
+          "totalCount": 5,
+          "definitionConvertedCount": 5,
+          "standardSimulationCompileReadyCount": 5
+        },
+        "definitionComplete": true,
+        "standardSimulationCompileReady": true,
+        "talents": [
+          {
+            "key": "talent1",
+            "sourceEffectIds": ["chr_0035_liino_talent_1_1", "chr_0035_liino_talent_1_2"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "talent2",
+            "sourceEffectIds": ["chr_0035_liino_talent_2_1", "chr_0035_liino_talent_2_2"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          }
+        ],
+        "potentials": [
+          {
+            "key": "potential1",
+            "sourceEffectIds": ["chr_0035_liino_potential_1"],
+            "compiler": "skillBlackboardPatchAndAttachedBuff",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential2",
+            "sourceEffectIds": ["chr_0035_liino_potential_2"],
+            "compiler": "staticAttributes",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential3",
+            "sourceEffectIds": ["chr_0035_liino_potential_3"],
+            "compiler": "skillCooldownAndBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential4",
+            "sourceEffectIds": ["chr_0035_liino_potential_4"],
+            "compiler": "multiplyUltimateCost",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          },
+          {
+            "key": "potential5",
+            "sourceEffectIds": ["chr_0035_liino_potential_5"],
+            "compiler": "skillBlackboardPatch",
+            "definitionConverted": true,
+            "standardSimulationCompileReady": true
+          }
+        ]
+      }
     },
     {
       "characterId": "chr_9000_endmin",

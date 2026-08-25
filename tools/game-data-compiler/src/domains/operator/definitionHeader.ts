@@ -15,6 +15,8 @@ import type { CompiledTrustAttributeBonusSource } from './talentNodes.ts';
  * 专用编译阶段装配。因此该结构不能单独注册为完整干员定义。
  */
 export interface CompiledOperatorDefinitionHeaderSource {
+  readonly slug: string;
+  readonly gameId: string;
   readonly sourceCharacterId: string;
   readonly rarity: ProjectedOperatorRaritySource;
   readonly weaponType: ProjectedWeaponTypeSource;
@@ -32,6 +34,8 @@ export function compileOperatorDefinitionHeaderSource(
 ): CompiledOperatorDefinitionHeaderSource {
   const { character } = closure;
   return {
+    slug: closure.identity.slug,
+    gameId: closure.identity.gameId,
     sourceCharacterId: character.characterId,
     rarity: character.projectedRarity,
     weaponType: character.weaponType,

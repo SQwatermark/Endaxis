@@ -23,6 +23,7 @@ import {
   ember,
   fluorite,
   laevatain,
+  liino,
   perlica,
   pogranichnik,
   snowshine,
@@ -40,6 +41,72 @@ import {
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
 
 describe('registered generated operators', () => {
+  it('runs Liino ultimate damage and full-health healing through the production timeline', () => {
+    const scenario = createEmptyScenario('scenario:liino:ultimate', '梨诺终结技生产回归');
+    scenario.battle.durationFrames = 650;
+    scenario.enemy.editable.hp = 10_000_000;
+    scenario.tracks[0] = {
+      id: 'track:liino',
+      operator: {
+        operatorSlug: liino.slug,
+        level: 90,
+        promoted: true,
+        potential: 5,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 2, 1: 2 },
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 160, maxUltimateEnergyOverride: 160 },
+      skillCasts: [],
+    };
+    const placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: liino,
+      skillGroupKey: 'ultimate',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:liino:ultimate` },
+    }).scenario;
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      endFrame: 650,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(100).fill(1)),
+      elementalInflictionDocument: elementalAttachments,
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+          ultimateEnergySystemUnlocked: true,
+        },
+      },
+    });
+
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'DamageApplied',
+        sourceId: 'track:liino',
+        targetId: 'enemy',
+      }),
+    );
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'HealingApplied',
+        sourceId: 'track:liino',
+        targetId: 'track:liino',
+      }),
+    );
+  });
+
   it('applies Ardelia potential 1 vulnerability increase to her battle-skill damage', () => {
     const run = (potential: number) => {
       const scenario = createEmptyScenario(

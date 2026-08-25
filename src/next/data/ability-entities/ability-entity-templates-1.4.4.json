@@ -1902,13 +1902,40 @@
       "assetIndex": 4104,
       "rawSha256": "1bff085b5215c26aa08d41fa39587ffd8fe22e274560b27b178a0d5fbc11d828",
       "referencedBySkillFiles": ["chr_0033_camille_normal_skill_projhit.json"]
-    }
-  },
-  "unresolvedReferences": {
+    },
     "abilityentity_chr_0035_liino_ult_skill_projhit": {
-      "reason": "manifestAssetMissing",
-      "expectedAssetName": "data_abilityentity_chr_0035_liino_ult_skill_projhit.asset",
+      "gameId": "abilityentity_chr_0035_liino_ult_skill_projhit",
+      "factionNativeValue": 2,
+      "bornTagIds": [-1511579808, 1717826765, -715143713, 152398297],
+      "lifeTypeNativeValue": 0,
+      "durationSeconds": 30.0,
+      "durationBlackboard": {
+        "useBlackboardKey": false,
+        "value": 5.0,
+        "blackboardKey": ""
+      },
+      "maxDurationForServerSeconds": 0.0,
+      "maxStackingCount": 1,
+      "maxStackingCountBlackboard": {
+        "useBlackboardKey": false,
+        "value": -1,
+        "blackboardKey": ""
+      },
+      "delayToRecycleSeconds": 0.0,
+      "delayRecyclePerformSeconds": 0.0,
+      "sendDieEvent": false,
+      "enableBornFadeIn": false,
+      "fadeInSeconds": 1.0,
+      "componentCount": 4,
+      "managedReferenceCount": 5,
+      "rootRid": 8194869126427837201,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/abilityentity/data_abilityentity_chr_0035_liino_ult_skill_projhit.asset",
+      "assetIndex": 284718,
+      "bundleName": "main/5fd20c5787deee2a7da7c56a.ab",
+      "rawSha256": "fa766ef5466f5b5704edbe7c078f4b9a8ec35f45728ef387a5a85b1d8fcdea43",
+      "decodedSha256": "53b84532636314ce0e7bd9002089cfa1e4147d855ed9a88072b977c0063462d5",
       "referencedBySkillFiles": ["chr_0035_liino_ultimate_skill.json"]
     }
-  }
+  },
+  "unresolvedReferences": {}
 }

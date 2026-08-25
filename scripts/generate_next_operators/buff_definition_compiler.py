@@ -44,6 +44,8 @@ ATTRIBUTE_SLOTS = {
 BUFF_ATTRIBUTE_RUNTIME_KEYS = {
     "CriticalRate": "criticalRate",
     "CriticalDamageIncrease": "criticalDamageIncrease",
+    "HealOutputIncrease": "healOutputIncrease",
+    "HealTakenIncrease": "healTakenIncrease",
     "NormalAttackDamageIncrease": "normalAttackDamageIncrease",
     "NormalSkillDamageIncrease": "normalSkillDamageIncrease",
     "PhysicalDamageIncrease": "physicalDamageIncrease",
@@ -55,6 +57,15 @@ BUFF_ATTRIBUTE_RUNTIME_KEYS = {
     "CrystEnhancedDmgIncrease": "cryoEnhancedDamageIncrease",
     "NaturalEnhancedDmgIncrease": "natureEnhancedDamageIncrease",
     "EtherEnhancedDmgIncrease": "etherEnhancedDamageIncrease",
+}
+
+# combat-spec 的多实例排序证据只让 Stack 与两个优先级类型消费 priority。
+# 其他分组类型即使序列化了 usePriorityKey，也不会用它选择、淘汰或启停实例；保留一个
+# 未由 Buff 默认黑板或 AddBuff 输入提供的残留 key 只会制造不存在的运行时依赖。
+PRIORITY_SORTING_STACKING_TYPES = {
+    "Stack",
+    "HighPriority",
+    "HighPriorityWithMaxStack",
 }
 
 DAMAGE_SIDES = {"Attacker": "attacker", "Defender": "defender"}
@@ -370,7 +381,17 @@ def compile_inline_buff_definition(
         fields.append(f"stackingKey: {ts_inline_literal(lifecycle.stackingKey)},")
     fields.extend(
         [
-            f"priority: {_compile_scalar(lifecycle.priority, negate=lifecycle.negatePriority)},",
+            "priority: "
+            + (
+                _compile_scalar(lifecycle.priority, negate=lifecycle.negatePriority)
+                if lifecycle.stackingType in PRIORITY_SORTING_STACKING_TYPES
+                else ts_inline_literal(
+                    -lifecycle.priority.value
+                    if lifecycle.negatePriority
+                    else lifecycle.priority.value
+                )
+            )
+            + ",",
             f"maxStackCount: {_compile_non_negative_integer(lifecycle.maxStackCount, f'{path}.maxStackCount')},",
         ]
     )

@@ -406,6 +406,7 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "interrupt",
         "projectileLaunch",
         "projectileTriggeredSkills",
+        "singleEnemyInputTarget",
         "abilityEntitySpawn",
         "abilityEntityDurationAssignment",
         "conditionalAbilityEntityHits",
@@ -426,6 +427,7 @@ OPTIONAL_SOURCE_PAYLOAD_KEYS = frozenset(
         "valueAddition",
     }
 )
+from projectile_target_evidence import resolve_projectile_single_enemy_input_target
 
 EMPTY_SOURCE_SEQUENCE_KEYS = frozenset(
     {
@@ -1366,6 +1368,9 @@ def _make_projectile_graph_parser_services() -> ProjectileGraphParserServices:
         resolve_conditional_aura_ability_entity_children=resolve_conditional_aura_ability_entity_children,
         resolve_guaranteed_conditional_ability_entity_hits=resolve_guaranteed_conditional_ability_entity_hits,
         resolve_projectile_payload_triggers=resolve_projectile_payload_triggers,
+        resolve_projectile_single_enemy_input_target=(
+            resolve_projectile_single_enemy_input_target
+        ),
         mark_projected_conditional_children=mark_projected_conditional_children,
         walk_actions=walk_actions,
         walk_unconditional_actions=walk_unconditional_actions,
@@ -5315,7 +5320,6 @@ def projectile_children_are_inline_conditional(
             or getattr(hit, "cycleTruncated", False)
             or getattr(hit, "damageUnits", ())
             or getattr(hit, "directDamageHits", ())
-            or getattr(hit, "auxiliaryActions", ())
             or getattr(hit, "resourceGains", ())
             or getattr(hit, "inflictions", ())
             or getattr(hit, "nestedProjectileTriggeredSkills", ())
@@ -5330,9 +5334,16 @@ def projectile_children_are_inline_conditional(
             )
         ):
             return False
+        if not all(
+            ability_entity_child_buff_can_compile(action, input_target="enemy")
+            for action in getattr(hit, "auxiliaryActions", ())
+        ):
+            return False
         covered_actions = collect_compilable_conditional_action_types(
             getattr(hit, "conditionalActions", ())
         )
+        if getattr(hit, "auxiliaryActions", ()):
+            covered_actions.add("CreateBuffAction")
         if any(
             action_type not in covered_actions
             and action_type != "SpawnAbilityEntity"
@@ -5340,6 +5351,55 @@ def projectile_children_are_inline_conditional(
         ):
             return False
     return True
+
+
+def project_known_projectile_object_type_actions(
+    condition: ConditionalActionSource,
+    input_target: Literal["caster", "enemy"],
+) -> tuple[ConditionalBranchActionSource, ...] | None:
+    """按已证明的投射物碰撞对象折叠 CheckObjectTypeMatch 分支。"""
+
+    if len(condition.conditions) != 1:
+        return None
+    match = condition.conditions[0].objectTypeMatch
+    if (
+        match is None
+        or match.target.targetSource != "Target"
+        or match.target.targetGroupKey
+        or match.target.validatorTypes
+        or match.target.postProcessorTypes
+    ):
+        return None
+    native_object_type = "Character" if input_target == "caster" else "Enemy"
+    matches = match.objectTypeMask in {native_object_type, "All"}
+    if condition.conditionNegated and condition.conditionNegated[0]:
+        matches = not matches
+    selected = condition.succeedActions if matches else condition.failActions
+
+    def project_actions(
+        actions: tuple[ConditionalBranchActionSource, ...],
+    ) -> tuple[ConditionalBranchActionSource, ...]:
+        result: list[ConditionalBranchActionSource] = []
+        for action in actions:
+            if action.nestedCondition is not None:
+                nested = project_known_projectile_object_type_actions(
+                    action.nestedCondition, input_target
+                )
+                if nested is not None:
+                    result.extend(project_actions(nested))
+                    continue
+            once_actions = action.onceActions
+            result.append(
+                replace(
+                    action,
+                    onceActions=(
+                        None if once_actions is None else project_actions(once_actions)
+                    ),
+                )
+            )
+        return tuple(result)
+
+    return project_actions(selected)
 
 
 def compile_immediate_projectile_children(
@@ -5364,7 +5424,8 @@ def compile_immediate_projectile_children(
         return "sequence()"
     if projectile_children_are_inline_conditional(triggered_skills):
         projectile_target = None if projectile_launch is None else projectile_launch.target
-        input_target = (
+        input_target = projectile_launch.singleEnemyInputTarget if projectile_launch else None
+        input_target = input_target or (
             "caster"
             if projectile_target is not None
             and projectile_target.targetSource in {"Source", "Owner"}
@@ -5373,30 +5434,19 @@ def compile_immediate_projectile_children(
             and not projectile_target.postProcessorTypes
             else "enemy"
         )
-        compiled_children: list[CompiledNode] = []
+        compiled_children: list[tuple[int, str]] = []
         for hit_index, hit in enumerate(triggered_skills):
             for condition_index, condition in enumerate(hit.conditionalActions):
                 condition_path = (
                     f"{path}.triggeredSkills[{hit_index}].conditionalActions[{condition_index}]"
                 )
-                object_type_match = (
-                    condition.conditions[0].objectTypeMatch
-                    if len(condition.conditions) == 1
-                    else None
+                projected_actions = project_known_projectile_object_type_actions(
+                    condition, input_target
                 )
-                if (
-                    object_type_match is not None
-                    and object_type_match.target.targetSource == "Target"
-                    and not object_type_match.target.targetGroupKey
-                    and not object_type_match.target.validatorTypes
-                    and not object_type_match.target.postProcessorTypes
-                    and input_target == "caster"
-                    and object_type_match.objectTypeMask == "Character"
-                ):
-                    compiled_children.append(
-                        _compile_conditional_branch_ir(
-                            condition.succeedActions,
-                            f"{condition_path}.succeedActions",
+                if projected_actions is not None:
+                    compiled = _compile_conditional_branch_ir(
+                            projected_actions,
+                            f"{condition_path}.projectedActions",
                             ignored_buff_ids=ignored_buff_ids,
                             damage_tags=damage_tags,
                             runtime_blackboard_keys=runtime_blackboard_keys,
@@ -5408,10 +5458,11 @@ def compile_immediate_projectile_children(
                             current_buff_environment=current_buff_environment,
                             invoked_child_context=invoked_child_context,
                         )
+                    compiled_children.append(
+                        (condition.actionIndex, render_compiled_node(compiled))
                     )
                     continue
-                compiled_children.append(
-                    _compile_conditional_action_ir(
+                compiled = _compile_conditional_action_ir(
                         condition,
                         condition_path,
                         ignored_buff_ids=ignored_buff_ids,
@@ -5425,10 +5476,30 @@ def compile_immediate_projectile_children(
                         current_buff_environment=current_buff_environment,
                         invoked_child_context=invoked_child_context,
                     )
+                compiled_children.append(
+                    (condition.actionIndex, render_compiled_node(compiled))
+                )
+            for action_index, action in enumerate(hit.auxiliaryActions):
+                compiled_children.append(
+                    (
+                        action.actionIndex,
+                        compile_buff_application(
+                            action,
+                            f"{path}.triggeredSkills[{hit_index}].auxiliaryActions[{action_index}]",
+                            root_skill_context=False,
+                            input_target=input_target,
+                            buff_definitions=buff_definitions,
+                            invoked_child_context=invoked_child_context,
+                            ignored_buff_ids=ignored_buff_ids,
+                            buff_owner_target=buff_owner_target,
+                            current_buff_environment=current_buff_environment,
+                            damage_tags=damage_tags,
+                        ),
+                    )
                 )
         lines = ["sequence("]
-        for compiled_child in compiled_children:
-            child_lines = indent_source(render_compiled_node(compiled_child), 2)
+        for _, compiled_child in sorted(compiled_children, key=lambda item: item[0]):
+            child_lines = indent_source(compiled_child, 2)
             child_lines[-1] += ","
             lines.extend(child_lines)
         lines.append(")")

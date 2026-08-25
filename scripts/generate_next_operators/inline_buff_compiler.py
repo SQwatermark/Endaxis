@@ -14,6 +14,7 @@ from compiler_ir import (
     render as render_compiled_node,
     render_sequence_children as render_compiled_sequence_children,
     once,
+    sequence,
 )
 from source_models import BuffDefinitionSource, SkillSource, TargetGroupWriteSource
 from source_utils import indent_source, require_list, ts_inline_literal
@@ -173,7 +174,7 @@ def compile_inline_buff_event_responses(
                 ts_inline_literal(
                     f"animation-end:{source.buffId}:{animation.sequenceIndex}:{animation.animationActionIndex}"
                 ),
-                atom(application_source),
+                sequence(atom(application_source)),
             )
         )
     for qte_index, qte in enumerate(getattr(source, "comboQteActions", ())):
@@ -1045,7 +1046,7 @@ def compile_inline_buff_scheduled_sequences(
             ts_inline_literal(
                 f"animation-end:{source.buffId}:{animation.sequenceIndex}:{animation.animationActionIndex}"
             ),
-            atom(application_source),
+            sequence(atom(application_source)),
         )
         compiled.append(
             (

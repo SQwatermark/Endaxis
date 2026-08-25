@@ -5,16 +5,19 @@ import {
 } from './abilityEntityTemplateEvidence';
 
 describe('AbilityEntity template evidence adapter', () => {
-  it('adapts all resolved templates without inventing the missing Liino template', () => {
-    expect(logicalAbilityEntityTemplates).toHaveLength(59);
+  it('adapts all resolved templates including the recovered Liino template', () => {
+    expect(logicalAbilityEntityTemplates).toHaveLength(60);
     expect(
       logicalAbilityEntityTemplates.some(
         template => template.id === 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser_target',
       ),
     ).toBe(true);
-    expect(unresolvedAbilityEntityTemplateReferences).toHaveProperty(
-      'abilityentity_chr_0035_liino_ult_skill_projhit',
-    );
+    expect(
+      logicalAbilityEntityTemplates.some(
+        template => template.id === 'abilityentity_chr_0035_liino_ult_skill_projhit',
+      ),
+    ).toBe(true);
+    expect(unresolvedAbilityEntityTemplateReferences).toEqual({});
     expect(
       logicalAbilityEntityTemplates.find(
         value => value.id === 'abilityentity_chr_0012_avywen_combo_skill_lance',

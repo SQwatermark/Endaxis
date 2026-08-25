@@ -1253,7 +1253,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                 ),
                 afterEnhance: sequence(
                   step('igniteBuffs', {
-                    target: 'enemy',
+                    target: 'buffOwner',
                     source: 'currentBuffSource',
                     igniteType: 'NoGuard',
                   }),
@@ -1332,7 +1332,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                     inheritSourceSkillCastInfo: true,
                   }),
                   step('igniteBuffs', {
-                    target: 'enemy',
+                    target: 'buffOwner',
                     source: 'caster',
                     igniteType: 'PhysicalStatus',
                   }),

@@ -4,6 +4,7 @@
     {
       "slug": "perlica",
       "exportName": "perlicaGeneratedSource",
+      "gameId": "PERLICA",
       "charId": "chr_0004_pelica",
       "talents": [
         { "index": 0, "key": "staggerDamageBonus", "compile": "targetStaggeredDamage" },
@@ -159,6 +160,7 @@
     {
       "slug": "ember",
       "exportName": "emberGeneratedSource",
+      "gameId": "EMBER",
       "charId": "chr_0009_azrila",
       "outputStage": "complete",
       "talents": [
@@ -288,6 +290,7 @@
     {
       "slug": "wulfgard",
       "exportName": "wulfgardGeneratedSource",
+      "gameId": "WULFGARD",
       "charId": "chr_0006_wolfgd",
       "outputStage": "complete",
       "talents": [
@@ -414,6 +417,7 @@
     {
       "slug": "antal",
       "exportName": "antalGeneratedSource",
+      "gameId": "ANTAL",
       "charId": "chr_0023_antal",
       "outputStage": "complete",
       "talents": [
@@ -665,6 +669,7 @@
     {
       "slug": "alesh",
       "exportName": "aleshGeneratedSource",
+      "gameId": "ALESH",
       "charId": "chr_0024_deepfin",
       "outputStage": "complete",
       "talents": [
@@ -797,6 +802,7 @@
     {
       "slug": "xaihi",
       "exportName": "xaihiGeneratedSource",
+      "gameId": "XAIHI",
       "charId": "chr_0011_seraph",
       "outputStage": "complete",
       "talents": [
@@ -929,6 +935,7 @@
     {
       "slug": "avywenna",
       "exportName": "avywennaGeneratedSource",
+      "gameId": "AVYWENNA",
       "charId": "chr_0012_avywen",
       "outputStage": "complete",
       "talents": [
@@ -1071,6 +1078,7 @@
     {
       "slug": "catcher",
       "exportName": "catcherGeneratedSource",
+      "gameId": "CATCHER",
       "charId": "chr_0020_meurs",
       "outputStage": "complete",
       "talents": [
@@ -1191,6 +1199,7 @@
     {
       "slug": "ardelia",
       "exportName": "ardeliaGeneratedSource",
+      "gameId": "ARDELIA",
       "charId": "chr_0025_ardelia",
       "outputStage": "complete",
       "talents": [
@@ -1311,6 +1320,7 @@
     {
       "slug": "chen-qianyu",
       "exportName": "chenQianyuGeneratedSource",
+      "gameId": "CHENQIANYU",
       "charId": "chr_0005_chen",
       "talents": [
         {
@@ -1496,6 +1506,7 @@
     {
       "slug": "rossi",
       "exportName": "rossiGeneratedSource",
+      "gameId": "ROSSI",
       "charId": "chr_0028_wulfa",
       "talents": [
         {
@@ -1700,6 +1711,7 @@
     {
       "slug": "camille",
       "exportName": "camilleGeneratedSource",
+      "gameId": "CAMILLE",
       "charId": "chr_0033_camille",
       "runtimeReplacementSkillKeys": ["battleSkillDuringUltimate"],
       "routedSkillKeys": ["battleSkillDuringUltimate"],
@@ -1926,6 +1938,7 @@
     {
       "slug": "pogranichnik",
       "exportName": "pogranichnikGeneratedSource",
+      "gameId": "POGRANICHNK",
       "charId": "chr_0029_pograni",
       "outputStage": "complete",
       "talents": [
@@ -2064,6 +2077,7 @@
     {
       "slug": "zhuang-fangyi",
       "exportName": "zhuangFangyiGeneratedSource",
+      "gameId": "ZHUANGFANGYI",
       "charId": "chr_0030_zhuangfy",
       "outputStage": "complete",
       "runtimeReplacementSkillKeys": ["enhancedBattleSkill", "enhancedComboSkill"],
@@ -2282,6 +2296,7 @@
     {
       "slug": "arcane",
       "exportName": "arcaneGeneratedSource",
+      "gameId": "ARCANE",
       "charId": "chr_0032_lizhiyan",
       "outputStage": "complete",
       "runtimeReplacementSkillKeys": ["arcana"],
@@ -2454,6 +2469,7 @@
     {
       "slug": "arclight",
       "exportName": "arclightGeneratedSource",
+      "gameId": "ARCLIGHT",
       "charId": "chr_0007_ikut",
       "talents": [
         {
@@ -2636,6 +2652,7 @@
     {
       "slug": "gilberta",
       "exportName": "gilbertaGeneratedSource",
+      "gameId": "GILBERTA",
       "charId": "chr_0013_aglina",
       "talents": [
         { "index": 0, "key": "talent1", "compile": "attachedPassive" },
@@ -2773,6 +2790,7 @@
     {
       "slug": "lifeng",
       "exportName": "lifengGeneratedSource",
+      "gameId": "LIFENG",
       "charId": "chr_0015_lifeng",
       "talents": [
         { "index": 0, "key": "talent1", "compile": "attachedPassive" },
@@ -2902,6 +2920,7 @@
     {
       "slug": "estella",
       "exportName": "estellaGeneratedSource",
+      "gameId": "ESTELLA",
       "charId": "chr_0021_whiten",
       "talents": [
         { "index": 0, "key": "talent1", "compile": "attachedBuff" },
@@ -3037,6 +3056,7 @@
     {
       "slug": "da-pan",
       "exportName": "daPanGeneratedSource",
+      "gameId": "DAPAN",
       "charId": "chr_0018_dapan",
       "talents": [
         { "index": 0, "key": "talent1", "compile": "consumedNoGuardPhysicalDamage" },
@@ -3179,6 +3199,7 @@
     {
       "slug": "akekuri",
       "exportName": "akekuriGeneratedSource",
+      "gameId": "AKEKURI",
       "charId": "chr_0019_karin",
       "talents": [
         { "index": 0, "key": "talent1", "compile": "skillBlackboardPatch" },
@@ -3312,6 +3333,7 @@
     {
       "slug": "tangtang",
       "exportName": "tangtangGeneratedSource",
+      "gameId": "TANGTANG",
       "charId": "chr_0027_tangtang",
       "basePassiveSkillIds": ["chr_0027_tangtang_passive_0"],
       "presentationOnlyPassiveBuffIds": ["buff_chr_0027_tangtang_water_passiveui"],
@@ -3470,6 +3492,7 @@
     {
       "slug": "fluorite",
       "exportName": "fluoriteGeneratedSource",
+      "gameId": "FLUORITE",
       "charId": "chr_0022_bounda",
       "talents": [
         { "index": 0, "key": "talent1", "compile": "attachedPassive" },
@@ -3615,6 +3638,7 @@
     {
       "slug": "endministrator",
       "exportName": "endministratorGeneratedSource",
+      "gameId": "ENDMINISTRATOR",
       "charId": "chr_9000_endmin",
       "simulationEquivalentNativeSkillIds": [
         "chr_0002_endminm_attack1",
@@ -3815,6 +3839,7 @@
     {
       "slug": "last-rite",
       "exportName": "lastRiteGeneratedSource",
+      "gameId": "LASTRITE",
       "charId": "chr_0026_lastrite",
       "talents": [
         { "index": 0, "key": "talent1", "compile": "consumedInflictionVulnerability" },
@@ -3949,6 +3974,7 @@
     {
       "slug": "laevatain",
       "exportName": "laevatainGeneratedSource",
+      "gameId": "LAEVATAIN",
       "charId": "chr_0016_laevat",
       "runtimeReplacementSkillKeys": ["battleSkillDuringUltimate"],
       "talents": [
@@ -4127,6 +4153,7 @@
     {
       "slug": "yvonne",
       "exportName": "yvonneGeneratedSource",
+      "gameId": "YVONNE",
       "charId": "chr_0017_yvonne",
       "outputStage": "complete",
       "talents": [
@@ -4317,6 +4344,7 @@
     {
       "slug": "mifu",
       "exportName": "mifuGeneratedSource",
+      "gameId": "MIFU",
       "charId": "chr_0031_mifu",
       "outputStage": "complete",
       "runtimeReplacementSkillKeys": ["battleSkill2", "battleSkill3"],
@@ -4454,6 +4482,7 @@
     {
       "slug": "snowshine",
       "exportName": "snowshineGeneratedSource",
+      "gameId": "SNOWSHINE",
       "charId": "chr_0014_aurora",
       "outputStage": "complete",
       "talents": [
@@ -4571,8 +4600,8 @@
     {
       "slug": "liino",
       "exportName": "liinoGeneratedSource",
+      "gameId": "LIINO",
       "charId": "chr_0035_liino",
-      "outputStage": "audit",
       "runtimeReplacementSkillKeys": ["battleSkillEnd"],
       "talents": [
         { "index": 0, "key": "talent1", "compile": "skillBlackboardPatch" },
@@ -4708,7 +4737,8 @@
         {
           "key": "ultimate",
           "skillType": "ultimate",
-          "source": "chr_0035_liino_ultimate_skill.json"
+          "source": "chr_0035_liino_ultimate_skill.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["ultimateSkill"] }
         }
       ]
     }

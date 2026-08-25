@@ -635,7 +635,7 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                     ),
                     afterEnhance: sequence(
                       step('igniteBuffs', {
-                        target: 'enemy',
+                        target: 'buffOwner',
                         source: 'currentBuffSource',
                         igniteType: 'NoGuard',
                       }),
@@ -714,7 +714,7 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                         inheritSourceSkillCastInfo: true,
                       }),
                       step('igniteBuffs', {
-                        target: 'enemy',
+                        target: 'buffOwner',
                         source: 'caster',
                         igniteType: 'PhysicalStatus',
                       }),
@@ -935,7 +935,7 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                     ),
                     afterEnhance: sequence(
                       step('igniteBuffs', {
-                        target: 'enemy',
+                        target: 'buffOwner',
                         source: 'currentBuffSource',
                         igniteType: 'NoGuard',
                       }),
@@ -1014,7 +1014,7 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                         inheritSourceSkillCastInfo: true,
                       }),
                       step('igniteBuffs', {
-                        target: 'enemy',
+                        target: 'buffOwner',
                         source: 'caster',
                         igniteType: 'PhysicalStatus',
                       }),

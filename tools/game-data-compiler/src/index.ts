@@ -1,4 +1,8 @@
 export {
+  parseOperatorProductIdentitySource,
+  type OperatorProductIdentitySource,
+} from './domains/operator/productIdentity.ts';
+export {
   parseNativeAbilityEntityTemplateSource,
   type IntegerScalarSource,
   type NativeAbilityEntityTemplateSource,

@@ -1537,3 +1537,33 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
   52 份真实 AbilityEntity JSON 全部通过来源解析。台式机的正确连接仍是
   `Admin@100.64.0.64`；临时 VFS 服务已在审计后关闭。所有真实下载仍位于
   `tmp/game-data-sources`，不得提交。
+
+### 2026-08-25：梨诺与全干员来源闭包收口
+
+- 30 名干员现在都有显式产品 `gameId`，游戏数据编译器不再从 slug 或展示身份反推产品主键。完整
+  Operator 来源闭包为 ProjectileData 120/120、AbilityEntityData 53/53，未解析定义为 0；30/30
+  来源审计均为 supported。
+- 台式机 VFS 已恢复此前缺失的
+  `abilityentity_chr_0035_liino_ult_skill_projhit`，正式能力实体证据目录现有 60 个逻辑模板。
+  梨诺由 audit 提升为正式生成产物并注册到默认仓库：12 个原生技能来源投影为 11 个可见技能组，
+  技能替换关系继续使用稳定 skill key，不把替换态伪装成额外技能槽。
+- 梨诺终结技的周期 Buff 会发射伤害与治疗两类投射物。新证据文件保存 ProjectileData 解码哈希及
+  `TargetFilter`：伤害波为自动敌对阵营目标，治疗波为 Good Character。对象类型与阵营掩码语义来自
+  combat-spec 已有的 `TargetFilter`/`TargetResolution` 复刻；生成器据此把同一子 SkillData 的
+  `CheckObjectTypeMatch` 分支静态投影到唯一敌人或施法者。这里没有按 projectile ID 名称猜目标，
+  也不声称已模拟轨迹、碰撞或未知尾部组件。
+- Buff 事件投射物现在保留可编译的根辅助 Buff，并把技能伤害标签传入递归 Buff 编译。Buff 生命周期
+  中 `Owner` 治疗按原生目标解析忽略无关 targetGroupKey；动画结束的一次性动作统一生成为 sequence，
+  避免合法单步骤在正式 TS 类型中失配。
+- 当前养成审计为天赋 59/60、潜能 150/150，已转换项全部 simulation-ready。剩余一项是 Avywenna
+  天赋 1 的审计编译器分类缺口；这不阻止干员正式定义，但必须继续保留，不能用 30/30 正式生成掩盖。
+- 梨诺正式终结技生产场景已贯通：同一真实时间轴产生对唯一敌人的 `DamageApplied`，并在干员满血时
+  产生 `HealingApplied`。原生 `HealTakenIncrease` 现映射到已有 `healTakenIncrease` 属性快照；动态
+  priority 只在确实参与排序的 Stack/HighPriority 类型保留，若资源既未声明默认键、调用点也未传值，
+  则显式物化同一 StackingSettings 的字面 priority，不虚构外部黑板来源。
+- “多段放置链 + 槽位替换”仍没有被半吊子合并：未放置该组时不再阻塞同一干员的终结技等无关技能；
+  用户实际放置该组时仍原地报错，等待技能替换整体设计。庄方宜等单入口替换组保持原行为。
+- 最终门禁通过：Python 478/478、游戏数据 58 文件 245/245、Next 208 文件 1519/1519、两套类型检查
+  及全量生成 `--check`。`tmp/` 只保存下载证据，不得提交。
+- 下一步按既定顺序推进剩余 13/23 套装与全武器转换；同时单独设计多段链的技能替换模型。遇到新机制
+  仍先在 combat-spec 依据解包/反编译证据完善，再进入 Endaxis。

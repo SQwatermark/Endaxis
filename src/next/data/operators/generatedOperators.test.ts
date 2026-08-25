@@ -28,6 +28,7 @@ import {
   lastRite,
   laevatain,
   lifeng,
+  liino,
   mifu,
   pogranichnik,
   rossi,
@@ -66,6 +67,7 @@ const generatedOperators: readonly [OperatorDefinition, number][] = [
   [avywenna, 10],
   [catcher, 9],
   [ardelia, 9],
+  [liino, 11],
 ];
 
 function hasUpgradeBehavior(
@@ -81,6 +83,19 @@ function hasUpgradeBehavior(
 }
 
 describe('新增的完整技能转换干员', () => {
+  it('梨诺终结技同时保留对敌声波与友方治疗分支', () => {
+    expect(liino.conversionSupport).toEqual({
+      completeness: 'complete',
+      missingCapabilities: [],
+    });
+    const ultimate = liino.skillGroups.find(group => group.key === 'ultimate');
+    const serialized = JSON.stringify(ultimate);
+    expect(serialized).toContain('buff_chr_0035_liino_ultskill_music_damage');
+    expect(serialized).toContain('buff_chr_0035_liino_ultskill_music_heal');
+    expect(serialized).toContain('dealDamage');
+    expect(serialized).toContain('heal');
+  });
+
   it('Ardelia 保留战技易伤、潜能一黑板增幅与潜能五连携改写', () => {
     expect(ardelia.conversionSupport).toEqual({
       completeness: 'complete',

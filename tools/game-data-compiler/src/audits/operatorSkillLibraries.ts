@@ -3,6 +3,7 @@ import { compileOperatorSkillLibrarySource } from '../domains/operator/skillLibr
 import type { OperatorSkillGroupValidationOptions } from '../domains/operator/skillGroups.ts';
 import { compileOperatorSourceClosure } from '../domains/operator/sourceClosure.ts';
 import { resolveOperatorSourceClosure } from '../domains/operator/sourceClosure.ts';
+import { parseOperatorProductIdentitySource } from '../domains/operator/productIdentity.ts';
 import {
   createAbilityEntityDefinitionReferenceNodes,
   parseBuffDefinitionReferenceNodes,
@@ -160,9 +161,8 @@ export function auditOperatorSourceClosures(
   const abilityEntityCatalog = compileAbilityEntityTemplateCatalogSource(
     input.abilityEntityDataById,
   );
-  const abilityEntityDefinitionNodes = createAbilityEntityDefinitionReferenceNodes(
-    abilityEntityCatalog,
-  );
+  const abilityEntityDefinitionNodes =
+    createAbilityEntityDefinitionReferenceNodes(abilityEntityCatalog);
   const abilityEntityQueryContext = {
     catalog: abilityEntityCatalog,
     registry: new GameplayTagRegistry(input.gameplayTagPaths),
@@ -171,12 +171,11 @@ export function auditOperatorSourceClosures(
     (rawOperator, index): OperatorSourceClosureAuditEntrySource => {
       const path = `operators.json.operators[${index}]`;
       const operator = requireRecord(rawOperator, path);
-      const slug = requireNonEmptyString(operator.slug, `${path}.slug`);
-      const characterId = requireNonEmptyString(operator.charId, `${path}.charId`);
+      const identity = parseOperatorProductIdentitySource(operator, path);
+      const { slug, characterId } = identity;
       try {
         const result = compileOperatorSourceClosure({
-          characterId,
-          sourcePath: slug,
+          identity,
           manifestSkills: operator.skills,
           manifestSkillGroups: operator.skillGroups,
           skillDataBySourceFile: input.skillDataBySourceFile,
@@ -258,11 +257,10 @@ export function planOperatorUnityTemplateReferences(
   rawOperators.forEach((rawOperator, index) => {
     const operatorPath = `operators.json.operators[${index}]`;
     const operator = requireRecord(rawOperator, operatorPath);
-    const slug = requireNonEmptyString(operator.slug, `${operatorPath}.slug`);
-    const characterId = requireNonEmptyString(operator.charId, `${operatorPath}.charId`);
+    const identity = parseOperatorProductIdentitySource(operator, operatorPath);
+    const { slug } = identity;
     const result = resolveOperatorSourceClosure({
-      characterId,
-      sourcePath: slug,
+      identity,
       manifestSkills: operator.skills,
       manifestSkillGroups: operator.skillGroups,
       skillDataBySourceFile: input.skillDataBySourceFile,
@@ -284,10 +282,15 @@ export function planOperatorUnityTemplateReferences(
       if (missing.reference.state !== 'active' || !id) continue;
       if (kind !== 'projectile' && kind !== 'abilityEntity') {
         if (kind === 'skill' || kind === 'buff') {
-          if (!unresolvedDefinitions.some(
-            entry => entry.kind === kind && entry.id === id && entry.operatorSlug === slug &&
-              entry.sourcePath === missing.reference.sourcePath,
-          )) {
+          if (
+            !unresolvedDefinitions.some(
+              entry =>
+                entry.kind === kind &&
+                entry.id === id &&
+                entry.operatorSlug === slug &&
+                entry.sourcePath === missing.reference.sourcePath,
+            )
+          ) {
             unresolvedDefinitions.push({
               kind,
               id,
@@ -300,7 +303,11 @@ export function planOperatorUnityTemplateReferences(
         throw new Error(`${missing.reference.sourcePath}: unsupported definition kind ${kind}`);
       }
       const bucket = references[kind].get(id) ?? [];
-      if (!bucket.some(entry => entry.operatorSlug === slug && entry.sourcePath === missing.reference.sourcePath)) {
+      if (
+        !bucket.some(
+          entry => entry.operatorSlug === slug && entry.sourcePath === missing.reference.sourcePath,
+        )
+      ) {
         bucket.push({ operatorSlug: slug, sourcePath: missing.reference.sourcePath });
       }
       references[kind].set(id, bucket);

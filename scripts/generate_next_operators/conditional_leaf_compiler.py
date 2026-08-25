@@ -636,10 +636,9 @@ def compile_conditional_branch_action(
             )
         )
         ignite_target = (
-            buff_owner_target
+            "buffOwner"
             if current_buff_environment and buff_owner_target is not None
             and buff_ignite.target.targetSource == "Owner"
-            and not buff_ignite.target.targetGroupKey
             else resolve_fixed_combat_target(
                 buff_ignite.target.targetSource,
                 buff_ignite.target.targetGroupKey,
@@ -667,12 +666,12 @@ def compile_conditional_branch_action(
             current_buff_environment
             and buff_owner_target is not None
             and heal.target.targetSource == "Owner"
-            and not heal.target.targetGroupKey
             and heal.target.finderType is None
             and not heal.target.validatorTypes
             and not heal.target.postProcessorTypes
         ):
-            # Buff Owner 是每个实例的实际宿主；集合 Aura 不能静态折叠为施法者。
+            # TargetResolution.GetTargetsView 的 Owner 分支直接取 ActionOwner，
+            # 不读取 TargetGroupKey；Buff Owner 是每个实例的实际宿主。
             target_role = "buffOwner"
         elif (
             current_buff_environment

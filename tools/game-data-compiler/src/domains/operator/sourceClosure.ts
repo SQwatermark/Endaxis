@@ -30,6 +30,7 @@ import {
 } from '../../compiler/activeSkillAbilityEntityQueries.ts';
 import type { CompiledAbilityEntityTemplateCatalogSource } from '../../compiler/abilityEntityCatalog.ts';
 import type { GameplayTagRegistry } from '../../../../../src/shared/gameplayTags.ts';
+import type { OperatorProductIdentitySource } from './productIdentity.ts';
 
 export interface OperatorAbilityEntityQueryContext {
   readonly catalog: CompiledAbilityEntityTemplateCatalogSource;
@@ -43,8 +44,7 @@ export interface OperatorActiveSkillAbilityEntityQueriesSource {
 }
 
 export interface OperatorSourceClosureInput {
-  readonly characterId: string;
-  readonly sourcePath: string;
+  readonly identity: OperatorProductIdentitySource;
   readonly manifestSkills: unknown;
   readonly manifestSkillGroups: unknown;
   readonly skillDataBySourceFile: unknown;
@@ -65,6 +65,7 @@ export interface OperatorSourceClosureInput {
 
 /** 时间轴行为投影之前，Operator 所有私有入口与公共 SkillData 身份均已闭合的领域结果。 */
 export interface OperatorSourceClosure {
+  readonly identity: OperatorProductIdentitySource;
   readonly character: OperatorCharacterTableSource;
   readonly attributeGrowth: CompiledOperatorAttributeGrowthSource;
   readonly skillLibrary: OperatorSkillLibrarySource;
@@ -84,8 +85,8 @@ export function compileOperatorSourceClosure(
       `${first.reference.sourcePath}: missing active ${first.reference.kind} definition ${JSON.stringify(first.reference.id)}`,
     );
   }
-  const unresolvedQuery = result.skillLibrary.activeSkills.entries.find(
-    entry => entry.definition.definition.targetGroupWrites.some(
+  const unresolvedQuery = result.skillLibrary.activeSkills.entries.find(entry =>
+    entry.definition.definition.targetGroupWrites.some(
       write => write.finderType === 'OwnerSpawnedEntityFinder',
     ),
   );
@@ -104,10 +105,13 @@ export function compileOperatorSourceClosure(
 export function resolveOperatorSourceClosure(
   input: OperatorSourceClosureInput,
 ): OperatorSourceClosure {
-  const character = parseOperatorCharacterTableSource(input.characterTable, input.characterId);
+  const character = parseOperatorCharacterTableSource(
+    input.characterTable,
+    input.identity.characterId,
+  );
   const skillLibrary = compileOperatorSkillLibrarySource({
-    characterId: input.characterId,
-    sourcePath: input.sourcePath,
+    characterId: input.identity.characterId,
+    sourcePath: input.identity.slug,
     manifestSkills: input.manifestSkills,
     manifestSkillGroups: input.manifestSkillGroups,
     skillDataBySourceFile: input.skillDataBySourceFile,
@@ -163,11 +167,7 @@ export function resolveOperatorSourceClosure(
     if (missingSkillIds.length === 0) break;
     for (const skillId of missingSkillIds) {
       definitionNodes.push(
-        compileReferencedSkillDefinitionNode(
-          skillId,
-          input.skillDataById,
-          input.skillPatchTable,
-        ),
+        compileReferencedSkillDefinitionNode(skillId, input.skillDataById, input.skillPatchTable),
       );
       knownSkills.add(skillId);
     }
@@ -188,6 +188,7 @@ export function resolveOperatorSourceClosure(
         .filter(entry => entry.queries.length > 0)
     : [];
   return {
+    identity: input.identity,
     character,
     attributeGrowth: compileOperatorAttributeGrowthSource(
       character,

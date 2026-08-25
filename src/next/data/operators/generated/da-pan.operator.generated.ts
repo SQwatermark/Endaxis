@@ -450,7 +450,7 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
                 ),
                 afterEnhance: sequence(
                   step('igniteBuffs', {
-                    target: 'enemy',
+                    target: 'buffOwner',
                     source: 'currentBuffSource',
                     igniteType: 'NoGuard',
                   }),
@@ -529,7 +529,7 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
                     inheritSourceSkillCastInfo: true,
                   }),
                   step('igniteBuffs', {
-                    target: 'enemy',
+                    target: 'buffOwner',
                     source: 'caster',
                     igniteType: 'PhysicalStatus',
                   }),

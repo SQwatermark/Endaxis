@@ -31,6 +31,47 @@ from source_utils import (
 ASSUMED_PROJECTILE_TRAVEL_FRAMES = 0
 
 
+def filter_condition_owned_auxiliary_actions(
+    auxiliary_actions: tuple[Any, ...],
+    conditions: tuple[ConditionalActionSource, ...],
+) -> tuple[Any, ...]:
+    """去掉已由条件树拥有的 CreateBuffAction，避免根调度重复执行。"""
+
+    owned_buff_actions: set[tuple[int, str]] = set()
+
+    def visit_actions(actions: tuple[ConditionalBranchActionSource, ...]) -> None:
+        for action in actions:
+            application = action.buffApplication
+            if application is not None:
+                action_index = (
+                    action.serverActionIndex
+                    if action.serverActionIndex is not None
+                    else action.actionIndex
+                )
+                owned_buff_actions.update(
+                    (action_index, buff.buffId) for buff in application.buffs
+                )
+            if action.nestedCondition is not None:
+                visit_condition(action.nestedCondition)
+            if action.onceActions is not None:
+                visit_actions(action.onceActions)
+
+    def visit_condition(condition: ConditionalActionSource) -> None:
+        visit_actions(condition.succeedActions)
+        visit_actions(condition.failActions)
+
+    for condition in conditions:
+        visit_condition(condition)
+    return tuple(
+        action
+        for action in auxiliary_actions
+        if not (
+            action.actionType == "CreateBuffAction"
+            and (action.actionIndex, action.sourceId) in owned_buff_actions
+        )
+    )
+
+
 @dataclass(frozen=True)
 class ProjectileGraphParserServices:
     """由入口注入的能力实体侧解析、来源加载与递归动作遍历服务。"""
@@ -48,6 +89,7 @@ class ProjectileGraphParserServices:
     resolve_conditional_aura_ability_entity_children: Callable[..., Any]
     resolve_guaranteed_conditional_ability_entity_hits: Callable[..., Any]
     resolve_projectile_payload_triggers: Callable[..., Any]
+    resolve_projectile_single_enemy_input_target: Callable[..., Any]
     mark_projected_conditional_children: Callable[..., Any]
     walk_actions: Callable[..., Any]
     walk_unconditional_actions: Callable[..., Any]
@@ -308,11 +350,14 @@ def resolve_projectile_payload_triggers(
                     trigger_blackboard,
                 ),
                 conditionalActions=trigger_conditions,
-                auxiliaryActions=parse_auxiliary_actions(
-                    trigger_root,
-                    trigger_source_name,
-                    source_dir,
-                    trigger_blackboard,
+                auxiliaryActions=filter_condition_owned_auxiliary_actions(
+                    parse_auxiliary_actions(
+                        trigger_root,
+                        trigger_source_name,
+                        source_dir,
+                        trigger_blackboard,
+                    ),
+                    trigger_conditions,
                 ),
                 resourceGains=parse_resource_gains(
                     trigger_root,
@@ -458,10 +503,19 @@ def resolve_conditional_projectile_triggers(
                 )
                 for nested_action in once_actions
             )
+        launch = action.projectileLaunch
         triggered = action.projectileTriggeredSkills
-        if action.projectileLaunch is not None:
+        if launch is not None:
+            launch = replace(
+                launch,
+                singleEnemyInputTarget=(
+                    services.resolve_projectile_single_enemy_input_target(
+                        launch.projectileId
+                    )
+                ),
+            )
             triggered = services.resolve_projectile_payload_triggers(
-                action.projectileLaunch,
+                launch,
                 source_root,
                 source_name,
                 source_dir,
@@ -474,6 +528,7 @@ def resolve_conditional_projectile_triggers(
             action,
             nestedCondition=nested,
             onceActions=once_actions,
+            projectileLaunch=launch,
             projectileTriggeredSkills=triggered,
         )
 

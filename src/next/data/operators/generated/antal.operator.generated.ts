@@ -104,7 +104,7 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
                         ),
                         afterEnhance: sequence(
                           step('igniteBuffs', {
-                            target: 'enemy',
+                            target: 'buffOwner',
                             source: 'currentBuffSource',
                             igniteType: 'NoGuard',
                           }),
@@ -253,7 +253,7 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
                                     ),
                                     afterEnhance: sequence(
                                       step('igniteBuffs', {
-                                        target: 'enemy',
+                                        target: 'buffOwner',
                                         source: 'currentBuffSource',
                                         igniteType: 'NoGuard',
                                       }),
@@ -332,7 +332,7 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
                                         inheritSourceSkillCastInfo: true,
                                       }),
                                       step('igniteBuffs', {
-                                        target: 'enemy',
+                                        target: 'buffOwner',
                                         source: 'caster',
                                         igniteType: 'PhysicalStatus',
                                       }),

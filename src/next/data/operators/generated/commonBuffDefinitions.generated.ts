@@ -575,7 +575,7 @@ export const generatedCommonBuffDefinitions = {
       ),
       afterEnhance: sequence(
         step('igniteBuffs', {
-          target: 'enemy',
+          target: 'buffOwner',
           source: 'currentBuffSource',
           igniteType: 'NoGuard',
         }),

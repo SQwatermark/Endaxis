@@ -5,7 +5,10 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from typing import Any, Callable, Literal, cast
 
-from buff_definition_compiler import compile_inline_buff_definition
+from buff_definition_compiler import (
+    PRIORITY_SORTING_STACKING_TYPES,
+    compile_inline_buff_definition,
+)
 from source_models import (
     AuraActionSource,
     AuxiliaryActionSource,
@@ -72,6 +75,7 @@ def compile_buff_application_values(
     compile_inline_buff_behaviors = services.compile_inline_buff_behaviors
     compile_inline_buff_scheduled_sequences = services.compile_inline_buff_scheduled_sequences
     resolve_fixed_combat_target = services.resolve_fixed_combat_target
+    effective_blackboard_assignments = dict(blackboard_assignments)
     if (count.blackboardKey is not None or count.value != 1) and not allow_dynamic_count:
         raise ValueError(f"{path}: only a literal application count of 1 is supported")
     # 根 SkillData 中 ActionSource 与 ActionOwner 都是施法干员；嵌套动作尚不能做相同假设。
@@ -192,6 +196,22 @@ def compile_buff_application_values(
         definition = buff_definitions.get(buff_id)
         if definition is None:
             raise ValueError(f"{path}: Buff definition {buff_id!r} was not resolved")
+        priority = definition.lifecycle.priority
+        priority_key = priority.blackboardKey
+        if (
+            definition.lifecycle.stackingType in PRIORITY_SORTING_STACKING_TYPES
+            and priority_key is not None
+            and priority_key not in {item.key for item in definition.blackboard}
+            and priority_key not in effective_blackboard_assignments
+        ):
+            # 原生资源偶尔启用 priorityKey，却既不在 Buff 默认黑板声明该键，也不由
+            # CreateBuffAction 传入。严格 Blackboard 求值不能虚构外部来源；排序所需值
+            # 显式取同一 StackingSettings 中的字面 priority。已有动态输入绝不会被覆盖。
+            effective_blackboard_assignments[priority_key] = ScalarSource(
+                priority.value,
+                None,
+                None,
+            )
         has_event_sequences = (
             bool(getattr(definition, "comboQteActions", ()))
             or bool(definition.eventActions)
@@ -294,9 +314,9 @@ def compile_buff_application_values(
         lines.append(f"  source: {ts_inline_literal(source)},")
     if count.blackboardKey is not None or count.value != 1:
         lines.append(f"  count: {compile_condition_operand(count, f'{path}.count')},")
-    if blackboard_assignments:
+    if effective_blackboard_assignments:
         lines.append("  blackboardAssignments: {")
-        for key, value in blackboard_assignments.items():
+        for key, value in effective_blackboard_assignments.items():
             lines.append(
                 f"    {ts_inline_literal(key)}: "
                 f"{compile_condition_operand(value, f'{path}.blackboardAssignments.{key}')},"

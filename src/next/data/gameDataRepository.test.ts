@@ -19,6 +19,7 @@ import {
   lastRite,
   laevatain,
   lifeng,
+  liino,
   mifu,
   perlica,
   pogranichnik,
@@ -70,6 +71,7 @@ describe('gameDataRepository', () => {
       pogranichnik,
       tangtang,
       laevatain,
+      liino,
       mifu,
       yvonne,
       snowshine,
@@ -100,6 +102,7 @@ describe('gameDataRepository', () => {
     expect(nextGameDataRepository.getOperator(camille.slug)).toBe(camille);
     expect(nextGameDataRepository.getOperator(tangtang.slug)).toBe(tangtang);
     expect(nextGameDataRepository.getOperator(laevatain.slug)).toBe(laevatain);
+    expect(nextGameDataRepository.getOperator(liino.slug)).toBe(liino);
     expect(nextGameDataRepository.getOperator(mifu.slug)).toBe(mifu);
     expect(nextGameDataRepository.getOperator(yvonne.slug)).toBe(yvonne);
     expect(nextGameDataRepository.getOperator(pogranichnik.slug)).toBe(pogranichnik);

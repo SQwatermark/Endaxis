@@ -1,0 +1,25 @@
+{
+  "version": "1.4.4",
+  "projectiles": [
+    {
+      "projectileId": "projectile_chr_0035_liino_ultskill_soundwave",
+      "autoSetTargetFaction": true,
+      "factionTarget": 1,
+      "targetFactionType": 8,
+      "filterObjectType": false,
+      "objectTypeMask": 24,
+      "decodedSourceSha256": "c3ce5cdefd0da6df466df73c3fc60f92ff9ab1e5838d16112e700704518f5dd1",
+      "evidence": "ProjectileComponentData.TargetFilter；ObjectType/FactionType 语义由 combat-spec docs/target-filter-object-type.md 与 Runtime/CombatEntity.cs 固化"
+    },
+    {
+      "projectileId": "projectile_chr_0035_liino_ultskill_soundwave_heal",
+      "autoSetTargetFaction": false,
+      "factionTarget": 1,
+      "targetFactionType": 4,
+      "filterObjectType": true,
+      "objectTypeMask": 8,
+      "decodedSourceSha256": "ea9218e320d5f233594261cfed7ec9c1373782a77ff686e010cb9afe798afd8b",
+      "evidence": "ProjectileComponentData.TargetFilter；ObjectType/FactionType 语义由 combat-spec docs/target-filter-object-type.md 与 Runtime/CombatEntity.cs 固化"
+    }
+  ]
+}

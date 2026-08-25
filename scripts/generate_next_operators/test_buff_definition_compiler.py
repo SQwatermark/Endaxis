@@ -67,6 +67,28 @@ def definition(**overrides):
 
 
 class BuffDefinitionCompilerTests(unittest.TestCase):
+    def test_ignores_unused_dynamic_priority_for_unlimited_stacking(self) -> None:
+        source = definition()
+        source.lifecycle.stackingType = "Unlimited"
+        source.lifecycle.priority = scalar(0, "unused_rate")
+        source.lifecycle.negatePriority = True
+
+        compiled = compile_inline_buff_definition(source, "skill.buff")
+
+        self.assertIn("stackingType: 'unlimited'", compiled)
+        self.assertIn("priority: 0", compiled)
+        self.assertNotIn("priority: { blackboardKey: 'unused_rate'", compiled)
+
+    def test_preserves_dynamic_priority_for_stack_eviction_order(self) -> None:
+        source = definition()
+        source.lifecycle.stackingType = "Stack"
+        source.lifecycle.priority = scalar(0, "rate")
+        source.lifecycle.negatePriority = True
+
+        compiled = compile_inline_buff_definition(source, "skill.buff")
+
+        self.assertIn("priority: { blackboardKey: 'rate', negate: true }", compiled)
+
     def test_preserves_native_buff_icon_identity_and_rendering_metadata(self) -> None:
         source = definition(
             presentation=SimpleNamespace(
@@ -435,6 +457,26 @@ class BuffDefinitionCompilerTests(unittest.TestCase):
         self.assertIn("definition: {", result)
         self.assertIn("stackingType: 'refresh'", result)
 
+    def test_apply_step_materializes_unsupplied_priority_literal_for_sorting(self) -> None:
+        source = definition()
+        source.lifecycle.stackingType = "Stack"
+        source.lifecycle.priority = scalar(0.25, "rate")
+        result = compile_buff_application_values(
+            buff_id=source.buffId,
+            blackboard_assignments={},
+            target_source="Owner",
+            target_group_key="",
+            count=scalar(1),
+            buff_source="ActionOwner",
+            inherit_source_skill_cast_info=True,
+            root_skill_context=True,
+            path="fixture",
+            buff_definitions={source.buffId: source},
+        )
+
+        self.assertIn("priority: { blackboardKey: 'rate' }", result)
+        self.assertIn("'rate': { kind: 'constant', value: 0.25 }", result)
+
     def test_compiles_fluorite_style_conditional_damage_modifier(self) -> None:
         source = definition(
             blackboard=(SimpleNamespace(key="dmg_up", value=0.2),),
@@ -464,6 +506,23 @@ class BuffDefinitionCompilerTests(unittest.TestCase):
         self.assertIn("tagIds: [1925762097]", result)
         self.assertIn("zone: 'normal'", result)
         self.assertIn("addition: { blackboardKey: 'dmg_up' }", result)
+
+    def test_maps_native_heal_taken_attribute_to_the_runtime_snapshot_key(self) -> None:
+        source = definition(
+            blackboard=(SimpleNamespace(key="heal_taken", value=0.2),),
+            attributeModifiers=(
+                SimpleNamespace(
+                    targetType="Specific",
+                    attributeType="HealTakenIncrease",
+                    slot="BaseAddition",
+                    value=scalar(0.2, "heal_taken"),
+                ),
+            ),
+        )
+
+        result = compile_inline_buff_definition(source, "fixture")
+
+        self.assertIn("attribute: 'healTakenIncrease'", result)
 
     def test_compiles_lastrite_style_composite_damage_modifier(self) -> None:
         source = definition(

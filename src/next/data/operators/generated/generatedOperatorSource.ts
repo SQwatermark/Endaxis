@@ -1135,6 +1135,8 @@ export interface GeneratedProjectileLaunchPayload {
   readonly assignBlackboard: boolean;
   readonly entityBlackboardAssignments: readonly GeneratedEntityBlackboardAssignmentSource[];
   readonly target?: GeneratedTargetReferenceSource;
+  /** ProjectileData.TargetFilter 在固定单敌人模型下给出的严格碰撞对象投影。 */
+  readonly singleEnemyInputTarget?: 'enemy' | 'caster';
 }
 
 export interface GeneratedConditionalProjectileProjection {

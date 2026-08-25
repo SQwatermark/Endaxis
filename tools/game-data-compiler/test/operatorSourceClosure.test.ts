@@ -4,6 +4,7 @@ import {
   compileAbilityEntityTemplateCatalogSource,
   compileOperatorDefinitionHeaderSource,
   compileOperatorSourceClosure,
+  parseOperatorProductIdentitySource,
 } from '../src/index.ts';
 import { GameplayTagRegistry } from '../../../src/shared/gameplayTags.ts';
 import {
@@ -12,11 +13,45 @@ import {
 } from './sourceFixtures.ts';
 
 describe('Operator 来源闭包', () => {
+  it('产品身份只能从显式 manifest 字段读取并严格校验', () => {
+    expect(
+      parseOperatorProductIdentitySource(
+        {
+          slug: 'last-rite',
+          gameId: 'LASTRITE',
+          exportName: 'lastRiteGeneratedSource',
+          charId: 'chr_0026_lastrite',
+        },
+        'operators.json.operators[0]',
+      ),
+    ).toEqual({
+      slug: 'last-rite',
+      gameId: 'LASTRITE',
+      exportName: 'lastRiteGeneratedSource',
+      characterId: 'chr_0026_lastrite',
+    });
+    expect(() =>
+      parseOperatorProductIdentitySource(
+        {
+          slug: 'Last Rite',
+          gameId: 'LAST RITE',
+          exportName: 'last-rite',
+          charId: 'LASTRITE',
+        },
+        'operators.json.operators[0]',
+      ),
+    ).toThrow('expected a stable kebab-case product slug');
+  });
+
   it('一次组装角色面板、主动技能等级组和天赋潜能入口', () => {
     const growth = growthTable();
     const result = compileOperatorSourceClosure({
-      characterId: 'chr_test',
-      sourcePath: 'fixture',
+      identity: {
+        slug: 'fixture',
+        gameId: 'FIXTURE',
+        exportName: 'fixtureGeneratedSource',
+        characterId: 'chr_test',
+      },
       manifestSkills: [
         { key: 'basic', skillType: 'basicAttack', source: 'basic.json', compile: {} },
       ],
@@ -90,6 +125,8 @@ describe('Operator 来源闭包', () => {
       },
     ]);
     expect(compileOperatorDefinitionHeaderSource(result)).toEqual({
+      slug: 'fixture',
+      gameId: 'FIXTURE',
       sourceCharacterId: 'chr_test',
       rarity: 6,
       weaponType: 'arts-unit',

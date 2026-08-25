@@ -837,6 +837,7 @@ def compile_resolved_sequence(
                     buff_definitions=buff_definitions,
                     invoked_child_context=(skill, config),
                     ignored_buff_ids=ignored_buff_ids | simulation_no_effect_buff_ids,
+                    damage_tags=damage_tags,
                 )
                 ordered_sources.append(
                     (
@@ -1335,6 +1336,7 @@ def compile_resolved_sequence(
                     buff_definitions=projected_buff_definitions,
                     invoked_child_context=(skill, config),
                     ignored_buff_ids=ignored_buff_ids,
+                    damage_tags=damage_tags,
                 ).splitlines()
                 if ability_entity_collection_key is not None:
                     nested_lines = [f"    {line}" for line in step_lines]
