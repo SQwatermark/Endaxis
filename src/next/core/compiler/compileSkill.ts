@@ -111,6 +111,8 @@ function resolveStep(
 ): ResolvedCombatStep {
   const keyed = step.key === undefined ? {} : { key: step.key };
   switch (step.kind) {
+    case 'mergeContextTargets':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'findOwnerSpawnedAbilityEntities':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'pickContextTarget':

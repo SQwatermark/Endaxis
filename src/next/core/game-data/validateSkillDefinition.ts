@@ -452,6 +452,10 @@ function validateCombatCondition(
     case 'buffSourceMatchesOwner':
     case 'eventSkillCastMatchesBuffSource':
       break;
+    case 'contextTargetContains':
+      requireString(record, 'parentContextKey', path, out);
+      requireEnum(record, 'child', new Set(['eventTarget']), path, out);
+      break;
     case 'enemyRankIn':
       if (!Array.isArray(record.ranks)) {
         push(out, `${path}.ranks`, 'expected an array');
@@ -598,6 +602,7 @@ function validateCombatCondition(
       break;
     }
     case 'eventSkillTypeIn':
+    case 'originSkillTypeIn':
       if (!Array.isArray(record.skillTypes) || record.skillTypes.length === 0) {
         push(out, `${path}.skillTypes`, 'expected a non-empty array');
       } else {
@@ -860,6 +865,29 @@ function validateCombatStep(
   };
 
   switch (kind) {
+    case 'mergeContextTargets':
+      requireString(parameters, 'saveToContextKey', `${path}.parameters`, out);
+      if (!Array.isArray(parameters.sources)) {
+        push(out, `${path}.parameters.sources`, 'expected an array');
+      } else {
+        parameters.sources.forEach((source, index) => {
+          const sourcePath = `${path}.parameters.sources[${index}]`;
+          const sourceRecord = asRecord(source, sourcePath, out);
+          if (sourceRecord === null) return;
+          const sourceKind = requireString(sourceRecord, 'kind', sourcePath, out);
+          if (sourceKind === 'context') {
+            requireString(sourceRecord, 'contextKey', sourcePath, out);
+          } else if (sourceKind === 'target') {
+            const target = requireString(sourceRecord, 'target', sourcePath, out);
+            if (target !== null && !['caster', 'enemy', 'eventTarget'].includes(target)) {
+              push(out, `${sourcePath}.target`, 'unknown target source');
+            }
+          } else if (sourceKind !== null) {
+            push(out, `${sourcePath}.kind`, 'unknown context target source');
+          }
+        });
+      }
+      break;
     case 'findOwnerSpawnedAbilityEntities': {
       requireString(parameters, 'saveToContextKey', `${path}.parameters`, out);
       if (parameters.saveCountToBlackboardKey !== undefined) {

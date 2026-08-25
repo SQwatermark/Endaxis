@@ -409,6 +409,7 @@ describe('SkillRuntime', () => {
     expect(first.runtime.skillCastInfo).toEqual({
       skillCastId: 1,
       originSkillId: 'battleSkill',
+      originSkillType: 'battleSkill',
       nonReturnedSpCost: 100,
     });
     first.runtime.operationContext.blackboard.assignDynamic('count', 3);

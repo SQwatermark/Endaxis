@@ -29,6 +29,10 @@ describe('Buff 运行时公共来源', () => {
             abilityEvent: 'OnBeforeCastSkill',
             actions: [sequence([checkSkillType('NormalSkill')])],
           },
+          {
+            abilityEvent: 'OnBeforeCastSkill',
+            actions: [sequence([checkOriginSkillType('NormalSkill')])],
+          },
         ],
       }),
       'BuffData.buff_fixture',
@@ -49,6 +53,7 @@ describe('Buff 运行时公共来源', () => {
       blackboardKey: 'duration',
       levelValues: [15],
     });
+    expect(parsed.applyTagIds).toEqual([-1757502026]);
     expect(parsed.attributeModifiers.modifiers[0]?.parameter).toEqual({
       value: 0,
       blackboardKey: 'atk_up',
@@ -57,6 +62,17 @@ describe('Buff 运行时公共来源', () => {
     expect(parsed.graph.abilityEvents[0]?.actions[0]?.actions[0]?.body).toMatchObject({
       kind: 'leaf',
       value: { family: 'condition', action: { kind: 'skillType', skillTypes: ['NormalSkill'] } },
+    });
+    expect(parsed.graph.abilityEvents[1]?.actions[0]?.actions[0]?.body).toMatchObject({
+      kind: 'leaf',
+      value: {
+        family: 'condition',
+        action: {
+          kind: 'originSkillType',
+          skillTypes: ['NormalSkill'],
+          attackTypeMask: 'All',
+        },
+      },
     });
     expect(parsed.unsupportedPayloads).toEqual([]);
   });
@@ -76,7 +92,7 @@ function buffFixture(overrides: Record<string, unknown>): Record<string, unknown
   return {
     abilityEventAction: [],
     addingCooldown: scalarFixture(0),
-    applyTags: [],
+    applyTags: [{ tagId: -1757502026 }],
     attributeModifier: { isConvertedAttribute: false, attributeModifiers: [] },
     blackboard: [],
     buffEventAction: [],
@@ -171,6 +187,18 @@ function checkSkillType(skillType: string): Record<string, unknown> {
     checkTargetCurSkill: false,
     skillOwner: targetFixture('Target'),
     mustBeforeExclusiveTime: false,
+    skillTypeList: [skillType],
+    attackTypeMask: 'All',
+  };
+}
+
+function checkOriginSkillType(skillType: string): Record<string, unknown> {
+  return {
+    $type: 'Beyond.Gameplay.Core.CheckOriginSkillType+Data, Gameplay.Beyond',
+    isEnable: true,
+    priorityLevel: 'Default',
+    priorityOffset: 0,
+    serverActionIndex: 0,
     skillTypeList: [skillType],
     attackTypeMask: 'All',
   };

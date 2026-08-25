@@ -10,6 +10,60 @@ import {
 } from '../src/index.ts';
 
 describe('公共 Buff 运行时投影', () => {
+  it('把 Buff 来源技能类型与当前事件技能类型分开投影', () => {
+    const source = sourceFixture();
+    const condition = source.graph.abilityEvents[0]?.actions[0]?.actions[0];
+    if (condition?.body.kind !== 'leaf' || condition.body.value.family !== 'condition') {
+      throw new Error('fixture condition is missing');
+    }
+    const changed = {
+      ...source,
+      graph: {
+        ...source.graph,
+        abilityEvents: [
+          {
+            ...source.graph.abilityEvents[0]!,
+            actions: [
+              {
+                ...source.graph.abilityEvents[0]!.actions[0]!,
+                actions: [
+                  {
+                    ...condition,
+                    body: {
+                      kind: 'leaf' as const,
+                      value: {
+                        family: 'condition' as const,
+                        action: {
+                          kind: 'originSkillType' as const,
+                          sourceType: 'CheckOriginSkillType',
+                          skillTypes: ['Attack', 'NormalSkill'],
+                          attackTypeMask: 'All',
+                        },
+                      },
+                    },
+                  },
+                  ...source.graph.abilityEvents[0]!.actions[0]!.actions.slice(1),
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    };
+
+    expect(
+      compileBuffRuntimeDefinitionSource(changed).abilityEventResponses?.[0]?.sequence.steps[0],
+    ).toMatchObject({
+      kind: 'conditional',
+      parameters: {
+        condition: {
+          kind: 'originSkillTypeIn',
+          skillTypes: ['basicAttack', 'plungingAttack', 'battleSkill'],
+        },
+      },
+    });
+  });
+
   it('把 Skill/Gain 技力事件和无过滤队伍查询融合为全队 Buff 响应', () => {
     const source = sourceFixture();
     const sequence = source.graph.abilityEvents[0]!.actions[0]!;

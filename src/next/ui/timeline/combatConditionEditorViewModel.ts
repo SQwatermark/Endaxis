@@ -105,6 +105,10 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
       return { kind, types: ['fracture'] };
     case 'eventSkillTypeIn':
       return { kind, skillTypes: ['battleSkill'] };
+    case 'originSkillTypeIn':
+      return { kind, skillTypes: ['battleSkill'] };
+    case 'contextTargetContains':
+      return { kind, parentContextKey: 'targets', child: 'eventTarget' };
     case 'eventSkillIdIn':
       return { kind, skillIds: ['custom-skill'] };
     case 'eventBuffIdMatch':

@@ -381,6 +381,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
                           skillCastInfo: {
                             skillCastId: event.skillCastId,
                             originSkillId: event.skillId,
+                            originSkillType: event.skillType,
                             nonReturnedSpCost: 0,
                           },
                         }

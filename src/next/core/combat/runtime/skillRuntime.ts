@@ -282,6 +282,7 @@ export class SkillRuntime {
     return {
       skillCastId: this.#skillCastId,
       originSkillId: this.#program.skillId,
+      originSkillType: this.#program.skillType,
       ...(this.#program.castId === undefined ? {} : { originCastId: this.#program.castId }),
       nonReturnedSpCost: this.#nonReturnedSpCost,
     };

@@ -2,11 +2,18 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { compileWeaponStaticDefinitionBatchSource } from '../src/index.ts';
+import {
+  collectBuffRuntimeClosure,
+  compileBuffRuntimeDefinitionSource,
+  compileWeaponStaticDefinitionBatchSource,
+  isAfterEnemyDefeatedOnlyBuffRuntime,
+  isPresentationOnlyBuffStackEffect,
+} from '../src/index.ts';
 
 interface Arguments {
   readonly tables: string;
   readonly skillData: string;
+  readonly buffData?: string;
 }
 
 interface WeaponAuditFailure {
@@ -24,6 +31,12 @@ export function auditWeaponStaticDefinitions(args: Arguments): {
   readonly total: number;
   readonly complete: number;
   readonly runtimeDependencyCount: number;
+  readonly referencedBuffIds: readonly string[];
+  readonly missingBuffIds: readonly string[];
+  readonly buffClosureCount: number;
+  readonly compiledBuffCount: number;
+  readonly omittedBuffIds: readonly string[];
+  readonly buffFailures: readonly WeaponAuditFailure[];
   readonly scenarioOmissions: readonly WeaponAuditFailure[];
   readonly failures: readonly WeaponAuditFailure[];
 } {
@@ -38,6 +51,7 @@ export function auditWeaponStaticDefinitions(args: Arguments): {
   const scenarioOmissions: WeaponAuditFailure[] = [];
   let complete = 0;
   let runtimeDependencyCount = 0;
+  const referencedBuffIds = new Set<string>();
 
   for (const weaponId of weaponIds) {
     try {
@@ -49,6 +63,9 @@ export function auditWeaponStaticDefinitions(args: Arguments): {
         [weaponId],
       );
       runtimeDependencyCount += result.runtimeDependencies.length;
+      for (const dependency of result.runtimeDependencies) {
+        for (const buffId of dependency.referencedBuffIds) referencedBuffIds.add(buffId);
+      }
       const blockedReasons = result.diagnostics
         .filter(diagnostic => diagnostic.status === 'blocked')
         .map(diagnostic => `${diagnostic.status}: ${diagnostic.sourcePath}: ${diagnostic.reason}`);
@@ -72,7 +89,50 @@ export function auditWeaponStaticDefinitions(args: Arguments): {
     }
   }
 
-  return { total: weaponIds.length, complete, runtimeDependencyCount, scenarioOmissions, failures };
+  const sortedReferencedBuffIds = [...referencedBuffIds].sort((left, right) =>
+    left.localeCompare(right),
+  );
+  const buffData = args.buffData === undefined ? null : readDefinitionDirectory(args.buffData);
+  const missingBuffIds =
+    buffData === null ? [] : sortedReferencedBuffIds.filter(buffId => !(buffId in buffData));
+  const buffFailures: WeaponAuditFailure[] = [];
+  const omittedBuffIds: string[] = [];
+  let buffClosureCount = 0;
+  let compiledBuffCount = 0;
+  if (buffData !== null && missingBuffIds.length === 0) {
+    const closure = collectBuffRuntimeClosure(sortedReferencedBuffIds, buffData);
+    buffClosureCount = closure.size;
+    const visualOnlyIds = new Set(
+      [...closure.entries()]
+        .filter(([, source]) => isPresentationOnlyBuffStackEffect(source))
+        .map(([id]) => id),
+    );
+    for (const [buffId, source] of closure) {
+      if (visualOnlyIds.has(buffId) || isAfterEnemyDefeatedOnlyBuffRuntime(source)) {
+        omittedBuffIds.push(buffId);
+        continue;
+      }
+      try {
+        compileBuffRuntimeDefinitionSource(source, visualOnlyIds, new Set(['OnTakeDamage']));
+        compiledBuffCount += 1;
+      } catch (error) {
+        buffFailures.push({ weaponId: buffId, reasons: [formatError(error)] });
+      }
+    }
+  }
+  return {
+    total: weaponIds.length,
+    complete,
+    runtimeDependencyCount,
+    referencedBuffIds: sortedReferencedBuffIds,
+    missingBuffIds,
+    buffClosureCount,
+    compiledBuffCount,
+    omittedBuffIds: omittedBuffIds.sort((left, right) => left.localeCompare(right)),
+    buffFailures,
+    scenarioOmissions,
+    failures,
+  };
 }
 
 export function parseArguments(values: readonly string[]): Arguments {
@@ -88,7 +148,30 @@ export function parseArguments(values: readonly string[]): Arguments {
   return {
     tables: requiredPath(result, '--tables'),
     skillData: requiredPath(result, '--skill-data'),
+    ...(result.has('--buff-data') ? { buffData: requiredPath(result, '--buff-data') } : {}),
   };
+}
+
+function readDefinitionDirectory(directory: string): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const name of fs
+    .readdirSync(directory)
+    .filter(name => name.endsWith('.json'))
+    .sort()) {
+    if (!/^[A-Za-z0-9._-]+\.json$/.test(name)) {
+      throw new Error(`${directory}: unsafe BuffData filename ${JSON.stringify(name)}`);
+    }
+    const value = readJson(path.join(directory, name));
+    const row = requireRecord(value, name);
+    if (typeof row.id !== 'string' || row.id.length === 0) {
+      throw new Error(`${name}.id: expected non-empty string`);
+    }
+    if (row.id in result) {
+      throw new Error(`${name}.id: duplicate BuffData identity ${JSON.stringify(row.id)}`);
+    }
+    result[row.id] = value;
+  }
+  return result;
 }
 
 function readSkillDataDirectory(directory: string): Record<string, unknown> {
@@ -139,8 +222,16 @@ function formatError(error: unknown): string {
 function run(): void {
   const report = auditWeaponStaticDefinitions(parseArguments(process.argv.slice(2)));
   process.stdout.write(
-    `weapon static definitions: ${report.complete}/${report.total}; runtime dependencies: ${report.runtimeDependencyCount}; scenario omissions: ${report.scenarioOmissions.length}\n`,
+    `weapon static definitions: ${report.complete}/${report.total}; runtime dependencies: ${report.runtimeDependencyCount}; referenced BuffData: ${report.referencedBuffIds.length}; scenario omissions: ${report.scenarioOmissions.length}\n`,
   );
+  if (report.missingBuffIds.length > 0) {
+    process.stdout.write(`missing BuffData: ${report.missingBuffIds.join(', ')}\n`);
+  }
+  if (report.buffClosureCount > 0) {
+    process.stdout.write(
+      `Buff runtime closure: ${report.compiledBuffCount}/${report.buffClosureCount}; stump omissions: ${report.omittedBuffIds.length}\n`,
+    );
+  }
   for (const omission of report.scenarioOmissions) {
     process.stdout.write(`~ ${omission.weaponId}\n`);
     for (const reason of omission.reasons) process.stdout.write(`  - ${reason}\n`);
@@ -149,7 +240,17 @@ function run(): void {
     process.stdout.write(`- ${failure.weaponId}\n`);
     for (const reason of failure.reasons) process.stdout.write(`  - ${reason}\n`);
   }
-  if (report.failures.length > 0) process.exitCode = 1;
+  for (const failure of report.buffFailures) {
+    process.stdout.write(`- BuffData.${failure.weaponId}\n`);
+    for (const reason of failure.reasons) process.stdout.write(`  - ${reason}\n`);
+  }
+  if (
+    report.failures.length > 0 ||
+    report.missingBuffIds.length > 0 ||
+    report.buffFailures.length > 0
+  ) {
+    process.exitCode = 1;
+  }
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

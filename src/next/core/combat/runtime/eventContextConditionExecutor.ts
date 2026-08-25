@@ -48,6 +48,7 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       condition.kind !== 'eventInflictionElementIn' &&
       condition.kind !== 'eventPhysicalInflictionTypeIn' &&
       condition.kind !== 'eventSkillTypeIn' &&
+      condition.kind !== 'originSkillTypeIn' &&
       condition.kind !== 'eventSkillIdIn' &&
       condition.kind !== 'eventSkillCastMatchesBuffSource' &&
       condition.kind !== 'eventBuffIdMatch' &&
@@ -63,6 +64,12 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       return context === undefined
         ? this.delegate.evaluate(condition)
         : this.delegate.evaluate(condition, context);
+    }
+    if (condition.kind === 'originSkillTypeIn') {
+      if (context?.skillCastInfo === undefined) {
+        throw new Error('originSkillTypeIn requires a Buff source skill cast identity');
+      }
+      return condition.skillTypes.includes(context.skillCastInfo.originSkillType);
     }
     if (context?.event === undefined) {
       throw new Error(`${condition.kind} requires a combat event context`);

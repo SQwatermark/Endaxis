@@ -118,6 +118,7 @@ describe('BuffOperationExecutor', () => {
       skillCastInfo: {
         skillCastId: 1,
         originSkillId: 'comboSkill',
+        originSkillType: 'comboSkill' as const,
         nonReturnedSpCost: 0,
       },
     };
@@ -186,7 +187,12 @@ describe('BuffOperationExecutor', () => {
         },
         {
           blackboard: new ActionBlackboard({ crush_multi: 1.75 }),
-          skillCastInfo: { skillCastId: 1, originSkillId: 'combo', nonReturnedSpCost: 0 },
+          skillCastInfo: {
+            skillCastId: 1,
+            originSkillId: 'combo',
+            originSkillType: 'comboSkill',
+            nonReturnedSpCost: 0,
+          },
         },
       ),
     ).toBe(true);
@@ -1012,6 +1018,7 @@ describe('BuffOperationExecutor', () => {
     const skillCastInfo = {
       skillCastId: 7,
       originSkillId: 'ultimate',
+      originSkillType: 'ultimate' as const,
       nonReturnedSpCost: 90,
     };
 
@@ -1413,6 +1420,7 @@ describe('BuffOperationExecutor', () => {
     const skillCastInfo = {
       skillCastId: 7,
       originSkillId: 'normal',
+      originSkillType: 'basicAttack' as const,
       nonReturnedSpCost: 0,
     };
     caster.add({ id: 'infliction', stackingType: 'unlimited' }, 'operator', { skillCastInfo });

@@ -79,6 +79,7 @@ import { CombatSemanticOutputOperationExecutor } from './combatSemanticOutputOpe
 import { logicalAbilityEntityRuntimeId } from '../../game-data/logicalAbilityEntity';
 import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
 import { AbilityEntityOperationExecutor } from './abilityEntityOperationExecutor';
+import { TargetContextOperationExecutor } from './targetContextOperationExecutor';
 import type { BuffFinishReason } from '../buffs/combatBuffs';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import {
@@ -1242,10 +1243,11 @@ export class CombatRuntimeAssembly {
       delegate: cooldownDelegate,
     });
     let rootOperations: CombatOperationExecutor | undefined;
+    const targetContextOperations = new TargetContextOperationExecutor(operatorId, baseDelegate);
     const abilityEntityOperations = new AbilityEntityOperationExecutor(
       operatorId,
       this.abilityEntities,
-      baseDelegate,
+      targetContextOperations,
       {
         resolveOperations: () => {
           if (rootOperations === undefined) {
@@ -1438,10 +1440,11 @@ export class CombatRuntimeAssembly {
       delegate: cooldownOperations,
     });
     let reactiveOperations: CombatOperationExecutor | undefined;
+    const targetContextOperations = new TargetContextOperationExecutor(operatorId, slotOperations);
     const abilityEntityOperations = new AbilityEntityOperationExecutor(
       operatorId,
       this.abilityEntities,
-      slotOperations,
+      targetContextOperations,
       {
         resolveOperations: () => {
           if (reactiveOperations === undefined) {

@@ -102,6 +102,8 @@ function inspectCondition(
     case 'eventInflictionElementIn':
     case 'eventPhysicalInflictionTypeIn':
     case 'eventSkillTypeIn':
+    case 'originSkillTypeIn':
+    case 'contextTargetContains':
     case 'eventSkillIdIn':
     case 'eventSkillCastMatchesBuffSource':
     case 'eventBuffIdMatch':
@@ -144,6 +146,7 @@ function inspectSequence(
   sequence.steps.forEach((step, index) => {
     const stepPath = `${path}.steps[${index}]`;
     switch (step.kind) {
+      case 'mergeContextTargets':
       case 'findOwnerSpawnedAbilityEntities':
       case 'readAbilityEntityRemainingDuration':
       case 'setAbilityEntityRemainingDuration':

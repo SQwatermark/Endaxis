@@ -380,6 +380,17 @@ export type CombatCondition =
       skillTypes: readonly SkillType[];
     }
   | {
+      /** 匹配持有当前 Buff 的来源施法类型，不读取当前触发事件。 */
+      kind: 'originSkillTypeIn';
+      skillTypes: readonly SkillType[];
+    }
+  | {
+      /** 当前 Context 目标组是否包含事件目标。 */
+      kind: 'contextTargetContains';
+      parentContextKey: string;
+      child: 'eventTarget';
+    }
+  | {
       /** 匹配触发 Buff 响应的待施放技能稳定身份。 */
       kind: 'eventSkillIdIn';
       skillIds: readonly string[];
@@ -482,6 +493,8 @@ export const COMBAT_CONDITION_KINDS = [
   'eventInflictionElementIn',
   'eventPhysicalInflictionTypeIn',
   'eventSkillTypeIn',
+  'originSkillTypeIn',
+  'contextTargetContains',
   'eventSkillIdIn',
   'eventSkillCastMatchesBuffSource',
   'eventBuffIdMatch',
@@ -623,6 +636,14 @@ export type OperatorAbilityEntityDefinitions = Readonly<Record<string, AbilityEn
  * 增加步骤时必须同时提供编译、运行时执行和严格校验，不能只扩展此类型。
  */
 export interface CombatStepParameters {
+  /** 合并稳定目标身份并覆盖写入 Context 目标组；空 sources 用于初始化空组。 */
+  mergeContextTargets: {
+    saveToContextKey: string;
+    sources: readonly (
+      | { readonly kind: 'target'; readonly target: 'caster' | 'enemy' | 'eventTarget' }
+      | { readonly kind: 'context'; readonly contextKey: string }
+    )[];
+  };
   /** 按 owner 与生成期已解析的实体身份查询，并保存为本次释放的 Context 目标组。 */
   findOwnerSpawnedAbilityEntities: {
     saveToContextKey: string;
@@ -1018,6 +1039,7 @@ export interface CombatStepParameters {
 }
 
 export const COMBAT_STEP_KINDS = [
+  'mergeContextTargets',
   'findOwnerSpawnedAbilityEntities',
   'pickContextTarget',
   'forEachContextTarget',

@@ -90,6 +90,7 @@ export interface ResolvedAbilityEntityDefinition {
 }
 
 export interface ResolvedCombatStepParameters {
+  mergeContextTargets: CombatStepParameters['mergeContextTargets'];
   findOwnerSpawnedAbilityEntities: CombatStepParameters['findOwnerSpawnedAbilityEntities'];
   pickContextTarget: CombatStepParameters['pickContextTarget'];
   forEachContextTarget: CombatStepParameters['forEachContextTarget'];

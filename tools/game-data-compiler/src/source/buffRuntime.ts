@@ -449,9 +449,12 @@ function parsePresentationStackEffects(
 }
 
 function parseTagIds(value: unknown, path: string): number[] {
-  return requireArray(value, path).map((entry, index) =>
-    requireInteger(entry, `${path}[${index}]`),
-  );
+  return requireArray(value, path).map((entry, index) => {
+    const entryPath = `${path}[${index}]`;
+    const tag = requireRecord(entry, entryPath);
+    requireExactFields(tag, new Set(['tagId']), entryPath);
+    return requireInteger(tag.tagId, `${entryPath}.tagId`);
+  });
 }
 
 function scalarFromToggle(

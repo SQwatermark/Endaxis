@@ -86,6 +86,12 @@ export type NativeConditionSource =
   | (ConditionIdentity & { readonly kind: 'probability'; readonly value: ScalarSource })
   | (ConditionIdentity & { readonly kind: 'skillType'; readonly skillTypes: readonly string[] })
   | (ConditionIdentity & {
+      /** Buff 动作环境保存的来源技能类型；普通攻击还受原生三位攻击类型掩码约束。 */
+      readonly kind: 'originSkillType';
+      readonly skillTypes: readonly string[];
+      readonly attackTypeMask: string;
+    })
+  | (ConditionIdentity & {
       /** OnObtainAtb 事件携带的原始获取类型与方式筛选。 */
       readonly kind: 'obtainAtbType';
       readonly checkObtainType: boolean;
@@ -99,11 +105,21 @@ export type NativeConditionSource =
       readonly second: TargetReferenceSource;
     })
   | (ConditionIdentity & {
+      /** parent 目标集合是否包含 child 集合中的全部目标。 */
+      readonly kind: 'targetContains';
+      readonly parent: TargetReferenceSource;
+      readonly child: TargetReferenceSource;
+    })
+  | (ConditionIdentity & {
       readonly kind: 'objectTypeMatch';
       readonly target: TargetReferenceSource;
       readonly objectTypeMask: string | number;
     })
   | (ConditionIdentity & { readonly kind: 'damageType'; readonly damageType: string })
+  | (ConditionIdentity & {
+      readonly kind: 'damageTypeMask';
+      readonly damageTypes: readonly string[];
+    })
   | (ConditionIdentity & {
       readonly kind: 'inflictionType';
       readonly elements: readonly string[];
@@ -303,6 +319,28 @@ export function parseConditionLeafSource(
           (item, index) => requireString(item, `${path}.skillTypeList[${index}]`),
         ),
       };
+    case 'CheckOriginSkillType':
+      requireExactFields(
+        condition,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'skillTypeList',
+          'attackTypeMask',
+        ]),
+        path,
+      );
+      return {
+        kind: 'originSkillType',
+        sourceType,
+        skillTypes: requireArray(condition.skillTypeList, `${path}.skillTypeList`).map(
+          (item, index) => requireString(item, `${path}.skillTypeList[${index}]`),
+        ),
+        attackTypeMask: requireNonEmptyString(condition.attackTypeMask, `${path}.attackTypeMask`),
+      };
     case 'CheckObtainAtbType':
       requireExactFields(
         condition,
@@ -344,6 +382,32 @@ export function parseConditionLeafSource(
           `${path}.secondTargetSettings`,
         ),
       };
+    case 'CheckTargetContains':
+      requireExactFields(
+        condition,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'parentTargetSettings',
+          'childTargetSettings',
+        ]),
+        path,
+      );
+      return {
+        kind: 'targetContains',
+        sourceType,
+        parent: parseTargetReferenceSource(
+          condition.parentTargetSettings,
+          `${path}.parentTargetSettings`,
+        ),
+        child: parseTargetReferenceSource(
+          condition.childTargetSettings,
+          `${path}.childTargetSettings`,
+        ),
+      };
     case 'CheckObjectTypeMatch': {
       const mask = condition.objectTypeMask;
       if ((typeof mask !== 'string' && typeof mask !== 'number') || typeof mask === 'boolean') {
@@ -358,6 +422,26 @@ export function parseConditionLeafSource(
     }
     case 'CheckDamageType':
       return parseDamageType(condition, path, sourceType);
+    case 'CheckDamageTypeMask': {
+      requireExactFields(
+        condition,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'damageTypeMask',
+        ]),
+        path,
+      );
+      const damageTypes = requireNonEmptyString(condition.damageTypeMask, `${path}.damageTypeMask`)
+        .split(',')
+        .map(item => item.trim())
+        .filter(Boolean);
+      if (damageTypes.length === 0) throw new Error(`${path}.damageTypeMask: empty mask`);
+      return { kind: 'damageTypeMask', sourceType, damageTypes };
+    }
     case 'CheckSpellInflictionType':
       return parseInflictionType(condition, path, sourceType);
     case 'CheckPhysicalInflictionType':

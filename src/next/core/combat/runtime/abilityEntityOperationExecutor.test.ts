@@ -309,6 +309,7 @@ describe('AbilityEntityOperationExecutor', () => {
     const skillCastInfo: CombatSkillCastInfo = {
       skillCastId: 22,
       originSkillId: 'comboSkill',
+      originSkillType: 'comboSkill',
       nonReturnedSpCost: 0,
     };
 

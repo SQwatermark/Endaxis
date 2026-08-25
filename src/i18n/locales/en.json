@@ -1785,6 +1785,7 @@
         "healTagIds": "Signed integer identities of native healing tags, separated by commas, spaces, or lines."
       },
       "stepHelp": {
+        "mergeContextTargets": "Merges stable target identities into a named action context group without spatial queries.",
         "findOwnerSpawnedAbilityEntities": "Finds logical ability entities by the current operator and native GameplayTags, saving the full group and optional count in this cast context.",
         "pickContextTarget": "Picks one instance from an existing Context target group by stable index and saves it as a new Context target group.",
         "forEachContextTarget": "Synchronously executes one step sequence for each stable target handle already stored in the cast context.",

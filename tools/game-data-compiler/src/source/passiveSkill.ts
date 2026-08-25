@@ -69,7 +69,11 @@ export function parseNativePassiveSkillSource(
       `${sourcePath}.cardAttributeModifier`,
       inheritedBlackboard,
     ),
-    startupBuffs: parseSkillBuffInstallSources(root.buffs, `${sourcePath}.buffs`),
+    // ToggleBuffPassiveSkill.DoEnable 不调用普通 Skill.DoEnable，也不读取 buffs +0xD0。
+    startupBuffs:
+      passiveType === 'ToggleBuff'
+        ? requireIgnoredBuffArray(root.buffs, `${sourcePath}.buffs`)
+        : parseSkillBuffInstallSources(root.buffs, `${sourcePath}.buffs`),
     // 原生工厂只有 ToggleBuff 会构造 ToggleBuffPassiveSkill 并读取这张表。
     // AddBuff 等普通 Skill 中即使残留了序列化内容，运行时也不会访问，不能把它纳入定义闭包。
     toggleBuffs:
@@ -82,6 +86,11 @@ export function parseNativePassiveSkillSource(
 }
 
 function requireIgnoredToggleBuffArray(value: unknown, path: string): [] {
+  requireArray(value, path);
+  return [];
+}
+
+function requireIgnoredBuffArray(value: unknown, path: string): [] {
   requireArray(value, path);
   return [];
 }

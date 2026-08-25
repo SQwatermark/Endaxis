@@ -44,7 +44,7 @@ describe('公共定义引用图', () => {
     ).toThrow(/fixture\.cast/);
   });
 
-  it('收集技能根附属、条件切换和换技 Buff', () => {
+  it('ToggleBuff 忽略根附属残留，只收集条件切换和换技 Buff', () => {
     expect(
       collectSkillRootBuffReferences(
         {
@@ -63,7 +63,6 @@ describe('公共定义引用图', () => {
         'fixture',
       ),
     ).toMatchObject([
-      { kind: 'buff', usage: 'attached', state: 'active', id: 'attached_buff' },
       { kind: 'buff', usage: 'toggle', state: 'active', id: 'toggle_buff' },
       { kind: 'buff', usage: 'switch', state: 'active', id: 'switch_buff' },
     ]);

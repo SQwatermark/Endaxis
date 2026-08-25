@@ -9,6 +9,38 @@ const terminal = {
 };
 
 describe('EventContextConditionExecutor', () => {
+  it('matches the Buff source cast skill type instead of the current event type', () => {
+    const executor = new EventContextConditionExecutor(terminal);
+    const context = {
+      blackboard: new ActionBlackboard(),
+      skillCastInfo: {
+        skillCastId: 3,
+        originSkillId: 'weapon-source',
+        originSkillType: 'battleSkill' as const,
+        nonReturnedSpCost: 0,
+      },
+      event: {
+        kind: 'abilitySkill' as const,
+        event: 'beforeCastSkill' as const,
+        sourceId: 'operator',
+        targetId: 'enemy',
+        skillId: 'current-combo',
+        skillType: 'comboSkill' as const,
+        skillCastId: 4,
+      },
+    };
+
+    expect(
+      executor.evaluate({ kind: 'originSkillTypeIn', skillTypes: ['battleSkill'] }, context),
+    ).toBe(true);
+    expect(
+      executor.evaluate({ kind: 'originSkillTypeIn', skillTypes: ['comboSkill'] }, context),
+    ).toBe(false);
+    expect(
+      executor.evaluate({ kind: 'eventSkillTypeIn', skillTypes: ['comboSkill'] }, context),
+    ).toBe(true);
+  });
+
   it('matches the physical-infliction type carried by a source output event', () => {
     const executor = new EventContextConditionExecutor(terminal);
     const context = {

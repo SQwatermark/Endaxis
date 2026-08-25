@@ -10,7 +10,7 @@ import {
 import { scalarFixture } from './sourceFixtures.ts';
 
 describe('领域无关的被动 SkillData', () => {
-  it('同时保留启动 Buff、条件 Buff、赋值和事件动作容器', () => {
+  it('ToggleBuff 只保留条件 Buff、赋值和事件动作容器', () => {
     const parsed = parseNativePassiveSkillSource(passiveFixture(), 'passive_fixture.json', {
       hp_ratio: [0.5],
       damage_up: [0.2],
@@ -24,13 +24,7 @@ describe('领域无关的被动 SkillData', () => {
         isConvertedAttribute: false,
         modifiers: [],
       },
-      startupBuffs: [
-        {
-          buffId: 'buff_startup',
-          assignBlackboard: true,
-          assignments: [{ targetKey: 'damage_up', inputValueKey: 'damage_up' }],
-        },
-      ],
+      startupBuffs: [],
       toggleBuffs: [
         {
           conditions: [
@@ -46,7 +40,6 @@ describe('领域无关的被动 SkillData', () => {
       actionGraph: { actionGroup: { passiveEvents: [{ abilityEvent: 'OnBuffStart' }] } },
     });
     expect(parsed.references.filter(item => item.kind === 'buff')).toMatchObject([
-      { usage: 'attached', id: 'buff_startup' },
       { usage: 'toggle', id: 'buff_toggle' },
     ]);
   });

@@ -1921,3 +1921,19 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
   不可达的自身承伤收益。
 - 回归通过：游戏数据 247/247、Next 1521/1521、`type-check:game-data` 与 `type-check:next`。根
   `type-check` 的失败均来自旧版 `src/` 既有错误，本轮未修改旧版。`tmp/` 仍不提交。
+
+### 2026-08-26：武器 Buff 运行闭包开始横向收口
+
+- 武器静态定义审计已达 77/77，77 把武器与 248 件装备的基础攻击生产模拟门禁合计 326/326。
+  91 个实际可达 Buff 引用均有 1.4.4 定义；`buff_wpn_passive_spirit_01` 经
+  `ToggleBuffPassiveSkill.DoEnable` 机器码确认属于不会被该被动读取的残留 `buffs` 字段，不伪造定义。
+- 公共 Buff 编译器新增来源施法类型、通用 Context 目标组的空组/合并/去重/包含、伤害类型掩码，
+  以及 `EnemyAll + Anti` 的 GlobalAura 投影。来源技能条件读取 Buff 保存的施法身份，不读取当前
+  触发事件；当前 11 个真实样本的攻击细分掩码均为 `All`，未来出现无法区分的下落起跳/落地掩码时
+  必须失败关闭。
+- combat-spec 已先后提交目标集合包含、DamageType 位掩码与敌方 GlobalAura 的反编译规格和运行时。
+  GlobalAura 的 Sphere 半径不进入零空间查找，但目标生命周期、Buff 来源、黑板传值和施法身份继承
+  均保留。
+- 当前闭包首阻塞推进到 `buff_wpn_funnel_0016_will_atk/SaveBuffLifeTime`。该动作把当前 Buff 剩余
+  寿命写入黑板，真实案例再传给可视图标 Buff；不能因为不直接结算伤害就丢弃。下一步先在
+  combat-spec 恢复其 Infinity/Limited 分支，再接入 Next Buff 生命周期上下文并继续横向审计。

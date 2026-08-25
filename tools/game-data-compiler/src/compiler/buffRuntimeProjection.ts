@@ -105,8 +105,25 @@ export type CompiledBuffConditionSource =
       readonly types: readonly ('airborne' | 'knockDown' | 'fracture' | 'crush')[];
     }
   | {
+      readonly kind: 'eventDamageTypeIn';
+      readonly damageTypes: readonly (
+        'physical' | 'true' | 'heat' | 'electric' | 'cryo' | 'lifeDrain' | 'nature' | 'ether'
+      )[];
+    }
+  | {
       readonly kind: 'eventSkillTypeIn';
       readonly skillTypes: readonly ('battleSkill' | 'comboSkill' | 'ultimate')[];
+    }
+  | {
+      readonly kind: 'contextTargetContains';
+      readonly parentContextKey: string;
+      readonly child: 'eventTarget';
+    }
+  | {
+      readonly kind: 'originSkillTypeIn';
+      readonly skillTypes: readonly (
+        'basicAttack' | 'plungingAttack' | 'battleSkill' | 'comboSkill' | 'ultimate'
+      )[];
     }
   | {
       readonly kind: 'eventBuffTagsMatch';
@@ -171,11 +188,27 @@ export type CompiledBuffConditionSource =
 
 export type CompiledBuffStepSource =
   | {
+      readonly kind: 'mergeContextTargets';
+      readonly parameters: {
+        readonly saveToContextKey: string;
+        readonly sources: readonly (
+          | { readonly kind: 'target'; readonly target: 'eventTarget' }
+          | { readonly kind: 'context'; readonly contextKey: string }
+        )[];
+      };
+    }
+  | {
       readonly kind: 'applyBuff';
       readonly parameters: {
         readonly buffId: string;
         readonly target:
-          'caster' | 'eventTarget' | 'eventSource' | 'buffOwner' | 'party' | 'partyExceptCaster';
+          | 'caster'
+          | 'enemy'
+          | 'eventTarget'
+          | 'eventSource'
+          | 'buffOwner'
+          | 'party'
+          | 'partyExceptCaster';
         readonly source?: 'eventSource';
         readonly count?: CompiledActionValueOperandSource;
         readonly inheritSourceSkillCastInfo?: boolean;
@@ -769,6 +802,26 @@ function compileLinearNodes(
   }
   if (first!.body.kind === 'leaf' && first!.body.value.family === 'targetGroup') {
     const action = first!.body.value.action;
+    if (action.producerType === 'MergeTargetAction') {
+      const sources = action.inputTargets.map((target, index) => {
+        if (target.targetSource === 'Target' && target.targetGroupKey === '') {
+          return { kind: 'target' as const, target: 'eventTarget' as const };
+        }
+        if (target.targetSource === 'Context' && target.targetGroupKey !== '') {
+          return { kind: 'context' as const, contextKey: target.targetGroupKey };
+        }
+        throw new Error(
+          `${first!.sourcePath}.targets[${index}]: unsupported Buff merge target source`,
+        );
+      });
+      return [
+        {
+          kind: 'mergeContextTargets',
+          parameters: { saveToContextKey: action.targetGroupKey, sources },
+        },
+        ...compileLinearNodes(rest, visualOnlyIds, partyTargetGroups),
+      ];
+    }
     if (
       action.producerType !== 'FindTargetAction' ||
       action.finderType !== 'CharacterTeamFinder' ||
@@ -826,6 +879,52 @@ function compileConditionLeaf(
         const mapped = SKILL_TYPES[skillType];
         if (mapped === undefined)
           throw new Error(`unsupported native skill type ${JSON.stringify(skillType)}`);
+        return mapped;
+      }),
+    };
+  }
+  if (condition.kind === 'originSkillType') {
+    if (condition.attackTypeMask !== 'All') {
+      throw new Error(
+        `${sourcePath}: unsupported origin skill attack type mask ${JSON.stringify(condition.attackTypeMask)}`,
+      );
+    }
+    return {
+      kind: 'originSkillTypeIn',
+      skillTypes: condition.skillTypes.flatMap(skillType => {
+        if (skillType === 'Attack') return ['basicAttack', 'plungingAttack'] as const;
+        const mapped = SKILL_TYPES[skillType];
+        if (mapped === undefined)
+          throw new Error(`unsupported native origin skill type ${JSON.stringify(skillType)}`);
+        return [mapped];
+      }),
+    };
+  }
+  if (condition.kind === 'targetContains') {
+    if (
+      condition.parent.targetSource !== 'Context' ||
+      condition.parent.targetGroupKey === '' ||
+      condition.child.targetSource !== 'Target' ||
+      condition.child.targetGroupKey !== ''
+    ) {
+      throw new Error(`${sourcePath}: unsupported target containment sources`);
+    }
+    return {
+      kind: 'contextTargetContains',
+      parentContextKey: condition.parent.targetGroupKey,
+      child: 'eventTarget',
+    };
+  }
+  if (condition.kind === 'damageTypeMask') {
+    return {
+      kind: 'eventDamageTypeIn',
+      damageTypes: condition.damageTypes.map(damageType => {
+        const mapped = DAMAGE_TYPES[damageType];
+        if (mapped === undefined) {
+          throw new Error(
+            `${sourcePath}: unsupported native damage type ${JSON.stringify(damageType)}`,
+          );
+        }
         return mapped;
       }),
     };
@@ -983,7 +1082,8 @@ function compileActionNode(
     );
   }
   if (node.body.value.family === 'aura') {
-    return node.body.value.action.buffs.flatMap((entry, index) => {
+    const aura = node.body.value.action;
+    return aura.buffs.flatMap((entry, index) => {
       if (visualOnlyIds.has(entry.buffId)) return [];
       const assignments = entry.assignBlackboard
         ? Object.fromEntries(
@@ -1008,8 +1108,9 @@ function compileActionNode(
           kind: 'applyBuff' as const,
           parameters: {
             buffId: entry.buffId,
-            target: 'party' as const,
+            target: aura.target,
             finishByAction: true,
+            ...(aura.inheritSourceSkillCastInfo ? { inheritSourceSkillCastInfo: true } : {}),
             ...(Object.keys(assignments).length === 0
               ? {}
               : { blackboardAssignments: assignments }),
@@ -1406,6 +1507,21 @@ const SKILL_TYPES: Readonly<Record<string, 'battleSkill' | 'comboSkill' | 'ultim
   NormalSkill: 'battleSkill',
   ComboSkill: 'comboSkill',
   UltimateSkill: 'ultimate',
+};
+const DAMAGE_TYPES: Readonly<
+  Record<
+    string,
+    'physical' | 'true' | 'heat' | 'electric' | 'cryo' | 'lifeDrain' | 'nature' | 'ether'
+  >
+> = {
+  Physical: 'physical',
+  Real: 'true',
+  Fire: 'heat',
+  Pulse: 'electric',
+  Cryst: 'cryo',
+  LifeDrain: 'lifeDrain',
+  Natural: 'nature',
+  Ether: 'ether',
 };
 const TAG_QUERY_TYPES: Readonly<Record<string, 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll'>> = {
   HasAny: 'hasAny',

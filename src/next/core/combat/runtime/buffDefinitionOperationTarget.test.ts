@@ -155,6 +155,7 @@ describe('BuffDefinitionOperationTarget', () => {
     const skillCastInfo = {
       skillCastId: 3,
       originSkillId: 'battleSkill',
+      originSkillType: 'battleSkill' as const,
       nonReturnedSpCost: 90,
     };
 
