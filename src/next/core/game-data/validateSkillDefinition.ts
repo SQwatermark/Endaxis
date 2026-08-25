@@ -1516,6 +1516,15 @@ function validateCombatStep(
       if (parameters.sameSourceSkillCast !== undefined) {
         requireBoolean(parameters, 'sameSourceSkillCast', `${path}.parameters`, out);
       }
+      if (kind === 'readBuffStackCount' && parameters.countType !== undefined) {
+        requireEnum(
+          parameters,
+          'countType',
+          new Set(['enhance', 'instance']),
+          `${path}.parameters`,
+          out,
+        );
+      }
       const query = asRecord(parameters.query, `${path}.parameters.query`, out);
       if (query === null) break;
       const queryKind = requireString(query, 'kind', `${path}.parameters.query`, out);
@@ -1528,6 +1537,17 @@ function validateCombatStep(
         push(out, `${path}.parameters.query.kind`, 'environment is only valid for stack count');
       } else if (queryKind !== 'environment' && queryKind !== null) {
         push(out, `${path}.parameters.query.kind`, "expected 'id', 'tag', or 'environment'");
+      }
+      if (
+        kind === 'readBuffStackCount' &&
+        queryKind === 'environment' &&
+        parameters.countType === 'instance'
+      ) {
+        push(
+          out,
+          `${path}.parameters.countType`,
+          'environment query only exposes the current Buff enhance count',
+        );
       }
       break;
     }

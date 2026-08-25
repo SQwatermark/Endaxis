@@ -345,9 +345,7 @@ describe('生成套装正式定义', () => {
       main: perlica.mainAttribute,
       secondary: perlica.secondaryAttribute,
     });
-    expect(compiled.modifiers).toEqual([
-      { kind: 'panelStat', stat: 'attackPercent', value: 0.08 },
-    ]);
+    expect(compiled.modifiers).toEqual([{ kind: 'panelStat', stat: 'attackPercent', value: 0.08 }]);
     expect(
       compiled.buffDefinitions?.buff_equipsuit_crush_fracture?.abilityEventResponses?.[0],
     ).toMatchObject({
@@ -366,8 +364,7 @@ describe('生成套装正式定义', () => {
                 {
                   parameters: {
                     condition: {
-                      kind: 'buffStackCompare',
-                      target: 'eventTarget',
+                      kind: 'eventTargetBuffCountCompare',
                       buffTagIds: [1075718177],
                     },
                   },
@@ -390,6 +387,59 @@ describe('生成套装正式定义', () => {
                   },
                 },
               ],
+            },
+          },
+        ],
+      },
+    });
+  });
+
+  it('让治疗套在满血治疗时按过量治疗分支给事件目标施加可视防御 Buff', () => {
+    const definition = generatedGearSetDefinitions.find(item => item.slug === 'suit_heal01')!;
+    expect(validateGearSetDefinition(definition, '$.suit_heal01')).toEqual([]);
+    const compiled = compileGearSetContribution(definition, {
+      main: perlica.mainAttribute,
+      secondary: perlica.secondaryAttribute,
+    });
+    expect(compiled.modifiers).toEqual([
+      { kind: 'staticHealingIncrease', target: 'output', value: 0.2 },
+    ]);
+    expect(compiled.buffDefinitions?.buff_common_dmgtk_down_equip_1).toMatchObject({
+      stackingType: 'highPriority',
+      durationSeconds: { blackboardKey: 'duration' },
+      presentation: {
+        visible: true,
+        iconId: 'icon_battle_buff_def_up',
+        iconStyleInSquad: 'LifeTime',
+      },
+    });
+    expect(
+      compiled.buffDefinitions?.buff_equipsuit_healup_01?.abilityEventResponses?.[0],
+    ).toMatchObject({
+      event: 'outputHeal',
+      sequence: {
+        steps: [
+          {
+            parameters: { condition: { kind: 'eventOverheal' } },
+            whenTrue: {
+              steps: [
+                {
+                  parameters: {
+                    buffId: 'buff_common_dmgtk_down_equip_1',
+                    target: 'eventTarget',
+                    blackboardAssignments: {
+                      value: { kind: 'blackboard', key: 'dmg_taken_down2' },
+                      duration: { kind: 'blackboard', key: 'duration' },
+                      priority: { kind: 'constant', value: 1 },
+                    },
+                  },
+                },
+              ],
+            },
+          },
+          {
+            parameters: {
+              condition: { kind: 'not', condition: { kind: 'eventOverheal' } },
             },
           },
         ],

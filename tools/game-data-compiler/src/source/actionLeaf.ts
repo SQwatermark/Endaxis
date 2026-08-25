@@ -25,6 +25,7 @@ import { parseDamageActionSource, type DamageActionSource } from './damageAction
 import { parseHealActionSource, type HealActionSource } from './healActions.ts';
 import { parseFinishOwnerActionSource, type FinishOwnerActionSource } from './lifecycleActions.ts';
 import { nativeActionName, requireNonEmptyString, requireRecord } from './primitives.ts';
+import { parsePlaySoundActionSource, type PlaySoundActionSource } from './presentationActions.ts';
 import {
   parseAbilityEntitySpawnActionSource,
   parseProjectileLaunchActionSource,
@@ -117,6 +118,7 @@ export type KnownNativeActionLeafSource =
       readonly action: TimeDilationActionSource | UltimateTimeActionSource;
     }
   | { readonly family: 'damage'; readonly action: DamageActionSource }
+  | { readonly family: 'presentation'; readonly action: PlaySoundActionSource }
   | { readonly family: 'projectile'; readonly action: ProjectileLaunchActionSource }
   | { readonly family: 'abilityEntity'; readonly action: AbilityEntitySpawnActionSource }
   | { readonly family: 'skillCast'; readonly action: SkillCastActionSource };
@@ -236,6 +238,8 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'damage',
         action: parseDamageActionSource(value, path, inheritedBlackboard),
       };
+    case 'PlaySoundAction':
+      return { family: 'presentation', action: parsePlaySoundActionSource(value, path) };
     case 'LaunchProjectile':
       return { family: 'projectile', action: parseProjectileLaunchActionSource(value, path) };
     case 'SpawnAbilityEntity':

@@ -1,0 +1,116 @@
+import {
+  requireBoolean,
+  requireExactFields,
+  requireInteger,
+  requireNumber,
+  requireRecord,
+  requireString,
+} from './primitives.ts';
+import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
+
+export interface PlaySoundActionSource {
+  readonly kind: 'playSound';
+  readonly soundEvent: string;
+  readonly stopOnEnd: boolean;
+  readonly stopFadeDurationMilliseconds: number;
+  readonly canInterruptTimeMilliseconds: number;
+  readonly interruptFadeDurationMilliseconds: number;
+  readonly jumpToWhenPlayMilliseconds: number;
+  readonly useTemporaryEmitter: boolean;
+  readonly target: TargetReferenceSource;
+  readonly mountPoint: string;
+  readonly followMountPoint: boolean;
+  readonly useWeaponMountPoint: boolean;
+  readonly weaponIndex: number;
+  readonly weaponMountPoint: string;
+  readonly useTimeDilationPauseAndSeek: boolean;
+  readonly timeDilationPauseThreshold: number;
+  readonly timeDilationSeekThreshold: number;
+  readonly timeDilationFadeOutDurationMilliseconds: number;
+  readonly timeDilationFadeInDurationMilliseconds: number;
+}
+
+/**
+ * combat-spec 1.4.4 的 PlaySoundAction.ExecuteInternal 只解析目标并进入音频播放路径。
+ * 来源层仍完整校验已知字段；投影层可据此将它保留为有证据的表现 no-op。
+ */
+export function parsePlaySoundActionSource(value: unknown, path: string): PlaySoundActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      '_soundEvent',
+      '_stopOnEnd',
+      '_stopFadeDurationMs',
+      '_canInterruptTimeMs',
+      '_intrptFadeDurationMs',
+      '_jumpToWhenPlayMs',
+      '_useTempEmitter',
+      'targetSettings',
+      'mountPoint',
+      'followMountPoint',
+      'useWeaponMountPoint',
+      'weaponIndex',
+      'weaponMountPoint',
+      'useTimeDilationPauseAndSeek',
+      'timeDilationPauseThreshold',
+      'timeDilationSeekThreshold',
+      'timeDilationFadeOutDurationMs',
+      'timeDilationFadeInDurationMs',
+    ]),
+    path,
+  );
+  return {
+    kind: 'playSound',
+    soundEvent: requireString(action._soundEvent, `${path}._soundEvent`),
+    stopOnEnd: requireBoolean(action._stopOnEnd, `${path}._stopOnEnd`),
+    stopFadeDurationMilliseconds: requireInteger(
+      action._stopFadeDurationMs,
+      `${path}._stopFadeDurationMs`,
+    ),
+    canInterruptTimeMilliseconds: requireInteger(
+      action._canInterruptTimeMs,
+      `${path}._canInterruptTimeMs`,
+    ),
+    interruptFadeDurationMilliseconds: requireInteger(
+      action._intrptFadeDurationMs,
+      `${path}._intrptFadeDurationMs`,
+    ),
+    jumpToWhenPlayMilliseconds: requireInteger(
+      action._jumpToWhenPlayMs,
+      `${path}._jumpToWhenPlayMs`,
+    ),
+    useTemporaryEmitter: requireBoolean(action._useTempEmitter, `${path}._useTempEmitter`),
+    target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
+    mountPoint: requireString(action.mountPoint, `${path}.mountPoint`),
+    followMountPoint: requireBoolean(action.followMountPoint, `${path}.followMountPoint`),
+    useWeaponMountPoint: requireBoolean(action.useWeaponMountPoint, `${path}.useWeaponMountPoint`),
+    weaponIndex: requireInteger(action.weaponIndex, `${path}.weaponIndex`),
+    weaponMountPoint: requireString(action.weaponMountPoint, `${path}.weaponMountPoint`),
+    useTimeDilationPauseAndSeek: requireBoolean(
+      action.useTimeDilationPauseAndSeek,
+      `${path}.useTimeDilationPauseAndSeek`,
+    ),
+    timeDilationPauseThreshold: requireNumber(
+      action.timeDilationPauseThreshold,
+      `${path}.timeDilationPauseThreshold`,
+    ),
+    timeDilationSeekThreshold: requireNumber(
+      action.timeDilationSeekThreshold,
+      `${path}.timeDilationSeekThreshold`,
+    ),
+    timeDilationFadeOutDurationMilliseconds: requireInteger(
+      action.timeDilationFadeOutDurationMs,
+      `${path}.timeDilationFadeOutDurationMs`,
+    ),
+    timeDilationFadeInDurationMilliseconds: requireInteger(
+      action.timeDilationFadeInDurationMs,
+      `${path}.timeDilationFadeInDurationMs`,
+    ),
+  };
+}

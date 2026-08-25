@@ -115,6 +115,45 @@ describe('公共 Action 叶子分派', () => {
       },
     });
   });
+
+  it('严格保留 PlaySoundAction 的表现身份和音频时序字段', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.PlaySoundAction+PlaySoundActionData, Gameplay.Beyond',
+          _soundEvent: 'au_int_cure_one',
+          _stopOnEnd: false,
+          _stopFadeDurationMs: 100,
+          _canInterruptTimeMs: 0,
+          _intrptFadeDurationMs: 100,
+          _jumpToWhenPlayMs: 0,
+          _useTempEmitter: false,
+          targetSettings: targetFixture('Owner'),
+          mountPoint: 'None',
+          followMountPoint: false,
+          useWeaponMountPoint: false,
+          weaponIndex: 0,
+          weaponMountPoint: 'Root',
+          useTimeDilationPauseAndSeek: false,
+          timeDilationPauseThreshold: 0.7,
+          timeDilationSeekThreshold: 0.4,
+          timeDilationFadeOutDurationMs: 500,
+          timeDilationFadeInDurationMs: 100,
+        },
+        'fixture.playSound',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'presentation',
+      action: {
+        kind: 'playSound',
+        soundEvent: 'au_int_cure_one',
+        target: { targetSource: 'Owner' },
+        timeDilationPauseThreshold: 0.7,
+      },
+    });
+  });
 });
 
 function sequence(actionData: unknown[]): Record<string, unknown> {

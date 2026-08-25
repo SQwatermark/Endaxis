@@ -8,7 +8,11 @@ import {
 } from './simpleDamageOperation.ts';
 import { collectBuffActionReferences } from '../source/buffActionGraph.ts';
 import type { BuffApplicationActionSource } from '../source/buffActions.ts';
-import type { NativeActionNodeSource, NativeSequenceSource } from '../source/controlFlow.ts';
+import {
+  collectNativeActionNodes,
+  type NativeActionNodeSource,
+  type NativeSequenceSource,
+} from '../source/controlFlow.ts';
 import {
   parseBuffRuntimeSource,
   type BuffPresentationSource,
@@ -53,6 +57,12 @@ export interface CompiledBuffAttributeModifierSource {
 
 export type CompiledBuffConditionSource =
   | {
+      readonly kind: 'eventOverheal';
+      readonly overHealKey?: string;
+      readonly finalHealKey?: string;
+      readonly realHealKey?: string;
+    }
+  | {
       readonly kind: 'eventPhysicalInflictionTypeIn';
       readonly types: readonly ('airborne' | 'knockDown' | 'fracture' | 'crush')[];
     }
@@ -86,12 +96,7 @@ export type CompiledBuffConditionSource =
       readonly tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
       readonly buffTagIds: readonly number[];
       readonly operator:
-        | 'equal'
-        | 'notEqual'
-        | 'greater'
-        | 'greaterOrEqual'
-        | 'less'
-        | 'lessOrEqual';
+        'equal' | 'notEqual' | 'greater' | 'greaterOrEqual' | 'less' | 'lessOrEqual';
       readonly value:
         | { readonly kind: 'constant'; readonly value: number }
         | { readonly kind: 'blackboard'; readonly key: string };
@@ -101,12 +106,7 @@ export type CompiledBuffConditionSource =
       readonly target: 'eventTarget';
       readonly buffIds: readonly string[];
       readonly operator:
-        | 'equal'
-        | 'notEqual'
-        | 'greater'
-        | 'greaterOrEqual'
-        | 'less'
-        | 'lessOrEqual';
+        'equal' | 'notEqual' | 'greater' | 'greaterOrEqual' | 'less' | 'lessOrEqual';
       readonly value:
         | { readonly kind: 'constant'; readonly value: number }
         | { readonly kind: 'blackboard'; readonly key: string };
@@ -116,12 +116,7 @@ export type CompiledBuffConditionSource =
       readonly target: 'enemy';
       readonly returnValueIfMissing: boolean;
       readonly operator:
-        | 'equal'
-        | 'notEqual'
-        | 'greater'
-        | 'greaterOrEqual'
-        | 'less'
-        | 'lessOrEqual';
+        'equal' | 'notEqual' | 'greater' | 'greaterOrEqual' | 'less' | 'lessOrEqual';
       readonly value:
         | { readonly kind: 'constant'; readonly value: number }
         | { readonly kind: 'blackboard'; readonly key: string };
@@ -140,7 +135,7 @@ export type CompiledBuffStepSource =
       readonly kind: 'applyBuff';
       readonly parameters: {
         readonly buffId: string;
-        readonly target: 'caster';
+        readonly target: 'caster' | 'eventTarget';
         readonly inheritSourceSkillCastInfo?: boolean;
         readonly blackboardAssignments?: Readonly<
           Record<
@@ -165,6 +160,7 @@ export type CompiledBuffStepSource =
       readonly parameters: {
         readonly target: 'eventTarget';
         readonly outputKey: string;
+        readonly countType?: 'instance';
         readonly query:
           | { readonly kind: 'id'; readonly buffIds: readonly string[] }
           | {
@@ -217,9 +213,13 @@ export interface CompiledBuffDefinitionSource {
   readonly extendTagIds: readonly number[];
   readonly blackboard: Readonly<Record<string, number | string>>;
   readonly attributeModifiers: readonly CompiledBuffAttributeModifierSource[];
-  readonly lifecycleSequences?: { readonly enable: CompiledBuffSequenceSource };
+  readonly lifecycleSequences?: {
+    readonly start?: CompiledBuffSequenceSource;
+    readonly enable?: CompiledBuffSequenceSource;
+  };
   readonly abilityEventResponses?: readonly {
-    readonly event: 'beforeCastSkill' | 'outputBuff' | 'beforeOutputPhysicalInfliction';
+    readonly event:
+      'beforeCastSkill' | 'outputBuff' | 'beforeOutputPhysicalInfliction' | 'outputHeal';
     readonly priority: 0;
     readonly sequence: CompiledBuffSequenceSource;
   }[];
@@ -278,20 +278,29 @@ export function compileBuffRuntimeDefinitionSource(
     );
   }
   if (source.graph.timelineActions.length > 0 || source.graph.igniteEvents.length > 0) {
-    throw new Error('Buff timelines and ignite events are not yet supported by the runtime projector');
+    throw new Error(
+      'Buff timelines and ignite events are not yet supported by the runtime projector',
+    );
   }
+  const startSequences: CompiledBuffSequenceSource[] = [];
   const enableSequences: CompiledBuffSequenceSource[] = [];
   for (const event of source.graph.buffEvents) {
-    if (event.event !== 'DuringBuffEnable')
-      throw new Error(`unsupported Buff event ${JSON.stringify(event.event)}`);
+    const target =
+      event.event === 'OnBuffStart'
+        ? startSequences
+        : event.event === 'DuringBuffEnable'
+          ? enableSequences
+          : null;
+    if (target === null) throw new Error(`unsupported Buff event ${JSON.stringify(event.event)}`);
     for (const sequence of event.actions) {
       const compiled = compileLinearSequence(sequence, visualOnlyIds);
-      if (compiled.steps.length > 0) enableSequences.push(compiled);
+      if (compiled.steps.length > 0) target.push(compiled);
     }
   }
   const beforeCastSteps: CompiledBuffStepSource[] = [];
   const outputBuffSteps: CompiledBuffStepSource[] = [];
   const beforeOutputPhysicalInflictionSteps: CompiledBuffStepSource[] = [];
+  const outputHealSteps: CompiledBuffStepSource[] = [];
   for (const event of source.graph.abilityEvents) {
     if (omittedAbilityEvents.has(event.event)) continue;
     const target =
@@ -301,7 +310,9 @@ export function compileBuffRuntimeDefinitionSource(
           ? outputBuffSteps
           : event.event === 'OnBeforeOutputPhysicalInfliction'
             ? beforeOutputPhysicalInflictionSteps
-          : null;
+            : event.event === 'OnOutputHeal'
+              ? outputHealSteps
+              : null;
     if (target === null)
       throw new Error(`unsupported ability event ${JSON.stringify(event.event)}`);
     for (const sequence of event.actions)
@@ -364,12 +375,18 @@ export function compileBuffRuntimeDefinitionSource(
         value: scalarOperand(modifier.parameter),
       };
     }),
-    ...(enableSequences.length === 0
+    ...(startSequences.length === 0 && enableSequences.length === 0
       ? {}
-      : { lifecycleSequences: { enable: mergeSequences(enableSequences) } }),
+      : {
+          lifecycleSequences: {
+            ...(startSequences.length === 0 ? {} : { start: mergeSequences(startSequences) }),
+            ...(enableSequences.length === 0 ? {} : { enable: mergeSequences(enableSequences) }),
+          },
+        }),
     ...(beforeCastSteps.length === 0 &&
     outputBuffSteps.length === 0 &&
-    beforeOutputPhysicalInflictionSteps.length === 0
+    beforeOutputPhysicalInflictionSteps.length === 0 &&
+    outputHealSteps.length === 0
       ? {}
       : {
           abilityEventResponses: [
@@ -400,6 +417,15 @@ export function compileBuffRuntimeDefinitionSource(
                     sequence: { steps: beforeOutputPhysicalInflictionSteps },
                   },
                 ]),
+            ...(outputHealSteps.length === 0
+              ? []
+              : [
+                  {
+                    event: 'outputHeal' as const,
+                    priority: 0 as const,
+                    sequence: { steps: outputHealSteps },
+                  },
+                ]),
           ],
         }),
   };
@@ -422,6 +448,23 @@ function compileLinearNodes(
 ): CompiledBuffStepSource[] {
   if (nodes.length === 0) return [];
   const [first, ...rest] = nodes;
+  if (first!.body.kind === 'negateNextResult') {
+    const [next, ...bodyNodes] = rest;
+    if (next === undefined) throw new Error(`${first!.sourcePath}: dangling NotNextCheckAction`);
+    const condition = compileEventCondition(next);
+    if (condition === null)
+      throw new Error(`${first!.sourcePath}: NotNextCheckAction must precede a condition`);
+    const body = compileLinearNodes(bodyNodes, visualOnlyIds);
+    return body.length === 0
+      ? []
+      : [
+          {
+            kind: 'conditional',
+            parameters: { condition: { kind: 'not', condition } },
+            whenTrue: { steps: body },
+          },
+        ];
+  }
   const condition = compileEventCondition(first!);
   if (condition !== null) {
     const body = compileLinearNodes(rest, visualOnlyIds);
@@ -459,6 +502,14 @@ function compileConditionLeaf(
       throw new Error(`${sourcePath}: physical infliction savedKey is unsupported`);
     return { kind: 'eventPhysicalInflictionTypeIn', types: condition.types };
   }
+  if (condition.kind === 'overHeal') {
+    return {
+      kind: 'eventOverheal',
+      ...(condition.overHealKey === '' ? {} : { overHealKey: condition.overHealKey }),
+      ...(condition.finalHealKey === '' ? {} : { finalHealKey: condition.finalHealKey }),
+      ...(condition.realHealKey === '' ? {} : { realHealKey: condition.realHealKey }),
+    };
+  }
   if (condition.kind === 'contextBuff') {
     if (condition.checkType !== 'Tag' || condition.buffIds.length > 0) {
       throw new Error(`${sourcePath}: unsupported event Buff identity condition`);
@@ -486,8 +537,7 @@ function compileConditionLeaf(
     }
     if (condition.buffCheckType === 'Tag' && condition.buffIds.length === 0) {
       return {
-        kind: 'buffStackCompare',
-        target: 'eventTarget',
+        kind: 'eventTargetBuffCountCompare',
         tagQueryType: condition.tagQueryType,
         buffTagIds: condition.buffTagIds,
         operator,
@@ -509,8 +559,7 @@ function compileConditionLeaf(
     if (condition.target.targetSource !== 'Target' || condition.target.targetGroupKey !== '')
       throw new Error(`${sourcePath}: unsupported poise condition target`);
     const operator = COMPARISON_OPERATORS[condition.comparison];
-    if (operator === undefined)
-      throw new Error(`${sourcePath}: unsupported poise comparison`);
+    if (operator === undefined) throw new Error(`${sourcePath}: unsupported poise comparison`);
     return {
       kind: 'poiseCompare',
       target: 'enemy',
@@ -525,9 +574,7 @@ function compileConditionLeaf(
         const compiled = compileConditionLeaf(child, sourcePath);
         return group.negated[index] ? ({ kind: 'not', condition: compiled } as const) : compiled;
       });
-      return conditions.length === 1
-        ? conditions[0]!
-        : ({ kind: 'all', conditions } as const);
+      return conditions.length === 1 ? conditions[0]! : ({ kind: 'all', conditions } as const);
     });
     return groups.length === 1 ? groups[0]! : { kind: 'any', conditions: groups };
   }
@@ -609,14 +656,20 @@ function compileActionNode(
             tagQueryType: action.tagQueryType,
             buffTagIds: action.buffTagIds,
           }
-        : action.checkType === 'Id' && action.buffIds.every(id => id.length > 0)
-          ? { kind: 'id' as const, buffIds: action.buffIds }
-          : null;
-    if (query === null) throw new Error(`${node.sourcePath}: unsupported Buff stack read query`);
+        : null;
+    if (query === null)
+      throw new Error(
+        `${node.sourcePath}: BuffCount projection currently requires a tag query with instance counting`,
+      );
     return [
       {
         kind: 'readBuffStackCount',
-        parameters: { target: 'eventTarget', outputKey: action.outputKey, query },
+        parameters: {
+          target: 'eventTarget',
+          outputKey: action.outputKey,
+          countType: 'instance',
+          query,
+        },
       },
     ];
   }
@@ -662,7 +715,29 @@ function compileActionNode(
       },
     ];
   }
+  if (node.body.value.family === 'presentation') return [];
   throw new Error(`${node.sourcePath}: unsupported Buff runtime action`);
+}
+
+/** 已严格解析、但在无渲染后端中不产生战斗状态的表现动作路径。 */
+export function collectBuffRuntimePresentationActionPaths(
+  source: BuffRuntimeSource,
+): readonly string[] {
+  const sequences = [
+    ...source.graph.timelineActions.map(item => item.sequence),
+    ...source.graph.buffEvents.flatMap(item => item.actions),
+    ...source.graph.abilityEvents.flatMap(item => item.actions),
+    ...source.graph.igniteEvents.flatMap(item => item.actions),
+  ];
+  return sequences
+    .flatMap(sequence => collectNativeActionNodes(sequence))
+    .filter(
+      node =>
+        node.metadata.enabled &&
+        node.body.kind === 'leaf' &&
+        node.body.value.family === 'presentation',
+    )
+    .map(node => node.sourcePath);
 }
 
 function compileBuffApplication(
@@ -672,7 +747,13 @@ function compileBuffApplication(
 ): CompiledBuffStepSource[] {
   if (action.count.blackboardKey !== null || action.count.value !== 1)
     throw new Error(`${sourcePath}: Buff count must be fixed at one`);
-  if (action.target.targetSource !== 'Owner' || action.buffSource !== 'ActionOwner')
+  const target =
+    (action.target.targetGroupKey ?? '') === '' && action.target.targetSource === 'Owner'
+      ? ('caster' as const)
+      : (action.target.targetGroupKey ?? '') === '' && action.target.targetSource === 'Target'
+        ? ('eventTarget' as const)
+        : null;
+  if (target === null || action.buffSource !== 'ActionOwner')
     throw new Error(`${sourcePath}: unsupported Buff target/source`);
   if (
     action.autoFinishByAction ||
@@ -706,7 +787,7 @@ function compileBuffApplication(
         kind: 'applyBuff' as const,
         parameters: {
           buffId: entry.buffId,
-          target: 'caster' as const,
+          target,
           ...(action.inheritSourceSkillCastInfo ? { inheritSourceSkillCastInfo: true } : {}),
           ...(Object.keys(assignments).length === 0 ? {} : { blackboardAssignments: assignments }),
         },
@@ -770,12 +851,12 @@ function scalarOperand(source: ScalarSource): CompiledBuffNumberSource {
   return source.blackboardKey === null ? source.value : { blackboardKey: source.blackboardKey };
 }
 
-function actionValueOperand(
-  source: ScalarSource,
-): { readonly kind: 'constant'; readonly value: number } | {
-  readonly kind: 'blackboard';
-  readonly key: string;
-} {
+function actionValueOperand(source: ScalarSource):
+  | { readonly kind: 'constant'; readonly value: number }
+  | {
+      readonly kind: 'blackboard';
+      readonly key: string;
+    } {
   return source.blackboardKey === null
     ? { kind: 'constant', value: source.value }
     : { kind: 'blackboard', key: source.blackboardKey };
@@ -831,11 +912,10 @@ const COMPARISON_OPERATORS: Readonly<
   LessThan: 'less',
   LessThanOrEqual: 'lessOrEqual',
 };
-const ACTION_VALUE_OPERATIONS: Readonly<
-  Record<string, 'assign' | 'add' | 'multiply' | 'divide'>
-> = {
-  Assign: 'assign',
-  Add: 'add',
-  Multiply: 'multiply',
-  Divide: 'divide',
-};
+const ACTION_VALUE_OPERATIONS: Readonly<Record<string, 'assign' | 'add' | 'multiply' | 'divide'>> =
+  {
+    Assign: 'assign',
+    Add: 'add',
+    Multiply: 'multiply',
+    Divide: 'divide',
+  };

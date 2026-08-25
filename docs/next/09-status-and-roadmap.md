@@ -6,8 +6,8 @@
 > `compiler/buffRuntimeProjection.ts`，被动请求与安装物化也已从领域层收回公共编译层。
 > `architectureBoundaries.test.ts` 现强制公共层不反向依赖领域、严格来源层不依赖编译层、领域之间
 > 不横向耦合，并禁止领域重声明公共战斗定义或建立第二个原生 Action 分派。Operator 等价恢复是
-> 当前最高门禁；完成前停止扩大武器、装备行为覆盖。纠偏前已闭合的
-> `suit_crush_fracture` 作为第 13 套生产回归保留，但不继续第 14 套。
+> 当前最高门禁；该门禁现已由 30/30 干员正式生成满足，套装主线已经恢复。公共层边界继续由测试
+> 固定，领域层不得重新建立专用 Action/Buff 编译器。
 >
 > Operator 新 TypeScript 适配器已经以 combat-spec 为语义依据恢复两条链：CharacterTable 的
 > 身份/默认武器/精确 `(level, breakStage)` 关键帧，以及 CharGrowthTable 的 `Attr(3)` 天赋属性节点。
@@ -22,13 +22,15 @@
 > 23 套 CardSkill 静态候选达到 33 条支持、6 条木桩省略、0 阻塞。配对的 49 个 BuffData 已先在
 > combat-spec 形成 49/49 严格解析闭包，Normal 治疗、过量治疗条件与非空 stack effect 均有真实装备
 > 回归。装备贡献现已能携带 Buff 蓝图与帧 0 初始化程序，并严格合入干员 Buff 运行时。当前
-> 12/23 套已生成并替换旧套装：除 `suit_atk01` 与 `suit_combo_cd01` 外，敏捷/智识套在固定
+> 15/23 套已生成并替换旧套装：除 `suit_atk01` 与 `suit_combo_cd01` 外，敏捷/智识套在固定
 > 满血场景安装 20% 物理/四类术法增伤，意志与两套击杀后收益套也已按木桩边界闭合。服务端额外
 > 黑板值只在 Buff 读集证明未消费时省略，缺失且被读取仍严格阻塞；力量套的玩家受击响应在无敌方
 > 主动行为边界中不可达。火/自然、脉冲/晶体与失衡套已通过公共 `outputBuff` 链闭合；失衡套进一步
 > 按事件真实目标统计匹配 Buff 实例数，不把实例数与增强层数混同。物理套也已按父子 GameplayTag
 > 查询触发 250% 物理伤害与 10 点基础失衡，并由 15 秒全局定时标记限频；真实边境生产场景验证
-> 两次骨折只追加一次套装伤害。下一步按同一严格投影扩大其余 11 套，再推进全武器。
+> 两次骨折只追加一次套装伤害。通用套装与治疗套装也已进入正式生成；治疗套装在满血治疗时按
+> 原生过量治疗条件给真实事件目标施加带图标和 10 秒寿命的高优先级防御 Buff。下一步按同一严格
+> 投影扩大其余 8 套，再推进全武器。
 > 详细恢复说明见 `docs/handoff/current-context.md` 和编译器 README。
 
 ## 1. 当前状态
@@ -457,5 +459,26 @@ ID 当作物品主键。当前 48 条玩家承伤修正只在木桩边界省略�
 - 养成槽口径为天赋 59/60、潜能 150/150；剩余 Avywenna 天赋 1 审计编译器分类继续作为真实缺口。
 - 梨诺正式终结技已在标准生产场景同时跑出对敌伤害与满血治疗回执。多段战技链与槽位替换的组合仍
   保持严格门禁：不阻塞未使用该组的其他技能，但实际放置时原地报错，等待整体替换模型。
-- 下一阶段继续 23 个套装的正式能力投影（当前 10/23），再推进全武器定义、仓库注册、构筑解析与
+- 下一阶段继续 23 个套装的正式能力投影（当前 15/23），再推进全武器定义、仓库注册、构筑解析与
   生产模拟扫表；Avywenna 天赋 1 的养成审计分类与多段技能替换作为两条独立技术债跟踪。
+
+### 2026-08-25：正式套装生成器与治疗套装闭环
+
+- 正式套装身份不再靠手工逐文件维护。`formal_suit_identities.json` 保存已闭环白名单，
+  `generate_formal_suit_definitions.ts` 对每个身份单独严格编译，再原子生成定义、索引和审计；未闭环
+  的同目录套装不会阻塞已完成批次，也不会被自动冒充为正式定义。
+- 正式套装由 13/23 提升到 15/23。`suit_generaltype` 保留终结技能量获取效率与六类伤害增幅，并
+  通过注册别名替换旧 `aic-fieldwork`；`suit_heal01` 保留 20% 输出治疗增幅、`OnOutputHeal`、
+  `CheckOverHeal`/反分支、事件治疗目标以及 10 秒高优先级防御 Buff 的图标和持续时间。
+- `PlaySoundAction` 已依据 combat-spec 的 1.4.4 `ExecuteInternal` 证据进入公共严格来源 IR。字段漂移
+  继续失败关闭；无渲染战斗后端只在投影层把它记为带路径的 `scenario-omitted`，不把声音误当战斗
+  行为，也不因表现动作阻塞数值闭包。
+- 原生 `CheckBuffStackNumAdvanced`/`SaveBuffStackNumAdvanced` 的 `buffStackNumType=BuffCount`
+  已纠正为匹配 Buff 实例数，不再误用累计强化层数。条件使用 `eventTargetBuffCountCompare`，保存值
+  使用显式 `readBuffStackCount.countType='instance'` 并调用实例计数接口；这会直接影响碎甲套的动态
+  物理增伤，因此属于数值修复而非仅重命名。
+- 剩余 8/23 的首阻塞分别集中在 `CheckObtainAtbType`、`AuraAction`、`SkillAffixAction`、
+  `CheckBuffIdInContextAdvanced`、暴击输出/Buff 强化事件、`OnEnterFight` 以及终结技能量套的目标与
+  damageModifier。继续按“会影响对敌输出优先”逐个在 combat-spec 取证，不为自身防御行为扩张规则。
+- 门禁：游戏数据 58 文件 247/247、Next 208 文件 1521/1521、两套 Next/游戏数据类型检查通过；
+  根 `type-check` 仍被旧版目录既有错误阻塞，本批未修改旧版。`tmp/` 继续不提交。

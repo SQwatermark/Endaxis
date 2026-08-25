@@ -1567,3 +1567,26 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
   及全量生成 `--check`。`tmp/` 只保存下载证据，不得提交。
 - 下一步按既定顺序推进剩余 13/23 套装与全武器转换；同时单独设计多段链的技能替换模型。遇到新机制
   仍先在 combat-spec 依据解包/反编译证据完善，再进入 Endaxis。
+
+### 2026-08-25：套装正式生成恢复至 15/23
+
+- 新增可重复的正式套装生成入口：`scripts/generate_next_equipment/formal_suit_identities.json` 只登记
+  已闭环身份，`generate_formal_suit_definitions.ts` 从固定 1.4.4 TableCfg、SkillData、BuffData 对每套
+  单独严格编译，再原子替换 `generated-gear-sets`。本轮登记 `suit_generaltype` 与 `suit_heal01`，正式
+  覆盖达到 15/23；未登记的 8 套继续保留真实阻塞，不会被同批忽略或自动生成。
+- 治疗套完整保留 20% 输出治疗增幅，以及满血也会触发的 `OnOutputHeal`。原生
+  `CheckOverHeal` 与 `NotNextCheckAction` 投影为过量/非过量互斥分支，Buff 施加目标是治疗事件的
+  `eventTarget`；两支分别写入优先级 1/0，并保留 10 秒寿命、防御图标与 HighPriority 叠加。
+- `PlaySoundAction` 依 combat-spec `docs/presentation-actions.md` 的反编译证据做全字段严格解析；无渲染
+  后端只产生精确路径的 `scenario-omitted`。声音和粒子不参与数值，但 Buff 图标与时间轴寿命仍进入
+  正式定义，不能以“表现”名义一并丢弃。
+- 再生成暴露并修复 `BuffCount` 语义漂移：原生条件和保存动作都要求实例数，不能累计增强层数。
+  `eventTargetBuffCountCompare` 与 `readBuffStackCount.countType='instance'` 现共用实例计数接口；碎甲套
+  的 `phy_dmg_up_final` 因此按真实 Buff 实例数计算。
+- 当前剩余首阻塞：`suit_atb01/CheckObtainAtbType`、`suit_atk02/AuraAction`、
+  `suit_attri01/SkillAffixAction`、`suit_burst01` 与 `suit_expend_spell01/CheckBuffIdInContextAdvanced`、
+  `suit_criti01/OnOutputCriticalDamage + OnBuffEnhanceChanged`、`suit_usp01/OnEnterFight`、
+  `suit_usp02` 的目标/来源及 damageModifier。下一步优先处理会改变对敌输出者，再处理木桩场景中
+  不可达的自身承伤收益。
+- 回归通过：游戏数据 247/247、Next 1521/1521、`type-check:game-data` 与 `type-check:next`。根
+  `type-check` 的失败均来自旧版 `src/` 既有错误，本轮未修改旧版。`tmp/` 仍不提交。

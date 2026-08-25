@@ -451,6 +451,46 @@ describe('BuffOperationExecutor', () => {
     expect(blackboard.getNumber('count')).toBe(4);
   });
 
+  it('writes matching Buff instance count when the source explicitly requests BuffCount', () => {
+    const blackboard = new ActionBlackboard();
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => ({
+        ownerId: 'enemy',
+        getCountByIds: () => 0,
+        finishByIds: () => 0,
+        holdByIds: () => ({ release: () => undefined }),
+        getCountByTags: () => 4,
+        getInstanceCountByTags: () => 2,
+        matchesEntityTags: () => false,
+        findFirstByIds: () => undefined,
+        findFirstByTags: () => undefined,
+        finishByTags: () => 0,
+      }),
+      delegate,
+    });
+
+    expect(
+      executor.execute(
+        {
+          kind: 'readBuffStackCount',
+          parameters: {
+            target: 'enemy',
+            outputKey: 'buffCnt',
+            countType: 'instance',
+            query: {
+              kind: 'tag',
+              tagQueryType: 'hasAny',
+              buffTagIds: [gameplayTagIdFromPath('buff/status/fracture')],
+            },
+          },
+        },
+        { blackboard },
+      ),
+    ).toBe(true);
+    expect(blackboard.getNumber('buffCnt')).toBe(2);
+  });
+
   it('resolves action-blackboard assignments before applying a index buff', () => {
     const applied: unknown[] = [];
     const target = {

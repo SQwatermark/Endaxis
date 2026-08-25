@@ -256,8 +256,7 @@ describe('公共 Buff 运行时投影', () => {
               kind: 'conditional',
               parameters: {
                 condition: {
-                  kind: 'buffStackCompare',
-                  target: 'eventTarget',
+                  kind: 'eventTargetBuffCountCompare',
                   tagQueryType: 'hasAny',
                   buffTagIds: [1075718177],
                   operator: 'greaterOrEqual',
@@ -624,6 +623,109 @@ describe('公共 Buff 运行时投影', () => {
                   },
                 ],
               },
+            },
+          ],
+        },
+      },
+    ]);
+  });
+
+  it('把首次启用声音与满血治疗双分支投影到既有 Buff 事件协议', () => {
+    const source = sourceFixture();
+    const nativeEvent = source.graph.abilityEvents[0]!;
+    const nativeSequence = nativeEvent.actions[0]!;
+    const applyNode = nativeSequence.actions[1]!;
+    if (applyNode.body.kind !== 'leaf' || applyNode.body.value.family !== 'buffApplication') {
+      throw new Error('invalid fixture');
+    }
+    const eventTargetApply = {
+      ...applyNode,
+      body: {
+        kind: 'leaf' as const,
+        value: {
+          ...applyNode.body.value,
+          action: {
+            ...applyNode.body.value.action,
+            target: { ...fixedTarget('Target'), targetGroupKey: '' },
+          },
+        },
+      },
+    };
+    const overhealNode = {
+      ...nativeSequence.actions[0]!,
+      body: {
+        kind: 'leaf' as const,
+        value: {
+          family: 'condition' as const,
+          action: {
+            kind: 'overHeal' as const,
+            sourceType: 'CheckOverHeal',
+            overHealKey: '',
+            finalHealKey: '',
+            realHealKey: '',
+          },
+        },
+      },
+    };
+    const negateNode = {
+      sourcePath: 'BuffData.buff_root.not',
+      metadata: { ...applyNode.metadata, serverActionIndex: 2 },
+      body: { kind: 'negateNextResult' as const },
+    };
+    const presentationNode = {
+      sourcePath: 'BuffData.buff_root.sound',
+      metadata: applyNode.metadata,
+      body: {
+        kind: 'leaf' as const,
+        value: {
+          family: 'presentation' as const,
+          action: {
+            kind: 'playSound' as const,
+            soundEvent: 'au_int_cure_one',
+          } as never,
+        },
+      },
+    };
+    const compiled = compileBuffRuntimeDefinitionSource({
+      ...source,
+      graph: {
+        ...source.graph,
+        buffEvents: [
+          {
+            event: 'OnBuffStart',
+            actions: [{ ...nativeSequence, actions: [applyNode, presentationNode] }],
+          },
+        ],
+        abilityEvents: [
+          {
+            ...nativeEvent,
+            event: 'OnOutputHeal',
+            actions: [
+              { ...nativeSequence, actions: [overhealNode, eventTargetApply] },
+              { ...nativeSequence, actions: [negateNode, overhealNode, eventTargetApply] },
+            ],
+          },
+        ],
+      },
+    });
+
+    expect(compiled.lifecycleSequences).toMatchObject({
+      start: { steps: [{ kind: 'applyBuff', parameters: { target: 'caster' } }] },
+    });
+    expect(compiled.abilityEventResponses).toMatchObject([
+      {
+        event: 'outputHeal',
+        sequence: {
+          steps: [
+            {
+              parameters: { condition: { kind: 'eventOverheal' } },
+              whenTrue: { steps: [{ parameters: { target: 'eventTarget' } }] },
+            },
+            {
+              parameters: {
+                condition: { kind: 'not', condition: { kind: 'eventOverheal' } },
+              },
+              whenTrue: { steps: [{ parameters: { target: 'eventTarget' } }] },
             },
           ],
         },

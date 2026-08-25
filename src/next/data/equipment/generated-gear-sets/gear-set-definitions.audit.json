@@ -1,9 +1,39 @@
 {
   "format": "EndaxisGeneratedGearSetAudit",
   "version": 1,
-  "definitionCount": 13,
-  "buffDefinitionCount": 27,
+  "definitionCount": 15,
+  "buffDefinitionCount": 29,
   "diagnostics": [
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "SkillData.passive_equipsuit_generaltype.cardAttributeModifier.attributeModifiers[1]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "SkillData.passive_equipsuit_generaltype.cardAttributeModifier.attributeModifiers[2]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "SkillData.passive_equipsuit_generaltype.cardAttributeModifier.attributeModifiers[3]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "SkillData.passive_equipsuit_generaltype.cardAttributeModifier.attributeModifiers[4]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "SkillData.passive_equipsuit_generaltype.cardAttributeModifier.attributeModifiers[5]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "SkillData.passive_equipsuit_generaltype.cardAttributeModifier.attributeModifiers[6]",
+      "reason": "playerDamageTakenRequiresEnemyActiveDamage"
+    },
     {
       "status": "scenario-omitted",
       "sourcePath": "SkillData.passive_equipsuit_agi_01.buffs.buff_equipsuit_agi_01.agi",
@@ -16,8 +46,13 @@
     },
     {
       "status": "scenario-omitted",
-      "sourcePath": "BuffData.buff_equipsuit_wisdwill_01.abilityEventAction",
-      "reason": "enemy-defeated response occurs after the fixed single target simulation has ended"
+      "sourcePath": "BuffData.buff_common_vfx_char_atk_up.stackingSettings.stackEffects",
+      "reason": "particle-only stack effect does not affect the fixed-target damage simulation"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "BuffData.buff_common_vfx_char_atk_up.stackingSettings.stackEffects",
+      "reason": "particle-only stack effect does not affect the fixed-target damage simulation"
     },
     {
       "status": "scenario-omitted",
@@ -26,8 +61,13 @@
     },
     {
       "status": "scenario-omitted",
-      "sourcePath": "BuffData.buff_common_vfx_char_atk_up.stackingSettings.stackEffects",
+      "sourcePath": "BuffData.buff_common_vfx_char_def_up.stackingSettings.stackEffects",
       "reason": "particle-only stack effect does not affect the fixed-target damage simulation"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "BuffData.buff_common_dmgtk_down_equip_1.buffEventAction[0].actions[0].actionData[0]",
+      "reason": "strictly validated presentation action has no effect in the non-rendering combat backend"
     },
     {
       "status": "scenario-omitted",
@@ -58,11 +98,6 @@
       "status": "scenario-omitted",
       "sourcePath": "SkillData.passive_equipsuit_str_01.buffs.buff_equipsuit_str_01.str",
       "reason": "unmaterialized server passive skill blackboard value \"str\" is never read by the installed Buff"
-    },
-    {
-      "status": "scenario-omitted",
-      "sourcePath": "BuffData.buff_common_vfx_char_atk_up.stackingSettings.stackEffects",
-      "reason": "particle-only stack effect does not affect the fixed-target damage simulation"
     },
     {
       "status": "scenario-omitted",

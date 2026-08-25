@@ -366,14 +366,34 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         ? this.#requireSkillCastId(context, 'readBuffStackCount')
         : undefined;
       const count =
-        step.parameters.query.kind === 'tag'
-          ? target.getCountByTags(
-              step.parameters.query.buffTagIds.map(gameplayTagId),
-              step.parameters.query.tagQueryType,
-              false,
-              skillCastId,
-            )
-          : target.getCountByIds(step.parameters.query.buffIds, skillCastId);
+        step.parameters.countType === 'instance'
+          ? (() => {
+              if (
+                step.parameters.query.kind !== 'tag' ||
+                target.getInstanceCountByTags === undefined
+              ) {
+                throw new Error(
+                  'readBuffStackCount instance mode requires a tag query and Buff instance counting',
+                );
+              }
+              if (skillCastId !== undefined) {
+                throw new Error(
+                  'readBuffStackCount instance mode does not support sameSourceSkillCast',
+                );
+              }
+              return target.getInstanceCountByTags(
+                step.parameters.query.buffTagIds.map(gameplayTagId),
+                step.parameters.query.tagQueryType,
+              );
+            })()
+          : step.parameters.query.kind === 'tag'
+            ? target.getCountByTags(
+                step.parameters.query.buffTagIds.map(gameplayTagId),
+                step.parameters.query.tagQueryType,
+                false,
+                skillCastId,
+              )
+            : target.getCountByIds(step.parameters.query.buffIds, skillCastId);
       context.blackboard.assignDynamic(step.parameters.outputKey, count);
       return true;
     }

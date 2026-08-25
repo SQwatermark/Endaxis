@@ -7,6 +7,7 @@ import type {
 } from '../../compiler/buffRuntimeProjection.ts';
 import {
   buffRuntimeReadsBlackboardKey,
+  collectBuffRuntimePresentationActionPaths,
   collectBuffRuntimeClosure,
   compileBuffRuntimeDefinitionSource,
   isAfterEnemyDefeatedOnlyBuffRuntime,
@@ -134,6 +135,14 @@ export function compileEquipmentSuitRuntimeBatchSource(
     let blocked = false;
     for (const [buffId, source] of sources) {
       if (visualOnlyIds.has(buffId)) continue;
+      for (const sourcePath of collectBuffRuntimePresentationActionPaths(source)) {
+        diagnostics.push({
+          status: 'scenario-omitted',
+          sourcePath,
+          reason:
+            'strictly validated presentation action has no effect in the non-rendering combat backend',
+        });
+      }
       const omittedAbilityEvents = new Set<string | number>();
       for (const event of source.graph.abilityEvents) {
         if (event.event !== 'OnTakeDamage') continue;

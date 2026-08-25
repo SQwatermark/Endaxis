@@ -21,9 +21,10 @@ describe('sharedEquipmentDefinitions', () => {
     expect(
       sharedGearDefinitions.some(definition => definition.slug === 'xiranflow-light-armor'),
     ).toBe(true);
-    expect(sharedGearSetDefinitions.some(definition => definition.slug === 'aic-fieldwork')).toBe(
-      true,
-    );
+    expect(
+      sharedGearSetDefinitions.some(definition => definition.slug === 'suit_generaltype'),
+    ).toBe(true);
+    expect(nextGearSetDefinitionRegistration.aliases['aic-fieldwork']).toBe('suit_generaltype');
     expect(
       sharedWeaponDefinitions.some(definition => definition.slug === 'bedazzling-night-debut'),
     ).toBe(true);

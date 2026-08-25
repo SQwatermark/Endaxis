@@ -768,7 +768,7 @@ export interface CombatStepParameters {
     desiredKey: string;
     outputKey: string;
   };
-  /** 查询匹配 Buff 的累计层数，并写入当前技能实例的动作黑板。 */
+  /** 查询匹配 Buff 的累计强化层数或实例数，并写入当前技能实例的动作黑板。 */
   readBuffStackCount: {
     target: BuffSingleTarget;
     outputKey: string;
@@ -781,6 +781,8 @@ export interface CombatStepParameters {
           buffTagIds: readonly number[];
         };
     sameSourceSkillCast?: boolean;
+    /** 缺省保持历史的累计强化层数；原生 BuffCount 必须显式使用 instance。 */
+    countType?: 'enhance' | 'instance';
   };
   /** 按原生标签查询结束目标身上的匹配 Buff；count 缺省时结束全部。 */
   finishBuffsByTag: {
