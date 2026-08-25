@@ -1802,6 +1802,18 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 全技能基线更新为 292/301 成功、9 项精确失败。其余首次命中计数和连携入口参数继续分别取证，
   不把所有缺失的 `EntityBB_*` 一律解释为零。
 
+### 2026-08-26：萤石角色模板连携入口闭环
+
+- 从本地 1.4.4 VFS 精确导出 `data_chr_0022_bounda.asset` 的原始 MonoBehaviour，并沿
+  `CharacterTemplateData -> AbilitySystemData -> SkillDataBundle` 恢复两条事件值 121 的连携条件。
+  两条规则分别检查敌人寒冷 Tag `1570888476` / 自然 Tag `-1411846745` 的 Buff 层数至少为 1，
+  再由元素掩码 `0x04/0x08` 写入 `EntityBB_combo_index=2/3`。
+- 同版本安塔尔模板的同事件、`0x0f` 元素掩码与既有 `0..3` 分支映射提供交叉证据；没有从萤石技能
+  名称反推枚举。正式 manifest 已加入角色级注册和逐规则候选黑板。时间轴无合法窗口时继续产生
+  `ComboWindowUnavailableAtStart`，同时以 `-1` 哨兵跳过两个元素附着分支，公共自然伤害仍执行。
+- 萤石连携独立放置现可完整模拟，全技能基线提升为 293/301 成功、8 项精确失败。剩余缺键不能
+  依此统一补零：Estella/Tangtang 是首次命中生命周期，Rossi 是多阶段 QTE 状态，证据边界不同。
+
 ### 2026-08-25：套装正式生成恢复至 15/23
 
 - 新增可重复的正式套装生成入口：`scripts/generate_next_equipment/formal_suit_identities.json` 只登记

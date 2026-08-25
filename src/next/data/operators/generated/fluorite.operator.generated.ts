@@ -1184,6 +1184,7 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
         ],
     } },
   },
+  comboSkillRegistrations: [{ skillKey: 'comboSkill', priority: 'default', invalidCastBlackboard: { EntityBB_combo_index: -1 }, rules: [{ trigger: { kind: 'elementalInflictionApplied', elements: 'cryo', scope: 'team' }, condition: { kind: 'buffStackCompare', target: 'enemy', tagQueryType: 'hasAny', buffTagIds: [1570888476], operator: 'greaterOrEqual', value: { kind: 'constant', value: 1 } }, blackboard: { EntityBB_combo_index: 2 } }, { trigger: { kind: 'elementalInflictionApplied', elements: 'nature', scope: 'team' }, condition: { kind: 'buffStackCompare', target: 'enemy', tagQueryType: 'hasAny', buffTagIds: [-1411846745], operator: 'greaterOrEqual', value: { kind: 'constant', value: 1 } }, blackboard: { EntityBB_combo_index: 3 } }] }],
   talents: [
     {
       key: 'talent1',

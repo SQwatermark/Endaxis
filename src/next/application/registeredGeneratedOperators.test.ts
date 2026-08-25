@@ -9,6 +9,7 @@ import { resolveScenarioBuilds } from '../core/compiler/resolveScenarioBuilds';
 import { createEmptyScenario } from '../core/project/createProject';
 import { nextGameDataRepository } from '../data/gameDataRepository';
 import { elementalAttachments } from '../data/buffs/elementalAttachments';
+import { skillSettings } from '../data/combat/skillSettings';
 import { scheduled, sequence, step } from '../data/operators/definitionHelpers';
 import {
   alesh,
@@ -1027,7 +1028,7 @@ describe('registered generated operators', () => {
         `scenario:fluorite:potential5:${potential}`,
         '萤石潜能五默认仓库回归',
       );
-      scenario.battle.durationFrames = 1175;
+      scenario.battle.durationFrames = 1310;
       scenario.tracks[0] = {
         id: 'track:fluorite',
         operator: {
@@ -1048,8 +1049,16 @@ describe('registered generated operators', () => {
         scenario,
         trackIndex: 0,
         operator: fluorite,
-        skillGroupKey: 'comboSkill',
+        skillGroupKey: 'battleSkill',
         startFrame: 1,
+        ids: { allocate: kind => `${kind}:fluorite:${potential}:battle` },
+      }).scenario;
+      placed = placeSkillGroup({
+        scenario: placed,
+        trackIndex: 0,
+        operator: fluorite,
+        skillGroupKey: 'comboSkill',
+        startFrame: 135,
         ids: { allocate: kind => `${kind}:fluorite:${potential}:first` },
       }).scenario;
       placed = placeSkillGroup({
@@ -1057,26 +1066,16 @@ describe('registered generated operators', () => {
         trackIndex: 0,
         operator: fluorite,
         skillGroupKey: 'comboSkill',
-        startFrame: 1128,
+        startFrame: 1262,
         ids: { allocate: kind => `${kind}:fluorite:${potential}:second` },
       }).scenario;
-      const comboDefinition = fluorite.skillGroups.find(group => group.key === 'comboSkill')
-        ?.skills as SkillDefinition | undefined;
-      if (comboDefinition === undefined) {
-        throw new Error('missing Fluorite combo definition');
-      }
-      placed.tracks[0]!.skillCasts.forEach(cast => {
-        cast.customDefinition = {
-          ...comboDefinition,
-          blackboard: { ...comboDefinition.blackboard, EntityBB_combo_index: 2 },
-        };
-      });
 
       return runStandardPlayerDamageScenarioSimulation({
         scenario: placed,
-        endFrame: 1175,
+        endFrame: 1310,
         criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
         elementalInflictionDocument: elementalAttachments,
+        spellInflictionSettings: skillSettings,
         resolveNonRandomRuntimeSnapshot: () => ({
           runtimeExtensionMultiplier: 1,
           appliesIgniteDamageMultiplier: false,

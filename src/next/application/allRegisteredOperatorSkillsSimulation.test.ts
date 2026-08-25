@@ -47,8 +47,6 @@ const knownFailures: Readonly<Record<string, string>> = {
   'arcane/comboSkill/base/comboSkill':
     "ability event 'beforeTakeDamage' has multiple actions at unresolved priority 0",
   'estella/battleSkill/base/battleSkill': "action blackboard value 'EntityBB_first_hit' is missing",
-  'fluorite/comboSkill/base/comboSkill':
-    "action blackboard value 'EntityBB_combo_index' is missing",
   'rossi/comboSkill/base/comboSkill3':
     "action blackboard value 'EntityBB_Combo_QTE_Trigger' is missing",
   'tangtang/basicAttack/base/basicAttack5':
@@ -66,7 +64,7 @@ describe('所有正式干员技能逐项放置与模拟', () => {
   it('覆盖默认仓库中的每个干员和每个基础/变体技能', () => {
     expect(nextGameDataRepository.getOperators()).toHaveLength(30);
     expect(cases).toHaveLength(301);
-    expect(Object.keys(knownFailures)).toHaveLength(9);
+    expect(Object.keys(knownFailures)).toHaveLength(8);
     expect(
       new Set(
         cases.map(
