@@ -1953,6 +1953,52 @@ describe('CombatRuntimeAssembly', () => {
           operatorId: 'operator',
           skills: [gainSkill],
           buffRuntime,
+          initializationPrograms: [
+            {
+              key: 'skill-sp-buff-listener',
+              sequence: {
+                steps: [
+                  {
+                    kind: 'applyBuff',
+                    parameters: {
+                      buffId: 'skill-sp-listener',
+                      target: 'caster',
+                      definition: {
+                        stackingType: 'unique',
+                        abilityEventResponses: [
+                          {
+                            event: 'skillSpGained',
+                            priority: 0,
+                            sequence: {
+                              steps: [
+                                {
+                                  kind: 'applyBuff',
+                                  parameters: {
+                                    buffId: 'skill-sp-listener-attack',
+                                    target: 'caster',
+                                    definition: {
+                                      stackingType: 'unique',
+                                      attributeModifiers: [
+                                        {
+                                          attribute: 'Atk',
+                                          slot: 'baseMultiplier',
+                                          value: 0.1,
+                                        },
+                                      ],
+                                    },
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          ],
           upgradeEventPrograms: [
             {
               key: 'potential:skill-sp-attack:0',
@@ -1987,8 +2033,9 @@ describe('CombatRuntimeAssembly', () => {
     expect(assembly.tryStartSkill('operator', 'sp-skill')).toBe(true);
     assembly.advanceFrame();
     expect(assembly.resources.sp).toBe(20);
-    expect(attributes.get('Atk')).toBe(550);
+    expect(attributes.get('Atk')).toBe(600);
     expect(buffs.getCountByIds(['skill-sp-attack'])).toBe(1);
+    expect(buffs.getCountByIds(['skill-sp-listener-attack'])).toBe(1);
   });
 
   it('opens and consumes the matching combo window without blocking other skills', () => {

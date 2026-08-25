@@ -8,6 +8,9 @@ import {
   type BuffActionGraphSource,
 } from './buffActionGraph.ts';
 import type { KnownNativeActionLeafSource } from './actionLeaf.ts';
+import { parseKnownNativeActionLeafSource } from './actionLeaf.ts';
+import { parseDamageProcessors, type DamageProcessorSource } from './damageActions.ts';
+import { parseNativeSequenceSource, type NativeSequenceSource } from './controlFlow.ts';
 import {
   requireArray,
   requireBoolean,
@@ -73,6 +76,12 @@ export interface UnsupportedBuffPayloadSource {
   readonly entryCount: number;
 }
 
+export interface BuffDamageModifierSource {
+  readonly enabledSide: string;
+  readonly condition: NativeSequenceSource<KnownNativeActionLeafSource>;
+  readonly processors: readonly DamageProcessorSource[];
+}
+
 /**
  * BuffData 的公共、可审计运行时切片。根字段先由动作图读取器做精确校验；这里再保留生命
  * 周期、图标、标签和属性修正，并把尚未结构化的非空载荷显式列出。
@@ -82,6 +91,7 @@ export interface BuffRuntimeSource {
   readonly presentation: BuffPresentationSource;
   readonly lifecycle: BuffLifecycleSource;
   readonly attributeModifiers: GameplayAttributeModifierSource;
+  readonly damageModifiers: readonly BuffDamageModifierSource[];
   readonly applyTagIds: readonly number[];
   readonly extendTagIds: readonly number[];
   readonly unsupportedPayloads: readonly UnsupportedBuffPayloadSource[];
@@ -108,7 +118,6 @@ export function parseBuffRuntimeSource(
 
   validatePassiveFlags(root, sourcePath, localBlackboard);
   const unsupportedPayloads = [
-    ...unsupportedArray(root, sourcePath, 'damageModifier'),
     ...unsupportedArray(root, sourcePath, 'healModifier'),
     ...unsupportedArray(root, sourcePath, 'poiseModifier'),
     ...unsupportedArray(root, sourcePath, 'globalModifier'),
@@ -203,6 +212,11 @@ export function parseBuffRuntimeSource(
       `${sourcePath}.attributeModifier`,
       localBlackboard,
     ),
+    damageModifiers: parseBuffDamageModifiers(
+      root.damageModifier,
+      `${sourcePath}.damageModifier`,
+      localBlackboard,
+    ),
     applyTagIds: parseTagIds(root.applyTags, `${sourcePath}.applyTags`),
     extendTagIds: parseTagIds(
       root.tagsAfterTriggerExtendBuffAction,
@@ -210,6 +224,32 @@ export function parseBuffRuntimeSource(
     ),
     unsupportedPayloads,
   };
+}
+
+function parseBuffDamageModifiers(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): readonly BuffDamageModifierSource[] {
+  return requireArray(value, path).map((raw, index) => {
+    const itemPath = `${path}[${index}]`;
+    const item = requireRecord(raw, itemPath);
+    requireExactFields(item, new Set(['enableSide', 'condition', 'damageProcessors']), itemPath);
+    return {
+      enabledSide: requireNonEmptyString(item.enableSide, `${itemPath}.enableSide`),
+      condition: parseNativeSequenceSource(
+        item.condition,
+        `${itemPath}.condition`,
+        inheritedBlackboard,
+        (leaf, leafPath) => parseKnownNativeActionLeafSource(leaf, leafPath, inheritedBlackboard),
+      ),
+      processors: parseDamageProcessors(
+        item.damageProcessors,
+        `${itemPath}.damageProcessors`,
+        inheritedBlackboard,
+      ),
+    };
+  });
 }
 
 function parsePresentation(

@@ -494,6 +494,64 @@ describe('attachBuffLifecycleSequences', () => {
     expect(reached).toEqual(['enemyDefeated', 'enemyDefeated']);
   });
 
+  it('把编译后的 Skill/Gain 技力事实作为 Buff 语义事件上下文', () => {
+    const reached: string[] = [];
+    let handler:
+      | ((event: {
+          readonly kind: 'spGained';
+          readonly sourceOperatorId: string;
+          readonly source: 'skill';
+          readonly gainKind: 'gain';
+          readonly amount: number;
+        }) => void)
+      | undefined;
+    const definition = attachBuffLifecycleSequences<never>(
+      { id: 'skill-sp-listener', stackingType: 'unique' },
+      {},
+      () => ({
+        execute: (_step, context) => {
+          reached.push(context!.event!.kind);
+          return true;
+        },
+        evaluate: () => true,
+      }),
+      undefined,
+      [
+        {
+          event: 'skillSpGained',
+          priority: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'setContextFlag',
+                parameters: { flag: 'reached', value: true, target: 'caster' },
+              },
+            ],
+          },
+        },
+      ],
+      undefined,
+      [],
+      [],
+      [],
+      (_event, _priority, callback) => {
+        handler = callback as typeof handler;
+        return { dispose: () => (handler = undefined) };
+      },
+    );
+    const container = new CombatBuffContainer<never>('operator', new CombatAttributeSet<never>());
+    container.add(definition, 'operator')!;
+
+    handler!({
+      kind: 'spGained',
+      sourceOperatorId: 'operator',
+      source: 'skill',
+      gainKind: 'gain',
+      amount: 20,
+    });
+    expect(reached).toEqual(['spGained']);
+  });
+
   it('事件响应可以结束正在执行响应的 Buff 并立即注销自身订阅', () => {
     let executions = 0;
     const terminal: CombatOperationExecutor = {

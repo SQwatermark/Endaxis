@@ -509,3 +509,15 @@ ID 当作物品主键。当前 48 条玩家承伤修正只在木桩边界省略�
   的可视 Buff，图标为 `icon_battle_spell_up`。
 - 正式套装现为 17/23，剩余 6 套继续按对敌输出优先。门禁为游戏数据 248/248、Next 1523/1523，
   两个专用类型检查通过。
+
+### 2026-08-26：技力套正式闭环
+
+- `suit_atb01` 严格融合 `OnObtainAtb + CheckObtainAtbType(Skill, Gain)` 为已有
+  `spGained(skill, gain)` 语义监听；未引入平行 ATB 模型。原生无过滤 `CharacterTeamFinder` 只有在
+  完整选择器形状成立时归约为全队目标。
+- 套装保留连携冷却 0.85 倍；技能实际增加共享技力后，全队获得 15 秒普通乘区 +16% Buff，图标和
+  持续时间进入正式轴上可视数据。公共 Buff 编译器同时支持无条件
+  `DamageScaleProcessor(Attacker, NormalCalcZone)`，其他 damageModifier 形状继续失败关闭。
+- 正式套装提升为 18/23。剩余 `suit_atk02`、`suit_attri01`、`suit_expend_spell01`、
+  `suit_usp01`、`suit_usp02`，继续按会影响对敌伤害且证据完整的链优先。
+- 门禁更新为游戏数据 251/251、Next 1525/1525，两套专用类型检查通过。

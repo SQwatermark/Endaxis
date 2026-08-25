@@ -55,6 +55,17 @@ export interface CompiledBuffAttributeModifierSource {
   readonly value: CompiledBuffNumberSource;
 }
 
+export interface CompiledBuffDamageModifierSource {
+  readonly enabledSide: 'attacker' | 'defender';
+  readonly processors: readonly {
+    readonly kind: 'damageScale';
+    readonly side: 'attacker' | 'defender';
+    readonly zone:
+      'product' | 'normal' | 'abnormalAndBurst' | 'enhanced' | 'combo' | 'vulnerable' | 'race';
+    readonly addition: CompiledBuffNumberSource;
+  }[];
+}
+
 export type CompiledBuffConditionSource =
   | {
       readonly kind: 'eventOverheal';
@@ -135,7 +146,7 @@ export type CompiledBuffStepSource =
       readonly kind: 'applyBuff';
       readonly parameters: {
         readonly buffId: string;
-        readonly target: 'caster' | 'eventTarget' | 'buffOwner';
+        readonly target: 'caster' | 'eventTarget' | 'buffOwner' | 'party';
         readonly inheritSourceSkillCastInfo?: boolean;
         readonly blackboardAssignments?: Readonly<
           Record<
@@ -224,6 +235,7 @@ export interface CompiledBuffDefinitionSource {
   readonly extendTagIds: readonly number[];
   readonly blackboard: Readonly<Record<string, number | string>>;
   readonly attributeModifiers: readonly CompiledBuffAttributeModifierSource[];
+  readonly damageModifiers?: readonly CompiledBuffDamageModifierSource[];
   readonly lifecycleSequences?: {
     readonly start?: CompiledBuffSequenceSource;
     readonly enable?: CompiledBuffSequenceSource;
@@ -236,7 +248,9 @@ export interface CompiledBuffDefinitionSource {
       | 'outputBuff'
       | 'beforeOutputPhysicalInfliction'
       | 'outputCriticalDamage'
-      | 'outputHeal';
+      | 'outputHeal'
+      /** 已严格融合 CheckObtainAtbType(Skill, Gain) 的共享技力事实事件。 */
+      | 'skillSpGained';
     readonly priority: 0;
     readonly sequence: CompiledBuffSequenceSource;
   }[];
@@ -325,6 +339,7 @@ export function compileBuffRuntimeDefinitionSource(
   const beforeOutputPhysicalInflictionSteps: CompiledBuffStepSource[] = [];
   const outputCriticalDamageSteps: CompiledBuffStepSource[] = [];
   const outputHealSteps: CompiledBuffStepSource[] = [];
+  const skillSpGainedSteps: CompiledBuffStepSource[] = [];
   for (const event of source.graph.abilityEvents) {
     if (omittedAbilityEvents.has(event.event)) continue;
     const target =
@@ -338,11 +353,18 @@ export function compileBuffRuntimeDefinitionSource(
               ? outputCriticalDamageSteps
               : event.event === 'OnOutputHeal'
                 ? outputHealSteps
-                : null;
+                : event.event === 'OnObtainAtb'
+                  ? skillSpGainedSteps
+                  : null;
     if (target === null)
       throw new Error(`unsupported ability event ${JSON.stringify(event.event)}`);
-    for (const sequence of event.actions)
-      target.push(...compileLinearSequence(sequence, visualOnlyIds).steps);
+    for (const sequence of event.actions) {
+      const compiled =
+        event.event === 'OnObtainAtb'
+          ? compileSkillSpGainSequence(sequence, visualOnlyIds)
+          : compileLinearSequence(sequence, visualOnlyIds);
+      target.push(...compiled.steps);
+    }
   }
   const blackboard = Object.fromEntries(
     source.graph.declaredBlackboard.map(item => [item.key, item.value]),
@@ -401,6 +423,7 @@ export function compileBuffRuntimeDefinitionSource(
         value: scalarOperand(modifier.parameter),
       };
     }),
+    ...compileBuffDamageModifiers(source),
     ...(startSequences.length === 0 &&
     enableSequences.length === 0 &&
     enhanceChangedSequences.length === 0 &&
@@ -420,7 +443,8 @@ export function compileBuffRuntimeDefinitionSource(
     outputBuffSteps.length === 0 &&
     beforeOutputPhysicalInflictionSteps.length === 0 &&
     outputCriticalDamageSteps.length === 0 &&
-    outputHealSteps.length === 0
+    outputHealSteps.length === 0 &&
+    skillSpGainedSteps.length === 0
       ? {}
       : {
           abilityEventResponses: [
@@ -469,9 +493,93 @@ export function compileBuffRuntimeDefinitionSource(
                     sequence: { steps: outputHealSteps },
                   },
                 ]),
+            ...(skillSpGainedSteps.length === 0
+              ? []
+              : [
+                  {
+                    event: 'skillSpGained' as const,
+                    priority: 0 as const,
+                    sequence: { steps: skillSpGainedSteps },
+                  },
+                ]),
           ],
         }),
   };
+}
+
+function compileBuffDamageModifiers(source: BuffRuntimeSource): {
+  readonly damageModifiers?: readonly CompiledBuffDamageModifierSource[];
+} {
+  const modifiers = source.damageModifiers.map((modifier, index) => {
+    if (
+      modifier.condition.onlyExecuteWhenSourceIsMainCharacter ||
+      modifier.condition.onlyExecuteWhenSourceIsGuard ||
+      modifier.condition.actions.some(node => node.metadata.enabled)
+    ) {
+      throw new Error(`damageModifier[${index}]: conditional damage modifiers are unsupported`);
+    }
+    const enabledSide = DAMAGE_MODIFIER_SIDES[modifier.enabledSide];
+    if (enabledSide === undefined) {
+      throw new Error(
+        `damageModifier[${index}]: unsupported enabled side ${JSON.stringify(modifier.enabledSide)}`,
+      );
+    }
+    const processors = modifier.processors.map((processor, processorIndex) => {
+      if (processor.kind !== 'damageScale') {
+        throw new Error(
+          `damageModifier[${index}].damageProcessors[${processorIndex}]: unsupported processor ${processor.kind}`,
+        );
+      }
+      const side = DAMAGE_MODIFIER_SIDES[processor.side];
+      const zone = DAMAGE_SCALE_ZONES[processor.zoneName];
+      if (side === undefined || zone === undefined) {
+        throw new Error(
+          `damageModifier[${index}].damageProcessors[${processorIndex}]: unsupported side/zone`,
+        );
+      }
+      return {
+        kind: 'damageScale' as const,
+        side,
+        zone,
+        addition: scalarOperand(processor.addition),
+      };
+    });
+    if (processors.length === 0) {
+      throw new Error(`damageModifier[${index}]: expected at least one processor`);
+    }
+    return { enabledSide, processors };
+  });
+  return modifiers.length === 0 ? {} : { damageModifiers: modifiers };
+}
+
+function compileSkillSpGainSequence(
+  source: NativeSequenceSource<KnownNativeActionLeafSource>,
+  visualOnlyIds: ReadonlySet<string>,
+): CompiledBuffSequenceSource {
+  if (source.onlyExecuteWhenSourceIsMainCharacter || source.onlyExecuteWhenSourceIsGuard) {
+    throw new Error('OnObtainAtb sequence owner/guard root filters are unsupported');
+  }
+  const nodes = source.actions.filter(node => node.metadata.enabled);
+  const [filter, ...body] = nodes;
+  if (
+    filter?.body.kind !== 'leaf' ||
+    filter.body.value.family !== 'condition' ||
+    filter.body.value.action.kind !== 'obtainAtbType'
+  ) {
+    throw new Error('OnObtainAtb response must begin with CheckObtainAtbType');
+  }
+  const condition = filter.body.value.action;
+  if (
+    !condition.checkObtainType ||
+    condition.obtainTypes.length !== 1 ||
+    condition.obtainTypes[0] !== 'Skill' ||
+    !condition.checkObtainMethod ||
+    condition.obtainMethods.length !== 1 ||
+    condition.obtainMethods[0] !== 'Gain'
+  ) {
+    throw new Error(`${filter.sourcePath}: only CheckObtainAtbType(Skill, Gain) can be projected`);
+  }
+  return { steps: compileLinearNodes(body, visualOnlyIds) };
 }
 
 function compileLinearSequence(
@@ -488,6 +596,7 @@ function compileLinearSequence(
 function compileLinearNodes(
   nodes: readonly NativeActionNodeSource<KnownNativeActionLeafSource>[],
   visualOnlyIds: ReadonlySet<string>,
+  partyTargetGroups: ReadonlySet<string> = new Set(),
 ): CompiledBuffStepSource[] {
   if (nodes.length === 0) return [];
   const [first, ...rest] = nodes;
@@ -497,7 +606,7 @@ function compileLinearNodes(
     const condition = compileEventCondition(next);
     if (condition === null)
       throw new Error(`${first!.sourcePath}: NotNextCheckAction must precede a condition`);
-    const body = compileLinearNodes(bodyNodes, visualOnlyIds);
+    const body = compileLinearNodes(bodyNodes, visualOnlyIds, partyTargetGroups);
     return body.length === 0
       ? []
       : [
@@ -508,14 +617,35 @@ function compileLinearNodes(
           },
         ];
   }
+  if (first!.body.kind === 'leaf' && first!.body.value.family === 'targetGroup') {
+    const action = first!.body.value.action;
+    if (
+      action.producerType !== 'FindTargetAction' ||
+      action.finderType !== 'CharacterTeamFinder' ||
+      action.validatorTypes.length !== 0 ||
+      action.postProcessorTypes.length !== 0 ||
+      action.center !== 'ActionOwner' ||
+      action.centerContextKey !== '' ||
+      action.selectorOwner !== 'ActionOwner' ||
+      action.selectorOwnerContextKey !== ''
+    ) {
+      throw new Error(`${first!.sourcePath}: unsupported Buff target group query`);
+    }
+    const nextGroups = new Set(partyTargetGroups);
+    nextGroups.add(action.targetGroupKey);
+    return compileLinearNodes(rest, visualOnlyIds, nextGroups);
+  }
   const condition = compileEventCondition(first!);
   if (condition !== null) {
-    const body = compileLinearNodes(rest, visualOnlyIds);
+    const body = compileLinearNodes(rest, visualOnlyIds, partyTargetGroups);
     return body.length === 0
       ? []
       : [{ kind: 'conditional', parameters: { condition }, whenTrue: { steps: body } }];
   }
-  return [...compileActionNode(first!, visualOnlyIds), ...compileLinearNodes(rest, visualOnlyIds)];
+  return [
+    ...compileActionNode(first!, visualOnlyIds, partyTargetGroups),
+    ...compileLinearNodes(rest, visualOnlyIds, partyTargetGroups),
+  ];
 }
 
 function compileEventCondition(
@@ -657,6 +787,7 @@ function compileConditionSequence(
 function compileActionNode(
   node: NativeActionNodeSource<KnownNativeActionLeafSource>,
   visualOnlyIds: ReadonlySet<string>,
+  partyTargetGroups: ReadonlySet<string> = new Set(),
 ): CompiledBuffStepSource[] {
   if (node.body.kind === 'ifElse') {
     if (!node.body.alwaysNext)
@@ -677,7 +808,12 @@ function compileActionNode(
     throw new Error(`${node.sourcePath}: unsupported Buff runtime action`);
   }
   if (node.body.value.family === 'buffApplication') {
-    return compileBuffApplication(node.body.value.action, visualOnlyIds, node.sourcePath);
+    return compileBuffApplication(
+      node.body.value.action,
+      visualOnlyIds,
+      node.sourcePath,
+      partyTargetGroups,
+    );
   }
   if (node.body.value.family === 'buffFinish') {
     const action = node.body.value.action;
@@ -815,6 +951,7 @@ function compileBuffApplication(
   action: BuffApplicationActionSource,
   visualOnlyIds: ReadonlySet<string>,
   sourcePath: string,
+  partyTargetGroups: ReadonlySet<string> = new Set(),
 ): CompiledBuffStepSource[] {
   if (action.count.blackboardKey !== null || action.count.value !== 1)
     throw new Error(`${sourcePath}: Buff count must be fixed at one`);
@@ -838,7 +975,10 @@ function compileBuffApplication(
       ? ('buffOwner' as const)
       : (action.target.targetGroupKey ?? '') === '' && action.target.targetSource === 'Target'
         ? ('eventTarget' as const)
-        : null;
+        : action.target.targetSource === 'Context' &&
+            partyTargetGroups.has(action.target.targetGroupKey ?? '')
+          ? ('party' as const)
+          : null;
   if (target === null || action.buffSource !== 'ActionOwner')
     throw new Error(`${sourcePath}: unsupported Buff target/source`);
   return action.buffs.flatMap(entry => {
@@ -877,6 +1017,7 @@ export function isPresentationOnlyBuffStackEffect(source: BuffRuntimeSource): bo
     !source.presentation.hasIcon &&
     source.presentation.spritePath === '' &&
     source.attributeModifiers.modifiers.length === 0 &&
+    source.damageModifiers.length === 0 &&
     source.applyTagIds.length === 0 &&
     source.extendTagIds.length === 0 &&
     source.unsupportedPayloads.length === 0 &&
@@ -891,6 +1032,7 @@ export function isAfterEnemyDefeatedOnlyBuffRuntime(source: BuffRuntimeSource): 
   return (
     source.unsupportedPayloads.length === 0 &&
     source.attributeModifiers.modifiers.length === 0 &&
+    source.damageModifiers.length === 0 &&
     source.applyTagIds.length === 0 &&
     source.extendTagIds.length === 0 &&
     source.graph.timelineActions.length === 0 &&
@@ -997,3 +1139,21 @@ const ACTION_VALUE_OPERATIONS: Readonly<Record<string, 'assign' | 'add' | 'multi
     Multiply: 'multiply',
     Divide: 'divide',
   };
+const DAMAGE_MODIFIER_SIDES: Readonly<Record<string, 'attacker' | 'defender'>> = {
+  Attacker: 'attacker',
+  Defender: 'defender',
+};
+const DAMAGE_SCALE_ZONES: Readonly<
+  Record<
+    string,
+    'product' | 'normal' | 'abnormalAndBurst' | 'enhanced' | 'combo' | 'vulnerable' | 'race'
+  >
+> = {
+  ProdCalcZone: 'product',
+  NormalCalcZone: 'normal',
+  AbnormalAndBurstCalcZone: 'abnormalAndBurst',
+  EnhanceCalcZone: 'enhanced',
+  ComboCalcZone: 'combo',
+  VulnerableCalcZone: 'vulnerable',
+  RaceCalcZone: 'race',
+};

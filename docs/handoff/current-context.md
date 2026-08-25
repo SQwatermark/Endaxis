@@ -1608,6 +1608,27 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 下一步按既定顺序推进剩余 13/23 套装与全武器转换；同时单独设计多段链的技能替换模型。遇到新机制
   仍先在 combat-spec 依据解包/反编译证据完善，再进入 Endaxis。
 
+### 2026-08-26：技力套 Skill/Gain 事件与全队增伤闭环
+
+- `suit_atb01` 已进入正式生成，套装覆盖提升为 18/23。静态部分保留连携冷却时间乘数 0.85；根
+  Buff 监听原生 `OnObtainAtb`，且只接受首个严格条件
+  `CheckObtainAtbType(Skill, Gain)`。编译后复用已有
+  `spGained(source=skill, gainKind=gain)` 事实，不新增第二套 ATB/技力事件账本。
+- 原生无过滤 `CharacterTeamFinder` 写入 `Context/teammate` 后再施加 Buff；投影只在 finder、空
+  validator/post-processor、ActionOwner 中心与 owner 全部精确匹配时归约为 `target: party`。任一
+  选择器字段漂移仍失败关闭，不能只按目标组名字猜“全队”。
+- 子 Buff 保留 15 秒寿命、攻击提升图标和普通伤害乘区 +16%。公共 Buff 来源 IR 首次结构化无条件
+  `damageModifier -> DamageScaleProcessor(Attacker, NormalCalcZone)`；非空条件、未知 side/zone 或
+  其他 processor 仍阻塞，未把任意 damageModifier 粗略当成总增伤。
+- Buff 生命周期新增编译后语义响应 `skillSpGained`，装配层实际注册为穿戴者自身的
+  `spGained/skill/gain`。定向装配测试确认真实技能回能会同时触发养成事件和 Buff 响应；普通攻击、
+  返还及其他来源不会通过该注册筛选。
+- 当前剩余 5/23：`suit_atk02/AuraAction`、`suit_attri01/SkillAffixAction`、
+  `suit_expend_spell01` 的动态 Buff 上下文计数链、`suit_usp01/OnEnterFight` 后续资源链、
+  `suit_usp02` 的目标/来源及 damageModifier。下一步继续优先对敌输出确定且证据完整者。
+- 门禁：游戏数据 58 文件 251/251、Next 208 文件 1525/1525，`type-check:game-data` 与
+  `type-check:next` 均通过；正式生成审计为 18 套、37 个 Buff 定义。`tmp/` 仍仅作证据输入，不提交。
+
 ### 2026-08-25：套装正式生成恢复至 15/23
 
 - 新增可重复的正式套装生成入口：`scripts/generate_next_equipment/formal_suit_identities.json` 只登记

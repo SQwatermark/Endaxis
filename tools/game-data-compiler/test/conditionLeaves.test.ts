@@ -12,6 +12,27 @@ const CONDITION_META = {
 } as const;
 
 describe('公共条件叶子 IR', () => {
+  it('严格保留 OnObtainAtb 的获取类型与方式筛选', () => {
+    expect(
+      parseConditionLeafSource(
+        condition('CheckObtainAtbType', {
+          checkObtainType: true,
+          obtainTypeList: ['Skill'],
+          checkObtainMethod: true,
+          obtainMethodList: ['Gain'],
+        }),
+        'fixture.obtainAtbType',
+        {},
+      ),
+    ).toMatchObject({
+      kind: 'obtainAtbType',
+      checkObtainType: true,
+      obtainTypes: ['Skill'],
+      checkObtainMethod: true,
+      obtainMethods: ['Gain'],
+    });
+  });
+
   it('保留被动 CheckCurHpRatio 的比较与黑板阈值', () => {
     expect(
       parseConditionLeafSource(

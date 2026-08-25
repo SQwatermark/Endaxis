@@ -639,20 +639,23 @@ export class CombatRuntimeAssembly {
           trigger:
             event === 'afterKillEntity'
               ? { kind: 'enemyDefeated', scope: 'operator' }
-              : { kind: 'knockDownOutput' },
+              : event === 'outputKnockDown'
+                ? { kind: 'knockDownOutput' }
+                : { kind: 'spGained', source: 'skill', gainKind: 'gain' },
           phase: 'dataAction',
           priority,
           handle: context => {
             if (
               (event === 'afterKillEntity' && context.event.kind !== 'enemyDefeated') ||
-              (event === 'outputKnockDown' && context.event.kind !== 'knockDownOutput')
+              (event === 'outputKnockDown' && context.event.kind !== 'knockDownOutput') ||
+              (event === 'skillSpGained' && context.event.kind !== 'spGained')
             ) {
               throw new Error(`${event} Buff listener received an invalid event`);
             }
             handle(
               context.event as Extract<
                 CombatSemanticEvent,
-                { readonly kind: 'enemyDefeated' | 'knockDownOutput' }
+                { readonly kind: 'enemyDefeated' | 'knockDownOutput' | 'spGained' }
               >,
             );
           },
@@ -1746,20 +1749,23 @@ export class CombatRuntimeAssembly {
         trigger:
           event === 'afterKillEntity'
             ? { kind: 'enemyDefeated', scope: 'operator' }
-            : { kind: 'knockDownOutput' },
+            : event === 'outputKnockDown'
+              ? { kind: 'knockDownOutput' }
+              : { kind: 'spGained', source: 'skill', gainKind: 'gain' },
         phase: 'dataAction',
         priority,
         handle: context => {
           if (
             (event === 'afterKillEntity' && context.event.kind !== 'enemyDefeated') ||
-            (event === 'outputKnockDown' && context.event.kind !== 'knockDownOutput')
+            (event === 'outputKnockDown' && context.event.kind !== 'knockDownOutput') ||
+            (event === 'skillSpGained' && context.event.kind !== 'spGained')
           ) {
             throw new Error(`${event} Buff listener received an invalid event`);
           }
           handle(
             context.event as Extract<
               CombatSemanticEvent,
-              { readonly kind: 'enemyDefeated' | 'knockDownOutput' }
+              { readonly kind: 'enemyDefeated' | 'knockDownOutput' | 'spGained' }
             >,
           );
         },

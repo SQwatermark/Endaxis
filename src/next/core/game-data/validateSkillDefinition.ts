@@ -1215,7 +1215,8 @@ function validateCombatStep(
                     response.event !== 'addedBuff' &&
                     response.event !== 'finishedBuff' &&
                     response.event !== 'afterOutputWeaknessTriggered' &&
-                    response.event !== 'afterKillEntity'
+                    response.event !== 'afterKillEntity' &&
+                    response.event !== 'skillSpGained'
                   ) {
                     push(out, `${responsePath}.event`, 'unsupported Buff ability event');
                   }

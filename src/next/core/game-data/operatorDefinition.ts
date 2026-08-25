@@ -1231,7 +1231,9 @@ export interface SkillBuffAbilityEventResponse {
     | 'addedBuff'
     | 'finishedBuff'
     | 'afterOutputWeaknessTriggered'
-    | 'afterKillEntity';
+    | 'afterKillEntity'
+    /** OnObtainAtb + CheckObtainAtbType(Skill, Gain) 的编译后语义事件。 */
+    | 'skillSpGained';
   /** 原生数据动作优先级；同一事件同优先级的顺序未证明时运行时会拒绝注册。 */
   priority: number;
   /** 已证明同优先级、同 key 的实例响应可交换时允许并列注册。 */

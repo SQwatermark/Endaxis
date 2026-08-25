@@ -10,6 +10,138 @@ import {
 } from '../src/index.ts';
 
 describe('公共 Buff 运行时投影', () => {
+  it('把 Skill/Gain 技力事件和无过滤队伍查询融合为全队 Buff 响应', () => {
+    const source = sourceFixture();
+    const sequence = source.graph.abilityEvents[0]!.actions[0]!;
+    const apply = sequence.actions[1]!;
+    if (apply.body.kind !== 'leaf' || apply.body.value.family !== 'buffApplication') {
+      throw new Error('invalid fixture');
+    }
+    const metadata = apply.metadata;
+    const definition = compileBuffRuntimeDefinitionSource({
+      ...source,
+      graph: {
+        ...source.graph,
+        abilityEvents: [
+          {
+            event: 'OnObtainAtb',
+            actions: [
+              {
+                ...sequence,
+                actions: [
+                  {
+                    sourcePath: 'BuffData.buff_root.obtain-filter',
+                    metadata,
+                    body: {
+                      kind: 'leaf',
+                      value: {
+                        family: 'condition',
+                        action: {
+                          kind: 'obtainAtbType',
+                          sourceType: 'CheckObtainAtbType',
+                          checkObtainType: true,
+                          obtainTypes: ['Skill'],
+                          checkObtainMethod: true,
+                          obtainMethods: ['Gain'],
+                        },
+                      },
+                    },
+                  },
+                  {
+                    sourcePath: 'BuffData.buff_root.find-party',
+                    metadata: { ...metadata, serverActionIndex: 1 },
+                    body: {
+                      kind: 'leaf',
+                      value: {
+                        family: 'targetGroup',
+                        action: {
+                          producerType: 'FindTargetAction',
+                          targetGroupKey: 'teammate',
+                          finderType: 'CharacterTeamFinder',
+                          validatorTypes: [],
+                          postProcessorTypes: [],
+                          center: 'ActionOwner',
+                          centerContextKey: '',
+                          selectorOwner: 'ActionOwner',
+                          selectorOwnerContextKey: '',
+                        } as never,
+                      },
+                    },
+                  },
+                  {
+                    ...apply,
+                    metadata: { ...metadata, serverActionIndex: 2 },
+                    body: {
+                      ...apply.body,
+                      value: {
+                        ...apply.body.value,
+                        action: {
+                          ...apply.body.value.action,
+                          target: {
+                            targetSource: 'Context',
+                            targetGroupKey: 'teammate',
+                          } as never,
+                        },
+                      },
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    });
+
+    expect(definition.abilityEventResponses).toMatchObject([
+      {
+        event: 'skillSpGained',
+        sequence: {
+          steps: [{ kind: 'applyBuff', parameters: { target: 'party' } }],
+        },
+      },
+    ]);
+  });
+
+  it('把无条件普通乘区增伤投影为 Buff 伤害修正', () => {
+    const source = sourceFixture();
+    const definition = compileBuffRuntimeDefinitionSource({
+      ...source,
+      damageModifiers: [
+        {
+          enabledSide: 'Attacker',
+          condition: {
+            onlyExecuteWhenSourceIsMainCharacter: false,
+            onlyExecuteWhenSourceIsGuard: false,
+            actions: [],
+          },
+          processors: [
+            {
+              kind: 'damageScale',
+              side: 'Attacker',
+              zoneName: 'NormalCalcZone',
+              addition: { value: 0, blackboardKey: 'atk_up', levelValues: [0.05] },
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(definition.damageModifiers).toEqual([
+      {
+        enabledSide: 'attacker',
+        processors: [
+          {
+            kind: 'damageScale',
+            side: 'attacker',
+            zone: 'normal',
+            addition: { blackboardKey: 'atk_up' },
+          },
+        ],
+      },
+    ]);
+  });
+
   it('把技能类型守卫、动态传参、属性修正和图标投影为正式 Next 定义', () => {
     const definition = compileBuffRuntimeDefinitionSource(sourceFixture());
 
@@ -956,6 +1088,7 @@ function sourceFixture(): BuffRuntimeSource {
         },
       ],
     },
+    damageModifiers: [],
     applyTagIds: [],
     extendTagIds: [],
     unsupportedPayloads: [],

@@ -5,6 +5,62 @@ import { perlica } from '../operators/perlica';
 import { generatedGearSetDefinitions } from './generated-gear-sets/index.generated';
 
 describe('生成套装正式定义', () => {
+  it('让技力套在战技实际回能后给全队施加限时普通乘区增伤', () => {
+    const definition = generatedGearSetDefinitions.find(item => item.slug === 'suit_atb01')!;
+    expect(validateGearSetDefinition(definition, '$.suit_atb01')).toEqual([]);
+    const compiled = compileGearSetContribution(definition, {
+      main: perlica.mainAttribute,
+      secondary: perlica.secondaryAttribute,
+    });
+
+    expect(compiled.modifiers).toEqual([
+      { kind: 'skillCooldownMultiplier', skillTypes: 'comboSkill', value: 0.85 },
+    ]);
+    expect(compiled.buffDefinitions?.buff_equipsuit_combosuit_01).toMatchObject({
+      abilityEventResponses: [
+        {
+          event: 'skillSpGained',
+          sequence: {
+            steps: [
+              {
+                kind: 'applyBuff',
+                parameters: {
+                  buffId: 'buff_equipsuit_combosuit_01_adddamage',
+                  target: 'party',
+                  blackboardAssignments: {
+                    dmg_up: { kind: 'blackboard', key: 'dmg_up' },
+                    duration: { kind: 'blackboard', key: 'duration' },
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    expect(compiled.buffDefinitions?.buff_equipsuit_combosuit_01_adddamage).toMatchObject({
+      durationSeconds: { blackboardKey: 'duration' },
+      presentation: {
+        visible: true,
+        iconId: 'icon_battle_buff_atk_up',
+        iconPath: '/icons/icon_battle_buff_atk_up.webp',
+      },
+      damageModifiers: [
+        {
+          enabledSide: 'attacker',
+          processors: [
+            {
+              kind: 'damageScale',
+              side: 'attacker',
+              zone: 'normal',
+              addition: { blackboardKey: 'dmg_up' },
+            },
+          ],
+        },
+      ],
+    });
+  });
+
   it('让 suit_atk01 的静态增伤、根安装和技能前攻击 Buff 进入正式编译', () => {
     const definition = generatedGearSetDefinitions.find(item => item.slug === 'suit_atk01');
     expect(definition).toBeDefined();

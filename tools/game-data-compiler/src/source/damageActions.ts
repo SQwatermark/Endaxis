@@ -269,7 +269,7 @@ function parseDamageCosts(value: unknown, path: string): DamageCostSource[] {
   });
 }
 
-function parseDamageProcessors(
+export function parseDamageProcessors(
   value: unknown,
   path: string,
   inheritedBlackboard: BlackboardLevelValues,

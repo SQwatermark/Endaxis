@@ -86,6 +86,14 @@ export type NativeConditionSource =
   | (ConditionIdentity & { readonly kind: 'probability'; readonly value: ScalarSource })
   | (ConditionIdentity & { readonly kind: 'skillType'; readonly skillTypes: readonly string[] })
   | (ConditionIdentity & {
+      /** OnObtainAtb 事件携带的原始获取类型与方式筛选。 */
+      readonly kind: 'obtainAtbType';
+      readonly checkObtainType: boolean;
+      readonly obtainTypes: readonly string[];
+      readonly checkObtainMethod: boolean;
+      readonly obtainMethods: readonly string[];
+    })
+  | (ConditionIdentity & {
       readonly kind: 'targetIdentity';
       readonly first: TargetReferenceSource;
       readonly second: TargetReferenceSource;
@@ -291,6 +299,34 @@ export function parseConditionLeafSource(
         sourceType,
         skillTypes: requireArray(condition.skillTypeList, `${path}.skillTypeList`).map(
           (item, index) => requireString(item, `${path}.skillTypeList[${index}]`),
+        ),
+      };
+    case 'CheckObtainAtbType':
+      requireExactFields(
+        condition,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'checkObtainType',
+          'obtainTypeList',
+          'checkObtainMethod',
+          'obtainMethodList',
+        ]),
+        path,
+      );
+      return {
+        kind: 'obtainAtbType',
+        sourceType,
+        checkObtainType: requireBoolean(condition.checkObtainType, `${path}.checkObtainType`),
+        obtainTypes: requireArray(condition.obtainTypeList, `${path}.obtainTypeList`).map(
+          (item, index) => requireString(item, `${path}.obtainTypeList[${index}]`),
+        ),
+        checkObtainMethod: requireBoolean(condition.checkObtainMethod, `${path}.checkObtainMethod`),
+        obtainMethods: requireArray(condition.obtainMethodList, `${path}.obtainMethodList`).map(
+          (item, index) => requireString(item, `${path}.obtainMethodList[${index}]`),
         ),
       };
     case 'CheckTargetsEqual':

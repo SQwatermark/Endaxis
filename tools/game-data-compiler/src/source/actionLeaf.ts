@@ -65,6 +65,7 @@ const CONDITION_ACTION_NAMES = new Set([
   'CheckHp',
   'Probablity',
   'CheckSkillType',
+  'CheckObtainAtbType',
   'CheckTargetsEqual',
   'CheckObjectTypeMatch',
   'CheckDamageType',
