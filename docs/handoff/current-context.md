@@ -7,6 +7,21 @@
 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
+### 2026-08-25：爆发套事件 Buff Advanced Tag 闭环
+
+- combat-spec 已有的 1.4.4 证据确认 `CheckBuffIdInContextAdvanced` 空黑板 key、空 ID 列表、
+  `checkType=Tag` 分支只对事件 BuffData 的 `applyTags` 执行 GameplayTagQuery。公共来源解析器现在只
+  开放这一精确形状；非空 key 的事件 Buff ID 写回、BlackboardBuffId 列表和 ID 分支继续失败关闭。
+- `suit_burst01` 已进入正式白名单，套装覆盖由 16/23 提升到 **17/23**。它保留战技、连携、终结技
+  各 +20% 的静态技能增伤；来源角色输出四种指定元素 Buff 之一，且真实事件目标上该 Tag 的 Buff
+  实例数达到 2 时，获得 15 秒四系术法伤害 +35% Buff。
+- 触发链继续区分“事件 Buff 的 Tag”“事件目标上的同 Tag Buff 实例数”和“Buff 强化层数”，没有因
+  数字恰好相同而合并。可见增伤 Buff 保留 `icon_battle_spell_up`，纯粒子子 Buff 只在无渲染战斗
+  后端省略。
+- 当前剩余 **6/23** 套：`suit_atb01`、`suit_atk02`、`suit_attri01`、`suit_expend_spell01`、
+  `suit_usp01`、`suit_usp02`。门禁为游戏数据 58 文件 248/248、Next 208 文件 1523/1523，两个专用
+  类型检查通过；下一批继续以对敌输出影响优先。
+
 ### 2026-08-25：暴击输出事件与暴击套完整闭环
 
 - `combat-spec` 先依据 1.4.4 `GameAssembly.dll` 闭合伤害完成事件：同一

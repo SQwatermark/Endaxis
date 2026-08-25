@@ -535,4 +535,80 @@ describe('生成套装正式定义', () => {
       ],
     });
   });
+
+  it('让爆发套在对应元素 Buff 达到两实例后获得四系术法增伤', () => {
+    const definition = generatedGearSetDefinitions.find(item => item.slug === 'suit_burst01')!;
+    expect(validateGearSetDefinition(definition, '$.suit_burst01')).toEqual([]);
+    const compiled = compileGearSetContribution(definition, {
+      main: perlica.mainAttribute,
+      secondary: perlica.secondaryAttribute,
+    });
+
+    expect(compiled.modifiers).toEqual([
+      { kind: 'damageScale', target: 'comboSkill', value: 0.2 },
+      { kind: 'damageScale', target: 'battleSkill', value: 0.2 },
+      { kind: 'damageScale', target: 'ultimate', value: 0.2 },
+    ]);
+    const response = compiled.buffDefinitions?.buff_equipsuit_burst_01?.abilityEventResponses?.[0];
+    expect(response?.event).toBe('outputBuff');
+    expect(response?.sequence.steps).toHaveLength(4);
+    expect(response?.sequence.steps[0]).toMatchObject({
+      parameters: {
+        condition: {
+          kind: 'eventBuffTagsMatch',
+          match: 'hasAny',
+          buffTagIds: [-1558844517],
+        },
+      },
+      whenTrue: {
+        steps: [
+          {
+            parameters: {
+              condition: {
+                kind: 'eventTargetBuffCountCompare',
+                tagQueryType: 'hasAny',
+                buffTagIds: [-1558844517],
+                operator: 'greaterOrEqual',
+                value: { kind: 'blackboard', key: 'stack_cond' },
+              },
+            },
+            whenTrue: {
+              steps: [
+                {
+                  parameters: {
+                    buffId: 'buff_equipsuit_burst_01_spelldmgup',
+                    target: 'buffOwner',
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    });
+    expect(compiled.buffDefinitions?.buff_equipsuit_burst_01_spelldmgup).toMatchObject({
+      durationSeconds: { blackboardKey: 'duration' },
+      presentation: {
+        visible: true,
+        iconId: 'icon_battle_spell_up',
+        iconPath: '/icons/icon_battle_spell_up.webp',
+      },
+      attributeModifiers: [
+        { attribute: 'heatDamageIncrease', value: { blackboardKey: 'spell_dmg_up' } },
+        { attribute: 'electricDamageIncrease', value: { blackboardKey: 'spell_dmg_up' } },
+        { attribute: 'cryoDamageIncrease', value: { blackboardKey: 'spell_dmg_up' } },
+        { attribute: 'natureDamageIncrease', value: { blackboardKey: 'spell_dmg_up' } },
+      ],
+    });
+    expect(compiled.initializationSequence?.steps[1]).toMatchObject({
+      parameters: {
+        buffId: 'buff_equipsuit_burst_01',
+        blackboardAssignments: {
+          stack_cond: { kind: 'constant', value: 2 },
+          spell_dmg_up: { kind: 'constant', value: 0.35 },
+          duration: { kind: 'constant', value: 15 },
+        },
+      },
+    });
+  });
 });

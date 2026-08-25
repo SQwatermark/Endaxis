@@ -76,6 +76,7 @@ const CONDITION_ACTION_NAMES = new Set([
   'CheckHealTag',
   'CheckOverHeal',
   'CheckBuffIdInContext',
+  'CheckBuffIdInContextAdvanced',
   'CheckGlobalCDTimerAction',
   'CheckSkillHasHit',
   'CheckEnemyRank',

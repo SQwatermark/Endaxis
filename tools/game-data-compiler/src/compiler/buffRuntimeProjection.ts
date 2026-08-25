@@ -969,6 +969,10 @@ const TAG_QUERY_TYPES: Readonly<Record<string, 'hasAny' | 'hasAll' | 'exceptAny'
   HasAll: 'hasAll',
   ExceptAny: 'exceptAny',
   ExceptAll: 'exceptAll',
+  hasAny: 'hasAny',
+  hasAll: 'hasAll',
+  exceptAny: 'exceptAny',
+  exceptAll: 'exceptAll',
 };
 const COMPARISON_OPERATORS: Readonly<
   Record<string, 'equal' | 'notEqual' | 'greater' | 'greaterOrEqual' | 'less' | 'lessOrEqual'>

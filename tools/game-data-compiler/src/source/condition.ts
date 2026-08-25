@@ -362,6 +362,8 @@ export function parseConditionLeafSource(
       };
     case 'CheckBuffIdInContext':
       return parseContextBuff(condition, path, sourceType);
+    case 'CheckBuffIdInContextAdvanced':
+      return parseAdvancedContextBuff(condition, path, sourceType);
     case 'CheckGlobalCDTimerAction': {
       const target = requireRecord(condition.target, `${path}.target`);
       return {
@@ -758,6 +760,53 @@ function parseContextBuff(
     buffIds,
     queryType: requireNonEmptyString(query.queryType, `${path}.query.queryType`),
     buffTagIds,
+  };
+}
+
+/**
+ * 1.4.4 Advanced 的已闭环纯 Tag 条件分支。非空 blackboardKey 会写回事件 Buff ID，
+ * BlackboardBuffId 列表也有独立读取语义，因此都不能折叠到基础条件。
+ */
+function parseAdvancedContextBuff(
+  condition: Record<string, unknown>,
+  path: string,
+  sourceType: string,
+): NativeConditionSource {
+  requireExactFields(
+    condition,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'checkType',
+      'buffIdList',
+      'query',
+      'blackboardKey',
+    ]),
+    path,
+  );
+  const checkType = requireNonEmptyString(condition.checkType, `${path}.checkType`);
+  if (checkType !== 'Tag') {
+    throw new Error(`${path}.checkType: only the confirmed Tag branch is supported`);
+  }
+  const buffIdList = requireArray(condition.buffIdList, `${path}.buffIdList`);
+  if (buffIdList.length !== 0) {
+    throw new Error(`${path}.buffIdList: Advanced Tag projection requires an empty ID list`);
+  }
+  const blackboardKey = requireString(condition.blackboardKey, `${path}.blackboardKey`);
+  if (blackboardKey !== '') {
+    throw new Error(`${path}.blackboardKey: event Buff ID output is not supported`);
+  }
+  const query = parseTagQuerySource(condition.query, `${path}.query`);
+  return {
+    kind: 'contextBuff',
+    sourceType,
+    checkType,
+    buffIds: [],
+    queryType: query.queryType,
+    buffTagIds: query.tagIds,
   };
 }
 

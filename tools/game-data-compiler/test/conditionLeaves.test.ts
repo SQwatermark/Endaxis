@@ -231,6 +231,34 @@ describe('公共条件叶子 IR', () => {
     ).toThrow('condition parser has not migrated "UnknownNativeCondition"');
   });
 
+  it('只开放 Advanced 事件 Buff 条件的空 key 纯 Tag 分支', () => {
+    const fixture = (blackboardKey = '', buffIdList: readonly unknown[] = []) =>
+      condition('CheckBuffIdInContextAdvanced', {
+        checkType: 'Tag',
+        buffIdList,
+        query: { queryType: 'HasAny', tags: [{ tagId: -1558844517 }] },
+        blackboardKey,
+      });
+    expect(parseConditionLeafSource(fixture(), 'fixture.contextBuffAdvanced', {})).toMatchObject({
+      kind: 'contextBuff',
+      sourceType: 'CheckBuffIdInContextAdvanced',
+      checkType: 'Tag',
+      buffIds: [],
+      queryType: 'hasAny',
+      buffTagIds: [-1558844517],
+    });
+    expect(() =>
+      parseConditionLeafSource(fixture('buffid'), 'fixture.contextBuffAdvanced', {}),
+    ).toThrow('event Buff ID output is not supported');
+    expect(() =>
+      parseConditionLeafSource(
+        fixture('', [{ useBlackboardKey: false, value: '', blackboardKey: '' }]),
+        'fixture.contextBuffAdvanced',
+        {},
+      ),
+    ).toThrow('requires an empty ID list');
+  });
+
   it('严格解析物理异常事件类型位集并保留 savedKey 边界', () => {
     expect(
       parseConditionLeafSource(
