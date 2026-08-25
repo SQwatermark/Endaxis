@@ -1213,6 +1213,12 @@ function compileBuffApplication(
   sourcePath: string,
   partyTargetGroups: ReadonlySet<string> = new Set(),
 ): CompiledBuffStepSource[] {
+  for (const entry of action.buffs) {
+    if (entry.readIdFromBlackboard || entry.buffId.length === 0)
+      throw new Error(`${sourcePath}: dynamic Buff identity is unsupported`);
+  }
+  // 纯表现子 Buff 的动作生命周期只持有并清理表现资源；来源已完整解析后可从无渲染后端省略。
+  if (action.buffs.every(entry => visualOnlyIds.has(entry.buffId))) return [];
   if (
     action.autoFinishByAction ||
     action.inheritSkillIds.length > 0 ||
@@ -1223,11 +1229,6 @@ function compileBuffApplication(
   ) {
     throw new Error(`${sourcePath}: unsupported CreateBuff lifecycle options`);
   }
-  for (const entry of action.buffs) {
-    if (entry.readIdFromBlackboard || entry.buffId.length === 0)
-      throw new Error(`${sourcePath}: dynamic Buff identity is unsupported`);
-  }
-  if (action.buffs.every(entry => visualOnlyIds.has(entry.buffId))) return [];
   const target =
     (action.target.targetGroupKey ?? '') === '' && action.target.targetSource === 'Owner'
       ? ('buffOwner' as const)
@@ -1238,7 +1239,9 @@ function compileBuffApplication(
           : action.target.targetSource === 'Context' &&
               partyTargetGroups.has(action.target.targetGroupKey ?? '')
             ? ('party' as const)
-            : null;
+            : isPartyExceptOwnerInstantSearch(action.target)
+              ? ('partyExceptCaster' as const)
+              : null;
   const source =
     action.buffSource === 'ActionOwner'
       ? undefined
@@ -1278,6 +1281,34 @@ function compileBuffApplication(
       },
     ];
   });
+}
+
+/** 固定小队模型中严格折叠已证明的“全队成员排除动作 owner”即时搜索。 */
+function isPartyExceptOwnerInstantSearch(target: BuffApplicationActionSource['target']): boolean {
+  return (
+    target.targetSource === 'InstantSearch' &&
+    target.targetGroupKey === '' &&
+    target.selectorOwner === 'ActionOwner' &&
+    target.ownerContextKey === '' &&
+    target.centerType === 'ActionSource' &&
+    target.centerContextKey === '' &&
+    !target.centerToGround &&
+    target.target === 'ActionSource' &&
+    target.targetContextKey === '' &&
+    !target.enableAdvancedDirection &&
+    target.selectorDirection === 'SourceForward' &&
+    target.finderType === 'CharacterTeamFinder' &&
+    target.finderShape === null &&
+    target.finderOwnerPartsQuery === null &&
+    target.validatorTypes.length === 1 &&
+    target.validatorTypes[0] === 'ExcludeOwnerValidator' &&
+    target.postProcessorTypes.length === 0 &&
+    target.priorityFilters.length === 0 &&
+    target.shuffleTargets.length === 0 &&
+    target.distanceValidators.length === 0 &&
+    target.finderSpawnedObjectType === null &&
+    target.validatorTagQueries.length === 0
+  );
 }
 
 export function isPresentationOnlyBuffStackEffect(source: BuffRuntimeSource): boolean {

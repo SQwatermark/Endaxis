@@ -560,3 +560,13 @@ ID 当作物品主键。当前 48 条玩家承伤修正只在木桩边界省略�
   通用 `enterFight`、`actionValueCompare`、`changeResourceByActionValue` 运行步骤。
 - 正式套装提升为 22/23、48 个 Buff 定义。剩余 `suit_usp02`；门禁为游戏数据 251/251、Next
   1534/1534，两套专用类型检查通过。
+
+### 2026-08-26：正式套装全量闭环
+
+- `suit_usp02` 保留生命 +1000；匹配四个原生 Buff Tag 后，以严格的
+  `InstantSearch(CharacterTeamFinder + ExcludeOwnerValidator)` 只给其他队员施加 15 秒普通乘区
+  增伤。模板默认 25%，产品被动安装值 16% 覆盖默认值，正式定义按运行时覆盖链保留 16%。
+- 固定小队投影新增窄 `partyExceptCaster` 目标；纯表现子 Buff 的 action-owned/child 生命周期只有在
+  目标 Buff 已被完整识别为表现 stack effect 时才从无渲染后端省略。
+- 正式套装达到 **23/23、50 个 Buff 定义**。门禁为游戏数据 251/251、Next 1535/1535，两套专用
+  类型检查通过；下一主线转向武器正式定义与生产模拟闭环。

@@ -5,6 +5,88 @@ import { perlica } from '../operators/perlica';
 import { generatedGearSetDefinitions } from './generated-gear-sets/index.generated';
 
 describe('生成套装正式定义', () => {
+  it('让终结技支援套只给穿戴者之外的队员施加限时增伤', () => {
+    const definition = generatedGearSetDefinitions.find(item => item.slug === 'suit_usp02')!;
+    expect(validateGearSetDefinition(definition, '$.suit_usp02')).toEqual([]);
+    const compiled = compileGearSetContribution(definition, {
+      main: perlica.mainAttribute,
+      secondary: perlica.secondaryAttribute,
+    });
+
+    expect(compiled.modifiers).toEqual([{ kind: 'panelStat', stat: 'healthFlat', value: 1000 }]);
+    expect(compiled.initializationSequence).toMatchObject({
+      steps: [
+        {
+          parameters: {
+            buffId: 'buff_equipsuit_usp_02',
+            target: 'caster',
+            blackboardAssignments: {
+              dmg_up: { kind: 'constant', value: 0.16 },
+              duration: { kind: 'constant', value: 15 },
+            },
+          },
+        },
+      ],
+    });
+    expect(compiled.buffDefinitions?.buff_equipsuit_usp_02).toMatchObject({
+      abilityEventResponses: [
+        {
+          event: 'outputBuff',
+          sequence: {
+            steps: [
+              {
+                parameters: {
+                  condition: {
+                    kind: 'eventBuffTagsMatch',
+                    match: 'hasAny',
+                    buffTagIds: [2029588776, -1748167886, -1957150384, -881002460],
+                  },
+                },
+                whenTrue: {
+                  steps: [
+                    {
+                      kind: 'applyBuff',
+                      parameters: {
+                        buffId: 'buff_equipsuit_usp_02_AddAttack',
+                        target: 'partyExceptCaster',
+                        blackboardAssignments: {
+                          dmg_up: { kind: 'blackboard', key: 'dmg_up' },
+                          duration: { kind: 'blackboard', key: 'duration' },
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    expect(compiled.buffDefinitions?.buff_equipsuit_usp_02_AddAttack).toMatchObject({
+      maxStackCount: 1,
+      durationSeconds: { blackboardKey: 'duration' },
+      presentation: {
+        visible: true,
+        iconId: 'icon_battle_buff_atk_up',
+        iconPath: '/icons/icon_battle_buff_atk_up.webp',
+      },
+      damageModifiers: [
+        {
+          enabledSide: 'attacker',
+          processors: [
+            {
+              kind: 'damageScale',
+              side: 'attacker',
+              zone: 'normal',
+              addition: { blackboardKey: 'dmg_up' },
+            },
+          ],
+        },
+      ],
+    });
+  });
+
   it('让终结技能量套在入战时重置，并只为首个战技返还技力', () => {
     const definition = generatedGearSetDefinitions.find(item => item.slug === 'suit_usp01')!;
     expect(validateGearSetDefinition(definition, '$.suit_usp01')).toEqual([]);

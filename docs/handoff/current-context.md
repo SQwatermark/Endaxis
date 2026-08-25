@@ -7,6 +7,20 @@
 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
+### 2026-08-26：正式套装 23/23 全量闭环
+
+- `suit_usp02` 已进入正式生成，套装覆盖达到 **23/23**。静态生命 +1000；穿戴者输出带四个已配置
+  Tag 之一的 Buff 时，通过真实 `InstantSearch + CharacterTeamFinder + ExcludeOwnerValidator`
+  目标链只给其他队员施加 15 秒普通乘区增伤。Buff 模板默认 `dmg_up=0.25`，但产品被动安装参数
+  权威覆盖为 `0.16`，运行时复制的是覆盖后的 16%。
+- 公共投影仅把完整匹配的上述即时搜索折叠为固定小队模型的 `partyExceptCaster`；finder、owner、
+  center、方向、validator 或后处理器任一变化都会继续失败。子 Buff 的 DuringEnable 动作只创建
+  `buff_common_vfx_char_atk_up`，该资源经完整来源解析确认是纯表现 stack effect 后从无渲染后端省略，
+  主增伤 Buff 的图标、持续时间、层数上限与伤害修正均保留。
+- 正式生成审计为 **23 套、50 个 Buff 定义**。门禁为游戏数据 58 文件 251/251、Next 208 文件
+  1535/1535，两套专用类型检查通过。装备套装主线已可转入正式武器定义与模拟闭环，同时保留场景
+  省略项审计。
+
 ### 2026-08-26：终结技能量套入战与首战技返还闭环
 
 - `suit_usp01` 已进入正式生成，套装覆盖提升为 **22/23**。静态终结技能量回复效率 +20%；入战时
