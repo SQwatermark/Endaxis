@@ -116,6 +116,63 @@ describe('公共 Action 叶子分派', () => {
     });
   });
 
+  it('SaveBuffLifeTime 严格保留当前 Buff 剩余时长查询', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.SaveBuffLifeTime+Data, Gameplay.Beyond',
+          buffOwner: targetFixture('Owner'),
+          buffSettings: {
+            checkType: 'Environment',
+            buffIdList: [],
+            tagQuery: { queryType: 'HasAny', tags: [] },
+          },
+          key: 'duration_dynamic',
+        },
+        'fixture.buffLifeTimeRead',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'buffLifeTimeRead',
+      action: {
+        owner: { targetSource: 'Owner' },
+        settings: { checkType: 'Environment', buffIds: [], tagQuery: { tagIds: [] } },
+        outputKey: 'duration_dynamic',
+      },
+    });
+  });
+
+  it('SetBuffDurationAction 严格保留当前 Buff 时长运算', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.SetBuffDurationAction+Data, Gameplay.Beyond',
+          targetSettings: targetFixture('Owner'),
+          buffSettings: {
+            checkType: 'Environment',
+            buffIdList: [],
+            tagQuery: { queryType: 'HasAny', tags: [] },
+          },
+          operationType: 'Assign',
+          value: scalarFixture(0, 'duration_dynamic'),
+          isFinishedEarly: false,
+        },
+        'fixture.buffDurationMutation',
+        { duration_dynamic: [0, 0] },
+      ),
+    ).toMatchObject({
+      family: 'buffDurationMutation',
+      action: {
+        target: { targetSource: 'Owner' },
+        operation: 'Assign',
+        value: { blackboardKey: 'duration_dynamic' },
+        isFinishedEarly: false,
+      },
+    });
+  });
+
   it('严格保留 PlaySoundAction 的表现身份和音频时序字段', () => {
     expect(
       parseKnownNativeActionLeafSource(

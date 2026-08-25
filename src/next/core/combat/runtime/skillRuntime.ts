@@ -141,6 +141,10 @@ export interface CombatOperationContext {
   readonly finishCurrentBuff?: (reason: BuffFinishReason) => boolean;
   /** Environment BuffCount 查询读取正在执行的当前 Buff 增强层数。 */
   readonly getCurrentBuffEnhanceCount?: () => number;
+  /** Environment SaveBuffLifeTime 读取当前实例的剩余秒数；无限时长返回 null。 */
+  readonly getCurrentBuffRemainingDuration?: () => number | null;
+  /** SetBuffDurationAction 修改当前有限时长实例。 */
+  readonly setCurrentBuffRemainingDuration?: (duration: number) => void;
   /** 仅由 Buff 生命周期与事件响应提供；暂停只作用于当前实例。 */
   readonly setCurrentBuffTimePaused?: (paused: boolean) => void;
   /** Buff 黑板写入后重建依赖动态键的属性修正；普通技能上下文不提供。 */

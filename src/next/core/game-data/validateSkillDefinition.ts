@@ -1541,6 +1541,19 @@ function validateCombatStep(
       requireString(parameters, 'desiredKey', `${path}.parameters`, out);
       requireString(parameters, 'outputKey', `${path}.parameters`, out);
       break;
+    case 'readCurrentBuffRemainingDuration':
+      requireString(parameters, 'outputKey', `${path}.parameters`, out);
+      break;
+    case 'setCurrentBuffRemainingDuration':
+      requireEnum(
+        parameters,
+        'operation',
+        new Set(['assign', 'add', 'multiply']),
+        `${path}.parameters`,
+        out,
+      );
+      validateActionValueOperand(parameters.value, `${path}.parameters.value`, out);
+      break;
     case 'readBuffBlackboard':
     case 'readBuffStackCount': {
       // Buff 事件序列可从事件载荷解析 eventTarget；普通技能步骤仍会在运行时缺少

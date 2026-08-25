@@ -804,6 +804,13 @@ export interface CombatStepParameters {
     desiredKey: string;
     outputKey: string;
   };
+  /** 把当前生命周期环境中有限时长 Buff 的剩余秒数写入动作黑板；无限时长写入 0。 */
+  readCurrentBuffRemainingDuration: { outputKey: string };
+  /** 直接修改当前生命周期环境中有限时长 Buff 的剩余秒数。 */
+  setCurrentBuffRemainingDuration: {
+    operation: 'assign' | 'add' | 'multiply';
+    value: ActionValueOperand;
+  };
   /** 查询匹配 Buff 的累计强化层数或实例数，并写入当前技能实例的动作黑板。 */
   readBuffStackCount: {
     target: BuffSingleTarget;
@@ -1062,6 +1069,8 @@ export const COMBAT_STEP_KINDS = [
   'applyBuff',
   'readBuffBlackboard',
   'readEventBuffBlackboard',
+  'readCurrentBuffRemainingDuration',
+  'setCurrentBuffRemainingDuration',
   'readBuffStackCount',
   'finishBuffsByTag',
   'finishBuffsById',

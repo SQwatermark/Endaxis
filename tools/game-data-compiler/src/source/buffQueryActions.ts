@@ -9,6 +9,7 @@ import {
 } from './primitives.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 import type { TagQueryType } from './tagQuery.ts';
+import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
 
 /** SaveBuffStackNumAdvanced 的完整查询事实；运行投影只开放已证明的目标和计数类型。 */
 export interface BuffStackReadActionSource {
@@ -30,6 +31,82 @@ export interface BuffBlackboardReadActionSource {
   readonly settings: ReturnType<typeof parseBuffFindSettingsSource>;
   readonly desiredKey: string;
   readonly outputKey: string;
+}
+
+/** SaveBuffLifeTime 的已恢复 Environment 查询；结果是当前有限时长 Buff 的剩余秒数。 */
+export interface BuffLifeTimeReadActionSource {
+  readonly kind: 'buffLifeTimeRead';
+  readonly owner: TargetReferenceSource;
+  readonly settings: ReturnType<typeof parseBuffFindSettingsSource>;
+  readonly outputKey: string;
+}
+
+export interface BuffDurationMutationActionSource {
+  readonly kind: 'buffDurationMutation';
+  readonly target: TargetReferenceSource;
+  readonly settings: ReturnType<typeof parseBuffFindSettingsSource>;
+  readonly operation: string;
+  readonly value: ScalarSource;
+  readonly isFinishedEarly: boolean;
+}
+
+export function parseBuffDurationMutationActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): BuffDurationMutationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'targetSettings',
+      'buffSettings',
+      'operationType',
+      'value',
+      'isFinishedEarly',
+    ]),
+    path,
+  );
+  return {
+    kind: 'buffDurationMutation',
+    target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
+    settings: parseBuffFindSettingsSource(action.buffSettings, `${path}.buffSettings`),
+    operation: requireNonEmptyString(action.operationType, `${path}.operationType`),
+    value: parseScalarSource(action.value, `${path}.value`, inheritedBlackboard),
+    isFinishedEarly: requireBoolean(action.isFinishedEarly, `${path}.isFinishedEarly`),
+  };
+}
+
+export function parseBuffLifeTimeReadActionSource(
+  value: unknown,
+  path: string,
+): BuffLifeTimeReadActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'buffOwner',
+      'buffSettings',
+      'key',
+    ]),
+    path,
+  );
+  return {
+    kind: 'buffLifeTimeRead',
+    owner: parseTargetReferenceSource(action.buffOwner, `${path}.buffOwner`),
+    settings: parseBuffFindSettingsSource(action.buffSettings, `${path}.buffSettings`),
+    outputKey: requireNonEmptyString(action.key, `${path}.key`),
+  };
 }
 
 export function parseBuffBlackboardReadActionSource(

@@ -459,6 +459,70 @@ describe('BuffOperationExecutor', () => {
     expect(blackboard.getNumber('count')).toBe(4);
   });
 
+  it('writes the executing finite Buff remaining duration and maps infinity to zero', () => {
+    const blackboard = new ActionBlackboard();
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => {
+        throw new Error('current Buff lifetime must not resolve a target container');
+      },
+      delegate,
+    });
+    const step = {
+      kind: 'readCurrentBuffRemainingDuration' as const,
+      parameters: { outputKey: 'duration_dynamic' },
+    };
+
+    expect(
+      executor.execute(step, {
+        blackboard,
+        getCurrentBuffRemainingDuration: () => 7.5,
+      }),
+    ).toBe(true);
+    expect(blackboard.getNumber('duration_dynamic')).toBe(7.5);
+
+    executor.execute(step, {
+      blackboard,
+      getCurrentBuffRemainingDuration: () => null,
+    });
+    expect(blackboard.getNumber('duration_dynamic')).toBe(0);
+  });
+
+  it('assigns, adds, and multiplies the executing finite Buff remaining duration', () => {
+    const blackboard = new ActionBlackboard({ duration_dynamic: 6 });
+    let remaining: number | null = 10;
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => {
+        throw new Error('current Buff duration mutation must not resolve a target container');
+      },
+      delegate,
+    });
+    const execute = (operation: 'assign' | 'add' | 'multiply', value: number) =>
+      executor.execute(
+        {
+          kind: 'setCurrentBuffRemainingDuration',
+          parameters: { operation, value: { kind: 'constant', value } },
+        },
+        {
+          blackboard,
+          getCurrentBuffRemainingDuration: () => remaining,
+          setCurrentBuffRemainingDuration: value => {
+            remaining = value;
+          },
+        },
+      );
+
+    expect(execute('assign', 6)).toBe(true);
+    expect(remaining).toBe(6);
+    execute('add', 2);
+    expect(remaining).toBe(8);
+    execute('multiply', 0.5);
+    expect(remaining).toBe(4);
+    execute('assign', -1);
+    expect(remaining).toBe(0);
+  });
+
   it('writes matching Buff instance count when the source explicitly requests BuffCount', () => {
     const blackboard = new ActionBlackboard();
     const executor = new BuffOperationExecutor({

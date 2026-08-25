@@ -468,6 +468,10 @@ function resolveStep(
       };
     case 'readEventBuffBlackboard':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'readCurrentBuffRemainingDuration':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'setCurrentBuffRemainingDuration':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'readBuffStackCount':
       return {
         ...keyed,

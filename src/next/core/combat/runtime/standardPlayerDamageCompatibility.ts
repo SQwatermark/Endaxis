@@ -284,6 +284,8 @@ function inspectSequence(
         return;
       case 'readBuffBlackboard':
       case 'readEventBuffBlackboard':
+      case 'readCurrentBuffRemainingDuration':
+      case 'setCurrentBuffRemainingDuration':
       case 'readBuffStackCount':
       case 'finishBuffsByTag':
       case 'finishBuffsById':

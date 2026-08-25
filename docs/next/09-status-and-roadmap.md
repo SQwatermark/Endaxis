@@ -644,5 +644,8 @@ ID 当作物品主键。当前 48 条玩家承伤修正只在木桩边界省略�
 - 已按 combat-spec 证据接通 `CheckOriginSkillType`、`CheckTargetContains`、
   `CheckDamageTypeMask` 和敌方 GlobalAura。目标集合只保存稳定身份，距离与范围仍按零空间边界省略，
   没有为武器增加专用状态机。
-- 当前下一阻塞为 `SaveBuffLifeTime`。完成其复刻库与 Next 公共实现后继续跑 91 个 Buff 的完整闭包，
-  直到审计能逐 Buff 报告编译成功、木桩场景省略或有证据的明确阻塞。
+- `SaveBuffLifeTime` 与 `SetBuffDurationAction` 已按 1.4.4 机器码在 combat-spec 和 Next 双侧闭环，
+  保留有限/无限时长、Environment 当前实例、Assign/Add/Multiply 与负值钳零语义。91 个引用 Buff
+  现展开为 107 个运行时节点，审计为 **75/107 可编译、4 个木桩省略**，并能逐项报告其余阻塞。
+  下一批按对敌伤害优先级接 `damageTypeMask / damageType / damageDecorateMask / buffStack / entityTag`，
+  不先投入护盾、韧性或固定时间轴不可达的离战行为。

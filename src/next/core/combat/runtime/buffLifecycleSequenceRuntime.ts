@@ -245,6 +245,8 @@ export function attachBuffLifecycleSequences<Key extends string>(
       buffOwnerId: buff.owner.ownerId,
       finishCurrentBuff: reason => buff.finish(reason),
       getCurrentBuffEnhanceCount: () => buff.enhanceCount,
+      getCurrentBuffRemainingDuration: () => buff.remainingDuration,
+      setCurrentBuffRemainingDuration: duration => buff.rawSetRemainingDuration(duration),
       setCurrentBuffTimePaused: paused => buff.setTimePaused(paused),
       refreshCurrentBuffAttributeModifiers: () => buff.refreshAttributeModifierValues(),
     };

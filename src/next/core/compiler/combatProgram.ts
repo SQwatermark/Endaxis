@@ -171,6 +171,8 @@ export interface ResolvedCombatStepParameters {
   };
   readBuffBlackboard: CombatStepParameters['readBuffBlackboard'];
   readEventBuffBlackboard: CombatStepParameters['readEventBuffBlackboard'];
+  readCurrentBuffRemainingDuration: CombatStepParameters['readCurrentBuffRemainingDuration'];
+  setCurrentBuffRemainingDuration: CombatStepParameters['setCurrentBuffRemainingDuration'];
   readBuffStackCount: CombatStepParameters['readBuffStackCount'];
   finishBuffsByTag: CombatStepParameters['finishBuffsByTag'];
   finishBuffsById: CombatStepParameters['finishBuffsById'];

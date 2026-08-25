@@ -261,6 +261,17 @@ export type CompiledBuffStepSource =
       };
     }
   | {
+      readonly kind: 'readCurrentBuffRemainingDuration';
+      readonly parameters: { readonly outputKey: string };
+    }
+  | {
+      readonly kind: 'setCurrentBuffRemainingDuration';
+      readonly parameters: {
+        readonly operation: 'assign' | 'add' | 'multiply';
+        readonly value: CompiledActionValueOperandSource;
+      };
+    }
+  | {
       readonly kind: 'changeResourceByActionValue';
       readonly parameters: {
         readonly resource: 'sp' | 'ultimateEnergy';
@@ -1208,6 +1219,47 @@ function compileActionNode(
       {
         kind: 'readEventBuffBlackboard',
         parameters: { desiredKey: action.desiredKey, outputKey: action.outputKey },
+      },
+    ];
+  }
+  if (node.body.value.family === 'buffLifeTimeRead') {
+    const action = node.body.value.action;
+    if (
+      action.owner.targetSource !== 'Owner' ||
+      action.owner.targetGroupKey !== '' ||
+      action.settings.checkType !== 'Environment' ||
+      action.settings.buffIds.length !== 0 ||
+      action.settings.tagQuery.queryType !== 'hasAny' ||
+      action.settings.tagQuery.tagIds.length !== 0
+    ) {
+      throw new Error(`${node.sourcePath}: unsupported Buff lifetime query`);
+    }
+    return [
+      {
+        kind: 'readCurrentBuffRemainingDuration',
+        parameters: { outputKey: action.outputKey },
+      },
+    ];
+  }
+  if (node.body.value.family === 'buffDurationMutation') {
+    const action = node.body.value.action;
+    const operation = ACTION_VALUE_OPERATIONS[action.operation];
+    if (
+      action.target.targetSource !== 'Owner' ||
+      action.target.targetGroupKey !== '' ||
+      action.settings.checkType !== 'Environment' ||
+      action.settings.buffIds.length !== 0 ||
+      action.settings.tagQuery.queryType !== 'hasAny' ||
+      action.settings.tagQuery.tagIds.length !== 0 ||
+      action.isFinishedEarly ||
+      (operation !== 'assign' && operation !== 'add' && operation !== 'multiply')
+    ) {
+      throw new Error(`${node.sourcePath}: unsupported Buff duration mutation`);
+    }
+    return [
+      {
+        kind: 'setCurrentBuffRemainingDuration',
+        parameters: { operation, value: actionValueOperand(action.value) },
       },
     ];
   }

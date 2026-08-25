@@ -1934,6 +1934,12 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - combat-spec 已先后提交目标集合包含、DamageType 位掩码与敌方 GlobalAura 的反编译规格和运行时。
   GlobalAura 的 Sphere 半径不进入零空间查找，但目标生命周期、Buff 来源、黑板传值和施法身份继承
   均保留。
-- 当前闭包首阻塞推进到 `buff_wpn_funnel_0016_will_atk/SaveBuffLifeTime`。该动作把当前 Buff 剩余
-  寿命写入黑板，真实案例再传给可视图标 Buff；不能因为不直接结算伤害就丢弃。下一步先在
-  combat-spec 恢复其 Infinity/Limited 分支，再接入 Next Buff 生命周期上下文并继续横向审计。
+- `SaveBuffLifeTime` 与配对的 `SetBuffDurationAction` 已按 1.4.4 机器码先在 combat-spec 恢复，再接入
+  Next 公共来源 IR、正式步骤与 Buff 生命周期上下文。前者只读取 Environment 查询中有限时长 Buff
+  的当前剩余秒数，无匹配或无限时长写 `0`；后者保留 Assign/Add/Multiply、负值钳零，并只开放真实
+  武器样本使用的 `isFinishedEarly=false`。这使母 Buff 的剩余时间能传给可视图标 Buff，没有丢弃图标
+  生命周期数据。
+- 武器闭包审计现在能完整列账而不再首错中断：91 个引用 Buff 展开为 107 个运行时节点，当前
+  **75/107 可编译、4 个木桩模型明确省略**。剩余阻塞已定位到伤害条件、能力事件、生命周期选项和
+  少量载荷族；下一批优先接会改变对敌输出的 `damageTypeMask / damageType / damageDecorateMask /
+buffStack / entityTag`，护盾、韧性和离战事件继续后置。

@@ -373,6 +373,37 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       return true;
     }
 
+    if (step.kind === 'readCurrentBuffRemainingDuration') {
+      if (context?.getCurrentBuffRemainingDuration === undefined) {
+        throw new Error('readCurrentBuffRemainingDuration requires a Buff operation context');
+      }
+      context.blackboard.assignDynamic(
+        step.parameters.outputKey,
+        context.getCurrentBuffRemainingDuration() ?? 0,
+      );
+      return true;
+    }
+
+    if (step.kind === 'setCurrentBuffRemainingDuration') {
+      if (
+        context?.getCurrentBuffRemainingDuration === undefined ||
+        context.setCurrentBuffRemainingDuration === undefined
+      ) {
+        throw new Error('setCurrentBuffRemainingDuration requires a Buff operation context');
+      }
+      const current = context.getCurrentBuffRemainingDuration();
+      if (current === null) return true;
+      const operand = resolveActionValueOperand(step.parameters.value, context.blackboard);
+      const result =
+        step.parameters.operation === 'assign'
+          ? operand
+          : step.parameters.operation === 'add'
+            ? current + operand
+            : current * operand;
+      context.setCurrentBuffRemainingDuration(Math.max(0, result));
+      return true;
+    }
+
     if (step.kind === 'readBuffStackCount') {
       if (context === undefined) {
         throw new Error('readBuffStackCount requires a combat operation context');

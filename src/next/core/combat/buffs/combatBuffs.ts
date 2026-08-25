@@ -593,6 +593,12 @@ export class CombatBuff<Key extends string> {
     this.#remainingDuration = incomingDuration;
   }
 
+  /** 原生 RawSetLifeTime：仅有限时长定义接受直接剩余时间写入。 */
+  rawSetRemainingDuration(duration: number): void {
+    if (this.definition.durationSeconds === undefined) return;
+    this.#remainingDuration = Math.max(0, duration);
+  }
+
   executeBeforeEnhance(sourceId: string): void {
     this.definition.actions?.beforeEnhance?.(this, sourceId);
   }

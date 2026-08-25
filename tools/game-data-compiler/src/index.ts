@@ -33,7 +33,11 @@ export {
   type CompiledSelectorAnchorSource,
 } from './compiler/abilityEntityQuery.ts';
 export {
+  parseBuffLifeTimeReadActionSource,
+  parseBuffDurationMutationActionSource,
   parseBuffStackReadActionSource,
+  type BuffLifeTimeReadActionSource,
+  type BuffDurationMutationActionSource,
   type BuffStackReadActionSource,
 } from './source/buffQueryActions.ts';
 export {

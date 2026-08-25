@@ -17,8 +17,12 @@ import {
 } from './buffActions.ts';
 import {
   parseBuffBlackboardReadActionSource,
+  parseBuffLifeTimeReadActionSource,
+  parseBuffDurationMutationActionSource,
   parseBuffStackReadActionSource,
   type BuffBlackboardReadActionSource,
+  type BuffLifeTimeReadActionSource,
+  type BuffDurationMutationActionSource,
   type BuffStackReadActionSource,
 } from './buffQueryActions.ts';
 import { parseConditionLeafSource, type NativeConditionSource } from './condition.ts';
@@ -137,6 +141,8 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'buffFinish'; readonly action: BuffFinishActionSource }
   | { readonly family: 'buffQuery'; readonly action: BuffStackReadActionSource }
   | { readonly family: 'buffBlackboardRead'; readonly action: BuffBlackboardReadActionSource }
+  | { readonly family: 'buffLifeTimeRead'; readonly action: BuffLifeTimeReadActionSource }
+  | { readonly family: 'buffDurationMutation'; readonly action: BuffDurationMutationActionSource }
   | { readonly family: 'heal'; readonly action: HealActionSource }
   | { readonly family: 'lifecycle'; readonly action: FinishOwnerActionSource }
   | {
@@ -267,6 +273,16 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'buffBlackboardRead',
         action: parseBuffBlackboardReadActionSource(value, path),
+      };
+    case 'SaveBuffLifeTime':
+      return {
+        family: 'buffLifeTimeRead',
+        action: parseBuffLifeTimeReadActionSource(value, path),
+      };
+    case 'SetBuffDurationAction':
+      return {
+        family: 'buffDurationMutation',
+        action: parseBuffDurationMutationActionSource(value, path, inheritedBlackboard),
       };
     case 'HealAction':
       return { family: 'heal', action: parseHealActionSource(value, path, inheritedBlackboard) };
