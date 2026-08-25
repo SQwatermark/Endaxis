@@ -80,6 +80,7 @@ describe('装备套装静态定义', () => {
 
   it('物化装备 ToggleBuff 的生命比例条件和参数', () => {
     const passive = passiveFixture();
+    passive.passiveSkillType = 'ToggleBuff';
     passive.blackboard = [
       { key: 'hp_ratio', valueDouble: 0.8, valueStr: '', isDynamic: false },
       { key: 'damage_up', valueDouble: 0.2, valueStr: '', isDynamic: false },

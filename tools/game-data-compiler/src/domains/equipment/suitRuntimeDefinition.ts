@@ -1,20 +1,17 @@
-import { compileResolvedAttributeModifierSource } from '../../compiler/attributeModifier.ts';
-import {
-  compileEventTargetSimpleDamageOperationSource,
-  type CompiledSimpleDamageOperationSource,
-} from '../../compiler/simpleDamageOperation.ts';
-import { collectBuffActionReferences } from '../../source/buffActionGraph.ts';
-import type { BuffApplicationActionSource } from '../../source/buffActions.ts';
-import type { NativeActionNodeSource, NativeSequenceSource } from '../../source/controlFlow.ts';
 import { requireRecord } from '../../source/primitives.ts';
+import { parseBuffRuntimeSource } from '../../source/buffRuntime.ts';
+import type {
+  CompiledBuffDefinitionSource,
+  CompiledBuffSequenceSource,
+  CompiledBuffStepSource,
+} from '../../compiler/buffRuntimeProjection.ts';
 import {
-  parseBuffRuntimeSource,
-  type BuffPresentationSource,
-  type BuffRuntimeSource,
-  type BuffStackingTypeSource,
-} from '../../source/buffRuntime.ts';
-import type { KnownNativeActionLeafSource } from '../../source/actionLeaf.ts';
-import type { ScalarSource } from '../../source/scalar.ts';
+  buffRuntimeReadsBlackboardKey,
+  collectBuffRuntimeClosure,
+  compileBuffRuntimeDefinitionSource,
+  isAfterEnemyDefeatedOnlyBuffRuntime,
+  isPresentationOnlyBuffStackEffect,
+} from '../../compiler/buffRuntimeProjection.ts';
 import type {
   CompiledGearSetStaticDefinitionSource,
   CompiledGearSetToggleBuffGroupSource,
@@ -22,135 +19,10 @@ import type {
 } from './suitStaticDefinition.ts';
 import type { EquipmentDefinitionDiagnosticSource } from './formalDefinition.ts';
 
-export type CompiledBuffNumberSource = number | { readonly blackboardKey: string };
-
-export interface CompiledBuffPresentationSource {
-  readonly visible: boolean;
-  readonly iconId?: string;
-  readonly iconPath?: string;
-  readonly showInHeadBarCommon: boolean;
-  readonly showInHeadBarAttached: boolean;
-  readonly showInSquadIcon: boolean;
-  readonly onlyShowForMainCharacter: boolean;
-  readonly iconStyleInSquad: string;
-  readonly abnormalColorType: string;
-  readonly orderPriority: {
-    readonly useDirectoryValue: boolean;
-    readonly value: number;
-    readonly category: string;
-  };
-}
-
-export interface CompiledBuffAttributeModifierSource {
-  readonly attribute: string;
-  readonly slot:
-    | 'addition'
-    | 'multiplier'
-    | 'finalAddition'
-    | 'finalMultiplier'
-    | 'baseAddition'
-    | 'baseMultiplier'
-    | 'baseFinalAddition'
-    | 'baseFinalMultiplier';
-  readonly value: CompiledBuffNumberSource;
-}
-
-export type CompiledEquipmentBuffConditionSource =
-  | {
-      readonly kind: 'eventSkillTypeIn';
-      readonly skillTypes: readonly ('battleSkill' | 'comboSkill' | 'ultimate')[];
-    }
-  | {
-      readonly kind: 'eventBuffTagsMatch';
-      readonly match: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
-      readonly buffTagIds: readonly number[];
-    }
-  | {
-      readonly kind: 'eventTargetBuffCountCompare';
-      readonly tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
-      readonly buffTagIds: readonly number[];
-      readonly operator:
-        'equal' | 'notEqual' | 'greater' | 'greaterOrEqual' | 'less' | 'lessOrEqual';
-      readonly value:
-        | { readonly kind: 'constant'; readonly value: number }
-        | { readonly kind: 'blackboard'; readonly key: string };
-    }
-  | {
-      readonly kind: 'timedMarkerPresent';
-      readonly target: 'caster';
-      readonly markerId: string;
-    }
-  | {
-      readonly kind: 'not';
-      readonly condition: CompiledEquipmentBuffConditionSource;
-    };
-
-export type CompiledEquipmentBuffStepSource =
-  | {
-      readonly kind: 'applyBuff';
-      readonly parameters: {
-        readonly buffId: string;
-        readonly target: 'caster';
-        readonly inheritSourceSkillCastInfo?: boolean;
-        readonly blackboardAssignments?: Readonly<
-          Record<
-            string,
-            | { readonly kind: 'constant'; readonly value: number | string }
-            | { readonly kind: 'blackboard'; readonly key: string }
-          >
-        >;
-      };
-    }
-  | {
-      readonly kind: 'conditional';
-      readonly parameters: { readonly condition: CompiledEquipmentBuffConditionSource };
-      readonly whenTrue: CompiledEquipmentBuffSequenceSource;
-    }
-  | CompiledSimpleDamageOperationSource
-  | {
-      readonly kind: 'createTimedMarker';
-      readonly parameters: {
-        readonly target: 'caster';
-        readonly markerId: string;
-        readonly durationSeconds:
-          | { readonly kind: 'constant'; readonly value: number }
-          | { readonly kind: 'blackboard'; readonly key: string };
-        readonly autoFinishByAction: false;
-      };
-    };
-
-export interface CompiledEquipmentBuffSequenceSource {
-  readonly steps: readonly CompiledEquipmentBuffStepSource[];
-}
-
-export interface CompiledEquipmentBuffDefinitionSource {
-  readonly stackingType: string;
-  readonly stackingKey?: string;
-  readonly priority:
-    CompiledBuffNumberSource | { readonly blackboardKey: string; readonly negate: true };
-  readonly maxStackCount: CompiledBuffNumberSource;
-  readonly durationSeconds?: CompiledBuffNumberSource;
-  readonly triggerIntervalSeconds?: CompiledBuffNumberSource;
-  readonly waitFirstTriggerInterval?: boolean;
-  readonly maxTriggerCount?: CompiledBuffNumberSource;
-  readonly timeClock?: 'global' | 'self';
-  readonly presentation?: CompiledBuffPresentationSource;
-  readonly applyTagIds: readonly number[];
-  readonly extendTagIds: readonly number[];
-  readonly blackboard: Readonly<Record<string, number | string>>;
-  readonly attributeModifiers: readonly CompiledBuffAttributeModifierSource[];
-  readonly lifecycleSequences?: { readonly enable: CompiledEquipmentBuffSequenceSource };
-  readonly abilityEventResponses?: readonly {
-    readonly event: 'beforeCastSkill' | 'outputBuff';
-    readonly priority: 0;
-    readonly sequence: CompiledEquipmentBuffSequenceSource;
-  }[];
-}
-
 export interface CompiledEquipmentSuitRuntimeBatchSource {
   readonly definitions: readonly (CompiledGearSetStaticDefinitionSource & {
-    readonly buffDefinitions?: Readonly<Record<string, CompiledEquipmentBuffDefinitionSource>>;
-    readonly initializationSequence?: CompiledEquipmentBuffSequenceSource;
+    readonly buffDefinitions?: Readonly<Record<string, CompiledBuffDefinitionSource>>;
+    readonly initializationSequence?: CompiledBuffSequenceSource;
   })[];
   readonly diagnostics: readonly EquipmentDefinitionDiagnosticSource[];
 }
@@ -219,7 +91,7 @@ export function compileEquipmentSuitRuntimeBatchSource(
         if (raw === undefined)
           throw new Error(`BuffData: missing toggle Buff ${JSON.stringify(installation.buffId)}`);
         const source = parseBuffRuntimeSource(raw, `BuffData.${installation.buffId}`);
-        if (isAfterEnemyDefeatedOnly(source)) {
+        if (isAfterEnemyDefeatedOnlyBuffRuntime(source)) {
           diagnostics.push({
             status: 'scenario-omitted',
             sourcePath: `BuffData.${installation.buffId}.abilityEventAction`,
@@ -241,13 +113,13 @@ export function compileEquipmentSuitRuntimeBatchSource(
       continue;
     }
 
-    const sources = collectRuntimeClosure(
+    const sources = collectBuffRuntimeClosure(
       installations.map(installation => installation.buffId),
       buffData,
     );
     const visualOnlyIds = new Set(
       [...sources.entries()]
-        .filter(([, source]) => isPresentationOnlyStackEffect(source))
+        .filter(([, source]) => isPresentationOnlyBuffStackEffect(source))
         .map(([id]) => id),
     );
     for (const id of visualOnlyIds) {
@@ -258,7 +130,7 @@ export function compileEquipmentSuitRuntimeBatchSource(
       });
     }
 
-    const buffDefinitions: Record<string, CompiledEquipmentBuffDefinitionSource> = {};
+    const buffDefinitions: Record<string, CompiledBuffDefinitionSource> = {};
     let blocked = false;
     for (const [buffId, source] of sources) {
       if (visualOnlyIds.has(buffId)) continue;
@@ -273,7 +145,7 @@ export function compileEquipmentSuitRuntimeBatchSource(
         });
       }
       try {
-        buffDefinitions[buffId] = compileEquipmentBuffRuntimeDefinitionSource(
+        buffDefinitions[buffId] = compileBuffRuntimeDefinitionSource(
           source,
           visualOnlyIds,
           omittedAbilityEvents,
@@ -288,7 +160,7 @@ export function compileEquipmentSuitRuntimeBatchSource(
       }
     }
     if (blocked) continue;
-    const initializationSteps: CompiledEquipmentBuffStepSource[] = [];
+    const initializationSteps: CompiledBuffStepSource[] = [];
     for (const installation of installations) {
       if (visualOnlyIds.has(installation.buffId)) continue;
       const rootSource = sources.get(installation.buffId);
@@ -380,456 +252,3 @@ function isUnresolvedSkillBlackboardValue(
 }
 
 /** Whether any executable/lifecycle field consumes a value from this Buff's local blackboard. */
-export function buffRuntimeReadsBlackboardKey(source: BuffRuntimeSource, key: string): boolean {
-  const readFieldNames = new Set(['blackboardKey', 'inputValueKey', 'buffIdKey']);
-  const visit = (value: unknown): boolean => {
-    if (Array.isArray(value)) return value.some(visit);
-    if (value === null || typeof value !== 'object') return false;
-    for (const [field, child] of Object.entries(value)) {
-      if (readFieldNames.has(field) && child === key) return true;
-      if (visit(child)) return true;
-    }
-    return false;
-  };
-  return visit(source);
-}
-
-function collectRuntimeClosure(
-  rootIds: readonly string[],
-  buffData: Record<string, unknown>,
-): Map<string, BuffRuntimeSource> {
-  const result = new Map<string, BuffRuntimeSource>();
-  const queue = [...rootIds];
-  while (queue.length > 0) {
-    const buffId = queue.shift()!;
-    if (result.has(buffId)) continue;
-    const raw = buffData[buffId];
-    if (raw === undefined)
-      throw new Error(`BuffData: missing Buff definition ${JSON.stringify(buffId)}`);
-    const source = parseBuffRuntimeSource(raw, `BuffData.${buffId}`);
-    if (source.graph.buffId !== buffId) throw new Error(`BuffData.${buffId}.id: identity mismatch`);
-    result.set(buffId, source);
-    for (const reference of collectBuffActionReferences(source.graph)) {
-      if (reference.kind !== 'buff' || reference.state === 'inactive') continue;
-      if (reference.id === null) {
-        throw new Error(
-          `${reference.sourcePath}: dynamic Buff references cannot form a static suit definition`,
-        );
-      }
-      queue.push(reference.id);
-    }
-  }
-  return result;
-}
-
-export function compileEquipmentBuffRuntimeDefinitionSource(
-  source: BuffRuntimeSource,
-  visualOnlyIds: ReadonlySet<string> = new Set(),
-  omittedAbilityEvents: ReadonlySet<string | number> = new Set(),
-): CompiledEquipmentBuffDefinitionSource {
-  if (source.unsupportedPayloads.length > 0) {
-    throw new Error(
-      `unsupported Buff payloads: ${source.unsupportedPayloads.map(item => item.field).join(', ')}`,
-    );
-  }
-  if (source.graph.timelineActions.length > 0 || source.graph.igniteEvents.length > 0) {
-    throw new Error('Buff timelines and ignite events are not yet supported by the suit projector');
-  }
-  const enableSequences: CompiledEquipmentBuffSequenceSource[] = [];
-  for (const event of source.graph.buffEvents) {
-    if (event.event !== 'DuringBuffEnable')
-      throw new Error(`unsupported Buff event ${JSON.stringify(event.event)}`);
-    for (const sequence of event.actions) {
-      const compiled = compileLinearSequence(sequence, visualOnlyIds);
-      if (compiled.steps.length > 0) enableSequences.push(compiled);
-    }
-  }
-  const beforeCastSteps: CompiledEquipmentBuffStepSource[] = [];
-  const outputBuffSteps: CompiledEquipmentBuffStepSource[] = [];
-  for (const event of source.graph.abilityEvents) {
-    if (omittedAbilityEvents.has(event.event)) continue;
-    const target =
-      event.event === 'OnBeforeCastSkill'
-        ? beforeCastSteps
-        : event.event === 'OnOutputBuff'
-          ? outputBuffSteps
-          : null;
-    if (target === null)
-      throw new Error(`unsupported ability event ${JSON.stringify(event.event)}`);
-    for (const sequence of event.actions)
-      target.push(...compileLinearSequence(sequence, visualOnlyIds).steps);
-  }
-  const blackboard = Object.fromEntries(
-    source.graph.declaredBlackboard.map(item => [item.key, item.value]),
-  );
-  return {
-    stackingType: STACKING_TYPES[source.lifecycle.stackingType],
-    ...(source.lifecycle.stackingIdentifierType === 'StackingKey'
-      ? { stackingKey: source.lifecycle.stackingKey }
-      : {}),
-    priority:
-      source.lifecycle.priority.blackboardKey === null
-        ? signed(source.lifecycle.priority.value, source.lifecycle.negatePriority)
-        : {
-            blackboardKey: source.lifecycle.priority.blackboardKey,
-            ...(source.lifecycle.negatePriority ? { negate: true as const } : {}),
-          },
-    maxStackCount: scalarOperand(source.lifecycle.maxStackCount),
-    ...(source.lifecycle.lifeType === 'Limited'
-      ? { durationSeconds: scalarOperand(source.lifecycle.duration) }
-      : {}),
-    ...(source.lifecycle.triggerInterval.value < 0 &&
-    source.lifecycle.triggerInterval.blackboardKey === null
-      ? {}
-      : {
-          triggerIntervalSeconds: scalarOperand(source.lifecycle.triggerInterval),
-          waitFirstTriggerInterval: source.lifecycle.waitFirstTriggerInterval,
-          maxTriggerCount: scalarOperand(source.lifecycle.maxTriggerCount),
-        }),
-    ...(source.graph.useTimeDilationDeltaTime
-      ? {
-          timeClock: source.graph.onlyUseSelfTimeDilation ? ('self' as const) : ('global' as const),
-        }
-      : {}),
-    ...(source.presentation.hasIcon || source.presentation.spritePath !== ''
-      ? { presentation: compilePresentation(source.presentation) }
-      : {}),
-    applyTagIds: source.applyTagIds,
-    extendTagIds: source.extendTagIds,
-    blackboard,
-    attributeModifiers: source.attributeModifiers.modifiers.map((modifier, index) => {
-      if (modifier.modifyAttributeType !== 'Specific') {
-        throw new Error(
-          `attributeModifiers[${index}]: unsupported target ${modifier.modifyAttributeType}`,
-        );
-      }
-      const compiled = compileResolvedAttributeModifierSource({
-        sourcePath: `BuffData.${source.graph.buffId}.attributeModifier.attributeModifiers[${index}]`,
-        modifyAttributeType: modifier.modifyAttributeType,
-        attributeType: modifier.attributeType,
-        formulaItem: modifier.formulaItem,
-        value: 0,
-      });
-      return {
-        attribute: modifier.attributeType,
-        slot: compiled.slot,
-        value: scalarOperand(modifier.parameter),
-      };
-    }),
-    ...(enableSequences.length === 0
-      ? {}
-      : { lifecycleSequences: { enable: mergeSequences(enableSequences) } }),
-    ...(beforeCastSteps.length === 0 && outputBuffSteps.length === 0
-      ? {}
-      : {
-          abilityEventResponses: [
-            ...(beforeCastSteps.length === 0
-              ? []
-              : [
-                  {
-                    event: 'beforeCastSkill' as const,
-                    priority: 0 as const,
-                    sequence: { steps: beforeCastSteps },
-                  },
-                ]),
-            ...(outputBuffSteps.length === 0
-              ? []
-              : [
-                  {
-                    event: 'outputBuff' as const,
-                    priority: 0 as const,
-                    sequence: { steps: outputBuffSteps },
-                  },
-                ]),
-          ],
-        }),
-  };
-}
-
-function compileLinearSequence(
-  source: NativeSequenceSource<KnownNativeActionLeafSource>,
-  visualOnlyIds: ReadonlySet<string>,
-): CompiledEquipmentBuffSequenceSource {
-  if (source.onlyExecuteWhenSourceIsMainCharacter || source.onlyExecuteWhenSourceIsGuard) {
-    throw new Error('sequence owner/guard root filters are not yet supported');
-  }
-  const nodes = source.actions.filter(node => node.metadata.enabled);
-  return { steps: compileLinearNodes(nodes, visualOnlyIds) };
-}
-
-function compileLinearNodes(
-  nodes: readonly NativeActionNodeSource<KnownNativeActionLeafSource>[],
-  visualOnlyIds: ReadonlySet<string>,
-): CompiledEquipmentBuffStepSource[] {
-  if (nodes.length === 0) return [];
-  const [first, ...rest] = nodes;
-  const condition = compileEventCondition(first!);
-  if (condition !== null) {
-    const body = compileLinearNodes(rest, visualOnlyIds);
-    return body.length === 0
-      ? []
-      : [{ kind: 'conditional', parameters: { condition }, whenTrue: { steps: body } }];
-  }
-  return [...compileActionNode(first!, visualOnlyIds), ...compileLinearNodes(rest, visualOnlyIds)];
-}
-
-function compileEventCondition(
-  node: NativeActionNodeSource<KnownNativeActionLeafSource>,
-): CompiledEquipmentBuffConditionSource | null {
-  if (node.body.kind !== 'leaf' || node.body.value.family !== 'condition') return null;
-  const condition = node.body.value.action;
-  if (condition.kind === 'skillType') {
-    return {
-      kind: 'eventSkillTypeIn',
-      skillTypes: condition.skillTypes.map(skillType => {
-        const mapped = SKILL_TYPES[skillType];
-        if (mapped === undefined)
-          throw new Error(`unsupported native skill type ${JSON.stringify(skillType)}`);
-        return mapped;
-      }),
-    };
-  }
-  if (condition.kind === 'contextBuff') {
-    if (condition.checkType !== 'Tag' || condition.buffIds.length > 0) {
-      throw new Error(`${node.sourcePath}: unsupported event Buff identity condition`);
-    }
-    const match = TAG_QUERY_TYPES[condition.queryType];
-    if (match === undefined) {
-      throw new Error(
-        `${node.sourcePath}: unsupported event Buff tag query ${JSON.stringify(condition.queryType)}`,
-      );
-    }
-    return { kind: 'eventBuffTagsMatch', match, buffTagIds: condition.buffTagIds };
-  }
-  if (condition.kind === 'buffStack') {
-    if (
-      condition.targetSource !== 'Target' ||
-      condition.targetGroupKey !== '' ||
-      condition.buffCheckType !== 'Tag' ||
-      condition.buffIds.length > 0 ||
-      condition.countType !== 'BuffCount' ||
-      condition.limitSkillCastId
-    ) {
-      throw new Error(`${node.sourcePath}: unsupported event target Buff count condition`);
-    }
-    const tagQueryType = condition.tagQueryType;
-    const operator = COMPARISON_OPERATORS[condition.comparison];
-    if (operator === undefined) {
-      throw new Error(`${node.sourcePath}: unsupported event target Buff count comparison`);
-    }
-    return {
-      kind: 'eventTargetBuffCountCompare',
-      tagQueryType,
-      buffTagIds: condition.buffTagIds,
-      operator,
-      value:
-        condition.value.blackboardKey === null
-          ? { kind: 'constant', value: condition.value.value }
-          : { kind: 'blackboard', key: condition.value.blackboardKey },
-    };
-  }
-  if (condition.kind === 'globalCooldown') {
-    if (
-      condition.targetSource !== 'Owner' ||
-      condition.targetGroupKey !== '' ||
-      condition.buffId.length === 0
-    ) {
-      throw new Error(`${node.sourcePath}: unsupported global cooldown condition target`);
-    }
-    return {
-      kind: 'not',
-      condition: { kind: 'timedMarkerPresent', target: 'caster', markerId: condition.buffId },
-    };
-  }
-  return null;
-}
-
-function compileActionNode(
-  node: NativeActionNodeSource<KnownNativeActionLeafSource>,
-  visualOnlyIds: ReadonlySet<string>,
-): CompiledEquipmentBuffStepSource[] {
-  if (node.body.kind !== 'leaf') {
-    throw new Error(`${node.sourcePath}: unsupported suit Buff action`);
-  }
-  if (node.body.value.family === 'buffApplication') {
-    return compileBuffApplication(node.body.value.action, visualOnlyIds, node.sourcePath);
-  }
-  if (node.body.value.family === 'damage') {
-    return [compileEventTargetSimpleDamageOperationSource(node.body.value.action, node.sourcePath)];
-  }
-  if (node.body.value.family === 'globalCooldown') {
-    const action = node.body.value.action;
-    if (
-      action.target.targetSource !== 'Source' ||
-      action.target.targetGroupKey !== '' ||
-      action.buffId.length === 0
-    ) {
-      throw new Error(`${node.sourcePath}: unsupported global cooldown application target`);
-    }
-    return [
-      {
-        kind: 'createTimedMarker',
-        parameters: {
-          target: 'caster',
-          markerId: action.buffId,
-          durationSeconds:
-            action.duration.blackboardKey === null
-              ? { kind: 'constant', value: action.duration.value }
-              : { kind: 'blackboard', key: action.duration.blackboardKey },
-          autoFinishByAction: false,
-        },
-      },
-    ];
-  }
-  throw new Error(`${node.sourcePath}: unsupported suit Buff action`);
-}
-
-function compileBuffApplication(
-  action: BuffApplicationActionSource,
-  visualOnlyIds: ReadonlySet<string>,
-  sourcePath: string,
-): CompiledEquipmentBuffStepSource[] {
-  if (action.count.blackboardKey !== null || action.count.value !== 1)
-    throw new Error(`${sourcePath}: Buff count must be fixed at one`);
-  if (action.target.targetSource !== 'Owner' || action.buffSource !== 'ActionOwner')
-    throw new Error(`${sourcePath}: unsupported Buff target/source`);
-  if (
-    action.autoFinishByAction ||
-    action.inheritSkillIds.length > 0 ||
-    action.inheritSourceSkillCastId ||
-    action.isExtra ||
-    action.passTargetGroupsToBuff ||
-    action.overrideBuffIconDuration
-  ) {
-    throw new Error(`${sourcePath}: unsupported CreateBuff lifecycle options`);
-  }
-  return action.buffs.flatMap(entry => {
-    if (entry.readIdFromBlackboard || entry.buffId.length === 0)
-      throw new Error(`${sourcePath}: dynamic Buff identity is unsupported`);
-    if (visualOnlyIds.has(entry.buffId)) return [];
-    const assignments = entry.assignBlackboard
-      ? Object.fromEntries(
-          entry.assignments.map(item => [
-            item.targetKey,
-            item.useDirectValue
-              ? {
-                  kind: 'constant' as const,
-                  value: item.valueType === 'Numeric' ? item.numericValue : item.stringValue,
-                }
-              : { kind: 'blackboard' as const, key: item.inputValueKey },
-          ]),
-        )
-      : {};
-    return [
-      {
-        kind: 'applyBuff' as const,
-        parameters: {
-          buffId: entry.buffId,
-          target: 'caster' as const,
-          ...(action.inheritSourceSkillCastInfo ? { inheritSourceSkillCastInfo: true } : {}),
-          ...(Object.keys(assignments).length === 0 ? {} : { blackboardAssignments: assignments }),
-        },
-      },
-    ];
-  });
-}
-
-function isPresentationOnlyStackEffect(source: BuffRuntimeSource): boolean {
-  return (
-    source.lifecycle.stackEffectCount > 0 &&
-    source.lifecycle.stackEffectActionTypes.every(type => type === 'EffectAction') &&
-    !source.presentation.hasIcon &&
-    source.presentation.spritePath === '' &&
-    source.attributeModifiers.modifiers.length === 0 &&
-    source.applyTagIds.length === 0 &&
-    source.extendTagIds.length === 0 &&
-    source.unsupportedPayloads.length === 0 &&
-    source.graph.timelineActions.length === 0 &&
-    source.graph.buffEvents.length === 0 &&
-    source.graph.abilityEvents.length === 0 &&
-    source.graph.igniteEvents.length === 0
-  );
-}
-
-function isAfterEnemyDefeatedOnly(source: BuffRuntimeSource): boolean {
-  return (
-    source.unsupportedPayloads.length === 0 &&
-    source.attributeModifiers.modifiers.length === 0 &&
-    source.applyTagIds.length === 0 &&
-    source.extendTagIds.length === 0 &&
-    source.graph.timelineActions.length === 0 &&
-    source.graph.buffEvents.length === 0 &&
-    source.graph.igniteEvents.length === 0 &&
-    source.graph.abilityEvents.length > 0 &&
-    source.graph.abilityEvents.every(event => event.event === 'OnAfterKillEntity')
-  );
-}
-
-function compilePresentation(source: BuffPresentationSource): CompiledBuffPresentationSource {
-  return {
-    visible: source.hasIcon,
-    ...(source.spritePath === ''
-      ? {}
-      : { iconId: source.spritePath, iconPath: `/icons/${source.spritePath}.webp` }),
-    showInHeadBarCommon: source.showInHeadBarCommon,
-    showInHeadBarAttached: source.showInHeadBarAttached,
-    showInSquadIcon: source.showInSquadIcon,
-    onlyShowForMainCharacter: source.onlyShowForMainCharacter,
-    iconStyleInSquad: source.iconStyleInSquad,
-    abnormalColorType: source.abnormalColorType,
-    orderPriority: {
-      useDirectoryValue: source.orderUseDirectoryValue,
-      value: source.orderPriorityValue,
-      category: source.orderPriorityEnum,
-    },
-  };
-}
-
-function scalarOperand(source: ScalarSource): CompiledBuffNumberSource {
-  return source.blackboardKey === null ? source.value : { blackboardKey: source.blackboardKey };
-}
-
-function signed(value: number, negate: boolean): number {
-  return negate ? -value : value;
-}
-function mergeSequences(
-  sequences: readonly CompiledEquipmentBuffSequenceSource[],
-): CompiledEquipmentBuffSequenceSource {
-  return { steps: sequences.flatMap(item => item.steps) };
-}
-
-const STACKING_TYPES: Record<BuffStackingTypeSource, string> = {
-  Unlimited: 'unlimited',
-  HighPriority: 'highPriority',
-  Stack: 'stack',
-  Enhance: 'enhance',
-  Refresh: 'refresh',
-  Extend: 'extend',
-  Modify: 'modify',
-  Unique: 'unique',
-  EnhanceAndRefresh: 'enhanceAndRefresh',
-  OverwriteDuration: 'overwriteDuration',
-  EnhanceAndOverwriteDuration: 'enhanceAndOverwriteDuration',
-  HighPriorityWithMaxStack: 'highPriorityWithMaxStack',
-};
-const SKILL_TYPES: Readonly<Record<string, 'battleSkill' | 'comboSkill' | 'ultimate'>> = {
-  NormalSkill: 'battleSkill',
-  ComboSkill: 'comboSkill',
-  UltimateSkill: 'ultimate',
-};
-const TAG_QUERY_TYPES: Readonly<Record<string, 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll'>> = {
-  HasAny: 'hasAny',
-  HasAll: 'hasAll',
-  ExceptAny: 'exceptAny',
-  ExceptAll: 'exceptAll',
-};
-const COMPARISON_OPERATORS: Readonly<
-  Record<string, 'equal' | 'notEqual' | 'greater' | 'greaterOrEqual' | 'less' | 'lessOrEqual'>
-> = {
-  EQ: 'equal',
-  NE: 'notEqual',
-  GT: 'greater',
-  GE: 'greaterOrEqual',
-  LT: 'less',
-  LE: 'lessOrEqual',
-};

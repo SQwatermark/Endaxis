@@ -190,7 +190,7 @@ describe('目标组单动作解析', () => {
       producerType: 'MergeTargetAction',
       targetGroupKey: 'combined',
     });
-    expect(parseTargetGroupWriteAction(action, 'fixture.action', schedule)).toEqual(
+    expect(withoutTargetGroupSourcePaths(parseTargetGroupWriteAction(action, 'fixture.action', schedule))).toEqual(
       runPythonOracle({ operation: 'parseTargetGroupWrite', payload }),
     );
   });
@@ -208,7 +208,7 @@ describe('目标组单动作解析', () => {
     };
     const root = timelineRoot(action, schedule.startFrame, schedule.endFrame);
     const payload = { root, sourceName: 'fixture.json' };
-    expect(parseTargetGroupWriteAction(action, 'fixture.action', schedule)).toEqual(
+    expect(withoutTargetGroupSourcePaths(parseTargetGroupWriteAction(action, 'fixture.action', schedule))).toEqual(
       runPythonOracle({ operation: 'parseTargetGroupWrite', payload }),
     );
   });
@@ -270,7 +270,7 @@ describe('目标组单动作解析', () => {
     if (interval !== undefined) action.findInterval = interval;
     const root = timelineRoot(action, schedule.startFrame, schedule.endFrame);
     const payload = { root, sourceName: 'fixture.json' };
-    expect(parseTargetGroupWriteAction(action, 'fixture.action', schedule)).toEqual(
+    expect(withoutTargetGroupSourcePaths(parseTargetGroupWriteAction(action, 'fixture.action', schedule))).toEqual(
       runPythonOracle({ operation: 'parseTargetGroupWrite', payload }),
     );
   });
@@ -288,21 +288,58 @@ describe('目标组单动作解析', () => {
           $type: 'Example.Selector+DistanceValidator+Data, Example',
           compareType: 'LE',
           value: scalarFixture(8),
+          clampToXZ: false,
         },
       ],
       postProcessorData: [
         {
           $type: 'Example.Selector+PriorityFilter+Data, Example',
+          filterType: 'DistanceFromOwnerAsc',
+          onlyReserveMaxPriorityTargets: false,
           limitMaxNum: true,
           maxNum: 1,
+          buffFilterSettings: {
+            buffSettings: {
+              checkType: 'Id',
+              buffIdList: [],
+              tagQuery: { queryType: 'HasAny', tags: [] },
+            },
+            buffStackNumType: 'BuffCount',
+          },
         },
       ],
     });
     const root = timelineRoot(action, schedule.startFrame, schedule.endFrame);
     const payload = { root, sourceName: 'fixture.json' };
-    expect(parseTargetGroupWriteAction(action, 'fixture.action', schedule)).toEqual(
-      runPythonOracle({ operation: 'parseTargetGroupWrite', payload }),
-    );
+    const actual = parseTargetGroupWriteAction(action, 'fixture.action', schedule);
+    const oracle = runPythonOracle({ operation: 'parseTargetGroupWrite', payload }) as Record<
+      string,
+      unknown
+    >;
+    expect(
+      withoutTargetGroupSourcePaths({ ...actual, priorityFilters: [], distanceValidators: [] }),
+    ).toEqual(oracle);
+    expect(actual?.priorityFilters).toEqual([
+      {
+        filterType: 'DistanceFromOwnerAsc',
+        onlyReserveMaxPriorityTargets: false,
+        limitMaxNum: true,
+        maxNum: 1,
+        buffFilter: {
+          checkType: 'Id',
+          buffIds: [],
+          tagQuery: { queryType: 'hasAny', tagIds: [] },
+          stackCountType: 'BuffCount',
+        },
+      },
+    ]);
+    expect(actual?.distanceValidators).toEqual([
+      {
+        threshold: { value: 8, blackboardKey: null, levelValues: null },
+        compareType: 'LE',
+        clampToXZ: false,
+      },
+    ]);
   });
 
   it('收集器关联同层 CheckEntityNum 的数量写回键', () => {
@@ -334,11 +371,22 @@ describe('目标组单动作解析', () => {
       },
     };
     const payload = { root, sourceName: 'fixture.json' };
-    expect(collectTargetGroupWrites(root, payload.sourceName)).toEqual(
+    const writes = collectTargetGroupWrites(root, payload.sourceName);
+    expect(withoutTargetGroupSourcePaths(writes)).toEqual(
       runPythonOracle({ operation: 'collectTargetGroupWrites', payload }),
+    );
+    expect(writes[0]?.sourcePath).toBe(
+      'fixture.json.actionGroupData.timelineActions[0]._sequenceActionData.actionData[0]',
     );
   });
 });
+
+function withoutTargetGroupSourcePaths(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(withoutTargetGroupSourcePaths);
+  if (typeof value !== 'object' || value === null) return value;
+  const { sourcePath: _sourcePath, ...rest } = value as Record<string, unknown>;
+  return rest;
+}
 
 function timelineRoot(
   action: Record<string, unknown>,

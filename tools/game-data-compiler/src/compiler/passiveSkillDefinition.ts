@@ -1,14 +1,10 @@
-import { parseDeclaredBlackboard } from '../source/blackboard.ts';
 import {
   parseNativePassiveSkillSource,
   type NativePassiveSkillSource,
 } from '../source/passiveSkill.ts';
-import { requireNonNegativeInteger, requireRecord } from '../source/primitives.ts';
 import type { SkillPatchSource } from '../source/skillPatch.ts';
-import {
-  resolveSkillBlackboardSource,
-  type ResolvedSkillBlackboardSource,
-} from './skillBlackboard.ts';
+import type { ResolvedSkillBlackboardSource } from './skillBlackboard.ts';
+import { prepareSkillDefinitionInputSource } from './skillDefinitionInput.ts';
 
 /** 供所有领域适配器消费的被动定义输入；尚未执行 Endaxis 场景投影。 */
 export interface CompiledPassiveSkillSource {
@@ -25,15 +21,9 @@ export function compilePassiveSkillSource(
   sourcePath: string,
   patch: SkillPatchSource | null,
 ): CompiledPassiveSkillSource {
-  const root = requireRecord(value, sourcePath);
-  const level = requireNonNegativeInteger(root.level, `${sourcePath}.level`);
-  const blackboard = resolveSkillBlackboardSource(
-    parseDeclaredBlackboard(root, sourcePath),
-    level,
-    patch,
-  );
+  const prepared = prepareSkillDefinitionInputSource(value, sourcePath, patch);
   return {
-    skill: parseNativePassiveSkillSource(value, sourcePath, blackboard.values),
-    blackboard,
+    skill: parseNativePassiveSkillSource(value, sourcePath, prepared.blackboard.values),
+    blackboard: prepared.blackboard,
   };
 }

@@ -7,7 +7,7 @@ describe('干员养成被动发现', () => {
     const requests = discoverOperatorPassiveSkillRequests(
       {
         talent_effect: effect('talent_effect', [
-          entry(3),
+          skillBlackboardEntry(),
           entry(1, {
             skillId: 'chr_fixture_talent',
             blackboard: [blackboard('rate', 0.2), blackboard('duration', 5)],
@@ -28,7 +28,7 @@ describe('干员养成被动发现', () => {
     ]);
   });
 
-  it('拒绝非活动槽位残留技能和尚未接入的活动条件', () => {
+  it('拒绝非活动槽位残留技能，并保留非空活动条件 ID', () => {
     expect(() =>
       discoverOperatorPassiveSkillRequests(
         { effect: effect('effect', [entry(3, { skillId: 'residual' })]) },
@@ -36,10 +36,18 @@ describe('干员养成被动发现', () => {
       ),
     ).toThrow('inactive payload is not empty');
     const conditional = entry(1, { skillId: 'conditional' });
-    conditional.activeCondition = [{}];
-    expect(() =>
+    conditional.activeCondition = ['condition_test'];
+    expect(
       discoverOperatorPassiveSkillRequests({ effect: effect('effect', [conditional]) }, ['effect']),
-    ).toThrow('condition parser is not connected');
+    ).toMatchObject([{ activeConditionIds: ['condition_test'] }]);
+
+    const skippedEmptyCondition = entry(1, { skillId: 'unconditional' });
+    skippedEmptyCondition.activeCondition = [''];
+    expect(
+      discoverOperatorPassiveSkillRequests({ effect: effect('effect', [skippedEmptyCondition]) }, [
+        'effect',
+      ]),
+    ).toHaveLength(1);
   });
 });
 
@@ -70,4 +78,17 @@ function entry(
 
 function blackboard(key: string, value: number): Record<string, unknown> {
   return { key, value, valueStr: '' };
+}
+
+function skillBlackboardEntry(): Record<string, unknown> {
+  return {
+    ...entry(3),
+    skillBbModifier: {
+      bbKey: 'rate',
+      floatValue: 0.1,
+      modifyType: 1,
+      skillId: 'active_skill',
+      stringValue: '',
+    },
+  };
 }

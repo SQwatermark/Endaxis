@@ -1,6 +1,7 @@
 import type { DamageActionSource } from '../source/damageActions.ts';
 import type { ScalarSource } from '../source/scalar.ts';
 import type { TargetReferenceSource } from '../source/target.ts';
+import { projectNativeDamageElement } from '../source/damageElement.ts';
 
 export type CompiledActionValueOperandSource =
   | { readonly kind: 'constant'; readonly value: number }
@@ -37,10 +38,10 @@ export function compileEventTargetSimpleDamageOperationSource(
   }
   const unit = action.units[0]!;
   const poiseUnit = action.units[1];
-  const damageType = DAMAGE_TYPES[unit.damageType];
-  if (damageType === undefined) {
-    throw new Error(`${sourcePath}: unsupported damage type ${JSON.stringify(unit.damageType)}`);
-  }
+  const damageType = projectNativeDamageElement(
+    unit.damageType,
+    `${sourcePath}.units[0].damageType`,
+  );
   if (
     unit.attributeType !== 'Hp' ||
     !unit.simpleCalculation ||
@@ -132,12 +133,3 @@ function scalarOperand(source: ScalarSource): CompiledActionValueOperandSource {
     ? { kind: 'constant', value: source.value }
     : { kind: 'blackboard', key: source.blackboardKey };
 }
-
-const DAMAGE_TYPES: Readonly<Record<string, 'physical' | 'heat' | 'electric' | 'cryo' | 'nature'>> =
-  {
-    Physical: 'physical',
-    Fire: 'heat',
-    Pulse: 'electric',
-    Cryst: 'cryo',
-    Natural: 'nature',
-  };

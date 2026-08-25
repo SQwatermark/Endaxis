@@ -1,7 +1,7 @@
 /**
  * Generated from the 1.4.4 GameplayTagConfig TypeTree dump.
  * Source SHA-256: 3758BB1F10764CE9D1BDA9EF5200D77B3FE93EA59DBD0E09F196C18221019CF8
- * Do not edit by hand; rerun scripts/generate_next_gameplay_tags.
+ * Do not edit by hand; rerun npm run generate:game-data:gameplay-tags.
  */
 import { gameplayTagIdFromPath } from '../../core/combat/tags/gameplayTags';
 

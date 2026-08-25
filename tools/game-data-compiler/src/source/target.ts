@@ -9,6 +9,17 @@ import {
   requireString,
 } from './primitives.ts';
 import { parseTagQuerySource, type TagQuerySource } from './tagQuery.ts';
+import {
+  parsePriorityFilterSources,
+  parseDistanceValidatorSources,
+  parseShuffleTargetSources,
+  selectorComponentName,
+  type PriorityFilterSource,
+  type DistanceValidatorSource,
+  type ShuffleTargetSource,
+} from './selectorComponents.ts';
+
+export { selectorComponentName } from './selectorComponents.ts';
 
 export interface TargetReferenceSource {
   readonly targetSource: string;
@@ -28,6 +39,9 @@ export interface TargetReferenceSource {
   readonly finderOwnerPartsQuery: TagQuerySource | null;
   readonly validatorTypes: readonly string[];
   readonly postProcessorTypes: readonly string[];
+  readonly priorityFilters: readonly PriorityFilterSource[];
+  readonly shuffleTargets: readonly ShuffleTargetSource[];
+  readonly distanceValidators: readonly DistanceValidatorSource[];
   readonly finderSpawnedObjectType: string | null;
   readonly validatorTagQueries: ReadonlyArray<readonly [string, readonly number[]]>;
 }
@@ -41,6 +55,9 @@ export interface SelectorSummarySource {
   readonly finderOwnerPartsQuery: TagQuerySource | null;
   readonly validatorTypes: readonly string[];
   readonly postProcessorTypes: readonly string[];
+  readonly priorityFilters: readonly PriorityFilterSource[];
+  readonly shuffleTargets: readonly ShuffleTargetSource[];
+  readonly distanceValidators: readonly DistanceValidatorSource[];
 }
 
 export interface SpawnedEntitySelectorIdentitySource {
@@ -122,27 +139,6 @@ const KNOWN_POST_PROCESSORS = new Set([
   'ShuffleTarget',
 ]);
 
-/**
- * 读取 Selector 嵌套类型名。该格式形如 `...Selector+HitBoxFinder+Data`，
- * 与普通 Action 的命名空间类型格式不同。
- */
-export function selectorComponentName(value: unknown, path: string): string {
-  const item = requireRecord(value, path);
-  const typeName = requireString(item.$type, `${path}.$type`);
-  const parts = (typeName.split(',', 1)[0] ?? '').split('+');
-  const componentName = parts.at(-2) ?? '';
-  const dataTypeName = parts.at(-1) ?? '';
-  // ShapeFinder 的嵌套数据类名是 ShapeFinderData；其他已观察组件通常直接名为 Data。
-  if (
-    parts.length < 3 ||
-    !componentName ||
-    (dataTypeName !== 'Data' && dataTypeName !== `${componentName}Data`)
-  ) {
-    throw new Error(`${path}.$type: unsupported selector type ${JSON.stringify(typeName)}`);
-  }
-  return componentName;
-}
-
 /** 解析完整目标引用，但不在此阶段把它归约为 Endaxis 的 caster、enemy 或 party。 */
 export function parseTargetReferenceSource(value: unknown, path: string): TargetReferenceSource {
   const target = requireRecord(value, path);
@@ -178,6 +174,9 @@ export function parseTargetReferenceSource(value: unknown, path: string): Target
     finderOwnerPartsQuery: summary.finderOwnerPartsQuery,
     validatorTypes: summary.validatorTypes,
     postProcessorTypes: summary.postProcessorTypes,
+    priorityFilters: summary.priorityFilters,
+    shuffleTargets: summary.shuffleTargets,
+    distanceValidators: summary.distanceValidators,
     finderSpawnedObjectType: spawnedIdentity.spawnedObjectType,
     validatorTagQueries: spawnedIdentity.tagQueries,
   };
@@ -237,6 +236,9 @@ export function parseSelectorSummarySource(
     KNOWN_POST_PROCESSORS,
     'processors',
   );
+  const priorityFilters = parsePriorityFilterSources(selector, path);
+  const shuffleTargets = parseShuffleTargetSources(selector, path);
+  const distanceValidators = parseDistanceValidatorSources(selector, path);
   return {
     finderType,
     finderFactionTarget,
@@ -246,6 +248,9 @@ export function parseSelectorSummarySource(
     finderOwnerPartsQuery,
     validatorTypes,
     postProcessorTypes,
+    priorityFilters,
+    shuffleTargets,
+    distanceValidators,
   };
 }
 

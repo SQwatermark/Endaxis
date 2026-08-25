@@ -38,6 +38,16 @@ describe('被动技能安装实例化', () => {
       patchApplied: true,
     });
   });
+
+  it('条件养成被动在实例化后继续保留原生条件 ID', () => {
+    const request = {
+      ...fixtureRequest({ kind: 'nativeDefault' }),
+      activeConditionIds: ['condition_left', 'condition_right'],
+    };
+    expect(materializePassiveSkillInstallation(request, fixtureDefinition())).toMatchObject({
+      activeConditionIds: ['condition_left', 'condition_right'],
+    });
+  });
 });
 
 function fixtureRequest(

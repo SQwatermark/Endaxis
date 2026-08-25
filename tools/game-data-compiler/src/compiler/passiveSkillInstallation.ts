@@ -1,7 +1,21 @@
-import type { PassiveSkillCompileRequestSource } from '../domains/passiveDiscovery.ts';
+import type { PassiveSkillCompileRequestSource } from './passiveSkillRequest.ts';
 import { requireNonNegativeInteger } from '../source/primitives.ts';
 import type { CompiledPassiveSkillDefinitionSource } from './passiveSkillBatch.ts';
 import { selectSkillBlackboardLevel } from './skillBlackboard.ts';
+import type { SkillBuffInstallSource } from '../source/skillBuffInstall.ts';
+
+/** 服务端被动可能在客户端 SkillData/SkillPatch 之外注入的运行时黑板值。 */
+export interface UnresolvedPassiveSkillBlackboardValueSource {
+  readonly kind: 'unresolvedSkillBlackboard';
+  readonly key: string;
+}
+
+export interface MaterializedPassiveBuffInstallationSource {
+  readonly buffId: string;
+  readonly blackboardAssignments: Readonly<
+    Record<string, number | string | UnresolvedPassiveSkillBlackboardValueSource>
+  >;
+}
 
 export interface MaterializedPassiveSkillInstallationSource {
   readonly originKind: PassiveSkillCompileRequestSource['originKind'];
@@ -11,6 +25,7 @@ export interface MaterializedPassiveSkillInstallationSource {
   readonly level: number;
   readonly patchApplied: boolean;
   readonly blackboard: Readonly<Record<string, number>>;
+  readonly activeConditionIds?: readonly string[];
 }
 
 /**
@@ -37,6 +52,41 @@ export function materializePassiveSkillInstallation(
     level: selected.level,
     patchApplied: selected.patchApplied,
     blackboard: { ...selected.values, ...request.inputBlackboard },
+    ...(request.activeConditionIds === undefined
+      ? {}
+      : { activeConditionIds: [...request.activeConditionIds] }),
+  };
+}
+
+/**
+ * 依据一次被动安装已经选定的动作黑板物化 CreateBuff 参数。
+ * 未出现在客户端补丁中的服务端值保留身份，交给领域场景投影判断是否会被实际读取。
+ */
+export function materializePassiveBuffInstallation(
+  source: SkillBuffInstallSource,
+  blackboard: Readonly<Record<string, number>>,
+): MaterializedPassiveBuffInstallationSource {
+  if (!source.assignBlackboard) return { buffId: source.buffId, blackboardAssignments: {} };
+  return {
+    buffId: source.buffId,
+    blackboardAssignments: Object.fromEntries(
+      source.assignments.map(assignment => {
+        if (assignment.useDirectValue) {
+          return [
+            assignment.targetKey,
+            assignment.valueType === 'Numeric' ? assignment.numericValue : assignment.stringValue,
+          ];
+        }
+        const value = blackboard[assignment.inputValueKey];
+        return [
+          assignment.targetKey,
+          value ?? {
+            kind: 'unresolvedSkillBlackboard' as const,
+            key: assignment.inputValueKey,
+          },
+        ];
+      }),
+    ),
   };
 }
 

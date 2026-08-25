@@ -1,0 +1,34 @@
+{
+  "defaultVersion": "1.4.4@9433094-12",
+  "sharedJsonIndex": "asset-sync-index.json",
+  "tableCfg": [
+    "CharacterTable",
+    "CharGrowthTable",
+    "CharacterPotentialTable",
+    "PotentialTalentEffectTable",
+    "SkillConditionTable",
+    "SkillPatchTable",
+    "WeaponBasicTable",
+    "WeaponBreakThroughTemplateTable",
+    "WeaponTalentTemplateTable",
+    "WeaponUpgradeTemplateTable",
+    "GemTable",
+    "EquipTable",
+    "ItemTable",
+    "EquipSuitTable"
+  ],
+  "jsonCollections": {
+    "SkillData": "skill-data-cdn",
+    "BuffData": "BuffData"
+  },
+  "operatorClosureCollections": {
+    "ProjectileData": {
+      "output": "ProjectileData",
+      "definitionKind": "projectile"
+    },
+    "AbilityEntityData": {
+      "output": "AbilityEntityData",
+      "definitionKind": "abilityEntity"
+    }
+  }
+}

@@ -1,8 +1,3 @@
-import {
-  parseAdvancedBuffFinishActionSource,
-  parseBuffApplicationActionSource,
-  parseLegacyBuffFinishActionSource,
-} from './buffActions.ts';
 import { type NativeActionNodeSource, type NativeSequenceSource } from './controlFlow.ts';
 import {
   nativeActionName,
@@ -13,14 +8,12 @@ import {
   requireRecord,
 } from './primitives.ts';
 import { parseSkillBuffInstallSources } from './skillBuffInstall.ts';
-import {
-  parseAbilityEntitySpawnActionSource,
-  parseProjectileLaunchActionSource,
-  parseSkillCastActionSource,
-} from './referenceActions.ts';
 import type { BlackboardLevelValues } from './scalar.ts';
 import { parseSkillActionGraphSource, type SkillActionGraphSource } from './skillActionGraph.ts';
-import type { KnownNativeActionLeafSource } from './actionLeaf.ts';
+import {
+  tryParseKnownNativeActionLeafSource,
+  type KnownNativeActionLeafSource,
+} from './actionLeaf.ts';
 
 export type DefinitionReferenceKind = 'buff' | 'skill' | 'abilityEntity' | 'projectile';
 export type DefinitionReferenceState = 'active' | 'inactive' | 'dynamic' | 'empty';
@@ -63,34 +56,17 @@ export function parseReferenceAwareActionLeafSource(
 ): ReferenceAwareActionLeafSource {
   const action = requireRecord(leaf, leafPath);
   const nativeName = nativeActionName(requireNonEmptyString(action.$type, `${leafPath}.$type`));
-  switch (nativeName) {
-    case 'CreateBuffAction':
-      return {
-        family: 'buffApplication',
-        action: parseBuffApplicationActionSource(leaf, leafPath, inheritedBlackboard),
-      };
-    case 'FinishBuffAction':
-      return {
-        family: 'buffFinish',
-        action: parseLegacyBuffFinishActionSource(leaf, leafPath, inheritedBlackboard),
-      };
-    case 'FinishBuffAdvanced':
-      return {
-        family: 'buffFinish',
-        action: parseAdvancedBuffFinishActionSource(leaf, leafPath, inheritedBlackboard),
-      };
-    case 'LaunchProjectile':
-      return { family: 'projectile', action: parseProjectileLaunchActionSource(leaf, leafPath) };
-    case 'SpawnAbilityEntity':
-      return {
-        family: 'abilityEntity',
-        action: parseAbilityEntitySpawnActionSource(leaf, leafPath, inheritedBlackboard),
-      };
-    case 'CastSkill':
-      return { family: 'skillCast', action: parseSkillCastActionSource(leaf, leafPath) };
-    default:
-      return { family: 'untracked', nativeName };
-  }
+  return (
+    tryParseKnownNativeActionLeafSource(
+      leaf,
+      leafPath,
+      inheritedBlackboard,
+      'referenceClosure',
+    ) ?? {
+      family: 'untracked',
+      nativeName,
+    }
+  );
 }
 
 /** 读取技能根 Buff 与动作图引用；条件安装的 Buff 仍是定义闭包中的活动依赖。 */
@@ -120,13 +96,18 @@ export function collectSkillRootBuffReferences(
   const root = requireRecord(value, sourcePath);
   const output: DefinitionReferenceSource[] = [];
   collectRootBuffEntries(root.buffs, `${sourcePath}.buffs`, 'attached', output);
-  requireArray(root.toggleBuffs, `${sourcePath}.toggleBuffs`).forEach((rawGroup, groupIndex) => {
-    const groupPath = `${sourcePath}.toggleBuffs[${groupIndex}]`;
-    const group = requireRecord(rawGroup, groupPath);
-    requireExactFields(group, new Set(['conditions', 'buffs']), groupPath);
-    requireArray(group.conditions, `${groupPath}.conditions`);
-    collectRootBuffEntries(group.buffs, `${groupPath}.buffs`, 'toggle', output);
-  });
+  const toggleBuffs = requireArray(root.toggleBuffs, `${sourcePath}.toggleBuffs`);
+  // Skill.Create 只在 Passive + ToggleBuff 时创建会读取 toggleBuffs 的运行时子类。
+  // 其他被动定义中的同名字段是无效序列化残留，不得形成假的 Buff 依赖。
+  if (root.castType === 'Passive' && root.passiveSkillType === 'ToggleBuff') {
+    toggleBuffs.forEach((rawGroup, groupIndex) => {
+      const groupPath = `${sourcePath}.toggleBuffs[${groupIndex}]`;
+      const group = requireRecord(rawGroup, groupPath);
+      requireExactFields(group, new Set(['conditions', 'buffs']), groupPath);
+      requireArray(group.conditions, `${groupPath}.conditions`);
+      collectRootBuffEntries(group.buffs, `${groupPath}.buffs`, 'toggle', output);
+    });
+  }
   const switchConfig = requireRecord(root.switchToBuffConfig, `${sourcePath}.switchToBuffConfig`);
   requireExactFields(
     switchConfig,

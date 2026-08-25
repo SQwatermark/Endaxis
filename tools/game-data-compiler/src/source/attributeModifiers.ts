@@ -144,25 +144,30 @@ export interface ResolvedAttributeModifierSource extends AttributeModifierIdenti
   readonly value: number;
 }
 
-export interface NativeAttributeModifierSource extends AttributeModifierIdentitySource {
+/** MemoryPack `Beyond.Gameplay.AttributeModifierData.AttributeModifier`。 */
+export interface GameplayAttributeModifierEntrySource extends AttributeModifierIdentitySource {
   readonly parameter: ScalarSource;
 }
 
-export interface CardAttributeModifierSource {
+/**
+ * MemoryPack `Beyond.Gameplay.AttributeModifierData`。
+ * SkillData.cardAttributeModifier 与 BuffData.attributeModifier 均明确引用该同一个原生类。
+ */
+export interface GameplayAttributeModifierSource {
   /** 原生容器标记；当前样本均为 false，但不能据此删除字段。 */
   readonly isConvertedAttribute: boolean;
-  readonly modifiers: readonly NativeAttributeModifierSource[];
+  readonly modifiers: readonly GameplayAttributeModifierEntrySource[];
 }
 
 /**
  * 读取 CardSkill 与战斗被动 SkillData 共用的属性修正结构。
  * 参数继续保持直接值、黑板引用与逐等级来源，不在读取层计算角色主副属性映射。
  */
-export function parseCardAttributeModifierSource(
+export function parseGameplayAttributeModifierSource(
   value: unknown,
   path: string,
   inheritedBlackboard: BlackboardLevelValues,
-): CardAttributeModifierSource {
+): GameplayAttributeModifierSource {
   const container = requireRecord(value, path);
   requireExactFields(container, new Set(['attributeModifiers', 'isConvertedAttribute']), path);
   return {

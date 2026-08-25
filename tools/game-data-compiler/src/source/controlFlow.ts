@@ -106,6 +106,45 @@ export interface NativeActionNodeSource<TLeaf> {
 
 export type NativeLeafParser<TLeaf> = (value: unknown, path: string) => TLeaf;
 
+/** 以原生顺序递归展开控制流中的全部动作节点，供公共数据流投影按 sourcePath 对齐。 */
+export function collectNativeActionNodes<TLeaf>(
+  sequence: NativeSequenceSource<TLeaf>,
+): NativeActionNodeSource<TLeaf>[] {
+  const result: NativeActionNodeSource<TLeaf>[] = [];
+  const visitSequence = (current: NativeSequenceSource<TLeaf>): void => {
+    for (const node of current.actions) {
+      result.push(node);
+      const body = node.body;
+      switch (body.kind) {
+        case 'ifElse':
+          visitSequence(body.condition);
+          visitSequence(body.whenTrue);
+          visitSequence(body.whenFalse);
+          break;
+        case 'switch':
+          body.options.forEach(option => visitSequence(option.action));
+          break;
+        case 'forEach':
+          visitSequence(body.action);
+          break;
+        case 'channeling':
+        case 'tickInterval':
+        case 'tickIntervalV2':
+          visitSequence(body.actionOnTick);
+          break;
+        case 'timelineJump':
+          visitSequence(body.condition);
+          break;
+        case 'leaf':
+        case 'negateNextResult':
+          break;
+      }
+    }
+  };
+  visitSequence(sequence);
+  return result;
+}
+
 /**
  * 严格读取原生 SequenceActionData，并把递归控制节点统一成公共树。
  * 此层不删除关闭项、不展开分支，也不把根序列守卫解释成技能释放条件。

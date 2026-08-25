@@ -1,6 +1,6 @@
 import {
-  parseCardAttributeModifierSource,
-  type CardAttributeModifierSource,
+  parseGameplayAttributeModifierSource,
+  type GameplayAttributeModifierSource,
 } from './attributeModifiers.ts';
 import { numericDeclaredBlackboard } from './blackboard.ts';
 import {
@@ -81,7 +81,7 @@ export interface BuffRuntimeSource {
   readonly graph: BuffActionGraphSource<KnownNativeActionLeafSource>;
   readonly presentation: BuffPresentationSource;
   readonly lifecycle: BuffLifecycleSource;
-  readonly attributeModifiers: CardAttributeModifierSource;
+  readonly attributeModifiers: GameplayAttributeModifierSource;
   readonly applyTagIds: readonly number[];
   readonly extendTagIds: readonly number[];
   readonly unsupportedPayloads: readonly UnsupportedBuffPayloadSource[];
@@ -198,7 +198,7 @@ export function parseBuffRuntimeSource(
       stackEffectCount: stackEffects.length,
       stackEffectActionTypes: stackEffects.flatMap(effect => effect.actionTypes),
     },
-    attributeModifiers: parseCardAttributeModifierSource(
+    attributeModifiers: parseGameplayAttributeModifierSource(
       root.attributeModifier,
       `${sourcePath}.attributeModifier`,
       localBlackboard,

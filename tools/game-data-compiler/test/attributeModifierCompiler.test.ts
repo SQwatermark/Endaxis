@@ -2,12 +2,32 @@ import { describe, expect, it } from 'vitest';
 
 import {
   compileResolvedAttributeModifierSource,
+  projectCombatRuntimeAttributeKey,
+  projectPrimaryAttributeKey,
   resolveCompiledAttributeModifierTargets,
   type ModifyAttributeTypeSource,
   type ModifierTypeSource,
 } from '../src/index.ts';
 
 describe('公共属性修正编译器', () => {
+  it('只通过公共入口投影原生四维属性键', () => {
+    expect((['Str', 'Agi', 'Wisd', 'Will'] as const).map(projectPrimaryAttributeKey)).toEqual([
+      'strength',
+      'agility',
+      'intellect',
+      'will',
+    ]);
+    expect(projectPrimaryAttributeKey('Atk')).toBeNull();
+  });
+
+  it('在进入 Next 运行时时统一投影原生伤害属性身份', () => {
+    expect(projectCombatRuntimeAttributeKey('PhysicalDamageIncrease')).toBe(
+      'physicalDamageIncrease',
+    );
+    expect(projectCombatRuntimeAttributeKey('PulseDamageIncrease')).toBe('electricDamageIncrease');
+    expect(projectCombatRuntimeAttributeKey('Atk')).toBe('Atk');
+  });
+
   it('把八个原生数字槽稳定映射到运行时槽位', () => {
     const cases: readonly [ModifierTypeSource, string][] = [
       ['Addition', 'addition'],

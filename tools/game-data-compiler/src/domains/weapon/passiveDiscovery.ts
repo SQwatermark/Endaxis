@@ -1,4 +1,4 @@
-import type { PassiveSkillCompileRequestSource } from '../passiveDiscovery.ts';
+import type { PassiveSkillCompileRequestSource } from '../../compiler/passiveSkillRequest.ts';
 import { parseWeaponBasicSources } from './basicTable.ts';
 
 /** 武器只负责发现 CardSkill 及其等级来源；SkillData 行为仍进入公共被动编译器。 */

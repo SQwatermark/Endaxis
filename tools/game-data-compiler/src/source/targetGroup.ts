@@ -17,6 +17,11 @@ import {
   type TargetReferenceSource,
 } from './target.ts';
 import type { TagQuerySource } from './tagQuery.ts';
+import type {
+  DistanceValidatorSource,
+  PriorityFilterSource,
+  ShuffleTargetSource,
+} from './selectorComponents.ts';
 import {
   distanceValidatorsPassAtZero,
   parseCharacterTeamSelectionRole,
@@ -38,6 +43,9 @@ export interface TargetGroupInputSource {
   readonly finderOwnerPartsQuery: TagQuerySource | null;
   readonly validatorTypes: readonly string[];
   readonly postProcessorTypes: readonly string[];
+  readonly priorityFilters: readonly PriorityFilterSource[];
+  readonly shuffleTargets: readonly ShuffleTargetSource[];
+  readonly distanceValidators: readonly DistanceValidatorSource[];
   readonly finderSpawnedObjectType: string | null;
   readonly validatorTagQueries: ReadonlyArray<readonly [string, readonly number[]]>;
 }
@@ -47,6 +55,7 @@ export interface TargetGroupWriteSource {
   readonly endFrame: number;
   readonly actionIndex: number;
   readonly actionPath: readonly string[];
+  readonly sourcePath: string;
   readonly targetGroupKey: string;
   readonly producerType:
     'FindTargetAction' | 'ContinuousFindTargetAction' | 'MergeTargetAction' | 'PickTargetAction';
@@ -73,6 +82,10 @@ export interface TargetGroupWriteSource {
   readonly smartTargetFallsBackToMainTarget: boolean;
   readonly distanceValidatorsPassAtZero: boolean;
   readonly priorityFilterMaxTargets: number | null;
+  /** 完整 PriorityFilter 载荷；maxTargets 只是旧场景投影所需的派生快捷值。 */
+  readonly priorityFilters: readonly PriorityFilterSource[];
+  readonly shuffleTargets: readonly ShuffleTargetSource[];
+  readonly distanceValidators: readonly DistanceValidatorSource[];
   readonly circularOrderIndexKey: string | null;
   readonly circularOrderDesiredCount: number | null;
   readonly circularOrderReverseFlag: number | null;
@@ -87,7 +100,12 @@ export interface TargetGroupWriteSource {
 /** 不含时间轴位置和相邻动作关联的纯原生目标组动作事实。 */
 export type TargetGroupActionSource = Omit<
   TargetGroupWriteSource,
-  'startFrame' | 'endFrame' | 'actionIndex' | 'actionPath' | 'saveCountToBlackboardKey'
+  | 'startFrame'
+  | 'endFrame'
+  | 'actionIndex'
+  | 'actionPath'
+  | 'sourcePath'
+  | 'saveCountToBlackboardKey'
 >;
 
 export interface TargetGroupScheduleContext {
@@ -164,6 +182,7 @@ export function parseTargetGroupWriteAction(
     endFrame: schedule.endFrame,
     actionIndex: requireNonNegativeInteger(action.serverActionIndex, `${path}.serverActionIndex`),
     actionPath: schedule.actionPath,
+    sourcePath: path,
     ...source,
     saveCountToBlackboardKey: null,
   };
@@ -259,6 +278,9 @@ function parseFindTargetAction(
     smartTargetFallsBackToMainTarget: smartTargetFallsBackToMainTarget(selector, selectorPath),
     distanceValidatorsPassAtZero: distanceValidatorsPassAtZero(selector, selectorPath),
     priorityFilterMaxTargets: priorityFilterMaxTargets(selector, selectorPath),
+    priorityFilters: summary.priorityFilters,
+    shuffleTargets: summary.shuffleTargets,
+    distanceValidators: summary.distanceValidators,
     circularOrderIndexKey: circularOrder?.indexKey ?? null,
     circularOrderDesiredCount: circularOrder?.desiredCount ?? null,
     circularOrderReverseFlag: circularOrder?.reverseFlag ?? null,
@@ -294,6 +316,9 @@ function parseMergeTargetAction(
       finderOwnerPartsQuery: summary.finderOwnerPartsQuery,
       validatorTypes: summary.validatorTypes,
       postProcessorTypes: summary.postProcessorTypes,
+      priorityFilters: summary.priorityFilters,
+      shuffleTargets: summary.shuffleTargets,
+      distanceValidators: summary.distanceValidators,
       finderSpawnedObjectType: target.finderSpawnedObjectType,
       validatorTagQueries: target.validatorTagQueries,
     } satisfies TargetGroupInputSource;
@@ -327,6 +352,9 @@ function parsePickTargetAction(
     finderOwnerPartsQuery: target.finderOwnerPartsQuery,
     validatorTypes: target.validatorTypes,
     postProcessorTypes: target.postProcessorTypes,
+    priorityFilters: target.priorityFilters,
+    shuffleTargets: target.shuffleTargets,
+    distanceValidators: target.distanceValidators,
     finderSpawnedObjectType: null,
     validatorTagQueries: [],
   };
@@ -372,6 +400,9 @@ function createBaseAction(
     smartTargetFallsBackToMainTarget: false,
     distanceValidatorsPassAtZero: false,
     priorityFilterMaxTargets: null,
+    priorityFilters: [],
+    shuffleTargets: [],
+    distanceValidators: [],
     circularOrderIndexKey: null,
     circularOrderDesiredCount: null,
     circularOrderReverseFlag: null,
@@ -413,7 +444,7 @@ export function collectTargetGroupWrites(
     const action = value as Record<string, unknown>;
     if (action.isEnable === false) return;
 
-    const sourcePath = `${sourceName}.${actionPath.join('.')}`;
+    const sourcePath = formatTargetGroupActionSourcePath(sourceName, actionPath);
     const write = parseTargetGroupWriteAction(action, sourcePath, {
       startFrame,
       endFrame,
@@ -448,7 +479,7 @@ export function collectTargetGroupWrites(
     }
     const checkIndex = requireNonNegativeInteger(
       action.serverActionIndex,
-      `${sourceName}.${childPath.join('.')}.serverActionIndex`,
+      `${formatTargetGroupActionSourcePath(sourceName, childPath)}.serverActionIndex`,
     );
     let candidateIndex = -1;
     result.forEach((write, index) => {
@@ -484,6 +515,17 @@ export function collectTargetGroupWrites(
     },
   );
   return result;
+}
+
+function formatTargetGroupActionSourcePath(
+  sourceName: string,
+  actionPath: readonly string[],
+): string {
+  const relative = actionPath.reduce(
+    (result, part) => result + (part.startsWith('[') ? part : `${result ? '.' : ''}${part}`),
+    '',
+  );
+  return `${sourceName}.actionGroupData.${relative}`;
 }
 
 function samePath(left: readonly string[], right: readonly string[]): boolean {

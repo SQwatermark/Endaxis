@@ -2,6 +2,18 @@
 
 本文只给出架构级状态。逐功能的定义、编译、执行和 UI 门槛以[功能迁移矩阵](../architecture/endaxis-next-feature-matrix.md)为准。
 
+> 2026-08-25 架构纠偏：装备套装领域中重复出现的公共 Buff 运行时编译器已移回
+> `compiler/buffRuntimeProjection.ts`，被动请求与安装物化也已从领域层收回公共编译层。
+> `architectureBoundaries.test.ts` 现强制公共层不反向依赖领域、严格来源层不依赖编译层、领域之间
+> 不横向耦合，并禁止领域重声明公共战斗定义或建立第二个原生 Action 分派。Operator 等价恢复是
+> 当前最高门禁；完成前停止扩大武器、装备行为覆盖。纠偏前已闭合的
+> `suit_crush_fracture` 作为第 13 套生产回归保留，但不继续第 14 套。
+>
+> Operator 新 TypeScript 适配器已经以 combat-spec 为语义依据恢复两条链：CharacterTable 的
+> 身份/默认武器/精确 `(level, breakStage)` 关键帧，以及 CharGrowthTable 的 `Attr(3)` 天赋属性节点。
+> 固定六档面板和默认好感属性省略被明确标为 Endaxis 产品投影，两者均与旧 Python oracle 做对象级
+> 差分。当前 40 个编译器测试文件、191 项通过；下一步接技能组严格校验与首个完整佩丽卡定义装配。
+
 > 2026-08-25：游戏数据生成主线已切到独立 `refactor/common-game-data` 工作树中的
 > `tools/game-data-compiler`。该 TypeScript 工具先建立干员、武器、装备共用的严格来源 IR、公共
 > 被动编译和领域安装请求，再接正式 Next 定义；旧 Python 生成器只保留为迁移 oracle。当前

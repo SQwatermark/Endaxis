@@ -1506,7 +1506,9 @@ function validateCombatStep(
     }
     case 'readBuffBlackboard':
     case 'readBuffStackCount': {
-      requireTarget();
+      // Buff 事件序列可从事件载荷解析 eventTarget；普通技能步骤仍会在运行时缺少
+      // 对应事件上下文时失败关闭。这里按公开类型校验单体 Buff 目标，不误缩成战斗目标。
+      requireEnum(parameters, 'target', BUFF_SINGLE_TARGETS_SET, `${path}.parameters`, out);
       requireString(parameters, 'outputKey', `${path}.parameters`, out);
       if (kind === 'readBuffBlackboard') {
         requireString(parameters, 'desiredKey', `${path}.parameters`, out);

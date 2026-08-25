@@ -170,6 +170,64 @@ type LevelValues = number | readonly number[];
 
 资源规则的事实应集中解析。例如终结技能量上限来自补丁后的终结技成本，回复倍率来自最终面板，调用者不再维护一份手写 operator resource facts。
 
+### 7.1 外部游戏数据编译器
+
+`tools/game-data-compiler` 是原生导出数据进入上述 Next 定义的唯一新转换入口。它与
+`src/next/core/compiler` 的职责不同：前者把版本化游戏数据转换成可审计的正式定义，后者把正式
+定义和用户构筑编译成单次模拟程序。
+
+外部编译器的依赖方向固定为：
+
+```text
+原生导出 -> source 严格读取 -> 公共源 IR -> compiler 公共语义
+         -> Endaxis 场景投影 -> domains 领域组装 -> renderer/writer
+```
+
+以下规则是强制架构门禁：
+
+- `source/` 只陈述原生字段和数据形状，不依赖语义编译器；
+- `compiler/` 只实现跨干员、武器、装备共用的 Action、Condition、Buff、能力实体、被动和引用闭包；
+- `domains/operator|weapon|equipment` 只实现各自入口、归属、成长、门槛和输出布局，不重复公共战斗 IR；
+- 公共层不得反向导入领域，三个领域不得横向导入彼此；
+- 同一种原生 Action 只能有一个公共分派入口，不能因首个消费者是装备就声明
+  `CompiledEquipmentBuffStepSource` 一类伪领域公共类型；
+- 原生类型归属必须由版本对应的 schema 引用图计算：以 Operator、Equipment、Weapon 等顶层
+  schema 为根，按 SparkBuffer type hash 或对应格式的名义类型身份递归遍历；单根可达为领域私有，
+  多根可达为公共来源类型。字段同形但身份不同不能合并；
+- 来源类型公共和 Endaxis 投影公共是两个结论。同原生类型但不同投影目标只复用来源 IR，不强行
+  合并领域组装；
+- 公共原生类型的解释能力只暴露给唯一的 source/compiler 链。领域层只消费规范化结果，不能直接
+  导入公共原生枚举解析模块；
+- 任何场景省略必须位于显式投影阶段并留审计，不能从原生 IR 删除证据；
+- 新语义以同版本 `combat-spec` 代码、文档或版本化工件为依据；旧 Python 仅作对象级 oracle；
+- Operator 与旧生成器的正式输出尚未等价前，不继续扩大武器、装备行为覆盖。
+- 原生身份与产品身份分开：`charId`、原生职业、元素字符串和稀有度来自版本化表；`slug/gameId`
+  必须由 Endaxis manifest 显式提供。不得从本地化名称、英文展示名或旧生成结果隐式派生产品身份；
+- 多个原生 schema 使用同一元素身份时共用一个 source 基础入口。领域投影只能消费该规范结果，
+  不得在 Character、Damage、Condition 等消费者中重复维护同一张映射表；
+- OperatorDefinition 可以分阶段组装，但只有静态头部、技能组、技能行为、养成行为和所有定义引用
+  都闭合后才称为完整候选。静态头部不得单独注册，也不得用空技能/空升级占位冒充完成。
+
+`tools/game-data-compiler/test/architectureBoundaries.test.ts` 自动检查依赖能力、重复声明和第二分派
+入口，不使用相似字符串搜索代替语义身份判断。完整实现契约见
+[`tools/game-data-compiler/README.md`](../../tools/game-data-compiler/README.md)。
+
+### 7.2 原生资源获取边界
+
+Endaxis 游戏数据编译器自己维护 `akedb-sources.json`，它是所需 TableCfg、SkillData 与 BuffData
+集合的唯一清单。`combat-spec` 只证明原生类型和运行语义，不参与资源发现，也不是 Endaxis 的默认
+生成输入目录。
+
+下载器按每个逻辑资源先查 AKEDB CDN，再查可选的 vfs-index-browser 兼容提供者。两端对外统一为
+`TableCfg-<version>/<name>.json` 和 `<collection>/<file>.json`；集合另有 `manifest.json`。AKEDB 已有
+集合清单时，只对其中明确资源逐文件 fallback，不合并 VFS 的额外成员；AKEDB 完全缺少该集合时才
+使用 VFS 清单。领域额外依赖由 Endaxis 闭包按精确 ID 获取。vfs-index-browser 只负责把本机
+Effective VFS 文件完整解码成 source 层可消费的 JSON，不拥有 Endaxis 的资源清单，也不读取
+combat-spec 决定导出范围。
+
+所有输出逐文件记录 provider、实际来源、字节数和 SHA-256 provenance。混合来源是明确、可审计的快照，不能伪装成纯 AKEDB
+版本；fallback 解码不完整必须失败关闭，不能用预览截断内容继续生成。
+
 ## 8. Mechanic 扩展
 
 Mechanic 用于表达不适合塞入通用技能 step、但会向编译或运行时贡献行为的机制，例如：
@@ -279,3 +337,42 @@ i18n 原则：
 - 当前 breaking change 允许不兼容更早实验版本，但重构完成后的正式版本必须有稳定 schema 和迁移策略；
 - `/timeline` 在切换前不应被 Next 开发顺手修改；
 - UI 可以参考或复制旧组件样式，但新功能写入 `src/next`。
+
+## Unity 模板的引用闭包下载
+
+Unity 模板集合不在当前 AKEDB shared JSON 索引中。Endaxis 仍在自己的资源目录中声明需求，
+但采用引用闭包下载：先批量取得 SkillData/BuffData，再按原始字段收集 `projectileId` 与
+`abilityEntityId`，最后批量请求 ProjectileData/AbilityEntityData。vfs-index-browser 对这两类资源
+提供与集合下载器同构的 `manifest.json` 和单文件 URL，并通过精确 manifest asset path、bundle、
+AnimeStudio raw/JSON 导出完成解码。combat-spec 只提供字段与布局证据，不决定下载文件，也不是
+运行输入。
+
+定义图中的 Projectile/AbilityEntity 终端节点当前只证明身份已经解析。Projectile 载荷保留
+`ProjectileComponentData`；AbilityEntity 只读取已证实前缀，不根据未知组件列表猜引用或行为。
+因此“来源闭包无缺失”与“行为已可模拟”是两个独立门禁，领域投影仍需对未知语义失败关闭。
+
+Owner-spawned AbilityEntity 查询也属于公共编译层，不属于 Operator 或 Equipment。统一投影必须
+依次保存 selector owner、ObjectType 掩码、TagValidator 和 SkillCastIdValidator：finder 只遍历
+owner 的 children，不能自行附加“当前施法”条件；同施法过滤只来自对应 validator。根据 born tags
+得到的模板 ID 集合是静态候选，运行时仍从实际 children 中按原生顺序选择实例。所有父标签匹配必须
+使用同版本 GameplayTag 路径目录；只有裸数值 ID 时退化为精确匹配，而不是猜测路径。
+主动 SkillData 的公共编译结果必须保存已经严格收集的目标组写入；后续公共查询连接器和领域投影只
+消费该 IR，不得各自重扫原始动作 JSON。Operator 闭包只显式接收版本化 AbilityEntity 目录与
+GameplayTag 注册表：引用下载计划可以在模板尚未取得时只解析定义边，正式编译则在遇到相关查询时
+强制要求查询上下文。这样“规划缺资源”和“正式行为已闭合”是两个类型和运行门禁，而不是一个可空
+全局注册表。
+目标组写入必须携带其完整 SkillData `sourcePath`；查询切片沿用这个身份并通过公共控制流遍历器确认
+对应节点确实存在于同一份动作图。调用方不得另传 manifest 路径或手工拼接前缀，否则查询 IR 会与
+控制流形成两套无法校验的坐标系。
+
+Selector 来源 IR 必须保存后处理器的完整原始载荷，不能只保留组件名或某个场景碰巧使用的派生字段。
+例如 PriorityFilter 至少同时包含排序类型、最高优先级开关、数量限制、最大数量与 Buff 筛选设置；
+来源解析完整与执行语义闭环仍是两道独立门禁。只有 combat-spec 已恢复对应排序函数和裁剪顺序后，
+公共 compiler 才能把它投影为可执行操作，领域适配器不得用固定零距离或旧生成结果提前吞掉处理器。
+当前已闭环的 owner 距离 PriorityFilter 必须投影为有序的运行时后处理器：升/降序、显式数量限制与
+未限量时 128 硬上限都来自 combat-spec；它只能重排 selector owner 的实际 children 候选，静态
+`candidateTemplateIds` 仍只是 born-tag 目录候选。若后续出现最高优先级裁剪、非空 Buff 筛选或其他
+排序枚举，公共编译器必须继续失败关闭，不能把“结构相似”当成“语义相同”。
+`ShuffleTarget` 同理必须保留原生顺序与动态限量：先洗牌，求值结果大于零时再裁剪。来源 IR 保存完整
+`BlackboardInt`，公共查询 IR 保存运行时随机后处理；只有具体消费链证明顺序不可观察时，Endaxis 场景
+投影才能带审计地省略洗牌。Unity Random 与战斗减法随机流不是同一来源，不能复用后者冒充前者。

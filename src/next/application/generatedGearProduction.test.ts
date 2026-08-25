@@ -153,6 +153,88 @@ describe('generated gear production integration', () => {
       }),
     );
   });
+
+  it('applies the generated fracture/crush set Buff during a physical infliction chain', () => {
+    const scenario = createEmptyScenario('scenario:crush-fracture-set', '碎甲猛击套生产回归');
+    scenario.battle.durationFrames = 260;
+    scenario.battle.resourceRules.maxSp = 400;
+    scenario.battle.resourceRules.initialSp = 400;
+    scenario.enemy.editable.hp = 10_000_000;
+    scenario.tracks[0] = {
+      id: 'track:pogranichnik',
+      operator: {
+        operatorSlug: pogranichnikGeneratedOperator.slug,
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 0, 1: 0 },
+      },
+      weapon: null,
+      gears: {
+        armor: {
+          gearSlug: 'item_equip_t4_suit_crush_fracture_body_01',
+          artificingLevels: [0, 0, 0],
+        },
+        gloves: {
+          gearSlug: 'item_equip_t4_suit_crush_fracture_hand_01',
+          artificingLevels: [0, 0, 0],
+        },
+        accessory1: {
+          gearSlug: 'item_equip_t4_suit_crush_fracture_edc_01',
+          artificingLevels: [0, 0, 0],
+        },
+        accessory2: null,
+      },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    let placed = scenario;
+    let nextId = 0;
+    for (const startFrame of [1, 61, 121, 181]) {
+      placed = placeSkillGroup({
+        scenario: placed,
+        trackIndex: 0,
+        operator: pogranichnikGeneratedOperator,
+        skillGroupKey: 'battleSkill',
+        startFrame,
+        ids: { allocate: kind => `${kind}:crush-fracture-set:${++nextId}` },
+      }).scenario;
+    }
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          ultimateEnergySystemUnlocked: true,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+        },
+      },
+      endFrame: 260,
+      criticalSamples: new ExplicitCriticalSampleSource(Array.from({ length: 40 }, () => 1)),
+      elementalInflictionDocument: elementalAttachments,
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+    });
+
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'BuffApplied',
+        sourceId: 'track:pogranichnik',
+        targetId: 'track:pogranichnik',
+        data: expect.objectContaining({
+          buffId: 'buff_equipsuit_crush_fracture_physicdamage',
+        }),
+      }),
+    );
+  });
 });
 
 function runWithGear(gearSlug: string, damageTraitLevel: number) {

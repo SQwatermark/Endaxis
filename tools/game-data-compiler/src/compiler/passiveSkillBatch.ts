@@ -1,16 +1,15 @@
-import type { PassiveSkillCompileRequestSource } from '../domains/passiveDiscovery.ts';
-import { requireRecord } from '../source/primitives.ts';
-import { parseSkillPatchSource } from '../source/skillPatch.ts';
+import type { PassiveSkillCompileRequestSource } from './passiveSkillRequest.ts';
 import {
   compilePassiveSkillSource,
   type CompiledPassiveSkillSource,
 } from './passiveSkillDefinition.ts';
+import {
+  compileSkillDefinitionBatchSource,
+  type CompiledSkillDefinitionIdentitySource,
+} from './skillDefinitionBatch.ts';
 
-export interface CompiledPassiveSkillDefinitionSource {
-  readonly skillId: string;
-  readonly sourcePath: string;
-  readonly definition: CompiledPassiveSkillSource;
-}
+export type CompiledPassiveSkillDefinitionSource =
+  CompiledSkillDefinitionIdentitySource<CompiledPassiveSkillSource>;
 
 export interface PassiveSkillCompilationBatchSource {
   /** 原始领域请求保持顺序和重复项；装备槽位与多个养成来源不能被定义去重吞掉。 */
@@ -29,34 +28,11 @@ export function compilePassiveSkillRequestBatch(
   skillPatchValue: unknown,
   skillDataSourceName = 'SkillData',
 ): PassiveSkillCompilationBatchSource {
-  const skillDataTable = requireRecord(skillDataValue, skillDataSourceName);
-  const skillPatchTable = requireRecord(skillPatchValue, 'SkillPatchTable');
-  const definitions: CompiledPassiveSkillDefinitionSource[] = [];
-  const compiledIds = new Set<string>();
-
-  for (const request of requests) {
-    if (compiledIds.has(request.skillId)) continue;
-    const sourcePath = `${skillDataSourceName}.${request.skillId}`;
-    if (!(request.skillId in skillDataTable)) {
-      throw new Error(`${sourcePath}: missing definition requested by ${request.sourcePath}`);
-    }
-    const patch =
-      request.skillId in skillPatchTable
-        ? parseSkillPatchSource(skillPatchTable[request.skillId], request.skillId)
-        : null;
-    const definition = compilePassiveSkillSource(
-      skillDataTable[request.skillId],
-      sourcePath,
-      patch,
-    );
-    if (definition.skill.skillId !== request.skillId) {
-      throw new Error(
-        `${sourcePath}.skillId: expected ${JSON.stringify(request.skillId)}, found ${JSON.stringify(definition.skill.skillId)}`,
-      );
-    }
-    compiledIds.add(request.skillId);
-    definitions.push({ skillId: request.skillId, sourcePath, definition });
-  }
-
-  return { requests: [...requests], definitions };
+  return compileSkillDefinitionBatchSource(
+    requests,
+    skillDataValue,
+    skillPatchValue,
+    compilePassiveSkillSource,
+    skillDataSourceName,
+  );
 }

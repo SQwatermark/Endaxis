@@ -6,6 +6,8 @@ import {
   requireRecord,
   requireString,
 } from '../../source/primitives.ts';
+import { projectWeaponType, type ProjectedWeaponTypeSource } from '../../compiler/weaponType.ts';
+import { parseWeaponTypeValue, type WeaponTypeSource } from '../../source/weaponType.ts';
 
 const WEAPON_FIELDS = new Set([
   'breakthroughTemplateId',
@@ -32,7 +34,8 @@ export interface WeaponBasicSource {
   readonly talentTemplateId: string;
   readonly maximumLevel: number;
   readonly rarity: number;
-  readonly weaponType: number;
+  readonly nativeWeaponType: WeaponTypeSource;
+  readonly weaponType: ProjectedWeaponTypeSource;
   readonly modelPath: string;
   readonly potentialSkillId: string;
   readonly skillIds: readonly string[];
@@ -61,6 +64,7 @@ export function parseWeaponBasicSources(
     requireRecord(row.engName, `${sourcePath}.engName`);
     requireRecord(row.weaponDesc, `${sourcePath}.weaponDesc`);
 
+    const nativeWeaponType = parseWeaponTypeValue(row.weaponType, `${sourcePath}.weaponType`);
     return {
       sourcePath,
       weaponId,
@@ -75,7 +79,8 @@ export function parseWeaponBasicSources(
       ),
       maximumLevel: requireNonNegativeInteger(row.maxLv, `${sourcePath}.maxLv`),
       rarity: requireNonNegativeInteger(row.rarity, `${sourcePath}.rarity`),
-      weaponType: requireNonNegativeInteger(row.weaponType, `${sourcePath}.weaponType`),
+      nativeWeaponType,
+      weaponType: projectWeaponType(nativeWeaponType, `${sourcePath}.weaponType`),
       modelPath: requireString(row.modelPath, `${sourcePath}.modelPath`),
       potentialSkillId: requireString(
         row.weaponPotentialSkill,

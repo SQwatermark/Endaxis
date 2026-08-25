@@ -4,7 +4,7 @@ import {
   parseModifyAttributeTypeValue,
   type AttributeModifierIdentitySource,
   type ResolvedAttributeModifierSource,
-} from '../../source/attributeModifiers.ts';
+} from './attributeModifiers.ts';
 import {
   requireArray,
   requireBoolean,
@@ -13,7 +13,7 @@ import {
   requireNumber,
   requireRecord,
   requireString,
-} from '../../source/primitives.ts';
+} from './primitives.ts';
 
 const EQUIPMENT_FIELDS = new Set([
   'displayAttrModifiers',

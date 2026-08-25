@@ -114,7 +114,7 @@ const definition = {
       blackboard: { duration: 6, phy_dmg_up2: 0.2 },
       attributeModifiers: [
         {
-          attribute: 'PhysicalDamageIncrease',
+          attribute: 'physicalDamageIncrease',
           slot: 'baseAddition',
           value: { blackboardKey: 'phy_dmg_up2' },
         },
@@ -131,7 +131,7 @@ const definition = {
       blackboard: { duration: 6, max_stack: 4, phy_dmg_up: 0.2 },
       attributeModifiers: [
         {
-          attribute: 'PhysicalDamageIncrease',
+          attribute: 'physicalDamageIncrease',
           slot: 'baseAddition',
           value: { blackboardKey: 'phy_dmg_up' },
         },

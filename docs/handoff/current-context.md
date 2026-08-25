@@ -3,9 +3,89 @@
 > 更新时间：2026-08-25（Asia/Shanghai）
 > 本文是变化最快、优先级最高的交接入口。完全不了解背景时，先读 [交接文档首页](./README.md)，再读本文和 [Next 文档入口](../next/README.md)。
 
-当前主线是在台式机工作树 `D:\Projects\Endaxis` 的 `refactor/common-game-data` 分支重写统一
-TypeScript 游戏数据编译器。唯一新入口为
+当前主线是在工作树 `C:\Users\sqwat\Projects\zmd\Endaxis-game-data-refactor` 的
+`refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
+
+### 2026-08-25：统一编译器边界修复与 Operator 恢复 checkpoint
+
+- AbilityEntity 模板已进入公共严格目录：本机同版本闭包现有 52 份可解析模板，保存原生身份、
+  born tags、动态寿命/叠层来源和已证实的生命周期前缀。GameplayTag 路径由 TypeScript 工具从
+  同版本 TypeTree dump 生成，CRC 与父子查询实现统一位于 `src/shared/gameplayTags.ts`；裸 ID
+  没有路径证据时只允许精确匹配。
+- 新增公共 `compiler/abilityEntityQuery.ts`，把
+  `OwnerSpawnedEntityFinder + AbilityEntity + TagValidator/SkillCastIdValidator` 投影为明确的
+  owner、center、按原顺序验证器和候选模板 ID。候选 ID 只是“目录中可能通过模板标签验证”的集合，
+  运行时仍必须从 selector owner 的 children 正向筛选；`OwnerSpawnedEntityFinder` 本身绝不等同于
+  “当前施法生成”，只有 `SkillCastIdValidator` 才保留同次施法约束。
+- 对当前可完整收集目标组写入的 Operator SkillData 做了只读探针：58 个 owner-spawned 写入中，
+  新公共投影严格接受 58 个；其中零 ObjectType 掩码按原生位运算显式编译为空集合，Owner 距离
+  PriorityFilter 按原顺序保留为运行时实例排序，最后一个 `ShuffleTarget` 也保留完整限量值。该数字只衡量
+  这一个公共查询切片，不代表技能行为已完成，也不包含被其他未恢复 TargetGroup 类型阻塞的文件。
+- 公共主动 SkillData 编译结果现直接携带按动作路径收集的 `targetGroupWrites`，后续查询投影不再重扫
+  原始 JSON。Operator 来源闭包已通过公共连接器生成逐技能 AbilityEntity 查询切片；能力实体目录和
+  GameplayTag 注册表是显式、同版本输入，不允许导入 Next 的生成全局表。下载计划仍允许模板尚未到位，
+  但正式闭包一旦出现 owner-spawned 查询而缺少该上下文会失败关闭。同一份 AbilityEntityData 只编译
+  一次公共目录，定义闭包节点从该目录派生，不为引用审计和查询投影各解析一遍原始资产。
+- `TargetGroupWriteSource` 现保存解析时的完整 SkillData `sourcePath`，查询连接器不再接受调用方自行
+  拼接的路径前缀。公共控制流新增原生顺序递归遍历器；每个查询写入必须能按该路径在同一份已编译
+  动作图中找到节点，否则按内部 IR 漂移失败。该门禁同时修复了旧收集器遗漏 `actionGroupData`、数组
+  索引错误格式化为 `.actionData.[0]` 的证据路径问题；相对 `actionPath` 与计数关联语义保持不变。
+- `source/selectorComponents.ts` 现作为 Selector 嵌套组件的公共严格入口；PriorityFilter 不再只留下
+  类型名和 `maxNum`，而是完整保存排序枚举、两个数量开关、最大数量和 Buff ID/Tag/叠层筛选。
+  combat-spec 的 1.4.4 机器码产物已闭环 Owner Asc/Des：升序权重为 owner 到候选的三维距离，降序
+  权重为其负值，`priorWeight=0`；显式数量限制和未限量时的 128 硬上限走公共筛选器。Endaxis 因此
+  投影为 `distanceFromOwner + order + maxTargets`，仍只对运行时 children 实例执行。随后从同版本
+  `ShuffleTarget.PostProcess` 和泛型助手闭环了“先全量 Fisher-Yates 洗牌、限量值 > 0 才裁剪、负值
+  不限量、hit-reaction 不参与”；公共 IR 保存 `shuffle + targetNumLimit`，Unity Random 状态仍留作
+  运行时显式边界。该样本并列的 DistanceValidator 也完整保存阈值、比较符和 XZ 开关。
+- 庄方宜该组 `swordsForSmallThunder` 的完整文件内引用已核对：后续只按 `sword_index` Pick 单个实例，
+  然后三个 Switch 分支都只执行 EffectAction 并递增索引；没有伤害、Buff、资源或实体状态消费者。
+  因此具体 Operator 场景可以在省略整段表现消费者后让随机顺序不可观察，但公共查询 IR 仍必须保留
+  ShuffleTarget，不能把这个局部死用证明扩成全局规则。
+- 此前 `domains/equipment/suitRuntimeDefinition.ts` 错误拥有一套以 Equipment 命名的公共 Buff
+  条件、步骤、序列和定义编译器，现已纠正为公共 `compiler/buffRuntimeProjection.ts`。套装领域
+  只负责门槛、固定木桩场景选择、批次装配和正式文件布局，不再按原生 Action 建第二个分派入口。
+- 完整依赖审计还发现公共被动批处理反向导入领域发现类型，以及装备领域自行物化公共被动 Buff
+  安装。请求类型已移到 `compiler/passiveSkillRequest.ts`，安装物化已统一进入
+  `compiler/passiveSkillInstallation.ts`；Operator、Weapon、Equipment 只提供各自的发现入口。
+- 新增 `architectureBoundaries.test.ts` 强制公共层不依赖 `domains/`、严格 `source/` 不依赖
+  `compiler/`、领域不横向依赖，并禁止领域重声明公共战斗定义或建立第二个原生 Action 分派。
+  正则门禁不能替代代码审查；改名后的语义重复仍必须在扩功能前清除。
+- 引用闭包曾在 `referenceGraph.ts` 手写 Buff/Projectile/AbilityEntity/CastSkill 的第二套 Action
+  分派，现已删除并复用 `actionLeaf.ts` 的公共唯一分派器。公共尝试入口只有在类型确实未知时返回
+  `null`；引用相关已知类型若字段漂移仍严格报错。引用闭包的解析 scope 只启用会形成定义边的动作，
+  不会因无关的 `MoveSpeedScalar` 快照或 Buff 私有 `AbilityEntityTargetFinder` 扩大闭包门禁；主动技能
+  目标组仍由独立公共数据流收集阶段负责。
+- 当前门禁：游戏数据编译器 58 个测试文件 / 244 项、`type-check:game-data`、`type-check:next` 和
+  `git diff --check` 通过。combat-spec 的 PriorityFilter 定向测试 12/12 通过；其全量测试 1190 项中
+  1176 项通过，14 项失败来自本机缺少装备 BuffData 夹具及现有全量样本计数/严格边界漂移，与本次
+  PriorityFilter 修改无关，不能宣称 combat-spec 全绿。
+- 架构推进顺序也是功能门禁：Operator 尚未达到旧 Python 正式输出等价前，不再扩大武器和装备
+  的正式行为覆盖。纠偏前已闭合并通过生产模拟的第 13 套 `suit_crush_fracture` 及既有回归保留，
+  但不继续第 14 套，也不能借装备样本反向定义公共战斗语义。
+- Operator 已恢复两条严格数据链。`CharacterTable` 按 combat-spec 的
+  `LoadoutTableAdapter.ParseCharacter` 读取角色 ID、原始元素字符串、原生职业枚举、整数稀有度、
+  主副属性、默认武器和完整关键帧；职业精确成员来自 1.4.4 SparkBuffer schema 的
+  `ProfessionCategory (0xABF873A2)`，不是由旧版输出或 AKEDB 展示映射反推。查找严格按
+  `(level, breakStage)` 首项精确匹配，不插值。Next 六档面板是显式产品投影
+  `(1,0)/(20,0)/(40,1)/(60,2)/(80,3)/(90,4)`，并与旧 Python 面板 oracle 对象级一致。
+- CharacterTable、DamageAction 与条件数据的原生元素身份已收敛到公共 `source/damageElement.ts`；
+  source 不反向依赖 compiler，三个消费者也不再各维护一份 `Fire/Pulse/Cryst/Natural` 映射。
+  `compileOperatorDefinitionHeaderSource` 现从同一来源闭包产出正式定义可用的稀有度、武器、元素、
+  职业、主副属性、六档面板和非默认好感属性。它故意不生成 `slug/gameId`，因为二者是产品身份，
+  不能从显示字段猜测；技能和养成行为未装配前也不能把该头部注册成完整 OperatorDefinition。
+- `CharGrowthTable.talentNodeMap` 按 combat-spec 的 `PotentialTalentTableAdapter.ParseTalentNodes`
+  严格读取。好感属性只消费 `Attr(3)` 节点的 `Specific/BaseAddition`，默认主属性
+  `[10,15,15,20]` 不重复写入定义，双属性例外保留；两种结果均通过 Python oracle 差分。
+- 当前转换器门禁为 58 个测试文件、244 项全部通过，`type-check:game-data`、`type-check:next` 与
+  `git diff --check` 通过。真实 30 名 Operator 的模板引用计划继续完整：120 个 Projectile、53 个
+  AbilityEntity、0 个未解析 Skill/Buff。当前本机只有 52 个 AbilityEntity 且没有 ProjectileData 目录，
+  台式机 fallback 暂时返回 502，因此正式闭包全量审计不能冒充通过。Operator 功能主线下一步先给
+  manifest 增加显式产品身份，并选择一个既有正式干员把技能组、主动技能、养成和定义闭包装配为
+  完整候选；资源侧并行阻塞仍是补齐下载闭包。领域层不得重新解析 finder/validator 或复制标签解析。
+- combat-spec 本地证据基线为 `db2bcbad395411e3a6f104814ce3e2fc76ef5f02`。所有新语义必须先能
+  指向其代码、文档或版本化研究工件；旧 Python 只能确认兼容结果，不能填补证据缺口。
 
 ### 2026-08-25：物理异常输出事件与套装查询 IR checkpoint
 
@@ -1394,3 +1474,66 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
   该 checkpoint 当时已生成 2/23 套；后续服务端黑板读集与固定满血 Toggle 归约已把当前进度推进到
   10/23。基础 `OnOutputBuff` 标签分支已经闭合；剩余类别为事件 Buff 层数条件、暴击事件、Aura 和
   少量公共条件/伤害动作。`tmp/` 继续不提交。
+
+### 2026-08-25：AKEDB 主源与本机 VFS fallback 协议
+
+- Endaxis 的 TypeScript 下载器已取代旧 Python 脚本。所需 14 张 TableCfg 与 SkillData/BuffData
+  集合只由 `tools/game-data-compiler/akedb-sources.json` 声明；默认输出改到 Endaxis 自己的
+  `tmp/game-data-sources`。combat-spec 不再被当作下载目标或输入提供者，只保留反编译证据职责。
+- 单资源优先级固定为 AKEDB CDN -> vfs-index-browser。fallback 可以是本地同构目录，也可以是
+  `/api/akedb-compatible` HTTP 基址；表、集合 manifest 和集合文件使用同一逻辑路径。集合清单合并后，
+  AKEDB 重名文件优先，只有本机新资源仍可进入闭包。AKEDB manifest 尚未登记请求版本时，该版本
+  TableCfg 可直接按清单版本走 VFS，不要求 VFS 伪造总 manifest。输出 provenance 逐文件标注实际来源。
+- vfs-index-browser 新增精确兼容接口：TableCfg 从 Effective
+  `Table/Data/TableCfg/*.bytes` 经 SparkBuffer 解码；SkillData/BuffData 从 Effective JsonData 经
+  MemoryPack schema 解码，只有消费全部字节才返回数据。接口不做模糊搜索，不从 combat-spec 或
+  Endaxis 清单推导资源范围。
+- 验证：真实 `1.4.4@9433094-12` 14/14 TableCfg 均由 AKEDB 下载；游戏数据编译器 52 文件
+  220/220，vfs-index-browser 243/243，游戏数据编译器类型检查通过。真实下载产生的 `tmp/` 仍不得提交。
+
+### 2026-08-25：Projectile / AbilityEntity 引用闭包资源接入
+
+- 原先“23 项阻塞全部是模板缺失”的首阻塞统计已作废。新版闭包会递归懒加载投射物命中等子
+  SkillData，不能用每名干员遇到的第一个错误代替完整依赖计划。当前 30 名 Operator 的精确计划是
+  120 个 Projectile 模板、53 个 AbilityEntity 模板。
+- 计划器曾把 Arcane/Camille 的 `buff_wpn_passive_spirit_01` 报为缺失。`combat-spec` 的
+  `passive-skill-dispatch.md` 已证明这三处定义都是 `passiveSkillType=AddBuff`，原生工厂不会构造
+  `ToggleBuffPassiveSkill`，残留 `toggleBuffs` 不参与运行时。公共被动解析和引用图现只在
+  `Passive + ToggleBuff` 时跟随该表，精确计划由此达到 `unresolvedDefinitions=0`；不能通过补一个
+  猜造 Buff 解决假缺口。
+- vfs-index-browser 新增 `ProjectileData` 与 `AbilityEntityData` 的 AKEDB 兼容集合端点。
+  Projectile 复用既有精确 manifest/bundle/`ProjectileComponentData` 解码链；AbilityEntity 将旧提取
+  脚本中已验证的 raw MonoBehaviour 前缀解析迁入服务，按根 RID 和完整托管类型三元组定位，不依赖
+  托管引用记录顺序。两类清单都只枚举 canonical Unity asset 目录的直接子项。
+- Endaxis `akedb-sources.json` 新增 Operator 闭包集合声明。基础集合不会在 AKEDB 已有清单时合并
+  VFS 的所有新文件；独立 `download:game-data:operator-closure` 命令递归补齐实际子 Skill/Buff，随后
+  按精确 `projectileId` / `abilityEntityId` 批量下载最小模板闭包。资源需求与扫描字段由 Endaxis
+  自己维护，不取决于 combat-spec。
+- Operator 来源审计已接受 ProjectileData/AbilityEntityData 目录并把严格身份节点接入公共定义图。
+  AbilityEntity 已从仅校验 `gameId` 改为严格读取当前逻辑前缀的全部字段，动态寿命与动态叠层黑板、
+  born tags、原生生命周期值和解码边界均保留。台式机实际拉取的 52/53 个模板全部通过新 TS 来源
+  解析；唯一未取得者仍是已有证据明确缺失的
+  `abilityentity_chr_0035_liino_ult_skill_projhit`。这些事实不宣称未知组件行为已可模拟。
+- AbilityEntity 单文件读取已提升为公共模板目录：按 `gameId` 确定性排序并索引，文件键与内部身份
+  不一致立即失败；born tags 只建立精确倒排索引，父子标签匹配必须等待同版本 GameplayTag 路径，
+  不从裸 CRC-32 ID 猜层级。当前 52 份真实模板形成 35 个精确 born tag；其中 2 份使用动态寿命键，
+  1 份同时使用动态最大叠层键，均保留在源 IR 而未压扁成静态正式定义。
+- GameplayTag 的 CRC-32 与父子路径查询已从 Next 运行时抽到 `src/shared/gameplayTags.ts`；运行时保留
+  原导入路径转发，新游戏数据编译器直接复用同一个实现。AbilityEntity born-tag 查询因此可按同版本
+  路径目录解析父标签；未知裸 ID 仍只能精确匹配，不存在 Python/TS 两套算法漂移。
+- 旧 `generate_gameplay_tag_catalog.py` 已由统一 TS 工具替代。新 source 严格读取
+  `GameplayTagConfig._keyData` 的声明数量、顺序和重复项，compiler 计算 CRC 并检查冲突，renderer
+  固定来源 SHA-256 且支持 `--check`。从台式机取得的已知 dump 哈希仍为
+  `3758bb1f...019cf8`，真实 652 条路径生成与现有正式模块除生成命令注释外逐字一致；随后正式模块
+  已由新命令刷新并通过 check。dump 和临时对照产物只在 `tmp/`。
+- 下载 provenance 现逐文件记录 provider、实际 URL/路径、字节数和 SHA-256。VFS fallback 尚不能声明
+  对应哪个服务端构建，因此这里只保证同一输入可识别和复核，不把“当前 VFS”伪装成指定 TableCfg
+  版本。当前 52 份与已提交 1.4.4 证据的同 ID 逻辑字段逐项一致；旧证据另有 7 份不属于当前精确
+  Operator 计划，不能据此扩张下载闭包。
+- 当前外部资产阻塞已精确量化：120/120 个 Operator Projectile 请求在台式机 VFS 返回 422，说明
+  manifest 身份存在但 `ProjectileComponentData` 尚未成功解码；不能退回按 ID 或旧版技能行为伪造
+  模板。该解码问题由 VFS 产品化分支处理，本工作树继续围绕取得后的严格转换接口推进。
+- 回归：Endaxis 游戏数据 TypeScript 类型检查通过，全量游戏数据 Vitest `56` 个文件、`234/234`；
+  52 份真实 AbilityEntity JSON 全部通过来源解析。台式机的正确连接仍是
+  `Admin@100.64.0.64`；临时 VFS 服务已在审计后关闭。所有真实下载仍位于
+  `tmp/game-data-sources`，不得提交。

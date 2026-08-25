@@ -1,4 +1,11 @@
-import { requireBoolean, requireNumber, requireRecord } from './primitives.ts';
+import {
+  requireBoolean,
+  requireExactFields,
+  requireInteger,
+  requireNumber,
+  requireRecord,
+  requireString,
+} from './primitives.ts';
 
 export interface ScalarSource {
   /** 原生字段中的直接数值；即使启用黑板引用也必须保留。 */
@@ -13,6 +20,11 @@ export interface StringScalarSource {
   /** 原生字段中的直接字符串；启用黑板引用时也必须保留。 */
   readonly value: string;
   /** 启用黑板引用时的键；未启用时固定为 null。 */
+  readonly blackboardKey: string | null;
+}
+
+export interface IntegerScalarSource {
+  readonly value: number;
   readonly blackboardKey: string | null;
 }
 
@@ -59,4 +71,19 @@ export function parseStringScalarSource(value: unknown, path: string): StringSca
     throw new Error(`${path}: active string blackboard reference has no key`);
   }
   return { value: rawValue, blackboardKey: useBlackboardKey ? key : null };
+}
+
+/** 读取与 BlackboardInt 同形的整数包装；AbilityEntity 与 Selector 共用同一来源解释。 */
+export function parseIntegerScalarSource(value: unknown, path: string): IntegerScalarSource {
+  const source = requireRecord(value, path);
+  requireExactFields(source, new Set(['useBlackboardKey', 'value', 'blackboardKey']), path);
+  const useBlackboardKey = requireBoolean(source.useBlackboardKey, `${path}.useBlackboardKey`);
+  const blackboardKey = requireString(source.blackboardKey, `${path}.blackboardKey`);
+  if (useBlackboardKey && blackboardKey.length === 0) {
+    throw new Error(`${path}: active integer blackboard reference has no key`);
+  }
+  return {
+    value: requireInteger(source.value, `${path}.value`),
+    blackboardKey: useBlackboardKey ? blackboardKey : null,
+  };
 }

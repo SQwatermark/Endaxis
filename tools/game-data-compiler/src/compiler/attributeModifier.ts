@@ -3,6 +3,14 @@ import type {
   ResolvedAttributeModifierSource,
 } from '../source/attributeModifiers.ts';
 
+// 领域适配器只通过公共编译入口消费规范化属性修正，不直接依赖原生枚举解析模块。
+export {
+  type AttributeTypeSource,
+  type ModifierTypeSource,
+  type ModifyAttributeTypeSource,
+  type ResolvedAttributeModifierSource,
+} from '../source/attributeModifiers.ts';
+
 export const ATTRIBUTE_MODIFIER_SLOTS = [
   'addition',
   'multiplier',
@@ -16,6 +24,61 @@ export const ATTRIBUTE_MODIFIER_SLOTS = [
 export type AttributeModifierSlotSource = (typeof ATTRIBUTE_MODIFIER_SLOTS)[number];
 
 export type CompiledAttributeModifierTargetSource = 'specific' | 'main' | 'sub' | 'all';
+export type ProjectedPrimaryAttributeSource = 'strength' | 'agility' | 'intellect' | 'will';
+
+const PRIMARY_ATTRIBUTE_KEYS: Readonly<
+  Partial<Record<AttributeTypeSource, ProjectedPrimaryAttributeSource>>
+> = {
+  Str: 'strength',
+  Agi: 'agility',
+  Wisd: 'intellect',
+  Will: 'will',
+};
+
+/**
+ * 原生 AttributeType 到 Next 战斗属性键的已取证映射。
+ * 公共 IR 始终保留原生枚举身份；只有进入 Next 运行时定义时才做投影。
+ */
+const COMBAT_RUNTIME_ATTRIBUTE_KEYS: Readonly<Partial<Record<AttributeTypeSource, string>>> = {
+  ...PRIMARY_ATTRIBUTE_KEYS,
+  CriticalRate: 'criticalRate',
+  CriticalDamageIncrease: 'criticalDamageIncrease',
+  NormalAttackDamageIncrease: 'normalAttackDamageIncrease',
+  NormalSkillDamageIncrease: 'normalSkillDamageIncrease',
+  ComboSkillDamageIncrease: 'comboSkillDamageIncrease',
+  UltimateSkillDamageIncrease: 'ultimateSkillDamageIncrease',
+  PhysicalDamageIncrease: 'physicalDamageIncrease',
+  FireDamageIncrease: 'heatDamageIncrease',
+  PulseDamageIncrease: 'electricDamageIncrease',
+  CrystDamageIncrease: 'cryoDamageIncrease',
+  NaturalDamageIncrease: 'natureDamageIncrease',
+  EtherDamageIncrease: 'etherDamageIncrease',
+  FireAbnormalDamageIncrease: 'fireAbnormalDamageIncrease',
+  PulseAbnormalDamageIncrease: 'electricAbnormalDamageIncrease',
+  CrystAbnormalDamageIncrease: 'cryoAbnormalDamageIncrease',
+  NaturalAbnormalDamageIncrease: 'natureAbnormalDamageIncrease',
+  FireBurstDamageIncrease: 'fireBurstDamageIncrease',
+  PulseBurstDamageIncrease: 'electricBurstDamageIncrease',
+  CrystBurstDamageIncrease: 'cryoBurstDamageIncrease',
+  NaturalBurstDamageIncrease: 'natureBurstDamageIncrease',
+  PhysicalEnhancedDmgIncrease: 'physicalEnhancedDamageIncrease',
+  FireEnhancedDmgIncrease: 'heatEnhancedDamageIncrease',
+  PulseEnhancedDmgIncrease: 'electricEnhancedDamageIncrease',
+  CrystEnhancedDmgIncrease: 'cryoEnhancedDamageIncrease',
+  NaturalEnhancedDmgIncrease: 'natureEnhancedDamageIncrease',
+  EtherEnhancedDmgIncrease: 'etherEnhancedDamageIncrease',
+};
+
+export function projectCombatRuntimeAttributeKey(attribute: AttributeTypeSource): string {
+  return COMBAT_RUNTIME_ATTRIBUTE_KEYS[attribute] ?? attribute;
+}
+
+/** 原生四维 AttributeType 到 Next 稳定主属性键的唯一公共投影。 */
+export function projectPrimaryAttributeKey(
+  attribute: AttributeTypeSource,
+): ProjectedPrimaryAttributeSource | null {
+  return PRIMARY_ATTRIBUTE_KEYS[attribute] ?? null;
+}
 
 /**
  * 领域无关的静态属性修正程序。声明属性即使在 Main/Sub/All 模式下不参与目标选择也继续保留，

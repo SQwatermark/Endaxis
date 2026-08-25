@@ -100,6 +100,42 @@ IR 必须能够追溯到原生证据，至少保留：
 同一种原生结构只能有一个解析器和一个语义编译入口。领域差异通过配置或外层适配器表达，
 不能复制公共编译逻辑后分别演化。
 
+这里的“同一种”不能根据字段相似、输出相同或代码长相判断。原生归属必须从对应版本 schema
+的类型引用图计算：以 Operator、Equipment、Weapon 等顶层 schema 为根，按原生类型身份递归遍历
+字段引用；只被一个根引用的类型归该领域，被多个根引用的同一个类型节点归公共来源层。字段完全
+相同但类型身份不同的节点仍是两个类型，不能合并。
+
+在当前 SparkBuffer TableCfg 中，Bean/Enum 的 `type_hash` 和字段引用 hash 构成这张图的身份与边；
+类型名称和字段签名只用于审计 hash 冲突，不能替代身份。MemoryPack/JsonData 应使用对应版本的
+formatter/runtime schema 类型身份建立同样的引用图。字符串 ID 指向另一类数据文件时，必须记录为
+跨 schema 引用边，不能因当前文件内没有嵌套对象而误判为领域私有。
+
+公共化还必须满足：
+
+1. schema 引用图与 `combat-spec` 证明来源是同一个原生类型、枚举或运行入口；
+2. 公共 IR 保留的是同一个原生语义身份，而不是两个恰好同形的对象；
+3. 投影目标也是同一个 Endaxis 运行时概念。若只满足前两项，公共解析可以复用，但不同投影仍应分开。
+
+确认身份后，该语义的原生解释能力只由 `source/` 和对应的唯一 `compiler/` 入口持有。领域层不得
+直接导入公共原生解释模块，只能消费其规范化 IR 或调用公开投影。这是依赖能力边界，不是靠搜索
+相似常量或要求开发者记住已有实现。
+
+类型引用图只决定“来源 schema 属于谁”，不直接决定“Endaxis 投影属于谁”。同一个公共来源 IR
+若分别写入 OperatorDefinition、GearDefinition 和 WeaponDefinition，三个外层组装仍留在各自领域；
+只有投影目标本身也是同一个 Next 运行时概念时，投影实现才进入公共 compiler。
+
+当前 1.4.4 证据中的属性修正是这条规则的基准样例：Operator TableCfg
+`AttributeModifierData` 与 Equipment `EquipAttributeModifierData` 是不同 type hash，分别读取；两者
+引用的 `AttributeType`、`ModifierType`、`ModifyAttributeType` 是相同 hash，公共定义。MemoryPack
+`SkillData.cardAttributeModifier` 与 `BuffData.attributeModifier` 则确实都引用同一个
+`Beyond.Gameplay.AttributeModifierData`，必须共享来源解析器。三类来源经原生 loader 语义求值后
+才能汇入公共 Attribute Modifier IR。
+
+同一报告还证明 CharacterTable、CharGrowthTable 与 WeaponBasicTable 的 `weaponType` 都引用
+type hash `0x8DD3BF94` 的 `Beyond.GEnums.WeaponType`。因此原生枚举只在 `source/weaponType.ts`
+定义一次，干员与武器兼容性分类只通过 `compiler/weaponType.ts` 的同一投影进入 Next；原生已定义但
+Next 尚无语义的成员必须失败关闭，不能由任一领域自行补映射。
+
 ### 2.4 场景投影层
 
 场景投影把完整原生行为简化成 Endaxis 当前模拟器需要的行为。每一种简化都必须：
@@ -120,6 +156,33 @@ IR 必须能够追溯到原生证据，至少保留：
 时间膨胀是否影响敌方 Buff 流速等尚未确认的规则，必须保持为明确待证事项；在取得
 `combat-spec` 或反编译证据前不得自行决定。
 
+### 2.5 可执行的代码归属规则
+
+判断代码归属时不能看“第一个使用者是谁”，必须看“它描述的概念属于哪一层”：
+
+| 概念                                              | 唯一归属                      | 禁止出现的位置                                            |
+| ------------------------------------------------- | ----------------------------- | --------------------------------------------------------- |
+| 原生字段、枚举、Action/Condition/Target 载荷      | `source/`                     | 各领域自行解析同一原生类型                                |
+| 公共控制流、战斗步骤、Buff/能力实体运行时定义投影 | `compiler/`                   | `domains/operator`、`domains/weapon`、`domains/equipment` |
+| 当前固定木桩场景的省略与归约                      | 公共 projection/compiler 策略 | 按干员、武器或套装 ID 散落特判                            |
+| 干员技能槽、面板、天赋和潜能组装                  | `domains/operator`            | 公共层或其他领域                                          |
+| 武器入口、成长和词条安装                          | `domains/weapon`              | 公共行为编译器                                            |
+| 单件装备、套装门槛和正式文件布局                  | `domains/equipment`           | 公共行为编译器                                            |
+| TypeScript 文本、索引、审计文件                   | 各领域 renderer/writer        | 解析器和语义编译器                                        |
+
+以下信号一旦出现，必须停止扩展功能并先修复边界：
+
+- 领域文件声明不含领域字段的 `Step`、`Condition`、`Sequence`、`BuffDefinition` 联合类型；
+- 领域文件开始按原生 Action 类型、`$type` 或 Condition 类型再次分派；
+- 公共文件导入 `domains/`；
+- 同一原生字段或运行语义在两个领域目录中各有一份映射表；
+- 为了接通某个装备、武器或干员样本而给公共行为加入内容 ID 判断。
+
+`architectureBoundaries.test.ts` 固定依赖能力和声明门禁，例如领域层不能直接取得公共原生
+`AttributeType` 的解析入口。它不把“出现相似字符串”当作语义身份判据。新增公共语义时，提交说明
+或交接文档必须指出对应的 `combat-spec` 文档、代码或工件；缺少证据时保持 `blocked`，不能引用
+旧 Python 输出补足规则。
+
 ## 3. 领域适配器的职责
 
 领域适配器只处理公共原生行为之外的差异：
@@ -134,6 +197,13 @@ IR 必须能够追溯到原生证据，至少保留：
 
 干员适配器负责技能槽、天赋、潜能、基础面板和干员附属对象的组装。它不能拥有第二套
 Action、Buff 或 AbilityEntity 编译器。
+
+`CharacterPotentialTable`、`CharGrowthTable.talentNodeMap` 与
+`PotentialTalentEffectTable` 是三个不同的 Operator 私有来源入口。前两者分别保留潜能解锁顺序和
+天赋节点顺序，再通过有原生代码证据的效果 ID 边引用第三者。`PotentialTalentEffectData` 的
+`None/AddPassiveSkill/ChangeSkillParam/ChangeSkillBlackboard/ModifyAttr/AddBuff` 联合载荷只能由
+`source/operatorProgressionEffects.ts` 读取一次；天赋与潜能领域组装分别保持自身顺序和启用条件，
+不能各自重复解析效果表，也不能虚构两条原生路径之间的统一先后顺序。
 
 ### 3.2 武器与装备
 
@@ -241,6 +311,10 @@ Action、Buff 或 AbilityEntity 编译器。
 4. 正式定义的语义黄金测试，而非只比较格式化文本；
 5. 确定性输出与 `--check` 测试。
 
+迁移顺序也是功能推进门禁：前一阶段没有完成对象级差分和正式运行验证时，不得为了扩大后续
+领域数量而在后续领域补建缺失的公共行为编译器。特别是 Operator 领域适配器尚未达到旧 Python
+正式输出等价前，武器和装备只能维护已经取得的来源证据与回归样本，不继续扩展正式行为覆盖。
+
 最终删除 Python 前必须满足：
 
 - 现有 Python 干员生成器测试全部继续通过；
@@ -257,9 +331,42 @@ npm run type-check:game-data
 npm run test:game-data
 ```
 
-固定版本输入统一由 `scripts/download_akedb_next_sources.py` 获取；装备与武器正式编译要求
+固定版本输入统一由 `npm run download:game-data:sources` 获取，所需资源只在本目录的
+`akedb-sources.json` 声明一次；下载器、审计和正式生成不得各自维护近似清单。装备与武器正式编译要求
 `WeaponUpgradeTemplateTable`、`EquipTable` 与其余 TableCfg 来自同一个 manifest 版本，不能把本地
-AKEDatabase 工作树中的当前文件混入版本化快照。默认输出位于独立 `combat-spec/artifacts` 仓库。
+AKEDatabase 工作树中的当前文件混入版本化快照。默认输出位于 Endaxis 自己的
+`tmp/game-data-sources`，不得提交；`combat-spec` 只提供反编译证据，不能充当资源清单、下载器配置或
+生成输入的隐式提供者。
+
+下载器按单个逻辑资源执行固定优先级：先请求 AKEDB CDN；资源不存在、内容不是合法 JSON 或请求失败时，
+才请求可选的 vfs-index-browser fallback。`--vfs-fallback` 可以是本地兼容目录，也可以是
+`http(s)://.../api/akedb-compatible` 基址。两种提供者使用同一逻辑路径：
+
+```text
+TableCfg-<version>/<TableName>.json
+SkillData/manifest.json
+SkillData/<file>.json
+BuffData/manifest.json
+BuffData/<file>.json
+```
+
+AKEDB 已提供集合清单时，基础下载只对其中明确列出的同名资源逐文件 fallback，不把 VFS 整个集合
+合并进来；否则会把当前 Operator 根无关的敌人、关卡资源混进版本快照。只有 AKEDB 完全没有该集合
+清单时，才使用 VFS manifest 建立基础集合。额外的子 Skill、Buff、Projectile 和 AbilityEntity 由
+领域闭包命令按精确 ID 获取。输出目录的 `akedb-source-provenance.json` 逐文件记录实际提供者，避免把
+混合来源误称为纯 AKEDB 快照。这里的
+“同构”指逻辑路径和解码后的 JSON 数据结构可由同一 source 读取器消费，不要求空白、字段排列或曲线的
+历史/当前序列化外形逐字节相同；读取器若支持多个已证实外形，仍必须投影为同一个源 IR。
+如果 AKEDB manifest 尚未登记请求版本，下载器使用显式 `--version` 或清单默认版本构造 VFS 逻辑路径，
+该版本的 TableCfg 全部由 fallback 提供；不会要求 vfs-index-browser 伪造 AKEDB manifest。
+
+示例：
+
+```sh
+npm run download:game-data:sources -- --version 1.4.4@9433094-12
+npm run download:game-data:sources -- --vfs-fallback http://desktop:8765/api/akedb-compatible
+npm run download:game-data:operator-closure -- --vfs-fallback http://desktop:8765/api/akedb-compatible
+```
 
 ## 10. 迁移顺序
 
@@ -329,8 +436,28 @@ AKEDatabase 工作树中的当前文件混入版本化快照。默认输出位�
   动作和 Buff 安装；动态声明不在导入时冻结，Patch 可提供原 SkillData 未声明的运行键；
 - 公共 SkillPatch 选级：保留 SkillData 定义等级与静态默认黑板；只有请求等级精确命中补丁时才
   切换等级并合并该行，未指定等级或缺失补丁行均复现原生行为、继续使用定义默认值；
+- 公共 SkillData 输入与批量编排：主动、被动及后续子技能入口共用声明黑板、SkillPatch 查找、
+  缺失引用诊断、内嵌 skillId 校验和按定义 ID 去重；普通 Skill 与 Passive 只在原生运行形态分派后
+  进入各自特有载荷，不能由 Operator 领域重新实现一套主动技能读取；
 - 干员养成发现入口：按 `PotentialTalentEffectTable` 联合载荷中的 `AddPassiveSkill` 产生公共编译
   请求，保留效果包 ID、条目路径、运行时输入黑板和原生未指定的技能等级；
+- 构筑属性条件：按 combat-spec 严格读取 `SkillConditionTable` 的 `CompareCharDeckAttr (14010)`
+  与六种原生比较运算；养成条目按原生规则跳过空条件 ID，并把非空数组保留为有序短路 AND。
+  当前 Next `BuildCondition` 只能容纳单个比较，因此多条件投影会明确阻塞，绝不截断；
+- 干员 `CharacterTable` 入口：按 combat-spec 严格读取角色 ID、原始元素字符串、完整原生职业枚举、
+  稀有度、主副属性、默认武器和属性关键帧；职业成员来自 SparkBuffer type hash `0xABF873A2`，
+  稀有度在来源层只保留 schema 已证明的整数身份；
+  原生查找保持 `(level, breakStage)` 精确首项匹配，Next 的六档整数面板由显式里程碑投影产生，
+  不把产品展示档位伪装成原生插值规则；
+- 公共元素身份投影：CharacterTable、DamageAction 和条件数据共用同一个原生元素归一入口，
+  `Physical/Fire/Pulse/Cryst/Natural` 只维护一份到 Next 稳定身份的映射；来源层不得反向依赖
+  compiler，也不得由三个消费者各复制一份字典；
+- OperatorDefinition 静态头部：从同一个严格来源闭包组装稀有度、武器、元素、职业、主副属性、
+  六档面板和非默认好感属性。`slug/gameId` 是 Endaxis 产品身份，不从 CharacterTable 的显示字段猜测；
+  技能、天赋和潜能行为未装配前，该头部不能单独注册成完整干员定义；
+- 干员天赋节点入口：按 combat-spec 严格读取 `CharGrowthTable.talentNodeMap` 的节点类型、属性
+  Modifier 和被动效果 ID；好感属性只投影 `Attr(3)` 节点，默认主属性规则省略、双属性例外保留，
+  不把 `PassiveSkill(4)` 的条件属性路径混入属性节点；
 - 武器发现入口：按 `WeaponBasicTable.weaponSkillList` 的原生顺序产生相同的公共请求，等级来源只
   保存槽位及突破/潜能模板 ID，具体等级必须由 combat-spec 已确认的武器等级算法解析；
 - 武器技能等级解析：严格按突破槽位边界、潜能额外边界、一级 SkillPatch `tagId` 与基质词条
@@ -361,9 +488,83 @@ AKEDatabase 工作树中的当前文件混入版本化快照。默认输出位�
   突破/潜能/基质算法解析的实例等级；选级后再应用请求额外黑板，复现同名值最终覆盖顺序；
 - Python oracle JSON 差分通道及真实 SkillPatch 导出切片。
 
-下一阶段：把已经闭合的武器、单件装备与套装来源 IR 接入正式定义投影、审计和模拟。先建立公共
-属性修正到 Next 构筑属性的有证据映射，并对暂不可投影的原生属性留下明确诊断；仍缺定义的
-AbilityEntity/Projectile 引用继续失败关闭。
+下一阶段：继续恢复 Operator 正式定义。静态头部、技能等级组、天赋/潜能联合载荷和构筑属性条件
+已经形成严格来源及领域组装 IR；接下来先为 manifest 增加显式产品身份，再用一个已正式生成的干员贯通主动技能、
+天赋、潜能、Buff 与能力实体的完整组装，并与旧 Python 产物做对象级和运行语义差分；随后逐个
+扩大正式干员覆盖。武器、单件装备和套装只保留已取得的来源 IR、正式样本和回归，不在 Operator
+等价门禁完成前继续扩展新的行为投影。仍缺定义的 AbilityEntity/Projectile 引用继续失败关闭。
+
+Operator 主动技能库可用以下命令批量审计；任何干员失败都会保留逐项诊断并使进程返回非零：
+
+```powershell
+npm run audit:game-data:operators -- --manifest scripts/generate_next_operators/operators.json `
+  --skill-data <skill-data-cdn目录> --buff-data <BuffData目录> `
+  --projectile-data <ProjectileData目录> --ability-entity-data <AbilityEntityData目录> `
+  --gameplay-tag-dump <GameplayTagConfig TypeTree dump> `
+  --tables <TableCfg目录>
+```
+
+资源下载器的正式资源目录由 `akedb-sources.json` 独立维护。TableCfg、SkillData 和 BuffData
+优先来自 AKEDB；下载完 SkillData/BuffData 后，下载器会递归收集其中实际出现的
+`projectileId`、`abilityEntityId`，再批量关闭 ProjectileData / AbilityEntityData 引用集合。
+AKEDB 的 `asset-sync-index.json` 如果将来提供同名文件仍优先使用；当前 Unity 模板由
+vfs-index-browser 的同构端点精确导出。不得把 combat-spec 工件目录重新接成下载来源，也不得
+逐个在 Operator 配置中手写模板清单。
+
+ProjectileData 目前提供已解码 `ProjectileComponentData`；AbilityEntityData 只提供已由
+反编译和样本共同证实的 `AbilityEntityTemplateData` 逻辑前缀。引用闭包能据此证明模板身份存在，
+但不代表未知组件行为已经完成投影；后续领域编译器必须继续显式处理或失败关闭。
+AbilityEntity 公共目录会严格保存动态寿命/叠层黑板和 born tags，并只建立精确 tag 倒排索引；
+父子匹配直接复用 `src/shared/gameplayTags.ts`，但没有同版本 GameplayTag 路径时不得自行展开关系。
+`GameplayTagConfig` TypeTree dump 的路径读取、CRC 目录编译、确定性模块渲染和 `--check` 也已进入
+本工具；旧 Python 脚本不再参与生成。下载 provenance 同时保存实际内容的字节数与
+SHA-256；provider 名称或同一个 URL 不能代替内容版本身份。
+
+`compiler/abilityEntityQuery.ts` 是 owner-spawned AbilityEntity 查询的公共唯一投影入口。它严格区分：
+
+- finder 只从 selector owner 的原生 children 中按 ObjectType 掩码建立候选，不能推导施法身份；
+- TagValidator 按同版本 GameplayTag 层级过滤模板 born tags；
+- SkillCastIdValidator 单独保留“同一次施法”约束；
+- 静态 `candidateTemplateIds` 只是模板目录候选，不能当成场上已经存在的实体实例。
+
+Operator、Weapon、Equipment 若消费相同 selector 结构，必须复用该入口；领域适配器不得再次按
+finder 名称、Tag ID 或验证器列表实现自己的查询编译。当前严格切片只接受已闭环的 owner 距离
+PriorityFilter、AbilityEntity 掩码和上述 validator；唯一对象掩码例外是已由原生位运算证明恒不命中的
+零掩码，它显式投影为空集合而不是 AbilityEntity。后续只能在 combat-spec 已闭环的公共行为基础上逐项扩大。
+
+Selector 后处理器不能只保存类型名或 `maxNum`。公共来源层现通过
+`source/selectorComponents.ts` 完整读取 PriorityFilter 的 `filterType`、最高优先级保留开关、显式数量
+限制、最大数量，以及 Buff ID/Tag/叠层筛选载荷，并在 TargetSettings、目标组写入和 Merge 输入中
+保留同一结构。完整读取不代表已经支持执行：combat-spec 已从原生函数体闭环
+`DistanceFromOwnerAsc/Des` 的三维距离权重、降序负权重、显式数量限制和 128 硬上限；公共查询投影
+因此按原 post-processor 顺序保存 `distanceFromOwner + order + maxTargets`。该排序只能作用于运行时
+children 实例，不能拿静态模板 ID 预先排序。非空 Buff 筛选、最高优先级裁剪和其他排序枚举仍失败关闭。
+
+`ShuffleTarget` 的完整 `BlackboardInt targetNumLimit` 也由公共来源层保存。combat-spec 已证明它先对
+普通目标执行正向 Fisher-Yates 全量洗牌，再仅在限量值大于零时保留前 N 项；零和负数不裁剪，
+hit-reaction 不参与。公共查询 IR 保留 `shuffle + targetNumLimit`，但不会在静态模板目录上执行随机化；
+Unity Random 状态仍是后续运行时边界。
+
+当前 2459 份真实 SkillData 中共收集到 58 个 owner-spawned 目标组写入，公共查询投影严格接受 58 个。
+最后一个庄方宜样本还包含 DistanceValidator；来源层现保存完整阈值、比较符与 XZ 开关，不能只因
+项目距离投影为零就在 parser 中删除。这个数字只衡量查询 IR 完整，不代表对应技能整体可编译。
+主动 SkillData 的公共编译结果现直接保存这些 `targetGroupWrites`，
+`compiler/activeSkillAbilityEntityQueries.ts` 只消费该 IR 并生成查询切片，不再扫描原始动作树。
+Operator 下载计划允许模板目录为空以发现引用；正式来源闭包若遇到 owner-spawned 查询，则必须显式
+提供由同一份 AbilityEntityData 编译的目录和同版本 GameplayTag 注册表，不能导入 Next 生成目录或
+隐藏全局状态。定义图中的 AbilityEntity 节点也从这份已编译目录派生，正式审计不会为不同消费者
+重复解析原始模板表。
+目标组写入自身保存完整 SkillData `sourcePath`；连接器会用公共控制流遍历器验证该路径存在于同一份
+已编译动作图，再生成查询切片。调用方不再提供路径前缀，避免把 manifest 项路径和原生动作路径混用。
+
+引用闭包不再维护第二套原生 Action `switch`。`source/actionLeaf.ts` 提供唯一分派和带 scope 的尝试
+入口：严格动作编译启用全部已迁移类型，引用闭包只启用会形成定义边的类型；后者对其他动作保留
+`untracked` 身份，但引用相关已知动作的字段错误仍失败关闭。目标组不是定义引用，主动 SkillData
+通过独立的公共数据流收集阶段保存其时序与动作路径。
+
+当前 `1.4.4@9433094-12` 与现有 manifest 的结果为 30/30 名、309/309 份主动 SkillData 完成
+`manifest key → sourceFile → 原生 skillId → 公共定义 → CharGrowthTable.skillGroupMap` 身份闭合；
+这只证明主动定义和等级组来源完整，不等于时间轴行为已正式投影。
 
 当前 2459 份 `skill-data-cdn` 真实导出扫描结果：MergeTargetAction 138/138、
 PickTargetAction 20/20、SimpleCalcBBAction 159/159 解析成功；ModifyDynamicBlackboard

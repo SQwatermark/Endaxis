@@ -85,17 +85,17 @@ const definition = {
       blackboard: { duration: 30, max_stack: 2, spell_up: 0.1 },
       attributeModifiers: [
         {
-          attribute: 'ComboSkillDamageIncrease',
+          attribute: 'comboSkillDamageIncrease',
           slot: 'baseAddition',
           value: { blackboardKey: 'spell_up' },
         },
         {
-          attribute: 'NormalSkillDamageIncrease',
+          attribute: 'normalSkillDamageIncrease',
           slot: 'baseAddition',
           value: { blackboardKey: 'spell_up' },
         },
         {
-          attribute: 'UltimateSkillDamageIncrease',
+          attribute: 'ultimateSkillDamageIncrease',
           slot: 'baseAddition',
           value: { blackboardKey: 'spell_up' },
         },

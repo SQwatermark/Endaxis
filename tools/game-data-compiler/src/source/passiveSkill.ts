@@ -15,8 +15,8 @@ import type { BlackboardLevelValues } from './scalar.ts';
 import { parseSkillBuffInstallSources, type SkillBuffInstallSource } from './skillBuffInstall.ts';
 import type { SkillActionGraphSource } from './skillActionGraph.ts';
 import {
-  parseCardAttributeModifierSource,
-  type CardAttributeModifierSource,
+  parseGameplayAttributeModifierSource,
+  type GameplayAttributeModifierSource,
 } from './attributeModifiers.ts';
 
 export interface PassiveSkillToggleBuffSource {
@@ -34,7 +34,7 @@ export interface NativePassiveSkillSource {
   readonly passiveType: string;
   readonly skillSpecification: string | number;
   readonly skillTagIds: readonly number[];
-  readonly cardAttributeModifiers: CardAttributeModifierSource;
+  readonly cardAttributeModifiers: GameplayAttributeModifierSource;
   readonly startupBuffs: readonly SkillBuffInstallSource[];
   readonly toggleBuffs: readonly PassiveSkillToggleBuffSource[];
   readonly actionGraph: SkillActionGraphSource<ReferenceAwareActionLeafSource>;
@@ -50,30 +50,40 @@ export function parseNativePassiveSkillSource(
   if (root.castType !== 'Passive') {
     throw new Error(`${sourcePath}.castType: expected "Passive"`);
   }
+  const passiveType = requireNonEmptyString(
+    root.passiveSkillType,
+    `${sourcePath}.passiveSkillType`,
+  );
   const definition = parseSkillDefinitionReferenceSource(value, sourcePath, inheritedBlackboard);
   return {
     skillId: definition.actionGraph.skillId,
     level: definition.actionGraph.level,
-    passiveType: requireNonEmptyString(root.passiveSkillType, `${sourcePath}.passiveSkillType`),
+    passiveType,
     skillSpecification: parseSkillSpecification(
       root.skillSpecification,
       `${sourcePath}.skillSpecification`,
     ),
     skillTagIds: parseSkillTagIds(root.skillTags, `${sourcePath}.skillTags`),
-    cardAttributeModifiers: parseCardAttributeModifierSource(
+    cardAttributeModifiers: parseGameplayAttributeModifierSource(
       root.cardAttributeModifier,
       `${sourcePath}.cardAttributeModifier`,
       inheritedBlackboard,
     ),
     startupBuffs: parseSkillBuffInstallSources(root.buffs, `${sourcePath}.buffs`),
-    toggleBuffs: parseToggleBuffs(
-      root.toggleBuffs,
-      `${sourcePath}.toggleBuffs`,
-      inheritedBlackboard,
-    ),
+    // 原生工厂只有 ToggleBuff 会构造 ToggleBuffPassiveSkill 并读取这张表。
+    // AddBuff 等普通 Skill 中即使残留了序列化内容，运行时也不会访问，不能把它纳入定义闭包。
+    toggleBuffs:
+      passiveType === 'ToggleBuff'
+        ? parseToggleBuffs(root.toggleBuffs, `${sourcePath}.toggleBuffs`, inheritedBlackboard)
+        : requireIgnoredToggleBuffArray(root.toggleBuffs, `${sourcePath}.toggleBuffs`),
     actionGraph: definition.actionGraph,
     references: definition.references,
   };
+}
+
+function requireIgnoredToggleBuffArray(value: unknown, path: string): [] {
+  requireArray(value, path);
+  return [];
 }
 
 function parseToggleBuffs(

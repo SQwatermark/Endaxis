@@ -3,6 +3,7 @@ import {
   collectSkillActionReferences,
   collectSkillRootBuffReferences,
   parseKnownNativeActionSequenceSource,
+  parseReferenceAwareActionLeafSource,
   type ReferenceAwareActionLeafSource,
   type SkillActionGraphSource,
 } from '../src/index.ts';
@@ -16,10 +17,39 @@ const META = {
 } as const;
 
 describe('公共定义引用图', () => {
+  it('复用公共动作分派，但只严格展开会形成定义引用的动作', () => {
+    expect(
+      parseReferenceAwareActionLeafSource(
+        { ...META, $type: 'Example.FindTargetAction+Data, Example' },
+        'fixture.find',
+        {},
+      ),
+    ).toEqual({ family: 'untracked', nativeName: 'FindTargetAction' });
+    expect(
+      parseReferenceAwareActionLeafSource(
+        { ...META, $type: 'Example.UnknownAction+Data, Example' },
+        'fixture.unknown',
+        {},
+      ),
+    ).toEqual({ family: 'untracked', nativeName: 'UnknownAction' });
+
+    const malformedReference = castSkill({
+      value: 'child_skill',
+      useBlackboardKey: false,
+      blackboardKey: '',
+    });
+    delete malformedReference.target;
+    expect(() =>
+      parseReferenceAwareActionLeafSource(malformedReference, 'fixture.cast', {}),
+    ).toThrow(/fixture\.cast/);
+  });
+
   it('收集技能根附属、条件切换和换技 Buff', () => {
     expect(
       collectSkillRootBuffReferences(
         {
+          castType: 'Passive',
+          passiveSkillType: 'ToggleBuff',
           buffs: [rootBuff('attached_buff')],
           toggleBuffs: [{ conditions: [{}], buffs: [rootBuff('toggle_buff')] }],
           switchToBuffConfig: {
@@ -37,6 +67,27 @@ describe('公共定义引用图', () => {
       { kind: 'buff', usage: 'toggle', state: 'active', id: 'toggle_buff' },
       { kind: 'buff', usage: 'switch', state: 'active', id: 'switch_buff' },
     ]);
+  });
+
+  it('不把 AddBuff 被动中未被原生运行时读取的 toggleBuffs 残留计入闭包', () => {
+    expect(
+      collectSkillRootBuffReferences(
+        {
+          castType: 'Passive',
+          passiveSkillType: 'AddBuff',
+          buffs: [rootBuff('attached_buff')],
+          toggleBuffs: [{ conditions: [{}], buffs: [rootBuff('ignored_toggle_buff')] }],
+          switchToBuffConfig: {
+            condition: {},
+            buffs: [],
+            buffSource: {},
+            targets: {},
+            asSkillCast: false,
+          },
+        },
+        'fixture',
+      ),
+    ).toMatchObject([{ kind: 'buff', usage: 'attached', id: 'attached_buff' }]);
   });
 
   it('区分活动、关闭、动态与空子技能引用，并保留动作路径', () => {

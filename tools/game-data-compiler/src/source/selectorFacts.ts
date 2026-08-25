@@ -6,11 +6,8 @@ import {
   requireNumber,
   requireRecord,
 } from './primitives.ts';
-import {
-  parseTargetReferenceSource,
-  selectorComponentName,
-  type TargetReferenceSource,
-} from './target.ts';
+import { parsePriorityFilterSources, selectorComponentName } from './selectorComponents.ts';
+import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 
 export interface CircularOrderSource {
   readonly indexKey: string;
@@ -137,9 +134,9 @@ export function distanceValidatorsPassAtZero(value: unknown, path: string): bool
 
 /** 读取唯一 PriorityFilter 的显式最大保留数量。 */
 export function priorityFilterMaxTargets(value: unknown, path: string): number | null {
-  const filters = matchingProcessors(value, path, 'PriorityFilter');
-  if (filters.length !== 1 || filters[0]!.processor.limitMaxNum !== true) return null;
-  return requireNonNegativeInteger(filters[0]!.processor.maxNum, `${filters[0]!.path}.maxNum`);
+  const filters = parsePriorityFilterSources(value, path);
+  if (filters.length !== 1 || !filters[0]!.limitMaxNum) return null;
+  return requireNonNegativeInteger(filters[0]!.maxNum, `${path}.postProcessorData.maxNum`);
 }
 
 /** 严格读取已由反编译证据闭环的 CircularOrderSort 载荷。 */

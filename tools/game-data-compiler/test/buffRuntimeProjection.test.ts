@@ -2,16 +2,16 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buffRuntimeReadsBlackboardKey,
-  compileEquipmentBuffRuntimeDefinitionSource,
+  compileBuffRuntimeDefinitionSource,
   evaluateFixedFullHealthToggleCondition,
   type BuffRuntimeSource,
   type DamageActionSource,
   type TargetReferenceSource,
 } from '../src/index.ts';
 
-describe('装备套装 Buff 运行时投影', () => {
+describe('公共 Buff 运行时投影', () => {
   it('把技能类型守卫、动态传参、属性修正和图标投影为正式 Next 定义', () => {
-    const definition = compileEquipmentBuffRuntimeDefinitionSource(sourceFixture());
+    const definition = compileBuffRuntimeDefinitionSource(sourceFixture());
 
     expect(definition).toMatchObject({
       stackingType: 'unique',
@@ -60,7 +60,7 @@ describe('装备套装 Buff 运行时投影', () => {
   it('fails closed on behavior payloads that are not in the common IR', () => {
     const source = sourceFixture();
     expect(() =>
-      compileEquipmentBuffRuntimeDefinitionSource({
+      compileBuffRuntimeDefinitionSource({
         ...source,
         unsupportedPayloads: [{ field: 'damageModifier', entryCount: 1 }],
       }),
@@ -112,15 +112,12 @@ describe('装备套装 Buff 运行时投影', () => {
       },
     };
 
-    expect(() => compileEquipmentBuffRuntimeDefinitionSource(damageTakenSource)).toThrow(
+    expect(() => compileBuffRuntimeDefinitionSource(damageTakenSource)).toThrow(
       'unsupported ability event "OnTakeDamage"',
     );
     expect(
-      compileEquipmentBuffRuntimeDefinitionSource(
-        damageTakenSource,
-        new Set(),
-        new Set(['OnTakeDamage']),
-      ).abilityEventResponses,
+      compileBuffRuntimeDefinitionSource(damageTakenSource, new Set(), new Set(['OnTakeDamage']))
+        .abilityEventResponses,
     ).toBeUndefined();
   });
 
@@ -166,7 +163,7 @@ describe('装备套装 Buff 运行时投影', () => {
       },
     };
 
-    expect(compileEquipmentBuffRuntimeDefinitionSource(tagSource).abilityEventResponses).toEqual([
+    expect(compileBuffRuntimeDefinitionSource(tagSource).abilityEventResponses).toEqual([
       {
         event: 'outputBuff',
         priority: 0,
@@ -189,7 +186,7 @@ describe('装备套装 Buff 运行时投影', () => {
     ]);
   });
 
-  it('保留线性事件链中段按真实事件目标统计 Buff 实例数的守卫', () => {
+  it('按原生 BuffCount 保留线性事件链中段的增强层数守卫', () => {
     const source = sourceFixture();
     const nativeEvent = source.graph.abilityEvents[0]!;
     const nativeSequence = nativeEvent.actions[0]!;
@@ -242,8 +239,7 @@ describe('装备套装 Buff 运行时投影', () => {
     };
 
     const steps =
-      compileEquipmentBuffRuntimeDefinitionSource(countSource).abilityEventResponses?.[0]?.sequence
-        .steps;
+      compileBuffRuntimeDefinitionSource(countSource).abilityEventResponses?.[0]?.sequence.steps;
     expect(steps).toEqual([
       {
         kind: 'conditional',
@@ -260,7 +256,8 @@ describe('装备套装 Buff 运行时投影', () => {
               kind: 'conditional',
               parameters: {
                 condition: {
-                  kind: 'eventTargetBuffCountCompare',
+                  kind: 'buffStackCompare',
+                  target: 'eventTarget',
                   tagQueryType: 'hasAny',
                   buffTagIds: [1075718177],
                   operator: 'greaterOrEqual',
@@ -268,6 +265,223 @@ describe('装备套装 Buff 运行时投影', () => {
                 },
               },
               whenTrue: { steps: [expect.objectContaining({ kind: 'applyBuff' })] },
+            },
+          ],
+        },
+      },
+    ]);
+  });
+
+  it('闭合物理异常事件中的计数写回、动态乘法和 OR 条件', () => {
+    const source = sourceFixture();
+    const sequence = source.graph.abilityEvents[0]!.actions[0]!;
+    const metadata = sequence.actions[0]!.metadata;
+    const target = { targetSource: 'Target', targetGroupKey: '' } as never;
+    const scalar = (value: number, blackboardKey: string | null = null) => ({
+      value,
+      blackboardKey,
+      levelValues: null,
+    });
+    const conditionNode = (sourcePath: string, action: unknown, serverActionIndex: number) => ({
+      sourcePath,
+      metadata: { ...metadata, serverActionIndex },
+      body: { kind: 'leaf' as const, value: { family: 'condition' as const, action } },
+    });
+    const mutationNode = (
+      sourcePath: string,
+      key: string,
+      operation: string,
+      value: ReturnType<typeof scalar>,
+      serverActionIndex: number,
+    ) => ({
+      sourcePath,
+      metadata: { ...metadata, serverActionIndex },
+      body: {
+        kind: 'leaf' as const,
+        value: {
+          family: 'blackboardMutation' as const,
+          action: {
+            kind: 'blackboardMutation' as const,
+            key,
+            operation,
+            value,
+            directValue: true,
+            calculationTarget: { targetSource: 'Owner' } as never,
+            calculationType: 'HpRatio',
+          },
+        },
+      },
+    });
+    const buffStack = (checkType: 'Tag' | 'Id', buffIds: readonly string[], tagIds: number[]) => ({
+      kind: 'buffStack' as const,
+      sourceType: 'CheckBuffStackNumAdvanced',
+      targetSource: 'Target',
+      targetGroupKey: '',
+      buffCheckType: checkType,
+      buffIds,
+      tagQueryType: 'hasAny' as const,
+      buffTagIds: tagIds,
+      countType: 'BuffCount',
+      comparison: 'GE',
+      value: scalar(1),
+      limitSkillCastId: false,
+    });
+    const ifElse = {
+      sourcePath: 'BuffData.buff_root.specialMultiplier',
+      metadata: { ...metadata, serverActionIndex: 3 },
+      body: {
+        kind: 'ifElse' as const,
+        condition: {
+          onlyExecuteWhenSourceIsMainCharacter: false,
+          onlyExecuteWhenSourceIsGuard: false,
+          actions: [
+            conditionNode(
+              'BuffData.buff_root.specialMultiplier.any',
+              {
+                kind: 'any',
+                sourceType: 'OrConditionAction',
+                groups: [
+                  { conditions: [buffStack('Tag', [], [1066759270])], negated: [false] },
+                  {
+                    conditions: [buffStack('Id', ['buff_common_originum_frozen'], [])],
+                    negated: [false],
+                  },
+                  {
+                    conditions: [
+                      {
+                        kind: 'poise',
+                        sourceType: 'CheckPoiseValue',
+                        target,
+                        returnValueIfMissing: false,
+                        comparison: 'Equals',
+                        value: scalar(0),
+                      },
+                    ],
+                    negated: [false],
+                  },
+                ],
+              },
+              4,
+            ),
+          ],
+        },
+        whenTrue: {
+          onlyExecuteWhenSourceIsMainCharacter: false,
+          onlyExecuteWhenSourceIsGuard: false,
+          actions: [
+            mutationNode(
+              'BuffData.buff_root.multiply',
+              'perStack',
+              'Multiply',
+              scalar(0, 'special'),
+              5,
+            ),
+          ],
+        },
+        whenFalse: {
+          onlyExecuteWhenSourceIsMainCharacter: false,
+          onlyExecuteWhenSourceIsGuard: false,
+          actions: [],
+        },
+        alwaysNext: true,
+      },
+    };
+    const eventSource: BuffRuntimeSource = {
+      ...source,
+      graph: {
+        ...source.graph,
+        abilityEvents: [
+          {
+            event: 'OnBeforeOutputPhysicalInfliction',
+            actions: [
+              {
+                onlyExecuteWhenSourceIsMainCharacter: false,
+                onlyExecuteWhenSourceIsGuard: false,
+                actions: [
+                  conditionNode(
+                    'BuffData.buff_root.physicalType',
+                    {
+                      kind: 'physicalInflictionType',
+                      sourceType: 'CheckPhysicalInflictionType',
+                      types: ['fracture', 'crush'],
+                      savedKey: '',
+                    },
+                    0,
+                  ),
+                  {
+                    sourcePath: 'BuffData.buff_root.readCount',
+                    metadata: { ...metadata, serverActionIndex: 1 },
+                    body: {
+                      kind: 'leaf',
+                      value: {
+                        family: 'buffQuery',
+                        action: {
+                          kind: 'buffStackRead',
+                          sourceType: 'SaveBuffStackNumAdvanced',
+                          target,
+                          checkType: 'Tag',
+                          buffIds: [],
+                          tagQueryType: 'hasAny',
+                          buffTagIds: [1075718177],
+                          countType: 'BuffCount',
+                          limitSkillCastId: false,
+                          outputKey: 'count',
+                        },
+                      },
+                    },
+                  },
+                  mutationNode(
+                    'BuffData.buff_root.assign',
+                    'perStack',
+                    'Assign',
+                    scalar(0, 'base'),
+                    2,
+                  ),
+                  ifElse,
+                ] as never,
+              },
+            ],
+          },
+        ],
+      },
+    };
+
+    expect(compileBuffRuntimeDefinitionSource(eventSource).abilityEventResponses).toMatchObject([
+      {
+        event: 'beforeOutputPhysicalInfliction',
+        sequence: {
+          steps: [
+            {
+              parameters: {
+                condition: {
+                  kind: 'eventPhysicalInflictionTypeIn',
+                  types: ['fracture', 'crush'],
+                },
+              },
+              whenTrue: {
+                steps: [
+                  {
+                    kind: 'readBuffStackCount',
+                    parameters: { target: 'eventTarget', outputKey: 'count' },
+                  },
+                  {
+                    kind: 'modifyActionValue',
+                    parameters: { key: 'perStack', operation: 'assign' },
+                  },
+                  {
+                    kind: 'conditional',
+                    parameters: { condition: { kind: 'any' }, alwaysNext: true },
+                    whenTrue: {
+                      steps: [
+                        {
+                          kind: 'modifyActionValue',
+                          parameters: { key: 'perStack', operation: 'multiply' },
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
             },
           ],
         },
@@ -363,8 +577,7 @@ describe('装备套装 Buff 运行时投影', () => {
     };
 
     expect(
-      compileEquipmentBuffRuntimeDefinitionSource(runtimeSource).abilityEventResponses?.[0]
-        ?.sequence.steps,
+      compileBuffRuntimeDefinitionSource(runtimeSource).abilityEventResponses?.[0]?.sequence.steps,
     ).toEqual([
       {
         kind: 'conditional',
@@ -437,6 +650,9 @@ function fixedTarget(targetSource: string): TargetReferenceSource {
     finderOwnerPartsQuery: null,
     validatorTypes: [],
     postProcessorTypes: [],
+    priorityFilters: [],
+    shuffleTargets: [],
+    distanceValidators: [],
     finderSpawnedObjectType: null,
     validatorTagQueries: [],
   };

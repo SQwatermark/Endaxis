@@ -85,17 +85,17 @@ describe('生成套装正式定义', () => {
       presentation: { iconId: 'icon_battle_buff_atk_up' },
       attributeModifiers: [
         {
-          attribute: 'ComboSkillDamageIncrease',
+          attribute: 'comboSkillDamageIncrease',
           slot: 'baseAddition',
           value: { blackboardKey: 'spell_up' },
         },
         {
-          attribute: 'NormalSkillDamageIncrease',
+          attribute: 'normalSkillDamageIncrease',
           slot: 'baseAddition',
           value: { blackboardKey: 'spell_up' },
         },
         {
-          attribute: 'UltimateSkillDamageIncrease',
+          attribute: 'ultimateSkillDamageIncrease',
           slot: 'baseAddition',
           value: { blackboardKey: 'spell_up' },
         },
@@ -326,6 +326,67 @@ describe('生成套装正式定义', () => {
                     target: 'caster',
                     markerId: 'buff_equipsuit_physuit_01',
                     durationSeconds: { kind: 'blackboard', key: 'duration' },
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    });
+  });
+
+  it('把碎甲猛击套的破防层数与特殊状态倍率投影为动态物理增伤', () => {
+    const definition = generatedGearSetDefinitions.find(
+      item => item.slug === 'suit_crush_fracture',
+    )!;
+    expect(validateGearSetDefinition(definition, '$.suit_crush_fracture')).toEqual([]);
+    const compiled = compileGearSetContribution(definition, {
+      main: perlica.mainAttribute,
+      secondary: perlica.secondaryAttribute,
+    });
+    expect(compiled.modifiers).toEqual([
+      { kind: 'panelStat', stat: 'attackPercent', value: 0.08 },
+    ]);
+    expect(
+      compiled.buffDefinitions?.buff_equipsuit_crush_fracture?.abilityEventResponses?.[0],
+    ).toMatchObject({
+      event: 'beforeOutputPhysicalInfliction',
+      sequence: {
+        steps: [
+          {
+            parameters: {
+              condition: {
+                kind: 'eventPhysicalInflictionTypeIn',
+                types: ['fracture', 'crush'],
+              },
+            },
+            whenTrue: {
+              steps: [
+                {
+                  parameters: {
+                    condition: {
+                      kind: 'buffStackCompare',
+                      target: 'eventTarget',
+                      buffTagIds: [1075718177],
+                    },
+                  },
+                  whenTrue: {
+                    steps: expect.arrayContaining([
+                      expect.objectContaining({ kind: 'readBuffStackCount' }),
+                      expect.objectContaining({
+                        kind: 'conditional',
+                        parameters: expect.objectContaining({
+                          condition: expect.objectContaining({ kind: 'any' }),
+                        }),
+                      }),
+                      expect.objectContaining({
+                        kind: 'applyBuff',
+                        parameters: expect.objectContaining({
+                          buffId: 'buff_equipsuit_crush_fracture_physicdamage',
+                        }),
+                      }),
+                    ]),
                   },
                 },
               ],

@@ -1,6 +1,11 @@
 import { compileResolvedAttributeModifierSource } from '../../compiler/attributeModifier.ts';
 import { compilePassiveSkillRequestBatch } from '../../compiler/passiveSkillBatch.ts';
-import { materializePassiveSkillInstallation } from '../../compiler/passiveSkillInstallation.ts';
+import {
+  materializePassiveBuffInstallation,
+  materializePassiveSkillInstallation,
+  type MaterializedPassiveBuffInstallationSource,
+  type UnresolvedPassiveSkillBlackboardValueSource,
+} from '../../compiler/passiveSkillInstallation.ts';
 import { requireRecord } from '../../source/primitives.ts';
 import { discoverEquipmentSuitPassiveSkillRequests } from './passiveDiscovery.ts';
 import type {
@@ -36,21 +41,14 @@ export interface CompiledGearSetToggleConditionSource {
   readonly value: number | UnresolvedSkillBlackboardValueSource;
 }
 
-export interface CompiledGearSetBuffInstallationSource {
-  readonly buffId: string;
-  readonly blackboardAssignments: Readonly<
-    Record<string, number | string | UnresolvedSkillBlackboardValueSource>
-  >;
-}
+export type CompiledGearSetBuffInstallationSource = MaterializedPassiveBuffInstallationSource;
 
 /**
  * 服务端战斗被动技能可以携带客户端 SkillData/SkillPatch 中不存在的额外黑板值。
  * 静态阶段不能把它补成 0，也不能在尚未读取 BuffData 时断言该值一定会被消费。
  */
-export interface UnresolvedSkillBlackboardValueSource {
-  readonly kind: 'unresolvedSkillBlackboard';
-  readonly key: string;
-}
+export type UnresolvedSkillBlackboardValueSource =
+  UnresolvedPassiveSkillBlackboardValueSource;
 
 export interface CompiledEquipmentSuitStaticDefinitionBatchSource {
   readonly definitions: readonly CompiledGearSetStaticDefinitionSource[];
@@ -153,7 +151,7 @@ export function compileEquipmentSuitStaticDefinitionBatchSource(
       skillId: request.skillId,
       startupBuffIds: skill.startupBuffs.map(entry => entry.buffId),
       startupBuffs: skill.startupBuffs.map(entry =>
-        materializeBuffInstallation(entry, installation.blackboard),
+        materializePassiveBuffInstallation(entry, installation.blackboard),
       ),
       toggleBuffIds: skill.toggleBuffs.flatMap(group => group.buffs.map(entry => entry.buffId)),
       toggleBuffs: skill.toggleBuffs.map((group, groupIndex) => ({
@@ -180,7 +178,7 @@ export function compileEquipmentSuitStaticDefinitionBatchSource(
           return { kind: 'currentHpRatio' as const, comparison: condition.comparison, value };
         }),
         buffs: group.buffs.map(entry =>
-          materializeBuffInstallation(entry, installation.blackboard),
+          materializePassiveBuffInstallation(entry, installation.blackboard),
         ),
       })),
       referencedBuffIds: skill.references
@@ -196,37 +194,6 @@ export function compileEquipmentSuitStaticDefinitionBatchSource(
   }
 
   return { definitions, runtimeDependencies, diagnostics };
-}
-
-function materializeBuffInstallation(
-  source: import('../../source/skillBuffInstall.ts').SkillBuffInstallSource,
-  blackboard: Readonly<Record<string, number>>,
-): CompiledGearSetBuffInstallationSource {
-  if (!source.assignBlackboard) return { buffId: source.buffId, blackboardAssignments: {} };
-  return {
-    buffId: source.buffId,
-    blackboardAssignments: Object.fromEntries(
-      source.assignments.map(assignment => {
-        if (assignment.useDirectValue) {
-          return [
-            assignment.targetKey,
-            assignment.valueType === 'Numeric' ? assignment.numericValue : assignment.stringValue,
-          ];
-        }
-        const value = blackboard[assignment.inputValueKey];
-        if (value === undefined) {
-          return [
-            assignment.targetKey,
-            {
-              kind: 'unresolvedSkillBlackboard' as const,
-              key: assignment.inputValueKey,
-            },
-          ];
-        }
-        return [assignment.targetKey, value];
-      }),
-    ),
-  };
 }
 
 function toFormalModifier(

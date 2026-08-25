@@ -84,6 +84,18 @@ const CONDITION_ACTION_NAMES = new Set([
   'CheckPoiseValue',
 ]);
 
+/** 引用闭包需要严格读取的动作身份；集合与分派实现同属公共来源层，调用方不再复制 switch。 */
+const REFERENCE_CLOSURE_ACTION_NAMES = new Set([
+  'CreateBuffAction',
+  'FinishBuffAction',
+  'FinishBuffAdvanced',
+  'LaunchProjectile',
+  'SpawnAbilityEntity',
+  'CastSkill',
+]);
+
+export type KnownNativeActionParseScope = 'all' | 'referenceClosure';
+
 /** 已迁移到公共来源 IR 的 Action 叶子；领域适配器只能消费该公共并集。 */
 export type KnownNativeActionLeafSource =
   | { readonly family: 'condition'; readonly action: NativeConditionSource }
@@ -117,9 +129,27 @@ export function parseKnownNativeActionLeafSource(
   path: string,
   inheritedBlackboard: BlackboardLevelValues,
 ): KnownNativeActionLeafSource {
+  const result = tryParseKnownNativeActionLeafSource(value, path, inheritedBlackboard);
+  if (result) return result;
+  const action = requireRecord(value, path);
+  const name = nativeActionName(requireNonEmptyString(action.$type, `${path}.$type`));
+  throw new Error(`${path}.$type: unsupported native action ${JSON.stringify(name)}`);
+}
+
+/**
+ * 引用闭包等宽读取器使用的公共尝试入口。只有类型不属于已迁移集合时返回 null；
+ * 已知类型的字段漂移仍由对应严格 parser 抛错，不能伪装成未跟踪动作。
+ */
+export function tryParseKnownNativeActionLeafSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+  scope: KnownNativeActionParseScope = 'all',
+): KnownNativeActionLeafSource | null {
   const action = requireRecord(value, path);
   const typeName = requireNonEmptyString(action.$type, `${path}.$type`);
   const name = nativeActionName(typeName);
+  if (scope === 'referenceClosure' && !REFERENCE_CLOSURE_ACTION_NAMES.has(name)) return null;
   if (CONDITION_ACTION_NAMES.has(name)) {
     return {
       family: 'condition',
@@ -216,7 +246,7 @@ export function parseKnownNativeActionLeafSource(
     case 'CastSkill':
       return { family: 'skillCast', action: parseSkillCastActionSource(value, path) };
     default:
-      throw new Error(`${path}.$type: unsupported native action ${JSON.stringify(name)}`);
+      return null;
   }
 }
 

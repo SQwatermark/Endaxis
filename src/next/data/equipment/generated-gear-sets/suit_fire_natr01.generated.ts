@@ -2,7 +2,7 @@
 import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinition';
 
 const damageBuff = (
-  attribute: 'FireDamageIncrease' | 'NaturalDamageIncrease',
+  attribute: 'heatDamageIncrease' | 'natureDamageIncrease',
   iconId: string,
   valueKey: 'fire_dmg_up' | 'nature_dmg_up',
 ) =>
@@ -117,12 +117,12 @@ const definition = {
       ],
     },
     buff_equipsuit_fninflict_01_firedamageadd: damageBuff(
-      'FireDamageIncrease',
+      'heatDamageIncrease',
       'icon_battle_fire_dmp_up',
       'fire_dmg_up',
     ),
     buff_equipsuit_fninflict_01_poisedamageadd: damageBuff(
-      'NaturalDamageIncrease',
+      'natureDamageIncrease',
       'icon_battle_natural_up',
       'nature_dmg_up',
     ),

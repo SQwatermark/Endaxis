@@ -1,12 +1,12 @@
 # Generate Next GameplayTag catalog
 
-This generator converts the `_keyData` path list in an AnimeStudio
-`GameplayTagConfig` TypeTree dump into Next's versioned tag catalog. IDs are not
-copied from usage sites: the generated module computes each native signed CRC-32
-identity from its exact path.
+This legacy path now delegates to the unified TypeScript game-data compiler. It converts the
+`_keyData` path list in an AnimeStudio `GameplayTagConfig` TypeTree dump into Next's versioned
+tag catalog. IDs are computed from exact paths with the same shared signed CRC-32 implementation
+used by the simulator.
 
 ```powershell
-python scripts/generate_next_gameplay_tags/generate_gameplay_tag_catalog.py `
+npm run generate:game-data:gameplay-tags -- `
   D:\Projects\vfs-index-browser\data\internal-cache\97191\manifest-assets\123136\monobehaviour\dump.txt `
   src/next/data/combat/gameplayTagCatalog.generated.ts
 ```

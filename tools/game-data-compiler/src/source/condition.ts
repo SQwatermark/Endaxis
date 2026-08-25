@@ -10,6 +10,7 @@ import {
   requireRecord,
   requireString,
 } from './primitives.ts';
+import { projectNativeDamageElement } from './damageElement.ts';
 import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
 import { parseCharacterTeamSelectionRole } from './selectorFacts.ts';
 import { parseTagQuerySource, type TagQueryType } from './tagQuery.ts';
@@ -680,20 +681,8 @@ function parseDamageType(
   path: string,
   sourceType: string,
 ): NativeConditionSource {
-  const mapping: Readonly<Record<string, string>> = {
-    Physical: 'physical',
-    Fire: 'heat',
-    Heat: 'heat',
-    Cryst: 'cryo',
-    Cold: 'cryo',
-    Pulse: 'electric',
-    Natural: 'nature',
-    Nature: 'nature',
-  };
   const nativeType = requireNonEmptyString(condition.damageType, `${path}.damageType`);
-  const damageType = mapping[nativeType];
-  if (!damageType)
-    throw new Error(`${path}.damageType: unsupported value ${JSON.stringify(nativeType)}`);
+  const damageType = projectNativeDamageElement(nativeType, `${path}.damageType`);
   return { kind: 'damageType', sourceType, damageType };
 }
 
@@ -702,21 +691,14 @@ function parseInflictionType(
   path: string,
   sourceType: string,
 ): NativeConditionSource {
-  const mapping: Readonly<Record<string, string>> = {
-    Fire: 'heat',
-    Heat: 'heat',
-    Pulse: 'electric',
-    Cryst: 'cryo',
-    Cold: 'cryo',
-    Natural: 'nature',
-    Nature: 'nature',
-  };
   const nativeElements = requireString(condition.mask, `${path}.mask`)
     .split(',')
     .map(item => item.trim())
     .filter(Boolean);
-  const elements = [...new Set(nativeElements.map(item => mapping[item]))];
-  if (elements.length === 0 || elements.some(item => !item)) {
+  const elements = [
+    ...new Set(nativeElements.map(item => projectNativeDamageElement(item, `${path}.mask`))),
+  ];
+  if (elements.length === 0 || elements.includes('physical')) {
     throw new Error(`${path}.mask: unsupported value ${JSON.stringify(condition.mask)}`);
   }
   return {

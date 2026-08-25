@@ -1,10 +1,12 @@
-import { compileResolvedAttributeModifierSource } from '../../compiler/attributeModifier.ts';
-import type { ResolvedAttributeModifierSource } from '../../source/attributeModifiers.ts';
+import {
+  compileResolvedAttributeModifierSource,
+  type ResolvedAttributeModifierSource,
+} from '../../compiler/attributeModifier.ts';
 import type {
   EquipmentAttributeModifierSource,
   EquipmentItemSource,
   EquipmentPartTypeSource,
-} from './attributeModifiers.ts';
+} from '../../source/equipmentAttributeModifiers.ts';
 import {
   projectEquipmentAttributeModifier,
   type EquipmentAttributeModifierProjectionSource,

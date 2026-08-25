@@ -1,8 +1,11 @@
-import type { CompiledAttributeModifierSource } from '../../compiler/attributeModifier.ts';
-import type { AttributeTypeSource } from '../../source/attributeModifiers.ts';
+import {
+  projectPrimaryAttributeKey,
+  type CompiledAttributeModifierSource,
+  type ProjectedPrimaryAttributeSource,
+} from '../../compiler/attributeModifier.ts';
+import type { AttributeTypeSource } from '../../compiler/attributeModifier.ts';
 
-export type ProjectedEquipmentAttribute =
-  'strength' | 'agility' | 'intellect' | 'will' | 'main' | 'secondary';
+export type ProjectedEquipmentAttribute = ProjectedPrimaryAttributeSource | 'main' | 'secondary';
 
 export type ProjectedEquipmentPanelStat =
   | 'baseDefense'
@@ -73,15 +76,6 @@ export type EquipmentAttributeModifierProjectionSource =
       readonly reason: string;
     };
 
-const PRIMARY_ATTRIBUTES: Readonly<
-  Partial<Record<AttributeTypeSource, ProjectedEquipmentAttribute>>
-> = {
-  Str: 'strength',
-  Agi: 'agility',
-  Wisd: 'intellect',
-  Will: 'will',
-};
-
 const DAMAGE_SCALE_ATTRIBUTES: Readonly<
   Partial<Record<AttributeTypeSource, ProjectedEquipmentDamageScale>>
 > = {
@@ -125,8 +119,8 @@ export function projectEquipmentAttributeModifier(
     return blocked(source, 'player damage-taken attribute uses an unverified target or slot');
   }
 
-  const primaryAttribute = PRIMARY_ATTRIBUTES[source.declaredAttributeType];
-  if (primaryAttribute !== undefined) {
+  const primaryAttribute = projectPrimaryAttributeKey(source.declaredAttributeType);
+  if (primaryAttribute !== null) {
     if (source.target !== 'specific' || source.slot !== 'baseAddition') {
       return blocked(source, 'specific primary attribute requires BaseAddition');
     }

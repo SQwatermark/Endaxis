@@ -157,10 +157,11 @@ python -m unittest discover scripts/generate_next_operators -p "test_*.py"
 桌面环境缺少默认输入时，可从 AKEDB 下载生成器所需数据：
 
 ```powershell
-python scripts/download_akedb_next_sources.py
+npm run download:game-data:sources
 ```
 
-下载器当前把五张 TableCfg 固定到 `1.4.4@9433094-12`，并按公开清单同步完整
+下载器按 `tools/game-data-compiler/akedb-sources.json` 中由新版转换器维护的输入目录，固定下载
+当前编译所需的全部 TableCfg，并按公开清单同步完整
 SkillData/BuffData。2026-08-15 的公共 JSON `sharedRevision` 与该 manifest 的 `latest` 配对，
 是当前正式生成基线。AKEDB 只对 TableCfg 提供历史版本路径；`public/Json` 会随热更新覆盖，
 因此以后更新前仍须先确认 `latest` 与所选 TableCfg 一致，不能把新的公共 JSON 与旧表混合后

@@ -1,10 +1,9 @@
 import { compilePassiveSkillRequestBatch } from '../../compiler/passiveSkillBatch.ts';
 import {
-  createBuffDefinitionReferenceNode,
   createSkillDefinitionReferenceNode,
+  parseBuffDefinitionReferenceNodes,
 } from '../../compiler/referenceDefinitions.ts';
 import { resolveDefinitionReferenceClosure } from '../../compiler/referenceClosure.ts';
-import { parseReferenceAwareBuffActionGraphSource } from '../../source/buffActionGraph.ts';
 import { requireRecord } from '../../source/primitives.ts';
 import { discoverEquipmentSuitPassiveSkillRequests } from './passiveDiscovery.ts';
 
@@ -67,18 +66,12 @@ export function compileEquipmentSuitSourceClosure(
     skillPatchValue,
     'SkillData',
   );
-  const nodes = passiveBatch.definitions.map(definition =>
-    createSkillDefinitionReferenceNode(definition.definition.skill, definition.sourcePath),
-  );
-  const buffData = requireRecord(buffDataValue, 'BuffData');
-  for (const buffId of Object.keys(buffData).sort((left, right) => left.localeCompare(right))) {
-    const sourcePath = `BuffData.${buffId}`;
-    const graph = parseReferenceAwareBuffActionGraphSource(buffData[buffId], sourcePath, {});
-    if (graph.buffId !== buffId) {
-      throw new Error(`${sourcePath}.id: expected ${JSON.stringify(buffId)}`);
-    }
-    nodes.push(createBuffDefinitionReferenceNode(graph, sourcePath));
-  }
+  const nodes = [
+    ...passiveBatch.definitions.map(definition =>
+      createSkillDefinitionReferenceNode(definition.definition.skill, definition.sourcePath),
+    ),
+    ...parseBuffDefinitionReferenceNodes(buffDataValue),
+  ];
 
   const closure = resolveDefinitionReferenceClosure(
     passiveBatch.definitions.map(definition => ['skill', definition.skillId] as const),

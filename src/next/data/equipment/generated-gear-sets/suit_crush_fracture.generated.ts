@@ -1,0 +1,213 @@
+/** Projected from 1.4.4 SkillPatch, SkillData and BuffData by the game-data compiler. */
+import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinition';
+
+const definition = {
+  slug: 'suit_crush_fracture',
+  modifiers: [{ kind: 'panelStat', stat: 'attackPercent', value: [0.08] }],
+  buffDefinitions: {
+    buff_equipsuit_crush_fracture: {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 0,
+      triggerIntervalSeconds: 0,
+      waitFirstTriggerInterval: true,
+      maxTriggerCount: 1,
+      applyTagIds: [],
+      extendTagIds: [],
+      blackboard: {
+        duration: 10,
+        phy_dmg_up_final: 0,
+        phy_dmg_up_perstack: 0.1,
+        phy_dmg_up_perstack_dynamic: 0,
+        special_multi: 1.5,
+      },
+      attributeModifiers: [],
+      abilityEventResponses: [
+        {
+          event: 'beforeOutputPhysicalInfliction',
+          priority: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'conditional',
+                parameters: {
+                  condition: {
+                    kind: 'eventPhysicalInflictionTypeIn',
+                    types: ['fracture', 'crush'],
+                  },
+                },
+                whenTrue: {
+                  steps: [
+                    {
+                      kind: 'conditional',
+                      parameters: {
+                        condition: {
+                          kind: 'buffStackCompare',
+                          target: 'eventTarget',
+                          tagQueryType: 'hasAny',
+                          buffTagIds: [1075718177],
+                          operator: 'greaterOrEqual',
+                          value: { kind: 'constant', value: 1 },
+                        },
+                      },
+                      whenTrue: {
+                        steps: [
+                          {
+                            kind: 'modifyActionValue',
+                            parameters: {
+                              key: 'phy_dmg_up_perstack_dynamic',
+                              operation: 'assign',
+                              value: { kind: 'blackboard', key: 'phy_dmg_up_perstack' },
+                            },
+                          },
+                          {
+                            kind: 'modifyActionValue',
+                            parameters: {
+                              key: 'phy_dmg_up_final',
+                              operation: 'assign',
+                              value: { kind: 'constant', value: 0 },
+                            },
+                          },
+                          {
+                            kind: 'readBuffStackCount',
+                            parameters: {
+                              target: 'eventTarget',
+                              outputKey: 'phy_dmg_up_final',
+                              query: {
+                                kind: 'tag',
+                                tagQueryType: 'hasAny',
+                                buffTagIds: [1075718177],
+                              },
+                            },
+                          },
+                          {
+                            kind: 'conditional',
+                            parameters: {
+                              condition: {
+                                kind: 'any',
+                                conditions: [
+                                  {
+                                    kind: 'buffStackCompare',
+                                    target: 'eventTarget',
+                                    tagQueryType: 'hasAny',
+                                    buffTagIds: [1066759270],
+                                    operator: 'greaterOrEqual',
+                                    value: { kind: 'constant', value: 1 },
+                                  },
+                                  {
+                                    kind: 'buffIdStackCompare',
+                                    target: 'eventTarget',
+                                    buffIds: ['buff_common_originum_frozen'],
+                                    operator: 'greaterOrEqual',
+                                    value: { kind: 'constant', value: 1 },
+                                  },
+                                  {
+                                    kind: 'poiseCompare',
+                                    target: 'enemy',
+                                    returnValueIfMissing: false,
+                                    operator: 'equal',
+                                    value: { kind: 'constant', value: 0 },
+                                  },
+                                ],
+                              },
+                              alwaysNext: true,
+                            },
+                            whenTrue: {
+                              steps: [
+                                {
+                                  kind: 'modifyActionValue',
+                                  parameters: {
+                                    key: 'phy_dmg_up_perstack_dynamic',
+                                    operation: 'multiply',
+                                    value: { kind: 'blackboard', key: 'special_multi' },
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                          {
+                            kind: 'modifyActionValue',
+                            parameters: {
+                              key: 'phy_dmg_up_final',
+                              operation: 'multiply',
+                              value: {
+                                kind: 'blackboard',
+                                key: 'phy_dmg_up_perstack_dynamic',
+                              },
+                            },
+                          },
+                          {
+                            kind: 'applyBuff',
+                            parameters: {
+                              buffId: 'buff_equipsuit_crush_fracture_physicdamage',
+                              target: 'caster',
+                              inheritSourceSkillCastInfo: true,
+                              blackboardAssignments: {
+                                priority: { kind: 'blackboard', key: 'phy_dmg_up_final' },
+                                phy_dmg_up: { kind: 'blackboard', key: 'phy_dmg_up_final' },
+                                duration: { kind: 'blackboard', key: 'duration' },
+                              },
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    },
+    buff_equipsuit_crush_fracture_physicdamage: {
+      stackingType: 'highPriority',
+      priority: { blackboardKey: 'priority' },
+      maxStackCount: 0,
+      durationSeconds: { blackboardKey: 'duration' },
+      triggerIntervalSeconds: 0,
+      waitFirstTriggerInterval: true,
+      maxTriggerCount: 1,
+      presentation: {
+        visible: true,
+        iconId: 'icon_battle_physical_dmg_up',
+        iconPath: '/icons/icon_battle_physical_dmg_up.webp',
+        showInHeadBarCommon: false,
+        showInHeadBarAttached: false,
+        showInSquadIcon: true,
+        onlyShowForMainCharacter: false,
+        iconStyleInSquad: 'Default',
+        abnormalColorType: 'Physical',
+        orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
+      },
+      applyTagIds: [],
+      extendTagIds: [],
+      blackboard: { duration: 10, phy_dmg_up: 0.1, priority: 0 },
+      attributeModifiers: [
+        {
+          attribute: 'physicalDamageIncrease',
+          slot: 'baseAddition',
+          value: { blackboardKey: 'phy_dmg_up' },
+        },
+      ],
+    },
+  },
+  initializationSequence: {
+    steps: [
+      {
+        kind: 'applyBuff',
+        parameters: {
+          buffId: 'buff_equipsuit_crush_fracture',
+          target: 'caster',
+          blackboardAssignments: {
+            phy_dmg_up_perstack: { kind: 'constant', value: 0.06 },
+            duration: { kind: 'constant', value: 20 },
+            special_multi: { kind: 'constant', value: 1.5 },
+          },
+        },
+      },
+    ],
+  },
+} as const satisfies GearSetDefinition;
+
+export default definition;

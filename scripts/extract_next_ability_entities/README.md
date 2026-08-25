@@ -1,5 +1,10 @@
 # Next 能力实体模板提取
 
+> 迁移状态：此目录只保留为旧 Python 产物的差分 oracle，不再是正式资源入口，也不得新增
+> 字段或业务规则。生产解析的唯一实现位于 vfs-index-browser `ability_entity_data.py`，Endaxis
+> 新编译器通过 `AbilityEntityData` 兼容集合消费结果。完成 Operator 等价迁移后应归档本目录；
+> 在此之前，它只用于核对既有版本化证据，不能与 vfs 实现并行演进。
+
 该工具从当前桌面（handoff 文档中的“远程”）所连接的 VFS manifest 定位
 `AbilityEntityTemplateData`，再用 AnimeStudio 导出原始 MonoBehaviour。输出只包含
 零空间模型需要、且已由当前 IL2CPP 字段顺序验证的前缀：模板身份、出生标签、默认

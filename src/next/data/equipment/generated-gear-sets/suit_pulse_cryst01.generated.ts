@@ -2,7 +2,7 @@
 import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinition';
 
 const damageBuff = (
-  attribute: 'PulseDamageIncrease' | 'CrystDamageIncrease',
+  attribute: 'electricDamageIncrease' | 'cryoDamageIncrease',
   iconId: string,
   valueKey: 'pulse_dmg_up' | 'cryst_dmg_up',
 ) =>
@@ -117,12 +117,12 @@ const definition = {
       ],
     },
     buff_equipsuit_cpinflict_01_crystdamageadd: damageBuff(
-      'CrystDamageIncrease',
+      'cryoDamageIncrease',
       'icon_battle_cryst_dmg_up',
       'cryst_dmg_up',
     ),
     buff_equipsuit_cpinflict_01_elecdamageadd: damageBuff(
-      'PulseDamageIncrease',
+      'electricDamageIncrease',
       'icon_battle_pulse_dmg_up',
       'pulse_dmg_up',
     ),

@@ -29,22 +29,22 @@ const definition = {
       blackboard: { spell_dmg_up: 0.05 },
       attributeModifiers: [
         {
-          attribute: 'FireDamageIncrease',
+          attribute: 'heatDamageIncrease',
           slot: 'baseAddition',
           value: { blackboardKey: 'spell_dmg_up' },
         },
         {
-          attribute: 'PulseDamageIncrease',
+          attribute: 'electricDamageIncrease',
           slot: 'baseAddition',
           value: { blackboardKey: 'spell_dmg_up' },
         },
         {
-          attribute: 'NaturalDamageIncrease',
+          attribute: 'natureDamageIncrease',
           slot: 'baseAddition',
           value: { blackboardKey: 'spell_dmg_up' },
         },
         {
-          attribute: 'CrystDamageIncrease',
+          attribute: 'cryoDamageIncrease',
           slot: 'baseAddition',
           value: { blackboardKey: 'spell_dmg_up' },
         },

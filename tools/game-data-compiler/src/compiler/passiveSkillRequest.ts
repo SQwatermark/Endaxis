@@ -20,4 +20,6 @@ export interface PassiveSkillCompileRequestSource {
   readonly skillId: string;
   readonly levelSource: PassiveSkillLevelSource;
   readonly inputBlackboard: Readonly<Record<string, number>>;
+  /** Operator 养成效果的原生 SkillConditionTable ID；其他领域通常省略。 */
+  readonly activeConditionIds?: readonly string[];
 }

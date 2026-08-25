@@ -8,6 +8,9 @@ interface PythonOracleRequest {
     | 'parseBlackboardMutation'
     | 'parseConditionLeaf'
     | 'parseDeclaredBlackboard'
+    | 'parsePanelAttributes'
+    | 'parseTrustAttributeBonus'
+    | 'validateSkillGroups'
     | 'parseScalar'
     | 'parseSkillPatch'
     | 'parseTagQuery'
@@ -63,6 +66,27 @@ elif request["operation"] == "parseDeclaredBlackboard":
         dataclasses.asdict(item)
         for item in parse_declared_blackboard(payload["value"], payload["path"])
     ]
+elif request["operation"] == "parsePanelAttributes":
+    from generate_next_operators import parse_panel_attributes
+    payload = request["payload"]
+    result = parse_panel_attributes(payload["character"], payload["path"])
+elif request["operation"] == "parseTrustAttributeBonus":
+    from generate_next_operators import parse_trust_attribute_bonus
+    payload = request["payload"]
+    result = parse_trust_attribute_bonus(
+        payload["growth"], payload["mainAttribute"], payload["path"]
+    )
+elif request["operation"] == "validateSkillGroups":
+    from types import SimpleNamespace
+    from generate_next_operators import validate_skill_groups
+    payload = request["payload"]
+    validate_skill_groups(
+        payload["operator"],
+        [SimpleNamespace(**skill) for skill in payload["skills"]],
+        payload["growth"],
+        payload["path"],
+    )
+    result = {"valid": True}
 elif request["operation"] == "parseSkillPatch":
     from generate_next_operators import parse_skill_patch
     payload = request["payload"]
@@ -201,6 +225,9 @@ def add_target_shape(value):
         if "finderType" in value and "finderSpawnedObjectType" in value:
             value.setdefault("finderShape", None)
             value.setdefault("finderOwnerPartsQuery", None)
+            value.setdefault("priorityFilters", [])
+            value.setdefault("shuffleTargets", [])
+            value.setdefault("distanceValidators", [])
         for child in value.values():
             add_target_shape(child)
     elif isinstance(value, (list, tuple)):

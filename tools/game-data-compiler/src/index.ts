@@ -1,4 +1,34 @@
 export {
+  parseNativeAbilityEntityTemplateSource,
+  type IntegerScalarSource,
+  type NativeAbilityEntityTemplateSource,
+} from './source/abilityEntity.ts';
+export {
+  parseGameplayTagConfigDumpSource,
+  type GameplayTagConfigDumpSource,
+} from './source/gameplayTagConfigDump.ts';
+export {
+  compileGameplayTagCatalogSource,
+  renderGameplayTagCatalogModule,
+  type CompiledGameplayTagCatalogSource,
+  type CompiledGameplayTagDefinitionSource,
+} from './compiler/gameplayTagCatalog.ts';
+export {
+  compileAbilityEntityTemplateCatalogSource,
+  resolveAbilityEntityTemplateIdsByTagQuery,
+  type CompiledAbilityEntityTemplateCatalogSource,
+} from './compiler/abilityEntityCatalog.ts';
+export {
+  compileTargetGroupAbilityEntityQuerySource,
+  compileTargetReferenceAbilityEntityQuerySource,
+  type CompiledAbilityEntityDistanceFromOwnerSource,
+  type CompiledAbilityEntityPostProcessorSource,
+  type CompiledAbilityEntityShuffleSource,
+  type CompiledAbilityEntitySelectorQuerySource,
+  type CompiledAbilityEntityValidatorSource,
+  type CompiledSelectorAnchorSource,
+} from './compiler/abilityEntityQuery.ts';
+export {
   parseBuffStackReadActionSource,
   type BuffStackReadActionSource,
 } from './source/buffQueryActions.ts';
@@ -49,32 +79,81 @@ export {
   ATTRIBUTE_TYPES,
   MODIFY_ATTRIBUTE_TYPES,
   MODIFIER_TYPES,
-  parseCardAttributeModifierSource,
+  parseGameplayAttributeModifierSource,
   parseAttributeTypeValue,
   parseModifierTypeValue,
   parseModifyAttributeTypeValue,
   type AttributeModifierIdentitySource,
   type AttributeTypeSource,
-  type CardAttributeModifierSource,
+  type GameplayAttributeModifierEntrySource,
+  type GameplayAttributeModifierSource,
   type ModifierTypeSource,
   type ModifyAttributeTypeSource,
-  type NativeAttributeModifierSource,
   type ResolvedAttributeModifierSource,
 } from './source/attributeModifiers.ts';
+export { WEAPON_TYPES, parseWeaponTypeValue, type WeaponTypeSource } from './source/weaponType.ts';
+export {
+  NATIVE_DAMAGE_ELEMENTS,
+  PROJECTED_DAMAGE_ELEMENTS,
+  parseNativeDamageElementSource,
+  projectNativeDamageElement,
+  type NativeDamageElementSource,
+  type ProjectedDamageElementSource,
+} from './source/damageElement.ts';
+export {
+  COMPARE_OPERATORS,
+  parseSkillConditionSources,
+  type CompareOperatorSource,
+  type SkillConditionSource,
+} from './source/skillConditions.ts';
+export {
+  parseOperatorPotentialSource,
+  type OperatorPotentialSource,
+  type OperatorPotentialUnlockSource,
+} from './source/operatorPotentials.ts';
+export {
+  MODIFIABLE_SKILL_PARAMETERS,
+  OPERATOR_PROGRESSION_MODIFY_TYPES,
+  SKILL_VALUE_MODIFY_TYPES,
+  parseOperatorProgressionEffectBundles,
+  type ModifiableSkillParameterSource,
+  type OperatorProgressionEffectBundleSource,
+  type OperatorProgressionEffectEntrySource,
+  type OperatorProgressionModifyTypeSource,
+  type ProgressionAttachedBuffSource,
+  type ProgressionAttachedSkillSource,
+  type ProgressionAttributeModifierSource,
+  type ProgressionSkillBlackboardModifierSource,
+  type ProgressionSkillParameterModifierSource,
+  type SkillValueModifyTypeSource,
+} from './source/operatorProgressionEffects.ts';
 export {
   ATTRIBUTE_MODIFIER_SLOTS,
   compileResolvedAttributeModifierSource,
+  projectCombatRuntimeAttributeKey,
+  projectPrimaryAttributeKey,
   resolveCompiledAttributeModifierTargets,
   type AttributeModifierSlotSource,
   type CompiledAttributeModifierSource,
   type CompiledAttributeModifierTargetSource,
+  type ProjectedPrimaryAttributeSource,
 } from './compiler/attributeModifier.ts';
+export { projectWeaponType, type ProjectedWeaponTypeSource } from './compiler/weaponType.ts';
+export {
+  compileBuildConditionGroupSource,
+  compileBuildConditionIndexSource,
+  compileBuildConditionSource,
+  projectSingleBuildConditionSource,
+  type CompiledBuildConditionGroupSource,
+  type CompiledBuildConditionSource,
+} from './compiler/buildCondition.ts';
 export {
   compileEventTargetSimpleDamageOperationSource,
   type CompiledActionValueOperandSource,
   type CompiledSimpleDamageOperationSource,
 } from './compiler/simpleDamageOperation.ts';
 export {
+  collectNativeActionNodes,
   parseNativeSequenceSource,
   type NativeActionBodySource,
   type NativeActionMetadataSource,
@@ -178,11 +257,93 @@ export {
   type ReferenceAwareActionLeafSource,
   type SkillDefinitionReferenceSource,
 } from './source/referenceGraph.ts';
-export { discoverOperatorPassiveSkillRequests } from './domains/operator/passiveDiscovery.ts';
+export {
+  discoverOperatorPassiveSkillRequests,
+  discoverOperatorPassiveSkillRequestsFromBundles,
+} from './domains/operator/passiveDiscovery.ts';
+export {
+  STANDARD_OPERATOR_PANEL_MILESTONES,
+  compileOperatorAttributeGrowthSource,
+  findExactCharacterAttributeKeyFrame,
+  parseOperatorCharacterTableSource,
+  type CharacterAttributeKeyFrameSource,
+  type CompiledOperatorAttributeGrowthSource,
+  type OperatorCharacterTableSource,
+  type OperatorPanelMilestoneSource,
+  type OperatorPrimaryAttributeSource,
+  type ProjectedOperatorRaritySource,
+  type ProjectedOperatorRoleSource,
+} from './domains/operator/characterTable.ts';
+export {
+  compileOperatorDefinitionHeaderSource,
+  type CompiledOperatorDefinitionHeaderSource,
+} from './domains/operator/definitionHeader.ts';
+export {
+  compileTrustAttributeBonusSource,
+  parseOperatorTalentNodeSources,
+  type CompiledTrustAttributeBonusSource,
+  type OperatorTalentNodeSource,
+  type TalentAttributeModifierSource,
+  type TalentNodeTypeSource,
+} from './domains/operator/talentNodes.ts';
+export {
+  parseOperatorProgressionSource,
+  type OperatorProgressionSource,
+} from './domains/operator/progression.ts';
+export {
+  compileOperatorProgressionEffectBundles,
+  type CompiledOperatorProgressionEffectBundleSource,
+  type CompiledOperatorProgressionEntrySource,
+} from './domains/operator/progressionEffects.ts';
+export {
+  parseNativeOperatorSkillGroupSources,
+  parseOperatorSkillGroupSources,
+  validateOperatorSkillGroups,
+  type NativeOperatorSkillGroupSource,
+  type OperatorSkillGroupSource,
+  type OperatorSkillGroupValidationOptions,
+  type OperatorSkillGroupVariantSource,
+  type OperatorSkillIdentitySource,
+} from './domains/operator/skillGroups.ts';
+export {
+  OPERATOR_ACTIVE_SKILL_TYPES,
+  compileOperatorActiveSkills,
+  parseOperatorActiveSkillEntries,
+  type CompiledOperatorActiveSkillEntrySource,
+  type OperatorActiveSkillCompilationSource,
+  type OperatorActiveSkillEntrySource,
+  type OperatorActiveSkillTypeSource,
+} from './domains/operator/activeSkills.ts';
+export {
+  compileOperatorSkillLibrarySource,
+  type OperatorSkillLibraryInputSource,
+  type OperatorSkillLibrarySource,
+} from './domains/operator/skillLibrary.ts';
+export {
+  compileOperatorSourceClosure,
+  resolveOperatorSourceClosure,
+  type OperatorAbilityEntityQueryContext,
+  type OperatorActiveSkillAbilityEntityQueriesSource,
+  type OperatorSourceClosure,
+  type OperatorSourceClosureInput,
+} from './domains/operator/sourceClosure.ts';
+export {
+  auditOperatorSourceClosures,
+  auditOperatorSkillLibraries,
+  planOperatorUnityTemplateReferences,
+  type OperatorSourceClosureAuditEntrySource,
+  type OperatorSourceClosureAuditInput,
+  type OperatorSourceClosureAuditSource,
+  type OperatorSkillLibraryAuditEntrySource,
+  type OperatorSkillLibraryAuditSource,
+  type OperatorUnityTemplateReferencePlanEntrySource,
+  type OperatorUnityTemplateReferencePlanInput,
+  type OperatorUnityTemplateReferencePlanSource,
+} from './audits/operatorSkillLibraries.ts';
 export {
   type PassiveSkillCompileRequestSource,
   type PassiveSkillLevelSource,
-} from './domains/passiveDiscovery.ts';
+} from './compiler/passiveSkillRequest.ts';
 export { discoverWeaponPassiveSkillRequests } from './domains/weapon/passiveDiscovery.ts';
 export { parseWeaponBasicSources, type WeaponBasicSource } from './domains/weapon/basicTable.ts';
 export {
@@ -222,19 +383,24 @@ export {
   type UnresolvedSkillBlackboardValueSource,
 } from './domains/equipment/suitStaticDefinition.ts';
 export {
-  buffRuntimeReadsBlackboardKey,
   compileEquipmentSuitRuntimeBatchSource,
-  compileEquipmentBuffRuntimeDefinitionSource,
   evaluateFixedFullHealthToggleCondition,
-  type CompiledBuffAttributeModifierSource,
-  type CompiledBuffNumberSource,
-  type CompiledBuffPresentationSource,
-  type CompiledEquipmentBuffConditionSource,
-  type CompiledEquipmentBuffDefinitionSource,
-  type CompiledEquipmentBuffSequenceSource,
-  type CompiledEquipmentBuffStepSource,
   type CompiledEquipmentSuitRuntimeBatchSource,
 } from './domains/equipment/suitRuntimeDefinition.ts';
+export {
+  buffRuntimeReadsBlackboardKey,
+  collectBuffRuntimeClosure,
+  compileBuffRuntimeDefinitionSource,
+  isAfterEnemyDefeatedOnlyBuffRuntime,
+  isPresentationOnlyBuffStackEffect,
+  type CompiledBuffAttributeModifierSource,
+  type CompiledBuffConditionSource,
+  type CompiledBuffDefinitionSource,
+  type CompiledBuffNumberSource,
+  type CompiledBuffPresentationSource,
+  type CompiledBuffSequenceSource,
+  type CompiledBuffStepSource,
+} from './compiler/buffRuntimeProjection.ts';
 export {
   renderEquipmentSuitDefinitionFiles,
   type RenderedEquipmentSuitDefinitionFileSource,
@@ -248,7 +414,7 @@ export {
   type EquipmentItemSource,
   type EquipmentPartTypeSource,
   type ResolvedEquipmentAttributeModifierSource,
-} from './domains/equipment/attributeModifiers.ts';
+} from './source/equipmentAttributeModifiers.ts';
 export {
   projectEquipmentAttributeModifier,
   type EquipmentAttributeModifierProjectionSource,
@@ -278,13 +444,43 @@ export {
   type CompiledPassiveSkillSource,
 } from './compiler/passiveSkillDefinition.ts';
 export {
+  compileActiveSkillSource,
+  type CompiledActiveSkillSource,
+} from './compiler/activeSkillDefinition.ts';
+export {
+  compileActiveSkillAbilityEntityQueriesSource,
+  type CompiledActiveSkillAbilityEntityQuerySource,
+} from './compiler/activeSkillAbilityEntityQueries.ts';
+export {
+  prepareSkillDefinitionInputSource,
+  type PreparedSkillDefinitionInputSource,
+} from './compiler/skillDefinitionInput.ts';
+export {
+  parseNativeActiveSkillSource,
+  type NativeActiveSkillSource,
+} from './source/activeSkill.ts';
+export {
   compilePassiveSkillRequestBatch,
   type CompiledPassiveSkillDefinitionSource,
   type PassiveSkillCompilationBatchSource,
 } from './compiler/passiveSkillBatch.ts';
 export {
+  compileActiveSkillRequestBatch,
+  type ActiveSkillCompilationBatchSource,
+  type ActiveSkillCompileRequestSource,
+  type CompiledActiveSkillDefinitionSource,
+} from './compiler/activeSkillBatch.ts';
+export {
+  compileSkillDefinitionBatchSource,
+  type CompiledSkillDefinitionIdentitySource,
+  type SkillDefinitionCompileRequestIdentitySource,
+} from './compiler/skillDefinitionBatch.ts';
+export {
+  materializePassiveBuffInstallation,
   materializePassiveSkillInstallation,
+  type MaterializedPassiveBuffInstallationSource,
   type MaterializedPassiveSkillInstallationSource,
+  type UnresolvedPassiveSkillBlackboardValueSource,
 } from './compiler/passiveSkillInstallation.ts';
 export {
   resolveSkillBlackboardSource,
@@ -293,8 +489,13 @@ export {
   type SelectedSkillBlackboardSource,
 } from './compiler/skillBlackboard.ts';
 export {
+  createAbilityEntityDefinitionReferenceNodes,
   createBuffDefinitionReferenceNode,
+  compileReferencedSkillDefinitionNode,
   createSkillDefinitionReferenceNode,
+  parseAbilityEntityDefinitionReferenceNodes,
+  parseBuffDefinitionReferenceNodes,
+  parseProjectileDefinitionReferenceNodes,
 } from './compiler/referenceDefinitions.ts';
 export {
   indexDefinitionReferenceNodes,
@@ -341,6 +542,15 @@ export {
   type TimeDilationActionSource,
   type UltimateTimeActionSource,
 } from './source/timeDilationActions.ts';
+export {
+  parsePriorityFilterSources,
+  parseDistanceValidatorSources,
+  parseShuffleTargetSources,
+  type PriorityBuffFilterSource,
+  type DistanceValidatorSource,
+  type PriorityFilterSource,
+  type ShuffleTargetSource,
+} from './source/selectorComponents.ts';
 export {
   collectTargetGroupWrites,
   parseTargetGroupActionSource,

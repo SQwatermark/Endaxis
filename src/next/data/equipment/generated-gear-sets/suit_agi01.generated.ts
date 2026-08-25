@@ -29,7 +29,7 @@ const definition = {
       blackboard: { phy_dmg_up: 0.05 },
       attributeModifiers: [
         {
-          attribute: 'PhysicalDamageIncrease',
+          attribute: 'physicalDamageIncrease',
           slot: 'baseAddition',
           value: { blackboardKey: 'phy_dmg_up' },
         },

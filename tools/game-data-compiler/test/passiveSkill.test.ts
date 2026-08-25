@@ -61,6 +61,19 @@ describe('领域无关的被动 SkillData', () => {
     ).toThrow('active_fixture.json.castType: expected "Passive"');
   });
 
+  it('AddBuff 被动忽略未被原生子类读取的 toggleBuffs 序列化残留', () => {
+    const source = passiveFixture();
+    source.passiveSkillType = 'AddBuff';
+    const parsed = parseNativePassiveSkillSource(source, 'passive_fixture.json', {
+      hp_ratio: [0.5],
+      damage_up: [0.2],
+    });
+    expect(parsed.toggleBuffs).toEqual([]);
+    expect(parsed.references.filter(item => item.kind === 'buff')).toMatchObject([
+      { usage: 'attached', id: 'buff_startup' },
+    ]);
+  });
+
   it('保留 CardSkill 属性修正及其逐等级黑板来源', () => {
     const source = passiveFixture();
     source.cardAttributeModifier = {
