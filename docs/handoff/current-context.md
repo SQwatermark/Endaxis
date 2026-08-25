@@ -7,6 +7,18 @@
 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
+### 2026-08-26：连携叠层套复用同施放增伤闭环
+
+- `suit_attri01` 已进入正式生成，套装覆盖提升为 **20/23**。静态攻击 +15%；每次连携施放前给自身
+  叠一层可视 Buff，最多 2 层；下一次战技施放前读取实例数、按 `dmg_up * stack` 生成临时增伤并
+  清空层数。
+- 临时 Buff 复用上一批严格的 `CheckSkillCastId + SkillAffixAction` 生命周期，只影响同一施放。
+  DamageDecorateMask `256` 依据 combat-spec 1.4.4 生成枚举的 `NormalSkill=256` 映射为公共
+  `normalSkill` 伤害标签；编译器现在仅接受已证明的 256/8192 两个 HasAll 单位 mask。
+- 当前剩余 **3/23**：`suit_expend_spell01`、`suit_usp01`、`suit_usp02`。门禁为游戏数据
+  58 文件 251/251、Next 208 文件 1529/1529，两个专用类型检查通过；正式生成审计为 20 套、
+  44 个 Buff 定义。下一步继续处理 `suit_expend_spell01` 的动态 Buff 上下文计数链。
+
 ### 2026-08-26：战技叠层套 Aura、同施放连携增伤闭环
 
 - `suit_atk02` 已进入正式生成，套装覆盖提升为 **19/23**。静态部分为攻击 +15%；根 Buff 的

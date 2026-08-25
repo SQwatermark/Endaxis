@@ -62,7 +62,7 @@ export interface CompiledBuffDamageModifierSource {
     | {
         readonly kind: 'eventDamageTagsMatch';
         readonly match: 'hasAll';
-        readonly tags: readonly ['comboSkill'];
+        readonly tags: readonly ['normalSkill' | 'comboSkill'];
       }
     | {
         readonly kind: 'all';
@@ -71,7 +71,7 @@ export interface CompiledBuffDamageModifierSource {
           | {
               readonly kind: 'eventDamageTagsMatch';
               readonly match: 'hasAll';
-              readonly tags: readonly ['comboSkill'];
+              readonly tags: readonly ['normalSkill' | 'comboSkill'];
             }
         )[];
       };
@@ -627,15 +627,15 @@ function compileDamageModifierCondition(
       }
       const condition = node.body.value.action;
       if (condition.kind === 'skillCastId') return { kind: 'sourceSkillCastMatch' as const };
-      if (
-        condition.kind === 'damageDecorateMask' &&
-        condition.checkType === 'HasAll' &&
-        condition.mask === 8192
-      ) {
+      const damageTag =
+        condition.kind === 'damageDecorateMask' && condition.checkType === 'HasAll'
+          ? ({ 256: 'normalSkill', 8192: 'comboSkill' } as const)[condition.mask as 256 | 8192]
+          : undefined;
+      if (damageTag !== undefined) {
         return {
           kind: 'eventDamageTagsMatch' as const,
           match: 'hasAll' as const,
-          tags: ['comboSkill'] as const,
+          tags: [damageTag] as const,
         };
       }
       throw new Error(

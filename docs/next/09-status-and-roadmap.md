@@ -532,3 +532,13 @@ ID 当作物品主键。当前 48 条玩家承伤修正只在木桩边界省略�
 - 正式套装提升为 19/23、41 个 Buff 定义。剩余 `suit_attri01`、`suit_expend_spell01`、
   `suit_usp01`、`suit_usp02`；下一步优先收口同样依赖 SkillAffix 的 `suit_attri01`。
 - 门禁更新为游戏数据 251/251、Next 1528/1528，两套专用类型检查通过。
+
+### 2026-08-26：连携叠层套正式闭环
+
+- `suit_attri01` 保留攻击 +15%；连携施放叠最多 2 个可视实例，下一次战技按实例数放大临时增伤并
+  清层。临时 Buff 继续由同一 skillCast ID 与 SkillAffix 生命周期约束。
+- DamageDecorateMask `256` 按 combat-spec 生成枚举映射为 `normalSkill`；公共投影仅开放已证明的
+  `256 -> normalSkill` 与 `8192 -> comboSkill` 两种 HasAll 单位 mask。
+- 正式套装提升为 20/23、44 个 Buff 定义。剩余 `suit_expend_spell01`、`suit_usp01`、
+  `suit_usp02`；下一步处理动态 Buff 上下文计数链。
+- 门禁更新为游戏数据 251/251、Next 1529/1529，两套专用类型检查通过。

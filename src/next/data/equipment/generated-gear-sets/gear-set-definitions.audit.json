@@ -1,8 +1,8 @@
 {
   "format": "EndaxisGeneratedGearSetAudit",
   "version": 1,
-  "definitionCount": 19,
-  "buffDefinitionCount": 41,
+  "definitionCount": 20,
+  "buffDefinitionCount": 44,
   "diagnostics": [
     {
       "status": "scenario-omitted",
