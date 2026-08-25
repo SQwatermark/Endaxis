@@ -46,8 +46,6 @@ const resources = {
 const knownFailures: Readonly<Record<string, string>> = {
   'arcane/comboSkill/base/comboSkill':
     "ability event 'beforeTakeDamage' has multiple actions at unresolved priority 0",
-  'rossi/comboSkill/base/comboSkill3':
-    "action blackboard value 'EntityBB_Combo_QTE_Trigger' is missing",
   'liino/battleSkill/base/battleSkill':
     "operator 'liino' skill group 'battleSkill' cannot combine a placed skill chain with replacement skills",
   'liino/battleSkill/base/battleSkillCombo':
@@ -61,7 +59,7 @@ describe('所有正式干员技能逐项放置与模拟', () => {
   it('覆盖默认仓库中的每个干员和每个基础/变体技能', () => {
     expect(nextGameDataRepository.getOperators()).toHaveLength(30);
     expect(cases).toHaveLength(301);
-    expect(Object.keys(knownFailures)).toHaveLength(6);
+    expect(Object.keys(knownFailures)).toHaveLength(5);
     expect(
       new Set(
         cases.map(
@@ -78,7 +76,7 @@ describe('所有正式干员技能逐项放置与模拟', () => {
   });
 
   it.each(cases)(
-    '$operator.slug / $groupKey / $variantKey / $skill.key 可以独立放上时间轴并跑完整模拟',
+    '$operator.slug / $groupKey / $variantKey / $skill.key 可以在最小合法上下文中放上时间轴并跑完整模拟',
     async ({ operator, groupKey, variantKey, skill }) => {
       const scenario = createEmptyScenario(
         `audit:${operator.slug}:${groupKey}:${variantKey ?? 'base'}:${skill.key}`,
@@ -124,14 +122,16 @@ describe('所有正式干员技能逐项放置与模拟', () => {
         initialState: { ultimateEnergy: 0 },
         skillCasts: [],
       };
+      const identity = skillIdentity({ operator, groupKey, variantKey, skill });
+      const placementContext = placeRequiredSkillContext(scenario, identity, operator);
       const placed = placeSkillGroup({
-        scenario,
+        scenario: placementContext.scenario,
         trackIndex: 0,
         operator,
         skillGroupKey: groupKey,
         ...(variantKey === undefined ? {} : { variantKey }),
         skillKey: skill.key,
-        startFrame: 1,
+        startFrame: placementContext.startFrame,
         ids: {
           allocate: kind =>
             `${kind}:${operator.slug}:${groupKey}:${variantKey ?? 'base'}:${skill.key}`,
@@ -145,7 +145,6 @@ describe('所有正式干员技能逐项放置与模拟', () => {
         spellInflictionSettings: skillSettings,
       });
 
-      const identity = skillIdentity({ operator, groupKey, variantKey, skill });
       const expectedFailure = knownFailures[identity];
       if (expectedFailure !== undefined) {
         await expect(service.simulate(placed, 3600)).rejects.toThrow(expectedFailure);
@@ -162,4 +161,28 @@ function asSkills(value: SkillDefinition | readonly SkillDefinition[]): readonly
 
 function skillIdentity(entry: RegisteredSkillPlacementCase): string {
   return `${entry.operator.slug}/${entry.groupKey}/${entry.variantKey ?? 'base'}/${entry.skill.key}`;
+}
+
+/** 只登记已有来源与生产回归证明的阶段前置，不为缺键技能猜造输入。 */
+function placeRequiredSkillContext(
+  scenario: ReturnType<typeof createEmptyScenario>,
+  identity: string,
+  operator: OperatorDefinition,
+): { scenario: ReturnType<typeof createEmptyScenario>; startFrame: number } {
+  if (identity !== 'rossi/comboSkill/base/comboSkill3') {
+    return { scenario, startFrame: 1 };
+  }
+  return {
+    scenario: placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator,
+      skillGroupKey: 'comboSkill',
+      skillKey: 'comboSkill2',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:rossi:comboSkill2:qte-prerequisite` },
+    }).scenario,
+    // 既有生产回归证明此帧位于第一段创建的 0.5 秒 QTE 有效计时 Buff 内。
+    startFrame: 55,
+  };
 }

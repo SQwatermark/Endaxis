@@ -17,8 +17,12 @@
   `AbilitySystemData` 导出该字段。Next 生成器只消费严格版本证据：同一投射物实例的命中回调共享
   键值，不同投射物实例及下一次技能运行重新初始化，不会污染干员实体黑板。
 - 艾斯黛拉战技与汤汤普攻 5 已从全技能预期失败清单删除；艾斯黛拉的
-  `runtimeDependencies` partial 标记同步移除。当前基础构筑基线为 **295/301 成功、6 项精确失败**。
-  剩余项是 Arcane 同优先级事件顺序、Rossi 多阶段 QTE 状态、Liino 两项技能替换冲突、Yvonne 与
+  `runtimeDependencies` partial 标记同步移除。投射物批次结束时基础构筑基线为 **295/301 成功、
+  6 项精确失败**。
+- 全技能门禁现允许由来源与既有生产回归证明的最小合法阶段前置，但仍要求目标技能真实放轴并
+  执行。洛茜三段连携先放二段，再在其 0.5 秒 QTE 有效 Buff 内放三段；`beforeCastSkill` 正常写入
+  `EntityBB_Combo_QTE_Trigger`，没有补默认值。当前基线为 **296/301 成功、5 项精确失败**。
+  剩余项是 Arcane 同优先级事件顺序、Liino 两项技能替换冲突、Yvonne 与
   Ardelia 的能力实体目标上下文，必须分别按来源闭环。
 - 本轮门禁：生成器 379 项、全量生成与 `--check`、`npm run type-check:next`、Next 207 个测试文件
   1834 项全部通过。combat-spec 聚焦回归 3/3、VFS 投射物回归 3 项通过且 1 项本地 fixture 跳过。
