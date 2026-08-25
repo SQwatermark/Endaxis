@@ -46,6 +46,7 @@ export type ProjectedBuildModifierSource =
   | {
       readonly kind: 'damageScale';
       readonly target: ProjectedBuildDamageScale;
+      readonly slot: 'baseAddition' | 'addition';
       readonly value: number;
     }
   | {
@@ -68,7 +69,8 @@ export type BuildAttributeModifierProjectionSource =
   | {
       readonly status: 'scenario-omitted';
       readonly source: CompiledAttributeModifierSource;
-      readonly reason: 'playerDamageTakenRequiresEnemyActiveDamage';
+      readonly reason:
+        'playerDamageTakenRequiresEnemyActiveDamage' | 'shieldOutputDoesNotAffectStumpEnemyDamage';
     }
   | {
       readonly status: 'blocked';
@@ -119,6 +121,20 @@ export function projectBuildAttributeModifier(
     return blocked(source, 'player damage-taken attribute uses an unverified target or slot');
   }
 
+  // Main/Sub 由原生 AttributeModifierTargetResolver 选择装备者的主/副属性；此时声明的
+  // AttributeType 只是序列化残留，不能抢先按 Specific 分支解释。
+  if (
+    (source.target === 'main' || source.target === 'sub') &&
+    (source.slot === 'baseAddition' || source.slot === 'baseMultiplier')
+  ) {
+    return supported(source, {
+      kind: 'attribute',
+      attribute: source.target === 'main' ? 'main' : 'secondary',
+      operation: source.slot === 'baseAddition' ? 'flat' : 'percent',
+      value: source.value,
+    });
+  }
+
   const primaryAttribute = projectPrimaryAttributeKey(source.declaredAttributeType);
   if (primaryAttribute !== null) {
     if (source.target !== 'specific' || source.slot !== 'baseAddition') {
@@ -133,18 +149,15 @@ export function projectBuildAttributeModifier(
   }
 
   if (
-    source.declaredAttributeType === 'Level' &&
-    (source.slot === 'baseAddition' || source.slot === 'baseMultiplier')
+    source.declaredAttributeType === 'ShieldOutputIncrease' &&
+    source.target === 'specific' &&
+    source.slot === 'baseAddition'
   ) {
-    if (source.target !== 'main' && source.target !== 'sub') {
-      return blocked(source, 'Level target resolution requires Main or Sub target');
-    }
-    return supported(source, {
-      kind: 'attribute',
-      attribute: source.target === 'main' ? 'main' : 'secondary',
-      operation: source.slot === 'baseAddition' ? 'flat' : 'percent',
-      value: source.value,
-    });
+    return {
+      status: 'scenario-omitted',
+      source,
+      reason: 'shieldOutputDoesNotAffectStumpEnemyDamage',
+    };
   }
 
   const panel = projectPanelStat(source);
@@ -152,10 +165,21 @@ export function projectBuildAttributeModifier(
 
   const damageScale = DAMAGE_SCALE_ATTRIBUTES[source.declaredAttributeType];
   if (damageScale !== undefined) {
-    if (source.target !== 'specific' || source.slot !== 'baseAddition') {
-      return blocked(source, 'damage-increase attribute requires Specific/BaseAddition');
+    if (
+      source.target !== 'specific' ||
+      (source.slot !== 'baseAddition' && source.slot !== 'addition')
+    ) {
+      return blocked(
+        source,
+        'damage-increase attribute requires Specific/BaseAddition or Addition',
+      );
     }
-    return supported(source, { kind: 'damageScale', target: damageScale, value: source.value });
+    return supported(source, {
+      kind: 'damageScale',
+      target: damageScale,
+      slot: source.slot,
+      value: source.value,
+    });
   }
 
   if (source.declaredAttributeType === 'HealOutputIncrease') {

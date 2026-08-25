@@ -494,9 +494,17 @@ npm run download:game-data:operator-closure -- --vfs-fallback http://desktop:876
   突破/潜能/基质算法解析的实例等级；选级后再应用请求额外黑板，复现同名值最终覆盖顺序；
 - Python oracle JSON 差分通道及真实 SkillPatch 导出切片。
 
-下一阶段：以当前 30 名干员、301 个技能的逐项模拟门禁为边界，先消除会影响对敌输出的已知
-干员失败和 partial 定义。随后对 77 件武器执行静态定义全量审计，补齐显式产品身份，再逐项闭合
-每个词条的 Buff、Toggle 和动作引用。仍缺定义的 AbilityEntity/Projectile 引用继续失败关闭。
+当前 30 名干员、301 个技能已达到逐项模拟 301/301。77 件武器的静态定义全量审计也达到
+77/77：226 条运行依赖全部发现，唯一 `ShieldOutputIncrease` 按木桩模型显式省略，0 项阻塞。
+下一阶段建立正式武器生成/注册层，并逐项闭合每个词条的 Buff、Toggle 和动作引用；身份审计能把
+77 个 AKEDB ID 无歧义连接到旧展示 slug，但不能代替运行行为重建。仍缺定义的
+AbilityEntity/Projectile 引用继续失败关闭。
+
+武器静态审计不写中间产物；某把武器失败时仍继续报告其余身份：
+
+```powershell
+npm run audit:game-data:weapons -- --tables <TableCfg目录> --skill-data <SkillData目录>
+```
 
 Operator 主动技能库可用以下命令批量审计；任何干员失败都会保留逐项诊断并使进程返回非零：
 

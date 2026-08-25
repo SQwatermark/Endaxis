@@ -7,6 +7,26 @@
 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
+### 2026-08-26：武器静态定义 77/77 与全配装运行门禁
+
+- 新增 `npm run audit:game-data:weapons`：逐把读取 1.4.4 `WeaponBasicTable`、精确基础攻击成长、
+  SkillData 与 SkillPatch；某把遇到陌生语义时独立报告，不遮蔽其余武器。当前结果为 **77/77 个
+  静态定义可闭合、226 条运行依赖被发现、0 阻塞**。
+- 原生 `ModifyAttributeType.Main/Sub` 必须由装备者的主/副属性解析，声明 `AttributeType` 在该分支
+  不参与目标选择。旧投影错误地先按 `Wisd/Atk/HealOutputIncrease` 分流，曾误挡 17 把武器，现已
+  按 combat-spec 的 `AttributeModifierTargetResolver` 纠正。
+- 伤害增幅中的 `Addition` 与 `BaseAddition` 不再压成同一静态加数。正式装备定义保留真实槽位，
+  战斗装配时写入统一八槽属性集，因此可以与运行时 `BaseMultiplier` 按原生阶段交互。
+- `ShieldOutputIncrease` 是当前唯一木桩模型省略项，明确记录为
+  `shieldOutputDoesNotAffectStumpEnemyDamage`；没有伪装成已模拟护盾，也不阻塞对敌输出口径下的完整
+  转换。
+- 新增仓库级横向运行门禁：77 把武器分别寻找兼容武器类型的干员，248 件单件装备分别放入合法
+  槽位，随后真实放置普攻并完成模拟。当前 **326/326 通过**。
+- AKEDB 身份审计以 `ItemTable.iconId` 和旧定义图标资源身份精确连接，结果为武器 77/77、套装
+  23/23、无缺失、无歧义；但当前正式 AKEDB 武器定义仍只有新增的 `wpn_lance_0014`，其余 76 把
+  仍由旧展示定义承载。下一步应建立正式武器生成/注册层并逐词条接入 226 条 Buff、Toggle、动作
+  依赖，不能把身份可连接等同于运行行为已完成 AKEDB 重建。
+
 ### 2026-08-26：全干员技能横向门禁 301/301
 
 - 1.4.4 机器码确认 `AbilitySystem.ActionContainer` 使用

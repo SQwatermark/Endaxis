@@ -137,7 +137,7 @@ describe('compile equipment contributions', () => {
     };
 
     expect(compileGearContributions(damageScaleGear, [2], attributes)[0]!.modifiers).toEqual([
-      { kind: 'damageScale', target: 'staggeredEnemy', value: 0.3 },
+      { kind: 'damageScale', target: 'staggeredEnemy', slot: 'baseAddition', value: 0.3 },
     ]);
   });
 

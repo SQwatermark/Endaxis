@@ -264,7 +264,12 @@ function toFormalModifier(
       }
       return { kind: 'panelStat', stat: modifier.stat, value: modifier.value };
     case 'damageScale':
-      return { kind: 'damageScale', target: modifier.target, value: modifier.value };
+      return {
+        kind: 'damageScale',
+        target: modifier.target,
+        slot: modifier.slot,
+        value: modifier.value,
+      };
     case 'staticHealingIncrease':
       return {
         kind: 'staticHealingIncrease',

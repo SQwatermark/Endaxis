@@ -50,6 +50,7 @@ export type ResolvedEquipmentModifier =
   | {
       readonly kind: 'damageScale';
       readonly target: EquipmentDamageScaleTarget;
+      readonly slot: 'baseAddition' | 'addition';
       readonly value: number;
     }
   | {
@@ -126,7 +127,12 @@ function compileModifier(
         value,
       };
     case 'damageScale':
-      return { kind: modifier.kind, target: modifier.target, value };
+      return {
+        kind: modifier.kind,
+        target: modifier.target,
+        slot: modifier.slot ?? 'baseAddition',
+        value,
+      };
     case 'staticHealingIncrease':
       return { kind: modifier.kind, target: modifier.target, value };
     case 'skillCooldownMultiplier':

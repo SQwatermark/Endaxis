@@ -9,7 +9,12 @@ import {
   MAIN_ATTRIBUTE_ATTACK_FACTOR,
   SECONDARY_ATTRIBUTE_ATTACK_FACTOR,
 } from '../../game-data/battleConstants';
-import { CombatAttributeSet } from './combatAttributes';
+import {
+  ATTRIBUTE_MODIFIER_SOURCES,
+  CombatAttributeModifier,
+  CombatAttributeSet,
+  attributeModifierValues,
+} from './combatAttributes';
 import {
   DAMAGE_SCALE_ATTRIBUTE_KEYS,
   type DamageScaleAttributeKey,
@@ -52,6 +57,7 @@ export interface OperatorAttackDerivationInput {
   readonly combatModifiers?: readonly {
     readonly kind: string;
     readonly target?: string;
+    readonly slot?: string;
     readonly value?: number;
   }[];
 }
@@ -79,6 +85,26 @@ export function createOperatorAttackAttributes(
   }
   for (const attribute of DAMAGE_SCALE_ATTRIBUTE_KEYS) {
     result.define(attribute, 0, {});
+  }
+  for (const modifier of input.combatModifiers ?? []) {
+    if (
+      modifier.kind !== 'damageScale' ||
+      typeof modifier.target !== 'string' ||
+      typeof modifier.value !== 'number'
+    ) {
+      continue;
+    }
+    const attribute = EQUIPMENT_DAMAGE_SCALE_ATTRIBUTES[modifier.target];
+    if (attribute === undefined) continue;
+    const slot = modifier.slot === 'addition' ? 'addition' : 'baseAddition';
+    result.addModifier(
+      new CombatAttributeModifier(
+        attribute,
+        attributeModifierValues(slot, modifier.value),
+        ATTRIBUTE_MODIFIER_SOURCES.equipment,
+        'deck',
+      ),
+    );
   }
   const staticHealing = (input.combatModifiers ?? []).reduce(
     (total, modifier) => {
@@ -112,6 +138,20 @@ export function createOperatorAttackAttributes(
   });
   return result;
 }
+
+const EQUIPMENT_DAMAGE_SCALE_ATTRIBUTES: Readonly<Record<string, DamageScaleAttributeKey>> = {
+  normalAttack: 'normalAttackDamageIncrease',
+  battleSkill: 'normalSkillDamageIncrease',
+  comboSkill: 'comboSkillDamageIncrease',
+  ultimate: 'ultimateSkillDamageIncrease',
+  physical: 'physicalDamageIncrease',
+  heat: 'heatDamageIncrease',
+  electric: 'electricDamageIncrease',
+  cryo: 'cryoDamageIncrease',
+  nature: 'natureDamageIncrease',
+  ether: 'etherDamageIncrease',
+  staggeredEnemy: 'damageToStaggeredEnemyIncrease',
+};
 
 /** 在命中时读取当前系数；返回值继续保持现有面板与伤害输入使用的整数攻击。 */
 export function resolveOperatorAttack(

@@ -152,6 +152,13 @@ function validateModifier(
       break;
     case 'damageScale':
       requireEnum(record, 'target', damageScaleTargets, path, issues);
+      if (
+        record.slot !== undefined &&
+        record.slot !== 'baseAddition' &&
+        record.slot !== 'addition'
+      ) {
+        push(issues, `${path}.slot`, "expected 'baseAddition' or 'addition'");
+      }
       break;
     case 'staticHealingIncrease':
       if (record.target !== 'output' && record.target !== 'taken') {

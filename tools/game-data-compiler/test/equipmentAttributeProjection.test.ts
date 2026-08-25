@@ -17,6 +17,9 @@ describe('单件装备属性投影', () => {
     ['sub', 'Level', 'baseAddition', 'attribute', 'secondary', 'flat'],
     ['main', 'Level', 'baseMultiplier', 'attribute', 'main', 'percent'],
     ['sub', 'Level', 'baseMultiplier', 'attribute', 'secondary', 'percent'],
+    ['main', 'Wisd', 'baseAddition', 'attribute', 'main', 'flat'],
+    ['sub', 'Atk', 'baseMultiplier', 'attribute', 'secondary', 'percent'],
+    ['main', 'HealOutputIncrease', 'baseMultiplier', 'attribute', 'main', 'percent'],
     ['specific', 'Def', 'baseAddition', 'panelStat', 'baseDefense', undefined],
     ['specific', 'Atk', 'baseMultiplier', 'panelStat', 'attackPercent', undefined],
     ['specific', 'Atk', 'baseFinalAddition', 'panelStat', 'attackFlat', undefined],
@@ -72,6 +75,15 @@ describe('单件装备属性投影', () => {
     });
   });
 
+  it('preserves the distinct native Addition slot for damage-scale attributes', () => {
+    expect(
+      projectEquipmentAttributeModifier(fixture('specific', 'NaturalDamageIncrease', 'addition')),
+    ).toMatchObject({
+      status: 'supported',
+      modifier: { kind: 'damageScale', target: 'nature', slot: 'addition', value: 0.25 },
+    });
+  });
+
   it('preserves native poise-output addition and combo cooldown multiplier semantics', () => {
     expect(
       projectEquipmentAttributeModifier(
@@ -95,7 +107,7 @@ describe('单件装备属性投影', () => {
     });
   });
 
-  it('maps healing and keeps player damage-taken modifiers as scenario omissions', () => {
+  it('maps healing and keeps stump-model-only modifiers as scenario omissions', () => {
     expect(
       projectEquipmentAttributeModifier(fixture('specific', 'HealOutputIncrease', 'baseAddition')),
     ).toMatchObject({
@@ -110,15 +122,23 @@ describe('单件装备属性投影', () => {
       status: 'scenario-omitted',
       reason: 'playerDamageTakenRequiresEnemyActiveDamage',
     });
+    expect(
+      projectEquipmentAttributeModifier(
+        fixture('specific', 'ShieldOutputIncrease', 'baseAddition'),
+      ),
+    ).toMatchObject({
+      status: 'scenario-omitted',
+      reason: 'shieldOutputDoesNotAffectStumpEnemyDamage',
+    });
   });
 
   it('does not reuse a mapping when the native target or formula slot changes', () => {
     expect(
       projectEquipmentAttributeModifier(fixture('specific', 'Atk', 'baseAddition')),
     ).toMatchObject({ status: 'blocked' });
-    expect(projectEquipmentAttributeModifier(fixture('main', 'Str', 'baseAddition'))).toMatchObject(
-      { status: 'blocked' },
-    );
+    expect(projectEquipmentAttributeModifier(fixture('all', 'Str', 'baseAddition'))).toMatchObject({
+      status: 'blocked',
+    });
     expect(
       projectEquipmentAttributeModifier(
         fixture('specific', 'PhysicalDamageTakenScalar', 'baseAddition'),

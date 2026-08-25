@@ -9,7 +9,6 @@ import type {
   DamageType,
   UpgradeStaticDamageIncreaseTarget,
 } from '../../game-data/operatorDefinition';
-import type { EquipmentDamageScaleTarget } from '../../game-data/equipmentDefinition';
 import type { PlayerDamageDefenderSnapshot } from '../damage/playerActiveDamageInput';
 import {
   DAMAGE_SCALE_ATTRIBUTE_KEYS,
@@ -66,22 +65,6 @@ const STATIC_DAMAGE_INCREASE_ATTRIBUTE: Readonly<
   cryo: 'cryoDamageIncrease',
 };
 
-const EQUIPMENT_DAMAGE_SCALE_ATTRIBUTE: Readonly<
-  Record<EquipmentDamageScaleTarget, DamageScaleAttributeKey>
-> = {
-  normalAttack: 'normalAttackDamageIncrease',
-  battleSkill: 'normalSkillDamageIncrease',
-  comboSkill: 'comboSkillDamageIncrease',
-  ultimate: 'ultimateSkillDamageIncrease',
-  physical: 'physicalDamageIncrease',
-  heat: 'heatDamageIncrease',
-  electric: 'electricDamageIncrease',
-  cryo: 'cryoDamageIncrease',
-  nature: 'natureDamageIncrease',
-  ether: 'etherDamageIncrease',
-  staggeredEnemy: 'damageToStaggeredEnemyIncrease',
-};
-
 function emptyDamageScaleSnapshot(): Record<DamageScaleAttributeKey, number> {
   return Object.fromEntries(DAMAGE_SCALE_ATTRIBUTE_KEYS.map(key => [key, 0])) as Record<
     DamageScaleAttributeKey,
@@ -103,10 +86,8 @@ function resolveStaticDamageScales(
       result[STATIC_DAMAGE_INCREASE_ATTRIBUTE[modifier.target]] += modifier.value;
       continue;
     }
-    if (modifier.kind === 'damageScale') {
-      result[EQUIPMENT_DAMAGE_SCALE_ATTRIBUTE[modifier.target]] += modifier.value;
-      continue;
-    }
+    // 原生 damageScale 保留 BaseAddition/Addition 槽，已在属性集构造时安装；这里不能再加一次。
+    if (modifier.kind === 'damageScale') continue;
     if (modifier.kind !== 'damageBonus') continue;
     if (!includesValue(modifier.damageTypes, step.parameters.damageType)) continue;
     if (

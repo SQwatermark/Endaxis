@@ -31,6 +31,7 @@ export type CompiledBuildModifierDefinitionSource =
   | {
       readonly kind: 'damageScale';
       readonly target: ProjectedBuildDamageScale;
+      readonly slot: 'baseAddition' | 'addition';
       readonly value: readonly number[];
     }
   | {

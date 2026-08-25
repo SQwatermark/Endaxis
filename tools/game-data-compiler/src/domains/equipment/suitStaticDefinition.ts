@@ -47,8 +47,7 @@ export type CompiledGearSetBuffInstallationSource = MaterializedPassiveBuffInsta
  * 服务端战斗被动技能可以携带客户端 SkillData/SkillPatch 中不存在的额外黑板值。
  * 静态阶段不能把它补成 0，也不能在尚未读取 BuffData 时断言该值一定会被消费。
  */
-export type UnresolvedSkillBlackboardValueSource =
-  UnresolvedPassiveSkillBlackboardValueSource;
+export type UnresolvedSkillBlackboardValueSource = UnresolvedPassiveSkillBlackboardValueSource;
 
 export interface CompiledEquipmentSuitStaticDefinitionBatchSource {
   readonly definitions: readonly CompiledGearSetStaticDefinitionSource[];
@@ -214,7 +213,7 @@ function toFormalModifier(
       }
       return { kind: modifier.kind, stat: modifier.stat, value };
     case 'damageScale':
-      return { kind: modifier.kind, target: modifier.target, value };
+      return { kind: modifier.kind, target: modifier.target, slot: modifier.slot, value };
     case 'staticHealingIncrease':
       return { kind: modifier.kind, target: modifier.target, value };
     case 'skillCooldownMultiplier':

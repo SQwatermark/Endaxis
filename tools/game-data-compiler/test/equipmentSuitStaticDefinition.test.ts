@@ -14,7 +14,7 @@ describe('装备套装静态定义', () => {
       {
         slug: 'suit_fixture',
         modifiers: [
-          { kind: 'damageScale', target: 'ether', value: [0.2] },
+          { kind: 'damageScale', target: 'ether', slot: 'baseAddition', value: [0.2] },
           { kind: 'panelStat', stat: 'staggerDamagePercent', value: [0.2] },
           {
             kind: 'skillCooldownMultiplier',

@@ -79,6 +79,8 @@ export type EquipmentModifierDefinition =
       /** 直接保留原生 AttributeType 的伤害倍率身份，避免转写成不等价的筛选条件。 */
       readonly kind: 'damageScale';
       readonly target: EquipmentDamageScaleTarget;
+      /** 原生属性公式槽；旧定义省略时按既有 BaseAddition 解释。 */
+      readonly slot?: 'baseAddition' | 'addition';
       readonly value: LevelValues;
     }
   | {

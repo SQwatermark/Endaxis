@@ -450,9 +450,9 @@ describe('生成套装正式定义', () => {
       secondary: perlica.secondaryAttribute,
     });
     expect(compiled.modifiers).toEqual([
-      { kind: 'damageScale', target: 'battleSkill', value: 0.24 },
-      { kind: 'damageScale', target: 'comboSkill', value: 0.24 },
-      { kind: 'damageScale', target: 'ultimate', value: 0.24 },
+      { kind: 'damageScale', target: 'battleSkill', slot: 'baseAddition', value: 0.24 },
+      { kind: 'damageScale', target: 'comboSkill', slot: 'baseAddition', value: 0.24 },
+      { kind: 'damageScale', target: 'ultimate', slot: 'baseAddition', value: 0.24 },
     ]);
     expect(compiled.initializationSequence).toMatchObject({
       steps: [
@@ -980,9 +980,9 @@ describe('生成套装正式定义', () => {
     });
 
     expect(compiled.modifiers).toEqual([
-      { kind: 'damageScale', target: 'comboSkill', value: 0.2 },
-      { kind: 'damageScale', target: 'battleSkill', value: 0.2 },
-      { kind: 'damageScale', target: 'ultimate', value: 0.2 },
+      { kind: 'damageScale', target: 'comboSkill', slot: 'baseAddition', value: 0.2 },
+      { kind: 'damageScale', target: 'battleSkill', slot: 'baseAddition', value: 0.2 },
+      { kind: 'damageScale', target: 'ultimate', slot: 'baseAddition', value: 0.2 },
     ]);
     const response = compiled.buffDefinitions?.buff_equipsuit_burst_01?.abilityEventResponses?.[0];
     expect(response?.event).toBe('outputBuff');

@@ -106,6 +106,26 @@ describe('operator attack attributes', () => {
     );
   });
 
+  it('keeps static damage-scale BaseAddition and Addition in their native formula stages', () => {
+    const attributes = createOperatorAttackAttributes({
+      ...input,
+      combatModifiers: [
+        { kind: 'damageScale', target: 'nature', slot: 'baseAddition', value: 0.2 },
+        { kind: 'damageScale', target: 'nature', slot: 'addition', value: 0.1 },
+      ],
+    });
+    attributes.addModifier(
+      new CombatAttributeModifier(
+        'natureDamageIncrease',
+        attributeModifierValues('baseMultiplier', 0.5),
+        ATTRIBUTE_MODIFIER_SOURCES.buff,
+        'runtime',
+      ),
+    );
+
+    expect(attributes.get('natureDamageIncrease')).toBeCloseTo(0.4);
+  });
+
   it('derives healing attributes from Will and static progression modifiers', () => {
     const attributes = createOperatorAttackAttributes({
       ...input,

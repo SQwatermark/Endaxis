@@ -320,7 +320,7 @@ function toFormalModifier(
       }
       return { kind: modifier.kind, stat: modifier.stat, value };
     case 'damageScale':
-      return { kind: modifier.kind, target: modifier.target, value };
+      return { kind: modifier.kind, target: modifier.target, slot: modifier.slot, value };
     case 'staticHealingIncrease':
       return { kind: modifier.kind, target: modifier.target, value };
     case 'skillCooldownMultiplier':
@@ -335,7 +335,7 @@ function modifierIdentity(modifier: ProjectedBuildModifierSource): string {
     case 'panelStat':
       return `${modifier.kind}/${modifier.stat}`;
     case 'damageScale':
-      return `${modifier.kind}/${modifier.target}`;
+      return `${modifier.kind}/${modifier.target}/${modifier.slot}`;
     case 'staticHealingIncrease':
       return `${modifier.kind}/${modifier.target}`;
     case 'skillCooldownMultiplier':

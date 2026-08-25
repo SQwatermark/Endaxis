@@ -98,6 +98,7 @@ describe('单件装备正式定义组装', () => {
           {
             kind: 'damageScale',
             target: 'staggeredEnemy',
+            slot: 'baseAddition',
             value: [0.1, 0.2, 0.3, 0.4],
           },
         ],

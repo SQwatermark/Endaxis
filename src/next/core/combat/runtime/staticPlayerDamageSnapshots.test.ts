@@ -231,19 +231,25 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
   });
 
   it('按原生属性身份冻结装备的完整伤害倍率', () => {
+    const equippedPanel = {
+      ...panel,
+      combatModifiers: [
+        { kind: 'damageScale', target: 'comboSkill', slot: 'baseAddition', value: 0.16 },
+        { kind: 'damageScale', target: 'nature', slot: 'addition', value: 0.09 },
+        {
+          kind: 'damageScale',
+          target: 'staggeredEnemy',
+          slot: 'baseAddition',
+          value: 0.12,
+        },
+      ],
+    } as const;
     const snapshots = resolveStaticPlayerDamageSnapshots(
       createContext({
-        panel: {
-          ...panel,
-          combatModifiers: [
-            { kind: 'damageScale', target: 'comboSkill', value: 0.16 },
-            { kind: 'damageScale', target: 'nature', value: 0.09 },
-            { kind: 'damageScale', target: 'staggeredEnemy', value: 0.12 },
-          ],
-        },
+        panel: equippedPanel,
       }),
       electricDamage,
-      createOperatorAttackAttributes(panel),
+      createOperatorAttackAttributes(equippedPanel),
     );
 
     expect(snapshots.attacker).toMatchObject({
