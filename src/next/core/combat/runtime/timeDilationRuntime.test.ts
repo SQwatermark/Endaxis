@@ -161,6 +161,23 @@ describe('TimeDilationRuntime', () => {
     expect(runtime.globalInstances).toHaveLength(0);
   });
 
+  it('accepts a zero-duration entity instance for its native validity window', () => {
+    const runtime = createRuntime();
+    runtime.startEntity({
+      entityId: 'target',
+      durationSeconds: 0,
+      slot: 1,
+      priority: LOW,
+      curve: () => 0,
+    });
+
+    expect(runtime.getEntityScale('target')).toBe(0);
+    runtime.advanceFrame();
+    expect(runtime.entityInstances).toHaveLength(1);
+    runtime.advanceFrame();
+    expect(runtime.entityInstances).toHaveLength(0);
+  });
+
   it('starts and stops the configured ultimate slot explicitly', () => {
     const runtime = createRuntime();
     const id = runtime.startUltimate(HIGH, 0, ['caster']);

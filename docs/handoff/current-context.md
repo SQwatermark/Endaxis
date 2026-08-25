@@ -1781,6 +1781,17 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
   伊冯专用分支。下一步继续处理有明确生命周期证据、会影响木桩伤害结果的剩余失败；跨阶段的
   Ardelia `Sheep` 与 Yvonne `robots` 仍等待统一多阶段技能模型，不按名字伪造上下文。
 
+### 2026-08-26：零时长实体停滞按原生有效性窗口闭环
+
+- 雪绒终结技的公共冻结链不是漏传持续时间：`buff_common_cryst_cryst_frozen_triggered` 只接收原生
+  `extra_duration=0`，其后代 `buff_common_do_frozen` 因而以 `duration=0` 启动两端均为零倍率的实体
+  时间膨胀。不能擅自把上层冰霜 Buff 的 5 秒寿命复制给它。
+- combat-spec `docs/time-dilation.md` 已按 1.4.4 `EntityTimeDilationInst.isValid` 证据补充零时长样本：
+  零值不是无限期，也不在入口拒绝；实例先注册并执行 `OnTick(0)`，更新越过 `0.00001` 容差后失效，
+  再由下一次管理器 Tick 回收。复刻库聚焦测试 28/28 通过。
+- Next 运行时现允许有限零时长，并对零时长曲线明确采样 `progress=0`；雪绒终结技完整模拟通过。
+  全技能基线更新为 291/301 成功、10 项精确失败。
+
 ### 2026-08-25：套装正式生成恢复至 15/23
 
 - 新增可重复的正式套装生成入口：`scripts/generate_next_equipment/formal_suit_identities.json` 只登记

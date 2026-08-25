@@ -60,7 +60,6 @@ const knownFailures: Readonly<Record<string, string>> = {
     "operator 'liino' skill group 'battleSkill' cannot combine a placed skill chain with replacement skills",
   'yvonne/basicAttack/enhancedBasicAttack/ultimateAttackEnd':
     "target context group 'robots' is missing",
-  'snowshine/ultimate/base/ultimate': 'time-dilation duration must be finite and non-zero',
   'ardelia/plungingAttack/base/plungingAttack': "target context group 'Sheep' is missing",
 };
 
@@ -68,7 +67,7 @@ describe('所有正式干员技能逐项放置与模拟', () => {
   it('覆盖默认仓库中的每个干员和每个基础/变体技能', () => {
     expect(nextGameDataRepository.getOperators()).toHaveLength(30);
     expect(cases).toHaveLength(301);
-    expect(Object.keys(knownFailures)).toHaveLength(11);
+    expect(Object.keys(knownFailures)).toHaveLength(10);
     expect(
       new Set(
         cases.map(

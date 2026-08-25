@@ -375,6 +375,7 @@ export class TimeDilationRuntime implements FrameRuntime {
 }
 
 function curveProgress(instance: MutableTimeDilationInstance): number {
+  if (instance.durationSeconds === 0) return 0;
   return Math.min(1, Math.max(0, instance.elapsedSeconds / instance.durationSeconds));
 }
 
@@ -399,8 +400,8 @@ function snapshotInstance(instance: MutableTimeDilationInstance): TimeDilationIn
 }
 
 function validateDuration(value: number): void {
-  if (!Number.isFinite(value) || value === 0) {
-    throw new RangeError('time-dilation duration must be finite and non-zero');
+  if (!Number.isFinite(value)) {
+    throw new RangeError('time-dilation duration must be finite');
   }
 }
 
