@@ -1105,6 +1105,7 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
     'remain_sword_limit': 9,
     'sword_duration': 36,
     'sword_range': 50,
+    'atk_up_final': 0,
   },
 );
 

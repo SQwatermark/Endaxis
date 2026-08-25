@@ -2085,6 +2085,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
     'usp_1': 15,
     'usp_2': 10,
     'atb_return': 10,
+    'atk_scale_once': 0,
     'bleed_critical_damage_interval': 2,
     'bleed_critical_damage_scale': 1,
     'damage_up': 0,
@@ -2394,6 +2395,7 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
     'poise': 0,
     'usp': 10,
     'cam_shoulderoffset_X': 0,
+    'poise_once': 0.01,
     'time_succeed': 0.4,
   },
 );
@@ -3344,6 +3346,8 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
     'poise_s': 5,
     'usp_f': 10,
     'usp_s': 10,
+    'atk_scale_once': 0,
+    'poise_once': 0,
     'potential_atk_multiply': 1,
   },
 );

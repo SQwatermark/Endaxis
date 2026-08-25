@@ -1271,6 +1271,10 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
     'poise4': 9,
     'usp': 10,
     'atb_ratio': 1,
+    'calc_atb1': 0,
+    'calc_atb2': 0,
+    'calc_atb3': 0,
+    'calc_atb4': 0,
   },
 );
 

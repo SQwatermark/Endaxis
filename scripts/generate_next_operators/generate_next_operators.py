@@ -8403,12 +8403,13 @@ def render_named_skills(
         blackboard.update(collect_buff_application_blackboard_inputs(skill))
         blackboard.update(skill.patch.blackboard)
         compiled_blackboard_keys = collect_compiled_blackboard_keys(value)
+        # SimpleCalcBBAction 可以先读同名黑板再回写；calculatedLocally 只证明
+        # 存在写入，不能证明原生声明初值在首次读取前不可观察。
         compiled_default_keys = {
             provenance.key
             for provenance in skill.blackboardProvenance
             if provenance.declaredInSkill
             and not provenance.suppliedByPatch
-            and not provenance.calculatedLocally
             and not provenance.mutatedLocally
             and not provenance.readFromBuff
             and not provenance.externalRuntimeInput

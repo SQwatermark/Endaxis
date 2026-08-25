@@ -227,6 +227,8 @@ export const aleshComboSkill: SkillDefinition = withSkillBlackboard(
     'usp_normal': 10,
     'Duration': 10,
     'atk_up': 0.15,
+    'prob_add': 0,
+    'prob_max': 0,
     'rate': 10,
   },
 );

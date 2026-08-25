@@ -190,6 +190,7 @@ from generate_next_operators import (
     resolve_buff_definitions,
     resolve_operator_buff_definitions,
     resolve_operator_buff_definitions_for_stage,
+    render_named_skills,
     compile_buff_event_target_group_write,
     parse_skill_patch,
     parse_physical_inflictions,
@@ -6030,6 +6031,42 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(calculations[0].operation, "Multiply")
         self.assertEqual(calculations[0].left.levelValues, (0.2, 0.3))
         self.assertEqual(calculations[0].right.levelValues, (6, 6))
+
+    def test_rendered_skill_keeps_declared_default_for_read_then_write_calculation(self) -> None:
+        skill = SimpleNamespace(
+            key="comboSkill",
+            conditionalActions=(),
+            auxiliaryActions=(),
+            patch=SimpleNamespace(blackboard={}),
+            declaredBlackboard=(
+                SimpleNamespace(key="accumulator", value=0.0, isDynamic=True),
+            ),
+            blackboardProvenance=(
+                SimpleNamespace(
+                    key="accumulator",
+                    declaredInSkill=True,
+                    suppliedByPatch=False,
+                    calculatedLocally=True,
+                    mutatedLocally=False,
+                    readFromBuff=False,
+                    externalRuntimeInput=False,
+                ),
+            ),
+        )
+
+        rendered = "\n".join(
+            render_named_skills(
+                {"slug": "fixture"},
+                [
+                    (
+                        skill,
+                        "step('calculateActionValue', { key: 'accumulator' }),",
+                    )
+                ],
+            )
+        )
+
+        self.assertIn("'accumulator': 0", rendered)
 
     def test_blackboard_calculation_flattens_single_enemy_channel(self) -> None:
         calculation = {

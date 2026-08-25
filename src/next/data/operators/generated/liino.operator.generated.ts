@@ -1864,6 +1864,7 @@ export const liinoUltimate: SkillDefinition = withSkillBlackboard(
     'finish_duration': 0,
     'poise': 20,
     'will_up': [0.00018, 0.0002, 0.00021, 0.00023, 0.00025, 0.00027, 0.00028, 0.0003, 0.00032, 0.00034, 0.00037, 0.0004],
+    'atk_scale_4': 0,
     'final_value': 3,
     'healtaken_rate': 0,
     'shelter': 0,

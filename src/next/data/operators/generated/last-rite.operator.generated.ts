@@ -595,6 +595,7 @@ export const lastRiteComboSkill: SkillDefinition = withSkillBlackboard(
     'poise': 15,
     'usp': 15,
     'usp_base': 40,
+    'final_combo_atkscale': 0,
     'infliction_num': 0,
   },
 );

@@ -150,6 +150,8 @@ export const snowshineBasicAttack3: SkillDefinition = withSkillBlackboard(
     'atb': 25,
     'atk_scale': [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.93, 2.08, 2.25],
     'poise': 23,
+    'atk_scale1': 0,
+    'atk_scale2': 0.8,
   },
 );
 

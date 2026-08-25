@@ -65,7 +65,6 @@ const knownFailures: Readonly<Record<string, string>> = {
     "combat entity 'ability-entity:1' has no Buff operation target",
   'snowshine/ultimate/base/ultimate': 'time-dilation duration must be finite and non-zero',
   'antal/finisher/base/finisher': "action blackboard value 'atb' is missing",
-  'alesh/comboSkill/base/comboSkill': "action blackboard value 'prob_max' is missing",
   'ardelia/plungingAttack/base/plungingAttack': "target context group 'Sheep' is missing",
 };
 
@@ -73,7 +72,7 @@ describe('所有正式干员技能逐项放置与模拟', () => {
   it('覆盖默认仓库中的每个干员和每个基础/变体技能', () => {
     expect(nextGameDataRepository.getOperators()).toHaveLength(30);
     expect(cases).toHaveLength(301);
-    expect(Object.keys(knownFailures)).toHaveLength(15);
+    expect(Object.keys(knownFailures)).toHaveLength(14);
     expect(
       new Set(
         cases.map(
