@@ -91,6 +91,8 @@ export type CombatSemanticEvent =
       readonly targetId: string;
       readonly buffId: string;
       readonly layers: number;
+      readonly buffTagIds?: readonly number[];
+      readonly blackboardValues?: Readonly<Record<string, string | number | null>>;
     }
   | {
       readonly kind: 'reactionApplied';
@@ -230,7 +232,7 @@ function matches(registration: Registration, event: CombatSemanticEvent): boolea
       return (
         event.kind === 'buffConsumed' &&
         event.sourceOperatorId === ownerOperatorId &&
-        trigger.buffIds.includes(event.buffId)
+        (trigger.buffIds === undefined || trigger.buffIds.includes(event.buffId))
       );
     case 'skillHit':
       return (

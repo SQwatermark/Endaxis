@@ -815,6 +815,7 @@ export class CombatBuffContainer<Key extends string> {
   readonly #shields: CombatShield<Key>[] = [];
   readonly #sustainedProtections = new Map<CombatBuff<Key>, readonly [number, number]>();
   #nextInstanceId = 1;
+  #onBuffConsumed?: (buff: CombatBuff<Key>, sourceId: string, layers: number) => void;
 
   constructor(
     readonly ownerId: string,
@@ -831,6 +832,15 @@ export class CombatBuffContainer<Key extends string> {
   /** Buff 结束成功时由实例调用；调用方不应在回调里修改容器。 */
   handleBuffFinished(buff: CombatBuff<Key>, reason: BuffFinishReason): void {
     this.onBuffFinished?.(buff, reason);
+  }
+
+  configureConsumedObserver(
+    observer: (buff: CombatBuff<Key>, sourceId: string, layers: number) => void,
+  ): void {
+    if (this.#onBuffConsumed !== undefined) {
+      throw new Error(`Buff container '${this.ownerId}' consumed observer is already configured`);
+    }
+    this.#onBuffConsumed = observer;
   }
 
   get buffs(): readonly CombatBuff<Key>[] {
@@ -956,8 +966,11 @@ export class CombatBuffContainer<Key extends string> {
     const active = this.#buffs.filter(buff => !buff.isFinished);
     let count = 0;
     for (const buff of active) {
-      if (!buff.isFinished && buff.definition.actions?.ignite?.(buff, igniteType, sourceId)) {
+      if (buff.isFinished) continue;
+      const layers = buff.enhanceCount;
+      if (buff.definition.actions?.ignite?.(buff, igniteType, sourceId)) {
         count += 1;
+        if (buff.isFinished) this.#onBuffConsumed?.(buff, sourceId, layers);
       }
     }
     return count;

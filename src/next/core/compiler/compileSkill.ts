@@ -434,6 +434,8 @@ function resolveStep(
               : step.parameters.query,
         },
       };
+    case 'readEventBuffBlackboard':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'readBuffStackCount':
       return {
         ...keyed,

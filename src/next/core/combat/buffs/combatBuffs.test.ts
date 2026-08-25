@@ -2005,12 +2005,19 @@ describe('CombatBuffContainer', () => {
 
   it('dispatches typed ignite events only to active matching Buff definitions', () => {
     const reached: string[] = [];
+    const consumed: string[] = [];
     const container = new CombatBuffContainer('enemy', new CombatAttributeSet<Attribute>());
+    container.configureConsumedObserver((buff, sourceId, layers) => {
+      consumed.push(
+        `${buff.definition.id}:${sourceId}:${layers}:${buff.blackboard.getNumber('count')}`,
+      );
+    });
     const matching = requireAddedBuff(
       container.add(
         {
           id: 'frozen',
           stackingType: 'unlimited',
+          blackboard: { count: 3 },
           actions: {
             ignite: (buff, igniteType, sourceId) => {
               if (igniteType !== 'EndminUlt') return false;
@@ -2029,6 +2036,7 @@ describe('CombatBuffContainer', () => {
     expect(container.ignite('EndminUlt', 'operator')).toBe(1);
     expect(container.ignite('EndminUlt', 'operator')).toBe(0);
     expect(reached).toEqual([`${matching.instanceId}:operator`]);
+    expect(consumed).toEqual(['frozen:operator:1:3']);
   });
 
   it('absorbs damage with native shield ratio, scale, priority, and depletion semantics', () => {

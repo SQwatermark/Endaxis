@@ -634,6 +634,9 @@ export class CombatRuntimeAssembly {
       target.configureBuffAppliedObserver?.(event =>
         this.semanticEvents.emit({ kind: 'buffApplied', ...event }),
       );
+      target.configureBuffConsumedObserver?.(event =>
+        this.semanticEvents.emit({ kind: 'buffConsumed', ...event }),
+      );
       target.configureSemanticEventAction?.((event, priority, handle) =>
         this.semanticEvents.register({
           ownerOperatorId: target.ownerId,
@@ -642,21 +645,26 @@ export class CombatRuntimeAssembly {
               ? { kind: 'enemyDefeated', scope: 'operator' }
               : event === 'outputKnockDown'
                 ? { kind: 'knockDownOutput' }
-                : { kind: 'spGained', source: 'skill', gainKind: 'gain' },
+                : event === 'skillSpGained'
+                  ? { kind: 'spGained', source: 'skill', gainKind: 'gain' }
+                  : { kind: 'buffConsumed' },
           phase: 'dataAction',
           priority,
           handle: context => {
             if (
               (event === 'afterKillEntity' && context.event.kind !== 'enemyDefeated') ||
               (event === 'outputKnockDown' && context.event.kind !== 'knockDownOutput') ||
-              (event === 'skillSpGained' && context.event.kind !== 'spGained')
+              (event === 'skillSpGained' && context.event.kind !== 'spGained') ||
+              (event === 'buffConsumed' && context.event.kind !== 'buffConsumed')
             ) {
               throw new Error(`${event} Buff listener received an invalid event`);
             }
             handle(
               context.event as Extract<
                 CombatSemanticEvent,
-                { readonly kind: 'enemyDefeated' | 'knockDownOutput' | 'spGained' }
+                {
+                  readonly kind: 'enemyDefeated' | 'knockDownOutput' | 'spGained' | 'buffConsumed';
+                }
               >,
             );
           },
@@ -1747,6 +1755,9 @@ export class CombatRuntimeAssembly {
     runtime.configureBuffAppliedObserver?.(event =>
       this.semanticEvents.emit({ kind: 'buffApplied', ...event }),
     );
+    runtime.configureBuffConsumedObserver?.(event =>
+      this.semanticEvents.emit({ kind: 'buffConsumed', ...event }),
+    );
     runtime.configureSemanticEventAction?.((event, priority, handle) =>
       this.semanticEvents.register({
         ownerOperatorId: runtime!.ownerId,
@@ -1755,21 +1766,26 @@ export class CombatRuntimeAssembly {
             ? { kind: 'enemyDefeated', scope: 'operator' }
             : event === 'outputKnockDown'
               ? { kind: 'knockDownOutput' }
-              : { kind: 'spGained', source: 'skill', gainKind: 'gain' },
+              : event === 'skillSpGained'
+                ? { kind: 'spGained', source: 'skill', gainKind: 'gain' }
+                : { kind: 'buffConsumed' },
         phase: 'dataAction',
         priority,
         handle: context => {
           if (
             (event === 'afterKillEntity' && context.event.kind !== 'enemyDefeated') ||
             (event === 'outputKnockDown' && context.event.kind !== 'knockDownOutput') ||
-            (event === 'skillSpGained' && context.event.kind !== 'spGained')
+            (event === 'skillSpGained' && context.event.kind !== 'spGained') ||
+            (event === 'buffConsumed' && context.event.kind !== 'buffConsumed')
           ) {
             throw new Error(`${event} Buff listener received an invalid event`);
           }
           handle(
             context.event as Extract<
               CombatSemanticEvent,
-              { readonly kind: 'enemyDefeated' | 'knockDownOutput' | 'spGained' }
+              {
+                readonly kind: 'enemyDefeated' | 'knockDownOutput' | 'spGained' | 'buffConsumed';
+              }
             >,
           );
         },

@@ -16,7 +16,9 @@ import {
   type BuffFinishActionSource,
 } from './buffActions.ts';
 import {
+  parseBuffBlackboardReadActionSource,
   parseBuffStackReadActionSource,
+  type BuffBlackboardReadActionSource,
   type BuffStackReadActionSource,
 } from './buffQueryActions.ts';
 import { parseConditionLeafSource, type NativeConditionSource } from './condition.ts';
@@ -131,6 +133,7 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'skillAffix'; readonly action: { readonly kind: 'skillAffix' } }
   | { readonly family: 'buffFinish'; readonly action: BuffFinishActionSource }
   | { readonly family: 'buffQuery'; readonly action: BuffStackReadActionSource }
+  | { readonly family: 'buffBlackboardRead'; readonly action: BuffBlackboardReadActionSource }
   | { readonly family: 'heal'; readonly action: HealActionSource }
   | { readonly family: 'lifecycle'; readonly action: FinishOwnerActionSource }
   | {
@@ -256,6 +259,11 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'buffQuery',
         action: parseBuffStackReadActionSource(value, path),
+      };
+    case 'GetTargetBuffBBAdvanced':
+      return {
+        family: 'buffBlackboardRead',
+        action: parseBuffBlackboardReadActionSource(value, path),
       };
     case 'HealAction':
       return { family: 'heal', action: parseHealActionSource(value, path, inheritedBlackboard) };

@@ -398,6 +398,8 @@ export type CombatCondition =
       kind: 'eventBuffTagsMatch';
       match: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
       buffTagIds: readonly number[];
+      /** Advanced 条件命中后把事件 Buff ID 写入当前动作黑板。 */
+      buffIdOutputKey?: string;
     }
   | {
       /** 按当前事件真实目标统计匹配标签的 Buff 实例数；不累计 Buff 增强层数。 */
@@ -776,6 +778,11 @@ export interface CombatStepParameters {
     desiredKey: string;
     outputKey: string;
   };
+  /** 从 OnConsumeBuff/OnFinishedBuff 事件携带的运行时 Buff 快照读取黑板。 */
+  readEventBuffBlackboard: {
+    desiredKey: string;
+    outputKey: string;
+  };
   /** 查询匹配 Buff 的累计强化层数或实例数，并写入当前技能实例的动作黑板。 */
   readBuffStackCount: {
     target: BuffSingleTarget;
@@ -1023,6 +1030,7 @@ export const COMBAT_STEP_KINDS = [
   'heal',
   'applyBuff',
   'readBuffBlackboard',
+  'readEventBuffBlackboard',
   'readBuffStackCount',
   'finishBuffsByTag',
   'finishBuffsById',
@@ -1121,6 +1129,7 @@ export type CombatEventTrigger =
   | { kind: 'operatorHit' }
   | { kind: 'operatorHealed'; role?: 'source' | 'target' }
   | { kind: 'buffApplied' }
+  | { kind: 'buffConsumed'; buffIds?: readonly string[] }
   | { kind: 'airborneOutput' }
   | { kind: 'knockDownOutput' }
   | { kind: 'spGained'; source: SpGainSource; gainKind: SpGainKind }
@@ -1240,6 +1249,7 @@ export interface SkillBuffAbilityEventResponse {
     | 'finishedBuff'
     | 'afterOutputWeaknessTriggered'
     | 'afterKillEntity'
+    | 'buffConsumed'
     /** OnObtainAtb + CheckObtainAtbType(Skill, Gain) 的编译后语义事件。 */
     | 'skillSpGained';
   /** 原生数据动作优先级；同一事件同优先级的顺序未证明时运行时会拒绝注册。 */

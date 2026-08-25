@@ -1,6 +1,8 @@
 import { parseBuffFindSettings } from './condition.ts';
+import { parseBuffFindSettingsSource } from './buffActions.ts';
 import {
   nativeActionName,
+  requireExactFields,
   requireBoolean,
   requireNonEmptyString,
   requireRecord,
@@ -20,6 +22,43 @@ export interface BuffStackReadActionSource {
   readonly countType: string;
   readonly limitSkillCastId: boolean;
   readonly outputKey: string;
+}
+
+export interface BuffBlackboardReadActionSource {
+  readonly kind: 'buffBlackboardRead';
+  readonly target: TargetReferenceSource;
+  readonly settings: ReturnType<typeof parseBuffFindSettingsSource>;
+  readonly desiredKey: string;
+  readonly outputKey: string;
+}
+
+export function parseBuffBlackboardReadActionSource(
+  value: unknown,
+  path: string,
+): BuffBlackboardReadActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'targetSettings',
+      'buffSettings',
+      'desiredKey',
+      'blackboardKey',
+    ]),
+    path,
+  );
+  return {
+    kind: 'buffBlackboardRead',
+    target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
+    settings: parseBuffFindSettingsSource(action.buffSettings, `${path}.buffSettings`),
+    desiredKey: requireNonEmptyString(action.desiredKey, `${path}.desiredKey`),
+    outputKey: requireNonEmptyString(action.blackboardKey, `${path}.blackboardKey`),
+  };
 }
 
 export function parseBuffStackReadActionSource(

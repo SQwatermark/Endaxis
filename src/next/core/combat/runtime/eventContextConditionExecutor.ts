@@ -144,15 +144,21 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       );
     }
     if (condition.kind === 'eventBuffTagsMatch') {
-      if (context.event.kind !== 'buffApplied') return false;
-      return this.matchBuffTagIds === undefined
-        ? matchValues(context.event.buffTagIds, condition.buffTagIds, condition.match)
-        : this.matchBuffTagIds(
-            context.event.targetId,
-            context.event.buffTagIds,
-            condition.buffTagIds,
-            condition.match,
-          );
+      const event = context.event;
+      if (event.kind !== 'buffApplied' && event.kind !== 'buffConsumed') return false;
+      const matched =
+        this.matchBuffTagIds === undefined
+          ? matchValues(event.buffTagIds ?? [], condition.buffTagIds, condition.match)
+          : this.matchBuffTagIds(
+              event.targetId,
+              event.buffTagIds ?? [],
+              condition.buffTagIds,
+              condition.match,
+            );
+      if (matched && condition.buffIdOutputKey !== undefined) {
+        context.blackboard.assign({ [condition.buffIdOutputKey]: event.buffId });
+      }
+      return matched;
     }
     if (condition.kind === 'eventHealTagsMatch') {
       const event = context.event;

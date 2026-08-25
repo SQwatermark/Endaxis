@@ -131,7 +131,9 @@ describe('sharedEquipmentDefinitions', () => {
       }),
     );
     expect(sharedWeaponDefinitions.some(definition => definition.slug === 'lone-barge')).toBe(true);
-    expect(sharedGearSetDefinitions.some(definition => definition.slug === 'xiranflow')).toBe(true);
+    expect(sharedGearSetDefinitions.some(definition => definition.slug === 'xiranflow')).toBe(
+      false,
+    );
     expect(getSharedEquipmentSupport('weapon', 'lone-barge')).toMatchObject({
       completeness: 'partial',
       issues: [expect.objectContaining({ path: 'skill3.triggers' })],

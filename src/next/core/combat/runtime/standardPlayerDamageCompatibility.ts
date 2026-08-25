@@ -280,6 +280,7 @@ function inspectSequence(
         }
         return;
       case 'readBuffBlackboard':
+      case 'readEventBuffBlackboard':
       case 'readBuffStackCount':
       case 'finishBuffsByTag':
       case 'finishBuffsById':

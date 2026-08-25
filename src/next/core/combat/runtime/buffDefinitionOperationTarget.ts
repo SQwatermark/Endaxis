@@ -13,6 +13,7 @@ import type {
   BuffApplicationRequest,
   BuffApplicationHandle,
   BuffAppliedEvent,
+  BuffConsumedEvent,
   BuffLifecycleOperationSource,
   BuffOperationTarget,
   BuffQueryResult,
@@ -108,6 +109,19 @@ export class BuffDefinitionOperationTarget<Key extends string>
       throw new Error(`combat Buff runtime '${this.ownerId}' applied observer is configured`);
     }
     this.#buffAppliedObserver = observer;
+  }
+
+  configureBuffConsumedObserver(observer: (event: BuffConsumedEvent) => void): void {
+    this.container.configureConsumedObserver((buff, sourceOperatorId, layers) =>
+      observer({
+        sourceOperatorId,
+        targetId: this.container.ownerId,
+        buffId: buff.definition.id,
+        layers,
+        buffTagIds: buff.definition.applyTags?.map(Number) ?? [],
+        blackboardValues: buff.blackboard.snapshot(),
+      }),
+    );
   }
 
   configureSemanticEventAction(register: RegisterBuffSemanticEventAction): void {

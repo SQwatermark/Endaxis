@@ -4,6 +4,7 @@ import {
 } from './attributeModifier.ts';
 import {
   compileEventTargetSimpleDamageOperationSource,
+  type CompiledActionValueOperandSource,
   type CompiledSimpleDamageOperationSource,
 } from './simpleDamageOperation.ts';
 import { collectBuffActionReferences } from '../source/buffActionGraph.ts';
@@ -104,6 +105,7 @@ export type CompiledBuffConditionSource =
       readonly kind: 'eventBuffTagsMatch';
       readonly match: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
       readonly buffTagIds: readonly number[];
+      readonly buffIdOutputKey?: string;
     }
   | {
       readonly kind: 'eventTargetBuffCountCompare';
@@ -165,8 +167,10 @@ export type CompiledBuffStepSource =
       readonly kind: 'applyBuff';
       readonly parameters: {
         readonly buffId: string;
-        readonly target: 'caster' | 'eventTarget' | 'eventSource' | 'buffOwner' | 'party';
+        readonly target:
+          'caster' | 'eventTarget' | 'eventSource' | 'buffOwner' | 'party' | 'partyExceptCaster';
         readonly source?: 'eventSource';
+        readonly count?: CompiledActionValueOperandSource;
         readonly inheritSourceSkillCastInfo?: boolean;
         readonly finishByAction?: boolean;
         readonly blackboardAssignments?: Readonly<
@@ -201,6 +205,10 @@ export type CompiledBuffStepSource =
               readonly buffTagIds: readonly number[];
             };
       };
+    }
+  | {
+      readonly kind: 'readEventBuffBlackboard';
+      readonly parameters: { readonly desiredKey: string; readonly outputKey: string };
     }
   | {
       readonly kind: 'modifyActionValue';
@@ -275,6 +283,7 @@ export interface CompiledBuffDefinitionSource {
       | 'outputCriticalDamage'
       | 'outputHeal'
       | 'skillEnd'
+      | 'buffConsumed'
       /** 已严格融合 CheckObtainAtbType(Skill, Gain) 的共享技力事实事件。 */
       | 'skillSpGained';
     readonly priority: 0;
@@ -371,6 +380,7 @@ export function compileBuffRuntimeDefinitionSource(
   const outputCriticalDamageSteps: CompiledBuffStepSource[] = [];
   const outputHealSteps: CompiledBuffStepSource[] = [];
   const skillSpGainedSteps: CompiledBuffStepSource[] = [];
+  const buffConsumedSteps: CompiledBuffStepSource[] = [];
   const skillEndSteps: CompiledBuffStepSource[] = finishesWithSourceSkill
     ? [
         {
@@ -397,7 +407,9 @@ export function compileBuffRuntimeDefinitionSource(
                 ? outputHealSteps
                 : event.event === 'OnObtainAtb'
                   ? skillSpGainedSteps
-                  : null;
+                  : event.event === 'OnConsumeBuff'
+                    ? buffConsumedSteps
+                    : null;
     if (target === null)
       throw new Error(`unsupported ability event ${JSON.stringify(event.event)}`);
     for (const sequence of event.actions) {
@@ -487,6 +499,7 @@ export function compileBuffRuntimeDefinitionSource(
     outputCriticalDamageSteps.length === 0 &&
     outputHealSteps.length === 0 &&
     skillSpGainedSteps.length === 0 &&
+    buffConsumedSteps.length === 0 &&
     skillEndSteps.length === 0
       ? {}
       : {
@@ -552,6 +565,15 @@ export function compileBuffRuntimeDefinitionSource(
                     event: 'skillEnd' as const,
                     priority: 0 as const,
                     sequence: { steps: skillEndSteps },
+                  },
+                ]),
+            ...(buffConsumedSteps.length === 0
+              ? []
+              : [
+                  {
+                    event: 'buffConsumed' as const,
+                    priority: 0 as const,
+                    sequence: { steps: buffConsumedSteps },
                   },
                 ]),
           ],
@@ -787,7 +809,14 @@ function compileConditionLeaf(
         `${sourcePath}: unsupported event Buff tag query ${JSON.stringify(condition.queryType)}`,
       );
     }
-    return { kind: 'eventBuffTagsMatch', match, buffTagIds: condition.buffTagIds };
+    return {
+      kind: 'eventBuffTagsMatch',
+      match,
+      buffTagIds: condition.buffTagIds,
+      ...(condition.buffIdOutputKey === undefined
+        ? {}
+        : { buffIdOutputKey: condition.buffIdOutputKey }),
+    };
   }
   if (condition.kind === 'buffStack') {
     if (
@@ -1018,6 +1047,25 @@ function compileActionNode(
       },
     ];
   }
+  if (node.body.value.family === 'buffBlackboardRead') {
+    const action = node.body.value.action;
+    if (
+      action.target.targetSource !== 'Target' ||
+      action.target.targetGroupKey !== '' ||
+      action.settings.checkType !== 'Context' ||
+      action.settings.buffIds.length !== 1 ||
+      action.settings.buffIds[0] !== '' ||
+      action.settings.tagQuery.tagIds.length !== 0
+    ) {
+      throw new Error(`${node.sourcePath}: unsupported event Buff blackboard read`);
+    }
+    return [
+      {
+        kind: 'readEventBuffBlackboard',
+        parameters: { desiredKey: action.desiredKey, outputKey: action.outputKey },
+      },
+    ];
+  }
   if (node.body.value.family === 'blackboardMutation') {
     const action = node.body.value.action;
     if (!action.directValue)
@@ -1091,8 +1139,6 @@ function compileBuffApplication(
   sourcePath: string,
   partyTargetGroups: ReadonlySet<string> = new Set(),
 ): CompiledBuffStepSource[] {
-  if (action.count.blackboardKey !== null || action.count.value !== 1)
-    throw new Error(`${sourcePath}: Buff count must be fixed at one`);
   if (
     action.autoFinishByAction ||
     action.inheritSkillIds.length > 0 ||
@@ -1149,6 +1195,9 @@ function compileBuffApplication(
           buffId: entry.buffId,
           target,
           ...(source === undefined ? {} : { source }),
+          ...(action.count.blackboardKey === null && action.count.value === 1
+            ? {}
+            : { count: actionValueOperand(action.count) }),
           ...(action.inheritSourceSkillCastInfo ? { inheritSourceSkillCastInfo: true } : {}),
           ...(Object.keys(assignments).length === 0 ? {} : { blackboardAssignments: assignments }),
         },

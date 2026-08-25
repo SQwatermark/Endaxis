@@ -7,6 +7,22 @@
 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
+### 2026-08-26：法术异常消耗套事件 Buff 快照闭环
+
+- `suit_expend_spell01` 已进入正式生成，套装覆盖提升为 **21/23**。静态攻击 +10%；穿戴者作为
+  finish source 消费导电或腐蚀结果 Buff 后，读取消费事件携带的原实例 `count`，按该值重复施加
+  25 秒、最多 3 层的电磁/自然伤害 +15% 可视 Buff。
+- 实现依据 combat-spec `equipment-spell-expenditure.md`：Advanced Tag 条件只接受一个空直接 ID
+  占位并把事件 Buff ID 写入动作黑板；`GetTargetBuffBBAdvanced(Context)` 读取事件实例快照，不去已经
+  结束的目标容器反查。新增 `readEventBuffBlackboard` 保持这一边界。
+- Buff `IgniteAction` 消费现在同步发布带 Buff ID、原生 Tag、层数和黑板快照的 `buffConsumed` 语义
+  事件；监听按 finish source 隔离。目标配置虽携带未使用的 CharacterTeamFinder/ExcludeOwner 序列化
+  残留，但 combat-spec 单 AbilitySystem 端到端测试证明 `targetSource=Owner` 仍施加给穿戴者，故未将
+  其误投影为 `partyExceptCaster`。
+- 当前剩余 **2/23**：`suit_usp01`、`suit_usp02`。门禁为游戏数据 58 文件 251/251、Next
+  208 文件 1532/1532，两个专用类型检查通过；正式生成审计为 21 套、46 个 Buff 定义。下一步处理
+  `suit_usp01` 的 OnEnterFight 后续资源链。
+
 ### 2026-08-26：连携叠层套复用同施放增伤闭环
 
 - `suit_attri01` 已进入正式生成，套装覆盖提升为 **20/23**。静态攻击 +15%；每次连携施放前给自身

@@ -1,8 +1,8 @@
 {
   "format": "EndaxisGeneratedGearSetAudit",
   "version": 1,
-  "definitionCount": 20,
-  "buffDefinitionCount": 44,
+  "definitionCount": 21,
+  "buffDefinitionCount": 46,
   "diagnostics": [
     {
       "status": "scenario-omitted",
@@ -63,6 +63,11 @@
       "status": "scenario-omitted",
       "sourcePath": "SkillData.passive_equipsuit_burst_01.buffs.buff_equipsuit_will_01.wil",
       "reason": "unmaterialized server passive skill blackboard value \"will\" is never read by the installed Buff"
+    },
+    {
+      "status": "scenario-omitted",
+      "sourcePath": "BuffData.buff_common_vfx_char_atk_up.stackingSettings.stackEffects",
+      "reason": "particle-only stack effect does not affect the fixed-target damage simulation"
     },
     {
       "status": "scenario-omitted",

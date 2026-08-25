@@ -5,6 +5,67 @@ import { perlica } from '../operators/perlica';
 import { generatedGearSetDefinitions } from './generated-gear-sets/index.generated';
 
 describe('生成套装正式定义', () => {
+  it('让法术消耗套按被消费异常 Buff 的 count 给穿戴者叠元素增伤', () => {
+    const definition = generatedGearSetDefinitions.find(
+      item => item.slug === 'suit_expend_spell01',
+    )!;
+    expect(validateGearSetDefinition(definition, '$.suit_expend_spell01')).toEqual([]);
+    const compiled = compileGearSetContribution(definition, {
+      main: perlica.mainAttribute,
+      secondary: perlica.secondaryAttribute,
+    });
+
+    expect(compiled.modifiers).toEqual([{ kind: 'panelStat', stat: 'attackPercent', value: 0.1 }]);
+    expect(compiled.buffDefinitions?.buff_equipsuit_expend_spell01).toMatchObject({
+      abilityEventResponses: [
+        {
+          event: 'buffConsumed',
+          sequence: {
+            steps: [
+              {
+                parameters: {
+                  condition: {
+                    kind: 'eventBuffTagsMatch',
+                    buffTagIds: [1466867135, -421286163],
+                    buffIdOutputKey: 'buffid',
+                  },
+                },
+                whenTrue: {
+                  steps: [
+                    {
+                      kind: 'readEventBuffBlackboard',
+                      parameters: { desiredKey: 'count', outputKey: 'addstack' },
+                    },
+                    {
+                      kind: 'applyBuff',
+                      parameters: {
+                        buffId: 'buff_equipsuit_expend_spelldamage',
+                        target: 'buffOwner',
+                        count: { kind: 'blackboard', key: 'addstack' },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    expect(compiled.buffDefinitions?.buff_equipsuit_expend_spelldamage).toMatchObject({
+      durationSeconds: { blackboardKey: 'duration' },
+      presentation: {
+        visible: true,
+        iconId: 'icon_battle_spell_up',
+        iconPath: '/icons/icon_battle_spell_up.webp',
+      },
+      attributeModifiers: [
+        { attribute: 'electricDamageIncrease', value: { blackboardKey: 'spell_dmg_up' } },
+        { attribute: 'natureDamageIncrease', value: { blackboardKey: 'spell_dmg_up' } },
+      ],
+    });
+  });
+
   it('让连携叠层套把连携次数转为同一次战技施放的动态增伤', () => {
     const definition = generatedGearSetDefinitions.find(item => item.slug === 'suit_attri01')!;
     expect(validateGearSetDefinition(definition, '$.suit_attri01')).toEqual([]);

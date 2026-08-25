@@ -155,6 +155,7 @@ export type NativeConditionSource =
       readonly buffIds: readonly string[];
       readonly queryType: string;
       readonly buffTagIds: readonly number[];
+      readonly buffIdOutputKey?: string;
     })
   | (ConditionIdentity & {
       readonly kind: 'globalCooldown';
@@ -808,8 +809,8 @@ function parseContextBuff(
 }
 
 /**
- * 1.4.4 Advanced 的已闭环纯 Tag 条件分支。非空 blackboardKey 会写回事件 Buff ID，
- * BlackboardBuffId 列表也有独立读取语义，因此都不能折叠到基础条件。
+ * 1.4.4 Advanced 的已闭环 Tag 条件分支。原生数据允许保留一个空的直接 ID
+ * 占位符；非空 blackboardKey 会把匹配到的事件 Buff ID 写入动作黑板。
  */
 function parseAdvancedContextBuff(
   condition: Record<string, unknown>,
@@ -836,13 +837,25 @@ function parseAdvancedContextBuff(
     throw new Error(`${path}.checkType: only the confirmed Tag branch is supported`);
   }
   const buffIdList = requireArray(condition.buffIdList, `${path}.buffIdList`);
-  if (buffIdList.length !== 0) {
-    throw new Error(`${path}.buffIdList: Advanced Tag projection requires an empty ID list`);
+  if (buffIdList.length > 1) {
+    throw new Error(`${path}.buffIdList: Advanced Tag projection accepts at most one placeholder`);
+  }
+  if (buffIdList.length === 1) {
+    const placeholder = requireRecord(buffIdList[0], `${path}.buffIdList[0]`);
+    requireExactFields(
+      placeholder,
+      new Set(['useBlackboardKey', 'value', 'blackboardKey']),
+      `${path}.buffIdList[0]`,
+    );
+    if (
+      requireBoolean(placeholder.useBlackboardKey, `${path}.buffIdList[0].useBlackboardKey`) ||
+      requireString(placeholder.value, `${path}.buffIdList[0].value`) !== '' ||
+      requireString(placeholder.blackboardKey, `${path}.buffIdList[0].blackboardKey`) !== ''
+    ) {
+      throw new Error(`${path}.buffIdList[0]: expected an empty direct Buff ID placeholder`);
+    }
   }
   const blackboardKey = requireString(condition.blackboardKey, `${path}.blackboardKey`);
-  if (blackboardKey !== '') {
-    throw new Error(`${path}.blackboardKey: event Buff ID output is not supported`);
-  }
   const query = parseTagQuerySource(condition.query, `${path}.query`);
   return {
     kind: 'contextBuff',
@@ -851,6 +864,7 @@ function parseAdvancedContextBuff(
     buffIds: [],
     queryType: query.queryType,
     buffTagIds: query.tagIds,
+    ...(blackboardKey === '' ? {} : { buffIdOutputKey: blackboardKey }),
   };
 }
 

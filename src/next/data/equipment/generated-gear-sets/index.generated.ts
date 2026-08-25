@@ -7,17 +7,18 @@ import generatedGearSet5 from './suit_burst01.generated';
 import generatedGearSet6 from './suit_combo_cd01.generated';
 import generatedGearSet7 from './suit_criti01.generated';
 import generatedGearSet8 from './suit_crush_fracture.generated';
-import generatedGearSet9 from './suit_fire_natr01.generated';
-import generatedGearSet10 from './suit_generaltype.generated';
-import generatedGearSet11 from './suit_heal01.generated';
-import generatedGearSet12 from './suit_phy01.generated';
-import generatedGearSet13 from './suit_poise01.generated';
-import generatedGearSet14 from './suit_pulse_cryst01.generated';
-import generatedGearSet15 from './suit_str01.generated';
-import generatedGearSet16 from './suit_stragi01.generated';
-import generatedGearSet17 from './suit_will01.generated';
-import generatedGearSet18 from './suit_wisd01.generated';
-import generatedGearSet19 from './suit_wisdwill01.generated';
+import generatedGearSet9 from './suit_expend_spell01.generated';
+import generatedGearSet10 from './suit_fire_natr01.generated';
+import generatedGearSet11 from './suit_generaltype.generated';
+import generatedGearSet12 from './suit_heal01.generated';
+import generatedGearSet13 from './suit_phy01.generated';
+import generatedGearSet14 from './suit_poise01.generated';
+import generatedGearSet15 from './suit_pulse_cryst01.generated';
+import generatedGearSet16 from './suit_str01.generated';
+import generatedGearSet17 from './suit_stragi01.generated';
+import generatedGearSet18 from './suit_will01.generated';
+import generatedGearSet19 from './suit_wisd01.generated';
+import generatedGearSet20 from './suit_wisdwill01.generated';
 
 import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinition';
 
@@ -42,4 +43,5 @@ export const generatedGearSetDefinitions = [
   generatedGearSet17,
   generatedGearSet18,
   generatedGearSet19,
+  generatedGearSet20,
 ] as const satisfies readonly GearSetDefinition[];

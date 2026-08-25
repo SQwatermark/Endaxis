@@ -542,3 +542,12 @@ ID 当作物品主键。当前 48 条玩家承伤修正只在木桩边界省略�
 - 正式套装提升为 20/23、44 个 Buff 定义。剩余 `suit_expend_spell01`、`suit_usp01`、
   `suit_usp02`；下一步处理动态 Buff 上下文计数链。
 - 门禁更新为游戏数据 251/251、Next 1529/1529，两套专用类型检查通过。
+
+### 2026-08-26：法术异常消耗套正式闭环
+
+- `suit_expend_spell01` 监听由穿戴者实际消费的导电/腐蚀结果 Buff。事件保留 Buff ID、Tag、层数与
+  黑板快照；Advanced 条件写回 ID，Context Get 直接读取原实例 `count`，不从容器反查已结束 Buff。
+- 按 `count` 给穿戴者重复施加最多 3 层、25 秒的电磁/自然伤害 +15% Buff；图标与持续时间完整保留。
+  `targetSource=Owner` 的语义由 combat-spec 端到端测试确认，未受内嵌未使用 selector 残留干扰。
+- 正式套装提升为 21/23、46 个 Buff 定义。剩余 `suit_usp01`、`suit_usp02`。
+- 门禁更新为游戏数据 251/251、Next 1532/1532，两套专用类型检查通过。

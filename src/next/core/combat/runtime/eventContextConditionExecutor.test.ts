@@ -335,4 +335,32 @@ describe('EventContextConditionExecutor', () => {
       ),
     ).toBe(true);
   });
+
+  it('matches consumed Buff tags and writes the event Buff identity', () => {
+    const executor = new EventContextConditionExecutor(terminal);
+    const blackboard = new ActionBlackboard({ buffid: '' });
+    expect(
+      executor.evaluate(
+        {
+          kind: 'eventBuffTagsMatch',
+          match: 'hasAny',
+          buffTagIds: [1466867135, -421286163],
+          buffIdOutputKey: 'buffid',
+        },
+        {
+          blackboard,
+          event: {
+            kind: 'buffConsumed',
+            sourceOperatorId: 'operator',
+            targetId: 'enemy',
+            buffId: 'buff:conduct',
+            layers: 3,
+            buffTagIds: [1466867135],
+            blackboardValues: { count: 3 },
+          },
+        },
+      ),
+    ).toBe(true);
+    expect(blackboard.getString('buffid')).toBe('buff:conduct');
+  });
 });

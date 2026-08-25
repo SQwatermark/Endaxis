@@ -41,7 +41,7 @@ import { DAMAGE_TYPES, type SkillBuffSlotReplacement } from '../../game-data/ope
 export type RegisterBuffAbilityEventAction = (
   event: Exclude<
     ResolvedSkillBuffAbilityEventResponse['event'],
-    'afterKillEntity' | 'outputKnockDown' | 'skillSpGained'
+    'afterKillEntity' | 'outputKnockDown' | 'skillSpGained' | 'buffConsumed'
   >,
   priority: number,
   handle: (payload: unknown) => void,
@@ -51,13 +51,13 @@ export type RegisterBuffAbilityEventAction = (
 export type RegisterBuffSemanticEventAction = (
   event: Extract<
     ResolvedSkillBuffAbilityEventResponse['event'],
-    'afterKillEntity' | 'outputKnockDown' | 'skillSpGained'
+    'afterKillEntity' | 'outputKnockDown' | 'skillSpGained' | 'buffConsumed'
   >,
   priority: number,
   handle: (
     event: Extract<
       CombatSemanticEvent,
-      { readonly kind: 'enemyDefeated' | 'knockDownOutput' | 'spGained' }
+      { readonly kind: 'enemyDefeated' | 'knockDownOutput' | 'spGained' | 'buffConsumed' }
     >,
   ) => void,
 ) => AbilityEventRegistration;
@@ -290,7 +290,8 @@ export function attachBuffLifecycleSequences<Key extends string>(
         response =>
           response.event !== 'afterKillEntity' &&
           response.event !== 'outputKnockDown' &&
-          response.event !== 'skillSpGained',
+          response.event !== 'skillSpGained' &&
+          response.event !== 'buffConsumed',
       ) &&
       registerAbilityEventAction === undefined
     ) {
@@ -301,7 +302,8 @@ export function attachBuffLifecycleSequences<Key extends string>(
         response =>
           response.event === 'afterKillEntity' ||
           response.event === 'outputKnockDown' ||
-          response.event === 'skillSpGained',
+          response.event === 'skillSpGained' ||
+          response.event === 'buffConsumed',
       ) &&
       registerSemanticEventAction === undefined
     ) {
@@ -341,7 +343,8 @@ export function attachBuffLifecycleSequences<Key extends string>(
         if (
           group.event === 'afterKillEntity' ||
           group.event === 'outputKnockDown' ||
-          group.event === 'skillSpGained'
+          group.event === 'skillSpGained' ||
+          group.event === 'buffConsumed'
         ) {
           registrations.push(
             registerSemanticEventAction!(group.event, group.priority, event => {
@@ -365,7 +368,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
                 const event = normalizeBuffAbilityEvent(
                   response.event as Exclude<
                     ResolvedSkillBuffAbilityEventResponse['event'],
-                    'afterKillEntity' | 'outputKnockDown' | 'skillSpGained'
+                    'afterKillEntity' | 'outputKnockDown' | 'skillSpGained' | 'buffConsumed'
                   >,
                   payload,
                 );
@@ -526,7 +529,7 @@ function isCommutativeCurrentBuffTimeResponse(
 function normalizeBuffAbilityEvent(
   event: Exclude<
     ResolvedSkillBuffAbilityEventResponse['event'],
-    'afterKillEntity' | 'outputKnockDown' | 'skillSpGained'
+    'afterKillEntity' | 'outputKnockDown' | 'skillSpGained' | 'buffConsumed'
   >,
   payload: unknown,
 ):

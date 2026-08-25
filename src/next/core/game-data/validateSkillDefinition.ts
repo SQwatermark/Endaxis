@@ -619,6 +619,7 @@ function validateCombatCondition(
     case 'eventBuffTagsMatch':
       requireEnum(record, 'match', TAG_QUERY_TYPES_SET, path, out);
       validateNonEmptyIntegerArray(record.buffTagIds, `${path}.buffTagIds`, out);
+      if (record.buffIdOutputKey !== undefined) requireString(record, 'buffIdOutputKey', path, out);
       break;
     case 'eventTargetBuffCountCompare':
       requireEnum(record, 'tagQueryType', TAG_QUERY_TYPES_SET, path, out);
@@ -1217,6 +1218,7 @@ function validateCombatStep(
                     response.event !== 'finishedBuff' &&
                     response.event !== 'afterOutputWeaknessTriggered' &&
                     response.event !== 'afterKillEntity' &&
+                    response.event !== 'buffConsumed' &&
                     response.event !== 'skillSpGained'
                   ) {
                     push(out, `${responsePath}.event`, 'unsupported Buff ability event');
@@ -1507,6 +1509,10 @@ function validateCombatStep(
       }
       break;
     }
+    case 'readEventBuffBlackboard':
+      requireString(parameters, 'desiredKey', `${path}.parameters`, out);
+      requireString(parameters, 'outputKey', `${path}.parameters`, out);
+      break;
     case 'readBuffBlackboard':
     case 'readBuffStackCount': {
       // Buff 事件序列可从事件载荷解析 eventTarget；普通技能步骤仍会在运行时缺少

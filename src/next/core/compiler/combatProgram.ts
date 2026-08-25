@@ -169,6 +169,7 @@ export interface ResolvedCombatStepParameters {
     readonly definition?: ResolvedSkillBuffDefinition;
   };
   readBuffBlackboard: CombatStepParameters['readBuffBlackboard'];
+  readEventBuffBlackboard: CombatStepParameters['readEventBuffBlackboard'];
   readBuffStackCount: CombatStepParameters['readBuffStackCount'];
   finishBuffsByTag: CombatStepParameters['finishBuffsByTag'];
   finishBuffsById: CombatStepParameters['finishBuffsById'];

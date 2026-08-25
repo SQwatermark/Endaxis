@@ -135,6 +135,8 @@ describe('BuffOperationExecutor', () => {
         targetId: 'enemy',
         buffId: 'buff_physical_no_guard',
         layers: 1,
+        buffTagIds: [],
+        blackboardValues: {},
       },
     ]);
   });
@@ -803,6 +805,48 @@ describe('BuffOperationExecutor', () => {
     expect(applied).toEqual([
       expect.objectContaining({ buffId: 'event-source-buff', sourceId: 'operator-b' }),
     ]);
+  });
+
+  it('reads a numeric value from the consumed Buff event snapshot', () => {
+    const target = {
+      ownerId: 'operator',
+      getCountByIds: () => 0,
+      finishByIds: () => 0,
+      holdByIds: () => ({ release: () => undefined }),
+      getCountByTags: () => 0,
+      matchesEntityTags: () => false,
+      findFirstByIds: () => undefined,
+      findFirstByTags: () => undefined,
+      finishByTags: () => 0,
+    };
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => target,
+      delegate,
+    });
+    const blackboard = new ActionBlackboard({ addstack: 1 });
+
+    expect(
+      executor.execute(
+        {
+          kind: 'readEventBuffBlackboard',
+          parameters: { desiredKey: 'count', outputKey: 'addstack' },
+        },
+        {
+          blackboard,
+          event: {
+            kind: 'buffConsumed',
+            sourceOperatorId: 'operator',
+            targetId: 'enemy',
+            buffId: 'buff:conduct',
+            layers: 3,
+            buffTagIds: [1466867135],
+            blackboardValues: { count: 3 },
+          },
+        },
+      ),
+    ).toBe(true);
+    expect(blackboard.getNumber('addstack')).toBe(3);
   });
 
   it('uses an explicitly selected entity as the Buff source', () => {

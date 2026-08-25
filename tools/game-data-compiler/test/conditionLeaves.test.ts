@@ -268,16 +268,20 @@ describe('公共条件叶子 IR', () => {
       queryType: 'hasAny',
       buffTagIds: [-1558844517],
     });
-    expect(() =>
-      parseConditionLeafSource(fixture('buffid'), 'fixture.contextBuffAdvanced', {}),
-    ).toThrow('event Buff ID output is not supported');
-    expect(() =>
+    expect(
       parseConditionLeafSource(
-        fixture('', [{ useBlackboardKey: false, value: '', blackboardKey: '' }]),
+        fixture('buffid', [{ useBlackboardKey: false, value: '', blackboardKey: '' }]),
         'fixture.contextBuffAdvanced',
         {},
       ),
-    ).toThrow('requires an empty ID list');
+    ).toMatchObject({ buffIdOutputKey: 'buffid' });
+    expect(() =>
+      parseConditionLeafSource(
+        fixture('', [{ useBlackboardKey: true, value: '', blackboardKey: 'id' }]),
+        'fixture.contextBuffAdvanced',
+        {},
+      ),
+    ).toThrow('expected an empty direct Buff ID placeholder');
   });
 
   it('严格解析物理异常事件类型位集并保留 savedKey 边界', () => {

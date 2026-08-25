@@ -43,6 +43,7 @@ export interface BuffOperationTarget {
   ): void;
   /** 场景装配根把成功施加事实接入全场语义事件中心。 */
   configureBuffAppliedObserver?(observer: (event: BuffAppliedEvent) => void): void;
+  configureBuffConsumedObserver?(observer: (event: BuffConsumedEvent) => void): void;
   /** 场景装配根把 Buff 存续期内的全场语义事件监听接入唯一事件中心。 */
   configureSemanticEventAction?(register: RegisterBuffSemanticEventAction): void;
   apply?(request: BuffApplicationRequest): boolean;
@@ -103,6 +104,15 @@ export interface BuffAppliedEvent {
   readonly buffTagIds: readonly number[];
 }
 
+export interface BuffConsumedEvent {
+  readonly sourceOperatorId: string;
+  readonly targetId: string;
+  readonly buffId: string;
+  readonly layers: number;
+  readonly buffTagIds: readonly number[];
+  readonly blackboardValues: Readonly<Record<string, string | number | null>>;
+}
+
 /** 由有状态动作精确持有的 Buff 实例，不按 ID 误删其他来源实例。 */
 export interface BuffApplicationHandle {
   finish(reason: BuffFinishReason): boolean;
@@ -139,6 +149,8 @@ export interface BuffOperationDependencies {
     readonly targetId: string;
     readonly buffId: string;
     readonly layers: number;
+    readonly buffTagIds: readonly number[];
+    readonly blackboardValues: Readonly<Record<string, string | number | null>>;
   }) => void;
   readonly onPhysicalInflictionApplied?: (event: {
     readonly sourceOperatorId: string;
@@ -245,6 +257,8 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
             targetId: target.ownerId,
             buffId: step.parameters.noGuardBuffId,
             layers: consumedLayers,
+            buffTagIds: [],
+            blackboardValues: {},
           });
         }
       }
@@ -343,6 +357,18 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       context.blackboard.assignDynamic(
         step.parameters.outputKey,
         buff.blackboard.getNumber(step.parameters.desiredKey) ?? 0,
+      );
+      return true;
+    }
+
+    if (step.kind === 'readEventBuffBlackboard') {
+      if (context?.event?.kind !== 'buffConsumed') {
+        throw new Error('readEventBuffBlackboard requires a consumed Buff event');
+      }
+      const value = context.event.blackboardValues?.[step.parameters.desiredKey];
+      context.blackboard.assignDynamic(
+        step.parameters.outputKey,
+        typeof value === 'number' ? value : 0,
       );
       return true;
     }
