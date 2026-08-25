@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any, Callable, cast
 
 from source_models import (
@@ -117,6 +117,7 @@ def collect_resolved_damage_hits(
                         native_sequence_order(
                             damage, hit.actionOrder, hit.triggerSkillId
                         ),
+                        getattr(hit, "actionBlackboardScope", None),
                     )
                 )
         for nested in hit.nestedProjectileTriggeredSkills:
@@ -232,6 +233,7 @@ def collect_resolved_schedule(
             sourcePath=hit.sourcePath,
             payload=hit,
             sequenceOrder=hit.sequenceOrder,
+            actionBlackboardScope=hit.actionBlackboardScope,
         )
         for hit in collect_resolved_damage_hits(skill)
     ]
@@ -471,6 +473,7 @@ def collect_projectile_schedule(
     resource_gain_can_change_value = services.resource_gain_can_change_value
     if hit.excludedByPrimaryTargetMarker:
         return
+    direct_result_start = len(result)
     hit_frame = hit.launchFrame + hit.assumedTravelFrames
     source_path = (hit.triggerSkillId,)
     result.extend(
@@ -551,6 +554,11 @@ def collect_projectile_schedule(
         )
         for action in getattr(hit, "keywordActions", ())
     )
+    for index in range(direct_result_start, len(result)):
+        result[index] = replace(
+            result[index],
+            actionBlackboardScope=getattr(hit, "actionBlackboardScope", None),
+        )
     for nested in hit.nestedProjectileTriggeredSkills:
         collect_projectile_schedule(nested, result, services=services)
     for entity in getattr(hit, "abilityEntityHits", ()):

@@ -1,6 +1,6 @@
 /** 由 scripts/generate_next_operators 从解包数据生成；不要手工编辑。 */
 import type { OperatorDefinition, SkillDefinition } from '../../../core/game-data/operatorDefinition';
-import { branch, percentages, scheduled, sequence, step, withSkillBlackboard } from '../definitionHelpers';
+import { branch, percentages, scheduled, sequence, step, withActionBlackboardScope, withSkillBlackboard } from '../definitionHelpers';
 
 // prettier-ignore
 export const fluoriteBasicAttack1: SkillDefinition = withSkillBlackboard(
@@ -66,26 +66,33 @@ export const fluoriteBasicAttack3: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([26, 28, 31, 33, 36, 38, 41, 43, 46, 49, 53, 57]),
             tags: ['normalAttack'],
           }, '12:basicAttack310:projectile23:chr_0022_bounda_attack331:chr_0022_bounda_attack3_projhit11:actionOrder1:41:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0022_bounda_attack3_projhit:4',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: 0.3333333,
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    coefficient: 0.3333333,
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -112,25 +119,32 @@ export const fluoriteBasicAttack4: SkillDefinition = withSkillBlackboard(
             tags: ['normalAttack', 'normalAttackLastCombo'],
             stagger: 15,
           }, '12:basicAttack410:projectile23:chr_0022_bounda_attack431:chr_0022_bounda_attack4_projhit11:actionOrder1:41:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0022_bounda_attack4_projhit:4',
+            { atb: 0, atk_scale: 0, attack_poise: 20 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -159,25 +173,32 @@ export const fluoriteBasicAttack5: SkillDefinition = withSkillBlackboard(
             tags: ['normalAttack', 'normalAttackLastCombo'],
             stagger: 15,
           }, '12:basicAttack510:projectile25:chr_0022_bounda_attack4_131:chr_0022_bounda_attack4_projhit11:actionOrder1:41:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0022_bounda_attack4_projhit:4',
+            { atb: 0, atk_scale: 0, attack_poise: 20 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -291,15 +312,22 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         10,
         sequence(
-          step('applyBuff', {
-            buffId: 'buff_common_affixes_slow',
-            target: 'enemy',
-            inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              rate: { kind: 'blackboard', key: 'move_speed_scalar' },
-              duration: { kind: 'constant', value: 3.1 },
-            },
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0022_bounda_normal_skill_projhit:19',
+            { atk_scale: 0, boom_up: 0, duration: 0, duration_potential: 0, move_speed_scalar: 0, poise: 30, potential_lv: 0 },
+            true,
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_common_affixes_slow',
+                target: 'enemy',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: {
+                  rate: { kind: 'blackboard', key: 'move_speed_scalar' },
+                  duration: { kind: 'constant', value: 3.1 },
+                },
+              }),
+            ),
+          ),
         ),
       ),
     ],

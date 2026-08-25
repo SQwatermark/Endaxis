@@ -42,6 +42,40 @@ describe('CombatActionSequenceRuntime', () => {
     expect(fixture.executed).toEqual(['first', 'second']);
   });
 
+  it('在命中时创建并复用隔离的子 SkillData 动作黑板', () => {
+    const parent = new ActionBlackboard({ inherited: 1, childOnly: 99 });
+    const snapshots: Readonly<Record<string, unknown>>[] = [];
+    const operations: CombatOperationExecutor = {
+      execute: (_step, context) => {
+        snapshots.push(context!.blackboard.snapshot());
+        context!.blackboard.assignDynamic('childOnly', 3);
+        return true;
+      },
+      evaluate: vi.fn(() => true),
+    };
+    const runtime = new CombatActionSequenceRuntime(operations, { blackboard: parent });
+    const scoped: ResolvedCombatStep = {
+      kind: 'withActionBlackboardScope',
+      parameters: {
+        scopeKey: 'projectile:child:1',
+        initialValues: { inherited: 0, childOnly: 2 },
+        inheritParent: true,
+      },
+      body: sequence(operation('child')),
+    };
+    const scheduled = sequence(scoped);
+    parent.assignDynamic('inherited', 7);
+
+    runtime.createSequence(scheduled).executeInstant({});
+    runtime.createSequence(scheduled).executeInstant({});
+
+    expect(snapshots).toEqual([
+      { inherited: 7, childOnly: 99 },
+      { inherited: 7, childOnly: 3 },
+    ]);
+    expect(parent.snapshot()).toEqual({ inherited: 7, childOnly: 99 });
+  });
+
   it('根据条件结果只执行对应分支', () => {
     const fixture = createFixture(false);
     const conditional: ResolvedCombatStep = {

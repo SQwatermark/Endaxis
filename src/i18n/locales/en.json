@@ -1832,6 +1832,7 @@
         "finishTimeline": "Ends the current host skill timeline immediately and discards every pending action.",
         "conditional": "Evaluates a condition tree and runs the true or false branch.",
         "once": "Runs its body at most once within the same skill cast.",
+        "withActionBlackboardScope": "Runs its body in the action blackboard owned by one native child-skill invocation.",
         "repeatEachTick": "Runs its body at interval start and on every subsequent host tick.",
         "setContextFlag": "Sets a caster context flag for other mechanics to read.",
         "openComboWindow": "Queues the next combo stage in the scene-level window runtime. The window lasts 5 seconds and follows queue order.",

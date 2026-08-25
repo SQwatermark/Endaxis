@@ -1873,6 +1873,23 @@ function validateCombatStep(
     case 'once':
       requireString(parameters, 'scopeKey', `${path}.parameters`, out);
       break;
+    case 'withActionBlackboardScope': {
+      requireString(parameters, 'scopeKey', `${path}.parameters`, out);
+      const initialValues = asRecord(
+        parameters.initialValues,
+        `${path}.parameters.initialValues`,
+        out,
+      );
+      if (initialValues !== null) {
+        Object.entries(initialValues).forEach(([key, value]) =>
+          validateLevelValues(value, `${path}.parameters.initialValues.${key}`, out),
+        );
+      }
+      if (typeof parameters.inheritParent !== 'boolean') {
+        push(out, `${path}.parameters.inheritParent`, 'expected a boolean');
+      }
+      break;
+    }
     case 'repeatEachTick':
       break;
     case 'setContextFlag':
@@ -1980,7 +1997,11 @@ function validateActionSequence(
           currentTargetAvailable,
         );
       }
-    } else if (stepKind === 'once' || stepKind === 'repeatEachTick') {
+    } else if (
+      stepKind === 'once' ||
+      stepKind === 'withActionBlackboardScope' ||
+      stepKind === 'repeatEachTick'
+    ) {
       validateActionSequence(
         recordStep.body,
         `${path}.steps[${index}].body`,
@@ -2004,6 +2025,7 @@ function containsCombatEventListener(value: unknown): boolean {
   }
   if (
     record.kind === 'once' ||
+    record.kind === 'withActionBlackboardScope' ||
     record.kind === 'repeatEachTick' ||
     record.kind === 'forEachContextTarget'
   ) {

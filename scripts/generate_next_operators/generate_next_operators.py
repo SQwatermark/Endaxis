@@ -8539,6 +8539,8 @@ def collect_definition_helpers(
         helpers.add("forEachContextTarget")
     if any("repeatEachTick(" in source for _, source in compiled):
         helpers.add("repeatEachTick")
+    if any("withActionBlackboardScope(" in source for _, source in compiled):
+        helpers.add("withActionBlackboardScope")
     if any("not(" in source for _, source in compiled):
         helpers.add("not")
     return ", ".join(sorted(helpers))

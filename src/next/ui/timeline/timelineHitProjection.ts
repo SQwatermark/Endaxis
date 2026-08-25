@@ -108,7 +108,7 @@ function collectDamageSteps(
     }
     return;
   }
-  if (step.kind === 'once') {
+  if (step.kind === 'once' || step.kind === 'withActionBlackboardScope') {
     for (const nested of step.body.steps)
       collectDamageSteps(
         nested,

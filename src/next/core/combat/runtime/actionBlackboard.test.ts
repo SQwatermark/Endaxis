@@ -49,4 +49,17 @@ describe('ActionBlackboard', () => {
     expect(firstSkill.getNumber('EntityBB_SwordNum')).toBe(3);
     expect(secondSkill.getNumber('localCount')).toBeUndefined();
   });
+
+  it('creates child SkillData scopes without exposing child direct values to the parent', () => {
+    const entity = new ActionBlackboard({ EntityBB_shared: 4 });
+    const parent = new ActionBlackboard({ inherited: 7, local: 9 }, entity);
+    const child = parent.createLocalScope({ local: 1, childOnly: 2 }, true);
+
+    expect(child.snapshot()).toEqual({ local: 9, childOnly: 2, inherited: 7 });
+    child.assignDynamic('childOnly', 5);
+    child.assignDynamic('EntityBB_shared', 6);
+
+    expect(parent.getNumber('childOnly')).toBeUndefined();
+    expect(parent.getNumber('EntityBB_shared')).toBe(6);
+  });
 });

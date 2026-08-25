@@ -1,6 +1,6 @@
 /** 由 scripts/generate_next_operators 从解包数据生成；不要手工编辑。 */
 import type { OperatorDefinition, SkillDefinition } from '../../../core/game-data/operatorDefinition';
-import { branch, forEachContextTarget, percentages, scheduled, sequence, step, withSkillBlackboard } from '../definitionHelpers';
+import { branch, forEachContextTarget, percentages, scheduled, sequence, step, withActionBlackboardScope, withSkillBlackboard } from '../definitionHelpers';
 
 // prettier-ignore
 export const ardeliaBasicAttack1: SkillDefinition = withSkillBlackboard(
@@ -17,25 +17,32 @@ export const ardeliaBasicAttack1: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([30, 33, 36, 39, 42, 45, 48, 51, 54, 58, 62, 68]),
             tags: ['normalAttack'],
           }, '12:basicAttack110:projectile24:chr_0025_ardelia_attack132:chr_0025_ardelia_attack1_projhit11:actionOrder1:31:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_attack1_projhit:3',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -61,25 +68,32 @@ export const ardeliaBasicAttack2: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([20, 22, 24, 26, 28, 30, 32, 34, 36, 39, 42, 45]),
             tags: ['normalAttack'],
           }, '12:basicAttack210:projectile24:chr_0025_ardelia_attack232:chr_0025_ardelia_attack1_projhit11:actionOrder2:101:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_attack1_projhit:10',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -91,25 +105,32 @@ export const ardeliaBasicAttack2: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([20, 22, 24, 26, 28, 30, 32, 34, 36, 39, 42, 45]),
             tags: ['normalAttack'],
           }, '12:basicAttack210:projectile24:chr_0025_ardelia_attack232:chr_0025_ardelia_attack1_projhit11:actionOrder2:111:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_attack1_projhit:11',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -136,25 +157,32 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
             tags: ['normalAttack'],
           }, '12:basicAttack310:projectile24:chr_0025_ardelia_attack332:chr_0025_ardelia_attack3_projhit11:actionOrder1:61:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_attack3_projhit:6',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -166,25 +194,32 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
             tags: ['normalAttack'],
           }, '12:basicAttack310:projectile24:chr_0025_ardelia_attack332:chr_0025_ardelia_attack3_projhit11:actionOrder1:91:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_attack3_projhit:9',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -196,25 +231,32 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
             tags: ['normalAttack'],
           }, '12:basicAttack310:projectile24:chr_0025_ardelia_attack332:chr_0025_ardelia_attack3_projhit11:actionOrder2:121:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_attack3_projhit:12',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -226,25 +268,32 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
             tags: ['normalAttack'],
           }, '12:basicAttack310:projectile24:chr_0025_ardelia_attack332:chr_0025_ardelia_attack3_projhit11:actionOrder2:151:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_attack3_projhit:15',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -256,25 +305,32 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
             tags: ['normalAttack'],
           }, '12:basicAttack310:projectile24:chr_0025_ardelia_attack332:chr_0025_ardelia_attack3_projhit11:actionOrder2:181:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_attack3_projhit:18',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -286,25 +342,32 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
             tags: ['normalAttack'],
           }, '12:basicAttack310:projectile24:chr_0025_ardelia_attack332:chr_0025_ardelia_attack3_projhit11:actionOrder2:211:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_attack3_projhit:21',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -316,25 +379,32 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
             tags: ['normalAttack'],
           }, '12:basicAttack310:projectile24:chr_0025_ardelia_attack332:chr_0025_ardelia_attack3_projhit11:actionOrder2:241:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_attack3_projhit:24',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -346,25 +416,32 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
             tags: ['normalAttack'],
           }, '12:basicAttack310:projectile24:chr_0025_ardelia_attack332:chr_0025_ardelia_attack3_projhit11:actionOrder2:271:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_attack3_projhit:27',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -376,25 +453,32 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
             tags: ['normalAttack'],
           }, '12:basicAttack310:projectile24:chr_0025_ardelia_attack332:chr_0025_ardelia_attack3_projhit11:actionOrder2:301:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_attack3_projhit:30',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -406,25 +490,32 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
             tags: ['normalAttack'],
           }, '12:basicAttack310:projectile24:chr_0025_ardelia_attack332:chr_0025_ardelia_attack3_projhit11:actionOrder2:331:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_attack3_projhit:33',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -436,25 +527,32 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
             tags: ['normalAttack'],
           }, '12:basicAttack310:projectile24:chr_0025_ardelia_attack332:chr_0025_ardelia_attack3_projhit11:actionOrder2:361:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_attack3_projhit:36',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -466,25 +564,32 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
             tags: ['normalAttack'],
           }, '12:basicAttack310:projectile24:chr_0025_ardelia_attack332:chr_0025_ardelia_attack3_projhit11:actionOrder2:391:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_attack3_projhit:39',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -496,25 +601,32 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
             tags: ['normalAttack'],
           }, '12:basicAttack310:projectile24:chr_0025_ardelia_attack332:chr_0025_ardelia_attack3_projhit11:actionOrder2:421:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_attack3_projhit:42',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -526,25 +638,32 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
             tags: ['normalAttack'],
           }, '12:basicAttack310:projectile24:chr_0025_ardelia_attack332:chr_0025_ardelia_attack3_projhit11:actionOrder2:451:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_attack3_projhit:45',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -556,25 +675,32 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8]),
             tags: ['normalAttack'],
           }, '12:basicAttack310:projectile24:chr_0025_ardelia_attack332:chr_0025_ardelia_attack3_projhit11:actionOrder2:481:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_attack3_projhit:48',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -1043,64 +1169,71 @@ export const ardeliaComboSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         20,
         sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'blackboard', key: 'potential5_dmg_rate' },
-              operator: 'greater',
-              right: { kind: 'constant', value: 0 },
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_combo_skill_projhit:18.0',
+            { atk_scale: 0, atk_scale_boom: 0, duration_corrupt: 0, potential3: 0, potential5_dmg_rate: 0, potential5_duration: 0, usp: 0 },
+            true,
             sequence(
-              step('modifyActionValue', {
-                key: 'atk_scale',
-                operation: 'multiply',
-                value: { kind: 'blackboard', key: 'potential5_dmg_rate' },
-              }),
-              step('modifyActionValue', {
-                key: 'atk_scale_boom',
-                operation: 'multiply',
-                value: { kind: 'blackboard', key: 'potential5_dmg_rate' },
-              }),
-              step('dealDamage', {
-                damageType: 'nature',
-                attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                tags: ['comboSkill'],
-                features: ['canBreakWeakness'],
-              }, '10:comboSkill11:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[2]11:actionOrder1:4'),
               branch(
-                { kind: 'singleEnemyPresent' },
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'potential5_dmg_rate' },
+                  operator: 'greater',
+                  right: { kind: 'constant', value: 0 },
+                },
                 sequence(
-                  step('changeResourceByActionValue', {
-                    resource: 'ultimateEnergy',
-                    amount: { kind: 'blackboard', key: 'usp' },
-                    recipient: 'caster',
+                  step('modifyActionValue', {
+                    key: 'atk_scale',
+                    operation: 'multiply',
+                    value: { kind: 'blackboard', key: 'potential5_dmg_rate' },
                   }),
+                  step('modifyActionValue', {
+                    key: 'atk_scale_boom',
+                    operation: 'multiply',
+                    value: { kind: 'blackboard', key: 'potential5_dmg_rate' },
+                  }),
+                  step('dealDamage', {
+                    damageType: 'nature',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                    tags: ['comboSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '10:comboSkill11:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[2]11:actionOrder1:4'),
+                  branch(
+                    { kind: 'singleEnemyPresent' },
+                    sequence(
+                      step('changeResourceByActionValue', {
+                        resource: 'ultimateEnergy',
+                        amount: { kind: 'blackboard', key: 'usp' },
+                        recipient: 'caster',
+                      }),
+                    ),
+                    undefined,
+                    { alwaysNext: true },
+                  ),
                 ),
-                undefined,
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'nature',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                    tags: ['comboSkill'],
+                    features: ['canBreakWeakness'],
+                  }, '10:comboSkill11:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]11:failActions10:actionData3:[0]11:actionOrder2:10'),
+                  branch(
+                    { kind: 'singleEnemyPresent' },
+                    sequence(
+                      step('changeResourceByActionValue', {
+                        resource: 'ultimateEnergy',
+                        amount: { kind: 'blackboard', key: 'usp' },
+                        recipient: 'caster',
+                      }),
+                    ),
+                    undefined,
+                    { alwaysNext: true },
+                  ),
+                ),
                 { alwaysNext: true },
               ),
             ),
-            sequence(
-              step('dealDamage', {
-                damageType: 'nature',
-                attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                tags: ['comboSkill'],
-                features: ['canBreakWeakness'],
-              }, '10:comboSkill11:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]11:failActions10:actionData3:[0]11:actionOrder2:10'),
-              branch(
-                { kind: 'singleEnemyPresent' },
-                sequence(
-                  step('changeResourceByActionValue', {
-                    resource: 'ultimateEnergy',
-                    amount: { kind: 'blackboard', key: 'usp' },
-                    recipient: 'caster',
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
-            ),
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -1204,12 +1337,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1222,12 +1362,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1240,12 +1387,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1258,12 +1412,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1276,12 +1437,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1294,12 +1462,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1312,12 +1487,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1330,12 +1512,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1348,12 +1537,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1366,12 +1562,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1384,12 +1587,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1402,12 +1612,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1420,12 +1637,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1438,12 +1662,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1456,12 +1687,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1474,12 +1712,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1492,12 +1737,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1510,12 +1762,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1528,12 +1787,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1546,12 +1812,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1564,12 +1837,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1582,12 +1862,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1600,12 +1887,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1618,12 +1912,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1636,12 +1937,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1654,12 +1962,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1672,12 +1987,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1690,12 +2012,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1708,12 +2037,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1726,12 +2062,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1744,12 +2087,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1762,12 +2112,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1780,12 +2137,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1798,12 +2162,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1816,12 +2187,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1834,12 +2212,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1852,12 +2237,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1870,12 +2262,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1888,12 +2287,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1906,12 +2312,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1924,12 +2337,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1942,12 +2362,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1960,12 +2387,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1978,12 +2412,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -1996,12 +2437,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2014,12 +2462,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2032,12 +2487,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2050,12 +2512,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2068,12 +2537,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2086,12 +2562,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2104,12 +2587,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2122,12 +2612,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2140,12 +2637,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2158,12 +2662,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2176,12 +2687,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2194,12 +2712,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2212,12 +2737,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2230,12 +2762,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2248,12 +2787,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2266,12 +2812,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2299,12 +2852,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2317,12 +2877,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2335,12 +2902,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2353,12 +2927,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2371,12 +2952,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2389,12 +2977,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2407,12 +3002,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2425,12 +3027,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2443,12 +3052,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2461,12 +3077,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2479,12 +3102,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2497,12 +3127,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2515,12 +3152,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2533,12 +3177,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2551,12 +3202,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2569,12 +3227,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2587,12 +3252,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2605,12 +3277,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2623,12 +3302,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2641,12 +3327,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2659,12 +3352,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:161:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:16',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(
@@ -2677,12 +3377,19 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
           }, '8:ultimate10:projectile31:chr_0025_ardelia_ultimate_skill45:chr_0025_ardelia_ultimate_skill_sheep_projhit11:actionOrder2:191:5'),
-          step('createTimedMarker', {
-            target: 'enemy',
-            markerId: 'ArdeliaUltMark',
-            durationSeconds: { kind: 'blackboard', key: 'interval' },
-            autoFinishByAction: false,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0025_ardelia_ultimate_skill_sheep_projhit:19',
+            { atk_scale: 0, effect_prob: 0, heal_scale: 0, heal_value: 0, interval: 0, poise: 0, potential3_rate: 0, random_phy: 0, random_spe: 0 },
+            true,
+            sequence(
+              step('createTimedMarker', {
+                target: 'enemy',
+                markerId: 'ArdeliaUltMark',
+                durationSeconds: { kind: 'blackboard', key: 'interval' },
+                autoFinishByAction: false,
+              }),
+            ),
+          ),
         ),
       ),
     ],

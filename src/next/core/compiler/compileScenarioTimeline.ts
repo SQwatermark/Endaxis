@@ -80,6 +80,7 @@ function bindStepHitIds(step: ResolvedCombatStep, castId: string): ResolvedComba
           : { whenFalse: bindSequenceHitIds(step.whenFalse, castId) }),
       };
     case 'once':
+    case 'withActionBlackboardScope':
     case 'repeatEachTick':
     case 'forEachContextTarget':
       return { ...step, body: bindSequenceHitIds(step.body, castId) };

@@ -1,6 +1,6 @@
 /** 由 scripts/generate_next_operators 从解包数据生成；不要手工编辑。 */
 import type { OperatorDefinition, SkillDefinition } from '../../../core/game-data/operatorDefinition';
-import { branch, percentages, scheduled, sequence, step, withSkillBlackboard } from '../definitionHelpers';
+import { branch, percentages, scheduled, sequence, step, withActionBlackboardScope, withSkillBlackboard } from '../definitionHelpers';
 
 // prettier-ignore
 export const estellaBasicAttack1: SkillDefinition = withSkillBlackboard(
@@ -305,43 +305,50 @@ export const estellaBattleSkill: SkillDefinition = withSkillBlackboard(
         21,
         sequence(
           step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'blackboard', key: 'EntityBB_first_hit' },
-              operator: 'equal',
-              right: { kind: 'constant', value: 0 },
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0021_whiten_normal_skill_projhit:62.1',
+            { atk_scale: 0, dmg_up: 0, poise: 30, up_atk_scale: 0 },
+            true,
             sequence(
-              step('modifyActionValue', {
-                key: 'EntityBB_first_hit',
-                operation: 'add',
-                value: { kind: 'constant', value: 1 },
-              }),
-              step('modifyActionValue', {
-                key: 'up_atk_scale',
-                operation: 'assign',
-                value: { kind: 'blackboard', key: 'atk_scale' },
-              }),
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'up_atk_scale' },
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 10,
-              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[2]6:action10:actionData3:[0]14:succeedActions10:actionData3:[2]11:actionOrder1:9'),
-              step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'EntityBB_first_hit' },
+                  operator: 'equal',
+                  right: { kind: 'constant', value: 0 },
+                },
+                sequence(
+                  step('modifyActionValue', {
+                    key: 'EntityBB_first_hit',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                  step('modifyActionValue', {
+                    key: 'up_atk_scale',
+                    operation: 'assign',
+                    value: { kind: 'blackboard', key: 'atk_scale' },
+                  }),
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: { kind: 'blackboard', key: 'up_atk_scale' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: 10,
+                  }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[2]6:action10:actionData3:[0]14:succeedActions10:actionData3:[2]11:actionOrder1:9'),
+                  step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
+                ),
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'cryo',
+                    attackScale: percentages([156, 171, 187, 202, 218, 234, 249, 265, 280, 300, 323, 350]),
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: 10,
+                  }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[2]6:action10:actionData3:[0]11:failActions10:actionData3:[0]11:actionOrder2:14'),
+                ),
+                { alwaysNext: true },
+              ),
             ),
-            sequence(
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: percentages([156, 171, 187, 202, 218, 234, 249, 265, 280, 300, 323, 350]),
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 10,
-              }, '11:battleSkill11:conditional18:timelineActions[1]19:_sequenceActionData10:actionData3:[2]6:action10:actionData3:[0]11:failActions10:actionData3:[0]11:actionOrder2:14'),
-            ),
-            { alwaysNext: true },
           ),
         ),
       ),

@@ -15,6 +15,7 @@ import type {
   CombatSemanticEventContext,
   CombatSemanticEventRuntime,
 } from './combatSemanticEventRuntime';
+import { ActionBlackboard } from './actionBlackboard';
 
 export interface CombatActionSequenceRuntimeHooks {
   readonly stepReached?: (step: ResolvedCombatStep) => void;
@@ -67,6 +68,52 @@ class OnceStep extends CombatStep {
       context,
       this.operationContext,
     );
+  }
+}
+
+class ActionBlackboardScopeStep extends CombatStep {
+  #body?: ActionSequence;
+
+  constructor(
+    readonly step: Extract<ResolvedCombatStep, { kind: 'withActionBlackboardScope' }>,
+    readonly runtime: CombatActionSequenceRuntime,
+    readonly operationContext: CombatOperationContext,
+  ) {
+    super();
+  }
+
+  execute(context: CombatExecutionContext): void {
+    this.#getBody().execute(context);
+  }
+
+  override tryExecute(context: CombatExecutionContext): boolean {
+    return this.#getBody().tryExecute(context);
+  }
+
+  override tick(deltaTime: number, context: CombatExecutionContext): void {
+    this.#getBody().tick(deltaTime, context);
+  }
+
+  override end(context: CombatExecutionContext): void {
+    this.#body?.end(context);
+  }
+
+  override reset(context: CombatExecutionContext): void {
+    this.#body?.reset(context);
+    this.#body = undefined;
+  }
+
+  #getBody(): ActionSequence {
+    if (this.#body !== undefined) return this.#body;
+    const blackboard = this.runtime.getActionBlackboardScope(
+      this.step,
+      this.operationContext.blackboard,
+    );
+    this.#body = this.runtime.createSequence(this.step.body, {
+      ...this.operationContext,
+      blackboard,
+    });
+    return this.#body;
   }
 }
 
@@ -294,6 +341,7 @@ class CombatEventListenerStep extends CombatStep {
 /** 一个状态所有者范围内的同步动作序列运行环境。 */
 export class CombatActionSequenceRuntime {
   readonly #executedOnceScopes = new Set<string>();
+  readonly #actionBlackboardScopes = new Map<string, ActionBlackboard>();
 
   constructor(
     readonly operations: CombatOperationExecutor,
@@ -317,6 +365,9 @@ export class CombatActionSequenceRuntime {
           return new TimelineFinishStep(step, this, operationContext);
         }
         if (step.kind === 'once') return new OnceStep(step, this, operationContext);
+        if (step.kind === 'withActionBlackboardScope') {
+          return new ActionBlackboardScopeStep(step, this, operationContext);
+        }
         if (step.kind === 'repeatEachTick') {
           return new RepeatEachTickStep(step, this, operationContext);
         }
@@ -333,6 +384,21 @@ export class CombatActionSequenceRuntime {
 
   reset(): void {
     this.#executedOnceScopes.clear();
+    this.#actionBlackboardScopes.clear();
+  }
+
+  getActionBlackboardScope(
+    step: Extract<ResolvedCombatStep, { kind: 'withActionBlackboardScope' }>,
+    parent: ActionBlackboard,
+  ): ActionBlackboard {
+    const existing = this.#actionBlackboardScopes.get(step.parameters.scopeKey);
+    if (existing !== undefined) return existing;
+    const created = parent.createLocalScope(
+      step.parameters.initialValues,
+      step.parameters.inheritParent,
+    );
+    this.#actionBlackboardScopes.set(step.parameters.scopeKey, created);
+    return created;
   }
 
   tryExecuteOnce(

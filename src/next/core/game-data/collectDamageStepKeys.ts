@@ -60,6 +60,14 @@ function collectSequenceKeys(
       collectSequenceKeys(step.body.steps, `${stepPath}.once`, entries);
       continue;
     }
+    if (
+      step.kind === 'withActionBlackboardScope' &&
+      isRecord(step.body) &&
+      Array.isArray(step.body.steps)
+    ) {
+      collectSequenceKeys(step.body.steps, `${stepPath}.body`, entries);
+      continue;
+    }
     if (step.kind === 'repeatEachTick' && isRecord(step.body) && Array.isArray(step.body.steps)) {
       collectSequenceKeys(step.body.steps, `${stepPath}.body`, entries);
       continue;

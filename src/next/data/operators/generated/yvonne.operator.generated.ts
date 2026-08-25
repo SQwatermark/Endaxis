@@ -1,6 +1,6 @@
 /** 由 scripts/generate_next_operators 从解包数据生成；不要手工编辑。 */
 import type { OperatorDefinition, SkillDefinition } from '../../../core/game-data/operatorDefinition';
-import { branch, forEachContextTarget, percentage, percentages, scheduled, sequence, step, withSkillBlackboard } from '../definitionHelpers';
+import { branch, forEachContextTarget, percentage, percentages, scheduled, sequence, step, withActionBlackboardScope, withSkillBlackboard } from '../definitionHelpers';
 
 // prettier-ignore
 export const yvonneComboSkill: SkillDefinition = withSkillBlackboard(
@@ -80,25 +80,32 @@ export const yvonneBasicAttack1: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([24, 26, 28, 31, 33, 35, 38, 40, 42, 45, 49, 53]),
             tags: ['normalAttack'],
           }, '12:basicAttack110:projectile23:chr_0017_yvonne_attack131:chr_0017_yvonne_attack1_projhit11:actionOrder1:61:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0017_yvonne_attack1_projhit:6',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -124,26 +131,33 @@ export const yvonneBasicAttack2: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([13, 14, 15, 16, 18, 19, 20, 21, 23, 24, 26, 28]),
             tags: ['normalAttack'],
           }, '12:basicAttack210:projectile23:chr_0017_yvonne_attack231:chr_0017_yvonne_attack2_projhit11:actionOrder1:61:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0017_yvonne_attack2_projhit:6',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: 0.5,
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    coefficient: 0.5,
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -155,26 +169,33 @@ export const yvonneBasicAttack2: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([13, 14, 15, 16, 18, 19, 20, 21, 23, 24, 26, 28]),
             tags: ['normalAttack'],
           }, '12:basicAttack210:projectile23:chr_0017_yvonne_attack237:chr_0017_yvonne_attack2_robot_projhit11:actionOrder1:71:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0017_yvonne_attack2_robot_projhit:7',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: 0.5,
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    coefficient: 0.5,
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -201,26 +222,33 @@ export const yvonneBasicAttack3: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 24]),
             tags: ['normalAttack'],
           }, '12:basicAttack310:projectile23:chr_0017_yvonne_attack331:chr_0017_yvonne_attack3_projhit11:actionOrder1:31:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0017_yvonne_attack3_projhit:3',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: 0.3333333,
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    coefficient: 0.3333333,
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -232,26 +260,33 @@ export const yvonneBasicAttack3: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 24]),
             tags: ['normalAttack'],
           }, '12:basicAttack310:projectile23:chr_0017_yvonne_attack331:chr_0017_yvonne_attack3_projhit11:actionOrder1:41:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0017_yvonne_attack3_projhit:4',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: 0.3333333,
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    coefficient: 0.3333333,
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -263,26 +298,33 @@ export const yvonneBasicAttack3: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 24]),
             tags: ['normalAttack'],
           }, '12:basicAttack310:projectile23:chr_0017_yvonne_attack331:chr_0017_yvonne_attack3_projhit11:actionOrder1:51:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0017_yvonne_attack3_projhit:5',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: 0.3333333,
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    coefficient: 0.3333333,
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -309,25 +351,32 @@ export const yvonneBasicAttack4: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([41, 45, 49, 53, 58, 62, 66, 70, 74, 79, 85, 92]),
             tags: ['normalAttack'],
           }, '12:basicAttack410:projectile23:chr_0017_yvonne_attack431:chr_0017_yvonne_attack4_projhit11:actionOrder1:61:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0017_yvonne_attack4_projhit:6',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),

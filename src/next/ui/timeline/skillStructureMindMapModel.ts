@@ -303,6 +303,7 @@ function stepNode(
     );
   } else if (
     step.kind === 'once' ||
+    step.kind === 'withActionBlackboardScope' ||
     step.kind === 'repeatEachTick' ||
     step.kind === 'forEachContextTarget'
   ) {

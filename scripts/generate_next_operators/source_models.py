@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Literal
 
 __all__ = [
@@ -25,6 +25,7 @@ __all__ = [
     "AbilityEntityTimeDilationTargetSource",
     "TimedTimeDilationSource",
     "ProjectileSkillTriggerSource",
+    "ActionBlackboardScopeSource",
     "ProjectileTriggeredSkillSource",
     "ProjectileLaunchSource",
     "TimedIntervalDamageSource",
@@ -361,6 +362,15 @@ class ProjectileSkillTriggerSource:
 
 
 @dataclass(frozen=True)
+class ActionBlackboardScopeSource:
+    """一次原生子 SkillData 调用独占的 direct blackboard。"""
+
+    scopeKey: str
+    initialValues: tuple[tuple[str, float], ...]
+    inheritParent: bool
+
+
+@dataclass(frozen=True)
 class ProjectileTriggeredSkillSource:
     launchFrame: int
     actionOrder: tuple[int, ...]
@@ -384,6 +394,10 @@ class ProjectileTriggeredSkillSource:
     keywordActions: tuple[TimedKeywordActionSource, ...] = ()
     knockDownOutputs: tuple[TimedKnockDownOutputSource, ...] = ()
     localTargetGroupWrites: tuple["TargetGroupWriteSource", ...] = ()
+    # 调用点运行时身份，不属于投射物载荷的结构等价性。
+    actionBlackboardScope: ActionBlackboardScopeSource | None = field(
+        default=None, compare=False
+    )
 
 
 @dataclass(frozen=True)
@@ -498,6 +512,7 @@ class ResolvedDamageHitSource:
     damageUnits: tuple[DamageUnitSource, ...]
     # 根技能坐标系中标识原生 Sequence 的稳定顺序。
     sequenceOrder: tuple[int, ...] = ()
+    actionBlackboardScope: ActionBlackboardScopeSource | None = None
 
 
 ResolvedScheduleItemType = Literal[
@@ -556,6 +571,7 @@ class ResolvedScheduleItemSource:
     sequenceOrder: tuple[int, ...] = ()
     # 子 SkillData 的 Context 目标只能用自身写入证据归约，不能借用根技能目标组。
     targetGroupWrites: tuple["TargetGroupWriteSource", ...] = ()
+    actionBlackboardScope: ActionBlackboardScopeSource | None = None
 
 
 @dataclass(frozen=True)

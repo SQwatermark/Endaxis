@@ -1,6 +1,6 @@
 /** 由 scripts/generate_next_operators 从解包数据生成；不要手工编辑。 */
 import type { OperatorDefinition, SkillDefinition } from '../../../core/game-data/operatorDefinition';
-import { branch, forEachContextTarget, percentages, scheduled, sequence, step, withSkillBlackboard } from '../definitionHelpers';
+import { branch, forEachContextTarget, percentages, scheduled, sequence, step, withActionBlackboardScope, withSkillBlackboard } from '../definitionHelpers';
 
 // prettier-ignore
 export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
@@ -68,71 +68,85 @@ export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         24,
         sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'blackboard', key: 'exist_talent_1' },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0011_seraph_combo_skill_projhit:15.0',
+            { atk_scale: 0, cryst_up: 0, duration: 0, exist_talent_1: 0, poise: 0, potential_3: 0, usp: 0 },
+            true,
             sequence(
               branch(
                 {
-                  kind: 'entityTagMatch',
-                  target: 'enemy',
-                  tagQueryType: 'hasAny',
-                  tagIds: [1570888476, 1535684437],
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'exist_talent_1' },
+                  operator: 'greaterOrEqual',
+                  right: { kind: 'constant', value: 1 },
                 },
                 sequence(
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0011_seraph_talent_1_crystup',
-                    target: 'enemy',
-                    inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: {
-                      'cryst_up': { kind: 'blackboard', key: 'cryst_up' },
-                      'duration': { kind: 'blackboard', key: 'duration' },
+                  branch(
+                    {
+                      kind: 'entityTagMatch',
+                      target: 'enemy',
+                      tagQueryType: 'hasAny',
+                      tagIds: [1570888476, 1535684437],
                     },
-                  }),
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_chr_0011_seraph_talent_1_crystup',
+                        target: 'enemy',
+                        inheritSourceSkillCastInfo: true,
+                        blackboardAssignments: {
+                          'cryst_up': { kind: 'blackboard', key: 'cryst_up' },
+                          'duration': { kind: 'blackboard', key: 'duration' },
+                        },
+                      }),
+                    ),
+                    undefined,
+                    { alwaysNext: true },
+                  ),
                 ),
                 undefined,
                 { alwaysNext: true },
               ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
       scheduled(
         24,
         sequence(
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'potential_3' },
-                  operator: 'equal',
-                  right: { kind: 'constant', value: 1 },
-                },
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'EntityBB_bounced' },
-                  operator: 'equal',
-                  right: { kind: 'constant', value: 0 },
-                },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0011_seraph_combo_skill_projhit:15.0',
+            { atk_scale: 0, cryst_up: 0, duration: 0, exist_talent_1: 0, poise: 0, potential_3: 0, usp: 0 },
+            true,
             sequence(
-              step('modifyActionValue', {
-                key: 'EntityBB_bounced',
-                operation: 'assign',
-                value: { kind: 'constant', value: 1 },
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    {
+                      kind: 'actionValueCompare',
+                      left: { kind: 'blackboard', key: 'potential_3' },
+                      operator: 'equal',
+                      right: { kind: 'constant', value: 1 },
+                    },
+                    {
+                      kind: 'actionValueCompare',
+                      left: { kind: 'blackboard', key: 'EntityBB_bounced' },
+                      operator: 'equal',
+                      right: { kind: 'constant', value: 0 },
+                    },
+                  ],
+                },
+                sequence(
+                  step('modifyActionValue', {
+                    key: 'EntityBB_bounced',
+                    operation: 'assign',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
           step('applyBuff', {
             buffId: 'buff_chr_0011_seraph_combo_skill_tutorial_marker',
@@ -147,17 +161,24 @@ export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
             features: ['canBreakWeakness'],
             stagger: 10,
           }, '10:comboSkill10:projectile27:chr_0011_seraph_combo_skill35:chr_0011_seraph_combo_skill_projhit11:actionOrder2:151:02:15'),
-          branch(
-            { kind: 'singleEnemyPresent' },
+          withActionBlackboardScope(
+            'projectile:chr_0011_seraph_combo_skill_projhit:15.0',
+            { atk_scale: 0, cryst_up: 0, duration: 0, exist_talent_1: 0, poise: 0, potential_3: 0, usp: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'ultimateEnergy',
-                amount: { kind: 'blackboard', key: 'usp' },
-                recipient: 'caster',
-              }),
+              branch(
+                { kind: 'singleEnemyPresent' },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'ultimateEnergy',
+                    amount: { kind: 'blackboard', key: 'usp' },
+                    recipient: 'caster',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -188,25 +209,32 @@ export const xaihiBasicAttack1: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([15, 17, 18, 20, 21, 23, 24, 26, 27, 29, 31, 34]),
             tags: ['normalAttack'],
           }, '12:basicAttack110:projectile23:chr_0011_seraph_attack131:chr_0011_seraph_attack1_projhit11:actionOrder1:41:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0011_seraph_attack1_projhit:4',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -233,25 +261,32 @@ export const xaihiBasicAttack2: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([16, 18, 19, 21, 22, 24, 26, 27, 29, 31, 33, 36]),
             tags: ['normalAttack'],
           }, '12:basicAttack210:projectile23:chr_0011_seraph_attack231:chr_0011_seraph_attack2_projhit11:actionOrder1:21:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0011_seraph_attack2_projhit:2',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -278,25 +313,32 @@ export const xaihiBasicAttack3: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([21, 23, 25, 27, 29, 32, 34, 36, 38, 40, 44, 47]),
             tags: ['normalAttack'],
           }, '12:basicAttack310:projectile23:chr_0011_seraph_attack331:chr_0011_seraph_attack3_projhit11:actionOrder1:41:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0011_seraph_attack3_projhit:4',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -323,26 +365,33 @@ export const xaihiBasicAttack4: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([17, 18, 20, 21, 23, 25, 26, 28, 30, 32, 34, 37]),
             tags: ['normalAttack'],
           }, '12:basicAttack410:projectile23:chr_0011_seraph_attack431:chr_0011_seraph_attack4_projhit11:actionOrder1:41:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0011_seraph_attack4_projhit:4',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: 0.5,
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    coefficient: 0.5,
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -354,26 +403,33 @@ export const xaihiBasicAttack4: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([17, 18, 20, 21, 23, 25, 26, 28, 30, 32, 34, 37]),
             tags: ['normalAttack'],
           }, '12:basicAttack410:projectile23:chr_0011_seraph_attack431:chr_0011_seraph_attack4_projhit11:actionOrder1:31:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0011_seraph_attack4_projhit:3',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: 0.5,
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    coefficient: 0.5,
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),

@@ -1,6 +1,6 @@
 /** 由 scripts/generate_next_operators 从解包数据生成；不要手工编辑。 */
 import type { OperatorDefinition, SkillDefinition } from '../../../core/game-data/operatorDefinition';
-import { branch, percentages, scheduled, sequence, step, withSkillBlackboard } from '../definitionHelpers';
+import { branch, percentages, scheduled, sequence, step, withActionBlackboardScope, withSkillBlackboard } from '../definitionHelpers';
 
 // prettier-ignore
 export const antalComboSkill: SkillDefinition = withSkillBlackboard(
@@ -571,25 +571,32 @@ export const antalBasicAttack1: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([23, 25, 28, 30, 32, 35, 37, 39, 41, 44, 48, 52]),
             tags: ['normalAttack'],
           }, '12:basicAttack110:projectile22:chr_0023_antal_attack130:chr_0023_antal_attack1_projhit11:actionOrder1:41:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0023_antal_attack1_projhit:4',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -615,25 +622,32 @@ export const antalBasicAttack2: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([28, 31, 34, 36, 39, 42, 45, 48, 50, 54, 58, 63]),
             tags: ['normalAttack'],
           }, '12:basicAttack210:projectile22:chr_0023_antal_attack230:chr_0023_antal_attack2_projhit11:actionOrder1:31:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0023_antal_attack2_projhit:3',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -665,60 +679,88 @@ export const antalBasicAttack3: SkillDefinition = withSkillBlackboard(
       scheduled(
         14,
         sequence(
-          step('dealDamage', {
-            damageType: 'electric',
-            attackScale: { kind: 'blackboard', key: 'atk_scale' },
-            tags: ['normalAttack'],
-          }, '12:basicAttack310:projectile22:chr_0023_antal_attack330:chr_0023_antal_attack3_projhit11:actionOrder1:41:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0023_antal_attack3_projhit:4',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              step('dealDamage', {
+                damageType: 'electric',
+                attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                tags: ['normalAttack'],
+              }, '12:basicAttack310:projectile22:chr_0023_antal_attack330:chr_0023_antal_attack3_projhit11:actionOrder1:41:0'),
             ),
-            undefined,
-            { alwaysNext: true },
+          ),
+          withActionBlackboardScope(
+            'projectile:chr_0023_antal_attack3_projhit:4',
+            { atb: 0, atk_scale: 0 },
+            true,
+            sequence(
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
           ),
         ),
       ),
       scheduled(
         18,
         sequence(
-          step('dealDamage', {
-            damageType: 'electric',
-            attackScale: { kind: 'blackboard', key: 'atk_scale' },
-            tags: ['normalAttack'],
-          }, '12:basicAttack310:projectile22:chr_0023_antal_attack330:chr_0023_antal_attack3_projhit11:actionOrder1:51:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0023_antal_attack3_projhit:5',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              step('dealDamage', {
+                damageType: 'electric',
+                attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                tags: ['normalAttack'],
+              }, '12:basicAttack310:projectile22:chr_0023_antal_attack330:chr_0023_antal_attack3_projhit11:actionOrder1:51:0'),
             ),
-            undefined,
-            { alwaysNext: true },
+          ),
+          withActionBlackboardScope(
+            'projectile:chr_0023_antal_attack3_projhit:5',
+            { atb: 0, atk_scale: 0 },
+            true,
+            sequence(
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
           ),
         ),
       ),
@@ -749,100 +791,114 @@ export const antalBasicAttack4: SkillDefinition = withSkillBlackboard(
       scheduled(
         27,
         sequence(
-          branch(
-            { kind: 'not', condition: { kind: 'timedMarkerPresent', target: 'caster', markerId: 'have_recovered' } },
+          withActionBlackboardScope(
+            'projectile:chr_0023_antal_attack4_powerattack_projhit:4',
+            { atb: 0, atk_scale: 0, poise: 0 },
+            true,
             sequence(
-              step('dealDamage', {
-                damageType: 'electric',
-                attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                tags: ['normalAttack', 'normalAttackLastCombo'],
-                stagger: 15,
-              }, '12:basicAttack411:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder1:2'),
               branch(
-                {
-                  kind: 'all',
-                  conditions: [
-                    { kind: 'casterControlled' },
-                    { kind: 'singleEnemyPresent' },
-                  ],
-                },
+                { kind: 'not', condition: { kind: 'timedMarkerPresent', target: 'caster', markerId: 'have_recovered' } },
                 sequence(
-                  step('changeResourceByActionValue', {
-                    resource: 'sp',
-                    amount: { kind: 'blackboard', key: 'atb' },
-                    recipient: 'team',
-                    spGainKind: 'gain',
-                    spGainSource: 'normalAttack',
-                  }),
-                  step('createTimedMarker', {
-                    target: 'caster',
-                    markerId: 'have_recovered',
-                    durationSeconds: { kind: 'constant', value: 0.5 },
-                    autoFinishByAction: false,
-                  }),
+                  step('dealDamage', {
+                    damageType: 'electric',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                    tags: ['normalAttack', 'normalAttackLastCombo'],
+                    stagger: 15,
+                  }, '12:basicAttack411:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder1:2'),
+                  branch(
+                    {
+                      kind: 'all',
+                      conditions: [
+                        { kind: 'casterControlled' },
+                        { kind: 'singleEnemyPresent' },
+                      ],
+                    },
+                    sequence(
+                      step('changeResourceByActionValue', {
+                        resource: 'sp',
+                        amount: { kind: 'blackboard', key: 'atb' },
+                        recipient: 'team',
+                        spGainKind: 'gain',
+                        spGainSource: 'normalAttack',
+                      }),
+                      step('createTimedMarker', {
+                        target: 'caster',
+                        markerId: 'have_recovered',
+                        durationSeconds: { kind: 'constant', value: 0.5 },
+                        autoFinishByAction: false,
+                      }),
+                    ),
+                    undefined,
+                    { alwaysNext: true },
+                  ),
                 ),
-                undefined,
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'electric',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                    tags: ['normalAttack'],
+                  }, '12:basicAttack411:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]11:failActions10:actionData3:[0]11:actionOrder2:10'),
+                ),
                 { alwaysNext: true },
               ),
             ),
-            sequence(
-              step('dealDamage', {
-                damageType: 'electric',
-                attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                tags: ['normalAttack'],
-              }, '12:basicAttack411:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]11:failActions10:actionData3:[0]11:actionOrder2:10'),
-            ),
-            { alwaysNext: true },
           ),
         ),
       ),
       scheduled(
         27,
         sequence(
-          branch(
-            { kind: 'not', condition: { kind: 'timedMarkerPresent', target: 'caster', markerId: 'have_recovered' } },
+          withActionBlackboardScope(
+            'projectile:chr_0023_antal_attack4_powerattack_projhit:5',
+            { atb: 0, atk_scale: 0, poise: 0 },
+            true,
             sequence(
-              step('dealDamage', {
-                damageType: 'electric',
-                attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                tags: ['normalAttack', 'normalAttackLastCombo'],
-                stagger: 15,
-              }, '12:basicAttack411:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder1:2'),
               branch(
-                {
-                  kind: 'all',
-                  conditions: [
-                    { kind: 'casterControlled' },
-                    { kind: 'singleEnemyPresent' },
-                  ],
-                },
+                { kind: 'not', condition: { kind: 'timedMarkerPresent', target: 'caster', markerId: 'have_recovered' } },
                 sequence(
-                  step('changeResourceByActionValue', {
-                    resource: 'sp',
-                    amount: { kind: 'blackboard', key: 'atb' },
-                    recipient: 'team',
-                    spGainKind: 'gain',
-                    spGainSource: 'normalAttack',
-                  }),
-                  step('createTimedMarker', {
-                    target: 'caster',
-                    markerId: 'have_recovered',
-                    durationSeconds: { kind: 'constant', value: 0.5 },
-                    autoFinishByAction: false,
-                  }),
+                  step('dealDamage', {
+                    damageType: 'electric',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                    tags: ['normalAttack', 'normalAttackLastCombo'],
+                    stagger: 15,
+                  }, '12:basicAttack411:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]14:succeedActions10:actionData3:[0]11:actionOrder1:2'),
+                  branch(
+                    {
+                      kind: 'all',
+                      conditions: [
+                        { kind: 'casterControlled' },
+                        { kind: 'singleEnemyPresent' },
+                      ],
+                    },
+                    sequence(
+                      step('changeResourceByActionValue', {
+                        resource: 'sp',
+                        amount: { kind: 'blackboard', key: 'atb' },
+                        recipient: 'team',
+                        spGainKind: 'gain',
+                        spGainSource: 'normalAttack',
+                      }),
+                      step('createTimedMarker', {
+                        target: 'caster',
+                        markerId: 'have_recovered',
+                        durationSeconds: { kind: 'constant', value: 0.5 },
+                        autoFinishByAction: false,
+                      }),
+                    ),
+                    undefined,
+                    { alwaysNext: true },
+                  ),
                 ),
-                undefined,
+                sequence(
+                  step('dealDamage', {
+                    damageType: 'electric',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                    tags: ['normalAttack'],
+                  }, '12:basicAttack411:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]11:failActions10:actionData3:[0]11:actionOrder2:10'),
+                ),
                 { alwaysNext: true },
               ),
             ),
-            sequence(
-              step('dealDamage', {
-                damageType: 'electric',
-                attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                tags: ['normalAttack'],
-              }, '12:basicAttack411:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[0]11:failActions10:actionData3:[0]11:actionOrder2:10'),
-            ),
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -895,25 +951,32 @@ export const antalFinisher: SkillDefinition = withSkillBlackboard(
             calculation: 'breakingAttack',
             calculationMultiplier: 0.06,
           }, '8:finisher10:projectile27:chr_0023_antal_power_attack37:chr_0023_antal_power_attack02_projhit11:actionOrder2:181:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0023_antal_power_attack02_projhit:18',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -927,25 +990,32 @@ export const antalFinisher: SkillDefinition = withSkillBlackboard(
             calculation: 'breakingAttack',
             calculationMultiplier: 0.06,
           }, '8:finisher10:projectile27:chr_0023_antal_power_attack37:chr_0023_antal_power_attack02_projhit11:actionOrder2:191:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0023_antal_power_attack02_projhit:19',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -959,25 +1029,32 @@ export const antalFinisher: SkillDefinition = withSkillBlackboard(
             calculation: 'breakingAttack',
             calculationMultiplier: 0.06,
           }, '8:finisher10:projectile27:chr_0023_antal_power_attack37:chr_0023_antal_power_attack02_projhit11:actionOrder2:201:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0023_antal_power_attack02_projhit:20',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -991,25 +1068,32 @@ export const antalFinisher: SkillDefinition = withSkillBlackboard(
             calculation: 'breakingAttack',
             calculationMultiplier: 0.06,
           }, '8:finisher10:projectile27:chr_0023_antal_power_attack37:chr_0023_antal_power_attack02_projhit11:actionOrder2:211:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0023_antal_power_attack02_projhit:21',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -1023,25 +1107,32 @@ export const antalFinisher: SkillDefinition = withSkillBlackboard(
             calculation: 'breakingAttack',
             calculationMultiplier: 0.06,
           }, '8:finisher10:projectile27:chr_0023_antal_power_attack37:chr_0023_antal_power_attack02_projhit11:actionOrder2:221:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0023_antal_power_attack02_projhit:22',
+            { atb: 0, atk_scale: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),

@@ -13629,6 +13629,13 @@ class GenerateNextOperatorsTests(unittest.TestCase):
 
         self.assertEqual(hits[0].actionOrder, (7,))
         self.assertEqual(hits[0].nestedProjectileTriggeredSkills[0].actionOrder, (7, 2))
+        self.assertEqual(hits[0].actionBlackboardScope.scopeKey, "projectile:child_hit:7")
+        self.assertTrue(hits[0].actionBlackboardScope.inheritParent)
+        self.assertEqual(hits[0].actionBlackboardScope.initialValues, ())
+        self.assertEqual(
+            hits[0].nestedProjectileTriggeredSkills[0].actionBlackboardScope.scopeKey,
+            "projectile:nested_hit:7.2",
+        )
 
     def test_operator_slug_becomes_a_valid_camel_case_identifier(self) -> None:
         self.assertEqual(typescript_identifier("zhuang-fangyi"), "zhuangFangyi")

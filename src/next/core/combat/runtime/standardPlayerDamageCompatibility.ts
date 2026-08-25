@@ -375,6 +375,7 @@ function inspectSequence(
         }
         return;
       case 'once':
+      case 'withActionBlackboardScope':
       case 'repeatEachTick':
         inspectSequence(step.body, `${stepPath}.body`, collect, flags, source);
         return;

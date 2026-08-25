@@ -1,6 +1,6 @@
 /** 由 scripts/generate_next_operators 从解包数据生成；不要手工编辑。 */
 import type { OperatorDefinition, SkillDefinition } from '../../../core/game-data/operatorDefinition';
-import { branch, forEachContextTarget, once, percentage, percentages, scheduled, sequence, step, withSkillBlackboard } from '../definitionHelpers';
+import { branch, forEachContextTarget, once, percentage, percentages, scheduled, sequence, step, withActionBlackboardScope, withSkillBlackboard } from '../definitionHelpers';
 
 // prettier-ignore
 export const tangtangBasicAttack1: SkillDefinition = withSkillBlackboard(
@@ -51,26 +51,33 @@ export const tangtangBasicAttack2: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([15, 17, 18, 20, 21, 23, 24, 26, 27, 29, 31, 34]),
             tags: ['normalAttack'],
           }, '12:basicAttack210:projectile25:chr_0027_tangtang_attack236:chr_0027_tangtang_attack2_02_projhit11:actionOrder1:61:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0027_tangtang_attack2_02_projhit:6',
+            { atb: 0, atk_scale_2: 0.09 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: 0.5,
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    coefficient: 0.5,
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -260,43 +267,50 @@ export const tangtangBasicAttack5: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([50, 55, 60, 65, 70, 75, 80, 85, 90, 96, 104, 113]),
             tags: ['normalAttack', 'normalAttackLastCombo'],
           }, '12:basicAttack510:projectile25:chr_0027_tangtang_attack533:chr_0027_tangtang_attack5_projhit11:actionOrder1:51:0'),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                { kind: 'singleEnemyPresent' },
-              ],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0027_tangtang_attack5_projhit:5',
+            { atb: 0, atk_scale: 0, cnt: 0, poise: 0 },
+            true,
             sequence(
-              step('dealStagger', {
-                value: 18,
-              }),
               branch(
                 {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'EntityBB_atk05_cnt' },
-                  operator: 'less',
-                  right: { kind: 'constant', value: 1 },
+                  kind: 'all',
+                  conditions: [
+                    { kind: 'casterControlled' },
+                    { kind: 'singleEnemyPresent' },
+                  ],
                 },
                 sequence(
-                  step('changeResourceByActionValue', {
-                    resource: 'sp',
-                    amount: { kind: 'blackboard', key: 'atb' },
-                    recipient: 'team',
-                    spGainKind: 'gain',
-                    spGainSource: 'normalAttack',
+                  step('dealStagger', {
+                    value: 18,
                   }),
-                  step('modifyActionValue', {
-                    key: 'EntityBB_atk05_cnt',
-                    operation: 'add',
-                    value: { kind: 'constant', value: 1 },
-                  }),
+                  branch(
+                    {
+                      kind: 'actionValueCompare',
+                      left: { kind: 'blackboard', key: 'EntityBB_atk05_cnt' },
+                      operator: 'less',
+                      right: { kind: 'constant', value: 1 },
+                    },
+                    sequence(
+                      step('changeResourceByActionValue', {
+                        resource: 'sp',
+                        amount: { kind: 'blackboard', key: 'atb' },
+                        recipient: 'team',
+                        spGainKind: 'gain',
+                        spGainSource: 'normalAttack',
+                      }),
+                      step('modifyActionValue', {
+                        key: 'EntityBB_atk05_cnt',
+                        operation: 'add',
+                        value: { kind: 'constant', value: 1 },
+                      }),
+                    ),
+                  ),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),

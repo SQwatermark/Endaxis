@@ -19,7 +19,7 @@ import type {
 
 type ImmediateStepKind = Exclude<
   CombatStepKind,
-  'conditional' | 'once' | 'repeatEachTick' | 'forEachContextTarget'
+  'conditional' | 'once' | 'repeatEachTick' | 'forEachContextTarget' | 'withActionBlackboardScope'
 >;
 
 /** 创建一个立即执行的操作，同时保留其可辨识联合类型。 */
@@ -108,6 +108,20 @@ export function once(
   body: ActionSequenceDefinition,
 ): Extract<CombatStepDefinition, { kind: 'once' }> {
   return { kind: 'once', parameters: { scopeKey }, body };
+}
+
+/** 保留投射物等子 SkillData 的独立动作黑板生命周期。 */
+export function withActionBlackboardScope(
+  scopeKey: string,
+  initialValues: Readonly<Record<string, LevelValues>>,
+  inheritParent: boolean,
+  body: ActionSequenceDefinition,
+): Extract<CombatStepDefinition, { kind: 'withActionBlackboardScope' }> {
+  return {
+    kind: 'withActionBlackboardScope',
+    parameters: { scopeKey, initialValues, inheritParent },
+    body,
+  };
 }
 
 /** 在调度区间内按宿主技能的每次 Tick 重复执行同一个同步序列。 */

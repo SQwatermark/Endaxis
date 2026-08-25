@@ -224,6 +224,11 @@ export interface ResolvedCombatStepParameters {
   setContextFlag: CombatStepParameters['setContextFlag'];
   openComboWindow: CombatStepParameters['openComboWindow'];
   changeSkillSlot: CombatStepParameters['changeSkillSlot'];
+  withActionBlackboardScope: {
+    scopeKey: string;
+    initialValues: Readonly<Record<string, number>>;
+    inheritParent: boolean;
+  };
   listenForCombatEvents: {
     responses: readonly {
       readonly key: string;
@@ -249,11 +254,13 @@ type ResolvedCombatStepForKind<K extends CombatStepKind> = {
     }
   : K extends 'once'
     ? { readonly body: ResolvedActionSequence }
-    : K extends 'repeatEachTick'
+    : K extends 'withActionBlackboardScope'
       ? { readonly body: ResolvedActionSequence }
-      : K extends 'forEachContextTarget'
+      : K extends 'repeatEachTick'
         ? { readonly body: ResolvedActionSequence }
-        : {});
+        : K extends 'forEachContextTarget'
+          ? { readonly body: ResolvedActionSequence }
+          : {});
 
 /** 运行时可直接执行、按 kind 区分类型的单个步骤。 */
 export type ResolvedCombatStep = {
@@ -267,6 +274,7 @@ export type ResolvedCombatOperationStep = Exclude<
     kind:
       | 'conditional'
       | 'once'
+      | 'withActionBlackboardScope'
       | 'repeatEachTick'
       | 'forEachContextTarget'
       | 'jumpTimeline'

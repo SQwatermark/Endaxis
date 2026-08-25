@@ -1,6 +1,6 @@
 /** 由 scripts/generate_next_operators 从解包数据生成；不要手工编辑。 */
 import type { OperatorDefinition, SkillDefinition } from '../../../core/game-data/operatorDefinition';
-import { branch, once, percentages, repeatEachTick, scheduled, sequence, step, withSkillBlackboard } from '../definitionHelpers';
+import { branch, once, percentages, repeatEachTick, scheduled, sequence, step, withActionBlackboardScope, withSkillBlackboard } from '../definitionHelpers';
 
 // prettier-ignore
 export const liinoComboSkill: SkillDefinition = withSkillBlackboard(
@@ -1795,16 +1795,30 @@ export const liinoUltimate: SkillDefinition = withSkillBlackboard(
       scheduled(
         508,
         sequence(
-          step('dealDamage', {
-            damageType: 'electric',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_4' },
-            tags: ['ultimateSkill'],
-          }, '8:ultimate10:projectile29:chr_0035_liino_ultimate_skill50:chr_0035_liino_ultimate_skill_soundwave_02_projhit11:actionOrder2:281:1'),
-          step('applyBuff', {
-            buffId: 'buff_physical_no_guard',
-            target: 'enemy',
-            inheritSourceSkillCastInfo: true,
-          }),
+          withActionBlackboardScope(
+            'projectile:chr_0035_liino_ultimate_skill_soundwave_02_projhit:28',
+            { atk_scale_4: 0.1, poise: 0 },
+            true,
+            sequence(
+              step('dealDamage', {
+                damageType: 'electric',
+                attackScale: { kind: 'blackboard', key: 'atk_scale_4' },
+                tags: ['ultimateSkill'],
+              }, '8:ultimate10:projectile29:chr_0035_liino_ultimate_skill50:chr_0035_liino_ultimate_skill_soundwave_02_projhit11:actionOrder2:281:1'),
+            ),
+          ),
+          withActionBlackboardScope(
+            'projectile:chr_0035_liino_ultimate_skill_soundwave_02_projhit:28',
+            { atk_scale_4: 0.1, poise: 0 },
+            true,
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_physical_no_guard',
+                target: 'enemy',
+                inheritSourceSkillCastInfo: true,
+              }),
+            ),
+          ),
         ),
       ),
       scheduled(

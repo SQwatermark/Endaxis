@@ -1,6 +1,6 @@
 /** 由 scripts/generate_next_operators 从解包数据生成；不要手工编辑。 */
 import type { OperatorDefinition, SkillDefinition } from '../../../core/game-data/operatorDefinition';
-import { branch, percentages, scheduled, sequence, step, withSkillBlackboard } from '../definitionHelpers';
+import { branch, percentages, scheduled, sequence, step, withActionBlackboardScope, withSkillBlackboard } from '../definitionHelpers';
 
 // prettier-ignore
 export const wulfgardComboSkill: SkillDefinition = withSkillBlackboard(
@@ -69,20 +69,27 @@ export const wulfgardBasicAttack1: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([15, 17, 18, 20, 21, 23, 24, 26, 27, 29, 31, 34]),
             tags: ['normalAttack'],
           }, '12:basicAttack110:projectile23:chr_0006_wolfgd_attack133:chr_0006_wolfgd_attack1_projhit0111:actionOrder1:31:0'),
-          branch(
-            { kind: 'casterControlled' },
+          withActionBlackboardScope(
+            'projectile:chr_0006_wolfgd_attack1_projhit01:3',
+            { atb: 0, atk_scale: 0, duration: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: 0.5,
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                { kind: 'casterControlled' },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    coefficient: 0.5,
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -94,20 +101,27 @@ export const wulfgardBasicAttack1: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([15, 17, 18, 20, 21, 23, 24, 26, 27, 29, 31, 34]),
             tags: ['normalAttack'],
           }, '12:basicAttack110:projectile23:chr_0006_wolfgd_attack131:chr_0006_wolfgd_attack1_projhit11:actionOrder1:81:0'),
-          branch(
-            { kind: 'casterControlled' },
+          withActionBlackboardScope(
+            'projectile:chr_0006_wolfgd_attack1_projhit:8',
+            { atb: 0, atk_scale: 0, duration: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: 0.5,
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                { kind: 'casterControlled' },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    coefficient: 0.5,
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -134,20 +148,27 @@ export const wulfgardBasicAttack2: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([18, 19, 21, 23, 25, 26, 28, 30, 32, 34, 36, 39]),
             tags: ['normalAttack'],
           }, '12:basicAttack210:projectile23:chr_0006_wolfgd_attack231:chr_0006_wolfgd_attack2_projhit11:actionOrder1:21:0'),
-          branch(
-            { kind: 'casterControlled' },
+          withActionBlackboardScope(
+            'projectile:chr_0006_wolfgd_attack2_projhit:2',
+            { atb: 0, atk_scale: 0, duration: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: 0.5,
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                { kind: 'casterControlled' },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    coefficient: 0.5,
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -159,20 +180,27 @@ export const wulfgardBasicAttack2: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([18, 19, 21, 23, 25, 26, 28, 30, 32, 34, 36, 39]),
             tags: ['normalAttack'],
           }, '12:basicAttack210:projectile23:chr_0006_wolfgd_attack231:chr_0006_wolfgd_attack2_projhit11:actionOrder1:71:0'),
-          branch(
-            { kind: 'casterControlled' },
+          withActionBlackboardScope(
+            'projectile:chr_0006_wolfgd_attack2_projhit:7',
+            { atb: 0, atk_scale: 0, duration: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: 0.5,
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                { kind: 'casterControlled' },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    coefficient: 0.5,
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -199,20 +227,27 @@ export const wulfgardBasicAttack3: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([19, 20, 22, 24, 26, 28, 30, 31, 33, 36, 38, 42]),
             tags: ['normalAttack'],
           }, '12:basicAttack310:projectile23:chr_0006_wolfgd_attack331:chr_0006_wolfgd_attack3_projhit11:actionOrder1:21:0'),
-          branch(
-            { kind: 'casterControlled' },
+          withActionBlackboardScope(
+            'projectile:chr_0006_wolfgd_attack3_projhit:2',
+            { atb: 0, atk_scale: 0, duration: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: 0.3333333,
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                { kind: 'casterControlled' },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    coefficient: 0.3333333,
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -224,20 +259,27 @@ export const wulfgardBasicAttack3: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([19, 20, 22, 24, 26, 28, 30, 31, 33, 36, 38, 42]),
             tags: ['normalAttack'],
           }, '12:basicAttack310:projectile23:chr_0006_wolfgd_attack331:chr_0006_wolfgd_attack3_projhit11:actionOrder1:71:0'),
-          branch(
-            { kind: 'casterControlled' },
+          withActionBlackboardScope(
+            'projectile:chr_0006_wolfgd_attack3_projhit:7',
+            { atb: 0, atk_scale: 0, duration: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: 0.3333333,
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                { kind: 'casterControlled' },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    coefficient: 0.3333333,
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -249,20 +291,27 @@ export const wulfgardBasicAttack3: SkillDefinition = withSkillBlackboard(
             attackScale: percentages([19, 20, 22, 24, 26, 28, 30, 31, 33, 36, 38, 42]),
             tags: ['normalAttack'],
           }, '12:basicAttack310:projectile23:chr_0006_wolfgd_attack331:chr_0006_wolfgd_attack3_projhit11:actionOrder2:121:0'),
-          branch(
-            { kind: 'casterControlled' },
+          withActionBlackboardScope(
+            'projectile:chr_0006_wolfgd_attack3_projhit:12',
+            { atb: 0, atk_scale: 0, duration: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: 0.3333333,
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                { kind: 'casterControlled' },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    coefficient: 0.3333333,
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -290,19 +339,26 @@ export const wulfgardBasicAttack4: SkillDefinition = withSkillBlackboard(
             tags: ['normalAttack', 'normalAttackLastCombo'],
             stagger: 18,
           }, '12:basicAttack410:projectile23:chr_0006_wolfgd_attack431:chr_0006_wolfgd_attack4_projhit11:actionOrder1:51:1'),
-          branch(
-            { kind: 'casterControlled' },
+          withActionBlackboardScope(
+            'projectile:chr_0006_wolfgd_attack4_projhit:5',
+            { atb: 0, atk_scale: 0, duration: 0, poise: 0 },
+            true,
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+              branch(
+                { kind: 'casterControlled' },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
       ),
@@ -574,69 +630,76 @@ export const wulfgardBattleSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         141,
         sequence(
-          branch(
-            {
-              kind: 'entityTagMatch',
-              target: 'enemy',
-              tagQueryType: 'hasAny',
-              tagIds: [-1110095722, 1466867135],
-            },
+          withActionBlackboardScope(
+            'projectile:chr_0006_wolfgd_normal_skill_plus_projhit:19',
+            { atk_scale_plus: 0, atk_scale_plus_fail: 0, duration: 0, poise_extra_bullet: 0, poise_extra_bullet_fail: 0, potential_2: 0, potential_skillpower: 0, returnskillpower: 0, talent2: 0 },
+            true,
             sequence(
               branch(
                 {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'talent2' },
-                  operator: 'greater',
-                  right: { kind: 'constant', value: 0 },
+                  kind: 'entityTagMatch',
+                  target: 'enemy',
+                  tagQueryType: 'hasAny',
+                  tagIds: [-1110095722, 1466867135],
                 },
                 sequence(
                   branch(
                     {
                       kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'potential_2' },
+                      left: { kind: 'blackboard', key: 'talent2' },
                       operator: 'greater',
                       right: { kind: 'constant', value: 0 },
                     },
                     sequence(
-                      step('modifyActionValue', {
-                        key: 'returnskillpower',
-                        operation: 'add',
-                        value: { kind: 'blackboard', key: 'potential_skillpower' },
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'potential_2' },
+                          operator: 'greater',
+                          right: { kind: 'constant', value: 0 },
+                        },
+                        sequence(
+                          step('modifyActionValue', {
+                            key: 'returnskillpower',
+                            operation: 'add',
+                            value: { kind: 'blackboard', key: 'potential_skillpower' },
+                          }),
+                        ),
+                        undefined,
+                        { alwaysNext: true },
+                      ),
+                      step('changeResourceByActionValue', {
+                        resource: 'sp',
+                        amount: { kind: 'blackboard', key: 'returnskillpower' },
+                        recipient: 'team',
+                        spGainKind: 'refund',
+                        spGainSource: 'skill',
                       }),
                     ),
                     undefined,
                     { alwaysNext: true },
                   ),
-                  step('changeResourceByActionValue', {
-                    resource: 'sp',
-                    amount: { kind: 'blackboard', key: 'returnskillpower' },
-                    recipient: 'team',
-                    spGainKind: 'refund',
-                    spGainSource: 'skill',
-                  }),
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: percentages([378, 415, 453, 491, 529, 566, 604, 642, 680, 727, 784, 850]),
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: 5,
+                  }, '11:battleSkill11:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[1]11:actionOrder2:10'),
                 ),
-                undefined,
+                sequence(
+                  step('applyElementalInfliction', { element: 'heat', isExtra: false }),
+                  step('dealDamage', {
+                    damageType: 'heat',
+                    attackScale: percentages([36, 40, 43, 47, 50, 54, 58, 61, 65, 69, 75, 81]),
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: 0,
+                  }, '11:battleSkill11:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[2]11:failActions10:actionData3:[1]11:actionOrder2:12'),
+                ),
                 { alwaysNext: true },
               ),
-              step('dealDamage', {
-                damageType: 'heat',
-                attackScale: percentages([378, 415, 453, 491, 529, 566, 604, 642, 680, 727, 784, 850]),
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 5,
-              }, '11:battleSkill11:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[2]14:succeedActions10:actionData3:[1]11:actionOrder2:10'),
             ),
-            sequence(
-              step('applyElementalInfliction', { element: 'heat', isExtra: false }),
-              step('dealDamage', {
-                damageType: 'heat',
-                attackScale: percentages([36, 40, 43, 47, 50, 54, 58, 61, 65, 69, 75, 81]),
-                tags: ['normalSkill'],
-                features: ['canBreakWeakness'],
-                stagger: 0,
-              }, '11:battleSkill11:conditional18:timelineActions[0]19:_sequenceActionData10:actionData3:[2]11:failActions10:actionData3:[1]11:actionOrder2:12'),
-            ),
-            { alwaysNext: true },
           ),
         ),
       ),

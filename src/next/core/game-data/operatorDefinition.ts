@@ -981,6 +981,13 @@ export interface CombatStepParameters {
   };
   /** 同一个技能释放实例内共享的只执行一次作用域。 */
   once: { scopeKey: string };
+  /** 在一次原生子 SkillData 调用独占的 direct blackboard 中执行 body。 */
+  withActionBlackboardScope: {
+    scopeKey: string;
+    initialValues: Readonly<Record<string, LevelValues>>;
+    /** 原生 assignBlackboard：调用时把父 direct blackboard 覆盖到子初值之上。 */
+    inheritParent: boolean;
+  };
   /** 在承载调度区间开始时以及之后每次宿主 Tick 中同步执行一次 body。 */
   repeatEachTick: Record<string, never>;
   setContextFlag: {
@@ -1058,6 +1065,7 @@ export const COMBAT_STEP_KINDS = [
   'finishTimeline',
   'conditional',
   'once',
+  'withActionBlackboardScope',
   'repeatEachTick',
   'setContextFlag',
   'openComboWindow',
@@ -1076,11 +1084,13 @@ type CombatStepForKind<K extends CombatStepKind> = {
   ? { whenTrue: ActionSequenceDefinition; whenFalse?: ActionSequenceDefinition }
   : K extends 'once'
     ? { body: ActionSequenceDefinition }
-    : K extends 'repeatEachTick'
+    : K extends 'withActionBlackboardScope'
       ? { body: ActionSequenceDefinition }
-      : K extends 'forEachContextTarget'
+      : K extends 'repeatEachTick'
         ? { body: ActionSequenceDefinition }
-        : {});
+        : K extends 'forEachContextTarget'
+          ? { body: ActionSequenceDefinition }
+          : {});
 
 /** 干员定义中可执行、按 `kind` 精确区分的一项步骤。 */
 export type CombatStepDefinition = {

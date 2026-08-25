@@ -11,6 +11,7 @@ from action_payload_parser import parse_damage_units, parse_projectile_launch_pa
 from conditional_parser import parse_conditional_actions
 from keyword_action_parser import parse_timed_keyword_actions
 from source_models import (
+    ActionBlackboardScopeSource,
     ConditionalActionSource,
     ConditionalBranchActionSource,
     ConditionalProjectileProjection,
@@ -240,8 +241,9 @@ def resolve_projectile_payload_triggers(
                 f"{source_name}: missing projectile {trigger.event} skill {trigger_path}"
             )
         trigger_root = load_projected_skill_data(trigger_path, trigger_source_name)
+        declared_blackboard = parse_declared_blackboard(trigger_root, trigger_source_name)
         trigger_blackboard = numeric_declared_blackboard(
-            parse_declared_blackboard(trigger_root, trigger_source_name),
+            declared_blackboard,
             include_dynamic_defaults=True,
         )
         if payload.assignBlackboard:
@@ -385,6 +387,18 @@ def resolve_projectile_payload_triggers(
                 ),
                 localTargetGroupWrites=parse_target_group_writes(
                     trigger_root, trigger_source_name
+                ),
+                actionBlackboardScope=ActionBlackboardScopeSource(
+                    scopeKey=(
+                        f"projectile:{trigger.skillId}:"
+                        + ".".join(str(index) for index in action_order)
+                    ),
+                    initialValues=tuple(
+                        (item.key, item.value)
+                        for item in declared_blackboard
+                        if isinstance(item.value, float)
+                    ),
+                    inheritParent=payload.assignBlackboard,
                 ),
             )
         )
@@ -592,7 +606,7 @@ def projectile_projections_are_equivalent(
             return {
                 key: without_action_order(item)
                 for key, item in value.items()
-                if key != "actionOrder"
+                if key not in {"actionOrder", "actionBlackboardScope"}
             }
         if isinstance(value, list):
             return [without_action_order(item) for item in value]

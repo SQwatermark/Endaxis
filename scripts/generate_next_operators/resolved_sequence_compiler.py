@@ -222,6 +222,25 @@ def compile_knock_down_output(
     )
 
 
+def compiled_step_uses_action_blackboard(step_lines: list[str]) -> bool:
+    """只为运行时仍会读写 direct blackboard 的子步骤保留作用域包装。"""
+    source = "\n".join(step_lines)
+    return any(
+        token in source
+        for token in (
+            "kind: 'blackboard'",
+            "modifyActionValue",
+            "calculateActionValue",
+            "storeCurrentTimelineFrame",
+            "storeEventSpGainAmount",
+            "storeSourceAttributeValue",
+            "readBuffBlackboard",
+            "readEventBuffBlackboard",
+            "readBuffStackCount",
+        )
+    )
+
+
 def conditional_action_contains_aura(
     action: ConditionalActionSource,
     aura_actions: Iterable[AuraActionSource],
@@ -1466,6 +1485,18 @@ def compile_resolved_sequence(
             ).splitlines()
         else:
             raise AssertionError(f"{skill.key}: unknown schedule item type {item.itemType!r}")
+        scope = item.actionBlackboardScope
+        if scope is not None and compiled_step_uses_action_blackboard(step_lines):
+            step_lines = [
+                "withActionBlackboardScope(",
+                f"  {ts_inline_literal(scope.scopeKey)},",
+                f"  {ts_inline_literal(dict(scope.initialValues))},",
+                f"  {ts_inline_literal(scope.inheritParent)},",
+                "  sequence(",
+                *(f"    {line}" for line in step_lines),
+                "  ),",
+                ")",
+            ]
         compiled_schedule.append((item, step_lines))
 
     grouped_schedule: dict[

@@ -419,6 +419,21 @@ function resolveStep(
         parameters: step.parameters,
         body: resolveActionSequence(step.body, skillLevel, `${path}.body`, abilityEntities),
       };
+    case 'withActionBlackboardScope':
+      return {
+        ...keyed,
+        kind: step.kind,
+        parameters: {
+          ...step.parameters,
+          initialValues: Object.fromEntries(
+            Object.entries(step.parameters.initialValues).map(([key, value]) => [
+              key,
+              resolveLevelValue(value, skillLevel, `${path}.parameters.initialValues.${key}`),
+            ]),
+          ),
+        },
+        body: resolveActionSequence(step.body, skillLevel, `${path}.body`, abilityEntities),
+      };
     case 'readBuffBlackboard':
       return {
         ...keyed,
