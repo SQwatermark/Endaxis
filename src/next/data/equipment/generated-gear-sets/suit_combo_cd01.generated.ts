@@ -48,7 +48,7 @@ const definition = {
                       kind: 'applyBuff',
                       parameters: {
                         buffId: 'buff_equipsuit_combo_cd01_spellup',
-                        target: 'caster',
+                        target: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                         blackboardAssignments: {
                           spell_up: {

@@ -115,12 +115,15 @@ function createEnvironment(
   });
 }
 
-it('publishes takeCriticalDamage only for a critical health-damage result', () => {
+it('publishes take/output critical events only for a critical health-damage result', () => {
   const reached: string[] = [];
   const nonCritical = createEnvironment(testEnemy, 1);
   nonCritical
     .eventsFor('enemy')
     .registerAction('takeCriticalDamage', 0, () => reached.push('non-critical'));
+  nonCritical
+    .eventsFor('operator')
+    .registerAction('outputCriticalDamage', 0, () => reached.push('non-critical-output'));
   expect(
     nonCritical.runtimeOptions.createOperationExecutor(createContext()).execute(damageStep),
   ).toBe(true);
@@ -131,11 +134,16 @@ it('publishes takeCriticalDamage only for a critical health-damage result', () =
     expect(result.isCritical).toBe(true);
     reached.push('critical');
   });
+  critical.eventsFor('operator').registerAction('outputCriticalDamage', 0, ({ payload }) => {
+    const result = (payload as { result: { isCritical: boolean } }).result;
+    expect(result.isCritical).toBe(true);
+    reached.push('critical-output');
+  });
   expect(critical.runtimeOptions.createOperationExecutor(createContext()).execute(damageStep)).toBe(
     true,
   );
 
-  expect(reached).toEqual(['critical']);
+  expect(reached).toEqual(['critical', 'critical-output']);
 });
 
 function createInflictionEnvironment(): StandardPlayerDamageEnvironment {

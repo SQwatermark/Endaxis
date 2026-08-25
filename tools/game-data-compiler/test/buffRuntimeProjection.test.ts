@@ -41,7 +41,7 @@ describe('公共 Buff 运行时投影', () => {
                       kind: 'applyBuff',
                       parameters: {
                         buffId: 'buff_child',
-                        target: 'caster',
+                        target: 'buffOwner',
                         blackboardAssignments: {
                           atk_up: { kind: 'blackboard', key: 'atk_up' },
                         },
@@ -710,7 +710,7 @@ describe('公共 Buff 运行时投影', () => {
     });
 
     expect(compiled.lifecycleSequences).toMatchObject({
-      start: { steps: [{ kind: 'applyBuff', parameters: { target: 'caster' } }] },
+      start: { steps: [{ kind: 'applyBuff', parameters: { target: 'buffOwner' } }] },
     });
     expect(compiled.abilityEventResponses).toMatchObject([
       {

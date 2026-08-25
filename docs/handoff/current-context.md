@@ -7,6 +7,31 @@
 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
+### 2026-08-25：暴击输出事件与暴击套完整闭环
+
+- `combat-spec` 先依据 1.4.4 `GameAssembly.dll` 闭合伤害完成事件：同一
+  `OutputDamageContext.isCritical` 为真时，原生顺序是 `OnTakeDamage`、`OnTakeCriticalDamage`、
+  `OnOutputDamage`、`OnOutputCriticalDamage`。复刻库把公式结果保存到 `DamagePackData.IsCritical`，
+  增加事件顺序回归和反编译地址文档，提交为 `a4fd76a`；非暴击不会发布两项 Critical 事件。
+- Next 的实体事件中心新增 `outputCriticalDamage`，由实际 `outputDamage` 载荷中的公式暴击结果派生，
+  不重新随机，也不由伤害数字猜测。Buff 正式投影同步支持原生 `OnOutputCriticalDamage`、
+  `OnBuffEnhanceChanged` 和 `OnBuffFinish`。
+- `CheckBuffStackNum` 的单 ID 查询按 combat-spec 已闭环语义投影为累计增强层数，并能在 Buff 生命周期
+  中精确查询 `buffOwner`。`FinishBuffAction` 当前只开放本批实际出现且已证明的 Owner/固定 ID/不限
+  来源形状；攻击 Buff 结束时据此清理同一持有者的暴击率 Buff。
+- 公共 Buff 动作中的原生 `Owner` 已纠正为 `buffOwner`，不再误投影为技能 `caster`。纯表现子 Buff
+  在其 ID 已被严格识别为 visual-only 后允许省略数值执行，即使原生使用 `Source/ActionSource`；未知
+  身份和混合数值动作仍失败关闭。可见的攻击、暴击率 Buff 本身没有被省略，图标继续进入正式定义。
+- `suit_criti01` 已进入正式白名单，套装覆盖由 15/23 提升到 **16/23**：静态暴击率 +5%；每次真实
+  输出暴击施加/刷新 5 秒攻击 Buff，每层基础攻击乘区 +5%，最多 5 层；满层施加暴击率 +5% Buff，
+  攻击 Buff 到期时移除后者。两份可见 Buff 分别保留 `icon_battle_buff_atk_up` 和
+  `icon_battle_crit_rate_up`。
+- 当前门禁：游戏数据编译器 58 文件 247/247、Next 208 文件 1522/1522、
+  `type-check:game-data`、`type-check:next` 与 `git diff --check` 通过。剩余 **7/23** 套继续按对敌伤害
+  优先级推进。combat-spec 的 `PlayerDamageActionTests` 定向 11/11 通过；全量 1192 项中 1175 项通过，
+  17 项失败均为本机缺少 `skill-data-cdn`、庄方宜实体/Buff 等既有测试工件，不能宣称全量通过。
+  `tmp/` 仍不提交。
+
 ### 2026-08-25：统一编译器边界修复与 Operator 恢复 checkpoint
 
 - AbilityEntity 模板已进入公共严格目录：本机同版本闭包现有 52 份可解析模板，保存原生身份、

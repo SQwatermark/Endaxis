@@ -1203,6 +1203,7 @@ function validateCombatStep(
                     response.event !== 'takeDamage' &&
                     response.event !== 'takeCriticalDamage' &&
                     response.event !== 'outputDamage' &&
+                    response.event !== 'outputCriticalDamage' &&
                     response.event !== 'outputKnockDown' &&
                     response.event !== 'outputHeal' &&
                     response.event !== 'receiveHeal' &&

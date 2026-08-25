@@ -49,7 +49,7 @@ const definition = {
                       kind: 'applyBuff',
                       parameters: {
                         buffId: 'buff_equipsuit_cpinflict_01_elecdamageadd',
-                        target: 'caster',
+                        target: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                         blackboardAssignments: {
                           duration: {
@@ -81,7 +81,7 @@ const definition = {
                       kind: 'applyBuff',
                       parameters: {
                         buffId: 'buff_equipsuit_cpinflict_01_crystdamageadd',
-                        target: 'caster',
+                        target: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                         blackboardAssignments: {
                           duration: {

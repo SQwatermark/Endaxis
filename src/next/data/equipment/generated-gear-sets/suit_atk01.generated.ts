@@ -56,7 +56,7 @@ const definition = {
                       kind: 'applyBuff',
                       parameters: {
                         buffId: 'buff_equipsuit_atk_01_normalskill',
-                        target: 'caster',
+                        target: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                         blackboardAssignments: {
                           atk_up: {
@@ -87,7 +87,7 @@ const definition = {
                       kind: 'applyBuff',
                       parameters: {
                         buffId: 'buff_equipsuit_atk_01_comboskill',
-                        target: 'caster',
+                        target: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                         blackboardAssignments: {
                           atk_up: {
@@ -118,7 +118,7 @@ const definition = {
                       kind: 'applyBuff',
                       parameters: {
                         buffId: 'buff_equipsuit_atk_01_ultimateskill',
-                        target: 'caster',
+                        target: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                         blackboardAssignments: {
                           atk_up: {

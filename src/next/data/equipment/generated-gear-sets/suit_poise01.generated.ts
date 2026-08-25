@@ -48,7 +48,7 @@ const definition = {
                       kind: 'applyBuff',
                       parameters: {
                         buffId: 'buff_equipsuit_poisedmg_01_damagebuff',
-                        target: 'caster',
+                        target: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                         blackboardAssignments: {
                           phy_dmg_up: {
@@ -82,7 +82,7 @@ const definition = {
                             kind: 'applyBuff',
                             parameters: {
                               buffId: 'buff_equipsuit_poisedmg_01_attackbuff',
-                              target: 'caster',
+                              target: 'buffOwner',
                               inheritSourceSkillCastInfo: true,
                               blackboardAssignments: {
                                 phy_dmg_up2: {

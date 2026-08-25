@@ -166,7 +166,7 @@ const definition = {
                             kind: 'applyBuff',
                             parameters: {
                               buffId: 'buff_equipsuit_crush_fracture_physicdamage',
-                              target: 'caster',
+                              target: 'buffOwner',
                               inheritSourceSkillCastInfo: true,
                               blackboardAssignments: {
                                 priority: {

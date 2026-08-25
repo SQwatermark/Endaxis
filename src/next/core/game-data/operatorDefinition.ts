@@ -1219,6 +1219,7 @@ export interface SkillBuffAbilityEventResponse {
     | 'takeDamage'
     | 'takeCriticalDamage'
     | 'outputDamage'
+    | 'outputCriticalDamage'
     | 'outputKnockDown'
     | 'outputHeal'
     | 'receiveHeal'

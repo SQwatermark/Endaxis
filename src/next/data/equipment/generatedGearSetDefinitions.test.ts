@@ -226,7 +226,7 @@ describe('生成套装正式定义', () => {
           steps: [
             {
               kind: 'applyBuff',
-              parameters: { buffId: fixture.childBuffId, target: 'caster' },
+              parameters: { buffId: fixture.childBuffId, target: 'buffOwner' },
             },
           ],
         },
@@ -444,6 +444,95 @@ describe('生成套装正式定义', () => {
           },
         ],
       },
+    });
+  });
+
+  it('让暴击套由输出暴击事件叠攻击，满层加暴击并在攻击 Buff 结束时清理', () => {
+    const definition = generatedGearSetDefinitions.find(item => item.slug === 'suit_criti01')!;
+    expect(validateGearSetDefinition(definition, '$.suit_criti01')).toEqual([]);
+    const compiled = compileGearSetContribution(definition, {
+      main: perlica.mainAttribute,
+      secondary: perlica.secondaryAttribute,
+    });
+
+    expect(compiled.modifiers).toEqual([{ kind: 'panelStat', stat: 'criticalRate', value: 0.05 }]);
+    expect(compiled.buffDefinitions?.buff_equipsuit_critsuit_01).toMatchObject({
+      abilityEventResponses: [
+        {
+          event: 'outputCriticalDamage',
+          sequence: {
+            steps: [
+              {
+                kind: 'applyBuff',
+                parameters: {
+                  buffId: 'buff_equipsuit_critsuitatk_01',
+                  target: 'buffOwner',
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    expect(compiled.buffDefinitions?.buff_equipsuit_critsuitatk_01).toMatchObject({
+      stackingType: 'enhanceAndRefresh',
+      maxStackCount: { blackboardKey: 'max_stack' },
+      durationSeconds: { blackboardKey: 'duration' },
+      attributeModifiers: [
+        { attribute: 'Atk', slot: 'baseMultiplier', value: { blackboardKey: 'atk_up' } },
+      ],
+      lifecycleSequences: {
+        enhanceChanged: {
+          steps: [
+            {
+              parameters: {
+                condition: {
+                  kind: 'buffIdStackCompare',
+                  target: 'buffOwner',
+                  buffIds: ['buff_equipsuit_critsuitatk_01'],
+                  operator: 'greaterOrEqual',
+                },
+              },
+              whenTrue: {
+                steps: [
+                  {
+                    parameters: {
+                      buffId: 'buff_equipsuit_critsuitdmg_01',
+                      target: 'buffOwner',
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+        finish: {
+          steps: [
+            {
+              kind: 'finishBuffsById',
+              parameters: {
+                target: 'buffOwner',
+                buffIds: ['buff_equipsuit_critsuitdmg_01'],
+                reason: 'other',
+              },
+            },
+          ],
+        },
+      },
+    });
+    expect(compiled.buffDefinitions?.buff_equipsuit_critsuitdmg_01).toMatchObject({
+      presentation: {
+        visible: true,
+        iconId: 'icon_battle_crit_rate_up',
+        iconPath: '/icons/icon_battle_crit_rate_up.webp',
+      },
+      attributeModifiers: [
+        {
+          attribute: 'criticalRate',
+          slot: 'baseAddition',
+          value: { blackboardKey: 'crit_up2' },
+        },
+      ],
     });
   });
 });

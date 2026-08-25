@@ -37,7 +37,8 @@ export interface CombatAbilityDamageEvent {
     | 'beforeTakeDamage'
     | 'takeDamage'
     | 'takeCriticalDamage'
-    | 'outputDamage';
+    | 'outputDamage'
+    | 'outputCriticalDamage';
   readonly sourceId: string;
   readonly targetId: string;
   readonly damageType?: import('../../game-data/operatorDefinition').DamageType;

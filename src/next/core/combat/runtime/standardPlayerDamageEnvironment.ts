@@ -110,6 +110,7 @@ export type StandardPlayerDamageEvent =
   | 'takeDamage'
   | 'takeCriticalDamage'
   | 'outputDamage'
+  | 'outputCriticalDamage'
   | 'outputHeal'
   | 'receiveHeal'
   | 'beforeOutputPoiseDamage'
@@ -1167,6 +1168,9 @@ export class StandardPlayerDamageEnvironment {
     this.eventsFor(entityId).dispatch({ event, payload }, []);
     if (event === 'takeDamage' && isCriticalDamagePayload(payload)) {
       this.eventsFor(entityId).dispatch({ event: 'takeCriticalDamage', payload }, []);
+    }
+    if (event === 'outputDamage' && isCriticalDamagePayload(payload)) {
+      this.eventsFor(entityId).dispatch({ event: 'outputCriticalDamage', payload }, []);
     }
   }
 }

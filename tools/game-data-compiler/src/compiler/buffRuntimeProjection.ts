@@ -103,7 +103,7 @@ export type CompiledBuffConditionSource =
     }
   | {
       readonly kind: 'buffIdStackCompare';
-      readonly target: 'eventTarget';
+      readonly target: 'eventTarget' | 'buffOwner';
       readonly buffIds: readonly string[];
       readonly operator:
         'equal' | 'notEqual' | 'greater' | 'greaterOrEqual' | 'less' | 'lessOrEqual';
@@ -135,7 +135,7 @@ export type CompiledBuffStepSource =
       readonly kind: 'applyBuff';
       readonly parameters: {
         readonly buffId: string;
-        readonly target: 'caster' | 'eventTarget';
+        readonly target: 'caster' | 'eventTarget' | 'buffOwner';
         readonly inheritSourceSkillCastInfo?: boolean;
         readonly blackboardAssignments?: Readonly<
           Record<
@@ -182,6 +182,17 @@ export type CompiledBuffStepSource =
     }
   | CompiledSimpleDamageOperationSource
   | {
+      readonly kind: 'finishBuffsById';
+      readonly parameters: {
+        readonly target: 'buffOwner';
+        readonly buffIds: readonly string[];
+        readonly reason: 'early' | 'other';
+        readonly count?:
+          | { readonly kind: 'constant'; readonly value: number }
+          | { readonly kind: 'blackboard'; readonly key: string };
+      };
+    }
+  | {
       readonly kind: 'createTimedMarker';
       readonly parameters: {
         readonly target: 'caster';
@@ -216,10 +227,16 @@ export interface CompiledBuffDefinitionSource {
   readonly lifecycleSequences?: {
     readonly start?: CompiledBuffSequenceSource;
     readonly enable?: CompiledBuffSequenceSource;
+    readonly enhanceChanged?: CompiledBuffSequenceSource;
+    readonly finish?: CompiledBuffSequenceSource;
   };
   readonly abilityEventResponses?: readonly {
     readonly event:
-      'beforeCastSkill' | 'outputBuff' | 'beforeOutputPhysicalInfliction' | 'outputHeal';
+      | 'beforeCastSkill'
+      | 'outputBuff'
+      | 'beforeOutputPhysicalInfliction'
+      | 'outputCriticalDamage'
+      | 'outputHeal';
     readonly priority: 0;
     readonly sequence: CompiledBuffSequenceSource;
   }[];
@@ -284,13 +301,19 @@ export function compileBuffRuntimeDefinitionSource(
   }
   const startSequences: CompiledBuffSequenceSource[] = [];
   const enableSequences: CompiledBuffSequenceSource[] = [];
+  const enhanceChangedSequences: CompiledBuffSequenceSource[] = [];
+  const finishSequences: CompiledBuffSequenceSource[] = [];
   for (const event of source.graph.buffEvents) {
     const target =
       event.event === 'OnBuffStart'
         ? startSequences
         : event.event === 'DuringBuffEnable'
           ? enableSequences
-          : null;
+          : event.event === 'OnBuffEnhanceChanged'
+            ? enhanceChangedSequences
+            : event.event === 'OnBuffFinish'
+              ? finishSequences
+              : null;
     if (target === null) throw new Error(`unsupported Buff event ${JSON.stringify(event.event)}`);
     for (const sequence of event.actions) {
       const compiled = compileLinearSequence(sequence, visualOnlyIds);
@@ -300,6 +323,7 @@ export function compileBuffRuntimeDefinitionSource(
   const beforeCastSteps: CompiledBuffStepSource[] = [];
   const outputBuffSteps: CompiledBuffStepSource[] = [];
   const beforeOutputPhysicalInflictionSteps: CompiledBuffStepSource[] = [];
+  const outputCriticalDamageSteps: CompiledBuffStepSource[] = [];
   const outputHealSteps: CompiledBuffStepSource[] = [];
   for (const event of source.graph.abilityEvents) {
     if (omittedAbilityEvents.has(event.event)) continue;
@@ -310,9 +334,11 @@ export function compileBuffRuntimeDefinitionSource(
           ? outputBuffSteps
           : event.event === 'OnBeforeOutputPhysicalInfliction'
             ? beforeOutputPhysicalInflictionSteps
-            : event.event === 'OnOutputHeal'
-              ? outputHealSteps
-              : null;
+            : event.event === 'OnOutputCriticalDamage'
+              ? outputCriticalDamageSteps
+              : event.event === 'OnOutputHeal'
+                ? outputHealSteps
+                : null;
     if (target === null)
       throw new Error(`unsupported ability event ${JSON.stringify(event.event)}`);
     for (const sequence of event.actions)
@@ -375,17 +401,25 @@ export function compileBuffRuntimeDefinitionSource(
         value: scalarOperand(modifier.parameter),
       };
     }),
-    ...(startSequences.length === 0 && enableSequences.length === 0
+    ...(startSequences.length === 0 &&
+    enableSequences.length === 0 &&
+    enhanceChangedSequences.length === 0 &&
+    finishSequences.length === 0
       ? {}
       : {
           lifecycleSequences: {
             ...(startSequences.length === 0 ? {} : { start: mergeSequences(startSequences) }),
             ...(enableSequences.length === 0 ? {} : { enable: mergeSequences(enableSequences) }),
+            ...(enhanceChangedSequences.length === 0
+              ? {}
+              : { enhanceChanged: mergeSequences(enhanceChangedSequences) }),
+            ...(finishSequences.length === 0 ? {} : { finish: mergeSequences(finishSequences) }),
           },
         }),
     ...(beforeCastSteps.length === 0 &&
     outputBuffSteps.length === 0 &&
     beforeOutputPhysicalInflictionSteps.length === 0 &&
+    outputCriticalDamageSteps.length === 0 &&
     outputHealSteps.length === 0
       ? {}
       : {
@@ -415,6 +449,15 @@ export function compileBuffRuntimeDefinitionSource(
                     event: 'beforeOutputPhysicalInfliction' as const,
                     priority: 0 as const,
                     sequence: { steps: beforeOutputPhysicalInflictionSteps },
+                  },
+                ]),
+            ...(outputCriticalDamageSteps.length === 0
+              ? []
+              : [
+                  {
+                    event: 'outputCriticalDamage' as const,
+                    priority: 0 as const,
+                    sequence: { steps: outputCriticalDamageSteps },
                   },
                 ]),
             ...(outputHealSteps.length === 0
@@ -524,7 +567,7 @@ function compileConditionLeaf(
   }
   if (condition.kind === 'buffStack') {
     if (
-      condition.targetSource !== 'Target' ||
+      (condition.targetSource !== 'Target' && condition.targetSource !== 'Owner') ||
       condition.targetGroupKey !== '' ||
       condition.countType !== 'BuffCount' ||
       condition.limitSkillCastId
@@ -547,7 +590,7 @@ function compileConditionLeaf(
     if (condition.buffCheckType === 'Id' && condition.buffIds.every(id => id.length > 0)) {
       return {
         kind: 'buffIdStackCompare',
-        target: 'eventTarget',
+        target: condition.targetSource === 'Owner' ? 'buffOwner' : 'eventTarget',
         buffIds: condition.buffIds,
         operator,
         value: actionValueOperand(condition.value),
@@ -635,6 +678,34 @@ function compileActionNode(
   }
   if (node.body.value.family === 'buffApplication') {
     return compileBuffApplication(node.body.value.action, visualOnlyIds, node.sourcePath);
+  }
+  if (node.body.value.family === 'buffFinish') {
+    const action = node.body.value.action;
+    if (
+      action.kind !== 'buffFinishById' ||
+      action.owner.targetSource !== 'Owner' ||
+      action.owner.targetGroupKey !== '' ||
+      action.buffIds.length === 0 ||
+      action.buffIds.some(id => id.length === 0) ||
+      action.limitSource ||
+      action.buffSource.targetSource !== 'Source' ||
+      action.buffSource.targetGroupKey !== '' ||
+      action.finishSource.targetSource !== 'Source' ||
+      action.finishSource.targetGroupKey !== ''
+    ) {
+      throw new Error(`${node.sourcePath}: unsupported Buff finish target/source`);
+    }
+    return [
+      {
+        kind: 'finishBuffsById',
+        parameters: {
+          target: 'buffOwner',
+          buffIds: action.buffIds,
+          reason: action.isFinishedEarly ? 'early' : 'other',
+          ...(action.finishAll ? {} : { count: actionValueOperand(action.finishLayerCount) }),
+        },
+      },
+    ];
   }
   if (node.body.value.family === 'damage') {
     return [compileEventTargetSimpleDamageOperationSource(node.body.value.action, node.sourcePath)];
@@ -747,14 +818,6 @@ function compileBuffApplication(
 ): CompiledBuffStepSource[] {
   if (action.count.blackboardKey !== null || action.count.value !== 1)
     throw new Error(`${sourcePath}: Buff count must be fixed at one`);
-  const target =
-    (action.target.targetGroupKey ?? '') === '' && action.target.targetSource === 'Owner'
-      ? ('caster' as const)
-      : (action.target.targetGroupKey ?? '') === '' && action.target.targetSource === 'Target'
-        ? ('eventTarget' as const)
-        : null;
-  if (target === null || action.buffSource !== 'ActionOwner')
-    throw new Error(`${sourcePath}: unsupported Buff target/source`);
   if (
     action.autoFinishByAction ||
     action.inheritSkillIds.length > 0 ||
@@ -765,9 +828,20 @@ function compileBuffApplication(
   ) {
     throw new Error(`${sourcePath}: unsupported CreateBuff lifecycle options`);
   }
-  return action.buffs.flatMap(entry => {
+  for (const entry of action.buffs) {
     if (entry.readIdFromBlackboard || entry.buffId.length === 0)
       throw new Error(`${sourcePath}: dynamic Buff identity is unsupported`);
+  }
+  if (action.buffs.every(entry => visualOnlyIds.has(entry.buffId))) return [];
+  const target =
+    (action.target.targetGroupKey ?? '') === '' && action.target.targetSource === 'Owner'
+      ? ('buffOwner' as const)
+      : (action.target.targetGroupKey ?? '') === '' && action.target.targetSource === 'Target'
+        ? ('eventTarget' as const)
+        : null;
+  if (target === null || action.buffSource !== 'ActionOwner')
+    throw new Error(`${sourcePath}: unsupported Buff target/source`);
+  return action.buffs.flatMap(entry => {
     if (visualOnlyIds.has(entry.buffId)) return [];
     const assignments = entry.assignBlackboard
       ? Object.fromEntries(
