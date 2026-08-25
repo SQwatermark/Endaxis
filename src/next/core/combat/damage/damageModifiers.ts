@@ -63,6 +63,13 @@ export type DamageModifierExternalCondition =
       readonly valueType: 'current' | 'ratio';
       readonly operator: ComparisonOperator;
       readonly value: DamageModifierNumber;
+    }
+  | {
+      readonly kind: 'targetPoiseCompare';
+      readonly target: 'enemy';
+      readonly returnValueIfMissing: boolean;
+      readonly operator: ComparisonOperator;
+      readonly value: DamageModifierNumber;
     };
 
 /** 伤害修正专用条件树；Buff 黑板只在持有该修正的实例内求值。 */

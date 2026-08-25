@@ -646,6 +646,7 @@ ID 当作物品主键。当前 48 条玩家承伤修正只在木桩边界省略�
   没有为武器增加专用状态机。
 - `SaveBuffLifeTime` 与 `SetBuffDurationAction` 已按 1.4.4 机器码在 combat-spec 和 Next 双侧闭环，
   保留有限/无限时长、Environment 当前实例、Assign/Add/Multiply 与负值钳零语义。91 个引用 Buff
-  现展开为 107 个运行时节点，审计为 **75/107 可编译、4 个木桩省略**，并能逐项报告其余阻塞。
-  下一批按对敌伤害优先级接 `damageTypeMask / damageType / damageDecorateMask / buffStack / entityTag`，
-  不先投入护盾、韧性或固定时间轴不可达的离战行为。
+  现展开为 107 个运行时节点，首轮为 75/107；伤害修正层继续复用公共条件接通
+  `damageTypeMask / damageType / damageDecorateMask / buffStack / entityTag / poise` 后达到
+  **89/107 可编译、4 个木桩省略**，并能逐项报告其余阻塞。下一批优先处理仍会改变对敌输出的能力
+  事件与生命周期选项，不先投入护盾、韧性修正载荷或固定时间轴不可达的离战行为。

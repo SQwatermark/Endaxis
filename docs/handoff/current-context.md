@@ -1940,6 +1940,7 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
   武器样本使用的 `isFinishedEarly=false`。这使母 Buff 的剩余时间能传给可视图标 Buff，没有丢弃图标
   生命周期数据。
 - 武器闭包审计现在能完整列账而不再首错中断：91 个引用 Buff 展开为 107 个运行时节点，当前
-  **75/107 可编译、4 个木桩模型明确省略**。剩余阻塞已定位到伤害条件、能力事件、生命周期选项和
-  少量载荷族；下一批优先接会改变对敌输出的 `damageTypeMask / damageType / damageDecorateMask /
-buffStack / entityTag`，护盾、韧性和离战事件继续后置。
+  首轮为 **75/107 可编译、4 个木桩模型明确省略**。随后伤害修正层复用公共条件接通
+  `damageTypeMask / damageType / damageDecorateMask / buffStack / entityTag / poise`，最新达到
+  **89/107 可编译、4 个木桩省略**。剩余阻塞集中在能力事件、生命周期选项、Deck 属性/定时标记和
+  少量载荷族；护盾、韧性修正载荷和离战事件继续后置。

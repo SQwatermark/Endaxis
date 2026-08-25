@@ -62,8 +62,36 @@ export interface CompiledBuffDamageModifierSource {
     | { readonly kind: 'sourceSkillCastMatch' }
     | {
         readonly kind: 'eventDamageTagsMatch';
-        readonly match: 'hasAll';
-        readonly tags: readonly ['normalSkill' | 'comboSkill'];
+        readonly match: 'hasAny' | 'hasAll';
+        readonly tags: readonly ('normalSkill' | 'comboSkill' | 'ultimateSkill')[];
+      }
+    | {
+        readonly kind: 'eventDamageTypesMatch';
+        readonly damageTypes: readonly (
+          'physical' | 'true' | 'heat' | 'electric' | 'cryo' | 'lifeDrain' | 'nature' | 'ether'
+        )[];
+      }
+    | {
+        readonly kind: 'entityTagMatch';
+        readonly target: 'enemy';
+        readonly tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+        readonly tagIds: readonly number[];
+      }
+    | {
+        readonly kind: 'buffIdCountCompare';
+        readonly target: 'enemy';
+        readonly buffIds: readonly string[];
+        readonly operator:
+          'equal' | 'notEqual' | 'greater' | 'greaterOrEqual' | 'less' | 'lessOrEqual';
+        readonly value: CompiledActionValueOperandSource;
+      }
+    | {
+        readonly kind: 'targetPoiseCompare';
+        readonly target: 'enemy';
+        readonly returnValueIfMissing: boolean;
+        readonly operator:
+          'equal' | 'notEqual' | 'greater' | 'greaterOrEqual' | 'less' | 'lessOrEqual';
+        readonly value: CompiledActionValueOperandSource;
       }
     | {
         readonly kind: 'all';
@@ -71,8 +99,43 @@ export interface CompiledBuffDamageModifierSource {
           | { readonly kind: 'sourceSkillCastMatch' }
           | {
               readonly kind: 'eventDamageTagsMatch';
-              readonly match: 'hasAll';
-              readonly tags: readonly ['normalSkill' | 'comboSkill'];
+              readonly match: 'hasAny' | 'hasAll';
+              readonly tags: readonly ('normalSkill' | 'comboSkill' | 'ultimateSkill')[];
+            }
+          | {
+              readonly kind: 'eventDamageTypesMatch';
+              readonly damageTypes: readonly (
+                | 'physical'
+                | 'true'
+                | 'heat'
+                | 'electric'
+                | 'cryo'
+                | 'lifeDrain'
+                | 'nature'
+                | 'ether'
+              )[];
+            }
+          | {
+              readonly kind: 'entityTagMatch';
+              readonly target: 'enemy';
+              readonly tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+              readonly tagIds: readonly number[];
+            }
+          | {
+              readonly kind: 'buffIdCountCompare';
+              readonly target: 'enemy';
+              readonly buffIds: readonly string[];
+              readonly operator:
+                'equal' | 'notEqual' | 'greater' | 'greaterOrEqual' | 'less' | 'lessOrEqual';
+              readonly value: CompiledActionValueOperandSource;
+            }
+          | {
+              readonly kind: 'targetPoiseCompare';
+              readonly target: 'enemy';
+              readonly returnValueIfMissing: boolean;
+              readonly operator:
+                'equal' | 'notEqual' | 'greater' | 'greaterOrEqual' | 'less' | 'lessOrEqual';
+              readonly value: CompiledActionValueOperandSource;
             }
         )[];
       };
@@ -727,15 +790,96 @@ function compileDamageModifierCondition(
       }
       const condition = node.body.value.action;
       if (condition.kind === 'skillCastId') return { kind: 'sourceSkillCastMatch' as const };
-      const damageTag =
-        condition.kind === 'damageDecorateMask' && condition.checkType === 'HasAll'
-          ? ({ 256: 'normalSkill', 8192: 'comboSkill' } as const)[condition.mask as 256 | 8192]
-          : undefined;
-      if (damageTag !== undefined) {
+      if (condition.kind === 'damageType') {
+        return {
+          kind: 'eventDamageTypesMatch' as const,
+          damageTypes: [condition.damageType] as readonly (
+            'physical' | 'true' | 'heat' | 'electric' | 'cryo' | 'lifeDrain' | 'nature' | 'ether'
+          )[],
+        };
+      }
+      if (condition.kind === 'damageTypeMask') {
+        return {
+          kind: 'eventDamageTypesMatch' as const,
+          damageTypes: condition.damageTypes.map(damageType => {
+            const mapped = DAMAGE_TYPES[damageType];
+            if (mapped === undefined) {
+              throw new Error(
+                `${node.sourcePath}: unsupported native damage type ${JSON.stringify(damageType)}`,
+              );
+            }
+            return mapped;
+          }),
+        };
+      }
+      if (condition.kind === 'entityTag') {
+        if (condition.targetSource !== 'Target' || condition.targetGroupKey !== '') {
+          throw new Error(`${node.sourcePath}: unsupported damage modifier entity tag target`);
+        }
+        return {
+          kind: 'entityTagMatch' as const,
+          target: 'enemy' as const,
+          tagQueryType: condition.tagQueryType,
+          tagIds: condition.tagIds,
+        };
+      }
+      if (condition.kind === 'buffStack') {
+        const operator = COMPARISON_OPERATORS[condition.comparison];
+        if (
+          condition.targetSource !== 'Target' ||
+          condition.targetGroupKey !== '' ||
+          condition.buffCheckType !== 'Id' ||
+          condition.buffIds.length === 0 ||
+          condition.buffIds.some(id => id.length === 0) ||
+          condition.buffTagIds.length !== 0 ||
+          condition.countType !== 'BuffCount' ||
+          condition.limitSkillCastId ||
+          operator === undefined
+        ) {
+          throw new Error(`${node.sourcePath}: unsupported damage modifier Buff count condition`);
+        }
+        return {
+          kind: 'buffIdCountCompare' as const,
+          target: 'enemy' as const,
+          buffIds: condition.buffIds,
+          operator,
+          value: actionValueOperand(condition.value),
+        };
+      }
+      if (condition.kind === 'poise') {
+        const operator = COMPARISON_OPERATORS[condition.comparison];
+        if (
+          condition.target.targetSource !== 'Target' ||
+          condition.target.targetGroupKey !== '' ||
+          operator === undefined
+        ) {
+          throw new Error(`${node.sourcePath}: unsupported damage modifier poise condition`);
+        }
+        return {
+          kind: 'targetPoiseCompare' as const,
+          target: 'enemy' as const,
+          returnValueIfMissing: condition.returnValueIfMissing,
+          operator,
+          value: actionValueOperand(condition.value),
+        };
+      }
+      if (
+        condition.kind === 'damageDecorateMask' &&
+        (condition.checkType === 'HasAny' || condition.checkType === 'HasAll')
+      ) {
+        const tags = [
+          ...(condition.mask & 256 ? (['normalSkill'] as const) : []),
+          ...(condition.mask & 512 ? (['ultimateSkill'] as const) : []),
+          ...(condition.mask & 8192 ? (['comboSkill'] as const) : []),
+        ];
+        const knownMask = 256 | 512 | 8192;
+        if (tags.length === 0 || (condition.mask & ~knownMask) !== 0) {
+          throw new Error(`${node.sourcePath}: unsupported damage decorate mask ${condition.mask}`);
+        }
         return {
           kind: 'eventDamageTagsMatch' as const,
-          match: 'hasAll' as const,
-          tags: [damageTag] as const,
+          match: condition.checkType === 'HasAny' ? ('hasAny' as const) : ('hasAll' as const),
+          tags,
         };
       }
       throw new Error(

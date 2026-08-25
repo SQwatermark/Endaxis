@@ -196,6 +196,95 @@ describe('公共 Buff 运行时投影', () => {
     ]);
   });
 
+  it('把武器伤害类型、伤害标签、敌人标签、Buff 层数和失衡条件投影到公共伤害条件', () => {
+    const source = sourceFixture();
+    const metadata = source.graph.abilityEvents[0]!.actions[0]!.actions[0]!.metadata;
+    const processor = {
+      kind: 'damageScale' as const,
+      side: 'Attacker',
+      zoneName: 'NormalCalcZone',
+      addition: { value: 0.1, blackboardKey: null, levelValues: null },
+    };
+    const modifier = (action: unknown) => ({
+      enabledSide: 'Attacker',
+      condition: {
+        onlyExecuteWhenSourceIsMainCharacter: false,
+        onlyExecuteWhenSourceIsGuard: false,
+        actions: [
+          {
+            sourcePath: 'BuffData.weapon.condition',
+            metadata,
+            body: { kind: 'leaf', value: { family: 'condition', action } },
+          },
+        ],
+      },
+      processors: [processor],
+    });
+    const definition = compileBuffRuntimeDefinitionSource({
+      ...source,
+      damageModifiers: [
+        modifier({ kind: 'damageTypeMask', damageTypes: ['Cryst', 'Natural'] }),
+        modifier({ kind: 'damageDecorateMask', checkType: 'HasAny', mask: 768 }),
+        modifier({
+          kind: 'entityTag',
+          targetSource: 'Target',
+          targetGroupKey: '',
+          tagQueryType: 'hasAny',
+          tagIds: [1570888476],
+        }),
+        modifier({
+          kind: 'buffStack',
+          targetSource: 'Target',
+          targetGroupKey: '',
+          buffCheckType: 'Id',
+          buffIds: ['buff_physical_no_guard'],
+          tagQueryType: 'hasAny',
+          buffTagIds: [],
+          countType: 'BuffCount',
+          comparison: 'GE',
+          value: { value: 1, blackboardKey: null, levelValues: null },
+          limitSkillCastId: false,
+        }),
+        modifier({
+          kind: 'poise',
+          target: { ...fixedTarget('Target'), targetGroupKey: '' },
+          returnValueIfMissing: false,
+          comparison: 'LE',
+          value: { value: 0, blackboardKey: null, levelValues: null },
+        }),
+      ] as never,
+    });
+
+    expect(definition.damageModifiers?.map(item => item.condition)).toEqual([
+      { kind: 'eventDamageTypesMatch', damageTypes: ['cryo', 'nature'] },
+      {
+        kind: 'eventDamageTagsMatch',
+        match: 'hasAny',
+        tags: ['normalSkill', 'ultimateSkill'],
+      },
+      {
+        kind: 'entityTagMatch',
+        target: 'enemy',
+        tagQueryType: 'hasAny',
+        tagIds: [1570888476],
+      },
+      {
+        kind: 'buffIdCountCompare',
+        target: 'enemy',
+        buffIds: ['buff_physical_no_guard'],
+        operator: 'greaterOrEqual',
+        value: { kind: 'constant', value: 1 },
+      },
+      {
+        kind: 'targetPoiseCompare',
+        target: 'enemy',
+        returnValueIfMissing: false,
+        operator: 'lessOrEqual',
+        value: { kind: 'constant', value: 0 },
+      },
+    ]);
+  });
+
   it('把技能类型守卫、动态传参、属性修正和图标投影为正式 Next 定义', () => {
     const definition = compileBuffRuntimeDefinitionSource(sourceFixture());
 

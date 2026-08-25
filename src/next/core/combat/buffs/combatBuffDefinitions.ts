@@ -909,6 +909,28 @@ function parseDamageModifierCondition(input: unknown, path: string): DamageModif
         ),
         value: parseDefinitionNumberOperand(condition.value, `${path}.value`),
       };
+    case 'targetPoiseCompare':
+      requireOnlyKeys(condition, path, [
+        'kind',
+        'target',
+        'returnValueIfMissing',
+        'operator',
+        'value',
+      ]);
+      return {
+        kind: 'targetPoiseCompare',
+        target: requireEnum(condition.target, ['enemy'] as const, `${path}.target`),
+        returnValueIfMissing: requireBoolean(
+          condition.returnValueIfMissing,
+          `${path}.returnValueIfMissing`,
+        ),
+        operator: requireEnum(
+          condition.operator,
+          ['equal', 'notEqual', 'less', 'lessOrEqual', 'greater', 'greaterOrEqual'] as const,
+          `${path}.operator`,
+        ),
+        value: parseDefinitionNumberOperand(condition.value, `${path}.value`),
+      };
     case 'eventDamageTagsMatch':
       requireOnlyKeys(condition, path, ['kind', 'match', 'tags']);
       return {

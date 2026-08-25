@@ -544,6 +544,14 @@ export class StandardPlayerDamageEnvironment {
             : this.#enemyVitals.health;
         return compareCombatNumbers(current, resolveNumber(condition.value), condition.operator);
       }
+      case 'targetPoiseCompare':
+        return this.#enemyVitals.hasPoise
+          ? compareCombatNumbers(
+              this.#enemyVitals.poise,
+              resolveNumber(condition.value),
+              condition.operator,
+            )
+          : condition.returnValueIfMissing;
     }
   }
 
