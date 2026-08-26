@@ -1954,6 +1954,16 @@ function validateCombatStep(
       break;
     case 'withActionBlackboardScope': {
       requireString(parameters, 'scopeKey', `${path}.parameters`, out);
+      if (parameters.alwaysNext !== undefined && typeof parameters.alwaysNext !== 'boolean') {
+        push(out, `${path}.parameters.alwaysNext`, 'expected a boolean');
+      }
+      if (
+        parameters.lifetime !== undefined &&
+        parameters.lifetime !== 'parent' &&
+        parameters.lifetime !== 'execution'
+      ) {
+        push(out, `${path}.parameters.lifetime`, "expected 'parent' or 'execution'");
+      }
       const initialValues = asRecord(
         parameters.initialValues,
         `${path}.parameters.initialValues`,

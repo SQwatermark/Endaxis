@@ -427,6 +427,10 @@ function resolveStep(
         kind: step.kind,
         parameters: {
           scopeKey: step.parameters.scopeKey,
+          ...(step.parameters.lifetime === undefined ? {} : { lifetime: step.parameters.lifetime }),
+          ...(step.parameters.alwaysNext === undefined
+            ? {}
+            : { alwaysNext: step.parameters.alwaysNext }),
           inheritParent: step.parameters.inheritParent,
           initialValues: Object.fromEntries(
             Object.entries(step.parameters.initialValues).map(([key, value]) => [

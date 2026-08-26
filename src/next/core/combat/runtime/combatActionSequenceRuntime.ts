@@ -83,11 +83,14 @@ class ActionBlackboardScopeStep extends CombatStep {
   }
 
   execute(context: CombatExecutionContext): void {
+    this.#beginExecution();
     this.#getBody().execute(context);
   }
 
   override tryExecute(context: CombatExecutionContext): boolean {
-    return this.#getBody().tryExecute(context);
+    this.#beginExecution();
+    const result = this.#getBody().tryExecute(context);
+    return this.step.parameters.alwaysNext === true || result;
   }
 
   override tick(deltaTime: number, context: CombatExecutionContext): void {
@@ -101,6 +104,10 @@ class ActionBlackboardScopeStep extends CombatStep {
   override reset(context: CombatExecutionContext): void {
     this.#body?.reset(context);
     this.#body = undefined;
+  }
+
+  #beginExecution(): void {
+    if (this.step.parameters.lifetime === 'execution') this.#body = undefined;
   }
 
   #getBody(): ActionSequence {
@@ -341,7 +348,8 @@ class CombatEventListenerStep extends CombatStep {
 /** 一个状态所有者范围内的同步动作序列运行环境。 */
 export class CombatActionSequenceRuntime {
   readonly #executedOnceScopes = new Set<string>();
-  readonly #actionBlackboardScopes = new Map<string, ActionBlackboard>();
+  // 相同子技能 ID/静态路径在不同投射物中不能复用同一块 direct/entity 板。
+  #actionBlackboardScopes = new WeakMap<ActionBlackboard, Map<string, ActionBlackboard>>();
 
   constructor(
     readonly operations: CombatOperationExecutor,
@@ -384,21 +392,33 @@ export class CombatActionSequenceRuntime {
 
   reset(): void {
     this.#executedOnceScopes.clear();
-    this.#actionBlackboardScopes.clear();
+    this.#actionBlackboardScopes = new WeakMap();
   }
 
   getActionBlackboardScope(
     step: Extract<ResolvedCombatStep, { kind: 'withActionBlackboardScope' }>,
     parent: ActionBlackboard,
   ): ActionBlackboard {
-    const existing = this.#actionBlackboardScopes.get(step.parameters.scopeKey);
+    let scopes = this.#actionBlackboardScopes.get(parent);
+    const existing = scopes?.get(step.parameters.scopeKey);
+    if (step.parameters.lifetime === 'execution') {
+      return parent.createLocalScope(
+        step.parameters.initialValues,
+        step.parameters.inheritParent,
+        step.parameters.entityInitialValues,
+      );
+    }
     if (existing !== undefined) return existing;
     const created = parent.createLocalScope(
       step.parameters.initialValues,
       step.parameters.inheritParent,
       step.parameters.entityInitialValues,
     );
-    this.#actionBlackboardScopes.set(step.parameters.scopeKey, created);
+    if (scopes === undefined) {
+      scopes = new Map();
+      this.#actionBlackboardScopes.set(parent, scopes);
+    }
+    scopes.set(step.parameters.scopeKey, created);
     return created;
   }
 

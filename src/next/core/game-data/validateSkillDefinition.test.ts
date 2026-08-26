@@ -23,6 +23,60 @@ function damageStep(key?: string): Record<string, unknown> {
 }
 
 describe('validateSkillDefinition', () => {
+  it.each([undefined, 'parent', 'execution'])('接受黑板作用域生命周期 %s', lifetime => {
+    const skill = {
+      ...baseSkill(),
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'withActionBlackboardScope',
+                parameters: {
+                  scopeKey: 'callback',
+                  initialValues: {},
+                  inheritParent: true,
+                  lifetime,
+                  alwaysNext: true,
+                },
+                body: { steps: [] },
+              },
+            ],
+          },
+        },
+      ],
+    };
+    expect(validateSkillDefinition(skill)).toEqual([]);
+  });
+  it.each([{ lifetime: 'unknown' }, { lifetime: null }, { alwaysNext: 1 }])(
+    '拒绝非法黑板生命周期参数 %j',
+    invalid => {
+      const skill = {
+        ...baseSkill(),
+        scheduledSequences: [
+          {
+            startFrame: 0,
+            sequence: {
+              steps: [
+                {
+                  kind: 'withActionBlackboardScope',
+                  parameters: {
+                    scopeKey: 'callback',
+                    initialValues: {},
+                    inheritParent: true,
+                    ...invalid,
+                  },
+                  body: { steps: [] },
+                },
+              ],
+            },
+          },
+        ],
+      };
+      expect(validateSkillDefinition(skill)).not.toEqual([]);
+    },
+  );
   it.each(['input', 'trigger', undefined])('接受有界连携智能目标 %s', comboSmartTarget => {
     expect(validateSkillDefinition({ ...baseSkill(), comboSmartTarget })).toEqual([]);
   });

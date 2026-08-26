@@ -390,6 +390,16 @@ npm run download:game-data:operator-closure -- --vfs-fallback http://desktop:876
 
 ## 11. 当前迁移状态
 
+### 投射物回调黑板的有界公共投影
+
+`compileSynchronousProjectileCallbackScopesSource` 只包装外层已经证明可同步执行的回调切片，
+不推导 hit/reach 顺序或命中次数。必须给出精确模板身份及实体黑板证据；每次发射独立，
+各回调 direct 从自身声明和发射快照建立，同投射物共享实体层。重复子技能、实体赋值等未闭合路径
+明确拒绝，独立 SkillPatch/extra 和异步调度尚未接入。不能把该入口误当完整 LaunchProjectile 编译器。
+
+艾维文娜真实写入/到达资源守卫已从公共源 IR 接至 Next 切片回归，正式技能尚未替换，
+详见 `docs/research/avywenna-return-projectile-blackboard.md`。不得修改旧 Python 或手补生成产物绕过边界。
+
 ### 角色模板常驻运行定义的可重建入口
 
 这是完整干员迁移前的增量入口：仅编译模板实体初值、原生连携条件及连携施法元数据，

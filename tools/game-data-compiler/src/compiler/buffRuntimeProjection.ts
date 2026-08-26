@@ -2344,10 +2344,17 @@ function compileActionNode(
   }
   if (node.body.value.family === 'resource') {
     const action = node.body.value.action;
+    // ObtainCostAction 先解析 source，再逐 target 计算资源。投射物回调的 Source/Source
+    // 可沿已证明的 ActionSource=caster 投影；不能把任意 Source（如接收侧 buffSource）放行。
+    const usesCasterSource =
+      action.source.targetSource === 'Source' &&
+      action.target.targetSource === 'Source' &&
+      context.actionSourceTarget === 'caster';
+    const usesOwner =
+      action.source.targetSource === 'Owner' && action.target.targetSource === 'Owner';
     if (
-      action.source.targetSource !== 'Owner' ||
+      (!usesOwner && !usesCasterSource) ||
       action.source.targetGroupKey !== '' ||
-      action.target.targetSource !== 'Owner' ||
       action.target.targetGroupKey !== '' ||
       action.onlyMainOperator
     ) {

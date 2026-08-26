@@ -32,6 +32,190 @@ function createFixture(conditionResult = true) {
 }
 
 describe('CombatActionSequenceRuntime', () => {
+  it('同名子作用域只在同一父黑板内复用，不跨投射物宿主串板', () => {
+    const fixture = createFixture();
+    const step = {
+      kind: 'withActionBlackboardScope',
+      parameters: { scopeKey: 'callback', inheritParent: true, initialValues: {} },
+      body: sequence(),
+    } as const;
+    const firstParent = new ActionBlackboard({ sourceValue: 2 });
+    const secondParent = new ActionBlackboard({ sourceValue: 7 });
+    const first = fixture.runtime.getActionBlackboardScope(step, firstParent);
+    const second = fixture.runtime.getActionBlackboardScope(step, secondParent);
+    expect(first).not.toBe(second);
+    expect(first.getNumber('sourceValue')).toBe(2);
+    expect(second.getNumber('sourceValue')).toBe(7);
+    expect(fixture.runtime.getActionBlackboardScope(step, firstParent)).toBe(first);
+  });
+
+  it('逐目标循环在同一静态路径创建独立实体板，保留当前目标', () => {
+    const targetContext = new RuntimeTargetContext();
+    targetContext.set('lances', [
+      { kind: 'abilityEntity', instanceId: 3 },
+      { kind: 'abilityEntity', instanceId: 7 },
+    ]);
+    const observed: unknown[] = [];
+    const runtime = new CombatActionSequenceRuntime(
+      {
+        execute: (_step, context) => {
+          observed.push([context!.currentTarget, context!.blackboard.getNumber('EntityBB_count')]);
+          context!.blackboard.assignDynamic('EntityBB_count', 99);
+          return true;
+        },
+        evaluate: () => true,
+      },
+      { blackboard: new ActionBlackboard(), targetContext },
+    );
+    runtime
+      .createSequence(
+        sequence({
+          kind: 'forEachContextTarget',
+          parameters: { contextKey: 'lances' },
+          body: sequence({
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'launch',
+              lifetime: 'execution',
+              initialValues: {},
+              entityInitialValues: { EntityBB_count: 0 },
+              inheritParent: true,
+            },
+            body: sequence({
+              kind: 'withActionBlackboardScope',
+              parameters: {
+                scopeKey: 'callback',
+                initialValues: {},
+                inheritParent: true,
+              },
+              body: sequence(operation('visit')),
+            }),
+          }),
+        }),
+      )
+      .executeInstant({});
+    expect(observed).toEqual([
+      [{ kind: 'abilityEntity', instanceId: 3 }, 0],
+      [{ kind: 'abilityEntity', instanceId: 7 }, 0],
+    ]);
+  });
+
+  it('兄弟回调共享宿主实体层，但各自 direct 修改不覆盖源快照或另一个回调', () => {
+    const parent = new ActionBlackboard({ shared: 6 });
+    const seen: unknown[] = [];
+    const runtime = new CombatActionSequenceRuntime(
+      {
+        execute: (step, context) => {
+          if (step.kind !== 'setContextFlag') throw new Error('unexpected operation');
+          const board = context!.blackboard;
+          seen.push([
+            step.parameters.flag,
+            board.getNumber('shared'),
+            board.getNumber('EntityBB_count'),
+          ]);
+          board.assign({ shared: 123 });
+          board.assignDynamic('EntityBB_count', 8);
+          return true;
+        },
+        evaluate: () => true,
+      },
+      { blackboard: parent },
+    );
+    const children = ['hit', 'reach'].map(key => ({
+      kind: 'withActionBlackboardScope' as const,
+      parameters: { scopeKey: key, initialValues: { shared: 0 }, inheritParent: true },
+      body: sequence(operation(key)),
+    }));
+    const launch = sequence({
+      kind: 'withActionBlackboardScope',
+      parameters: {
+        scopeKey: 'projectile',
+        lifetime: 'execution',
+        initialValues: {},
+        inheritParent: true,
+        entityInitialValues: { EntityBB_count: 0 },
+      },
+      body: sequence(...children),
+    });
+    const action = runtime.createSequence(launch);
+    action.executeInstant({});
+    parent.assign({ shared: 10 });
+    action.executeInstant({});
+    expect(seen).toEqual([
+      ['hit', 6, 0],
+      ['reach', 6, 8],
+      ['hit', 10, 0],
+      ['reach', 10, 8],
+    ]);
+    expect(parent.snapshot()).toEqual({ shared: 10 });
+  });
+
+  it.each([false, true])('回调边界 alwaysNext=%s 只影响局部短路，不跳过执行', alwaysNext => {
+    const fixture = createFixture(false);
+    fixture.runtime
+      .createSequence(
+        sequence(
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'callback',
+              initialValues: {},
+              inheritParent: true,
+              alwaysNext,
+            },
+            body: sequence({
+              kind: 'conditional',
+              parameters: { condition: { kind: 'combatActive' } },
+              whenTrue: sequence(operation('blocked')),
+            }),
+          },
+          operation('after'),
+        ),
+      )
+      .executeInstant({});
+    expect(fixture.operations.evaluate).toHaveBeenCalledTimes(1);
+    expect(fixture.executed).toEqual(alwaysNext ? ['after'] : []);
+  });
+
+  it('execution 作用域在执行、tick 和 end 期间保持同一黑板', () => {
+    const boards: ActionBlackboard[] = [];
+    const runtime = new CombatActionSequenceRuntime(
+      {
+        execute: (_step, context) => {
+          boards.push(context!.blackboard);
+          return true;
+        },
+        end: (_step, context) => {
+          boards.push(context!.blackboard);
+        },
+        evaluate: () => true,
+      },
+      { blackboard: new ActionBlackboard() },
+    );
+    const action = runtime.createSequence(
+      sequence({
+        kind: 'withActionBlackboardScope',
+        parameters: {
+          scopeKey: 'launch',
+          lifetime: 'execution',
+          initialValues: {},
+          inheritParent: true,
+        },
+        body: sequence({
+          kind: 'repeatEachTick',
+          parameters: {},
+          body: sequence(operation('tick')),
+        }),
+      }),
+    );
+    action.execute({});
+    action.tick(0, {});
+    action.tick(1, {});
+    action.end({});
+    expect(boards.length).toBe(4);
+    expect(new Set(boards).size).toBe(1);
+  });
+
   it('严格按照声明顺序执行普通步骤', () => {
     const fixture = createFixture();
 

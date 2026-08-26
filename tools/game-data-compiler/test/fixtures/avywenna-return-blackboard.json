@@ -1,0 +1,834 @@
+[
+  {
+    "kind": "combo",
+    "template": {
+      "projectileId": "projectile_chr_0012_avywen_combo_skill_lance_back",
+      "rawSha256": "8391a88b037a8ce14aa5167f29c450b8ade6e0f47f888a0abbe838761d8301ae",
+      "entityBlackboard": [
+        { "key": "EntityBB_talent0", "valueDouble": 0, "valueStr": "", "isDynamic": true }
+      ]
+    },
+    "launch": {
+      "$type": "Beyond.Gameplay.Core.LaunchProjectile+Data, Gameplay.Beyond",
+      "isEnable": true,
+      "priorityLevel": "Default",
+      "priorityOffset": 0,
+      "serverActionIndex": 67,
+      "projectileId": "projectile_chr_0012_avywen_combo_skill_lance_back",
+      "projectileSource": {
+        "targetSource": "Source",
+        "targetGroupKey": "",
+        "selectorOwner": "ActionOwner",
+        "ownerContextKey": "",
+        "centerType": "ActionSource",
+        "centerContextKey": "",
+        "centerToGround": false,
+        "selectorData": {
+          "validatorData": [],
+          "postProcessorData": []
+        },
+        "enableAdvancedDirection": false,
+        "advancedDirection": {
+          "directionType": "SourceForward",
+          "sourceMountPoint": "None",
+          "targetMountPoint": "None",
+          "customSourceAndTarget": false,
+          "clampToXZ": true,
+          "invertDirection": false
+        },
+        "selectorDirection": "SourceForward",
+        "target": "ActionSource",
+        "targetContextKey": ""
+      },
+      "syncTimeScale": false,
+      "assignEntityBlackboard": false,
+      "assignPairs": [],
+      "emitPos": {
+        "targetSource": "Context",
+        "targetGroupKey": "launchPos",
+        "selectorOwner": "ActionOwner",
+        "ownerContextKey": "",
+        "centerType": "ActionOwner",
+        "centerContextKey": "",
+        "centerToGround": false,
+        "selectorData": {
+          "finderData": {
+            "$type": "Beyond.Gameplay.Core.Selector+FixedPointFinder+Data, Gameplay.Beyond",
+            "positionOffset": {
+              "x": 0,
+              "y": 0.5,
+              "z": 5
+            },
+            "rotationOffset": {
+              "x": 0,
+              "y": 0,
+              "z": 0,
+              "w": 1
+            },
+            "snapToNavmesh": false,
+            "sampleRadius": {
+              "useBlackboardKey": false,
+              "value": 0,
+              "blackboardKey": ""
+            }
+          },
+          "validatorData": [],
+          "postProcessorData": []
+        },
+        "enableAdvancedDirection": false,
+        "advancedDirection": {
+          "directionType": "SourceForward",
+          "sourceMountPoint": "None",
+          "targetMountPoint": "None",
+          "customSourceAndTarget": false,
+          "clampToXZ": true,
+          "invertDirection": false
+        },
+        "selectorDirection": "SourceForward",
+        "target": "ActionOwner",
+        "targetContextKey": ""
+      },
+      "overrideEmitBone": false,
+      "emitMountPoint": "None",
+      "useWeaponMp": false,
+      "weaponIndex": 0,
+      "weaponMp": "Root",
+      "emitPosOffsetForward": "TargetForward",
+      "emitPosFixedOffset": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "emitPosRandomOffset": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "targetSettings": {
+        "targetSource": "Source",
+        "targetGroupKey": "",
+        "selectorOwner": "ActionOwner",
+        "ownerContextKey": "",
+        "centerType": "ActionSource",
+        "centerContextKey": "",
+        "centerToGround": false,
+        "selectorData": {
+          "validatorData": [],
+          "postProcessorData": []
+        },
+        "enableAdvancedDirection": false,
+        "advancedDirection": {
+          "directionType": "SourceForward",
+          "sourceMountPoint": "None",
+          "targetMountPoint": "None",
+          "customSourceAndTarget": false,
+          "clampToXZ": true,
+          "invertDirection": false
+        },
+        "selectorDirection": "SourceForward",
+        "target": "ActionSource",
+        "targetContextKey": ""
+      },
+      "overrideHitBone": false,
+      "hitMountPoint": "None",
+      "hitBoneOffsetForward": "TargetForward",
+      "hitBoneFixedOffset": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "hitBoneRandomOffset": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "presetPoints": [],
+      "assignBlackboard": true,
+      "castSkillOnHit": true,
+      "projectileSkillId": "chr_0012_avywen_combo_skill_lance_back",
+      "castSkillOnBlock": false,
+      "skillIdOnBlock": "",
+      "castSkillOnReach": true,
+      "skillIdOnReach": "chr_0012_avywen_combo_skill_lance_back_reach",
+      "castSkillOnFinish": false,
+      "skillIdOnFinish": ""
+    },
+    "hit": {
+      "skillId": "chr_0012_avywen_combo_skill_lance_back",
+      "blackboard": [
+        {
+          "key": "radius",
+          "valueDouble": 4,
+          "valueStr": "",
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale_lance",
+          "valueDouble": 3,
+          "valueStr": "",
+          "isDynamic": true
+        },
+        {
+          "key": "poise_lance",
+          "valueDouble": 0,
+          "valueStr": "",
+          "isDynamic": false
+        },
+        {
+          "key": "talent0_usp",
+          "valueDouble": 0,
+          "valueStr": "",
+          "isDynamic": false
+        },
+        {
+          "key": "potential_5_rate",
+          "valueDouble": 0,
+          "valueStr": "",
+          "isDynamic": false
+        }
+      ],
+      "write": {
+        "$type": "Beyond.Gameplay.Core.ModifyDynamicBlackboard+Data, Gameplay.Beyond",
+        "isEnable": true,
+        "priorityLevel": "Default",
+        "priorityOffset": 0,
+        "serverActionIndex": 2,
+        "key": "EntityBB_talent0",
+        "operation": "Assign",
+        "directValue": true,
+        "value": {
+          "useBlackboardKey": true,
+          "value": 0,
+          "blackboardKey": "talent0_usp"
+        },
+        "calculationTarget": {
+          "targetSource": "Owner",
+          "targetGroupKey": "",
+          "selectorOwner": "ActionOwner",
+          "ownerContextKey": "",
+          "centerType": "ActionSource",
+          "centerContextKey": "",
+          "centerToGround": false,
+          "selectorData": {
+            "validatorData": [],
+            "postProcessorData": []
+          },
+          "enableAdvancedDirection": false,
+          "advancedDirection": {
+            "directionType": "SourceForward",
+            "sourceMountPoint": "None",
+            "targetMountPoint": "None",
+            "customSourceAndTarget": false,
+            "clampToXZ": true,
+            "invertDirection": false
+          },
+          "selectorDirection": "SourceForward",
+          "target": "ActionSource",
+          "targetContextKey": ""
+        },
+        "calculateType": "HpRatio"
+      }
+    },
+    "reach": {
+      "skillId": "chr_0012_avywen_combo_skill_lance_back_reach",
+      "blackboard": [
+        {
+          "key": "radius",
+          "valueDouble": 4,
+          "valueStr": "",
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale",
+          "valueDouble": 3,
+          "valueStr": "",
+          "isDynamic": false
+        }
+      ],
+      "sequence": {
+        "actionData": [
+          {
+            "$type": "Beyond.Gameplay.Core.CompareFloat+Data, Gameplay.Beyond",
+            "isEnable": true,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 9,
+            "valueA": {
+              "useBlackboardKey": true,
+              "value": 0,
+              "blackboardKey": "EntityBB_talent0"
+            },
+            "compare": "GT",
+            "valueB": {
+              "useBlackboardKey": false,
+              "value": 0,
+              "blackboardKey": ""
+            }
+          },
+          {
+            "$type": "Beyond.Gameplay.Core.CheckBuffStackNumAdvanced+Data, Gameplay.Beyond",
+            "isEnable": true,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 10,
+            "checkTarget": {
+              "targetSource": "Source",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "selectorData": {
+                "validatorData": [],
+                "postProcessorData": []
+              },
+              "enableAdvancedDirection": false,
+              "advancedDirection": {
+                "directionType": "SourceForward",
+                "sourceMountPoint": "None",
+                "targetMountPoint": "None",
+                "customSourceAndTarget": false,
+                "clampToXZ": true,
+                "invertDirection": false
+              },
+              "selectorDirection": "SourceForward",
+              "target": "ActionSource",
+              "targetContextKey": ""
+            },
+            "buffSettings": {
+              "checkType": "Id",
+              "buffIdList": ["buff_chr_0012_avywen_talent_0"],
+              "tagQuery": {
+                "queryType": "HasAny",
+                "tags": []
+              }
+            },
+            "buffStackNumType": "BuffCount",
+            "compareType": "GE",
+            "value": {
+              "useBlackboardKey": false,
+              "value": 1,
+              "blackboardKey": ""
+            },
+            "limitSkillCastId": false
+          },
+          {
+            "$type": "Beyond.Gameplay.Core.ObtainCostAction+Data, Gameplay.Beyond",
+            "isEnable": true,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 11,
+            "costType": "UltimateSp",
+            "isPercentValue": false,
+            "useUspRecoverTag": false,
+            "uspRecoverTag": {
+              "tagId": 0
+            },
+            "ignoreUspGainScalar": false,
+            "atbSourceType": "Default",
+            "atbGainMethod": "Gain",
+            "playObtainAtbEffect": true,
+            "playObtainAtbAudio": true,
+            "costValue": {
+              "useBlackboardKey": true,
+              "value": 0,
+              "blackboardKey": "EntityBB_talent0"
+            },
+            "coefficient": {
+              "useBlackboardKey": false,
+              "value": 1,
+              "blackboardKey": ""
+            },
+            "atbOnlyMainChar": false,
+            "source": {
+              "targetSource": "Source",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "selectorData": {
+                "validatorData": [],
+                "postProcessorData": []
+              },
+              "enableAdvancedDirection": false,
+              "advancedDirection": {
+                "directionType": "SourceForward",
+                "sourceMountPoint": "None",
+                "targetMountPoint": "None",
+                "customSourceAndTarget": false,
+                "clampToXZ": true,
+                "invertDirection": false
+              },
+              "selectorDirection": "SourceForward",
+              "target": "ActionSource",
+              "targetContextKey": ""
+            },
+            "target": {
+              "targetSource": "Source",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "selectorData": {
+                "validatorData": [],
+                "postProcessorData": []
+              },
+              "enableAdvancedDirection": false,
+              "advancedDirection": {
+                "directionType": "SourceForward",
+                "sourceMountPoint": "None",
+                "targetMountPoint": "None",
+                "customSourceAndTarget": false,
+                "clampToXZ": true,
+                "invertDirection": false
+              },
+              "selectorDirection": "SourceForward",
+              "target": "ActionSource",
+              "targetContextKey": ""
+            }
+          }
+        ],
+        "onlyExecuteWhenSourceIsMainChar": false,
+        "onlyExecuteWhenSourceIsGuard": false
+      }
+    },
+    "sources": [
+      {
+        "file": "chr_0012_avywen_combo_skill_lance_back.json",
+        "sha256": "dc856577a79c20a926c88bf7e8e5803e21a04e85dc4dfe1b607003617b126e66"
+      },
+      {
+        "file": "chr_0012_avywen_normal_skill.json",
+        "sha256": "cbcbe4d48e104a36e04b91c2870d60b45802455299ece5344dffc7797771e098"
+      },
+      {
+        "file": "chr_0012_avywen_combo_skill_lance_back_reach.json",
+        "sha256": "e1c47718f337f0db6795ae8a1379bf41b8c4ec253e2577cb2c5eb645ccf2c772"
+      }
+    ]
+  },
+  {
+    "kind": "ultimate",
+    "template": {
+      "projectileId": "projectile_chr_0012_avywen_ultimate_skill_lance_back",
+      "rawSha256": "82807ea31da6944c48874859360c2ad8e63ff93d4bb528e778006e30a891d228",
+      "entityBlackboard": [
+        { "key": "EntityBB_talent0", "valueDouble": 0, "valueStr": "", "isDynamic": true }
+      ]
+    },
+    "launch": {
+      "$type": "Beyond.Gameplay.Core.LaunchProjectile+Data, Gameplay.Beyond",
+      "isEnable": true,
+      "priorityLevel": "Default",
+      "priorityOffset": 0,
+      "serverActionIndex": 75,
+      "projectileId": "projectile_chr_0012_avywen_ultimate_skill_lance_back",
+      "projectileSource": {
+        "targetSource": "Source",
+        "targetGroupKey": "",
+        "selectorOwner": "ActionOwner",
+        "ownerContextKey": "",
+        "centerType": "ActionSource",
+        "centerContextKey": "",
+        "centerToGround": false,
+        "selectorData": {
+          "validatorData": [],
+          "postProcessorData": []
+        },
+        "enableAdvancedDirection": false,
+        "advancedDirection": {
+          "directionType": "SourceForward",
+          "sourceMountPoint": "None",
+          "targetMountPoint": "None",
+          "customSourceAndTarget": false,
+          "clampToXZ": true,
+          "invertDirection": false
+        },
+        "selectorDirection": "SourceForward",
+        "target": "ActionSource",
+        "targetContextKey": ""
+      },
+      "syncTimeScale": false,
+      "assignEntityBlackboard": false,
+      "assignPairs": [],
+      "emitPos": {
+        "targetSource": "Context",
+        "targetGroupKey": "launchPos",
+        "selectorOwner": "ActionOwner",
+        "ownerContextKey": "",
+        "centerType": "ActionOwner",
+        "centerContextKey": "",
+        "centerToGround": false,
+        "selectorData": {
+          "finderData": {
+            "$type": "Beyond.Gameplay.Core.Selector+FixedPointFinder+Data, Gameplay.Beyond",
+            "positionOffset": {
+              "x": 0,
+              "y": 0.5,
+              "z": 5
+            },
+            "rotationOffset": {
+              "x": 0,
+              "y": 0,
+              "z": 0,
+              "w": 1
+            },
+            "snapToNavmesh": false,
+            "sampleRadius": {
+              "useBlackboardKey": false,
+              "value": 0,
+              "blackboardKey": ""
+            }
+          },
+          "validatorData": [],
+          "postProcessorData": []
+        },
+        "enableAdvancedDirection": false,
+        "advancedDirection": {
+          "directionType": "SourceForward",
+          "sourceMountPoint": "None",
+          "targetMountPoint": "None",
+          "customSourceAndTarget": false,
+          "clampToXZ": true,
+          "invertDirection": false
+        },
+        "selectorDirection": "SourceForward",
+        "target": "ActionOwner",
+        "targetContextKey": ""
+      },
+      "overrideEmitBone": false,
+      "emitMountPoint": "None",
+      "useWeaponMp": false,
+      "weaponIndex": 0,
+      "weaponMp": "Root",
+      "emitPosOffsetForward": "TargetForward",
+      "emitPosFixedOffset": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "emitPosRandomOffset": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "targetSettings": {
+        "targetSource": "Source",
+        "targetGroupKey": "",
+        "selectorOwner": "ActionOwner",
+        "ownerContextKey": "",
+        "centerType": "ActionSource",
+        "centerContextKey": "",
+        "centerToGround": false,
+        "selectorData": {
+          "validatorData": [],
+          "postProcessorData": []
+        },
+        "enableAdvancedDirection": false,
+        "advancedDirection": {
+          "directionType": "SourceForward",
+          "sourceMountPoint": "None",
+          "targetMountPoint": "None",
+          "customSourceAndTarget": false,
+          "clampToXZ": true,
+          "invertDirection": false
+        },
+        "selectorDirection": "SourceForward",
+        "target": "ActionSource",
+        "targetContextKey": ""
+      },
+      "overrideHitBone": false,
+      "hitMountPoint": "None",
+      "hitBoneOffsetForward": "TargetForward",
+      "hitBoneFixedOffset": {
+        "x": 0,
+        "y": -0.3,
+        "z": 0
+      },
+      "hitBoneRandomOffset": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "presetPoints": [],
+      "assignBlackboard": true,
+      "castSkillOnHit": true,
+      "projectileSkillId": "chr_0012_avywen_ultimate_skill_lance_back",
+      "castSkillOnBlock": false,
+      "skillIdOnBlock": "",
+      "castSkillOnReach": true,
+      "skillIdOnReach": "chr_0012_avywen_combo_skill_lance_back_reach",
+      "castSkillOnFinish": false,
+      "skillIdOnFinish": ""
+    },
+    "hit": {
+      "skillId": "chr_0012_avywen_ultimate_skill_lance_back",
+      "blackboard": [
+        {
+          "key": "radius",
+          "valueDouble": 4,
+          "valueStr": "",
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale_lance_ult",
+          "valueDouble": 3,
+          "valueStr": "",
+          "isDynamic": true
+        },
+        {
+          "key": "poise_lance",
+          "valueDouble": 0,
+          "valueStr": "",
+          "isDynamic": false
+        },
+        {
+          "key": "talent0_usp",
+          "valueDouble": 0,
+          "valueStr": "",
+          "isDynamic": false
+        },
+        {
+          "key": "poise_lance_ult",
+          "valueDouble": 0,
+          "valueStr": "",
+          "isDynamic": false
+        },
+        {
+          "key": "potential_5_rate",
+          "valueDouble": 0,
+          "valueStr": "",
+          "isDynamic": false
+        }
+      ],
+      "write": {
+        "$type": "Beyond.Gameplay.Core.ModifyDynamicBlackboard+Data, Gameplay.Beyond",
+        "isEnable": true,
+        "priorityLevel": "Default",
+        "priorityOffset": 0,
+        "serverActionIndex": 3,
+        "key": "EntityBB_talent0",
+        "operation": "Assign",
+        "directValue": true,
+        "value": {
+          "useBlackboardKey": true,
+          "value": 0,
+          "blackboardKey": "talent0_usp"
+        },
+        "calculationTarget": {
+          "targetSource": "Owner",
+          "targetGroupKey": "",
+          "selectorOwner": "ActionOwner",
+          "ownerContextKey": "",
+          "centerType": "ActionSource",
+          "centerContextKey": "",
+          "centerToGround": false,
+          "selectorData": {
+            "validatorData": [],
+            "postProcessorData": []
+          },
+          "enableAdvancedDirection": false,
+          "advancedDirection": {
+            "directionType": "SourceForward",
+            "sourceMountPoint": "None",
+            "targetMountPoint": "None",
+            "customSourceAndTarget": false,
+            "clampToXZ": true,
+            "invertDirection": false
+          },
+          "selectorDirection": "SourceForward",
+          "target": "ActionSource",
+          "targetContextKey": ""
+        },
+        "calculateType": "HpRatio"
+      }
+    },
+    "reach": {
+      "skillId": "chr_0012_avywen_combo_skill_lance_back_reach",
+      "blackboard": [
+        {
+          "key": "radius",
+          "valueDouble": 4,
+          "valueStr": "",
+          "isDynamic": false
+        },
+        {
+          "key": "atk_scale",
+          "valueDouble": 3,
+          "valueStr": "",
+          "isDynamic": false
+        }
+      ],
+      "sequence": {
+        "actionData": [
+          {
+            "$type": "Beyond.Gameplay.Core.CompareFloat+Data, Gameplay.Beyond",
+            "isEnable": true,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 9,
+            "valueA": {
+              "useBlackboardKey": true,
+              "value": 0,
+              "blackboardKey": "EntityBB_talent0"
+            },
+            "compare": "GT",
+            "valueB": {
+              "useBlackboardKey": false,
+              "value": 0,
+              "blackboardKey": ""
+            }
+          },
+          {
+            "$type": "Beyond.Gameplay.Core.CheckBuffStackNumAdvanced+Data, Gameplay.Beyond",
+            "isEnable": true,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 10,
+            "checkTarget": {
+              "targetSource": "Source",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "selectorData": {
+                "validatorData": [],
+                "postProcessorData": []
+              },
+              "enableAdvancedDirection": false,
+              "advancedDirection": {
+                "directionType": "SourceForward",
+                "sourceMountPoint": "None",
+                "targetMountPoint": "None",
+                "customSourceAndTarget": false,
+                "clampToXZ": true,
+                "invertDirection": false
+              },
+              "selectorDirection": "SourceForward",
+              "target": "ActionSource",
+              "targetContextKey": ""
+            },
+            "buffSettings": {
+              "checkType": "Id",
+              "buffIdList": ["buff_chr_0012_avywen_talent_0"],
+              "tagQuery": {
+                "queryType": "HasAny",
+                "tags": []
+              }
+            },
+            "buffStackNumType": "BuffCount",
+            "compareType": "GE",
+            "value": {
+              "useBlackboardKey": false,
+              "value": 1,
+              "blackboardKey": ""
+            },
+            "limitSkillCastId": false
+          },
+          {
+            "$type": "Beyond.Gameplay.Core.ObtainCostAction+Data, Gameplay.Beyond",
+            "isEnable": true,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 11,
+            "costType": "UltimateSp",
+            "isPercentValue": false,
+            "useUspRecoverTag": false,
+            "uspRecoverTag": {
+              "tagId": 0
+            },
+            "ignoreUspGainScalar": false,
+            "atbSourceType": "Default",
+            "atbGainMethod": "Gain",
+            "playObtainAtbEffect": true,
+            "playObtainAtbAudio": true,
+            "costValue": {
+              "useBlackboardKey": true,
+              "value": 0,
+              "blackboardKey": "EntityBB_talent0"
+            },
+            "coefficient": {
+              "useBlackboardKey": false,
+              "value": 1,
+              "blackboardKey": ""
+            },
+            "atbOnlyMainChar": false,
+            "source": {
+              "targetSource": "Source",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "selectorData": {
+                "validatorData": [],
+                "postProcessorData": []
+              },
+              "enableAdvancedDirection": false,
+              "advancedDirection": {
+                "directionType": "SourceForward",
+                "sourceMountPoint": "None",
+                "targetMountPoint": "None",
+                "customSourceAndTarget": false,
+                "clampToXZ": true,
+                "invertDirection": false
+              },
+              "selectorDirection": "SourceForward",
+              "target": "ActionSource",
+              "targetContextKey": ""
+            },
+            "target": {
+              "targetSource": "Source",
+              "targetGroupKey": "",
+              "selectorOwner": "ActionOwner",
+              "ownerContextKey": "",
+              "centerType": "ActionSource",
+              "centerContextKey": "",
+              "centerToGround": false,
+              "selectorData": {
+                "validatorData": [],
+                "postProcessorData": []
+              },
+              "enableAdvancedDirection": false,
+              "advancedDirection": {
+                "directionType": "SourceForward",
+                "sourceMountPoint": "None",
+                "targetMountPoint": "None",
+                "customSourceAndTarget": false,
+                "clampToXZ": true,
+                "invertDirection": false
+              },
+              "selectorDirection": "SourceForward",
+              "target": "ActionSource",
+              "targetContextKey": ""
+            }
+          }
+        ],
+        "onlyExecuteWhenSourceIsMainChar": false,
+        "onlyExecuteWhenSourceIsGuard": false
+      }
+    },
+    "sources": [
+      {
+        "file": "chr_0012_avywen_ultimate_skill_lance_back.json",
+        "sha256": "5456de15711357b10f07d4e57d6d979fd088218900450bde70d990a389e44e68"
+      },
+      {
+        "file": "chr_0012_avywen_normal_skill.json",
+        "sha256": "cbcbe4d48e104a36e04b91c2870d60b45802455299ece5344dffc7797771e098"
+      },
+      {
+        "file": "chr_0012_avywen_combo_skill_lance_back_reach.json",
+        "sha256": "e1c47718f337f0db6795ae8a1379bf41b8c4ec253e2577cb2c5eb645ccf2c772"
+      }
+    ]
+  }
+]

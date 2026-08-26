@@ -229,6 +229,8 @@ export interface ResolvedCombatStepParameters {
   changeSkillSlot: CombatStepParameters['changeSkillSlot'];
   withActionBlackboardScope: {
     scopeKey: string;
+    lifetime?: 'parent' | 'execution';
+    alwaysNext?: boolean;
     initialValues: Readonly<Record<string, number>>;
     inheritParent: boolean;
     entityInitialValues?: Readonly<Record<string, number>>;

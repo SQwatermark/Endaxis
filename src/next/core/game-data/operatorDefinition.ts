@@ -1069,6 +1069,10 @@ export interface CombatStepParameters {
   /** 在一次原生子 SkillData 调用独占的 direct blackboard 中执行 body。 */
   withActionBlackboardScope: {
     scopeKey: string;
+    /** 默认在同一父黑板内复用；execution 用于每次发射等独立实例，不跨循环项共享。 */
+    lifetime?: 'parent' | 'execution';
+    /** 回调边界忽略局部序列的短路结果，不阻止后续独立回调。 */
+    alwaysNext?: boolean;
     initialValues: Readonly<Record<string, LevelValues>>;
     /** 原生 assignBlackboard：调用时把父 direct blackboard 覆盖到子初值之上。 */
     inheritParent: boolean;
