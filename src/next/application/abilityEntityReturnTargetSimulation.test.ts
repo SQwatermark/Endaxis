@@ -283,7 +283,7 @@ describe('回收标记作用于真实枪实例，而非木桩', () => {
     expect(ownUltimate.target.getCountByIds([marker])).toBe(1);
   });
 
-  it('重复查询不制造实体，重复施加按 Buff 唯一性合并；不宣称已证明死亡回收时序', () => {
+  it('重复查询不制造实体，重复施加按 Buff 唯一性合并', () => {
     const f = fixture();
     const gun = f.spawn(combo);
     f.run(0);
@@ -291,6 +291,112 @@ describe('回收标记作用于真实枪实例，而非木桩', () => {
     expect(f.entities.activeCount).toBe(1);
     expect(gun.target.getCountByIds([marker])).toBe(1);
     expect(f.events).toHaveLength(1); // Unique rejects the second application; not a one-shot launch filter
+  });
+
+  it('真实子技能收到 called Buff 后跳到 1500，死亡同帧可见并在下一帧释放', async () => {
+    const base = nextGameDataRepository.getOperator('avywenna')!;
+    const projected = makeReturnTargetProjection(0) as ActionSequenceDefinition;
+    const definition = base.abilityEntityDefinitions?.[combo];
+    if (definition?.childSkill === undefined)
+      throw new Error('missing generated combo lance child');
+    const operator: OperatorDefinition = {
+      ...base,
+      talents: [],
+      potentials: [],
+      abilityEntityDefinitions: { [combo]: definition },
+      buffDefinitions: { [marker]: base.buffDefinitions![marker]! },
+      skillGroups: [
+        {
+          key: 'comboSkill',
+          skillType: 'comboSkill',
+          levelSource: 'comboSkill',
+          skills: {
+            key: 'spawnRealChild',
+            timelineBlockFrames: 1,
+            scheduledSequences: [
+              {
+                startFrame: 0,
+                sequence: {
+                  steps: [
+                    {
+                      kind: 'spawnAbilityEntity',
+                      parameters: { abilityEntityId: combo, dieWhenSourceDies: false },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+        {
+          key: 'battleSkill',
+          skillType: 'battleSkill',
+          levelSource: 'battleSkill',
+          skills: {
+            key: 'returnRealChild',
+            timelineBlockFrames: 1,
+            blackboard: { lance_count: 0 },
+            scheduledSequences: [{ startFrame: 0, sequence: projected }],
+          },
+        },
+      ],
+    };
+    let scenario = createEmptyScenario('return-child-lifecycle', '真实回收枪子技能生命周期');
+    scenario.battle.durationFrames = 50;
+    const track: TrackDocument = {
+      id: 'track:return-child',
+      operator: {
+        operatorSlug: operator.slug,
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: { battleSkill: 12, comboSkill: 12 },
+        talentStates: {},
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0, maxUltimateEnergyOverride: 1000 },
+      skillCasts: [],
+    };
+    scenario.tracks[0] = track;
+    let serial = 0;
+    for (const [skillGroupKey, startFrame] of [
+      ['comboSkill', 1],
+      ['battleSkill', 31],
+    ] as const) {
+      scenario = placeSkillGroup({
+        scenario,
+        operator,
+        trackIndex: 0,
+        skillGroupKey,
+        startFrame,
+        ids: { allocate: kind => `${kind}:return-child:${serial++}` },
+      }).scenario;
+    }
+    const result = await new ScenarioSimulationService({
+      index: {
+        ...nextGameDataRepository,
+        getOperator: slug =>
+          slug === operator.slug ? operator : nextGameDataRepository.getOperator(slug),
+      },
+      resources: {
+        sharedSpGain: { baseGainEfficiency: 1 },
+        spRecoveryPauseDuration: 1.5,
+        ultimateEnergySystemUnlocked: true,
+        normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+      },
+    }).simulate(scenario, 50);
+
+    expect(
+      result.receiptEntries.filter(entry => entry.event === 'AbilityEntitySpawned'),
+    ).toHaveLength(1);
+    expect(result.receiptEntries.filter(entry => entry.event === 'AbilityEntityFinished')).toEqual([
+      expect.objectContaining({
+        sourceId: track.id,
+        data: expect.objectContaining({ abilityEntityId: combo, reason: 'explicit' }),
+      }),
+    ]);
   });
 
   it('明确同施法验证器只保留对应实例，不能把静态候选当作查询结果', () => {

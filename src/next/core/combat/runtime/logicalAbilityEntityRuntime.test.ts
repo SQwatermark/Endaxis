@@ -132,6 +132,11 @@ describe('LogicalAbilityEntityRuntime', () => {
     expect(childSkillRequested).toHaveBeenCalledTimes(1);
     expect(runtime.isActive(entity)).toBe(true);
     expect(runtime.notifySourceDied({ kind: 'operator', operatorId: 'a' })).toBe(1);
+    expect(runtime.isActive(entity)).toBe(true);
+    expect(runtime.snapshot(entity).isAlive).toBe(false);
+    expect(runtime.findOwnerSpawned({ ownerId: 'a' })).toEqual([entity]);
+    expect(runtime.notifySourceDied({ kind: 'operator', operatorId: 'a' })).toBe(0);
+    runtime.advanceFrame();
     expect(runtime.isActive(entity)).toBe(false);
     expect(runtime.activeCount).toBe(0);
   });

@@ -1,5 +1,23 @@
 # 艾维文娜回收枪：黑板宿主与回调切片
 
+## 2026-08-27：called Buff 后的 JumpTo 与实体退出
+
+枪本体的退出路径已经闭环，不再属于下文“死亡时序未知”边界：
+
+- 连携枪与终结技枪子技能都在第 0 帧创建 `JumpToAction`，用当前枪自身的 Owner Buff 检查
+  `buff_chr_0012_avywen_lance_becalled`；不读取木桩或施法者 Buff。
+- 条件未满足会随子技能局部时间 Tick 重试；首次满足后跳到 1500。目标帧动作在下一 Tick 开始并
+  执行 `FinishOwnerAction`。
+- 1.4.4 `BaseController.OnDie` 只启动回收计时，`_ElapsedReleaseTick` 才进入 Release。两类枪模板
+  `delayToRecycleSeconds=0`，所以 Next 投影为死亡同帧仍在目录、下一次实体 advance 退出。
+- 生成定义的真实连携枪 childSkill 已通过正式 ScenarioSimulationService：回收标记落到实体后触发
+  跳转、死亡和唯一结束回执。单位测试同时锁定 dead 同帧仍可被 owner 查询到。
+
+combat-spec 证据与方法 RVA 见 `docs/avywen-return-lance-lifecycle.md`，实现提交 `ba62cd6`。
+这里仍未闭合的是**回收投射物**的 hit/reach 调度如何由原战技发射链装回正式定义，以及投射物局部
+`EntityBB_talent0` 写入怎样进入 reach 回能。下文关于“正式连续排轴仍报错”的判断因此仍然有效；
+只需把“枪实体回收未知”更新为已完成，不能据此提前宣布完整技能贯通。
+
 2026-08-27。最新批贯通逐枪目标与回收标记；此前将伤害、潜能倍率及回能切片接入真实场景模拟，
 并闭合模板初值证据、公共回调作用域及写入/资源守卫。**尚未替换正式艾维文娜技能定义，连续排轴的原始报错仍存在**。
 不得把切片测试计入整技能成功率。

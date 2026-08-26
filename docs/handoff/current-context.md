@@ -6,6 +6,26 @@
 当前主线是在 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
+### 2026-08-27：回收枪 JumpTo 与死亡/释放边界闭环（最新）
+
+- combat-spec `ba62cd6` 依据 1.4.4 方法体补齐 `JumpToAction`：Execute 立即尝试、条件未满足时
+  随 Tick 重试、首次成功先锁门再跳；时间轴丢弃目标帧前未启动项、结束被跨过的短活动项，目标帧
+  本身留给下一 Tick。严格数据适配保留真实条件序列和 `destFrame=1500`，反向跳转仍失败关闭。
+- `BaseController.OnDie/_ElapsedReleaseTick` 证明死亡只把回收计时归零，后续控制器 Tick 才 Release。
+  艾维文娜两类枪的回收延迟都是 0，因此 Next 采用“当前同步帧 dead 但 finder 仍可见，下一次能力
+  实体 advance 脱离目录”的最小投影；没有同步删除，也没有让死枪继续活到 62 秒模板寿命。
+- `finishCurrentAbilityEntity` 现进入 dead/pending-release，而不是立即删除。快照公开 `isAlive`；同帧
+  owner 查询仍返回死枪，重复 FinishOwner 幂等，下一帧统一结束子 runtime 并发出原有 finished 回执。
+  `sourceDied` 监视链复用同一生命周期，保留最终原因。
+- 新正式场景测试直接复用生成的连携枪子技能：第 0 帧 called Buff 条件在回收标记后成立，跳到
+  1500，随后 FinishOwner，下一帧收到唯一 `AbilityEntityFinished`。这闭合的是回收枪本体的子技能
+  退出链；回收投射物 hit/reach 调度与正式连续排轴的 `EntityBB_talent0` 传递仍未整合，两个诊断
+  不能改成成功。
+- combat-spec 新增 5 项并全量 1393 通过、17 项仍为既有本机 artifacts 缺失；Next 定向 87 项、
+  全量 305 文件/3644 项通过，两侧类型检查及武器生成 `--check` 77 把/78 文件通过。
+  下一步把已验证的投射物 hit/reach 回调切片装回统一主动技能生成链，再重生成正式艾维文娜并验收
+  连携枪/终结技枪、重复回收、天赋潜能与 `wpn_lance_0006` 数值差分。
+
 ### 2026-08-27：逐枪查询与回收标记贯通（最新）
 
 - 先在 combat-spec `f3bb824` 依据方法体实现 ForEachAction 和有界距离条件：目标快照，逐项

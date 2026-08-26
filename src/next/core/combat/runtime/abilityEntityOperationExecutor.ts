@@ -143,7 +143,7 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       if (context?.currentTarget === undefined) {
         throw new Error('AbilityEntity finish requires a current Context target');
       }
-      this.#entities.finish(context.currentTarget, 'explicit');
+      this.#entities.kill(context.currentTarget, 'explicit');
       return true;
     }
     if (step.kind === 'finishCurrentAbilityEntityWhenSourceDies') {
@@ -151,7 +151,7 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
         throw new Error('AbilityEntity source-death finish requires a current Context target');
       }
       if (this.#entities.isSourceDead(context.currentTarget)) {
-        this.#entities.finish(context.currentTarget, 'sourceDied');
+        this.#entities.kill(context.currentTarget, 'sourceDied');
       }
       return true;
     }

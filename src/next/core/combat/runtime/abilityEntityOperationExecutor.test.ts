@@ -383,6 +383,9 @@ describe('AbilityEntityOperationExecutor', () => {
         { blackboard, currentTarget: entity },
       ),
     ).toBe(true);
+    expect(entities.activeCount).toBe(1);
+    expect(entities.snapshot(entity).isAlive).toBe(false);
+    entities.advanceFrame();
     expect(entities.activeCount).toBe(0);
   });
 
@@ -565,6 +568,9 @@ describe('AbilityEntityOperationExecutor', () => {
 
     expect(entities.activeCount).toBe(1);
     entities.advanceFrame();
+    expect(entities.activeCount).toBe(1);
+    expect(entities.snapshot(entities.findAll()[0]!).isAlive).toBe(false);
+    entities.advanceFrame();
     expect(entities.activeCount).toBe(0);
   });
 
@@ -643,6 +649,8 @@ describe('AbilityEntityOperationExecutor', () => {
     expect(entities.activeCount).toBe(1);
     expect(entities.notifySourceDied(source)).toBe(0);
     expect(executor.execute(step, context)).toBe(true);
+    expect(entities.snapshot(entity).isAlive).toBe(false);
+    entities.advanceFrame();
     expect(entities.activeCount).toBe(0);
   });
 });

@@ -746,6 +746,8 @@ describe('CombatRuntimeAssembly', () => {
     expect(entityBuffs?.buffs.map(buff => buff.definition.id)).toEqual(['entity-monitor']);
     expect(assembly.abilityEntities.activeCount).toBe(1);
     assembly.advanceFrames(1);
+    expect(assembly.abilityEntities.activeCount).toBe(1);
+    assembly.advanceFrames(1);
     expect(assembly.abilityEntities.activeCount).toBe(0);
     expect(entityBuffs?.buffs[0]?.isFinished).toBe(true);
     expect(entityBuffs?.buffs.map(buff => buff.definition.id)).toEqual([
@@ -836,7 +838,7 @@ describe('CombatRuntimeAssembly', () => {
     expect(
       assembly.abilityEntities.notifySourceDied({ kind: 'operator', operatorId: 'operator' }),
     ).toBe(0);
-    assembly.advanceFrames(5);
+    assembly.advanceFrames(6);
 
     expect(assembly.abilityEntities.activeCount).toBe(0);
     expect(entityBuffs?.buffs[0]?.isFinished).toBe(true);

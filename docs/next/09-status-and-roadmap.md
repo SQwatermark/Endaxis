@@ -2,6 +2,15 @@
 
 本文只给出架构级状态。逐功能的定义、编译、执行和 UI 门槛以[功能迁移矩阵](../architecture/endaxis-next-feature-matrix.md)为准。
 
+> 2026-08-27 回收枪最新：combat-spec `ba62cd6` 已恢复 JumpTo 一次性条件重试、向前跳转调度和
+> BaseController 死亡后延迟 Release；艾维文娜两类枪回收延迟为 0。Next 不再同步删除
+> FinishOwner 实体，而是保留 dead 实例到下一次能力实体 advance；同帧 finder 可见、下一帧退出。
+> 生成的真实连携枪子技能已在正式场景完成 called Buff → JumpTo(1500) → FinishOwner → Release。
+> 正式连续排轴的投射物 hit/reach 调度与 `EntityBB_talent0` 传递仍未整合，原两个诊断继续保留。
+> 下一步把此前已验收的回调切片装回统一主动技能生成链，再重生成正式定义并做武器数值差分。
+> 证据见 [回收枪研究](../research/avywenna-return-projectile-blackboard.md)；原生生命周期细节在
+> combat-spec `docs/avywen-return-lance-lifecycle.md`。
+
 > 2026-08-27 回收枪最新：原生逐枪查询、数量守卫和回收标记切片已贯通公共转换与真实场景，
 > 标记落在当前枪，不落木桩；修复逐目标条件失败导致整个模拟抛错。复刻库先补 ForEach 快照/
 > 局部短路及 <= / > 距离边界。**正式整技能与两个原排轴报错尚未修复**；下一步是 called Buff

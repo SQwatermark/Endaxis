@@ -57,12 +57,15 @@ export interface LogicalAbilityEntitySnapshot {
   readonly remainingDurationSeconds: number | null;
   readonly elapsedDurationSeconds: number;
   readonly dieWhenSourceDies: boolean;
+  /** FinishOwner 后到控制器回收 Tick 前实例仍在目录中，但已不存活。 */
+  readonly isAlive: boolean;
   readonly blackboard: Readonly<Record<string, ActionBlackboardValue>>;
 }
 
 export interface LogicalAbilityEntityRuntimeHooks {
   spawned?(snapshot: LogicalAbilityEntitySnapshot): void;
   childSkillRequested?(snapshot: LogicalAbilityEntitySnapshot, skillId: string): void;
+  killed?(snapshot: LogicalAbilityEntitySnapshot, reason: LogicalAbilityEntityFinishReason): void;
   finished?(snapshot: LogicalAbilityEntitySnapshot, reason: LogicalAbilityEntityFinishReason): void;
 }
 
@@ -79,6 +82,9 @@ interface LogicalAbilityEntityInstance {
   readonly timedMarkers: TimedMarkerContainer;
   remainingDurationSeconds: number | null;
   elapsedDurationSeconds: number;
+  isAlive: boolean;
+  pendingRelease: boolean;
+  pendingReleaseReason?: LogicalAbilityEntityFinishReason;
   readonly childRuntimes: LogicalAbilityEntityChildRuntime[];
 }
 
@@ -153,6 +159,8 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
       }),
       remainingDurationSeconds,
       elapsedDurationSeconds: 0,
+      isAlive: true,
+      pendingRelease: false,
       childRuntimes: [],
     };
     this.#instances.set(instance.instanceId, instance);
@@ -258,6 +266,19 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     this.#hooks.finished?.(this.#snapshot(instance), reason);
   }
 
+  /**
+   * FinishOwner 的死亡分支。死亡不立即脱离实例目录；零回收延迟在下一次 runtime advance
+   * 执行 Release，从而保留同一同步帧内 finder 对 dead 实例的可见性。
+   */
+  kill(entity: RuntimeTargetRef, reason: LogicalAbilityEntityFinishReason = 'explicit'): void {
+    const instance = this.#requireInstance(entity);
+    if (!instance.isAlive) return;
+    instance.isAlive = false;
+    instance.pendingRelease = true;
+    instance.pendingReleaseReason = reason;
+    this.#hooks.killed?.(this.#snapshot(instance), reason);
+  }
+
   finishOwnerSpawned(ownerId: string): number {
     const targets = this.findOwnerSpawned({ ownerId });
     for (const target of targets) this.finish(target, 'ownerFinished');
@@ -269,14 +290,26 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
       this.#deadSources.push(source);
     }
     const targets = [...this.#instances.values()]
-      .filter(instance => instance.dieWhenSourceDies && this.#sameTarget(instance.source, source))
+      .filter(
+        instance =>
+          instance.isAlive &&
+          instance.dieWhenSourceDies &&
+          this.#sameTarget(instance.source, source),
+      )
       .map(instance => ({ kind: 'abilityEntity' as const, instanceId: instance.instanceId }));
-    for (const target of targets) this.finish(target, 'sourceDied');
+    for (const target of targets) this.kill(target, 'sourceDied');
     return targets.length;
   }
 
   advanceFrame(): void {
     for (const instance of [...this.#instances.values()]) {
+      if (instance.pendingRelease) {
+        this.finish(
+          { kind: 'abilityEntity', instanceId: instance.instanceId },
+          instance.pendingReleaseReason ?? 'explicit',
+        );
+        continue;
+      }
       const delta = requireDuration(
         this.#resolveDeltaSeconds(this.#snapshot(instance)),
         'AbilityEntity delta',
@@ -323,6 +356,7 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
       remainingDurationSeconds: instance.remainingDurationSeconds,
       elapsedDurationSeconds: instance.elapsedDurationSeconds,
       dieWhenSourceDies: instance.dieWhenSourceDies,
+      isAlive: instance.isAlive,
       blackboard: instance.blackboard.snapshot(),
     });
   }
