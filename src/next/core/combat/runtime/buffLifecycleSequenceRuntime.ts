@@ -778,6 +778,13 @@ export function normalizeAbilityEventPayload(
               );
             })(),
       skillCastId: source.skillCastId as number,
+      ...(typeof source.attachBuffToCurrentSkill === 'function'
+        ? {
+            attachBuffToCurrentSkill: source.attachBuffToCurrentSkill as NonNullable<
+              CombatAbilitySkillEvent['attachBuffToCurrentSkill']
+            >,
+          }
+        : {}),
     };
   }
   if (event === 'poiseZero') {

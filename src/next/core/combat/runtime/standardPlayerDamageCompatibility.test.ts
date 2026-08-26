@@ -88,7 +88,7 @@ function compatibilityInput(
 }
 
 describe('standardPlayerDamageCompatibility', () => {
-  it('blocks an unbound current-cast Buff lifetime instead of dropping it', () => {
+  it('accepts current-cast Buff lifetime with context binding checked at execution', () => {
     const issues = inspectStandardPlayerDamageCompatibility(
       compatibilityInput(
         operator({
@@ -105,12 +105,7 @@ describe('standardPlayerDamageCompatibility', () => {
         }),
       ),
     );
-    expect(issues).toMatchObject([
-      {
-        code: 'unsupported-step',
-        detail: 'currentCastSkill Buff lifetime requires a native CastSkillContext attachment port',
-      },
-    ]);
+    expect(issues).toEqual([]);
   });
   it('accepts the closed standard damage, Buff, poise, infliction, action value and resource subset', () => {
     const issues = inspectStandardPlayerDamageCompatibility(

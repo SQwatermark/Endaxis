@@ -74,8 +74,8 @@ export class BuffDefinitionOperationTarget<Key extends string>
   }
 
   applyScoped(request: BuffApplicationRequest): BuffApplicationHandle | null {
-    const buff = this.#apply(request);
-    return buff === null ? null : { finish: reason => buff.finish(reason) };
+    // 返回稳定的实例句柄，使重复施加/刷新后的 Skill.AttachBuff 可以按身份去重。
+    return this.#apply(request);
   }
 
   #apply(request: BuffApplicationRequest) {

@@ -84,6 +84,74 @@ function createBattleSkillRuntime(
 }
 
 describe('SkillRuntime', () => {
+  it('keeps attachments on the addressed runtime while another skill is casting', () => {
+    const previous = createBattleSkillRuntime(300).runtime;
+    const next = createBattleSkillRuntime(300).runtime;
+    const oldBuff = { finish: vi.fn(() => true) };
+    const newBuff = { finish: vi.fn(() => true) };
+    previous.prepareSkillCastId(10);
+    previous.tryStart();
+    previous.attachBuffToCast(10, oldBuff);
+    next.prepareSkillCastId(11);
+    next.attachBuffToCast(11, newBuff);
+    previous.interrupt('castNextSkill');
+    expect(oldBuff.finish).toHaveBeenCalledExactlyOnceWith('other');
+    expect(newBuff.finish).not.toHaveBeenCalled();
+    next.tryStart();
+    next.end();
+    expect(newBuff.finish).toHaveBeenCalledExactlyOnceWith('other');
+  });
+  it.each(['natural', 'interrupt'] as const)(
+    'ends attached Buffs once, in order, before the %s skill-end event',
+    mode => {
+      const order: string[] = [];
+      const fixture = createBattleSkillRuntime(
+        300,
+        undefined,
+        undefined,
+        { key: 'attached', timelineBlockFrames: 0, scheduledSequences: [] },
+        () => order.push('skillEnd'),
+      );
+      const first = {
+        finish: vi.fn(() => {
+          order.push('first');
+          return true;
+        }),
+      };
+      const alreadyFinished = {
+        finish: vi.fn(() => {
+          order.push('second');
+          return false;
+        }),
+      };
+      fixture.runtime.prepareSkillCastId(10);
+      fixture.runtime.attachBuffToCast(10, first);
+      fixture.runtime.attachBuffToCast(10, first);
+      fixture.runtime.tryStart();
+      fixture.runtime.attachBuffToCast(10, alreadyFinished);
+      if (mode === 'natural') fixture.runtime.advanceFrame();
+      else fixture.runtime.interrupt('castNextSkill');
+      expect(order).toEqual(['first', 'second', 'skillEnd']);
+      expect(first.finish).toHaveBeenCalledExactlyOnceWith('other');
+      fixture.runtime.end();
+      fixture.runtime.prepareSkillCastId(11);
+      expect(() => fixture.runtime.attachBuffToCast(10, first)).toThrow('stale skill cast context');
+      fixture.runtime.tryStart();
+      fixture.runtime.end();
+      expect(first.finish).toHaveBeenCalledOnce();
+      expect(order).toEqual(['first', 'second', 'skillEnd', 'skillEnd']);
+    },
+  );
+
+  it('does not infer a CastSkillContext for the paid-cost event from its source identity', () => {
+    const onCost = vi.fn((event: import('./skillRuntime').CombatAbilitySkillEvent) => {
+      expect(event.attachBuffToCurrentSkill).toBeUndefined();
+    });
+    const { runtime } = createBattleSkillRuntime(300, 0, undefined, undefined, undefined, onCost);
+    runtime.tryStart();
+    expect(onCost).toHaveBeenCalledOnce();
+    runtime.end();
+  });
   it('publishes skillEnd after both natural completion and interruption', () => {
     const natural = vi.fn();
     const naturalFixture = createBattleSkillRuntime(

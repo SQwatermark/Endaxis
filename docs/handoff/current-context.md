@@ -6,7 +6,35 @@
 当前主线是在 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
-### 2026-08-26 晚：武器候选生产门禁与生成完成度纠偏
+### 2026-08-26 晚续：技能附着 Buff 生命周期进入生产运行链
+
+- `CreateBuffAttachingSkill` 依据 combat-spec `docs/create-buff-attaching-skill.md` 与
+  `Runtime/Skill.cs` 接入 Next。`beforeCastSkill` 明确携带精确技能对象端口，按
+  `(operatorId, skillId, castId, skillCastId)` 寻址；事件归一化后仍可由武器或 Buff 响应使用。
+  不从当前主技能、动作宿主、`eventSkillCastInfo` 或 `skillCastInfo` 推断附着对象。
+- `SkillRuntime` 保存稳定实例句柄、按实例去重并保持首次附着顺序；自然结束和中断均在时间轴
+  清理之后、`skillEnd` 发布之前正序 `finish('other')`，随后清空。Buff 目标端口在刷新同一实例
+  时返回同一身份，提前结束的 Buff 由自身幂等逻辑处理。创建失败不执行附着钩子；创建成功但
+  缺少当前 CastSkillContext 时仍严格报错，不能降级为独立 Buff 或交给旧手写执行器丢掉约束。
+- 四把武器 `wpn_lance_0006`、`wpn_sword_0015/0017/0021` 已移出原有四技能场景的失败清单，
+  当前基线 **69/77 运行成功、8/77 精确已知阻塞**。新增 `wpn_lance_0006` 连续两次战技的生产
+  回归，逐次检查 `buff_wpn_lance_0006_skill_pulse01` 与对应技能同帧结束、结束原因及事件顺序。
+  单元测试另覆盖预分配阶段附着、同实例去重、中断、不同技能隔离、再次施放、空创建及严格失败。
+- 证据范围仍有限：只给已证实的 `beforeCastSkill` 开放 CastSkillContext 端口；费用事件/结束事件
+  即使带有施法编号，也不能据此开放。四把武器通过当前场景不等于全部条件分支通过，例如
+  `wpn_sword_0015` 的物理异常事件下也出现附着动作，缺少对应事件对象证据时仍可能严格阻断。
+- 来源身份复核：combat-spec `Actions/AbilityActions.cs::FillSkillCastInfo` 与
+  `Runtime/DamageConditions.cs::CheckOriginSkillTypeAction` 明确区分动作环境来源与当前事件来源；
+  原生已知空 origin 返回 false，但“端口未提供”不能冒充已知空。Next 当前
+  `EventContextConditionExecutor` 的 `eventSkillCastInfo ?? skillCastInfo` 优先级需要重新审计，
+  Buff 来源和被动 Ability 来源须分别闭环，再处理四把来源缺失武器；本批未用默认值消除这些错误。
+- 默认武器仓库未切换；其余阻塞仍是来源身份 4 把、Stack 优先级 `lv`、构筑初始化的 Ability
+  子 Buff、装备直接伤害、Buff 结束链治疗各 1 把。下一批先闭环动作环境施法来源，再继续这些端口。
+- 验证：Next + 游戏数据回归 **276 文件、2587 测试**，专用类型检查与 77 把候选 `--check`
+  通过；审计仍在 `tmp/weapon-attached-buff-regression.audit.json`，不提交。未改旧版代码或默认数据注册，
+  combat-spec 已有本批所需机制，无新增实现修改。
+
+### 2026-08-26 晚：武器候选生产门禁与生成完成度纠偏（上一批基线）
 
 - 台式机已拉取白天 Endaxis `c11c1eed`、combat-spec `96c0883`。修复 Next 类型门禁中的
   `afterSkillApplyCost` 事件联合遗漏和测试非法 `gainKinds=['cost']`；没有改动旧版实现。

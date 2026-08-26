@@ -269,16 +269,21 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     }
 
     if (step.kind === 'applyBuff') {
-      if (step.parameters.lifetimeOwner === 'currentCastSkill') {
-        throw new Error(
-          'currentCastSkill Buff lifetime requires a native CastSkillContext attachment port',
-        );
-      }
+      const attachToSkill = step.parameters.lifetimeOwner === 'currentCastSkill';
+      const attachBuff =
+        context?.event?.kind === 'abilitySkill'
+          ? context.event.attachBuffToCurrentSkill
+          : undefined;
       // 旧手写配置仍由原执行器解释；定义路径只接收原生身份和施加黑板覆盖值。
       if (
         step.parameters.durationSeconds !== undefined ||
         step.parameters.effectiveness !== undefined
       ) {
+        if (attachToSkill) {
+          throw new Error(
+            'currentCastSkill Buff lifetime requires a definition-backed Buff handle',
+          );
+        }
         return context === undefined
           ? this.dependencies.delegate.execute(step)
           : this.dependencies.delegate.execute(step, context);
@@ -292,11 +297,14 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       }
       if (
         targets.some(target =>
-          finishByAction || asChildBuff
+          finishByAction || asChildBuff || attachToSkill
             ? target.applyScoped === undefined
             : target.apply === undefined,
         )
       ) {
+        if (attachToSkill) {
+          throw new Error('currentCastSkill Buff lifetime requires a scoped Buff application port');
+        }
         return context === undefined
           ? this.dependencies.delegate.execute(step)
           : this.dependencies.delegate.execute(step, context);
@@ -343,11 +351,20 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       // 原生用从 0 开始的整数计数器与 float 次数比较，正小数因此会多执行一次。
       for (let repetition = 0; repetition < count; repetition += 1) {
         for (const target of targets) {
-          if (finishByAction || asChildBuff) {
+          if (finishByAction || asChildBuff || attachToSkill) {
             const handle = target.applyScoped!(request);
             if (handle !== null) {
               if (finishByAction) scoped.push(handle);
               if (asChildBuff) addOwnerChild!(handle);
+              if (attachToSkill) {
+                // 原生派生钩子只对创建成功的实例读取 CastSkillContext。
+                if (attachBuff === undefined) {
+                  throw new Error(
+                    'currentCastSkill Buff lifetime requires a native CastSkillContext attachment port',
+                  );
+                }
+                attachBuff(handle);
+              }
             }
           } else {
             target.apply!(request);

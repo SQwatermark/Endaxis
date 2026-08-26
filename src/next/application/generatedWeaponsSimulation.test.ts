@@ -22,22 +22,16 @@ const repository = createGameDataRepository({
 });
 
 // 明确失败边界，不是完成豁免：新增失败或旧失败消失都会使门禁变红，必须同步审计。
-const attachedSkill =
-  'currentCastSkill Buff lifetime requires a native CastSkillContext attachment port';
 const originSkill = 'originSkillTypeIn requires an event source skill cast identity';
 const knownBlockers: Readonly<Record<string, string>> = {
   wpn_claym_0016:
     "buff 'buff_wpn_claym_0016_dmgup' priority blackboard key 'lv' is missing or not numeric",
   wpn_funnel_0016: 'asChildBuff applyBuff requires a Buff or Ability owner context',
-  wpn_lance_0006: attachedSkill,
   wpn_lance_0010: 'equipment-triggered damage requires a recovered source-classification path',
   wpn_lance_0016: originSkill,
   wpn_pistol_0004: originSkill,
   wpn_pistol_0008: originSkill,
-  wpn_sword_0015: attachedSkill,
-  wpn_sword_0017: attachedSkill,
   wpn_sword_0020: originSkill,
-  wpn_sword_0021: attachedSkill,
   wpn_sword_0026: "standard player damage environment does not support 'heal'",
 };
 
@@ -45,7 +39,7 @@ describe('生成武器的正式模拟门禁', () => {
   it('包含全部 77 把候选且不从旧适配定义补行为', () => {
     expect(candidates).toHaveLength(77);
     expect(new Set(candidates.map(weapon => weapon.slug)).size).toBe(77);
-    expect(Object.keys(knownBlockers)).toHaveLength(12);
+    expect(Object.keys(knownBlockers)).toHaveLength(8);
     expect(
       Object.keys(knownBlockers).every(slug => candidates.some(item => item.slug === slug)),
     ).toBe(true);
@@ -105,6 +99,34 @@ describe('生成武器的正式模拟门禁', () => {
     expect(applied).toBeDefined();
     expect(ended?.data?.reason).toBe('lifetime');
     expect(ended!.time - applied!.time).toBeCloseTo(20, 1);
+  });
+
+  it('战技开始创建的武器 Buff 随本次技能结束，不残留到下一次战技', async () => {
+    const weapon = candidates.find(item => item.slug === 'wpn_lance_0006')!;
+    const operator = repository.getOperators().find(item => item.weaponType === weapon.weaponType)!;
+    const result = await simulateWeapon(weapon, operator, ['battleSkill', 'battleSkill']);
+    const applied = result.receiptEntries.filter(
+      entry =>
+        entry.event === 'BuffApplied' && entry.data?.buffId === 'buff_wpn_lance_0006_skill_pulse01',
+    );
+    const finished = result.receiptEntries.filter(
+      entry =>
+        entry.event === 'BuffFinished' &&
+        entry.data?.buffId === 'buff_wpn_lance_0006_skill_pulse01',
+    );
+    const skillEnds = result.receiptEntries.filter(entry => entry.event === 'SkillEnded');
+    expect(applied).toHaveLength(2);
+    expect(finished).toHaveLength(2);
+    expect(skillEnds).toHaveLength(2);
+    for (const [index, entry] of finished.entries()) {
+      expect(entry.data?.reason).toBe('other');
+      expect(entry.frame).toBe(skillEnds[index]!.frame);
+      expect(result.receiptEntries.indexOf(entry)).toBeLessThan(
+        result.receiptEntries.indexOf(skillEnds[index]!),
+      );
+      expect(entry.time).toBeGreaterThan(applied[index]!.time);
+    }
+    expect(finished[0]!.time).toBeLessThan(applied[1]!.time);
   });
 });
 

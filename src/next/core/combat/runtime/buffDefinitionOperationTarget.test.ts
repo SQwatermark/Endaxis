@@ -8,6 +8,19 @@ import { gameplayTagId } from '../tags/gameplayTags';
 type Attribute = 'cost';
 
 describe('BuffDefinitionOperationTarget', () => {
+  it('returns the same scoped handle when refreshing the same Buff instance', () => {
+    const container = new CombatBuffContainer('operator', new CombatAttributeSet<string>());
+    const target = new BuffDefinitionOperationTarget(container, {
+      get: id => ({ id, stackingType: 'refresh' as const, durationSeconds: 30 }),
+    });
+    const request = { buffId: 'attached', sourceId: 'operator', blackboardValues: {} };
+    const first = target.applyScoped(request)!;
+    const refreshed = target.applyScoped(request);
+    expect(refreshed).toBe(first);
+    expect(first.finish('other')).toBe(true);
+    expect(first.finish('other')).toBe(false);
+    expect(target.applyScoped(request)).not.toBe(first);
+  });
   it('uses each apply step definition only when creating its own runtime instance', () => {
     const container = new CombatBuffContainer('operator', new CombatAttributeSet<string>());
     const compiledEntries: CombatBuffDefinitionEntry[] = [];

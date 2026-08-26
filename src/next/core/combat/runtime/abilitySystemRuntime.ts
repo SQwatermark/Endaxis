@@ -5,6 +5,7 @@
 import type { FrameRuntime } from './combatSimulation';
 import type { SkillType } from '../../game-data/operatorDefinition';
 import type { RuntimeSkillInterruptReason, RuntimeSkillState } from './skillRuntime';
+import type { BuffApplicationHandle } from './buffOperationExecutor';
 import { uniformAbilityTickDeltas, type AbilityTickDeltas } from './timeDilationRuntime';
 import { COMBAT_FRAME_INTERVAL, COMBAT_FRAMES_PER_SECOND } from './combatClock';
 import {
@@ -28,6 +29,7 @@ export interface AbilitySkillRuntime extends FrameRuntime {
   prepareStartBlackboard?(values: Readonly<Record<string, number>>): void;
   /** 装配层在施放前事件之前预分配的原生技能释放序号。 */
   prepareSkillCastId?(skillCastId: number): void;
+  attachBuffToCast?(skillCastId: number, buff: BuffApplicationHandle): void;
   tryStart(): boolean;
   interrupt(reason: RuntimeSkillInterruptReason): void;
   /** 时间膨胀启用后分别推进技能时间线和冷却。 */
@@ -207,6 +209,19 @@ export class AbilitySystemRuntime implements FrameRuntime {
       throw new Error(`skill '${skillId}' cannot receive a prepared skill cast id`);
     }
     skill.prepareSkillCastId(skillCastId);
+  }
+
+  attachBuffToSkillCast(
+    skillId: string,
+    castId: string | undefined,
+    skillCastId: number,
+    buff: BuffApplicationHandle,
+  ): void {
+    const skill = this.#requireSkill(skillId, castId);
+    if (skill.attachBuffToCast === undefined) {
+      throw new Error(`skill '${skillId}' cannot attach Buff instances`);
+    }
+    skill.attachBuffToCast(skillCastId, buff);
   }
 
   tryStartSkill(skillId: string, castId?: string): boolean {

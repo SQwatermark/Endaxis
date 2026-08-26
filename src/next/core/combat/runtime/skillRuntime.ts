@@ -23,6 +23,7 @@ import type { CombatSemanticEvent, CombatSemanticEventRuntime } from './combatSe
 import type { DamageFeature, DamageTag } from '../../game-data/operatorDefinition';
 import type { BuffFinishReason } from '../buffs/combatBuffs';
 import { RuntimeTargetContext } from './runtimeTargetContext';
+import type { BuffApplicationHandle } from './buffOperationExecutor';
 
 /** 技能实例从可释放到结束的运行时生命周期状态。 */
 export type RuntimeSkillState = 'ready' | 'casting' | 'ended';
@@ -107,6 +108,8 @@ export interface CombatAbilitySkillEvent {
   readonly skillType: import('../../game-data/operatorDefinition').SkillType;
   readonly skillId: string;
   readonly skillCastId: number;
+  /** 当前 CastSkillContext 的技能对象端口；不能用来源施法信息或动作宿主替代。 */
+  readonly attachBuffToCurrentSkill?: (buff: BuffApplicationHandle) => void;
 }
 
 /** 本场固定战斗在装配完成后向已注册 Buff 发布的一次实体入战事件。 */
@@ -230,6 +233,7 @@ export class SkillRuntime {
   #nonReturnedSpCost = 0;
   #skillCastId = 0;
   #preparedSkillCastId = 0;
+  readonly #attachedBuffs = new Set<BuffApplicationHandle>();
   #preparedStartBlackboard: Readonly<Record<string, number>> = {};
 
   constructor(program: CompiledSkillProgram, dependencies: SkillRuntimeDependencies) {
@@ -345,6 +349,15 @@ export class SkillRuntime {
     this.#preparedSkillCastId = skillCastId;
   }
 
+  attachBuffToCast(skillCastId: number, buff: BuffApplicationHandle): void {
+    const currentCastId = this.#preparedSkillCastId || this.#skillCastId;
+    if (skillCastId <= 0 || skillCastId !== currentCastId) {
+      throw new Error('cannot attach a Buff using a stale skill cast context');
+    }
+    // 原生 Skill.AttachBuff 按实例去重，并保留首次附着顺序。
+    this.#attachedBuffs.add(buff);
+  }
+
   tryStart(): boolean {
     if (this.#state === 'casting') throw new Error(`skill '${this.#program.skillId}' is casting`);
     const cooldownReserved = this.#cooldown.tryReserve();
@@ -429,6 +442,7 @@ export class SkillRuntime {
   end(): void {
     if (this.#state !== 'casting') return;
     this.#timeline?.end(this.#passedFrames, this.#context);
+    this.#finishAttachedBuffs();
     if (this.#cooldown.finishCast()) this.record('SkillCooldownRefunded');
     this.#state = 'ended';
     this.record('SkillEnded');
@@ -438,6 +452,7 @@ export class SkillRuntime {
   interrupt(reason: RuntimeSkillInterruptReason): void {
     if (this.#state !== 'casting') return;
     this.#timeline?.end(this.#passedFrames, this.#context);
+    this.#finishAttachedBuffs();
     if (this.#cooldown.finishCast()) this.record('SkillCooldownRefunded');
     this.#state = 'ended';
     this.record('SkillInterrupted', { reason });
@@ -561,6 +576,12 @@ export class SkillRuntime {
 
   #emitSkillEnd(): void {
     this.#dependencies.emitSkillEnd?.(this.#skillEventPayload('skillEnd'));
+  }
+
+  #finishAttachedBuffs(): void {
+    // CastEnd 在 OnSkillEnd 之前正序 MarkFinish(Other)，不传入结束来源/施法信息。
+    for (const buff of [...this.#attachedBuffs]) buff.finish('other');
+    this.#attachedBuffs.clear();
   }
 
   #skillEventPayload(event: CombatAbilitySkillEvent['event']): CombatAbilitySkillEvent {

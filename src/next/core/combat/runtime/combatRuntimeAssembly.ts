@@ -30,6 +30,7 @@ import { EventContextConditionExecutor } from './eventContextConditionExecutor';
 import { ActionBlackboard } from './actionBlackboard';
 import {
   BuffOperationExecutor,
+  type BuffApplicationHandle,
   type BuffLifecycleOperationSource,
   type BuffOperationTarget,
 } from './buffOperationExecutor';
@@ -39,7 +40,11 @@ import { CombatResourceRuntime } from './combatResourceRuntime';
 import { CombatResources, type CombatResourceSnapshot } from './combatResources';
 import { CombatSimulation, type FrameRuntime } from './combatSimulation';
 import { SkillResourceOperationExecutor } from './skillResourceOperationExecutor';
-import { SkillRuntime, type CombatOperationExecutor } from './skillRuntime';
+import {
+  SkillRuntime,
+  type CombatAbilitySkillEvent,
+  type CombatOperationExecutor,
+} from './skillRuntime';
 import { SkillCastIdAllocator } from './skillCastInfo';
 import { OperatorControlConditionExecutor } from './operatorControlConditionExecutor';
 import { StatusOperationExecutor } from './statusOperationExecutor';
@@ -288,6 +293,7 @@ export interface CombatRuntimeAssemblyOptions {
           readonly skillType: SkillType;
           readonly skillId: string;
           readonly skillCastId: number;
+          readonly attachBuffToCurrentSkill?: CombatAbilitySkillEvent['attachBuffToCurrentSkill'];
         }
       | {
           readonly sourceId: string;
@@ -903,6 +909,8 @@ export class CombatRuntimeAssembly {
         skillType: program.skillType,
         skillId: program.sourceSkillId ?? program.skillId,
         skillCastId,
+        attachBuffToCurrentSkill: (buff: BuffApplicationHandle) =>
+          ability.attachBuffToSkillCast(skillId, castId, skillCastId, buff),
       });
     }
   }

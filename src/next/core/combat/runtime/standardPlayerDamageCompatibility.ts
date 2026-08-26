@@ -279,14 +279,6 @@ function inspectSequence(
       case 'outputKnockDown':
         return;
       case 'applyBuff':
-        if (step.parameters.lifetimeOwner === 'currentCastSkill') {
-          report(
-            collect,
-            'unsupported-step',
-            stepPath,
-            'currentCastSkill Buff lifetime requires a native CastSkillContext attachment port',
-          );
-        }
         if (step.parameters.definition !== undefined) {
           inspectBuffDefinition(
             step.parameters.definition,

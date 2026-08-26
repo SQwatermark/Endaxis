@@ -12,6 +12,29 @@ const delegate: CombatOperationExecutor = {
 };
 
 describe('BuffOperationExecutor', () => {
+  it.each([false, true])(
+    'never drops cast attachment when falling back to legacy application (%s)',
+    legacy => {
+      const execute = vi.fn(() => true);
+      const executor = new BuffOperationExecutor({
+        sourceId: 'operator',
+        resolveTarget: () => new CombatBuffContainer('operator', new CombatAttributeSet()),
+        delegate: { ...delegate, execute },
+      });
+      expect(() =>
+        executor.execute({
+          kind: 'applyBuff',
+          parameters: {
+            buffId: 'attached',
+            target: 'caster',
+            lifetimeOwner: 'currentCastSkill',
+            ...(legacy ? { durationSeconds: 10 } : {}),
+          },
+        }),
+      ).toThrow(legacy ? 'definition-backed Buff handle' : 'scoped Buff application port');
+      expect(execute).not.toHaveBeenCalled();
+    },
+  );
   it('compares matching Buff instances on the real event target without counting enhance layers', () => {
     const path = 'buff/status/poise';
     const tag = gameplayTagIdFromPath(path);
@@ -244,14 +267,15 @@ describe('BuffOperationExecutor', () => {
     expect(finished).toEqual(['other']);
   });
 
-  it.each(['buff', 'ability'] as const)(
+  it.each(['buff', 'ability', 'castSkill', 'rejectedCastSkill', 'missingCastSkill'] as const)(
     'attaches scoped Buff handles to the current %s owner',
     owner => {
       const child = { finish: vi.fn(() => true) };
       const addCurrentBuffChild = vi.fn();
+      const isCastSkill = owner !== 'buff' && owner !== 'ability';
       const target = {
         ownerId: 'operator',
-        applyScoped: () => child,
+        applyScoped: () => (owner === 'rejectedCastSkill' ? null : child),
         getCountByIds: () => 0,
         finishByIds: () => 0,
         holdByIds: () => ({ release: () => undefined }),
@@ -267,21 +291,50 @@ describe('BuffOperationExecutor', () => {
         delegate,
       });
 
-      expect(
+      const execute = () =>
         executor.execute(
           {
             kind: 'applyBuff',
-            parameters: { buffId: 'child', target: 'caster', asChildBuff: true },
+            parameters: {
+              buffId: 'child',
+              target: 'caster',
+              ...(isCastSkill
+                ? { lifetimeOwner: 'currentCastSkill' as const }
+                : { asChildBuff: true }),
+            },
           },
           {
             blackboard: new ActionBlackboard(),
-            ...(owner === 'buff'
-              ? { addCurrentBuffChild }
-              : { addAbilityChildBuff: addCurrentBuffChild }),
+            ...(owner === 'castSkill'
+              ? {
+                  event: {
+                    kind: 'abilitySkill' as const,
+                    event: 'beforeCastSkill' as const,
+                    sourceId: 'operator',
+                    targetId: 'operator',
+                    skillId: 'current',
+                    skillType: 'battleSkill' as const,
+                    skillCastId: 7,
+                    attachBuffToCurrentSkill: addCurrentBuffChild,
+                  },
+                }
+              : owner === 'buff'
+                ? { addCurrentBuffChild }
+                : { addAbilityChildBuff: addCurrentBuffChild }),
           },
-        ),
-      ).toBe(true);
-      expect(addCurrentBuffChild).toHaveBeenCalledWith(child);
+        );
+      if (owner === 'missingCastSkill') {
+        expect(execute).toThrow(
+          'currentCastSkill Buff lifetime requires a native CastSkillContext attachment port',
+        );
+      } else {
+        expect(execute()).toBe(true);
+      }
+      if (owner === 'rejectedCastSkill' || owner === 'missingCastSkill') {
+        expect(addCurrentBuffChild).not.toHaveBeenCalled();
+      } else {
+        expect(addCurrentBuffChild).toHaveBeenCalledWith(child);
+      }
       expect(child.finish).not.toHaveBeenCalled();
     },
   );

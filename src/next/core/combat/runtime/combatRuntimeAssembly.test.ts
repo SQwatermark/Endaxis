@@ -312,6 +312,7 @@ describe('CombatRuntimeAssembly', () => {
           skillType: 'battleSkill',
           skillId: 'first',
           skillCastId: 1,
+          attachBuffToCurrentSkill: expect.any(Function),
         },
       ],
       [
@@ -336,6 +337,7 @@ describe('CombatRuntimeAssembly', () => {
           skillType: 'ultimate',
           skillId: 'second',
           skillCastId: 2,
+          attachBuffToCurrentSkill: expect.any(Function),
         },
       ],
     ]);
