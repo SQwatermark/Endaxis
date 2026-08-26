@@ -6,10 +6,12 @@
 > 角色模板内找到 EntityBB_consumed_type 初值及 CheckSpellInflictionType.savedKey 写入条件；
 > 复刻库先补原生动作，后续又实现每条连携条件的独立执行环境。VFS 已按字段读取到实体黑板，
 > 5 条事件绑定与局部黑板可导出；后续 14/14 直接叶子全部解码，角色组件总体仍 partial。
-> trigger 与输入目标的独立绑定及 ByTag/DebugPrint 原生动作已入规格。C# 全量
-> 1296 通过、17 项既有资产缺失失败；UnityWorker 32 通过、4 跳过。**8 项 Next 运行阻塞仍在**，
-> 未切默认武器库，也未用补零放行。下一步补上游门禁/事件参数来源、核对 IFix，再接统一
-> TS compiler 和 Next 初始化。见[诀证据](../research/arcane-next-evidence.md)。
+> trigger 与输入目标的独立绑定及 ByTag/DebugPrint 原生动作已入规格；又修复真实附着事件的
+> 发布目标与缺失 combo 阶段，接入当前连携技能的冷却门禁，并保留 Pending 直接黑板副本。
+> 最新 C# 全量 **1319 通过、17 项既有资产缺失失败且失败名不变**；上批 UnityWorker 32 通过、
+> 4 跳过，本批未重跑 TS/Next/VFS。**8 项 Next 运行阻塞仍在**，默认武器库未切换。
+> 下一步核对剩余上游门禁、初始化覆盖、Pending 到 cast 与 IFix，再接统一 TS compiler/Next。
+> 见[诀证据](../research/arcane-next-evidence.md)。
 
 > 2026-08-26 最新存档迁移：已支持稳定词条键和显式重命名，77 把真实武器迁移后可重新通过
 > 项目校验；佩丽卡战技项目另验证迁移后实际模拟。注册审计发现 **10 项**布局变化（5 新增、

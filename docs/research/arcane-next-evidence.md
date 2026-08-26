@@ -1,5 +1,22 @@
 # 诀新版配置证据记录
 
+## 2026-08-26 附着事件通路、冷却门禁与 Pending 快照（最新）
+
+combat-spec 已修复 DataDrivenSpellInflictionAction 的四事件目标绑定与 OnEnemy 缺失的连携
+发布阶段。原生 121/130 由被附着方发布，EventContext.target 为施加方，trigger 为被附着方；
+126/129 方向相反。不是用当前时间轴技能的目标反推，也不改变附着 Buff 更新前后的时序。
+
+TriggerComboSkillEvent 冷却阈值闭合为 CastData.startCdFrame / 30（常量原值 30.0），不是
+额外的“预测窗口”。环境新增显式上游资格之后的入口，按当前连携槽位复用 CheckCooldown，
+缺失技能/计时器拒绝。Pending 条件成功后复制直接 DataPair，不合并 EntityBB，不共享活板；
+空启用板与禁用/null 保持区别。剩余虚调用门禁、队列选择和 cast 覆盖未冒充完成。
+
+新增 23 项 C# 测试；相关 84/84，全量 1319 pass/17 既有资产缺失、失败名不变。真实附着动作
+可在 Buff 变更前进入选中的独立队友条件，冷却拒绝则不写入。完整原生 RVA/边界见
+combat-spec `docs/combo-event-gates-and-pending.md`。**Next 8 场阻塞仍在**；本批仅更本文档与
+复刻库，未重跑 TS/Next/VFS。下一步查剩余门禁、初始化覆盖、Pending 到 cast 和 IFix，再接
+公共 source IR/Next，不能把有限 C# 切片通过称作正式干员转换完成。
+
 ## 2026-08-26 直接条件叶子完成，待门禁与正式接入
 
 VFS 新导出已完整消费全部 14 个直接条件载荷（角色组件后缀仍 partial）。前四条分别检查

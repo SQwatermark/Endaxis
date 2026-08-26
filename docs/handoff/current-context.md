@@ -6,7 +6,25 @@
 当前主线是在 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
-### 2026-08-26 再续：连携直接条件 14/14 与 trigger 绑定（最新）
+### 2026-08-26 再续：附着事件通路、连携冷却与 Pending 快照（最新）
+
+- combat-spec 修复真实附着动作的事件发布：OnEnemy 事件由被附着方发布、输入为施加方，
+  并进入原来缺失的 combo 阶段；OnChar 则相反。四事件均以发布者作为独立 trigger。
+  不改其他尚未审计的 TriggerOnTarget 调用方；不是向时间轴注入伪造事件。
+- 原生连携条件门禁的阈值已确认为 `startCdFrame / 30`，复用 Skill.CheckCooldown 的
+  oneReady 或 maxPassedTime < 阈值；检查当前替换后的连携技能，缺失技能/计时器严格拒绝。
+  冷却拒绝时不执行条件，不写实体黑板。全局资格/剩余虚调用仍由显式调用方负责。
+- Pending 原生复制直接 DataPair 到新列表；新增通过条件后的快照接口，保留动态标记，
+  不合并 EntityBB，区分禁用/null 与启用/空板。尚未复刻队列选择及 Pending 到 cast 的覆盖。
+- 新增 C# **23 项**，相关三组 **84/84**；全量 **1319 通过、17 项既有资产缺失失败**，
+  与上一批失败名集合完全一致。真实附着动作 → 独立队友条件 → Buff 变更前写入已测，
+  不等于完整 BattleManager 注册/窗口完成。报告在 combat-spec tmp/test-results/。
+- **Next 8 场阻塞仍保留**，Endaxis 本批只更新文档，未改生产代码/默认库，未重跑 TS/Next/VFS。
+  下一步：剩余上游虚调用门禁、初始化覆盖与 IFix、Pending assignPairs 到 cast 的传递，
+  然后公共 TS source IR/Next。不要重复研究已闭合的 14 叶子、冷却阈值或四附着事件的目标。
+- 详细证据：combat-spec `docs/combo-event-gates-and-pending.md`。本批仅本地提交，不推送。
+
+### 2026-08-26 再续：连携直接条件 14/14 与 trigger 绑定（上一批）
 
 - VFS 已补齐 TargetSettings/SelectorData/DirectionSettings 字段读取和目标类型/标签层数/
   DebugPrint 叶子；诀 5 条条件的 **14/14 直接动作载荷完整消费**。真实样本没有非空嵌套
