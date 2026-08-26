@@ -6,7 +6,30 @@
 当前主线是在 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
-### 2026-08-27：回收枪首帧调度与完整回调动作图进入统一编译器（最新）
+### 2026-08-27：首个完整主动技能正式生成闭环（最新）
+
+- 新增统一 TS 入口 `generate:game-data:operator-active-skill`。它从根 SkillData、SkillPatchTable、
+  投射物回调 SkillData/ProjectileData、实体黑板目录、能力实体目录、GameplayTag 与时间倍率目录
+  一次性编译完整 `SkillDefinition`；输出目录只允许
+  `src/next/data/operators/generated-active-skills/<slug>`，审计只允许
+  `tmp/game-data-audit/operator-active-skills/<slug>`。正式模块使用稳定的 `SkillData.<id>` 逻辑路径，
+  不包含本机绝对路径或 tmp 来源路径。
+- 艾维文娜普通战技已由该入口正式重生成并按原生 `sourceSkillId` 精确替换旧干员定义。连携枪后接
+  战技的生产场景现在会生成真实枪、执行回收投射物首帧 hit → reach、在第 46 帧产生回调伤害并
+  完成回能/回收链；此前两个“连续排轴缺 `EntityBB_talent0`”诊断已经由正式成功回归替代。
+- 根技能完整闭包实际引用的 `buff_chr_0012_avywen_lance_becalled_ready` 也由 BuffData 严格编译，
+  作为同一生成模块的补充 Buff 定义安装，保留 unique、2 秒寿命。生成器只接受显式列出的补充 ID，
+  并验证它确实被最终运行 DSL 的 `applyBuff` 使用；不会为绕过其他未闭合 Buff 而整目录宽松生成。
+- `char_hard_stop` 并非 `TimeDilationConfig` 命名曲线。1.4.4 VFS 的独立
+  `HitStopConfig.hitSopSettings` 已导出 24 条曲线并生成版本化目录；运行时将它与普通时间倍率曲线
+  合并，编辑器的公共时间膨胀下拉仍只展示 TimeDilationConfig。Unity 无限切线按阶跃段执行，不能
+  经 JSON 序列化成 null 或线性插值。精确资产与哈希见
+  [HitStop 曲线证据](../research/hit-stop-curve-config.md)。
+- 两个生成入口的 `--check`、两套类型检查、游戏数据 74 文件/457 项与 Next 235 文件/3204 项全量
+  回归均通过。旧武器门禁中的两个预期失败已经改为 tier 1/9 的三枪精确回收命中成功回归；随后以
+  同一正式入口扩展下一项复杂主动技能，不能手改大段生成文件或恢复旧 Python 链。
+
+### 2026-08-27：回收枪首帧调度与完整回调动作图进入统一编译器（上一批）
 
 - combat-spec `ef1b068` 依据 `ProjectileMovementSubComponent.OnTick` 恢复两阶段顺序：首帧先
   `_CheckCollision`，再移动/Reach；普通帧则相反。`Reach` 自身先施放 reach 技能，再检查
@@ -21,7 +44,7 @@
 - 本机完整源验证已通过两份 hit SkillData 与公共 reach SkillData。命中侧保留潜能伤害分支和
   终结技实体时间膨胀；到达侧保留主控分支、全局时间膨胀和双守卫回能。Interrupt、受击动画、
   拉拽、OnlyTarget hit-stop 仅在静态木桩无主动行为/零距离边界省略；特效和镜头只在无渲染后端省略。
-- **正式艾维文娜定义尚未由新 TS 主动技能渲染器重生成，两个连续排轴诊断仍必须保留。** 下一步是
+- **该批次时正式艾维文娜定义尚未由新 TS 主动技能渲染器重生成，两个连续排轴诊断仍必须保留。** 下一步是
   把本扩展接入正式主动技能时间轴装配，替换旧展平产物后再做连续排轴、终结技枪、重复回收、
   天赋/潜能和 `wpn_lance_0006` 数值差分；禁止手改生成文件或回到旧 Python。
 - 两套类型检查通过；Next+统一编译器全量 305 文件/3647 项通过（其中两项仍是上述已知失败诊断），

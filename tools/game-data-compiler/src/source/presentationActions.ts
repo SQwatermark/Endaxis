@@ -1,4 +1,5 @@
 import {
+  requireArray,
   requireBoolean,
   requireExactFields,
   requireInteger,
@@ -7,6 +8,8 @@ import {
   requireString,
 } from './primitives.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
+import { parseScalarSource, type BlackboardLevelValues } from './scalar.ts';
+import { parseTimeDilationCurveKeys } from './timeDilationActions.ts';
 
 export interface PlaySoundActionSource {
   readonly kind: 'playSound';
@@ -52,7 +55,131 @@ export interface EffectActionSource {
 }
 
 export interface CameraPresentationActionSource {
-  readonly kind: 'cameraImpulse' | 'cameraControlState' | 'dynamicCameraControlState';
+  readonly kind:
+    | 'cameraImpulse'
+    | 'cameraControlState'
+    | 'dynamicCameraControlState'
+    | 'cameraRotate'
+    | 'weaponVisibility'
+    | 'voiceTrigger';
+  readonly readBlackboardKeys?: readonly string[];
+}
+
+export function parseWeaponVisibilityActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      ...ACTION_META_FIELDS,
+      'includeAllWeapons',
+      'weaponIndex',
+      'visible',
+      'showVFX',
+      'overrideVFX',
+      'vfxOverrideConfig',
+    ]),
+    path,
+  );
+  requireBoolean(action.includeAllWeapons, `${path}.includeAllWeapons`);
+  requireInteger(action.weaponIndex, `${path}.weaponIndex`);
+  requireBoolean(action.visible, `${path}.visible`);
+  requireBoolean(action.showVFX, `${path}.showVFX`);
+  requireBoolean(action.overrideVFX, `${path}.overrideVFX`);
+  const vfx = requireRecord(action.vfxOverrideConfig, `${path}.vfxOverrideConfig`);
+  const fields = [
+    'toIdleAppearParticleFx',
+    'toIdleAppearRendererFx',
+    'toIdleAppearRendererFx2',
+    'toIdleAppearRendererFx3',
+    'toIdleAppearRendererFx4',
+    'toIdleDisappearParticleFx',
+    'toIdleDisappearRendererFx',
+    'toFightAppearParticleFx',
+    'toFightAppearRendererFx',
+  ];
+  requireExactFields(
+    vfx,
+    new Set(fields.flatMap(field => [`enable${field[0]!.toUpperCase()}${field.slice(1)}`, field])),
+    `${path}.vfxOverrideConfig`,
+  );
+  for (const field of fields) {
+    requireBoolean(
+      vfx[`enable${field[0]!.toUpperCase()}${field.slice(1)}`],
+      `${path}.vfxOverrideConfig.enable${field[0]!.toUpperCase()}${field.slice(1)}`,
+    );
+    requireString(vfx[field], `${path}.vfxOverrideConfig.${field}`);
+  }
+  return { kind: 'weaponVisibility' };
+}
+
+export function parseVoiceTriggerActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      ...ACTION_META_FIELDS,
+      '_triggerKey',
+      '_speakerType',
+      '_canInterruptTimeMs',
+      'targetSettings',
+    ]),
+    path,
+  );
+  requireString(action._triggerKey, `${path}._triggerKey`);
+  requireString(action._speakerType, `${path}._speakerType`);
+  requireInteger(action._canInterruptTimeMs, `${path}._canInterruptTimeMs`);
+  parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`);
+  return { kind: 'voiceTrigger' };
+}
+
+export function parseCameraRotateActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      ...ACTION_META_FIELDS,
+      'ccsPriority',
+      'totalAngle',
+      'duration',
+      'blendStyle',
+      'customCurve',
+      'inputConflictStrategy',
+    ]),
+    path,
+  );
+  requireNumber(action.ccsPriority, `${path}.ccsPriority`);
+  const totalAngle = parseScalarSource(
+    action.totalAngle,
+    `${path}.totalAngle`,
+    inheritedBlackboard,
+  );
+  const duration = parseScalarSource(action.duration, `${path}.duration`, inheritedBlackboard);
+  requireString(action.blendStyle, `${path}.blendStyle`);
+  parseTimeDilationCurveKeys(action.customCurve, `${path}.customCurve`);
+  requireString(action.inputConflictStrategy, `${path}.inputConflictStrategy`);
+  return {
+    kind: 'cameraRotate',
+    readBlackboardKeys: [totalAngle.blackboardKey, duration.blackboardKey].filter(
+      (key): key is string => key !== null,
+    ),
+  };
+}
+
+export interface PlayAnimationActionSource {
+  readonly kind: 'playAnimation';
+  readonly animationName: string;
+  readonly durationSeconds: number;
+  readonly playbackSpeed: number;
 }
 
 const ACTION_META_FIELDS = [
@@ -62,6 +189,61 @@ const ACTION_META_FIELDS = [
   'priorityOffset',
   'serverActionIndex',
 ];
+
+/**
+ * 无渲染后端只可省略没有 onEnd 子动作的动画。onEnd 可能承载战斗逻辑，因此非空时严格拒绝，
+ * 不能因为根动作是表现动作就连带删除子图。
+ */
+export function parsePlayAnimationActionSource(
+  value: unknown,
+  path: string,
+): PlayAnimationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      ...ACTION_META_FIELDS,
+      'animName',
+      'blendDuration',
+      'blendOut',
+      'duration',
+      'playbackSpeed',
+      'useStartTimeBlackboardKey',
+      'startTime',
+      'startTimeBlackboardKey',
+      'exitToIdle',
+      'blendOutNextStateHash',
+      'onEndAction',
+      'executeOnNormalEndOnly',
+    ]),
+    path,
+  );
+  const onEnd = requireRecord(action.onEndAction, `${path}.onEndAction`);
+  requireExactFields(
+    onEnd,
+    new Set(['actionData', 'onlyExecuteWhenSourceIsMainChar', 'onlyExecuteWhenSourceIsGuard']),
+    `${path}.onEndAction`,
+  );
+  if (
+    requireArray(onEnd.actionData, `${path}.onEndAction.actionData`).length > 0 ||
+    requireBoolean(
+      onEnd.onlyExecuteWhenSourceIsMainChar,
+      `${path}.onEndAction.onlyExecuteWhenSourceIsMainChar`,
+    ) ||
+    requireBoolean(
+      onEnd.onlyExecuteWhenSourceIsGuard,
+      `${path}.onEndAction.onlyExecuteWhenSourceIsGuard`,
+    )
+  ) {
+    throw new Error(`${path}.onEndAction: animation end combat actions are unsupported`);
+  }
+  return {
+    kind: 'playAnimation',
+    animationName: requireString(action.animName, `${path}.animName`),
+    durationSeconds: requireNumber(action.duration, `${path}.duration`),
+    playbackSpeed: requireNumber(action.playbackSpeed, `${path}.playbackSpeed`),
+  };
+}
 
 export function parseCameraPresentationActionSource(
   value: unknown,

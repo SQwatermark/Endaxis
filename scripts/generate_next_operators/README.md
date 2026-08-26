@@ -43,6 +43,23 @@ Aura 对目标的进入、离开和整体结束是实例生命周期，而不是
 
 ## 输出
 
+### 完整主动技能正式生成入口
+
+旧批量干员生成器仍用于迁移期的静态定义；需要把一个主动技能的完整动作图重新接入生产定义时，
+使用根包脚本 `generate:game-data:operator-active-skill`。该入口会递归加载投射物 hit/reach 回调，
+并共同使用能力实体、投射物实体黑板、GameplayTag、TimeDilation/HitStop 等版本目录。以艾维文娜
+普通战技为例：
+
+```powershell
+npm run generate:game-data:operator-active-skill -- --source-root tmp/game-data-sources --source-file chr_0012_avywen_normal_skill.json --skill-patch-table tmp/game-data-sources/TableCfg-1.4.4-9433094-12/SkillPatchTable.json --buff-data-root tmp/game-data-sources/BuffData --supplemental-buff-ids buff_chr_0012_avywen_lance_becalled_ready --ability-entity-catalog src/next/data/ability-entities/ability-entity-templates-1.4.4.json --projectile-blackboard-catalog src/next/data/projectiles/projectile-entity-blackboards-1.4.4.json --gameplay-tag-catalog src/next/data/combat/gameplayTagCatalog.generated.ts --time-dilation-catalog src/next/data/combat/timeDilationCatalog.ts --slug avywenna --key battleSkill --skill-type battleSkill --output src/next/data/operators/generated-active-skills/avywenna --audit-output tmp/game-data-audit/operator-active-skills/avywenna
+```
+
+正式输出和审计目录由脚本硬限制：前者只能位于
+`src/next/data/operators/generated-active-skills/<slug>`，后者只能位于
+`tmp/game-data-audit/operator-active-skills/<slug>`。来源路径会规范化为 `SkillData.<id>`，生成模块不得
+泄漏本机路径。`--supplemental-buff-ids` 不是忽略列表：每个 ID 都必须由最终 DSL 实际施加，并从
+`--buff-data-root` 严格编译；未使用、重复或未闭合定义都会失败。
+
 每名干员最多生成三个文件：
 
 - `<slug>.generated.ts`：完整、可审计的技能中间表示。

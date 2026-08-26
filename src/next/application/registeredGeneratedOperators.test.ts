@@ -373,6 +373,76 @@ describe('registered generated operators', () => {
     );
   });
 
+  it('runs Avywenna combo-lance return callbacks through the compiled production skill', () => {
+    let scenario = createEmptyScenario('scenario:avywenna:return', 'Avywenna 回枪生产回归');
+    scenario.battle.durationFrames = 120;
+    scenario.enemy.editable.hp = 10_000_000;
+    scenario.tracks[0] = {
+      id: 'track:avywenna:return',
+      operator: {
+        operatorSlug: avywenna.slug,
+        level: 90,
+        promoted: true,
+        potential: 5,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 2, 1: 2 },
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0, maxUltimateEnergyOverride: 1000 },
+      skillCasts: [],
+    };
+    let serial = 0;
+    for (const [skillGroupKey, startFrame] of [
+      ['comboSkill', 1],
+      ['battleSkill', 40],
+    ] as const) {
+      scenario = placeSkillGroup({
+        scenario,
+        trackIndex: 0,
+        operator: avywenna,
+        skillGroupKey,
+        startFrame,
+        ids: { allocate: kind => `${kind}:avywenna:return:${++serial}` },
+      }).scenario;
+    }
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario,
+      endFrame: 120,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(40).fill(1)),
+      elementalInflictionDocument: elementalAttachments,
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+          ultimateEnergySystemUnlocked: true,
+        },
+      },
+    });
+
+    expect(
+      result.receiptEntries.filter(
+        entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:avywenna:return',
+      ).length,
+    ).toBeGreaterThanOrEqual(3);
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'DamageApplied',
+        frame: 46,
+        sourceId: 'track:avywenna:return',
+        targetId: 'enemy',
+      }),
+    );
+  });
+
   it('applies Xaihi ultimate Crystal enhancement to a later basic attack', () => {
     expect(
       xaihi.buffDefinitions?.['buff_chr_0011_seraph_atk_buff']?.childPresentations?.map(

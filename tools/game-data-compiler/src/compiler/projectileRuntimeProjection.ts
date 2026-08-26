@@ -21,6 +21,63 @@ export interface ZeroDistanceProjectileCallbackSource {
   readonly sequence: CompiledBuffSequenceSource;
 }
 
+export interface ZeroDistanceProjectileProjectionCatalogSource {
+  readonly runtimes: ReadonlyMap<string, ProjectileRuntimeSource>;
+  readonly templates: ReadonlyMap<
+    string,
+    {
+      readonly projectileId: string;
+      readonly entityBlackboard: readonly DeclaredBlackboardValueSource[];
+    }
+  >;
+  readonly callbackGraphs: ReadonlyMap<string, SkillActionGraphSource<KnownNativeActionLeafSource>>;
+}
+
+/**
+ * 把版本化 ProjectileData、实体模板与回调 SkillData 目录接成公共动作扩展。
+ * 这里只接受已证明的首帧零距离形状；目录缺边、重复路由或其他事件均在来源路径上失败。
+ */
+export function createZeroDistanceProjectileProjectionExtensionSource(input: {
+  readonly catalog: ZeroDistanceProjectileProjectionCatalogSource;
+  readonly callbackContext: CombatActionProjectionContextSource;
+  readonly visualOnlyIds?: ReadonlySet<string>;
+  readonly callbackExtensions?: CombatActionProjectionExtensionsSource;
+}): NonNullable<CombatActionProjectionExtensionsSource['compileProjectileLaunch']> {
+  return (launch, sourcePath) => {
+    const runtime = input.catalog.runtimes.get(launch.projectileId);
+    if (!runtime) throw new Error(`${sourcePath}: missing ProjectileData ${launch.projectileId}`);
+    const template = input.catalog.templates.get(launch.projectileId) ?? null;
+    const enabled = launch.callbacks.filter(callback => callback.enabled);
+    const callback = (event: 'hit' | 'reach') => {
+      const routes = enabled.filter(item => item.event === event);
+      if (routes.length !== 1 || !routes[0]!.skillId)
+        throw new Error(`${sourcePath}: expected one enabled projectile ${event} callback`);
+      const graph = input.catalog.callbackGraphs.get(routes[0]!.skillId);
+      if (!graph)
+        throw new Error(
+          `${sourcePath}: missing projectile callback SkillData ${routes[0]!.skillId}`,
+        );
+      return graph;
+    };
+    const unsupported = enabled.filter(item => item.event !== 'hit' && item.event !== 'reach');
+    if (unsupported.length > 0)
+      throw new Error(`${sourcePath}: unsupported projectile callback ${unsupported[0]!.event}`);
+    return [
+      compileZeroDistanceProjectileLaunchFromSources({
+        sourcePath,
+        launch,
+        runtime,
+        template,
+        hitGraph: callback('hit'),
+        reachGraph: callback('reach'),
+        callbackContext: input.callbackContext,
+        visualOnlyIds: input.visualOnlyIds,
+        callbackExtensions: input.callbackExtensions,
+      }),
+    ];
+  };
+}
+
 /** 将立即执行的回调 SkillData 动作图完整编译为一次回调，不抽取手选动作切片。 */
 export function compileImmediateProjectileCallbackSkillSource(input: {
   readonly graph: SkillActionGraphSource<KnownNativeActionLeafSource>;

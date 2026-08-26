@@ -43,11 +43,16 @@ import {
 import {
   parseDebugPrintActionSource,
   parseCameraPresentationActionSource,
+  parseCameraRotateActionSource,
+  parseWeaponVisibilityActionSource,
+  parseVoiceTriggerActionSource,
   parseEffectActionSource,
+  parsePlayAnimationActionSource,
   parsePlaySoundActionSource,
   type DebugPrintActionSource,
   type CameraPresentationActionSource,
   type EffectActionSource,
+  type PlayAnimationActionSource,
   type PlaySoundActionSource,
 } from './presentationActions.ts';
 import { parseInterruptActionSource, type InterruptActionSource } from './interruptAction.ts';
@@ -85,6 +90,29 @@ import {
   type UltimateTimeActionSource,
 } from './timeDilationActions.ts';
 import { parseTargetGroupActionSource, type TargetGroupActionSource } from './targetGroup.ts';
+import {
+  parseAllowNextSkillActionSource,
+  parseComboCacheActionSource,
+  type AllowNextSkillActionSource,
+  type ComboCacheActionSource,
+} from './inputControlActions.ts';
+import {
+  parseSetSuperArmorActionSource,
+  type SetSuperArmorActionSource,
+} from './selfDefenseActions.ts';
+import {
+  parseCurveEvaluateFloatActionSource,
+  parseSaveTwoDirectionAngleActionSource,
+  type PresentationCalculationActionSource,
+} from './presentationCalculationActions.ts';
+import {
+  parseSelfRotateActionSource,
+  parseTeleportActionSource,
+  parseReceiveMoveInputActionSource,
+  type ReceiveMoveInputActionSource,
+  type SelfRotateActionSource,
+  type TeleportActionSource,
+} from './spatialActions.ts';
 
 const CONDITION_ACTION_NAMES = new Set([
   'OrConditionAction',
@@ -126,6 +154,7 @@ const CONDITION_ACTION_NAMES = new Set([
   'CheckTwoDirectionAngle',
   'CheckTargetAngle',
   'CheckPoiseValue',
+  'CheckSquadInFight',
 ]);
 
 /** 引用闭包需要严格读取的动作身份；集合与分派实现同属公共来源层，调用方不再复制 switch。 */
@@ -151,7 +180,20 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'attributeSnapshot'; readonly action: AttributeSnapshotActionSource }
   | { readonly family: 'characterIdentity'; readonly action: CharacterTypeIdReadActionSource }
   | { readonly family: 'targetGroup'; readonly action: TargetGroupActionSource }
+  | {
+      readonly family: 'presentationCalculation';
+      readonly action: PresentationCalculationActionSource;
+    }
+  | {
+      readonly family: 'spatial';
+      readonly action: SelfRotateActionSource | TeleportActionSource | ReceiveMoveInputActionSource;
+    }
   | { readonly family: 'resource'; readonly action: ResourceGainActionSource }
+  | {
+      readonly family: 'inputControl';
+      readonly action: ComboCacheActionSource | AllowNextSkillActionSource;
+    }
+  | { readonly family: 'selfDefense'; readonly action: SetSuperArmorActionSource }
   | { readonly family: 'timedMarker'; readonly action: TimedMarkerApplicationSource }
   | { readonly family: 'globalCooldown'; readonly action: GlobalCooldownApplicationSource }
   | { readonly family: 'buffApplication'; readonly action: BuffApplicationActionSource }
@@ -175,6 +217,7 @@ export type KnownNativeActionLeafSource =
         | PlaySoundActionSource
         | DebugPrintActionSource
         | EffectActionSource
+        | PlayAnimationActionSource
         | CameraPresentationActionSource;
     }
   | { readonly family: 'interrupt'; readonly action: InterruptActionSource }
@@ -219,6 +262,66 @@ export function tryParseKnownNativeActionLeafSource(
     };
   }
   switch (name) {
+    case 'PlayAnimationAction':
+      return {
+        family: 'presentation',
+        action: parsePlayAnimationActionSource(value, path),
+      };
+    case 'SelfRotateAction':
+      return {
+        family: 'spatial',
+        action: parseSelfRotateActionSource(value, path),
+      };
+    case 'TeleportAction':
+      return {
+        family: 'spatial',
+        action: parseTeleportActionSource(value, path, inheritedBlackboard),
+      };
+    case 'ReceiveMoveInputAction':
+      return {
+        family: 'spatial',
+        action: parseReceiveMoveInputActionSource(value, path, inheritedBlackboard),
+      };
+    case 'SetSuperArmorAction':
+      return {
+        family: 'selfDefense',
+        action: parseSetSuperArmorActionSource(value, path),
+      };
+    case 'ComboCacheAction':
+      return {
+        family: 'inputControl',
+        action: parseComboCacheActionSource(value, path, inheritedBlackboard),
+      };
+    case 'AllowNextSkillAction':
+      return {
+        family: 'inputControl',
+        action: parseAllowNextSkillActionSource(value, path),
+      };
+    case 'CharWeaponVisibleAction':
+      return {
+        family: 'presentation',
+        action: parseWeaponVisibilityActionSource(value, path),
+      };
+    case 'VoiceTriggerAction':
+      return {
+        family: 'presentation',
+        action: parseVoiceTriggerActionSource(value, path),
+      };
+    case 'SaveTwoDirectionAngle':
+      return {
+        family: 'presentationCalculation',
+        action: parseSaveTwoDirectionAngleActionSource(value, path),
+      };
+    case 'CurveEvaluateFloat':
+      return {
+        family: 'presentationCalculation',
+        action: parseCurveEvaluateFloatActionSource(value, path, inheritedBlackboard),
+      };
+    case 'CameraRotateAction':
+      return {
+        family: 'presentation',
+        action: parseCameraRotateActionSource(value, path, inheritedBlackboard),
+      };
     case 'SimpleCalcBBAction':
       return {
         family: 'blackboardCalculation',

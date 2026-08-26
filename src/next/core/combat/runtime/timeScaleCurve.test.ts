@@ -38,6 +38,15 @@ describe('compileTimeScaleCurve', () => {
     expect(curve(0.5)).toBeCloseTo(0.860144, 5);
   });
 
+  it('keeps Unity infinite-tangent segments stepped until the following key', () => {
+    const curve = compileTimeScaleCurve([
+      key(0, 1, { outTangent: Number.POSITIVE_INFINITY }),
+      key(1, 0, { inTangent: Number.POSITIVE_INFINITY }),
+    ]);
+    expect(curve(0.999)).toBe(1);
+    expect(curve(1)).toBe(0);
+  });
+
   it('rejects unordered keys instead of silently changing the curve', () => {
     expect(() => compileTimeScaleCurve([key(1, 1), key(1, 0)])).toThrow('strictly increasing');
   });

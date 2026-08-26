@@ -27,6 +27,7 @@ interface ConditionIdentity {
 }
 
 export type NativeConditionSource =
+  | (ConditionIdentity & { readonly kind: 'squadInFight' })
   | (ConditionIdentity & {
       /** AbilitySystem 被动条件；这里只保留比较结构，不在来源层读取或计算生命比例。 */
       readonly kind: 'currentHpRatio';
@@ -281,6 +282,22 @@ export function parseConditionLeafSource(
   const sourceType = typeof condition.$type === 'string' ? nativeActionName(condition.$type) : '';
 
   switch (sourceType) {
+    case 'CheckSquadInFight':
+      requireExactFields(
+        condition,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'invertCondition',
+        ]),
+        path,
+      );
+      if (requireBoolean(condition.invertCondition, `${path}.invertCondition`))
+        throw new Error(`${path}.invertCondition: inverted squad battle condition is unsupported`);
+      return { kind: 'squadInFight', sourceType };
     case 'CheckCurHpRatio':
       requireExactFields(condition, new Set(['$type', 'compareType', 'value']), path);
       return {

@@ -12,7 +12,10 @@ export interface CompiledActionNodeProgram<TStep, TState> {
 
 export interface CompileActionSequenceProgramOptions<TLeaf, TCondition, TStep, TState> {
   readonly initialState: () => TState;
-  readonly compileCondition: (node: NativeActionNodeSource<TLeaf>) => TCondition | null;
+  readonly compileCondition: (
+    node: NativeActionNodeSource<TLeaf>,
+    state: TState,
+  ) => TCondition | null;
   /** 只有已证明无副作用且结果不被消费的尾条件才可删；缺省保留求值。 */
   readonly canOmitTerminalCondition?: (condition: TCondition) => boolean;
   readonly combineConditions: (conditions: readonly TCondition[]) => TCondition;
@@ -36,6 +39,12 @@ export interface CompileActionSequenceProgramOptions<TLeaf, TCondition, TStep, T
     },
     state: TState,
   ) => CompiledActionNodeProgram<TStep, TState> | null;
+  /** 领域已证明整个条件节点及两分支都不可见时，可整体省略，避免为纯表现控制流伪造输入。 */
+  readonly canOmitIfElse?: (
+    node: NativeActionNodeSource<TLeaf> & {
+      readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'ifElse' }>;
+    },
+  ) => boolean;
   readonly createConditionalStep: (input: {
     readonly condition: TCondition;
     readonly whenTrue: CompiledActionSequenceProgram<TStep>;
@@ -89,7 +98,7 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
   if (first!.body.kind === 'negateNextResult') {
     const [next, ...bodyNodes] = rest;
     if (next === undefined) throw new Error(`${first!.sourcePath}: dangling NotNextCheckAction`);
-    const condition = options.compileCondition(next);
+    const condition = options.compileCondition(next, state);
     if (condition === null) {
       throw new Error(`${first!.sourcePath}: NotNextCheckAction must precede a condition`);
     }
@@ -104,7 +113,7 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
           }),
         ];
   }
-  const condition = options.compileCondition(first!);
+  const condition = options.compileCondition(first!, state);
   if (condition !== null) {
     const body = compileActionNodePrograms(rest, options, state);
     return body.length === 0 && options.canOmitTerminalCondition?.(condition) === true
@@ -118,13 +127,19 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
         ];
   }
   if (first!.body.kind === 'ifElse') {
+    const branchNode = first as NativeActionNodeSource<TLeaf> & {
+      readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'ifElse' }>;
+    };
+    if (options.canOmitIfElse?.(branchNode) === true) {
+      return compileActionNodePrograms(rest, options, state);
+    }
     if (!first!.body.alwaysNext) {
       throw new Error(`${first!.sourcePath}: stopping IfElse is unsupported`);
     }
     const branchConditions = first!.body.condition.actions
       .filter(node => node.metadata.enabled)
       .map(node => {
-        const child = options.compileCondition(node);
+        const child = options.compileCondition(node, state);
         if (child === null)
           throw new Error(`${node.sourcePath}: expected a condition-only sequence`);
         return child;

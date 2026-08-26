@@ -1,11 +1,31 @@
-import { requireExactFields, requireNumber, requireRecord, requireString } from './primitives.ts';
+import {
+  requireArray,
+  requireBoolean,
+  requireExactFields,
+  requireInteger,
+  requireNumber,
+  requireRecord,
+  requireString,
+} from './primitives.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 
-export interface StumpControlActionSource {
-  readonly kind: 'enemyHurtAnimation' | 'pull' | 'targetHitStop';
+export interface StaticEnemyControlActionSource {
+  readonly kind: 'enemyHurtAnimation' | 'pull';
   readonly source: TargetReferenceSource;
   readonly target: TargetReferenceSource;
 }
+
+export interface TargetHitStopActionSource {
+  readonly kind: 'targetHitStop';
+  readonly source: TargetReferenceSource;
+  readonly target: TargetReferenceSource;
+  readonly affectType: string;
+  readonly curveKey: string;
+  readonly durationSeconds: number;
+  readonly priorityTagId: number;
+}
+
+export type StumpControlActionSource = StaticEnemyControlActionSource | TargetHitStopActionSource;
 
 const META = ['$type', 'isEnable', 'priorityLevel', 'priorityOffset', 'serverActionIndex'];
 
@@ -102,14 +122,26 @@ export function parseTargetHitStopActionSource(
     ]),
     path,
   );
-  if (requireString(action.affectType, `${path}.affectType`) !== 'OnlyTarget')
-    throw new Error(`${path}.affectType: only static-target hit stop can be omitted`);
+  const affectType = requireString(action.affectType, `${path}.affectType`);
+  if (!['OnlyTarget', 'Both'].includes(affectType))
+    throw new Error(`${path}.affectType: unsupported hit-stop target set ${affectType}`);
+  const useDirectCurve = requireBoolean(action.useDirectCurve, `${path}.useDirectCurve`);
+  const directCurve = requireArray(action.directCurve, `${path}.directCurve`);
+  const curveKey = requireString(action.curveKey, `${path}.curveKey`);
+  if (useDirectCurve || directCurve.length > 0 || curveKey.length === 0)
+    throw new Error(`${path}: direct or missing hit-stop curve is unsupported`);
   const duration = requireNumber(action.duration, `${path}.duration`);
   if (!Number.isFinite(duration) || duration < 0)
     throw new Error(`${path}.duration: expected finite non-negative number`);
+  const priority = requireRecord(action.timeDilationPriority, `${path}.timeDilationPriority`);
+  requireExactFields(priority, new Set(['tagId']), `${path}.timeDilationPriority`);
   return {
     kind: 'targetHitStop',
     source: parseTargetReferenceSource(action.attacker, `${path}.attacker`),
     target: parseTargetReferenceSource(action.target, `${path}.target`),
+    affectType,
+    curveKey,
+    durationSeconds: duration,
+    priorityTagId: requireInteger(priority.tagId, `${path}.timeDilationPriority.tagId`),
   };
 }

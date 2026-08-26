@@ -49,6 +49,9 @@ function evaluateSegment(
   right: TimeScaleCurveKeyDefinition,
   time: number,
 ): number {
+  // Unity uses infinite tangents for constant/stepped segments. The value changes only at the
+  // following key; feeding Infinity into Bezier control points would instead produce NaN.
+  if (!Number.isFinite(left.outTangent) || !Number.isFinite(right.inTangent)) return left.value;
   const duration = right.time - left.time;
   const outWeight = (left.weightedMode & WEIGHTED_OUT) !== 0 ? left.outWeight : DEFAULT_WEIGHT;
   const inWeight = (right.weightedMode & WEIGHTED_IN) !== 0 ? right.inWeight : DEFAULT_WEIGHT;
@@ -91,16 +94,11 @@ function validateKeys(keys: readonly TimeScaleCurveKeyDefinition[]): void {
   if (keys.length === 0) throw new Error('time-scale curve contains no keys');
   for (let index = 0; index < keys.length; index += 1) {
     const key = keys[index]!;
-    for (const value of [
-      key.time,
-      key.value,
-      key.inTangent,
-      key.outTangent,
-      key.inWeight,
-      key.outWeight,
-    ]) {
+    for (const value of [key.time, key.value, key.inWeight, key.outWeight]) {
       if (!Number.isFinite(value)) throw new Error(`time-scale curve key ${index} is not finite`);
     }
+    if (Number.isNaN(key.inTangent) || Number.isNaN(key.outTangent))
+      throw new Error(`time-scale curve key ${index} has a NaN tangent`);
     if (!Number.isInteger(key.weightedMode) || key.weightedMode < 0 || key.weightedMode > 3) {
       throw new Error(`time-scale curve key ${index} has an invalid weighted mode`);
     }

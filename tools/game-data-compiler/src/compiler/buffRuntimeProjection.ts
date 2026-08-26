@@ -32,8 +32,10 @@ import {
 import type { GameplayTagRegistry } from '../../../../src/shared/gameplayTags.ts';
 import type { CompiledAbilityEntityTemplateCatalogSource } from './abilityEntityCatalog.ts';
 import { compileTargetGroupAbilityEntityQuerySource } from './abilityEntityQuery.ts';
+import { gameplayTagIdFromPath } from '../../../../src/shared/gameplayTags.ts';
 
-type ProjectedTargetGroup = 'party' | 'partyExceptCaster' | 'abilityEntity';
+type ProjectedTargetGroup =
+  'party' | 'partyExceptCaster' | 'abilityEntity' | 'controlledOperator' | 'enemy';
 
 export type CompiledBuffNumberSource = number | { readonly blackboardKey: string };
 
@@ -59,6 +61,8 @@ export interface CombatActionProjectionContextSource {
     readonly catalog: CompiledAbilityEntityTemplateCatalogSource;
     readonly gameplayTagRegistry: GameplayTagRegistry;
   };
+  /** 已由同一主动技能动作图证明会命中唯一木桩的命名目标组。 */
+  readonly staticEnemyTargetGroupKeys?: ReadonlySet<string>;
 }
 
 /** 领域宿主可显式补入公共动作叶子的已审计投影；未提供时仍严格失败。 */
@@ -620,6 +624,10 @@ export type CompiledBuffStepSource =
         readonly ultimateRecoveryTagId?: number;
         readonly ignoreUltimateEnergyGainMultiplier?: boolean;
       };
+    }
+  | {
+      readonly kind: 'gainSquadUltimateEnergyFromSkillCost';
+      readonly parameters: { readonly coefficient: number };
     }
   | CompiledSimpleDamageOperationSource
   | {
@@ -1411,10 +1419,40 @@ function compileLinearSequence(
   context: CombatActionProjectionContextSource = BUFF_ACTION_CONTEXT,
   extensions: CombatActionProjectionExtensionsSource = {},
 ): CompiledBuffSequenceSource {
+  assertPresentationCalculationIsolation(source);
   return compileActionSequenceProgram(
     source,
     createBuffSequenceProjection(visualOnlyIds, context, extensions),
   );
+}
+
+/** 只有全部消费者仍属于无渲染支链时，角度/曲线中间值才可连同相机动作一起省略。 */
+function assertPresentationCalculationIsolation(
+  source: NativeSequenceSource<KnownNativeActionLeafSource>,
+): void {
+  const leaves = collectNativeActionNodes(source).filter(
+    node => node.body.kind === 'leaf',
+  ) as NativeActionNodeSource<KnownNativeActionLeafSource>[];
+  const outputs = new Set<string>();
+  for (const node of leaves) {
+    if (node.body.kind !== 'leaf' || node.body.value.family !== 'presentationCalculation') continue;
+    const key = node.body.value.action.outputKey;
+    if (outputs.has(key))
+      throw new Error(`${node.sourcePath}: duplicate presentation output ${key}`);
+    outputs.add(key);
+    for (const consumer of leaves) {
+      if (consumer === node || consumer.body.kind !== 'leaf') continue;
+      if (!JSON.stringify(consumer.body.value.action).includes(JSON.stringify(key))) continue;
+      if (
+        consumer.body.value.family !== 'presentationCalculation' &&
+        consumer.body.value.family !== 'presentation'
+      ) {
+        throw new Error(
+          `${node.sourcePath}: presentation output ${key} reaches combat action ${consumer.sourcePath}`,
+        );
+      }
+    }
+  }
 }
 
 function createBuffSequenceProjection(
@@ -1429,7 +1467,7 @@ function createBuffSequenceProjection(
 > {
   return {
     initialState: () => new Map<string, ProjectedTargetGroup>(),
-    compileCondition: node => compileEventCondition(node, context),
+    compileCondition: (node, targetGroups) => compileEventCondition(node, context, targetGroups),
     canOmitTerminalCondition: condition => !conditionWritesBlackboard(condition),
     combineConditions: conditions =>
       conditions.length === 1 ? conditions[0]! : { kind: 'all', conditions },
@@ -1498,6 +1536,7 @@ function createBuffSequenceProjection(
         state: partyTargetGroups,
       };
     },
+    canOmitIfElse: node => isCombatInvisibleIfElse(node),
     createConditionalStep: ({ condition, whenTrue, whenFalse, alwaysNext }) => ({
       kind: 'conditional',
       parameters: { condition, ...(alwaysNext ? { alwaysNext: true } : {}) },
@@ -1507,6 +1546,45 @@ function createBuffSequenceProjection(
     rootFilterError: 'sequence owner/guard root filters are not yet supported',
     unsupportedNodeError: node => `${node.sourcePath}: unsupported Buff runtime action`,
   };
+}
+
+function isCombatInvisibleIfElse(
+  node: NativeActionNodeSource<KnownNativeActionLeafSource> & {
+    readonly body: Extract<
+      NativeActionNodeSource<KnownNativeActionLeafSource>['body'],
+      {
+        kind: 'ifElse';
+      }
+    >;
+  },
+): boolean {
+  const nodes = [
+    ...collectNativeActionNodes(node.body.condition),
+    ...collectNativeActionNodes(node.body.whenTrue),
+    ...collectNativeActionNodes(node.body.whenFalse),
+  ].filter(child => child.metadata.enabled);
+  const invisibleFamilies = new Set([
+    'presentation',
+    'presentationCalculation',
+    'spatial',
+    'selfDefense',
+    'inputControl',
+    'targetGroup',
+  ]);
+  const safeConditions = new Set([
+    'mainOperator',
+    'twoDirectionAngle',
+    'entityCount',
+    'floatCompare',
+  ]);
+  return nodes.every(child => {
+    if (child.body.kind !== 'leaf') return true;
+    const leaf = child.body.value;
+    if (invisibleFamilies.has(leaf.family)) return true;
+    if (leaf.family !== 'condition' || !safeConditions.has(leaf.action.kind)) return false;
+    if (leaf.action.kind === 'entityCount') return leaf.action.storeKey === '';
+    return true;
+  });
 }
 
 /**
@@ -1619,13 +1697,16 @@ function compileBuffLeafNode(
   }
   if (node.body.value.family === 'interrupt') {
     const action = node.body.value.action;
+    const defenderIsEnemy =
+      (action.defender.targetSource === 'Target' && action.defender.targetGroupKey === '') ||
+      (action.defender.targetSource === 'Context' &&
+        context.staticEnemyTargetGroupKeys?.has(action.defender.targetGroupKey) === true);
     if (
       context.actionTargetTarget !== 'enemy' ||
       context.actionSourceTarget !== 'caster' ||
       action.attacker.targetSource !== 'Source' ||
       action.attacker.targetGroupKey !== '' ||
-      action.defender.targetSource !== 'Target' ||
-      action.defender.targetGroupKey !== ''
+      !defenderIsEnemy
     )
       throw new Error(`${node.sourcePath}: unsupported InterruptAction stump projection`);
     // 静态木桩没有正在执行的技能或主动行为；控制结果对可见伤害/资源账本无影响。
@@ -1633,13 +1714,52 @@ function compileBuffLeafNode(
   }
   if (node.body.value.family === 'stumpControl') {
     const action = node.body.value.action;
+    if (action.kind === 'targetHitStop' && action.affectType === 'Both') {
+      const targetIsEnemy =
+        (action.target.targetSource === 'Target' && action.target.targetGroupKey === '') ||
+        (action.target.targetSource === 'Context' && action.target.targetGroupKey === 'targets');
+      const priority = extensions.resolveTimeDilationPriority?.(
+        action.priorityTagId,
+        node.sourcePath,
+      );
+      if (
+        context.actionTargetTarget !== 'enemy' ||
+        context.actionSourceTarget !== 'caster' ||
+        action.source.targetSource !== 'Source' ||
+        action.source.targetGroupKey !== '' ||
+        !targetIsEnemy ||
+        priority === undefined ||
+        !Number.isFinite(priority)
+      )
+        throw new Error(`${node.sourcePath}: unsupported attacker-and-target hit-stop projection`);
+      return {
+        steps: [
+          {
+            kind: 'startTimeDilation',
+            parameters: {
+              scope: 'entity',
+              durationSeconds: { kind: 'constant', value: action.durationSeconds },
+              slot: gameplayTagIdFromPath('TimeDilation/Layer/Entity/HitStop'),
+              priority,
+              curve: { kind: 'named', key: action.curveKey },
+              finishByAction: false,
+              targets: ['enemy', 'caster'],
+            },
+          },
+        ],
+        state: partyTargetGroups,
+      };
+    }
+    const targetIsEnemy =
+      (action.target.targetSource === 'Target' && action.target.targetGroupKey === '') ||
+      (action.target.targetSource === 'Context' &&
+        context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey) === true);
     if (
       context.actionTargetTarget !== 'enemy' ||
       context.actionSourceTarget !== 'caster' ||
       action.source.targetSource !== 'Source' ||
       action.source.targetGroupKey !== '' ||
-      action.target.targetSource !== 'Target' ||
-      action.target.targetGroupKey !== ''
+      !targetIsEnemy
     )
       throw new Error(`${node.sourcePath}: unsupported static-enemy control projection`);
     // 木桩无主动行为，且 Endaxis 距离恒为零；受击动画、拉拽和 OnlyTarget hit-stop
@@ -1731,6 +1851,11 @@ function compileBuffLeafNode(
   if (node.body.value.family === 'targetGroup') {
     const queryInputs = context.abilityEntityQueries;
     const write = node.body.value.action;
+    if (context.staticEnemyTargetGroupKeys?.has(write.targetGroupKey)) {
+      const nextGroups = new Map(partyTargetGroups);
+      nextGroups.set(write.targetGroupKey, 'enemy');
+      return { steps: [], state: nextGroups };
+    }
     if (queryInputs !== undefined && write.finderType === 'OwnerSpawnedEntityFinder') {
       if (
         write.producerType !== 'FindTargetAction' ||
@@ -1769,6 +1894,25 @@ function compileBuffLeafNode(
         ],
         state: nextGroups,
       };
+    }
+    if (
+      context.actionTargetTarget === 'enemy' &&
+      write.producerType === 'FindTargetAction' &&
+      write.finderType === 'CharacterTeamFinder' &&
+      write.characterTeamSelectionRole === 'controlledOperator' &&
+      write.postProcessorTypes.length === 0
+    ) {
+      const nextGroups = new Map(partyTargetGroups);
+      nextGroups.set(write.targetGroupKey, 'controlledOperator');
+      return { steps: [], state: nextGroups };
+    }
+    if (
+      ['enemy', 'currentAbilityEntity'].includes(context.actionTargetTarget) &&
+      write.producerType === 'FindTargetAction' &&
+      write.finderType === 'FixedPointFinder' &&
+      write.postProcessorTypes.length === 0
+    ) {
+      return { steps: [], state: partyTargetGroups };
     }
     if (context.actionTargetTarget === 'currentAbilityEntity')
       throw new Error(`${node.sourcePath}: unaudited AbilityEntity target group`);
@@ -1837,9 +1981,10 @@ function compileBuffLeafNode(
 function compileEventCondition(
   node: NativeActionNodeSource<KnownNativeActionLeafSource>,
   context: CombatActionProjectionContextSource,
+  targetGroups: ReadonlyMap<string, ProjectedTargetGroup>,
 ): CompiledBuffConditionSource | null {
   if (node.body.kind !== 'leaf' || node.body.value.family !== 'condition') return null;
-  return compileConditionLeaf(node.body.value.action, node.sourcePath, context);
+  return compileConditionLeaf(node.body.value.action, node.sourcePath, context, targetGroups);
 }
 
 /** 条件也可能写黑板；即便没有后继步骤，写入及其前置守卫也不能消去。 */
@@ -1861,13 +2006,20 @@ function compileConditionLeaf(
   condition: Extract<KnownNativeActionLeafSource, { family: 'condition' }>['action'],
   sourcePath: string,
   context: CombatActionProjectionContextSource,
+  targetGroups: ReadonlyMap<string, ProjectedTargetGroup> = new Map(),
 ): CompiledBuffConditionSource {
   // 主动动作/命中回调没有 Buff 事件环境；只有已验收的条件可使用显式木桩 Target。
   if (
     context.actionTargetTarget === 'enemy' &&
-    !['floatCompare', 'buffStack', 'mainOperator', 'poise', 'any', 'entityCount'].includes(
-      condition.kind,
-    )
+    ![
+      'floatCompare',
+      'buffStack',
+      'mainOperator',
+      'poise',
+      'any',
+      'entityCount',
+      'squadInFight',
+    ].includes(condition.kind)
   )
     throw new Error(`${sourcePath}: unaudited single-enemy action condition ${condition.kind}`);
   if (
@@ -1892,6 +2044,15 @@ function compileConditionLeaf(
       left: { kind: 'constant', value: 0 },
       operator: condition.lessThan ? 'lessOrEqual' : 'greater',
       right: { kind: 'constant', value: condition.distance },
+    };
+  }
+  if (condition.kind === 'squadInFight') {
+    // 正式时间轴只在已绑定 Battle 的模拟中执行；未绑定环境会在运行入口先失败。
+    return {
+      kind: 'actionValueCompare',
+      left: { kind: 'constant', value: 1 },
+      operator: 'equal',
+      right: { kind: 'constant', value: 1 },
     };
   }
   if (
@@ -1920,11 +2081,10 @@ function compileConditionLeaf(
         right: { kind: 'constant', value: 1 },
       };
     }
-    if (
-      condition.targetSource !== 'Owner' ||
-      condition.targetGroupKey !== '' ||
-      context.actionOwnerTarget !== 'caster'
-    ) {
+    const projectsCaster =
+      (condition.targetSource === 'Owner' && context.actionOwnerTarget === 'caster') ||
+      (condition.targetSource === 'Source' && context.actionSourceTarget === 'caster');
+    if (!projectsCaster || condition.targetGroupKey !== '') {
       throw new Error(`${sourcePath}: unsupported main-character condition target`);
     }
     return { kind: 'casterControlled' };
@@ -2036,6 +2196,23 @@ function compileConditionLeaf(
   }
   if (condition.kind === 'entityCount') {
     const operator = COMPARISON_OPERATORS[condition.comparison];
+    const projectedGroup = targetGroups.get(condition.targetGroupKey);
+    const knownStaticEnemy = context.staticEnemyTargetGroupKeys?.has(condition.targetGroupKey);
+    if (
+      condition.targetSource === 'Context' &&
+      (projectedGroup === 'controlledOperator' || knownStaticEnemy) &&
+      !condition.containsHittableTarget &&
+      !condition.excludeDeadEntity &&
+      condition.storeKey === '' &&
+      operator !== undefined
+    ) {
+      return {
+        kind: 'actionValueCompare',
+        left: { kind: 'constant', value: 1 },
+        operator,
+        right: { kind: 'constant', value: condition.minimumCount },
+      };
+    }
     if (
       condition.targetSource === 'Target' &&
       condition.targetGroupKey === '' &&
@@ -2410,6 +2587,10 @@ function compileActionNode(
       'blackboardCalculation',
       'resource',
       'presentation',
+      'presentationCalculation',
+      'spatial',
+      'selfDefense',
+      'inputControl',
       'timeDilation',
     ].includes(node.body.value.family)
   )
@@ -2853,6 +3034,13 @@ function compileActionNode(
     ];
   }
   if (node.body.value.family === 'presentation') return [];
+  if (node.body.value.family === 'presentationCalculation') return [];
+  // Endaxis 的固定木桩空间模型中朝向不改变目标集合或数值；来源层仍完整保留动作载荷。
+  if (node.body.value.family === 'spatial') return [];
+  // 木桩不会主动攻击玩家；霸体只影响受击控制，暂不进入可见伤害/资源账本。
+  if (node.body.value.family === 'selfDefense') return [];
+  // 现实时间轴直接给出施法操作，不经过客户端输入缓存窗口。
+  if (node.body.value.family === 'inputControl') return [];
   throw new Error(`${node.sourcePath}: unsupported Buff runtime action`);
 }
 
@@ -2890,6 +3078,31 @@ function compileBuffApplication(
   }
   // 纯表现子 Buff 的动作生命周期只持有并清理表现资源；来源已完整解析后可从无渲染后端省略。
   if (action.buffs.every(entry => visualOnlyIds.has(entry.buffId))) return [];
+  if (
+    action.buffs.length === 1 &&
+    action.buffs[0]!.buffId === 'buff_common_obtain_ultimate_sp' &&
+    !action.buffs[0]!.assignBlackboard &&
+    action.buffs[0]!.assignments.length === 0 &&
+    action.count.blackboardKey === null &&
+    action.count.value === 1 &&
+    action.target.targetSource === 'Source' &&
+    action.target.targetGroupKey === '' &&
+    context.actionSourceTarget === 'caster' &&
+    action.buffSource === 'ActionSource' &&
+    action.contextKey === '' &&
+    !action.autoFinishByAction &&
+    action.inheritSkillIds.length === 0 &&
+    action.finishWithNextSkillIfNotInherited &&
+    !action.asChildBuff &&
+    action.inheritSourceSkillCastId &&
+    action.inheritSourceSkillCastInfo &&
+    !action.isExtra &&
+    !action.passTargetGroupsToBuff &&
+    !action.overrideBuffIconDuration
+  ) {
+    // 1.4.4 公共 Buff 的 OnBuffStart 仅执行 ObtainUspInNormalSkill，ratio 初值为 1。
+    return [{ kind: 'gainSquadUltimateEnergyFromSkillCost', parameters: { coefficient: 1 } }];
+  }
   if (
     context.actionTargetTarget === 'eventSource' &&
     !['Source', 'Owner', 'Target'].includes(action.target.targetSource)

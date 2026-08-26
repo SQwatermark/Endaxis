@@ -1,4 +1,11 @@
 export {
+  parseHitStopCurveCatalogDumpSource,
+  renderHitStopCurveCatalogModule,
+  type HitStopCurveCatalogSource,
+  type HitStopCurveKeySource,
+} from './source/hitStopCurveCatalog.ts';
+
+export {
   compileAbilitySystemBlackboardsSource,
   type CompiledAbilitySystemBlackboardsSource,
 } from './compiler/abilitySystemBlackboards.ts';
@@ -531,6 +538,11 @@ export {
   type CompiledActiveSkillSource,
 } from './compiler/activeSkillDefinition.ts';
 export {
+  compileActiveSkillRuntimeProjectionSource,
+  type CompiledActiveSkillRuntimeProjectionSource,
+  type CompiledActiveSkillTimelineSequenceSource,
+} from './compiler/activeSkillRuntimeProjection.ts';
+export {
   compileActiveSkillAbilityEntityQueriesSource,
   type CompiledActiveSkillAbilityEntityQuerySource,
 } from './compiler/activeSkillAbilityEntityQueries.ts';
@@ -666,9 +678,11 @@ export {
   type ProjectileCallbackInvocationSource,
 } from './compiler/projectileCallbackScopes.ts';
 export {
+  createZeroDistanceProjectileProjectionExtensionSource,
   compileImmediateProjectileCallbackSkillSource,
   compileZeroDistanceProjectileLaunchFromSources,
   compileZeroDistanceFirstTickProjectileSource,
+  type ZeroDistanceProjectileProjectionCatalogSource,
   type ZeroDistanceProjectileCallbackSource,
 } from './compiler/projectileRuntimeProjection.ts';
 export {
@@ -679,6 +693,11 @@ export {
   compileOperatorRuntimeDefinitionSource,
   renderOperatorRuntimeDefinitionSource,
 } from './domains/operator/runtimeDefinition.ts';
+export {
+  compileOperatorActiveSkillRuntimeDefinitionSource,
+  renderOperatorActiveSkillRuntimeDefinitionSource,
+  type CompiledOperatorActiveSkillRuntimeDefinitionSource,
+} from './domains/operator/activeSkillRuntimeDefinition.ts';
 export {
   compilePendingComboConditionSource,
   compileComboSkillConditionDefinitionSource,

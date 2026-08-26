@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { evaluateTimeScaleCurve } from '../../core/combat/runtime/timeScaleCurve';
 import { timeDilationRuntimeConfig } from './timeDilationConfig';
+import { HIT_STOP_NAMED_CURVE_DEFINITIONS, HIT_STOP_NAMED_CURVE_KEYS } from './hitStopCurveCatalog';
 import {
   TIME_DILATION_NAMED_CURVE_DEFINITIONS,
   TIME_DILATION_NAMED_CURVE_KEYS,
@@ -49,11 +50,22 @@ describe('time-dilation version catalog', () => {
   });
 
   it('assembles the runtime from the same definitions used by the editor', () => {
-    expect([...timeDilationRuntimeConfig.curves!.keys()]).toEqual(TIME_DILATION_NAMED_CURVE_KEYS);
+    expect([...timeDilationRuntimeConfig.curves!.keys()]).toEqual([
+      ...TIME_DILATION_NAMED_CURVE_KEYS,
+      ...HIT_STOP_NAMED_CURVE_KEYS,
+    ]);
     for (const name of TIME_DILATION_NAMED_CURVE_KEYS) {
       expect(timeDilationRuntimeConfig.curves!.get(name)?.(0)).toBeCloseTo(
         TIME_DILATION_NAMED_CURVE_DEFINITIONS[name][0]!.value,
       );
     }
+    expect(HIT_STOP_NAMED_CURVE_KEYS).toHaveLength(24);
+    expect(HIT_STOP_NAMED_CURVE_DEFINITIONS.char_hard_stop).toEqual([
+      expect.objectContaining({ time: 0, value: 0.1 }),
+      expect.objectContaining({ time: 0.05, value: 0.02 }),
+      expect.objectContaining({ time: 0.618, value: 0.02 }),
+      expect.objectContaining({ time: 1, value: 1 }),
+    ]);
+    expect(timeDilationRuntimeConfig.curves!.get('char_hard_stop')?.(0.618)).toBeCloseTo(0.02);
   });
 });

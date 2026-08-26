@@ -30,6 +30,7 @@ export function compileEventTargetSimpleDamageOperationSource(
   context: {
     readonly actionOwnerTarget: 'buffOwner' | 'caster' | 'unavailable';
     readonly actionSourceTarget: 'caster';
+    readonly staticEnemyTargetGroupKeys?: ReadonlySet<string>;
   } = { actionOwnerTarget: 'caster', actionSourceTarget: 'caster' },
 ): CompiledSimpleDamageOperationSource {
   if (
@@ -47,7 +48,14 @@ export function compileEventTargetSimpleDamageOperationSource(
   if (!action.alwaysNext || attackerTarget !== 'caster' || action.hitEnvironment) {
     throw new Error(`${sourcePath}: unsupported simple damage action control flags`);
   }
-  requireFixedTarget(action.target, 'Target', `${sourcePath}.target`);
+  if (
+    action.target.targetSource === 'Context' &&
+    context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey)
+  ) {
+    requireUnfilteredTarget(action.target, `${sourcePath}.target`);
+  } else {
+    requireFixedTarget(action.target, 'Target', `${sourcePath}.target`);
+  }
   const effectSourceTarget =
     action.effectSource.targetSource === 'Owner'
       ? ('caster' as const)
@@ -163,19 +171,28 @@ function requireFixedTarget(
   targetSource: 'Target' | 'Owner' | 'Source',
   sourcePath: string,
 ): void {
-  if (
-    target.targetSource !== targetSource ||
-    target.finderType !== null ||
-    target.finderShape !== null ||
-    target.finderOwnerPartsQuery !== null ||
-    target.validatorTypes.length > 0 ||
-    target.postProcessorTypes.length > 0 ||
-    target.finderSpawnedObjectType !== null ||
-    target.validatorTagQueries.length > 0
-  ) {
+  if (target.targetSource !== targetSource || !isUnfilteredTarget(target)) {
     throw new Error(`${sourcePath}: unsupported simple event damage target`);
   }
   // 反编译已确认只有 Context 来源读取 targetGroupKey；固定 Target/Owner 上的同名字段是残留值。
+}
+
+function requireUnfilteredTarget(target: TargetReferenceSource, sourcePath: string): void {
+  if (!isUnfilteredTarget(target)) {
+    throw new Error(`${sourcePath}: unsupported simple event damage target`);
+  }
+}
+
+function isUnfilteredTarget(target: TargetReferenceSource): boolean {
+  return (
+    (target.finderType !== null ||
+      target.finderShape !== null ||
+      target.finderOwnerPartsQuery !== null ||
+      target.validatorTypes.length > 0 ||
+      target.postProcessorTypes.length > 0 ||
+      target.finderSpawnedObjectType !== null ||
+      target.validatorTagQueries.length > 0) === false
+  );
 }
 
 function scalarOperand(source: ScalarSource): CompiledActionValueOperandSource {

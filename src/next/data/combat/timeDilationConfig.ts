@@ -5,13 +5,22 @@
 import { compileTimeScaleCurve } from '../../core/combat/runtime/timeScaleCurve';
 import type { TimeDilationRuntimeConfig } from '../../core/combat/runtime/timeDilationRuntime';
 import { requireGameplayTagId } from './gameplayTagCatalog';
+import { HIT_STOP_NAMED_CURVE_DEFINITIONS } from './hitStopCurveCatalog.generated';
 import { TIME_DILATION_NAMED_CURVE_DEFINITIONS } from './timeDilationCatalog';
 
+const curveDefinitions = {
+  ...TIME_DILATION_NAMED_CURVE_DEFINITIONS,
+  ...HIT_STOP_NAMED_CURVE_DEFINITIONS,
+};
+if (
+  Object.keys(curveDefinitions).length !==
+  Object.keys(TIME_DILATION_NAMED_CURVE_DEFINITIONS).length +
+    Object.keys(HIT_STOP_NAMED_CURVE_DEFINITIONS).length
+) {
+  throw new Error('TimeDilationConfig and HitStopConfig curve identities overlap');
+}
 const namedCurves = new Map(
-  Object.entries(TIME_DILATION_NAMED_CURVE_DEFINITIONS).map(([name, keys]) => [
-    name,
-    compileTimeScaleCurve(keys),
-  ]),
+  Object.entries(curveDefinitions).map(([name, keys]) => [name, compileTimeScaleCurve(keys)]),
 );
 
 export const timeDilationRuntimeConfig: TimeDilationRuntimeConfig = Object.freeze({

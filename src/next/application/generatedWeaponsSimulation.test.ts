@@ -21,25 +21,25 @@ const repository = createGameDataRepository({
 });
 
 describe('生成武器的正式模拟门禁', () => {
-  it.each([1, 9])(
-    '已知连续排轴缺口诊断 %i：艾维文娜回收枪读取缺失实体黑板，必须保持显式报错',
-    async tier => {
-      // 不属于 966 个成功交叉样本：扩展到三次连携后的战技才进入回收枪分支。
-      // 原生 lance_back 写 EntityBB_talent0 后由 back_reach 消费；旧展平定义只剩读。
-      // 在完整投射物宿主/黑板传递迁移前，不通过角色默认零值、跳过动作或吞错冒充修复。
-      const weapon = candidates.find(item => item.slug === 'wpn_lance_0006')!;
-      await expect(
-        simulateWeapon(
-          weapon,
-          repository.getOperator('avywenna')!,
-          ['comboSkill', 'comboSkill', 'comboSkill', 'battleSkill', 'basicAttack'],
-          weapon.traits.map(() => tier),
-          [],
-          { ownerStartFrames: [1, 151, 301, 451, 701] },
-        ),
-      ).rejects.toThrow("action blackboard value 'EntityBB_talent0' is missing");
-    },
-  );
+  it.each([1, 9])('艾维文娜连续排轴 %i：三把连携枪由战技回收并执行正式回调伤害', async tier => {
+    const weapon = candidates.find(item => item.slug === 'wpn_lance_0006')!;
+    const result = await simulateWeapon(
+      weapon,
+      repository.getOperator('avywenna')!,
+      ['comboSkill', 'comboSkill', 'comboSkill', 'battleSkill', 'basicAttack'],
+      weapon.traits.map(() => tier),
+      [],
+      { ownerStartFrames: [1, 151, 301, 451, 701] },
+    );
+    const returnHits = result.receiptEntries.filter(
+      entry =>
+        entry.event === 'DamageApplied' &&
+        entry.sourceId === 'track:weapon-owner' &&
+        entry.frame === 457,
+    );
+    expect(returnHits).toHaveLength(3);
+    expect(returnHits.every(entry => entry.data?.damageType === 'electric')).toBe(true);
+  });
   it.each([
     { trigger: 'owner', tier: 1, damage: 0.07, critical: 0.04 },
     { trigger: 'owner', tier: 9, damage: 0.196, critical: 0.112 },

@@ -22,6 +22,7 @@ import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
 import AbilityEntityTargetQueryEditor from './AbilityEntityTargetQueryEditor.vue';
 import EditorFieldLabel from './EditorFieldLabel.vue';
 import TimeScaleCurveEditor from './TimeScaleCurveEditor.vue';
+import { hitStopNamedCurveKeys } from '../../../data/combat/hitStopCurveCatalog';
 import {
   TIME_DILATION_NAMED_CURVE_KEYS,
   TIME_DILATION_PRIORITY_OPTIONS,
@@ -86,7 +87,9 @@ const priorityOptions = computed(() => {
 const curvePreviewKeys = computed<readonly TimeScaleCurveKeyDefinition[]>(() => {
   const curve = ordinary.value?.parameters.curve;
   if (curve === undefined) return [];
-  return curve.kind === 'inline' ? curve.keys : (timeDilationNamedCurveKeys(curve.key) ?? []);
+  return curve.kind === 'inline'
+    ? curve.keys
+    : (timeDilationNamedCurveKeys(curve.key) ?? hitStopNamedCurveKeys(curve.key) ?? []);
 });
 const operandLabels = () => ({
   constant: t('nextTimeline.skillEditing.operandConstant'),
