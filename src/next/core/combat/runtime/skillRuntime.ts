@@ -60,10 +60,12 @@ export interface CombatAbilityPhysicalInflictionEvent {
   readonly type?: 'airborne' | 'knockDown' | 'fracture' | 'crush';
 }
 
-/** AbilitySystem 即将承受元素附着时的同步事件；当前木桩模型不会自行产生角色承术事件。 */
+/** AbilitySystem 元素附着前后同步事件；当前木桩模型不会自行产生角色承术事件。 */
 export interface CombatAbilitySpellInflictionEvent {
   readonly kind: 'abilitySpellInfliction';
-  readonly event: 'beforeTakeSpellInfliction' | 'beforeTakeInfliction' | 'beforeOutputInfliction';
+  readonly event:
+    | 'beforeTakeSpellInfliction'
+    | import('./elementalInflictionOperationExecutor').ElementalInflictionEvent;
   readonly sourceId: string;
   readonly targetId: string;
   /** 角色受术旧事件不一定提供元素；敌人承受元素附着事件始终提供。 */
@@ -130,10 +132,12 @@ export interface CombatAbilityWeaknessTriggeredEvent {
 
 /** 技能运行时把普通操作和条件判断委托给战斗装配层的端口。 */
 export interface CombatOperationContext {
-  /** 一次技能运行实例独占的动作黑板；步骤不得把它缓存到实例生命周期之外。 */
+  /** 当前动作环境独占的 direct 黑板；生命周期由技能、Buff 或连携条件宿主管理。 */
   readonly blackboard: ActionBlackboard;
   /** 只有读取或写入原生 Context 目标组的步骤才要求存在。 */
   readonly targetContext?: RuntimeTargetContext;
+  /** 连携条件的原生 InputTarget；承受附着事件中它是施加者，不是物理事件 targetId。 */
+  readonly actionInputTarget?: RuntimeTargetRef;
   /** 只在 forEachContextTarget 的 body 内存在。 */
   readonly currentTarget?: RuntimeTargetRef;
   /** 执行到当前步骤时的施法信息；扣费前后的未返还技力可能不同。 */

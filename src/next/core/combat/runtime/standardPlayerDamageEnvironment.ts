@@ -43,7 +43,12 @@ import type {
   CompoundStatusSkillSettingSource,
   SkillSettingsDocument,
 } from '../infliction/skillSettings';
-import { ElementalInflictionOperationExecutor } from './elementalInflictionOperationExecutor';
+import {
+  ElementalInflictionOperationExecutor,
+  type ElementalInflictionEvent,
+  type ElementalInflictionEventPayload,
+} from './elementalInflictionOperationExecutor';
+import { ComboSkillConditionRuntime } from './comboSkillConditionRuntime';
 import { ElementalReactionOperationExecutor } from './elementalReactionOperationExecutor';
 import { executeSpellBurst } from './spellBurstRuntime';
 import { resolvePlayerActiveDamageInput } from '../damage/playerActiveDamageInput';
@@ -610,8 +615,9 @@ export class StandardPlayerDamageEnvironment {
           sourceOperatorId: context.program.operatorId,
           elements: [element],
         }),
-      emitSourceEvent: (event, payload) => this.#emit(context.program.operatorId, event, payload),
-      emitTargetEvent: (event, payload) => this.#emit('enemy', event, payload),
+      emitSourceEvent: (event, payload) =>
+        this.#emitInfliction(context.program.operatorId, event, payload),
+      emitTargetEvent: (event, payload) => this.#emitInfliction('enemy', event, payload),
       delegate: strictTerminal,
     });
   }
@@ -1218,6 +1224,19 @@ export class StandardPlayerDamageEnvironment {
   ): CombatBuffContainer<string> {
     const operatorId = side === 'healer' ? healerId : receiverId;
     return this.#operatorBuffRuntime(operatorId, this.#operatorPanels.get(operatorId)).container;
+  }
+
+  /** 随战斗环境创建一次；由角色装配显式安装条件，不按技能块重复注册。 */
+  readonly comboConditions = new ComboSkillConditionRuntime();
+
+  #emitInfliction(
+    entityId: string,
+    event: ElementalInflictionEvent,
+    payload: ElementalInflictionEventPayload,
+  ): void {
+    this.eventsFor(entityId).dispatch({ event, payload }, [], {
+      onAbilityEvent: () => this.comboConditions.onAbilityEvent({ event, payload }),
+    });
   }
 
   #emit(entityId: string, event: StandardPlayerDamageEvent, payload: unknown): void {

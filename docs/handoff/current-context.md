@@ -6,7 +6,30 @@
 当前主线是在 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
-### 2026-08-26 再续：实体初值和有副作用条件进入 Next（最新）
+### 2026-08-26 再续：附着事件连携阶段与独立条件注册进入 Next（最新）
+
+- 标准环境的真实附着执行现按 callback → data action → combo 派发四类已审计事件；
+  不把后置 semantic event 用作 event=121。既有 dispatcher 支持的 skill 阶段在标准环境仍为空，
+  本批没有声称技能监听器也已安装。四种元素均验证前置检查早于目标 Buff 写入。
+- 新增 ComboSkillConditionRuntime：每条注册的 direct 黑板和目标组持久、实体板共享；每次检查
+  重置动作状态，finally 只移除 trigger，不清空其他保存组。成功后复制 direct Pending 快照，
+  保留禁用 null / 启用空板 {}；InputTarget 与 trigger 单独绑定，不改物理事件 source/target。
+- 资格检查接受显式 alive/InSilence/当前连携槽计时器端口，先门禁再求值；冷却复现
+  oneReady 或 maxPassedTime < startCdFrame/30，缺计时器报错。**生产 assembly 尚未提供这些端口**，
+  不用 HP、随意 Tag 或旧技能 ID 代替；Pending 目前通过回调输出，尚未进入候选选择/施法消费。
+- 公共 source 读取 comboSkillConditions，保留路径/事件/立即施法字段；公共 compiler 严格映射
+  126/121/129/130，复用同一条件及控制流投影，消费布尔结果的纯尾条件也必须保留。
+  immediate、主控/支援过滤、未审计事件、未展开 RID 均失败。当前 InputTarget 对应的动作目标
+  投影尚未接通，依赖 Target 的来源明确报错，不能套 Buff 的 eventTarget 指向敌人。
+- **8 场已知阻塞仍保留**：尚未规范化完整角色五条 RID 条件并自动安装，正式诀定义不补假零值。
+  下一步接来源 RID 规范化与 InputTarget/trigger 查询投影，再接 assembly 门禁及 Pending 到施法；
+  不重复研究已确认的原生注册、快照与 SmartTarget 实体路径。
+- 新增 **44 项**；Next+统一编译器 **284 文件/2917 项通过**，两侧类型检查通过。
+  报告 tmp/combo-condition-registration-regression.audit.json 不提交；C#/VFS 本批未重跑，
+  C# 1376/17 仍为既有基线。默认武器库/迁移 UI 未切换，未改旧版/旧 Python/正式生成数据。
+  两库仅本地提交，不推送；combat-spec 本批只同步实现边界，不新增未取证规则。
+
+### 2026-08-26 再续：实体初值和有副作用条件进入 Next（上一批）
 
 - 公共编译新增两层黑板安装投影，保留动态来源、启用/null 与启用空板区别。Next 正式模型新增
   entityBlackboard 字面初值，场景装配进入角色共享板；现有 Deck 派生 initializers 可覆盖模板，

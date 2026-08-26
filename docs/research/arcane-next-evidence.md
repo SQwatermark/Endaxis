@@ -1,6 +1,36 @@
 # 诀新版配置证据记录
 
-## 2026-08-26 模板初值与条件写回进入 Next（最新）
+## 2026-08-26 原生附着事件的连携条件注册（最新）
+
+复用 combat-spec 的 combo-condition-environment.md、combo-event-gates-and-pending.md、
+combo-cast-preparation.md，Next 新增 ComboSkillConditionRuntime。标准环境真实附着动作的四个
+事件分别进入 dispatcher 的 combo 阶段，早于/晚于附着写入的位置由真实操作保持；不是从回执补事件。
+标准环境原本传入的 skillListeners 仍为空，本批只接 combo，不宣称四阶段监听器全部安装。
+
+每条注册只创建一次 direct 板和目标环境，共享角色 entity 板；后续检查重建动作状态但不清黑板。
+临时 trigger 在 finally 移除，其他已保存组保留；成功时 direct 值复制为不可变 Pending 快照，
+禁用板为 null、启用空板为 {}。事件 payload 仍保留物理 source/target，另提供 actionInputTarget：
+126/129 输入为承受者、trigger 为施加者，121/130 输入为施加者、trigger 为承受者。
+身份由显式 resolver 提供，不按 ID 拼写猜测实体种类；action owner/source 同样分别提供。
+
+门禁接受显式 alive、InSilence 查询及当前 ComboSkill 槽位计时器，按原生顺序跳过不合格检查；
+计时器缺失严格失败，边界相等不通过，oneReady 可通过。当前尚未由 CombatRuntimeAssembly 自动提供
+这些端口，不能说完整生产资格通路已闭合。Pending 由注册回调输出，没有选候选/开旧连携窗口/施法。
+
+公共来源层读取规范化后的 comboSkillConditions，保留每条来源/事件/立即施法字段；事件编译只接受
+已审计 126/121/129/130 的 Pending 模式，其他事件、立即施法和未实现根过滤拒绝。条件编译复用
+原有 Action/Condition/Sequence 入口，但布尔结果会被消费，因此纯尾条件也不能省略。
+Unity 原始 RID 和整数 priority 等仍需来源适配，不把未展开 RID 当作空序列。Target 来源在连携中
+指 InputTarget，而普通 Buff 的 eventTarget 是物理事件目标；当前公共连携投影显式阻止前者进入
+后者的错误语义，待补专用目标绑定后再放行。trigger 的上下文组可用于已支持的 Context 查询。
+
+新增 44 项：含公共来源到真实序列执行、独立局部板/共享实体板、门禁/异常清理/快照/注销，以及
+四元素经 StandardPlayerDamageEnvironment 的实际附着集成；全量 284 文件/2917 项通过，两侧类型
+检查通过。报告 tmp/combo-condition-registration-regression.audit.json；C#/VFS 本批未重跑。
+**8 场已知阻塞仍保留**，没有安装正式诀五条条件，没有变更默认武器库或迁移 UI。
+下一步：完整五条 RID 规范化 → InputTarget/trigger 查询投影 → assembly 注册门禁 → Pending 施法覆盖。
+
+## 2026-08-26 模板初值与条件写回进入 Next（上一批）
 
 公共 `compileAbilitySystemBlackboardsSource` 保留 source 路径/动态标记，并分别投影实体字面值及
 条件局部值；后者禁用返回 null，启用空板返回空对象。动态项属于安装初值，不能套用仅取静态值的

@@ -455,6 +455,7 @@ export {
   collectBuffRuntimeClosure,
   compileBuffRuntimeDefinitionSource,
   compileCombatActionSequenceSource,
+  compileCombatConditionSequenceSource,
   compileSkillSpGainActionSequenceSource,
   isAfterEnemyDefeatedOnlyBuffRuntime,
   isPresentationOnlyBuffStackEffect,
@@ -651,3 +652,11 @@ export {
   type SpawnedEntitySelectorIdentitySource,
   type TargetReferenceSource,
 } from './source/target.ts';
+export {
+  parseComboSkillConditionsSource,
+  type ComboSkillConditionSource,
+} from './source/comboSkillConditions.ts';
+export {
+  compilePendingComboConditionSource,
+  type CompiledComboConditionSource,
+} from './compiler/comboSkillConditions.ts';

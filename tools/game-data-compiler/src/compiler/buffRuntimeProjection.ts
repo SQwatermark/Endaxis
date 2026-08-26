@@ -1261,6 +1261,18 @@ export function compileCombatActionSequenceSource(
   return compileLinearSequence(source, visualOnlyIds, context);
 }
 
+/** 连携等调用方消费整个序列的布尔结果；即使尾条件不写黑板，也不能删除。 */
+export function compileCombatConditionSequenceSource(
+  source: NativeSequenceSource<KnownNativeActionLeafSource>,
+  context: CombatActionProjectionContextSource,
+  visualOnlyIds: ReadonlySet<string> = new Set(),
+): CompiledBuffSequenceSource {
+  return compileActionSequenceProgram(source, {
+    ...createBuffSequenceProjection(visualOnlyIds, context),
+    canOmitTerminalCondition: () => false,
+  });
+}
+
 /** OnObtainAtb 在公共事件映射前先严格融合 Skill + Gain 前缀条件。 */
 export function compileSkillSpGainActionSequenceSource(
   source: NativeSequenceSource<KnownNativeActionLeafSource>,

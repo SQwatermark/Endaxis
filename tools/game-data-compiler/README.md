@@ -386,6 +386,10 @@ npm run download:game-data:operator-closure -- --vfs-fallback http://desktop:876
 
 已完成：
 
+- 公共连携条件来源读取与四类已审计附着事件 Pending 编译，复用公共条件/序列而不另写叶子；
+  布尔结果被消费时保留纯尾条件。原始 RID 未展开、immediate、主控/支援过滤、未审计事件仍拒绝；
+  InputTarget 尚未投影时禁止把 Target 编成 Buff 的物理 eventTarget。证据见 combat-spec 的
+  combo-condition-environment.md、combo-event-gates-and-pending.md；尚未自动安装角色五条完整条件。
 - AbilitySystemData 两层黑板的公共安装投影：实体字面值与启用/禁用的条件局部板分离，动态声明
   不当作编译期常量；Next 实体初值可随场景装配进入共享运行板，但五条原生连携条件尚未自动注册。
 - CheckSpellInflictionType 的原生数值/命名/零 mask 与 savedKey 写回投影；有写入副作用的尾条件

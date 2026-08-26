@@ -1,6 +1,6 @@
 import type { RuntimeTargetGroup, RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 
-/** 一次技能释放内的命名目标组；释放重启时与动作黑板一起清空。 */
+/** 技能释放或连携条件环境的命名目标组；由宿主管理重置，临时事件组可单独移除。 */
 export class RuntimeTargetContext {
   readonly #groups = new Map<string, RuntimeTargetGroup>();
 
@@ -26,5 +26,10 @@ export class RuntimeTargetContext {
 
   clear(): void {
     this.#groups.clear();
+  }
+
+  /** 临时事件组结束时只移除该组，保留同一环境中的其他目标组。 */
+  remove(key: string): void {
+    this.#groups.delete(key);
   }
 }

@@ -19,6 +19,9 @@ import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
 import { gameplayTagId } from '../tags/gameplayTags';
 import { elementalAttachments } from '../../../data/buffs/elementalAttachments';
 import { skillSettings } from '../../../data/combat/skillSettings';
+import { ELEMENTAL_INFLICTION_EVENTS } from './elementalInflictionOperationExecutor';
+import { EventContextConditionExecutor } from './eventContextConditionExecutor';
+import type { PendingComboCondition } from './comboSkillConditionRuntime';
 
 const damageStep: Extract<ResolvedCombatStep, { kind: 'dealDamage' }> = {
   kind: 'dealDamage',
@@ -323,6 +326,103 @@ function createSkillSettings(): SkillSettingsDocument {
 }
 
 describe('StandardPlayerDamageEnvironment', () => {
+  it.each(['heat', 'electric', 'cryo', 'nature'] as const)(
+    '%s 真实附着按 callback→action→combo 分派四阶段，前置检查先于 Buff 写入',
+    element => {
+      const context = createContext();
+      const environment = new StandardPlayerDamageEnvironment({
+        criticalSamples: { nextCriticalSample: () => 1 },
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        enemyVitals: createEnemyCombatVitals(testEnemy),
+        elementalInflictionDocument: elementalAttachments,
+        spellInflictionSettings: skillSettings,
+      });
+      const executor = environment.runtimeOptions.createOperationExecutor(context);
+      const order: string[] = [];
+      const pending: PendingComboCondition[] = [];
+      const operations = new EventContextConditionExecutor({
+        execute: () => {
+          throw new Error('unexpected');
+        },
+        evaluate: () => {
+          throw new Error('unexpected');
+        },
+      });
+      const entity = new ActionBlackboard({ EntityBB_type: -1 });
+      for (const type of ELEMENTAL_INFLICTION_EVENTS) {
+        const publisher = type.includes('Output') ? 'operator' : 'enemy';
+        environment
+          .eventsFor(publisher)
+          .registerCallback(type, () => order.push(`${type}:callback`));
+        environment
+          .eventsFor(publisher)
+          .registerAction(type, 0, () => order.push(`${type}:action`));
+        environment.comboConditions.registerPendingCondition({
+          event: type,
+          ownerId: 'owner',
+          sourceId: 'owner',
+          entityBlackboard: entity,
+          initialValues: {},
+          operations,
+          sequence: {
+            steps: [
+              {
+                kind: 'conditional',
+                parameters: {
+                  condition: {
+                    kind: 'eventInflictionElementIn',
+                    elements: [element],
+                    outputKey: 'EntityBB_type',
+                  },
+                },
+                whenTrue: { steps: [] },
+              },
+            ],
+          },
+          isOwnerAlive: () => true,
+          isOwnerSilenced: () => false,
+          currentComboCooldown: () => ({ oneReady: true, maxPassedTime: 0, startCdFrame: 0 }),
+          resolveTarget: id =>
+            id === 'enemy' ? { kind: 'enemy' } : { kind: 'operator', operatorId: id },
+          onPending: p => {
+            order.push(`${type}:combo`);
+            pending.push(p);
+            const applied = (context.receipt as CombatReceiptCollector).entries.some(
+              entry => entry.event === 'BuffApplied',
+            );
+            expect(applied).toBe(type.startsWith('after'));
+            expect(entity.getNumber('EntityBB_type')).toBe(
+              { heat: 0, electric: 1, cryo: 2, nature: 3 }[element],
+            );
+          },
+        });
+      }
+      expect(
+        executor.execute({
+          kind: 'applyElementalInfliction',
+          parameters: { element, isExtra: false },
+        }),
+      ).toBe(true);
+      expect(order).toEqual(
+        ELEMENTAL_INFLICTION_EVENTS.flatMap(type => [
+          `${type}:callback`,
+          `${type}:action`,
+          `${type}:combo`,
+        ]),
+      );
+      expect(pending).toHaveLength(4);
+      expect(pending[1]).toMatchObject({
+        inputTarget: { kind: 'operator', operatorId: 'operator' },
+        triggerTarget: { kind: 'enemy' },
+        assignPairs: {},
+      });
+    },
+  );
+
   it('reads MaxUltimateSp from the bound combat resource ledger', () => {
     const environment = createEnvironment();
     const baseContext = createContext();
