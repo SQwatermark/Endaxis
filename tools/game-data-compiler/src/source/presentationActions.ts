@@ -388,6 +388,103 @@ export function parsePlayAnimationActionSource(
   };
 }
 
+/** PlayAnimationWithStep 在基础动画外建立短距离步进移动；战斗 IR 只省略表现/空间结果。 */
+export function parsePlayAnimationWithStepActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): PlayAnimationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      ...ACTION_META_FIELDS,
+      'animName',
+      'blendDuration',
+      'blendOut',
+      'duration',
+      'playbackSpeed',
+      'useStartTimeBlackboardKey',
+      'startTime',
+      'startTimeBlackboardKey',
+      'exitToIdle',
+      'blendOutNextStateHash',
+      'onEndAction',
+      'executeOnNormalEndOnly',
+      'stepTarget',
+      'montageName',
+      'stepDistance',
+      'frameToOriginAnim',
+      'stepBlendIn',
+      'animBlendInAfterStep',
+      'snapFrame',
+      'snapDistance',
+      'useFixSpeed',
+      'speed',
+      'speedCurveKey',
+      'hideWeapon',
+      'hideWeaponFrame',
+      'battlePoseWhenStep',
+    ]),
+    path,
+  );
+  const onEnd = requireRecord(action.onEndAction, `${path}.onEndAction`);
+  requireExactFields(
+    onEnd,
+    new Set(['actionData', 'onlyExecuteWhenSourceIsMainChar', 'onlyExecuteWhenSourceIsGuard']),
+    `${path}.onEndAction`,
+  );
+  if (
+    requireArray(onEnd.actionData, `${path}.onEndAction.actionData`).length > 0 ||
+    requireBoolean(
+      onEnd.onlyExecuteWhenSourceIsMainChar,
+      `${path}.onEndAction.onlyExecuteWhenSourceIsMainChar`,
+    ) ||
+    requireBoolean(
+      onEnd.onlyExecuteWhenSourceIsGuard,
+      `${path}.onEndAction.onlyExecuteWhenSourceIsGuard`,
+    )
+  )
+    throw new Error(`${path}.onEndAction: animation end combat actions are unsupported`);
+  parseTargetReferenceSource(action.stepTarget, `${path}.stepTarget`);
+  for (const key of [
+    'blendDuration',
+    'blendOut',
+    'startTime',
+    'stepDistance',
+    'stepBlendIn',
+    'animBlendInAfterStep',
+    'snapDistance',
+  ] as const)
+    requireNumber(action[key], `${path}.${key}`);
+  for (const key of [
+    'frameToOriginAnim',
+    'snapFrame',
+    'blendOutNextStateHash',
+    'hideWeaponFrame',
+  ] as const)
+    requireInteger(action[key], `${path}.${key}`);
+  for (const key of [
+    'useStartTimeBlackboardKey',
+    'exitToIdle',
+    'executeOnNormalEndOnly',
+    'useFixSpeed',
+    'hideWeapon',
+    'battlePoseWhenStep',
+  ] as const)
+    requireBoolean(action[key], `${path}.${key}`);
+  requireString(action.startTimeBlackboardKey, `${path}.startTimeBlackboardKey`);
+  requireString(action.montageName, `${path}.montageName`);
+  parseScalarSource(action.speed, `${path}.speed`, inheritedBlackboard);
+  requireString(action.speedCurveKey, `${path}.speedCurveKey`);
+  return {
+    kind: 'playAnimation',
+    animationName: requireString(action.animName, `${path}.animName`),
+    durationSeconds: requireNumber(action.duration, `${path}.duration`),
+    playbackSpeed: requireNumber(action.playbackSpeed, `${path}.playbackSpeed`),
+  };
+}
+
 export function parseCameraPresentationActionSource(
   value: unknown,
   path: string,

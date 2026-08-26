@@ -8,9 +8,11 @@ import {
   requireString,
 } from './primitives.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
+import { parseScalarSource, type BlackboardLevelValues } from './scalar.ts';
+import { parseTimeDilationCurveKeys } from './timeDilationActions.ts';
 
 export interface StaticEnemyControlActionSource {
-  readonly kind: 'enemyHurtAnimation' | 'pull';
+  readonly kind: 'enemyHurtAnimation' | 'pull' | 'pushBack';
   readonly source: TargetReferenceSource;
   readonly target: TargetReferenceSource;
 }
@@ -98,6 +100,61 @@ export function parsePullActionSource(value: unknown, path: string): StumpContro
   return {
     kind: 'pull',
     source: parseTargetReferenceSource(action.destination, `${path}.destination`),
+    target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
+  };
+}
+
+export function parsePushBackActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): StumpControlActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      ...META,
+      'attackerTargetSettings',
+      'sourcePointSettings',
+      'targetSettings',
+      'pushBackDirection',
+      'pushBackDistance',
+      'distanceCurveEnabled',
+      'curveOriginUseSourcePoint',
+      'distanceCurve',
+      'distanceUseScale',
+      'timeUseScale',
+      'unmovableUseScale',
+      'pushBackTime',
+      'unmovableTime',
+      'useCustomCurve',
+      'customCurve',
+      'curveTemplate',
+    ]),
+    path,
+  );
+  parseTargetReferenceSource(action.sourcePointSettings, `${path}.sourcePointSettings`);
+  for (const key of ['pushBackDistance', 'pushBackTime', 'unmovableTime'] as const)
+    parseScalarSource(action[key], `${path}.${key}`, inheritedBlackboard);
+  for (const key of [
+    'distanceCurveEnabled',
+    'curveOriginUseSourcePoint',
+    'distanceUseScale',
+    'timeUseScale',
+    'unmovableUseScale',
+    'useCustomCurve',
+  ] as const)
+    requireBoolean(action[key], `${path}.${key}`);
+  parseTimeDilationCurveKeys(action.distanceCurve, `${path}.distanceCurve`, true);
+  parseTimeDilationCurveKeys(action.customCurve, `${path}.customCurve`, true);
+  requireString(action.pushBackDirection, `${path}.pushBackDirection`);
+  requireString(action.curveTemplate, `${path}.curveTemplate`);
+  return {
+    kind: 'pushBack',
+    source: parseTargetReferenceSource(
+      action.attackerTargetSettings,
+      `${path}.attackerTargetSettings`,
+    ),
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
   };
 }

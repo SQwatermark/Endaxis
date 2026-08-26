@@ -226,6 +226,8 @@ export interface DealDamageParameters {
   features?: readonly DamageFeature[];
   /** 同一次命中在生命伤害之后结算的失衡伤害；原生同样允许从动作黑板读取。 */
   stagger?: LevelValues | ActionValueOperand;
+  /** 原生 Poise 单元 onlyEnableForMainChar；生命伤害仍正常结算。 */
+  staggerOnlyWhenCasterControlled?: boolean;
   /** 每层语义化战斗状态提供的额外攻击倍率。 */
   attackScalePerStatusStack?: {
     statusKey: string;
@@ -246,6 +248,8 @@ export interface DealFixedDamageParameters {
   features?: readonly DamageFeature[];
   /** 同一次命中在生命伤害之后结算的失衡伤害。 */
   stagger?: LevelValues | ActionValueOperand;
+  /** 原生 Poise 单元 onlyEnableForMainChar；生命伤害仍正常结算。 */
+  staggerOnlyWhenCasterControlled?: boolean;
 }
 
 /**

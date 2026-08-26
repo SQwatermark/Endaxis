@@ -134,6 +134,7 @@ export interface ResolvedCombatStepParameters {
     tags: readonly DamageTag[];
     features?: readonly DamageFeature[];
     stagger?: number | ActionValueOperand;
+    staggerOnlyWhenCasterControlled?: boolean;
     attackScalePerStatusStack?: {
       statusKey: string;
       target: 'caster' | 'enemy';
@@ -146,6 +147,7 @@ export interface ResolvedCombatStepParameters {
     tags: readonly DamageTag[];
     features?: readonly DamageFeature[];
     stagger?: number | ActionValueOperand;
+    staggerOnlyWhenCasterControlled?: boolean;
   };
   dealStagger: { value: number | ActionValueOperand };
   heal: {

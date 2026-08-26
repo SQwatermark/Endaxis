@@ -440,3 +440,15 @@ key 与二段第 0 帧还原帧。Next 用 `replacementSkills` 保存不可直�
 - Buff 的 plain `Source` 不等于宿主：在实例生命周期和 Ability 事件中，治疗与生命条件编译为动态 `buffSource`，运行时只用该实例保存的精确创建来源 ID 解析干员生命账本，缺失身份时失败关闭。`HealAction.alwaysNext` 原样进入 DSL；当前标准环境的治疗应用总是成功，不能用满血时 `actualHealing=0` 模拟动作失败。`OnTakeCriticalDamage` 只由真实暴击伤害派发。洛茜 `normal_bleed` 是首个同时覆盖 `CheckDamageType` 承伤修正、`Dot | TalentDamage` 位、暴击追加伤害、来源自疗和治疗后生命检查的完整递归样本。
 - 根调度会执行的投射物命中子技能若创建 plain Source Buff，该 Buff 必须进入干员共享定义目录；不能因为它不在根 SkillData 的直接 `referencedBuffIds` 就漏解析。该规则只遍历会被提升的投射物子图，不顺带展开尚未迁移的能力实体子图。子动作的 `autoFinishByAction` 区间按 `绝对开始帧 + (局部结束帧 - 局部开始帧)` 平移。洛茜 `tut_normalskill_success` 虽有教程命名，原始内容是局部第 10/12/15/18 帧四跳伤害与失衡，因此作为首个生产样本完整保留。
 - 根 SkillData 的 `JumpToAction` 与 `InterruptCurSkillAction` 现已进入正式时间轴控制流。直接条件、空条件前向跳转，以及唯一根 `IfElse` 分支中的空条件跳转会生成宿主 `jumpTimeline`；跳转只改写技能局部帧并跳过目的帧之前的待执行项，不推进全局战斗帧。`InterruptCurSkillAction` 只在 plain Owner、唯一根动作形状下生成 `finishTimeline`，结束当前技能并丢弃未来调度。洛茜第四段普攻由 `casterControlled` 在第 0 帧选择 0 段或 189 段，战技则在第 37–40 帧按 `FollowAttackTrigger >= 0.9` 跳到 215；未跳转路线分别在 188/214 终止，因此不再把备用段线性化成 195/230 帧后的幽灵伤害。弧光现有 `CompareFloat` 与空条件根跳转同样复用该通路。1.4.4 运行时证据进一步证明 `NotNextCheckAction` 把 `SequenceActionExecutePolicy` 一次性设为 `LastFailed`，只反转紧随其后的条件并立即恢复；Last Rite 的 `NotNext + CheckMainCharacterCondition(Source)` 因而严格编译为 `not(casterControlled)`。`OrConditionAction.ExecuteInternal` 则顺序执行 `conditionList` 中的 `SequenceAction`，任一成功即返回 true；庄方仪战技与强化战技的 `skillEnd` 标记或 `EntityBB_SwordNum == 0` 跳转按“组内 all、组间 any”保留。双 `NotNext`、悬空 `NotNext`、空 OR 分支或未支持的分支条件仍失败关闭。
+- 普通攻击与战技、连携、终结技共用同一主动技能生成入口；一个干员目录允许多个稳定输出文件，
+  安装层按技能 key 组合。艾维文娜的五段普攻和下落攻击是首批完整普通攻击样本。
+- `SnapToTargetWithRangeAction`、`PlayAnimationWithStep`、`PushBackAction` 和
+  `BreakInteractiveAction` 必须先按已知字段完整解析。前三者的空间/表现/敌人位移，以及后者的
+  交互物破坏，在固定零空间、唯一木桩、无环境对象的运行模型中产生 `scenario-omitted`，但其嵌套
+  onEnd 动作和未知字段不能被吞掉。`InteractiveShapeFinder` 只用于交互物目标，不得折叠成敌方木桩。
+- `DamageAction.hitEnvironment` 是敌人伤害之外的环境旁路；生成器保留审计事实，但不会额外创建敌人
+  命中。`gainCost=false` 允许严格读取序列化残留的 cost 列表而不执行。`atbOnlyMainChar=true` 与
+  第五段普通攻击的主控限定失衡分别生成显式 `casterControlled` 条件，不得靠默认场景暗中恒真化。
+- `GainBreakingAttackAtb` 尚未进入正式 DSL。即使已证明它最终取得 PowerAttack 技力，仍必须先证明
+  目标派生基值的字段语义和单位；在此之前，包含该动作的终结攻击必须失败关闭，不能把静态旧定义中
+  的零值当成转换结论。

@@ -110,6 +110,7 @@ const KNOWN_FINDERS = new Set([
   'CharacterTeamFinder',
   'FixedPointFinder',
   'HitBoxFinder',
+  'InteractiveShapeFinder',
   'InFightEnemyFinder',
   'MainTargetFinder',
   'OwnerSpawnedEntityFinder',
@@ -214,7 +215,7 @@ export function parseSelectorSummarySource(
         `${path}.finderData.targetObjectType`,
       );
       finderCheckAlive = requireBoolean(finder.checkAlive, `${path}.finderData.checkAlive`);
-    } else if (finderType === 'ShapeFinder') {
+    } else if (finderType === 'ShapeFinder' || finderType === 'InteractiveShapeFinder') {
       finderShape = parseShapeFinderSource(finder, `${path}.finderData`);
     } else if (finderType === 'OwnerPartsFinder') {
       requireExactFields(finder, new Set(['$type', 'partQuery']), `${path}.finderData`);
@@ -255,6 +256,7 @@ export function parseSelectorSummarySource(
 }
 
 function parseShapeFinderSource(finder: Record<string, unknown>, path: string): ShapeFinderSource {
+  const interactive = selectorComponentName(finder, path) === 'InteractiveShapeFinder';
   requireExactFields(
     finder,
     new Set([
@@ -270,6 +272,7 @@ function parseShapeFinderSource(finder: Record<string, unknown>, path: string): 
       'limitAngle',
       'angleKey',
       'angle',
+      ...(interactive ? ['checkIntUnSelectableTag'] : []),
     ]),
     path,
   );
@@ -298,6 +301,8 @@ function parseShapeFinderSource(finder: Record<string, unknown>, path: string): 
     shapePath,
   );
   const targetFactionType = finder.targetFactionType;
+  if (interactive)
+    requireBoolean(finder.checkIntUnSelectableTag, `${path}.checkIntUnSelectableTag`);
   if (typeof targetFactionType !== 'string' && typeof targetFactionType !== 'number') {
     throw new Error(`${path}.targetFactionType: expected enum name or number`);
   }

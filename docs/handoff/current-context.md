@@ -2866,3 +2866,20 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
   任意投射物或任意地形规则。回调若读取未声明实体黑板仍严格拒绝。
 - 生产回归观察到能力实体在第 45 帧生成、直接终结技电伤害在第 51 帧发生，并验证能量返还与时间
   膨胀结束帧。下一步先完成全量门禁和三仓阶段提交，再以相同入口迁移下一项复杂主动技能。
+
+### 2026-08-27：艾维文娜普通攻击组进入统一主动技能生成链
+
+- 五段普通攻击和下落攻击已由各自根 SkillData 严格生成，并通过稳定技能 key 安装到既有干员定义；
+  时间轴仍保存玩家选择的现实时间和稳定输入，不因生成方式改变编辑语义。
+- 公共动作层新增严格的 `SnapToTargetWithRangeAction`、`PlayAnimationWithStep`、`PushBackAction`、
+  `BreakInteractiveAction` 与 `InteractiveShapeFinder` 解析。空间移动、动画和可破坏环境在 Endaxis 的
+  零空间木桩模型中只留下审计省略；任何未知字段、嵌套战斗动作或未证明目标形状仍失败关闭。
+- 普攻、重击、下落、冲刺和连段末击的原生伤害掩码已进入公共映射。第五段的伤害始终执行，但失衡
+  只在施法者为主控时执行；该差异由伤害操作上的 `staggerOnlyWhenCasterControlled` 表达，没有制造
+  第二个零伤害命中。`atbOnlyMainChar` 的资源动作也使用同一显式主控条件。
+- `DamageAction.hitEnvironment` 在 combat-spec 中保留为独立环境路径；它不改变敌方 `DamageUnit`，
+  Endaxis 无可破坏环境后端，因此不会把环境命中次数叠加成木桩伤害。`gainCost=false` 时序列化残留的
+  非空 `costDataList` 同样经过严格解析，但不执行资源变化。
+- 终结攻击暂未生成：其 `GainBreakingAttackAtb` 已证明最终调用 `BattleManager.GainAtb(PowerAttack,
+Gain)`，且数值为目标派生浮点值乘 `factor`；目标派生字段/枚举值 `8` 的语义尚未闭环。现阶段继续
+  保留旧定义并将该项列为证据阻塞，不用 `0` 或经验公式冒充原生结果。

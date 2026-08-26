@@ -249,7 +249,24 @@ describe('公共回调伤害投影', () => {
     ).toEqual({ kind: 'blackboard', key: 'poise_lance' });
   });
 
-  it.each([1, 128, 16384, 4353, 2 ** 32 + 4352, Number.MAX_SAFE_INTEGER + 1, -1, 0.5])(
+  it.each([
+    [4, ['powerAttack']],
+    [128, ['normalAttack']],
+    [1024, ['plungingAttack']],
+    [131072, ['dashAttack']],
+    [2097152, ['normalAttackLastCombo']],
+    [2097284, ['normalAttack', 'normalAttackLastCombo', 'powerAttack']],
+  ] as const)('严格分解普攻家族伤害位 %i', (mask, tags) => {
+    const source = damageSource();
+    expect(
+      compileEventTargetSimpleDamageOperationSource(
+        { ...source, units: [{ ...source.units[0]!, damageDecorateMask: mask }] },
+        'damage',
+      ).parameters.tags,
+    ).toEqual(tags);
+  });
+
+  it.each([1, 8, 16384, 4353, 2 ** 32 + 4352, Number.MAX_SAFE_INTEGER + 1, -1, 0.5])(
     '未知位/非安全整数 %s 不被位运算截断后放行',
     mask => {
       const source = damageSource();

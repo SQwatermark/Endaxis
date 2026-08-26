@@ -51,6 +51,15 @@ export interface CustomRootMotionActionSource {
   readonly startOffsetFrame: number;
 }
 
+export interface SnapToTargetWithRangeActionSource {
+  readonly kind: 'snapToTargetWithRange';
+  readonly target: TargetReferenceSource;
+  readonly radius: ScalarSource;
+  readonly moveType: string;
+  readonly needRotate: boolean;
+  readonly totalTime: number;
+}
+
 export interface SaveTargetDistanceActionSource {
   readonly kind: 'saveTargetDistance';
   readonly source: TargetReferenceSource;
@@ -408,6 +417,60 @@ export function parseCustomRootMotionActionSource(
     ),
     updateDirection: requireBoolean(action.updateDir, `${path}.updateDir`),
     startOffsetFrame: requireInteger(action.startOffsetFrame, `${path}.startOffsetFrame`),
+  };
+}
+
+/**
+ * 原生动作建立一段贴近目标的移动请求；它不携带战斗载荷。固定零距离投影可以在后继链不读取
+ * 空间结果时省略它，但来源层仍校验完整曲线、根运动和移动优先级字段，避免把未知变体静默吞掉。
+ */
+export function parseSnapToTargetWithRangeActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): SnapToTargetWithRangeActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'moveTo',
+      'fixPositionWhenStart',
+      'radius',
+      'moveType',
+      'needRotate',
+      'useFixSpeed',
+      'speed',
+      'fixedSpeedCurveKey',
+      'speedCurve',
+      'positionCurve',
+      'totalTime',
+      'rootMotionAnimKey',
+      'rootMotionMaxDistance',
+      'chargePriority',
+    ]),
+    path,
+  );
+  requireBoolean(action.fixPositionWhenStart, `${path}.fixPositionWhenStart`);
+  requireBoolean(action.useFixSpeed, `${path}.useFixSpeed`);
+  parseScalarSource(action.speed, `${path}.speed`, inheritedBlackboard);
+  requireString(action.fixedSpeedCurveKey, `${path}.fixedSpeedCurveKey`);
+  parseTimeDilationCurveKeys(action.speedCurve, `${path}.speedCurve`);
+  parseTimeDilationCurveKeys(action.positionCurve, `${path}.positionCurve`);
+  requireString(action.rootMotionAnimKey, `${path}.rootMotionAnimKey`);
+  requireNumber(action.rootMotionMaxDistance, `${path}.rootMotionMaxDistance`);
+  requireNonEmptyString(action.chargePriority, `${path}.chargePriority`);
+  return {
+    kind: 'snapToTargetWithRange',
+    target: parseTargetReferenceSource(action.moveTo, `${path}.moveTo`),
+    radius: parseScalarSource(action.radius, `${path}.radius`, inheritedBlackboard),
+    moveType: requireNonEmptyString(action.moveType, `${path}.moveType`),
+    needRotate: requireBoolean(action.needRotate, `${path}.needRotate`),
+    totalTime: requireNumber(action.totalTime, `${path}.totalTime`),
   };
 }
 

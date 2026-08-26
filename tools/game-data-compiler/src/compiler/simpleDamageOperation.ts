@@ -12,9 +12,19 @@ export interface CompiledSimpleDamageOperationSource {
   readonly parameters: {
     readonly damageType: 'physical' | 'heat' | 'electric' | 'cryo' | 'nature';
     readonly attackScale: CompiledActionValueOperandSource;
-    readonly tags: readonly ('normalSkill' | 'ultimateSkill' | 'comboSkill')[];
+    readonly tags: readonly (
+      | 'normalAttack'
+      | 'normalAttackLastCombo'
+      | 'powerAttack'
+      | 'plungingAttack'
+      | 'dashAttack'
+      | 'normalSkill'
+      | 'ultimateSkill'
+      | 'comboSkill'
+    )[];
     readonly features?: readonly 'canBreakWeakness'[];
     readonly stagger?: CompiledActionValueOperandSource;
+    readonly staggerOnlyWhenCasterControlled?: boolean;
   };
 }
 
@@ -45,7 +55,7 @@ export function compileEventTargetSimpleDamageOperationSource(
       : action.attacker === 'ActionSource'
         ? context.actionSourceTarget
         : null;
-  if (!action.alwaysNext || attackerTarget !== 'caster' || action.hitEnvironment) {
+  if (!action.alwaysNext || attackerTarget !== 'caster') {
     throw new Error(`${sourcePath}: unsupported simple damage action control flags`);
   }
   if (
@@ -91,8 +101,7 @@ export function compileEventTargetSimpleDamageOperationSource(
     unit.ignoreDamageImmuneLevel !== 'None' ||
     unit.ignorePoiseImmune ||
     unit.reduceDamageForGuard ||
-    unit.gainCost ||
-    unit.costs.length > 0
+    unit.gainCost
   ) {
     throw new Error(`${sourcePath}: unsupported simple event DamageUnit behavior`);
   }
@@ -104,21 +113,32 @@ export function compileEventTargetSimpleDamageOperationSource(
   if (attackScale === null) {
     throw new Error(`${sourcePath}: unsupported event attack calculation`);
   }
-  // DamageEnums.g.cs：256/512/8192 是战技/终结技/连携技，4096 是 CanBreakWeakness。
+  // DamageEnums.g.cs：分类位彼此独立。hitEnvironment 只增加环境命中旁路，不改变同一
+  // DamageUnit 对目标的结算；Endaxis 没有可破坏环境，只投影目标伤害。
   // 用安全整数和减法验剩余位，避免 JS 位运算把高位截断后误当作已覆盖。
   const mask = unit.damageDecorateMask;
+  const powerAttack = Math.floor(mask / 4) % 2 === 1;
+  const normalAttack = Math.floor(mask / 128) % 2 === 1;
   const normalSkill = Math.floor(mask / 256) % 2 === 1;
   const ultimateSkill = Math.floor(mask / 512) % 2 === 1;
+  const plungingAttack = Math.floor(mask / 1024) % 2 === 1;
   const canBreakWeakness = Math.floor(mask / 4096) % 2 === 1;
   const comboSkill = Math.floor(mask / 8192) % 2 === 1;
+  const dashAttack = Math.floor(mask / 131072) % 2 === 1;
+  const normalAttackLastCombo = Math.floor(mask / 2097152) % 2 === 1;
   if (
     !Number.isSafeInteger(mask) ||
     mask < 0 ||
     mask -
+      (powerAttack ? 4 : 0) -
+      (normalAttack ? 128 : 0) -
       (normalSkill ? 256 : 0) -
       (ultimateSkill ? 512 : 0) -
+      (plungingAttack ? 1024 : 0) -
       (canBreakWeakness ? 4096 : 0) -
-      (comboSkill ? 8192 : 0) !==
+      (comboSkill ? 8192 : 0) -
+      (dashAttack ? 131072 : 0) -
+      (normalAttackLastCombo ? 2097152 : 0) !==
       0
   ) {
     throw new Error(`${sourcePath}: unsupported event damage decorate mask ${mask}`);
@@ -131,12 +151,18 @@ export function compileEventTargetSimpleDamageOperationSource(
       damageType,
       attackScale: scalarOperand(attackScale),
       tags: [
+        ...(normalAttack ? (['normalAttack'] as const) : []),
+        ...(normalAttackLastCombo ? (['normalAttackLastCombo'] as const) : []),
+        ...(powerAttack ? (['powerAttack'] as const) : []),
+        ...(plungingAttack ? (['plungingAttack'] as const) : []),
+        ...(dashAttack ? (['dashAttack'] as const) : []),
         ...(normalSkill ? (['normalSkill'] as const) : []),
         ...(ultimateSkill ? (['ultimateSkill'] as const) : []),
         ...(comboSkill ? (['comboSkill'] as const) : []),
       ],
       ...(canBreakWeakness ? { features: ['canBreakWeakness'] as const } : {}),
       ...(stagger === undefined ? {} : { stagger }),
+      ...(poiseUnit?.onlyEnableForMainOperator ? { staggerOnlyWhenCasterControlled: true } : {}),
     },
   };
 }
@@ -161,12 +187,10 @@ function compileSimplePoiseOperand(
     calculation.valueScale.value !== 0 ||
     unit.processors.length > 0 ||
     unit.damageDecorateMask !== 0 ||
-    unit.onlyEnableForMainOperator ||
     unit.ignoreDamageImmuneLevel !== 'None' ||
     unit.ignorePoiseImmune ||
     unit.reduceDamageForGuard ||
-    unit.gainCost ||
-    unit.costs.length > 0
+    unit.gainCost
   ) {
     throw new Error(`${sourcePath}: unsupported simple event Poise DamageUnit behavior`);
   }

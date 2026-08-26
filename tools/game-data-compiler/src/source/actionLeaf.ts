@@ -33,6 +33,10 @@ import {
 import { parseNativeSequenceSource, type NativeSequenceSource } from './controlFlow.ts';
 import { parseDamageActionSource, type DamageActionSource } from './damageActions.ts';
 import { parseHealActionSource, type HealActionSource } from './healActions.ts';
+import {
+  parseBreakInteractiveActionSource,
+  type BreakInteractiveActionSource,
+} from './environmentActions.ts';
 import { parseFinishOwnerActionSource, type FinishOwnerActionSource } from './lifecycleActions.ts';
 import {
   nativeActionName,
@@ -53,6 +57,7 @@ import {
   parseTemporaryUnlockActionSource,
   parseEffectActionSource,
   parsePlayAnimationActionSource,
+  parsePlayAnimationWithStepActionSource,
   parsePlaySoundActionSource,
   type DebugPrintActionSource,
   type CameraPresentationActionSource,
@@ -64,6 +69,7 @@ import { parseInterruptActionSource, type InterruptActionSource } from './interr
 import {
   parseEnemyHurtAnimationActionSource,
   parsePullActionSource,
+  parsePushBackActionSource,
   parseTargetHitStopActionSource,
   type StumpControlActionSource,
 } from './stumpControlActions.ts';
@@ -116,8 +122,10 @@ import {
   parseReceiveMoveInputActionSource,
   parseMoveToActionSource,
   parseCustomRootMotionActionSource,
+  parseSnapToTargetWithRangeActionSource,
   parseSaveTargetDistanceActionSource,
   type CustomRootMotionActionSource,
+  type SnapToTargetWithRangeActionSource,
   type SaveTargetDistanceActionSource,
   type MoveToActionSource,
   type ReceiveMoveInputActionSource,
@@ -203,7 +211,8 @@ export type KnownNativeActionLeafSource =
         | TeleportActionSource
         | ReceiveMoveInputActionSource
         | MoveToActionSource
-        | CustomRootMotionActionSource;
+        | CustomRootMotionActionSource
+        | SnapToTargetWithRangeActionSource;
     }
   | { readonly family: 'spatialMeasurement'; readonly action: SaveTargetDistanceActionSource }
   | { readonly family: 'resource'; readonly action: ResourceGainActionSource }
@@ -223,6 +232,7 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'buffLifeTimeRead'; readonly action: BuffLifeTimeReadActionSource }
   | { readonly family: 'buffDurationMutation'; readonly action: BuffDurationMutationActionSource }
   | { readonly family: 'heal'; readonly action: HealActionSource }
+  | { readonly family: 'environment'; readonly action: BreakInteractiveActionSource }
   | { readonly family: 'lifecycle'; readonly action: FinishOwnerActionSource }
   | {
       readonly family: 'timeDilation';
@@ -285,6 +295,16 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'presentation',
         action: parsePlayAnimationActionSource(value, path),
       };
+    case 'BreakInteractiveAction':
+      return {
+        family: 'environment',
+        action: parseBreakInteractiveActionSource(value, path, inheritedBlackboard),
+      };
+    case 'PlayAnimationWithStep':
+      return {
+        family: 'presentation',
+        action: parsePlayAnimationWithStepActionSource(value, path, inheritedBlackboard),
+      };
     case 'SelfRotateAction':
       return {
         family: 'spatial',
@@ -309,6 +329,11 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'spatial',
         action: parseCustomRootMotionActionSource(value, path, inheritedBlackboard),
+      };
+    case 'SnapToTargetWithRangeAction':
+      return {
+        family: 'spatial',
+        action: parseSnapToTargetWithRangeActionSource(value, path, inheritedBlackboard),
       };
     case 'SaveTargetDistanceAction':
       return {
@@ -509,6 +534,11 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'presentation',
         action: parseCameraPresentationActionSource(value, path, 'cameraImpulse'),
+      };
+    case 'PushBackAction':
+      return {
+        family: 'stumpControl',
+        action: parsePushBackActionSource(value, path, inheritedBlackboard),
       };
     case 'AddCameraControlStateAction':
       return {

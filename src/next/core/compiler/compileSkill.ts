@@ -230,6 +230,9 @@ function resolveStep(
                   `${path}.parameters.stagger`,
                 ),
               }),
+          ...(step.parameters.staggerOnlyWhenCasterControlled
+            ? { staggerOnlyWhenCasterControlled: true }
+            : {}),
           ...(step.parameters.attackScalePerStatusStack === undefined
             ? {}
             : {
@@ -265,6 +268,9 @@ function resolveStep(
                   `${path}.parameters.stagger`,
                 ),
               }),
+          ...(step.parameters.staggerOnlyWhenCasterControlled
+            ? { staggerOnlyWhenCasterControlled: true }
+            : {}),
         },
       };
     case 'dealStagger':

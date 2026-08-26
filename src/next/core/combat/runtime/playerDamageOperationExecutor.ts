@@ -295,7 +295,11 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       });
       this.dependencies.emitSemanticHit?.(step);
 
-      if (step.parameters.stagger !== undefined) {
+      if (
+        step.parameters.stagger !== undefined &&
+        (!step.parameters.staggerOnlyWhenCasterControlled ||
+          (this.dependencies.isSourceControlled?.() ?? false))
+      ) {
         this.#executePoise(
           step,
           this.#resolveActionValue(

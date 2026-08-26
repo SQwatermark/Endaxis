@@ -55,6 +55,7 @@ function createAttributeSnapshots(attack = 100, defense = 0, criticalRate = 0) {
 
 describe('PlayerDamageOperationExecutor', () => {
   it('applies standard health damage before the hit poise unit', () => {
+    let sourceControlled = false;
     const healthEvents: string[] = [];
     const targetVitals = new CombatVitals({
       health: 1000,
@@ -99,6 +100,7 @@ describe('PlayerDamageOperationExecutor', () => {
       clearInstantAttributeModifiers: () => undefined,
       emitPreparationEvent: () => undefined,
       resolvePoiseMultipliers: () => ({ output: 1.5, taken: 2 }),
+      isSourceControlled: () => sourceControlled,
       emitHealthSourceEvent: event => healthEvents.push(`source:${event}`),
       emitHealthTargetEvent: event => healthEvents.push(`target:${event}`),
       emitPoiseSourceEvent: () => undefined,
@@ -149,6 +151,21 @@ describe('PlayerDamageOperationExecutor', () => {
       weaknessDamageMultiplier: 1,
       shelterDamageMultiplier: 0,
     });
+
+    const controlledOnlyStaggerStep = {
+      ...DAMAGE_STEP,
+      parameters: {
+        ...DAMAGE_STEP.parameters,
+        attackScale: 0,
+        stagger: 10,
+        staggerOnlyWhenCasterControlled: true,
+      },
+    };
+    executor.execute(controlledOnlyStaggerStep);
+    expect(targetVitals.poise).toBe(40);
+    sourceControlled = true;
+    executor.execute(controlledOnlyStaggerStep);
+    expect(targetVitals.poise).toBe(10);
 
     executor.execute(
       {

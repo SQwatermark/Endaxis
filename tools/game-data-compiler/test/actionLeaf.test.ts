@@ -235,6 +235,164 @@ describe('公共 Action 叶子分派', () => {
     ).toThrow('fixture.distance: unexpected fields');
   });
 
+  it('PlayAnimationWithStep 保留动画身份并严格读取步进载荷', () => {
+    const source = {
+      ...META,
+      $type:
+        'Beyond.Gameplay.Core.PlayAnimationWithStep+PlayAnimationWithStepData, Gameplay.Beyond',
+      animName: 'Attack02',
+      blendDuration: 0.1,
+      blendOut: 1,
+      duration: 7.4666667,
+      playbackSpeed: 1,
+      useStartTimeBlackboardKey: false,
+      startTime: 0,
+      startTimeBlackboardKey: '',
+      exitToIdle: false,
+      blendOutNextStateHash: 0,
+      onEndAction: {
+        actionData: [],
+        onlyExecuteWhenSourceIsMainChar: false,
+        onlyExecuteWhenSourceIsGuard: false,
+      },
+      executeOnNormalEndOnly: false,
+      stepTarget: targetFixture('Target'),
+      montageName: 'BattleStepR',
+      stepDistance: 2.5,
+      frameToOriginAnim: 3,
+      stepBlendIn: 0.067,
+      animBlendInAfterStep: 0.1,
+      snapFrame: 6,
+      snapDistance: 1.5,
+      useFixSpeed: false,
+      speed: scalarFixture(15),
+      speedCurveKey: '默认近战普攻',
+      hideWeapon: false,
+      hideWeaponFrame: 6,
+      battlePoseWhenStep: false,
+    };
+    expect(parseKnownNativeActionLeafSource(source, 'fixture.stepAnimation', {})).toMatchObject({
+      family: 'presentation',
+      action: { kind: 'playAnimation', animationName: 'Attack02', durationSeconds: 7.4666667 },
+    });
+  });
+
+  it('PushBackAction 与 BreakInteractiveAction 分别保留木桩控制和场景旁路身份', () => {
+    const curve = [
+      {
+        time: 0,
+        value: 1,
+        inTangent: 0,
+        outTangent: 0,
+        inWeight: 0,
+        outWeight: 0,
+        weightedMode: 0,
+      },
+    ];
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.PushBackAction+Data, Gameplay.Beyond',
+          attackerTargetSettings: targetFixture('Source'),
+          sourcePointSettings: targetFixture('Source'),
+          targetSettings: targetFixture('Target'),
+          pushBackDirection: 'SourceToTarget',
+          pushBackDistance: scalarFixture(0),
+          distanceCurveEnabled: false,
+          curveOriginUseSourcePoint: false,
+          distanceCurve: curve,
+          distanceUseScale: true,
+          timeUseScale: true,
+          unmovableUseScale: true,
+          pushBackTime: scalarFixture(0.2),
+          unmovableTime: scalarFixture(1.5),
+          useCustomCurve: false,
+          customCurve: curve,
+          curveTemplate: 'EaseInOut',
+        },
+        'fixture.pushBack',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'stumpControl',
+      action: { kind: 'pushBack' },
+    });
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.AbilityActions.BreakInteractiveAction+Data, Gameplay.Beyond',
+          attacker: 'ActionSource',
+          damageType: 'Physical',
+          atkCalculation: {
+            $type: 'Beyond.Gameplay.Core.DefiniteValueCalculation, Gameplay.Beyond',
+            value: scalarFixture(15),
+            applyScale: false,
+            valueScale: scalarFixture(0),
+          },
+          damageProcessors: [],
+          targetInteractives: targetFixture('Target'),
+        },
+        'fixture.breakInteractive',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'environment',
+      action: { kind: 'breakInteractive', damageType: 'Physical' },
+    });
+  });
+
+  it('SnapToTargetWithRangeAction 严格保留贴近目标的空间载荷', () => {
+    const curve = [
+      {
+        time: 0,
+        value: 1,
+        inTangent: 0,
+        outTangent: 0,
+        inWeight: 0,
+        outWeight: 0,
+        weightedMode: 0,
+      },
+    ];
+    const source = {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.SnapToTargetWithRangeAction+Data, Gameplay.Beyond',
+      moveTo: targetFixture('Target'),
+      fixPositionWhenStart: false,
+      radius: scalarFixture(1),
+      moveType: 'FixedSpeed',
+      needRotate: true,
+      useFixSpeed: true,
+      speed: scalarFixture(20),
+      fixedSpeedCurveKey: '默认近战普攻',
+      speedCurve: curve,
+      positionCurve: curve,
+      totalTime: 0.1,
+      rootMotionAnimKey: '',
+      rootMotionMaxDistance: 0,
+      chargePriority: 'Normal',
+    };
+    expect(parseKnownNativeActionLeafSource(source, 'fixture.snap', {})).toMatchObject({
+      family: 'spatial',
+      action: {
+        kind: 'snapToTargetWithRange',
+        target: { targetSource: 'Target' },
+        radius: { value: 1, blackboardKey: null },
+        moveType: 'FixedSpeed',
+        needRotate: true,
+        totalTime: 0.1,
+      },
+    });
+    expect(() =>
+      parseKnownNativeActionLeafSource(
+        { ...source, unknownMovementField: true },
+        'fixture.snap',
+        {},
+      ),
+    ).toThrow('fixture.snap: unexpected fields');
+  });
+
   it('SaveBuffStackNumAdvanced 进入公共 Buff 查询 IR', () => {
     expect(
       parseKnownNativeActionLeafSource(

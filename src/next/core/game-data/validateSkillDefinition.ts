@@ -1064,6 +1064,12 @@ function validateCombatStep(
           out,
         );
       }
+      if (
+        parameters.staggerOnlyWhenCasterControlled !== undefined &&
+        typeof parameters.staggerOnlyWhenCasterControlled !== 'boolean'
+      ) {
+        push(out, `${path}.parameters.staggerOnlyWhenCasterControlled`, 'expected boolean');
+      }
       if (parameters.attackScalePerStatusStack !== undefined) {
         const stack = asRecord(
           parameters.attackScalePerStatusStack,
@@ -1101,6 +1107,12 @@ function validateCombatStep(
           `${path}.parameters.stagger`,
           out,
         );
+      }
+      if (
+        parameters.staggerOnlyWhenCasterControlled !== undefined &&
+        typeof parameters.staggerOnlyWhenCasterControlled !== 'boolean'
+      ) {
+        push(out, `${path}.parameters.staggerOnlyWhenCasterControlled`, 'expected boolean');
       }
       break;
     }

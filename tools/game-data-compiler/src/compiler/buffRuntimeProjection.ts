@@ -2278,7 +2278,8 @@ function compileConditionLeaf(
     const projectsCaster =
       (condition.targetSource === 'Owner' && context.actionOwnerTarget === 'caster') ||
       (condition.targetSource === 'Source' && context.actionSourceTarget === 'caster');
-    if (!projectsCaster || condition.targetGroupKey !== '') {
+    // 固定 Owner/Source 不读取 targetGroupKey；部分原始技能保留了上一个 Context 目标组名。
+    if (!projectsCaster) {
       throw new Error(`${sourcePath}: unsupported main-character condition target`);
     }
     return { kind: 'casterControlled' };
@@ -2787,6 +2788,7 @@ function compileActionNode(
       'selfDefense',
       'inputControl',
       'timeDilation',
+      'environment',
     ].includes(node.body.value.family)
   )
     throw new Error(`${node.sourcePath}: unaudited single-enemy action ${node.body.value.family}`);
@@ -3162,29 +3164,35 @@ function compileActionNode(
     if (
       (!usesOwner && !usesCasterSource) ||
       action.source.targetGroupKey !== '' ||
-      action.target.targetGroupKey !== '' ||
-      action.onlyMainOperator
+      action.target.targetGroupKey !== ''
     ) {
       throw new Error(`${node.sourcePath}: unsupported resource gain source/target`);
     }
-    return [
-      {
-        kind: 'changeResourceByActionValue',
-        parameters: {
-          resource: action.resource,
-          amount: actionValueOperand(action.amount),
-          coefficient: actionValueOperand(action.coefficient),
-          recipient: action.resource === 'sp' ? 'team' : 'caster',
-          ...(action.spGainKind === null ? {} : { spGainKind: action.spGainKind }),
-          ...(action.spGainSource === null ? {} : { spGainSource: action.spGainSource }),
-          ...(action.isPercentValue ? { isPercentValue: true } : {}),
-          ...(action.useUltimateRecoveryTag
-            ? { ultimateRecoveryTagId: action.ultimateRecoveryTagId }
-            : {}),
-          ...(action.ignoreUltimateGainScalar ? { ignoreUltimateEnergyGainMultiplier: true } : {}),
-        },
+    const operation: CompiledBuffStepSource = {
+      kind: 'changeResourceByActionValue',
+      parameters: {
+        resource: action.resource,
+        amount: actionValueOperand(action.amount),
+        coefficient: actionValueOperand(action.coefficient),
+        recipient: action.resource === 'sp' ? 'team' : 'caster',
+        ...(action.spGainKind === null ? {} : { spGainKind: action.spGainKind }),
+        ...(action.spGainSource === null ? {} : { spGainSource: action.spGainSource }),
+        ...(action.isPercentValue ? { isPercentValue: true } : {}),
+        ...(action.useUltimateRecoveryTag
+          ? { ultimateRecoveryTagId: action.ultimateRecoveryTagId }
+          : {}),
+        ...(action.ignoreUltimateGainScalar ? { ignoreUltimateEnergyGainMultiplier: true } : {}),
       },
-    ];
+    };
+    return action.onlyMainOperator
+      ? [
+          {
+            kind: 'conditional',
+            parameters: { condition: { kind: 'casterControlled' } },
+            whenTrue: { steps: [operation] },
+          },
+        ]
+      : [operation];
   }
   if (node.body.value.family === 'globalCooldown') {
     const action = node.body.value.action;
@@ -3249,6 +3257,7 @@ function compileActionNode(
   }
   if (node.body.value.family === 'presentation') return [];
   if (node.body.value.family === 'presentationCalculation') return [];
+  if (node.body.value.family === 'environment') return [];
   // Endaxis 的固定木桩空间模型中朝向不改变目标集合或数值；来源层仍完整保留动作载荷。
   if (node.body.value.family === 'spatial') return [];
   // 木桩不会主动攻击玩家；霸体只影响受击控制，暂不进入可见伤害/资源账本。
