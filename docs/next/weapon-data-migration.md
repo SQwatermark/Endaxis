@@ -76,15 +76,16 @@
 ## 正式发布与 UI
 
 迁移后的 77 把真实武器能通过目标定义校验，且放置佩丽卡战技的项目可迁移、重新打开并产出
-真实伤害，技能块身份和时间不变。正式目标版本为 `endaxis-next-definitions-v2-weapons-1.4.4-r2`。
-`prepareDefaultWeaponMigration` 只接受精确 v1 与 `endaxis-next-definitions-v2-weapons-1.4.4-r1`；未知版本不猜测。
-本次 r1→r2 更正两把武器反应光环的来源/目标投影，不改变 ID、词条键或已保存等级。
-r1 原值以 `data/revisions/weapons-v2-r1` 的两把差量快照和 75 把未变项保留，完整旧库哈希锁定。
-77 把 r1 武器逐项确认、备份与重新打开均验证；迁移副本仅 revision 变化，自定义模板不改。
+真实伤害，技能块身份和时间不变。正式目标版本为 `endaxis-next-definitions-v2-weapons-1.4.4-r3`。
+`prepareDefaultWeaponMigration` 只接受精确 v1、v2-weapons-1.4.4-r1/r2；未知版本不猜测。
+r1→r2 更正两把武器反应光环来源/目标投影；r2→r3 更正原生 BuffCount 层数与查询目标，涉及五把。
+均不改变 ID、词条键或已保存等级。r2 通过 `data/revisions/weapons-v2-r2` 五把差量快照恢复，
+r1 再叠加 `weapons-v2-r1` 的两把旧差量，两个完整旧库哈希分别锁定，不能共享变更后的项冒充旧库。
+r1/r2 各 77 把武器逐项确认、备份与重新打开均验证；迁移副本仅 revision 变化，自定义模板不改。
 旧武器的 77 把完整快照固定在 `data/revisions/weapons-v1`，来源提交、哈希及重建方式见其 README。
 这只解决武器存档兼容；源查询端口其他定义来自当前库，不承诺历史全库重放。
 
-`NextTimelineEditor` 在加载精确 v1/r1 文档时展示 `WeaponMigrationDialog`。新增等级保持空选项，
+`NextTimelineEditor` 在加载精确 v1/r1/r2 文档时展示 `WeaponMigrationDialog`。新增等级保持空选项，
 全部选择后才可确认；备份成功才替换当前项目，迁移副本标记为未导出。对话框阻断下层时间轴快捷键，
 文件读取和异步备份期间编辑变化都会拒绝过期替换。项目自定义模板原样保留。
 

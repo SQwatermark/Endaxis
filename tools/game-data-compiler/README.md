@@ -578,7 +578,7 @@ npm run generate:game-data:operator-runtime -- `
 正式生成命令不会在第一把失败时中断审计：它逐把收集来源错误，再合并运行投影诊断，全部通过后
 才渲染并原子替换目录。正式目录只保存 78 个 TypeScript 文件；机器审计写入被忽略的
 `tmp/generated-next-weapons`，`--check` 不读取也不修改审计文件。生成目录已接入默认仓库，
-版本为 `endaxis-next-definitions-v2-weapons-1.4.4-r2`；新旧武器内容有 revision/哈希发布门禁，
+版本为 `endaxis-next-definitions-v2-weapons-1.4.4-r3`；新旧武器内容有 revision/哈希发布门禁，
 重新生成有差异时必须显式决定迁移边，不能只改哈希掩盖同版本内容变化。旧 v1 武器快照是正式
 兼容数据，不是可丢弃中间产物。浏览器确认/备份流程见 docs/next/weapon-data-migration.md。
 
@@ -588,6 +588,12 @@ check-targets-equal.md 和 Buff.BindAbilityEventEnvironment，不得混成物理
 公共投影保留 buffSource/buffOwner；当前 205 未审计动作/条件仍阻塞，不能顺手扩大其他事件。
 元素适配器已补同一前置事件，真实反应的正反分支、等级两端与伤害差分见
 docs/research/weapon-reaction-aura-branches.md。r1 原定义与旧哈希保留，不能随新产物覆盖。
+
+r3 修正公共 BuffCount：按增强层数求和，Tag 条件显式保留 Source/Owner/Target，
+Save 不再输出 instance；ID 列表按项求和而非去重。旧显式实例数 DSL 保留历史语义。
+五把武器重新生成，r2 差量快照及整库哈希保留。证据与数值回归见
+docs/research/weapon-buff-count-r3.md。已有 966 交叉场景通过不等于全连续排轴通过：
+艾维文娜三连携后战技回收枪的 EntityBB_talent0 传递仍缺失，是下一阶段完整干员迁移优先项。
 
 ```powershell
 npm run generate:game-data:weapons -- --tables <TableCfg目录> --skill-data <SkillData目录> `

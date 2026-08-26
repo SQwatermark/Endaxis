@@ -3,6 +3,7 @@ import {
   nextGameDataRepository,
   weaponV1MigrationSource,
   weaponV2R1MigrationSource,
+  weaponV2R2MigrationSource,
 } from '../data/gameDataRepository';
 import {
   nextWeaponRegistration,
@@ -12,9 +13,12 @@ import { prepareWeaponMigrationReview } from './weaponMigrationReview';
 
 /** 只提供已经发布的精确迁移边；不将未知历史版本当成 v1。 */
 export function prepareDefaultWeaponMigration(project: EndaxisProjectDocument) {
-  if (project.gameDataRevision === weaponV2R1MigrationSource.revision)
+  const source = [weaponV2R1MigrationSource, weaponV2R2MigrationSource].find(
+    candidate => candidate.revision === project.gameDataRevision,
+  );
+  if (source)
     return prepareWeaponMigrationReview(project, {
-      source: weaponV2R1MigrationSource,
+      source,
       target: nextGameDataRepository,
       aliases: {},
     });
@@ -28,6 +32,8 @@ export function prepareDefaultWeaponMigration(project: EndaxisProjectDocument) {
 
 export function canMigrateWeaponRevision(revision: string): boolean {
   return (
-    revision === weaponV1MigrationSource.revision || revision === weaponV2R1MigrationSource.revision
+    revision === weaponV1MigrationSource.revision ||
+    revision === weaponV2R1MigrationSource.revision ||
+    revision === weaponV2R2MigrationSource.revision
   );
 }

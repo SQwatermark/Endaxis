@@ -5,6 +5,7 @@ import {
   nextGameDataRepository,
   weaponV1MigrationSource,
   weaponV2R1MigrationSource,
+  weaponV2R2MigrationSource,
 } from '../data/gameDataRepository';
 import type { WeaponMigrationBackup } from './weaponMigrationReview';
 import { legacyWeaponDefinitions } from '../data/revisions/weapons-v1';
@@ -43,8 +44,8 @@ describe('published generated weapon revision', () => {
       nextGameDataRepository.revision,
       Array.from(targetDigest, byte => byte.toString(16).padStart(2, '0')).join(''),
     ]).toEqual([
-      'endaxis-next-definitions-v2-weapons-1.4.4-r2',
-      '412cadadedb380c8013ff54e8e3254b6233645483d93f06933f11823506be20a',
+      'endaxis-next-definitions-v2-weapons-1.4.4-r3',
+      '4f0283089cc10075ebf50bbab6cd972f8b6393f580b80d8e66ddf2107bd4080e',
     ]);
     expect(nextGameDataRepository.getWeapons()).toEqual(nextWeaponDefinitions);
     expect(Object.keys(nextWeaponRegistration.aliases)).toHaveLength(77);
@@ -68,67 +69,101 @@ describe('published generated weapon revision', () => {
         .filter(
           weapon =>
             JSON.stringify(weapon) !==
-            JSON.stringify(nextGameDataRepository.getWeapon(weapon.slug)),
+            JSON.stringify(weaponV2R2MigrationSource.getWeapon(weapon.slug)),
         )
         .map(weapon => weapon.slug),
     ).toEqual(['wpn_pistol_0005', 'wpn_sword_0010']);
     expect(canMigrateWeaponRevision(weaponV2R1MigrationSource.revision)).toBe(true);
+    expect(canMigrateWeaponRevision(weaponV2R2MigrationSource.revision)).toBe(true);
     expect(canMigrateWeaponRevision(weaponV1MigrationSource.revision)).toBe(true);
     expect(canMigrateWeaponRevision('unknown')).toBe(false);
     expect(canMigrateWeaponRevision(nextGameDataRepository.revision)).toBe(false);
   });
 
-  it.each(weaponV2R1MigrationSource.getWeapons())(
-    'r1 $slug 备份后升级且保留全部等级和项目内容',
-    async weapon => {
-      const project = createEmptyProject({
-        createdWith: 'test',
-        gameDataRevision: weaponV2R1MigrationSource.revision,
-      });
-      project.scenarios[0]!.tracks[0] = {
-        id: 'track:r1',
-        operator: null,
-        weapon: {
-          weaponSlug: weapon.slug,
-          level: 90,
-          potential: 5,
-          tuned: true,
-          traitLevels: weapon.traits.map((trait, index) => (index === 0 ? 1 : trait.levelCount)),
-        },
-        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
-        initialState: { ultimateEnergy: 0 },
-        skillCasts: [],
-      };
-      const prepared = prepareDefaultWeaponMigration(project);
-      if (!prepared.ok) throw new Error(prepared.errors.join('\n'));
-      expect(
-        prepared.review.preview.instances
-          .flatMap(instance => instance.traits)
-          .every(trait => trait.sourceKey === trait.key),
-      ).toBe(true);
-      const backups: WeaponMigrationBackup[] = [];
-      const result = await prepared.review.confirm({
-        confirmed: true,
-        choices: [],
-        getCurrentProject: () => project,
-        persistBackup: async backup => {
-          backups.push(backup);
-          return { ok: true };
-        },
-      });
-      if (!result.ok) throw new Error(result.errors.join('\n'));
-      expect(result.value).toEqual({
-        ...project,
-        gameDataRevision: nextGameDataRepository.revision,
-      });
-      expect(openProject(result.value, { gameDataRepository: nextGameDataRepository }).kind).toBe(
-        'opened',
-      );
-      expect(backups).toHaveLength(1);
-      expect(JSON.parse(backups[0]!.projectJson)).toEqual(project);
-      expect(backups[0]!.sourceWeaponDefinitions).toEqual([weapon]);
-    },
-  );
+  it('保留 r2 整库哈希，r3 只改变五把已审计武器', async () => {
+    const previous = weaponV2R2MigrationSource.getWeapons();
+    const digest = new Uint8Array(
+      await crypto.subtle.digest(
+        'SHA-256',
+        new TextEncoder().encode(
+          JSON.stringify([...previous].sort((a, b) => a.slug.localeCompare(b.slug))),
+        ),
+      ),
+    );
+    expect(Array.from(digest, byte => byte.toString(16).padStart(2, '0')).join('')).toBe(
+      '412cadadedb380c8013ff54e8e3254b6233645483d93f06933f11823506be20a',
+    );
+    expect(
+      previous
+        .filter(
+          weapon =>
+            JSON.stringify(weapon) !==
+            JSON.stringify(nextGameDataRepository.getWeapon(weapon.slug)),
+        )
+        .map(weapon => weapon.slug),
+    ).toEqual([
+      'wpn_claym_0013',
+      'wpn_claym_0017',
+      'wpn_lance_0006',
+      'wpn_sword_0015',
+      'wpn_sword_0017',
+    ]);
+  });
+
+  it.each(
+    [weaponV2R1MigrationSource, weaponV2R2MigrationSource].flatMap(source =>
+      source
+        .getWeapons()
+        .map(weapon => ({ source, weapon, slug: weapon.slug, revision: source.revision })),
+    ),
+  )('$revision $slug 备份后升级且保留全部等级和项目内容', async ({ source, weapon }) => {
+    const project = createEmptyProject({
+      createdWith: 'test',
+      gameDataRevision: source.revision,
+    });
+    project.scenarios[0]!.tracks[0] = {
+      id: 'track:r1',
+      operator: null,
+      weapon: {
+        weaponSlug: weapon.slug,
+        level: 90,
+        potential: 5,
+        tuned: true,
+        traitLevels: weapon.traits.map((trait, index) => (index === 0 ? 1 : trait.levelCount)),
+      },
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    const prepared = prepareDefaultWeaponMigration(project);
+    if (!prepared.ok) throw new Error(prepared.errors.join('\n'));
+    expect(
+      prepared.review.preview.instances
+        .flatMap(instance => instance.traits)
+        .every(trait => trait.sourceKey === trait.key),
+    ).toBe(true);
+    const backups: WeaponMigrationBackup[] = [];
+    const result = await prepared.review.confirm({
+      confirmed: true,
+      choices: [],
+      getCurrentProject: () => project,
+      persistBackup: async backup => {
+        backups.push(backup);
+        return { ok: true };
+      },
+    });
+    if (!result.ok) throw new Error(result.errors.join('\n'));
+    expect(result.value).toEqual({
+      ...project,
+      gameDataRevision: nextGameDataRepository.revision,
+    });
+    expect(openProject(result.value, { gameDataRepository: nextGameDataRepository }).kind).toBe(
+      'opened',
+    );
+    expect(backups).toHaveLength(1);
+    expect(JSON.parse(backups[0]!.projectJson)).toEqual(project);
+    expect(backups[0]!.sourceWeaponDefinitions).toEqual([weapon]);
+  });
 
   it.each(legacyWeaponDefinitions)(
     'migrates $slug through the production edge and persistent backup adapter',

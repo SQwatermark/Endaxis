@@ -425,7 +425,8 @@ const definition = {
                       "kind": "conditional",
                       "parameters": {
                         "condition": {
-                          "kind": "eventTargetBuffCountCompare",
+                          "kind": "buffStackCompare",
+                          "target": "eventTarget",
                           "tagQueryType": "hasAny",
                           "buffTagIds": [
                             1570888476

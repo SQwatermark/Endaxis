@@ -367,7 +367,7 @@ export type CompiledBuffConditionSource =
     }
   | {
       readonly kind: 'buffStackCompare';
-      readonly target: 'eventTarget';
+      readonly target: 'eventTarget' | 'buffOwner' | 'buffSource' | 'caster';
       readonly tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
       readonly buffTagIds: readonly number[];
       readonly operator:
@@ -1900,7 +1900,14 @@ function compileConditionLeaf(
     }
     if (condition.buffCheckType === 'Tag' && condition.buffIds.length === 0) {
       return {
-        kind: 'eventTargetBuffCountCompare',
+        // 原生 BuffCount 累加增强层数；Source/Owner 不能冒充物理事件目标。
+        kind: 'buffStackCompare',
+        target:
+          condition.targetSource === 'Owner'
+            ? context.actionOwnerTarget
+            : condition.targetSource === 'Source'
+              ? context.actionSourceTarget
+              : 'eventTarget',
         tagQueryType: condition.tagQueryType,
         buffTagIds: condition.buffTagIds,
         operator,
@@ -2198,7 +2205,6 @@ function compileActionNode(
                 ? context.actionSourceTarget
                 : 'eventTarget',
           outputKey: action.outputKey,
-          countType: 'instance',
           query,
         },
       },

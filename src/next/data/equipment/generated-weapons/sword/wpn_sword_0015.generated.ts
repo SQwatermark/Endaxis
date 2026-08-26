@@ -354,7 +354,6 @@ const definition = {
                       "parameters": {
                         "target": "caster",
                         "outputKey": "count",
-                        "countType": "instance",
                         "query": {
                           "kind": "id",
                           "buffIds": [

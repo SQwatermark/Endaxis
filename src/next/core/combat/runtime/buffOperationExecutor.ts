@@ -495,7 +495,11 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
                 false,
                 skillCastId,
               )
-            : target.getCountByIds(step.parameters.query.buffIds, skillCastId);
+            : // 原生 Save 的 Id 分支逐项求和，重复 ID 也重复计入；不做集合去重。
+              step.parameters.query.buffIds.reduce(
+                (sum, id) => sum + target.getCountByIds([id], skillCastId),
+                0,
+              );
       context.blackboard.assignDynamic(step.parameters.outputKey, count);
       return true;
     }

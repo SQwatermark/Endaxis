@@ -942,7 +942,7 @@ export class CombatBuffContainer<Key extends string> {
       .reduce((count, buff) => count + buff.enhanceCount, 0);
   }
 
-  /** SaveBuffStackNumAdvanced 的 Id + BuffCount 按查询 ID 累加实例数，而非增强层数。 */
+  /** 显式实例数模式；原生 SaveBuffStackNumAdvanced 的 BuffCount 不使用此入口。 */
   getInstanceCountByIds(ids: readonly string[]): number {
     return ids.reduce(
       (total, id) =>

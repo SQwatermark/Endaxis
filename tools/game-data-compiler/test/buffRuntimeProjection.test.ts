@@ -862,7 +862,11 @@ describe('公共 Buff 运行时投影', () => {
     ]);
   });
 
-  it('按原生 BuffCount 保留线性事件链中段的增强层数守卫', () => {
+  it.each([
+    ['Target', 'eventTarget'],
+    ['Owner', 'buffOwner'],
+    ['Source', 'caster'],
+  ])('按原生 BuffCount 保留 %s 的增强层数守卫，不统一指向事件目标', (targetSource, target) => {
     const source = sourceFixture();
     const nativeEvent = source.graph.abilityEvents[0]!;
     const nativeSequence = nativeEvent.actions[0]!;
@@ -877,7 +881,7 @@ describe('公共 Buff 运行时投影', () => {
           action: {
             kind: 'buffStack' as const,
             sourceType: 'CheckBuffStackNumAdvanced',
-            targetSource: 'Target',
+            targetSource,
             targetGroupKey: '',
             buffCheckType: 'Tag',
             buffIds: [],
@@ -932,7 +936,8 @@ describe('公共 Buff 运行时投影', () => {
               kind: 'conditional',
               parameters: {
                 condition: {
-                  kind: 'eventTargetBuffCountCompare',
+                  kind: 'buffStackCompare',
+                  target,
                   tagQueryType: 'hasAny',
                   buffTagIds: [1075718177],
                   operator: 'greaterOrEqual',
@@ -1121,7 +1126,10 @@ describe('公共 Buff 运行时投影', () => {
       },
     };
 
-    expect(compileBuffRuntimeDefinitionSource(eventSource).abilityEventResponses).toMatchObject([
+    const compiled = compileBuffRuntimeDefinitionSource(eventSource).abilityEventResponses;
+    // 原生 BuffCount 必须走增强层数默认模式，不能在部分匹配断言中漏掉 instance。
+    expect(JSON.stringify(compiled)).not.toContain('"countType":"instance"');
+    expect(compiled).toMatchObject([
       {
         event: 'beforeOutputPhysicalInfliction',
         sequence: {

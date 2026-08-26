@@ -12,6 +12,50 @@ const delegate: CombatOperationExecutor = {
 };
 
 describe('BuffOperationExecutor', () => {
+  it.each(['tag', 'id', 'repeated-id'] as const)(
+    '原生默认 %s 读增强层数，排除结束实例并保留重复 ID 求和',
+    kind => {
+      const path = 'buff/test/enhanced';
+      const tag = gameplayTagIdFromPath(path);
+      const target = new CombatBuffContainer(
+        'enemy',
+        new CombatAttributeSet(),
+        new GameplayTagRegistry([path]),
+      );
+      const definition = { id: 'layer', stackingType: 'enhance' as const, applyTags: [tag] };
+      for (let index = 0; index < 3; index++) target.add(definition, 'operator');
+      target
+        .add({ id: 'ended', stackingType: 'unlimited', applyTags: [tag] }, 'operator')!
+        .finish('other');
+      const blackboard = new ActionBlackboard({ count: -1 });
+      const executor = new BuffOperationExecutor({
+        sourceId: 'operator',
+        resolveTarget: () => target,
+        delegate,
+      });
+      expect(
+        executor.execute(
+          {
+            kind: 'readBuffStackCount',
+            parameters: {
+              target: 'enemy',
+              outputKey: 'count',
+              query:
+                kind === 'tag'
+                  ? { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [tag] }
+                  : {
+                      kind: 'id',
+                      buffIds: kind === 'id' ? ['layer', 'ended'] : ['layer', 'layer', 'ended'],
+                    },
+            },
+          },
+          { blackboard },
+        ),
+      ).toBe(true);
+      expect(blackboard.getNumber('count')).toBe(kind === 'repeated-id' ? 6 : 3);
+    },
+  );
+
   it.each(['buffSource', 'buffOwner'] as const)(
     '显式 %s 来源不被当前事件施加者覆盖，缺上下文拒绝执行',
     sourceKind => {
@@ -667,7 +711,7 @@ describe('BuffOperationExecutor', () => {
   });
 
   it.each(['tag', 'id'] as const)(
-    'writes %s Buff instance count when the source explicitly requests BuffCount',
+    'writes %s Buff instance count only for the explicit DSL instance mode (not native BuffCount)',
     queryKind => {
       const blackboard = new ActionBlackboard();
       const executor = new BuffOperationExecutor({

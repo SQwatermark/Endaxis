@@ -4,7 +4,7 @@ import sword from './wpn_sword_0010';
 
 export const WEAPON_V2_R1_REVISION = 'endaxis-next-definitions-v2-weapons-1.4.4-r1';
 
-/** r1→r2 仅改变两项运行定义。共享未变项，整库 r1 哈希禁止未来生成时无声改写历史。 */
+/** 在已恢复的 r2 库上回放两项 r1 差量；整库 r1 哈希禁止未来生成时无声改写历史。 */
 export function restoreWeaponV2R1Definitions(
   current: readonly WeaponDefinition[],
 ): readonly WeaponDefinition[] {
