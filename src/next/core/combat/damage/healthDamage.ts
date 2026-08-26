@@ -5,6 +5,7 @@
 import type { DamageFeature, DamageTag, DamageType } from '../../game-data/operatorDefinition';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from '../runtime/combatClock';
+import type { CombatSkillCastInfo } from '../runtime/skillCastInfo';
 import type { CombatVitals, HealthDamageResult } from '../runtime/combatVitals';
 import type { PlayerActiveDamageResult } from './playerActiveDamage';
 
@@ -28,6 +29,8 @@ export type HealthDamageTargetEvent = Extract<HealthDamageEvent, 'beforeTakeDama
 
 /** 生命伤害事件共享的伤害包、请求值和实际值。 */
 export interface HealthDamageEventPayload {
+  /** 来源动作的施法身份；null 表示确实没有继承，undefined 表示生产端尚未接入。 */
+  readonly skillCastInfo?: CombatSkillCastInfo | null;
   readonly sourceId: string;
   readonly targetId: string;
   readonly damageType: DamageType;
@@ -74,6 +77,7 @@ export interface HealthDamageReceiptDetail {
 
 /** 在正确事件边界写入一次生命伤害所需的状态和端口。 */
 export interface ExecuteHealthDamageInput {
+  readonly skillCastInfo?: CombatSkillCastInfo | null;
   readonly sourceId: string;
   readonly targetId: string;
   readonly damageType: DamageType;
@@ -113,9 +117,14 @@ export function executeHealthDamage(input: ExecuteHealthDamageInput): HealthDama
     features: input.features ?? [],
     result: input.result,
   };
+  // TakeDamageContext 不含施法身份；只为原生 OutputDamageContext 分支附加来源。
+  const sourceBeforePayload = {
+    ...beforePayload,
+    ...(input.skillCastInfo === undefined ? {} : { skillCastInfo: input.skillCastInfo }),
+  };
 
   input.emitTargetEvent('beforeTakeDamage', beforePayload);
-  input.emitSourceEvent('beforeOutputDamage', beforePayload);
+  input.emitSourceEvent('beforeOutputDamage', sourceBeforePayload);
   const result =
     input.absorbDamage === undefined
       ? input.result
@@ -153,6 +162,6 @@ export function executeHealthDamage(input: ExecuteHealthDamageInput): HealthDama
     },
   });
   input.emitTargetEvent('takeDamage', payload);
-  input.emitSourceEvent('outputDamage', payload);
+  input.emitSourceEvent('outputDamage', { ...sourceBeforePayload, result });
   return stateChange;
 }

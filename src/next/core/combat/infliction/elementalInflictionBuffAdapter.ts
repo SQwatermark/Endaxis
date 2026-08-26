@@ -14,6 +14,7 @@ import type {
   ExistingElementalAttachment,
 } from './elementalInfliction';
 import type { InflictionElement } from '../../game-data/operatorDefinition';
+import type { CombatSkillCastInfo } from '../runtime/skillCastInfo';
 
 /** 附着适配器读取 Buff 定义和复合状态工厂的定义端口。 */
 export interface ElementalInflictionBuffIndex<Key extends string> {
@@ -40,6 +41,7 @@ export interface ElementalInflictionStartedPayload {
 }
 
 export interface ElementalBuffAppliedPayload {
+  readonly skillCastInfo: CombatSkillCastInfo | null;
   readonly targetId: string;
   readonly buffId: string;
   readonly sourceId: string;
@@ -74,6 +76,8 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
     readonly addOptions?: CombatBuffAddOptions,
     readonly onBuffApplied?: (event: ElementalBuffAppliedPayload) => void,
     readonly resolveCompoundStatusBlackboard?: ResolveCompoundStatusBlackboard,
+    readonly onBeforeOutputBuff?: (event: ElementalBuffAppliedPayload) => void,
+    readonly onOutputBuff?: (event: ElementalBuffAppliedPayload) => void,
   ) {}
 
   getExistingAttachment(): ExistingElementalAttachment | null {
@@ -82,13 +86,13 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
     return match === undefined ? null : { element: match.element, layers: match.buff.enhanceCount };
   }
 
-  apply(operation: ElementalInflictionOperation): void {
+  apply(operation: ElementalInflictionOperation, addOptions = this.addOptions): void {
     switch (operation.kind) {
       case 'addAttachment':
-        this.add(this.index.getAttachment(operation.element));
+        this.add(this.index.getAttachment(operation.element), addOptions);
         return;
       case 'triggerBurst':
-        this.add(this.index.getBurst(operation.element));
+        this.add(this.index.getBurst(operation.element), addOptions);
         return;
       case 'consumeAttachment': {
         const projected = this.#projectedAttachment;
@@ -118,9 +122,9 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
         this.add(
           this.index.getCompoundStatus(operation.consumedElement, operation.incomingElement),
           {
-            ...this.addOptions,
+            ...addOptions,
             blackboardValues: {
-              ...this.addOptions?.blackboardValues,
+              ...addOptions?.blackboardValues,
               ...inputBlackboard,
               ...factoryBlackboard,
             },
@@ -134,13 +138,17 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
     definition: CombatBuffDefinition<Key>,
     options: CombatBuffAddOptions | undefined = this.addOptions,
   ): void {
-    if (this.target.add(definition, this.sourceId, options) === null) return;
-    this.onBuffApplied?.({
+    const event: ElementalBuffAppliedPayload = {
       targetId: this.target.ownerId,
       buffId: definition.id,
       sourceId: this.sourceId,
       buffTagIds: definition.applyTags?.map(Number) ?? [],
-    });
+      skillCastInfo: options?.skillCastInfo ?? null,
+    };
+    this.onBeforeOutputBuff?.(event);
+    if (this.target.add(definition, this.sourceId, options) === null) return;
+    this.onBuffApplied?.(event);
+    this.onOutputBuff?.(event);
   }
 
   private findAttachment():

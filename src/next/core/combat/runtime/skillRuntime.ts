@@ -138,8 +138,11 @@ export interface CombatOperationContext {
   readonly currentTarget?: RuntimeTargetRef;
   /** 执行到当前步骤时的施法信息；扣费前后的未返还技力可能不同。 */
   readonly skillCastInfo?: CombatSkillCastInfo;
-  /** 当前同步事件的来源施法；与拥有该响应的 Buff 自身来源施法严格分离。 */
-  readonly eventSkillCastInfo?: CombatSkillCastInfo;
+  /**
+   * 当前同步事件的来源施法；与拥有该响应的 Buff 自身来源施法严格分离。
+   * null 明确表示原生事件载荷没有来源；undefined 表示生产端未提供该端口。
+   */
+  readonly eventSkillCastInfo?: CombatSkillCastInfo | null;
   /** 仅在同步事件响应期间存在；普通技能步骤不得假设它可用。 */
   readonly event?:
     | CombatSemanticEvent

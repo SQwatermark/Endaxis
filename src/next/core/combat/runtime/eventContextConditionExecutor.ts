@@ -71,10 +71,28 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
         : this.delegate.evaluate(condition, context);
     }
     if (condition.kind === 'originSkillTypeIn') {
-      const skillCastInfo = context?.eventSkillCastInfo ?? context?.skillCastInfo;
+      const event = context?.event;
+      // combat-spec/origin-skill-event-context.md：按当前事件类型取来源；不回退到条件宿主。
+      const carriesOrigin =
+        event !== undefined &&
+        (event.kind === 'buffApplied' ||
+          event.kind === 'buffFinished' ||
+          event.kind === 'buffConsumed' ||
+          event.kind === 'abilityPhysicalInfliction' ||
+          event.kind === 'physicalInflictionApplied' ||
+          event.kind === 'abilitySpellBurst' ||
+          (event.kind === 'abilitySpellInfliction' &&
+            event.event !== 'beforeTakeSpellInfliction') ||
+          (event.kind === 'abilityDamage' &&
+            (event.event === 'beforeOutputDamage' ||
+              event.event === 'outputDamage' ||
+              event.event === 'outputCriticalDamage')));
+      if (!carriesOrigin) return false;
+      const skillCastInfo = context?.eventSkillCastInfo;
       if (skillCastInfo === undefined) {
         throw new Error('originSkillTypeIn requires an event source skill cast identity');
       }
+      if (skillCastInfo === null) return false;
       return condition.skillTypes.includes(skillCastInfo.originSkillType);
     }
     if (context?.event === undefined) {
@@ -141,7 +159,7 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
     if (condition.kind === 'eventSkillCastMatchesBuffSource') {
       return (
         context?.skillCastInfo !== undefined &&
-        context.eventSkillCastInfo !== undefined &&
+        context.eventSkillCastInfo != null &&
         context.eventSkillCastInfo.skillCastId === context.skillCastInfo.skillCastId
       );
     }

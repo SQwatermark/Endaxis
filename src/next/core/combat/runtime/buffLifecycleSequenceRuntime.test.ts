@@ -2,12 +2,30 @@ import { describe, expect, it } from 'vitest';
 import type { ResolvedSkillBuffLifecycleSequences } from '../../compiler/combatProgram';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer, type CombatBuffDefinition } from '../buffs/combatBuffs';
-import { attachBuffLifecycleSequences } from './buffLifecycleSequenceRuntime';
+import {
+  attachBuffLifecycleSequences,
+  readEventSkillCastInfo,
+} from './buffLifecycleSequenceRuntime';
 import type { CombatOperationExecutor } from './skillRuntime';
 import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
 import { EventContextConditionExecutor } from './eventContextConditionExecutor';
 
 describe('attachBuffLifecycleSequences', () => {
+  it('区分空来源与遗漏来源，接受处决类型且不从其他字段覆盖显式空来源', () => {
+    const cast = { skillCastId: 3, skillId: 'finisher', skillType: 'finisher' };
+    expect(readEventSkillCastInfo(cast)).toEqual({
+      skillCastId: 3,
+      originSkillId: 'finisher',
+      originSkillType: 'finisher',
+      nonReturnedSpCost: 0,
+    });
+    expect(readEventSkillCastInfo({ ...cast, skillCastInfo: null })).toBeNull();
+    expect(readEventSkillCastInfo({})).toBeUndefined();
+    expect(() => readEventSkillCastInfo({ skillCastInfo: { originSkillType: 'unknown' } })).toThrow(
+      'invalid skill cast identity',
+    );
+  });
+
   it('把技能槽替换绑定到 Buff 启用边界并在结束时还原', () => {
     const changes: Array<{ targetSkillKey: string; inherit: boolean | undefined }> = [];
     const operations: CombatOperationExecutor = {

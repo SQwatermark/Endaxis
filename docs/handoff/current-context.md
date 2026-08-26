@@ -6,6 +6,36 @@
 当前主线是在 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
+### 2026-08-26 再续：事件来源纠偏，元素附着/爆发链补齐
+
+- 本批重新反汇编 1.4.4 `CheckOriginSkillType` 的完整主干，并解码 TypeInfo 引用与 metadata
+  类型表交叉验证，**推翻了复刻库先前“读取监听 Buff 自身 FillSkillCastInfo”的解释**。
+  实际从 `Context.currentEventContext` 按栈顶类型取来源；不支持的事件/已知空来源返回 false，
+  不回退到动作宿主，也不向下搜索旧事件。先修 combat-spec 实现和测试，再接入 Next；证据见
+  `combat-spec/docs/origin-skill-event-context.md`。下节“来源身份复核”是旧调查记录，以本节为准。
+- 输出伤害前/后使用 OutputDamageContext，携带施法身份；承伤事件使用 TakeDamageContext，
+  不含该字段。爆发事件虽在 Next 中独立命名，原生仍用 SpellInflictionContext，不能被过滤掉。
+  伤害修正分支读取伤害包的实际来源 Ability/Buff 环境，而非条件监听者或伤害包身份快照。
+- Next 条件保留“明确空来源 null”与“生产端遗漏 undefined”的区别，后者仍严格报错；
+  CastSkillContext 不再因带有技能编号而被误认成 CheckOriginSkillType 支持的事件。
+  CreateBuff 的继承规则保持读取动作自身，不能借用触发事件来源，避免被动自触发或归因错误。
+- 普通 Buff 输出、玩家输出伤害补传施法身份。差分测试进一步发现元素适配器此前把施法身份丢失，
+  现按每次附着调用传入容器，附着/爆发/复合状态 Buff 都保留来源；补齐元素 Buff 的 beforeOutputBuff/
+  outputBuff 事件，爆发伤害继续传递原身份。无来源的下一次调用不会复用上一次施法身份。
+- 生产四技能基线升为 **73/77 成功、4/77 精确已知阻塞**，移除
+  `wpn_lance_0016`、`wpn_pistol_0004/0008`、`wpn_sword_0020` 的旧来源阻塞。
+  真实艾维文娜验证连携伤害触发 `wpn_lance_0016`、战技不触发；真实狼卫验证连携引发的爆发
+  触发 `wpn_pistol_0004` 加攻、总伤害高于同配装关闭事件的对照，战技来源不误触发。
+- 验证：Next + 游戏数据 **276 文件、2594 测试通过**；两套专用类型检查与 77 把生成 `--check`
+  通过。combat-spec 聚焦 **130 项通过**；全量 1227 通过、17 项因本机缺少
+  `artifacts/skill-data-cdn` 等真实资产失败，不能宣称复刻库全绿。
+  审计在 Endaxis `tmp/weapon-origin-context-regression.audit.json` 和复刻库 `tmp/test-results/`，不提交。
+- 候选仍未进入默认武器仓库；成功范围仍是固定四技能与上述差分，并非全部分支/等级/队伍。
+  下一批优先核对 `wpn_claym_0016` 的 Stack/`lv` 优先级证据，然后处理 `wpn_funnel_0016`
+  初始化 Ability 子 Buff 所有权；`wpn_lance_0010` 装备直接伤害、`wpn_sword_0026` 结束链治疗
+  仍显式阻塞。语义层 Buff 消费/结束事件、其他伤害生产端的来源传递仍需按使用场景验证，不能
+  因本批通过就把未接入端口统一置空。
+
 ### 2026-08-26 晚续：技能附着 Buff 生命周期进入生产运行链
 
 - `CreateBuffAttachingSkill` 依据 combat-spec `docs/create-buff-attaching-skill.md` 与

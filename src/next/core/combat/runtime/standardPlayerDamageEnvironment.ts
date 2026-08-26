@@ -583,7 +583,8 @@ export class StandardPlayerDamageEnvironment {
       clock: context.clock,
       receipt: context.receipt,
       getExistingAttachment: () => adapter.getExistingAttachment(),
-      applyOperation: (operation: ElementalInflictionOperation) => adapter.apply(operation),
+      applyOperation: (operation: ElementalInflictionOperation, skillCastInfo) =>
+        adapter.apply(operation, { skillCastInfo }),
       emitSemanticAttachmentConsumed: attachment =>
         context.semanticEvents.emit({
           kind: 'elementalAttachmentConsumed',
@@ -847,6 +848,8 @@ export class StandardPlayerDamageEnvironment {
           this.#emit('enemy', 'addedBuff', event);
         },
         resolveCompoundStatusBlackboard,
+        event => this.#emit(operatorId, 'beforeOutputBuff', event),
+        event => this.#emit(operatorId, 'outputBuff', event),
       );
       this.#inflictionAdapters.set(operatorId, adapter);
     }
@@ -945,9 +948,10 @@ export class StandardPlayerDamageEnvironment {
       sourceId: payload.sourceId,
       targetId: 'enemy',
       burstType: payload.burstType,
-      ...(payload.skillCastInfo === undefined ? {} : { skillCastInfo: payload.skillCastInfo }),
+      skillCastInfo: payload.skillCastInfo ?? null,
     });
     executeSpellBurst({
+      skillCastInfo: payload.skillCastInfo ?? null,
       definition,
       sourceId: payload.sourceId,
       attack: resolveOperatorAttack(panel, operatorAttributes),

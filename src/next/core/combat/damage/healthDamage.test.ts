@@ -20,6 +20,43 @@ function createDamageResult(value: number): PlayerActiveDamageResult {
 }
 
 describe('executeHealthDamage', () => {
+  it.each([
+    undefined,
+    null,
+    {
+      skillCastId: 7,
+      originSkillId: 'combo',
+      originSkillType: 'comboSkill' as const,
+      nonReturnedSpCost: 0,
+    },
+  ])('preserves source identity %j without adding it to target contexts', skillCastInfo => {
+    const output: unknown[] = [];
+    const target = new CombatVitals({
+      health: 100,
+      maxHealth: 100,
+      maxPoise: 0,
+      poise: 0,
+      poiseRecoveryTime: 0,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    executeHealthDamage({
+      sourceId: 'operator',
+      targetId: 'enemy',
+      damageType: 'electric',
+      tags: [],
+      skillCastInfo,
+      result: createDamageResult(1),
+      target,
+      clock: new CombatClock(),
+      receipt: { record: () => undefined },
+      emitSourceEvent: (_event, payload) => output.push(payload.skillCastInfo),
+      emitTargetEvent: (_event, payload) => expect(payload).not.toHaveProperty('skillCastInfo'),
+    });
+    expect(output).toEqual([skillCastInfo, skillCastInfo]);
+  });
+
   it('records mutation between the recovered before and after events', () => {
     const order: string[] = [];
     const receipt: CombatReceiptSink = {

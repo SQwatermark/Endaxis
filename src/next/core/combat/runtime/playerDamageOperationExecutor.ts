@@ -224,6 +224,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
           ? undefined
           : deriveHitId(this.dependencies.castId, step.key));
       executeHealthDamage({
+        skillCastInfo: operationContext?.skillCastInfo ?? null,
         sourceId: this.dependencies.sourceOperatorId,
         targetId: this.dependencies.targetId,
         damageType: step.parameters.damageType,

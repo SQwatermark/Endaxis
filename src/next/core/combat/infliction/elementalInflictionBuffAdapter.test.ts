@@ -46,6 +46,58 @@ function createAdapter() {
 }
 
 describe('ElementalInflictionBuffAdapter', () => {
+  it('copies each incoming cast into burst/status Buffs and preserves event ordering', () => {
+    const target = new CombatBuffContainer<Attribute>('enemy', new CombatAttributeSet<Attribute>());
+    const calls: string[] = [];
+    const first = {
+      skillCastId: 1,
+      originSkillId: 'battle',
+      originSkillType: 'battleSkill' as const,
+      nonReturnedSpCost: 100,
+    };
+    const next = {
+      ...first,
+      skillCastId: 2,
+      originSkillId: 'combo',
+      originSkillType: 'comboSkill' as const,
+    };
+    const adapter = new ElementalInflictionBuffAdapter(
+      target,
+      'operator',
+      index,
+      undefined,
+      event => calls.push(`added:${event.buffId}:${event.skillCastInfo?.skillCastId}`),
+      undefined,
+      event => calls.push(`before:${event.buffId}:${event.skillCastInfo?.skillCastId}`),
+      event => calls.push(`output:${event.buffId}:${event.skillCastInfo?.skillCastId}`),
+    );
+    adapter.apply({ kind: 'addAttachment', element: 'heat' }, { skillCastInfo: first });
+    for (const operation of resolveElementalInfliction('heat', adapter.getExistingAttachment())) {
+      adapter.apply(operation, { skillCastInfo: next });
+    }
+    expect(target.findFirst(buff => buff.definition.id === 'burst.heat')?.skillCastInfo).toEqual(
+      next,
+    );
+    for (const operation of resolveElementalInfliction(
+      'electric',
+      adapter.getExistingAttachment(),
+    )) {
+      adapter.apply(operation, { skillCastInfo: first });
+    }
+    expect(
+      target.findFirst(buff => buff.definition.id === 'status.heat.electric')?.skillCastInfo,
+    ).toEqual(first);
+    expect(calls.slice(3, 6)).toEqual([
+      'before:burst.heat:2',
+      'added:burst.heat:2',
+      'output:burst.heat:2',
+    ]);
+    adapter.apply({ kind: 'triggerBurst', element: 'heat' });
+    expect(
+      target.buffs.filter(buff => buff.definition.id === 'burst.heat').at(-1)?.skillCastInfo,
+    ).toBeNull();
+  });
+
   it('adds and enhances same-type attachments after creating the burst', () => {
     const { target, adapter } = createAdapter();
     for (const operation of resolveElementalInfliction('heat', null)) adapter.apply(operation);
@@ -121,6 +173,7 @@ describe('ElementalInflictionBuffAdapter', () => {
       buffId: 'attachment.cryo',
       sourceId: 'operator',
       buffTagIds: [1535684437],
+      skillCastInfo: null,
     });
   });
 });

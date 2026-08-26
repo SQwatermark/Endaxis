@@ -270,6 +270,7 @@ describe('BuffDefinitionOperationTarget', () => {
       buffId: 'added-buff',
       sourceId: 'operator',
       buffTagIds: [],
+      skillCastInfo: null,
     });
   });
 
@@ -283,6 +284,7 @@ describe('BuffDefinitionOperationTarget', () => {
         buffId: 'frozen',
         sourceId: 'yvonne',
         buffTagIds: [1535684437],
+        skillCastInfo: null,
       });
     });
     const after = vi.fn();
@@ -343,6 +345,7 @@ describe('BuffDefinitionOperationTarget', () => {
       buffId: 'added-buff',
       sourceId: 'enemy',
       buffTagIds: [],
+      skillCastInfo: null,
     });
     expect(() => target.configureBuffAppliedObserver(observer)).toThrow('observer is configured');
   });

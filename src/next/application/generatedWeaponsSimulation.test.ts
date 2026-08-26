@@ -22,16 +22,11 @@ const repository = createGameDataRepository({
 });
 
 // 明确失败边界，不是完成豁免：新增失败或旧失败消失都会使门禁变红，必须同步审计。
-const originSkill = 'originSkillTypeIn requires an event source skill cast identity';
 const knownBlockers: Readonly<Record<string, string>> = {
   wpn_claym_0016:
     "buff 'buff_wpn_claym_0016_dmgup' priority blackboard key 'lv' is missing or not numeric",
   wpn_funnel_0016: 'asChildBuff applyBuff requires a Buff or Ability owner context',
   wpn_lance_0010: 'equipment-triggered damage requires a recovered source-classification path',
-  wpn_lance_0016: originSkill,
-  wpn_pistol_0004: originSkill,
-  wpn_pistol_0008: originSkill,
-  wpn_sword_0020: originSkill,
   wpn_sword_0026: "standard player damage environment does not support 'heal'",
 };
 
@@ -39,7 +34,7 @@ describe('生成武器的正式模拟门禁', () => {
   it('包含全部 77 把候选且不从旧适配定义补行为', () => {
     expect(candidates).toHaveLength(77);
     expect(new Set(candidates.map(weapon => weapon.slug)).size).toBe(77);
-    expect(Object.keys(knownBlockers)).toHaveLength(8);
+    expect(Object.keys(knownBlockers)).toHaveLength(4);
     expect(
       Object.keys(knownBlockers).every(slug => candidates.some(item => item.slug === slug)),
     ).toBe(true);
@@ -127,6 +122,42 @@ describe('生成武器的正式模拟门禁', () => {
       expect(entry.time).toBeGreaterThan(applied[index]!.time);
     }
     expect(finished[0]!.time).toBeLessThan(applied[1]!.time);
+  });
+
+  it('连携伤害来源能触发武器 Buff，单放战技不能冒充连携', async () => {
+    const weapon = candidates.find(item => item.slug === 'wpn_lance_0016')!;
+    const operator = repository.getOperator('avywenna')!;
+    const combo = await simulateWeapon(weapon, operator, ['comboSkill']);
+    const battle = await simulateWeapon(weapon, operator, ['battleSkill']);
+    const activations = (result: typeof combo) =>
+      result.receiptEntries.filter(
+        entry => entry.event === 'BuffApplied' && entry.data?.buffId === 'buff_wpn_lance_0016_heal',
+      );
+    expect(activations(combo).length).toBeGreaterThan(0);
+    expect(activations(battle)).toHaveLength(0);
+  });
+
+  it('狼卫连携引发的法术爆发触发武器加攻并提高伤害，战技来源不触发', async () => {
+    const weapon = candidates.find(item => item.slug === 'wpn_pistol_0004')!;
+    const operator = repository.getOperator('wulfgard')!;
+    const disabled: WeaponDefinition = {
+      ...weapon,
+      traits: weapon.traits.map(({ eventHandlers: _events, ...trait }) => trait),
+    };
+    const groups = ['battleSkill', 'comboSkill', 'basicAttack'];
+    const active = await simulateWeapon(weapon, operator, groups);
+    const baseline = await simulateWeapon(disabled, operator, groups);
+    const battleOnly = await simulateWeapon(weapon, operator, ['battleSkill', 'battleSkill']);
+    const activations = (result: typeof active) =>
+      result.receiptEntries.filter(
+        entry =>
+          entry.event === 'BuffApplied' && entry.data?.buffId === 'buff_wpn_pistol_0004_atk_up',
+      );
+    expect(active.receiptEntries.some(entry => entry.event === 'SpellBurstApplied')).toBe(true);
+    expect(activations(active).length).toBeGreaterThan(0);
+    expect(activations(baseline)).toHaveLength(0);
+    expect(activations(battleOnly)).toHaveLength(0);
+    expect(active.finalEnemyHealth).toBeLessThan(baseline.finalEnemyHealth);
   });
 });
 

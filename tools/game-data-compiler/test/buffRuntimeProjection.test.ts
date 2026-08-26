@@ -308,7 +308,7 @@ describe('公共 Buff 运行时投影', () => {
     ]);
   });
 
-  it('把 Buff 来源技能类型与当前事件技能类型分开投影', () => {
+  it('把事件来源技能类型与 CastSkillContext 的当前技能类型分开投影', () => {
     const source = sourceFixture();
     const condition = source.graph.abilityEvents[0]?.actions[0]?.actions[0];
     if (condition?.body.kind !== 'leaf' || condition.body.value.family !== 'condition') {

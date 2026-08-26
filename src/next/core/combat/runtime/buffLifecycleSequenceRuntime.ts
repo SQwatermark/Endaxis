@@ -563,9 +563,10 @@ function isCommutativeCurrentBuffTimeResponse(
   return visit(response.sequence, new Set()) && found;
 }
 
-export function readEventSkillCastInfo(payload: unknown): CombatSkillCastInfo | undefined {
+export function readEventSkillCastInfo(payload: unknown): CombatSkillCastInfo | null | undefined {
   if (typeof payload !== 'object' || payload === null) return undefined;
   const value = (payload as Record<string, unknown>).skillCastInfo;
+  if (value === null) return null;
   const payloadRecord = payload as Record<string, unknown>;
   const nested = typeof value === 'object' && value !== null;
   const source = nested
@@ -584,6 +585,7 @@ export function readEventSkillCastInfo(payload: unknown): CombatSkillCastInfo | 
     typeof source.originSkillId !== 'string' ||
     (source.originSkillType !== 'basicAttack' &&
       source.originSkillType !== 'plungingAttack' &&
+      source.originSkillType !== 'finisher' &&
       source.originSkillType !== 'battleSkill' &&
       source.originSkillType !== 'comboSkill' &&
       source.originSkillType !== 'ultimate') ||

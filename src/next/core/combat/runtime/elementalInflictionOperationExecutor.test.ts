@@ -7,6 +7,7 @@ import type {
 import type { CombatReceiptEntry, CombatReceiptSink } from '../receipt/combatReceipt';
 import { CombatClock } from './combatClock';
 import { ElementalInflictionOperationExecutor } from './elementalInflictionOperationExecutor';
+import { ActionBlackboard } from './actionBlackboard';
 
 const STEP: Extract<ResolvedCombatStep, { kind: 'applyElementalInfliction' }> = {
   kind: 'applyElementalInfliction',
@@ -18,6 +19,12 @@ describe('ElementalInflictionOperationExecutor', () => {
     const order: string[] = [];
     let attachment: ExistingElementalAttachment | null = null;
     const applied: ElementalInflictionOperation[] = [];
+    const skillCastInfo = {
+      skillCastId: 8,
+      originSkillId: 'combo',
+      originSkillType: 'comboSkill' as const,
+      nonReturnedSpCost: 0,
+    };
     let recorded: Omit<CombatReceiptEntry, 'sequence'> | undefined;
     const receipt: CombatReceiptSink = {
       record: entry => {
@@ -35,7 +42,8 @@ describe('ElementalInflictionOperationExecutor', () => {
         order.push('query');
         return attachment;
       },
-      applyOperation: operation => {
+      applyOperation: (operation, source) => {
+        expect(source).toEqual(skillCastInfo);
         order.push(`apply:${operation.kind}`);
         applied.push(operation);
         if (operation.kind === 'consumeAttachment') attachment = null;
@@ -50,7 +58,9 @@ describe('ElementalInflictionOperationExecutor', () => {
       delegate: { execute: vi.fn(() => true), evaluate: vi.fn(() => false) },
     });
 
-    expect(executor.execute(STEP)).toBe(true);
+    expect(executor.execute(STEP, { blackboard: new ActionBlackboard(), skillCastInfo })).toBe(
+      true,
+    );
     expect(applied.map(operation => operation.kind)).toEqual([
       'consumeAttachment',
       'createCompoundStatus',

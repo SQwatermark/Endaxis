@@ -89,6 +89,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
       buffId: request.buffId,
       sourceId: request.sourceId,
       buffTagIds: definition.applyTags?.map(Number) ?? [],
+      skillCastInfo: request.skillCastInfo ?? null,
     };
     // 原生 OnBeforeOutputBuff 在来源 AbilitySystem 上同步发布，且早于目标 Buff 实例创建。
     this.onBeforeBuffApplied?.(event);

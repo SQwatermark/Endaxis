@@ -97,7 +97,7 @@ export type NativeConditionSource =
   | (ConditionIdentity & { readonly kind: 'probability'; readonly value: ScalarSource })
   | (ConditionIdentity & { readonly kind: 'skillType'; readonly skillTypes: readonly string[] })
   | (ConditionIdentity & {
-      /** Buff 动作环境保存的来源技能类型；普通攻击还受原生三位攻击类型掩码约束。 */
+      /** 当前事件载荷携带的来源技能类型；普通攻击还受原生三位攻击类型掩码约束。 */
       readonly kind: 'originSkillType';
       readonly skillTypes: readonly string[];
       readonly attackTypeMask: string;
@@ -998,16 +998,15 @@ function parseAdvancedContextBuff(
   const parseId = (rawValue: unknown, index: number) => {
     const idPath = `${path}.buffIdList[${index}]`;
     const value = requireRecord(rawValue, idPath);
-    requireExactFields(
-      value,
-      new Set(['useBlackboardKey', 'value', 'blackboardKey']),
-      idPath,
-    );
+    requireExactFields(value, new Set(['useBlackboardKey', 'value', 'blackboardKey']), idPath);
     const useBlackboardKey = requireBoolean(value.useBlackboardKey, `${idPath}.useBlackboardKey`);
     const directValue = requireString(value.value, `${idPath}.value`);
     const key = requireString(value.blackboardKey, `${idPath}.blackboardKey`);
     if (useBlackboardKey) {
-      return { kind: 'blackboard' as const, key: requireNonEmptyString(key, `${idPath}.blackboardKey`) };
+      return {
+        kind: 'blackboard' as const,
+        key: requireNonEmptyString(key, `${idPath}.blackboardKey`),
+      };
     }
     return { kind: 'constant' as const, value: directValue };
   };

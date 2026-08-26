@@ -103,6 +103,8 @@ export interface BuffAppliedEvent {
   readonly buffId: string;
   readonly sourceId: string;
   readonly buffTagIds: readonly number[];
+  /** AddBuffContext 使用本次施加请求的来源，不能从接收者/监听器反推。 */
+  readonly skillCastInfo?: CombatSkillCastInfo | null;
 }
 
 export interface BuffConsumedEvent {

@@ -18,9 +18,11 @@ import type { CompoundStatusSkillSettingSource } from '../infliction/skillSettin
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from './combatClock';
 import type { CombatVitals } from './combatVitals';
+import type { CombatSkillCastInfo } from './skillCastInfo';
 
 /** 一次爆发伤害需要的全部输入。 */
 export interface ExecuteSpellBurstInput {
+  readonly skillCastInfo?: CombatSkillCastInfo | null;
   readonly definition: CombatBuffSpellBurstDefinition;
   readonly sourceId: string;
   /** 来源攻击力（面板）。 */
@@ -129,6 +131,7 @@ export function executeSpellBurst(input: ExecuteSpellBurstInput): SpellBurstResu
   });
   const damage = calculatePlayerActiveDamage(formulaInput);
   const stateChange = executeHealthDamage({
+    ...(input.skillCastInfo === undefined ? {} : { skillCastInfo: input.skillCastInfo }),
     sourceId: input.sourceId,
     targetId: 'enemy',
     damageType: input.definition.damageType,

@@ -9,7 +9,7 @@ const terminal = {
 };
 
 describe('EventContextConditionExecutor', () => {
-  it('matches the Buff source cast skill type instead of the current event type', () => {
+  it('matches the event origin, never the listening Buff origin or damage tags', () => {
     const executor = new EventContextConditionExecutor(terminal);
     const context = {
       blackboard: new ActionBlackboard(),
@@ -19,26 +19,81 @@ describe('EventContextConditionExecutor', () => {
         originSkillType: 'battleSkill' as const,
         nonReturnedSpCost: 0,
       },
+      eventSkillCastInfo: {
+        skillCastId: 4,
+        originSkillId: 'current-combo',
+        originSkillType: 'comboSkill' as const,
+        nonReturnedSpCost: 0,
+      },
       event: {
-        kind: 'abilitySkill' as const,
-        event: 'beforeCastSkill' as const,
+        kind: 'abilityDamage' as const,
+        event: 'beforeOutputDamage' as const,
         sourceId: 'operator',
         targetId: 'enemy',
-        skillId: 'current-combo',
-        skillType: 'comboSkill' as const,
-        skillCastId: 4,
+        tags: ['normalSkill'] as const,
+        features: [],
       },
     };
 
     expect(
       executor.evaluate({ kind: 'originSkillTypeIn', skillTypes: ['battleSkill'] }, context),
-    ).toBe(true);
-    expect(
-      executor.evaluate({ kind: 'originSkillTypeIn', skillTypes: ['comboSkill'] }, context),
     ).toBe(false);
     expect(
-      executor.evaluate({ kind: 'eventSkillTypeIn', skillTypes: ['comboSkill'] }, context),
+      executor.evaluate({ kind: 'originSkillTypeIn', skillTypes: ['comboSkill'] }, context),
     ).toBe(true);
+    expect(
+      executor.evaluate(
+        { kind: 'originSkillTypeIn', skillTypes: ['comboSkill'] },
+        {
+          ...context,
+          eventSkillCastInfo: null,
+        },
+      ),
+    ).toBe(false);
+    expect(() =>
+      executor.evaluate(
+        { kind: 'originSkillTypeIn', skillTypes: ['comboSkill'] },
+        {
+          ...context,
+          eventSkillCastInfo: undefined,
+        },
+      ),
+    ).toThrow('requires an event source skill cast identity');
+    expect(
+      executor.evaluate(
+        { kind: 'originSkillTypeIn', skillTypes: ['comboSkill'] },
+        {
+          ...context,
+          event: { ...context.event, event: 'takeDamage' },
+        },
+      ),
+    ).toBe(false);
+    expect(
+      executor.evaluate(
+        { kind: 'originSkillTypeIn', skillTypes: ['comboSkill'] },
+        {
+          ...context,
+          event: {
+            kind: 'abilitySkill',
+            event: 'beforeCastSkill',
+            sourceId: 'operator',
+            targetId: 'enemy',
+            skillId: 'current-combo',
+            skillType: 'comboSkill',
+            skillCastId: 4,
+          },
+        },
+      ),
+    ).toBe(false);
+    expect(
+      executor.evaluate(
+        { kind: 'originSkillTypeIn', skillTypes: ['battleSkill'] },
+        {
+          blackboard: context.blackboard,
+          skillCastInfo: context.skillCastInfo,
+        },
+      ),
+    ).toBe(false);
   });
 
   it('matches the physical-infliction type carried by a source output event', () => {

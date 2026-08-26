@@ -98,7 +98,7 @@ export function createPlayerActiveOperationExecutorForElementalTarget<Key extend
     delegate: options.delegate,
     infliction: {
       getExistingAttachment: () => adapter.getExistingAttachment(),
-      applyOperation: operation => adapter.apply(operation),
+      applyOperation: (operation, skillCastInfo) => adapter.apply(operation, { skillCastInfo }),
       ...options.inflictionEvents,
     },
   });

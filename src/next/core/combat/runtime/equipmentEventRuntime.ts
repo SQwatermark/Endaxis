@@ -126,7 +126,7 @@ export class EquipmentEventRuntime {
     handler: CompiledEquipmentEventHandler,
     operations: CombatOperationExecutor,
     event: EquipmentEventExecutionContext['event'],
-    eventSkillCastInfo?: CombatSkillCastInfo,
+    eventSkillCastInfo?: CombatSkillCastInfo | null,
   ): void {
     const blackboard = new ActionBlackboard(handler.blackboard ?? {});
     const operationContext: CombatOperationContext = {

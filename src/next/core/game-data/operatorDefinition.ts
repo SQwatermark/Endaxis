@@ -389,7 +389,7 @@ export type CombatCondition =
       skillTypes: readonly SkillType[];
     }
   | {
-      /** 匹配持有当前 Buff 的来源施法类型，不读取当前触发事件。 */
+      /** 匹配当前事件的来源施法类型；按原生载荷类型读取，不回退到监听 Buff 的来源。 */
       kind: 'originSkillTypeIn';
       skillTypes: readonly SkillType[];
     }
