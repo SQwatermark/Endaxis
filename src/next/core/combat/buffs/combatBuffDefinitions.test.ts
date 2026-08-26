@@ -184,29 +184,34 @@ describe('compileCombatBuffDefinitions', () => {
     });
   });
 
-  it('parses and compiles dynamic priority without leaking native flag fields', () => {
-    const document = parseCombatBuffDefinitionsDocument({
-      schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
-      revision: 'test-priority',
-      buffs: [
-        {
-          id: 'buff.dynamic-priority',
-          stackingType: 'stack',
-          priority: { blackboardKey: 'priority', negate: true },
-          blackboard: { priority: -3 },
-        },
-      ],
-    });
-    const index = compileCombatBuffDefinitions<Attribute>(document, {
-      emitElementalInflictionStarted: vi.fn(),
-    });
-    const definition = index.get('buff.dynamic-priority');
-    if (definition === undefined) throw new Error('compiled test buff is missing');
+  it.each(['stack', 'highPriority'] as const)(
+    'preserves dynamic priority configuration but only loads it for priority types (%s)',
+    stackingType => {
+      const document = parseCombatBuffDefinitionsDocument({
+        schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
+        revision: 'test-priority',
+        buffs: [
+          {
+            id: 'buff.dynamic-priority',
+            stackingType,
+            priority: { blackboardKey: 'priority', negate: true },
+            blackboard: { priority: -3 },
+          },
+        ],
+      });
+      const index = compileCombatBuffDefinitions<Attribute>(document, {
+        emitElementalInflictionStarted: vi.fn(),
+      });
+      const definition = index.get('buff.dynamic-priority');
+      if (definition === undefined) throw new Error('compiled test buff is missing');
 
-    expect(definition.priority).toEqual({ blackboardKey: 'priority', negate: true });
-    const container = new CombatBuffContainer('operator', new CombatAttributeSet<Attribute>());
-    expect(requireAddedBuff(container.add(definition, 'operator')).priority).toBe(3);
-  });
+      expect(definition.priority).toEqual({ blackboardKey: 'priority', negate: true });
+      const container = new CombatBuffContainer('operator', new CombatAttributeSet<Attribute>());
+      expect(requireAddedBuff(container.add(definition, 'operator')).priority).toBe(
+        stackingType === 'stack' ? 0 : 3,
+      );
+    },
+  );
 
   it('parses shield and sustained-protection definitions strictly', () => {
     const document = parseCombatBuffDefinitionsDocument({

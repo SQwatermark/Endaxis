@@ -161,6 +161,8 @@ export interface CombatOperationContext {
   readonly buffOwnerId?: string;
   /** 事件动作宿主；武器/装备是装备者，Buff 是当前 Buff owner。 */
   readonly actionOwnerId?: string;
+  /** 已证明的动作来源；用于折叠为初始化后不再拥有事件载荷的 Ability 程序。 */
+  readonly actionSourceId?: string;
   /** 仅由 Buff 生命周期与事件响应提供；Environment 查询精确指向当前实例。 */
   readonly finishCurrentBuff?: (reason: BuffFinishReason) => boolean;
   /** Environment BuffCount 查询读取正在执行的当前 Buff 增强层数。 */

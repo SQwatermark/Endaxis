@@ -49,7 +49,7 @@ export class EquipmentEventRuntime {
   readonly #registrations: AbilityEventRegistration[] = [];
   readonly #operatorId: string;
   // 固定配装的被动 Ability 存活到本运行实例释放；不能把子 Buff 挂到触发它的主动技能。
-  readonly #children: { finish(reason: 'other'): boolean }[] = [];
+  readonly #children = new Map<number, { finish(reason: 'other'): boolean }[]>();
 
   constructor(
     semanticEvents: CombatSemanticEventRuntime,
@@ -59,7 +59,13 @@ export class EquipmentEventRuntime {
     registerAbilityEventAction?: RegisterEquipmentAbilityEventAction,
   ) {
     this.#operatorId = operatorId;
-    for (const contribution of contributions) {
+    for (const [contributionIndex, contribution] of contributions.entries()) {
+      if (
+        contribution.eventHandlers.length === 0 &&
+        contribution.initializationSequence === undefined
+      )
+        continue;
+      this.#children.set(contributionIndex, []);
       for (const handler of contribution.eventHandlers) {
         if (handler.abilityEvent !== undefined) {
           if (registerAbilityEventAction === undefined) {
@@ -75,6 +81,7 @@ export class EquipmentEventRuntime {
               payload => {
                 const event = normalizeAbilityEventPayload(handler.abilityEvent!, payload);
                 this.#execute(
+                  contributionIndex,
                   handler,
                   createExecutor({
                     operatorId,
@@ -106,6 +113,7 @@ export class EquipmentEventRuntime {
               }),
             handle: (context, getOperations) =>
               this.#execute(
+                contributionIndex,
                 handler,
                 getOperations(),
                 context.event,
@@ -119,10 +127,22 @@ export class EquipmentEventRuntime {
 
   dispose(): void {
     for (const registration of this.#registrations.splice(0)) registration.dispose();
-    for (const child of this.#children.splice(0)) child.finish('other');
+    for (const children of this.#children.values()) {
+      for (const child of children.splice(0)) child.finish('other');
+    }
+    this.#children.clear();
+  }
+
+  /** 初始化和事件动作共享被动 Ability 的所有权，不随单次初始化序列结束。 */
+  addChildBuff(contributionIndex: number, child: { finish(reason: 'other'): boolean }): void {
+    const children = this.#children.get(contributionIndex);
+    if (children === undefined)
+      throw new Error(`equipment Ability '${contributionIndex}' is not active`);
+    children.push(child);
   }
 
   #execute(
+    contributionIndex: number,
     handler: CompiledEquipmentEventHandler,
     operations: CombatOperationExecutor,
     event: EquipmentEventExecutionContext['event'],
@@ -135,7 +155,7 @@ export class EquipmentEventRuntime {
       actionOwnerId: this.#operatorId,
       ...(eventSkillCastInfo === undefined ? {} : { eventSkillCastInfo }),
       addAbilityChildBuff: child => {
-        this.#children.push(child);
+        this.addChildBuff(contributionIndex, child);
       },
     };
     new CombatActionSequenceRuntime(operations, operationContext)

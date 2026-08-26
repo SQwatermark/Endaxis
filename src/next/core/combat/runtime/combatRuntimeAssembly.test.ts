@@ -1806,6 +1806,94 @@ describe('CombatRuntimeAssembly', () => {
     );
   });
 
+  it.each(['equipment', 'missing-root', 'upgrade'] as const)(
+    'initialization child Buff requires its equipment Ability root (%s)',
+    owner => {
+      const buffs = new CombatBuffContainer<string>('operator', new CombatAttributeSet<string>());
+      const buffRuntime = new BuffDefinitionOperationTarget(buffs, {
+        get: () => undefined,
+        compile: entry => ({ id: entry.id, stackingType: entry.stackingType }),
+      });
+      const sequence = {
+        steps: [
+          {
+            kind: 'applyBuff',
+            parameters: {
+              buffId: 'equipment-child',
+              target: 'caster',
+              ...(owner === 'upgrade' ? {} : { source: 'eventSource' as const }),
+              asChildBuff: true,
+              definition: { stackingType: 'unique' },
+            },
+          },
+        ],
+      } as const;
+      const create = () =>
+        new CombatRuntimeAssembly({
+          enemy: testEnemy,
+          resources: {
+            sp: 0,
+            maxSp: 300,
+            returnedSp: 0,
+            sharedSpGain: { baseGainEfficiency: 1 },
+            spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+            ultimateEnergySystemUnlocked: false,
+            normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+            squad: [],
+          },
+          enemyBuffRuntime: emptyEnemyBuffRuntime,
+          operators: [
+            {
+              operatorId: 'operator',
+              skills: [],
+              buffRuntime,
+              equipmentContributions: [
+                {
+                  source: { kind: 'weaponTrait', slug: 'fixture', traitKey: 'skill' },
+                  selectedLevel: 1,
+                  modifiers: [],
+                  eventHandlers: [],
+                  initializationSequence: sequence,
+                },
+              ],
+              initializationPrograms: [
+                {
+                  key: 'fixture',
+                  sequence,
+                  ...(owner === 'upgrade'
+                    ? {}
+                    : {
+                        equipmentContributionIndex: owner === 'equipment' ? 0 : 99,
+                      }),
+                },
+              ],
+            },
+          ],
+          createOperationExecutor: () => rejectingExecutor,
+          // Initialization-only Ability must not require an event terminal executor.
+        });
+      if (owner !== 'equipment') {
+        expect(create).toThrow(
+          owner === 'upgrade'
+            ? 'requires a Buff or Ability owner context'
+            : "equipment Ability '99' is not active",
+        );
+        return;
+      }
+      const assembly = create();
+      expect(buffs.buffs).toHaveLength(1);
+      const child = buffs.buffs[0]!;
+      expect(child.sourceId).toBe('operator');
+      expect(child.isFinished).toBe(false);
+      expect(assembly.receipt.entries).toContainEqual(
+        expect.objectContaining({
+          event: 'OperatorUpgradeInitialized',
+          frame: 0,
+        }),
+      );
+    },
+  );
+
   it('enables compiled passive programs once after Buff runtimes are configured', () => {
     const buffs = new CombatBuffContainer<string>('operator', new CombatAttributeSet<string>());
     const buffRuntime = new BuffDefinitionOperationTarget(buffs, {

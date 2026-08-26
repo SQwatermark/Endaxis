@@ -1666,6 +1666,12 @@ function resolveBuffPriority<Key extends string>(
   definition: CombatBuffDefinition<Key>,
   blackboard: ActionBlackboard,
 ): number {
+  // combat-spec/buff-priority-loading.md：Stack 等非优先级类型不会加载残留的配置字段。
+  if (
+    definition.stackingType !== 'highPriority' &&
+    definition.stackingType !== 'highPriorityWithMaxStack'
+  )
+    return 0;
   const configured = definition.priority ?? 0;
   if (typeof configured === 'number') {
     validateFiniteBuffPriority(configured);

@@ -373,6 +373,7 @@ describe('compileScenarioRuntimeAssembly', () => {
     });
     expect(compiled.operators[0]!.initializationPrograms?.at(-1)).toMatchObject({
       key: 'gear-set:runtime-set',
+      equipmentContributionIndex: compiled.operators[0]!.equipmentContributions!.length - 1,
       sequence: {
         steps: [{ kind: 'applyBuff', parameters: { buffId: 'buff.runtime-set' } }],
       },

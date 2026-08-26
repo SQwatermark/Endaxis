@@ -26,6 +26,48 @@ const contribution: CompiledEquipmentContribution = {
 };
 
 describe('EquipmentEventRuntime', () => {
+  it('shares initialization and event children with the exact contribution and accepts initialization-only Abilities', () => {
+    const events = new CombatSemanticEventRuntime();
+    const finished: string[] = [];
+    const child = (id: string) => ({
+      finish: () => {
+        finished.push(id);
+        return true;
+      },
+    });
+    const initializationOnly: CompiledEquipmentContribution = {
+      ...contribution,
+      source: { kind: 'gearSet', slug: 'initial-only' },
+      eventHandlers: [],
+      initializationSequence: { steps: [] },
+    };
+    const staticOnly = { ...contribution, eventHandlers: [] };
+    const runtime = new EquipmentEventRuntime(
+      events,
+      'operator:a',
+      [contribution, initializationOnly, staticOnly, staticOnly, initializationOnly],
+      () => ({
+        execute: (_step, context) => {
+          context!.addAbilityChildBuff!(child('event'));
+          return true;
+        },
+        evaluate: () => true,
+      }),
+    );
+    runtime.addChildBuff(0, child('init'));
+    // 同定义的两个装备实例保持独立所有权，不能按 slug 合并。
+    runtime.addChildBuff(4, child('duplicate-definition'));
+    runtime.addChildBuff(1, child('other'));
+    events.emit({ kind: 'damageTagHit', sourceOperatorId: 'operator:a', tags: ['normalSkill'] });
+    expect(finished).toEqual([]);
+    expect(() => runtime.addChildBuff(99, child('invalid'))).toThrow('not active');
+    runtime.dispose();
+    expect(finished).toEqual(['init', 'event', 'other', 'duplicate-definition']);
+    expect(() => runtime.addChildBuff(1, child('late'))).toThrow('not active');
+    runtime.dispose();
+    expect(finished).toHaveLength(4);
+  });
+
   it('keeps passive Ability children until disposal and cleans them in creation order', () => {
     const events = new CombatSemanticEventRuntime();
     const finished: number[] = [];

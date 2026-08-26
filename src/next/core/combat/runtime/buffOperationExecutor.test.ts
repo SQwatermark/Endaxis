@@ -959,61 +959,69 @@ describe('BuffOperationExecutor', () => {
     ]);
   });
 
-  it('uses the current ability event source as both Buff target and explicit source', () => {
-    const applied: unknown[] = [];
-    const source = {
-      ownerId: 'operator-b',
-      apply: (request: unknown) => {
-        applied.push(request);
-        return true;
-      },
-      getCountByIds: () => 0,
-      finishByIds: () => 0,
-      holdByIds: () => ({ release: () => undefined }),
-      getCountByTags: () => 0,
-      matchesEntityTags: () => false,
-      findFirstByIds: () => undefined,
-      findFirstByTags: () => undefined,
-      finishByTags: () => 0,
-    };
-    const executor = new BuffOperationExecutor({
-      sourceId: 'operator-a',
-      resolveTarget: () => source,
-      resolveEventTarget: id => {
-        expect(id).toBe('operator-b');
-        return source;
-      },
-      delegate,
-    });
+  it.each([false, true])(
+    'uses the explicit ActionSource without an event and prioritizes a live event (%s)',
+    liveEvent => {
+      const applied: unknown[] = [];
+      const source = {
+        ownerId: 'operator-b',
+        apply: (request: unknown) => {
+          applied.push(request);
+          return true;
+        },
+        getCountByIds: () => 0,
+        finishByIds: () => 0,
+        holdByIds: () => ({ release: () => undefined }),
+        getCountByTags: () => 0,
+        matchesEntityTags: () => false,
+        findFirstByIds: () => undefined,
+        findFirstByTags: () => undefined,
+        finishByTags: () => 0,
+      };
+      const executor = new BuffOperationExecutor({
+        sourceId: 'operator-a',
+        resolveTarget: () => source,
+        resolveEventTarget: id => {
+          expect(id).toBe('operator-b');
+          return source;
+        },
+        delegate,
+      });
 
-    expect(
-      executor.execute(
-        {
-          kind: 'applyBuff',
-          parameters: {
-            buffId: 'event-source-buff',
-            target: 'eventSource',
-            source: 'eventSource',
+      expect(
+        executor.execute(
+          {
+            kind: 'applyBuff',
+            parameters: {
+              buffId: 'event-source-buff',
+              target: 'eventSource',
+              source: 'eventSource',
+            },
           },
-        },
-        {
-          blackboard: new ActionBlackboard(),
-          event: {
-            event: 'beforeCastSkill',
-            kind: 'abilitySkill',
-            sourceId: 'operator-b',
-            targetId: 'operator-b',
-            skillType: 'battleSkill',
-            skillId: 'skill',
-            skillCastId: 7,
+          {
+            blackboard: new ActionBlackboard(),
+            actionSourceId: liveEvent ? 'must-not-override-event' : 'operator-b',
+            ...(liveEvent
+              ? {
+                  event: {
+                    event: 'beforeCastSkill' as const,
+                    kind: 'abilitySkill' as const,
+                    sourceId: 'operator-b',
+                    targetId: 'operator-b',
+                    skillType: 'battleSkill' as const,
+                    skillId: 'skill',
+                    skillCastId: 7,
+                  },
+                }
+              : {}),
           },
-        },
-      ),
-    ).toBe(true);
-    expect(applied).toEqual([
-      expect.objectContaining({ buffId: 'event-source-buff', sourceId: 'operator-b' }),
-    ]);
-  });
+        ),
+      ).toBe(true);
+      expect(applied).toEqual([
+        expect.objectContaining({ buffId: 'event-source-buff', sourceId: 'operator-b' }),
+      ]);
+    },
+  );
 
   it('uses the current Buff source for ActionSource during lifecycle sequences without an event', () => {
     const applied: unknown[] = [];

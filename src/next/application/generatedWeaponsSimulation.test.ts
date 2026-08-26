@@ -23,18 +23,67 @@ const repository = createGameDataRepository({
 
 // 明确失败边界，不是完成豁免：新增失败或旧失败消失都会使门禁变红，必须同步审计。
 const knownBlockers: Readonly<Record<string, string>> = {
-  wpn_claym_0016:
-    "buff 'buff_wpn_claym_0016_dmgup' priority blackboard key 'lv' is missing or not numeric",
-  wpn_funnel_0016: 'asChildBuff applyBuff requires a Buff or Ability owner context',
   wpn_lance_0010: 'equipment-triggered damage requires a recovered source-classification path',
   wpn_sword_0026: "standard player damage environment does not support 'heal'",
 };
 
 describe('生成武器的正式模拟门禁', () => {
+  it('Stack 武器战技可叠层并实际提高物理伤害，无需伪造 lv', async () => {
+    const weapon = candidates.find(item => item.slug === 'wpn_claym_0016')!;
+    const operator = repository.getOperator('da-pan')!;
+    const disabled = {
+      ...weapon,
+      traits: weapon.traits.map(({ eventHandlers: _events, ...trait }) => trait),
+    };
+    const active = await simulateWeapon(weapon, operator, [
+      'battleSkill',
+      'comboSkill',
+      'battleSkill',
+    ]);
+    const baseline = await simulateWeapon(disabled, operator, [
+      'battleSkill',
+      'comboSkill',
+      'battleSkill',
+    ]);
+    expect(active.finalEnemyHealth).toBeLessThan(baseline.finalEnemyHealth);
+    expect(
+      active.receiptEntries.filter(
+        entry =>
+          entry.event === 'BuffApplied' && entry.data?.buffId === 'buff_wpn_claym_0016_dmgup',
+      ),
+    ).toHaveLength(3);
+  });
+
+  it.each([
+    ['perlica', 'buff_wpn_funnel_0016_wisd', 'buff_wpn_funnel_0016_will'],
+    ['xaihi', 'buff_wpn_funnel_0016_will', 'buff_wpn_funnel_0016_wisd'],
+  ])(
+    '配装初始化按 %s 的 Deck 属性选择真实分支，子 Buff 不随初始化结束',
+    async (slug, chosen, rejected) => {
+      const weapon = candidates.find(item => item.slug === 'wpn_funnel_0016')!;
+      const operator = repository.getOperator(slug)!;
+      // 满级武器的智识加成会使赛希也进入智识分支；仅降低第一词条等级来覆盖另一侧。
+      const traitLevels = weapon.traits.map((trait, index) =>
+        slug === 'xaihi' && index === 0 ? 1 : trait.levelCount,
+      );
+      const result = await simulateWeapon(weapon, operator, ['basicAttack'], traitLevels);
+      const attributes = result.operatorPanels[0]!.attributes;
+      expect(attributes.intellect >= attributes.will).toBe(slug === 'perlica');
+      const applied = result.receiptEntries.filter(entry => entry.event === 'BuffApplied');
+      expect(applied.some(entry => entry.data?.buffId === chosen && entry.frame === 0)).toBe(true);
+      expect(applied.some(entry => entry.data?.buffId === rejected)).toBe(false);
+      expect(
+        result.receiptEntries.some(
+          entry => entry.event === 'BuffFinished' && entry.data?.buffId === chosen,
+        ),
+      ).toBe(false);
+    },
+  );
+
   it('包含全部 77 把候选且不从旧适配定义补行为', () => {
     expect(candidates).toHaveLength(77);
     expect(new Set(candidates.map(weapon => weapon.slug)).size).toBe(77);
-    expect(Object.keys(knownBlockers)).toHaveLength(4);
+    expect(Object.keys(knownBlockers)).toHaveLength(2);
     expect(
       Object.keys(knownBlockers).every(slug => candidates.some(item => item.slug === slug)),
     ).toBe(true);
@@ -165,6 +214,7 @@ async function simulateWeapon(
   weapon: WeaponDefinition,
   operator: OperatorDefinition,
   skillGroups: readonly string[] = ['basicAttack', 'battleSkill', 'comboSkill', 'ultimate'],
+  traitLevels?: readonly number[],
 ) {
   let scenario = createEmptyScenario(`audit:generated:${weapon.slug}`, '生成武器生产验证');
   scenario.battle.durationFrames = 1800;
@@ -191,7 +241,8 @@ async function simulateWeapon(
       level: 90,
       tuned: true,
       potential: 5,
-      traitLevels: weapon.traits.map(trait => trait.levelCount),
+      traitLevels:
+        traitLevels === undefined ? weapon.traits.map(trait => trait.levelCount) : [...traitLevels],
     },
     gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
     initialState: { ultimateEnergy: 1000, maxUltimateEnergyOverride: 1000 },

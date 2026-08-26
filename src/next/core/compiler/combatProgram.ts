@@ -301,6 +301,8 @@ export interface CompiledOperatorPassiveProgram {
 /** 构筑启用的养成初始化程序；由战斗装配层执行一次，不伪装成被动技能。 */
 export interface CompiledOperatorInitializationProgram {
   readonly key: string;
+  /** 本干员 equipmentContributions 内的实例索引（同定义装备也隔离）；直接养成初始化无此所有者。 */
+  readonly equipmentContributionIndex?: number;
   readonly initialBlackboard?: Readonly<Record<string, number>>;
   readonly sequence: ResolvedActionSequence;
 }

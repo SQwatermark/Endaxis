@@ -846,6 +846,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
   #requireEventSourceId(context: Parameters<CombatOperationExecutor['execute']>[1]): string {
     const event = context?.event;
     if (event === undefined) {
+      if (context?.actionSourceId !== undefined) return context.actionSourceId;
       if (context?.buffSourceId !== undefined) return context.buffSourceId;
       throw new Error('eventSource Buff operation requires an event or Buff source context');
     }

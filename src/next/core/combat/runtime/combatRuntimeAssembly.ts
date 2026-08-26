@@ -372,7 +372,7 @@ export class CombatRuntimeAssembly {
       readonly commitFrame?: number;
     }
   >();
-  readonly #equipmentEventRuntimes: EquipmentEventRuntime[] = [];
+  readonly #equipmentEventRuntimes = new Map<string, EquipmentEventRuntime>();
   readonly #operatorUpgradeEventRuntimes: OperatorUpgradeEventRuntime[] = [];
   readonly #comboSkillRegistrationRuntimes: ComboSkillRegistrationRuntime[] = [];
   /** 保留常驻监听步骤的所有者，便于后续补充场景卸载时的对称注销。 */
@@ -584,13 +584,19 @@ export class CombatRuntimeAssembly {
 
     for (const operator of options.operators) {
       const contributions = operator.equipmentContributions ?? [];
-      if (!contributions.some(contribution => contribution.eventHandlers.length > 0)) continue;
-      if (options.createEquipmentEventOperationExecutor === undefined) {
+      const hasEvents = contributions.some(contribution => contribution.eventHandlers.length > 0);
+      if (
+        !hasEvents &&
+        !contributions.some(contribution => contribution.initializationSequence !== undefined)
+      )
+        continue;
+      if (hasEvents && options.createEquipmentEventOperationExecutor === undefined) {
         throw new Error(
           `operator '${operator.operatorId}' has equipment event handlers but no equipment event executor`,
         );
       }
-      this.#equipmentEventRuntimes.push(
+      this.#equipmentEventRuntimes.set(
+        operator.operatorId,
         new EquipmentEventRuntime(
           this.semanticEvents,
           operator.operatorId,
@@ -722,7 +728,23 @@ export class CombatRuntimeAssembly {
         );
         const runtime = new CombatActionSequenceRuntime(
           operations,
-          { blackboard: new ActionBlackboard(initialization.initialBlackboard) },
+          {
+            blackboard: new ActionBlackboard(initialization.initialBlackboard),
+            actionOwnerId: operator.operatorId,
+            ...(initialization.equipmentContributionIndex === undefined
+              ? {}
+              : {
+                  actionSourceId: operator.operatorId,
+                  addAbilityChildBuff: (child: BuffApplicationHandle) => {
+                    const ability = this.#equipmentEventRuntimes.get(operator.operatorId);
+                    if (ability === undefined)
+                      throw new Error(
+                        `operator '${operator.operatorId}' has no equipment Ability runtime`,
+                      );
+                    ability.addChildBuff(initialization.equipmentContributionIndex!, child);
+                  },
+                }),
+          },
           {},
           this.semanticEvents,
           operator.operatorId,

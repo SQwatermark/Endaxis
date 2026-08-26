@@ -235,16 +235,18 @@ export function compileScenarioRuntimeAssembly(
         operator.buffDefinitions ?? {},
         equipmentContributions,
       );
-      const equipmentInitializationPrograms = equipmentContributions.flatMap(contribution =>
-        contribution.initializationSequence === undefined
-          ? []
-          : [
-              {
-                key: equipmentContributionKey(contribution),
-                initialBlackboard: contribution.initializationBlackboard,
-                sequence: contribution.initializationSequence,
-              },
-            ],
+      const equipmentInitializationPrograms = equipmentContributions.flatMap(
+        (contribution, contributionIndex) =>
+          contribution.initializationSequence === undefined
+            ? []
+            : [
+                {
+                  key: equipmentContributionKey(contribution),
+                  equipmentContributionIndex: contributionIndex,
+                  initialBlackboard: contribution.initializationBlackboard,
+                  sequence: contribution.initializationSequence,
+                },
+              ],
       );
       return {
         ...operator,

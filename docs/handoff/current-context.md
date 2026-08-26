@@ -6,7 +6,34 @@
 当前主线是在 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
-### 2026-08-26 再续：事件来源纠偏，元素附着/爆发链补齐
+### 2026-08-26 再续：Stack 优先级与配装初始化所有权闭环（最新）
+
+- 重新检查 1.4.4 `Buff._LoadPriority` / `StackingSettings.isPriorityType`：只有 HighPriority
+  和 HighPriorityWithMaxStack 会读取配置优先级，普通 Stack 不读取残留 `lv`。黑板分支才应用
+  negatePriority，直接数值分支不应用。先修 combat-spec 实现、测试和研究文档
+  `docs/buff-priority-loading.md`，再对齐 Next；没有伪造 lv，也没有删除原始配置。
+  Stack 仍按实例优先级、剩余时长和 UID 排序，本模型新实例优先级为零；未推断原生对象池复用。
+- 配装 Deck 初始化保留原被动 Ability 所有权。编译程序通过本干员 `equipmentContributions`
+  的实例索引连接事件运行实例，不用 slug 合并同定义装备。初始化和事件创建的子 Buff 共享各自
+  所有者；只有初始化、没有事件的配装也建立根。显式 ActionSource 端口用于无事件的折叠初始化，
+  不伪造事件或 Buff 来源；存在实时事件时仍读取事件本身。普通养成初始化不获得伪造 Ability 根。
+- 所有权沿用复刻库 `docs/create-buff-action-data.md` 的 IBuffRoot 证据。单元回归覆盖初始化后
+  子 Buff 保持存活、初始化/事件共用根、同定义实例隔离、根释放时按创建顺序 Other 结束、未知根
+  严格失败。本批没有新增整战卸载接口，也没有扩张为模拟中动态换装。
+- 真实大潘验证 `wpn_claym_0016` 战技/连携/战技叠层，伤害高于关闭武器事件的同面板对照。
+  `wpn_funnel_0016` 使用佩丽卡与赛希覆盖 Deck 智识/意志两侧：赛希降低第一词条等级以实际满足
+  意志大于智识，并断言最终面板。检查初始化第 0 帧选择正确 Buff，且不随初始化结束消失。
+- 77 把候选的四技能生产基线现为 **75/77 成功、2/77 精确已知阻塞**：
+  `wpn_lance_0010` 的装备直接伤害来源分类、`wpn_sword_0026` 的 Buff 结束链治疗。
+  候选仍未注册默认武器库；这不是全分支、全等级、全队伍的完成声明。
+- 验证：Next + 游戏数据 **276 文件、2607 测试通过**；两套类型检查、77 把生成 `--check`
+  通过。combat-spec 聚焦 58 项通过；全量 **1233 通过、17 个本机真实资产缺失失败**，没有新增
+  行为测试失败，不能宣称全绿。临时报告在 `tmp/weapon-priority-ownership-regression.audit.json`
+  和复刻库 `tmp/test-results/priority-loading.trx`，不提交。
+- 下一批先闭环两条剩余执行端口，再扩展实际触发分支差分和候选默认库切换门槛；继续优先处理
+  会影响对敌伤害的行为，装备治疗也需检查其后续事件对伤害的影响，不能直接省略。
+
+### 2026-08-26 再续：事件来源纠偏，元素附着/爆发链补齐（上一批）
 
 - 本批重新反汇编 1.4.4 `CheckOriginSkillType` 的完整主干，并解码 TypeInfo 引用与 metadata
   类型表交叉验证，**推翻了复刻库先前“读取监听 Buff 自身 FillSkillCastInfo”的解释**。
