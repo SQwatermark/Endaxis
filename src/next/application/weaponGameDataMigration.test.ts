@@ -72,6 +72,30 @@ function projectFor(slug: string) {
 }
 
 describe('explicit weapon game-data migration', () => {
+  it('refuses to mix global and per-instance choices', () => {
+    expect(() =>
+      createWeaponGameDataMigrator({ ...options, instanceAddedTraitLevels: [] }),
+    ).toThrow('cannot mix');
+  });
+
+  it('snapshots per-instance choices and their selection mode', () => {
+    const project = projectFor('freedom-to-proselytize');
+    const settings = {
+      ...options,
+      addedTraitLevels: undefined,
+      instanceAddedTraitLevels: [
+        { scenarioId: project.scenarios[0]!.id, trackId: 'track:stable', levels: { skill2: 4 } },
+      ],
+    };
+    const migrator = createWeaponGameDataMigrator(settings);
+    settings.instanceAddedTraitLevels[0]!.levels.skill2 = 8;
+    settings.instanceAddedTraitLevels.length = 0;
+    const result = migrator.migrate(project);
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.errors.join('\n'));
+    expect(result.value.scenarios[0]!.tracks[0]!.weapon!.traitLevels).toEqual([2, 4, 7]);
+  });
+
   it.each(['jiminy-12', 'darhoff-7', 'peco-5', 'opero-77', 'tarr-11'])(
     '%s explicit rename keeps the same static modifier role, not a positional guess',
     slug => {

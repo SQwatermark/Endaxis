@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { WeaponDefinition } from '../game-data/equipmentDefinition';
-import { migrateWeaponInstance } from './weaponInstanceMigration';
+import { migrateWeaponInstance, planWeaponInstanceMigration } from './weaponInstanceMigration';
 
 function weapon(slug: string, keys: readonly string[], levelCount = 9): WeaponDefinition {
   return {
@@ -16,6 +16,30 @@ const target = weapon('new', ['skill1', 'skill2', 'skill3']);
 const instance = { weaponSlug: 'old', level: 90, tuned: true, potential: 3, traitLevels: [2, 7] };
 
 describe('weapon instance migration', () => {
+  it('previews by key with no invented level for an added trait', () => {
+    expect(planWeaponInstanceMigration(instance, source, target)).toEqual({
+      ok: true,
+      traits: [
+        { key: 'skill1', levelCount: 9, sourceKey: 'skill1', savedLevel: 2 },
+        { key: 'skill2', levelCount: 9 },
+        { key: 'skill3', levelCount: 9, sourceKey: 'skill3', savedLevel: 7 },
+      ],
+    });
+  });
+
+  it.each([0, -1, NaN, Infinity, 1.5])(
+    'rejects invalid target capacity %s during preview',
+    count => {
+      expect(
+        planWeaponInstanceMigration(
+          instance,
+          source,
+          weapon('new', ['skill1', 'skill2', 'skill3'], count),
+        ).ok,
+      ).toBe(false);
+    },
+  );
+
   it('preserves levels by key, requiring an explicit value for the missing middle slot', () => {
     expect(migrateWeaponInstance(instance, source, target, { skill2: 4 })).toEqual({
       ok: true,

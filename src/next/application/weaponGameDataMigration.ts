@@ -4,6 +4,12 @@ import { getProjectDefinitionLibrary } from '../core/project/projectDefinitionLi
 import { migrateWeaponInstance } from '../core/project/weaponInstanceMigration';
 import type { GameDataRevisionMigrator } from './openProject';
 
+export interface WeaponInstanceTraitLevelSelection {
+  readonly scenarioId: string;
+  readonly trackId: string;
+  readonly levels: Readonly<Record<string, number>>;
+}
+
 export interface WeaponGameDataMigrationOptions {
   readonly source: GameDataRepository;
   readonly target: GameDataRepository;
@@ -13,6 +19,8 @@ export interface WeaponGameDataMigrationOptions {
   readonly traitKeyAliases?: Readonly<Record<string, Readonly<Record<string, string>>>>;
   /** 以目标武器 ID / 新增词条键索引的显式迁移选择，未提供时失败关闭。 */
   readonly addedTraitLevels?: Readonly<Record<string, Readonly<Record<string, number>>>>;
+  /** 编辑器按场景/轨道实例选择；不能与按武器种类的批量策略混用。 */
+  readonly instanceAddedTraitLevels?: readonly WeaponInstanceTraitLevelSelection[];
 }
 
 /**
@@ -25,9 +33,20 @@ export function createWeaponGameDataMigrator(
   const { source, target } = options;
   if (source.revision === target.revision)
     throw new Error('weapon migration requires distinct revisions');
+  if (options.addedTraitLevels !== undefined && options.instanceAddedTraitLevels !== undefined)
+    throw new Error('weapon migration cannot mix global and instance trait choices');
   const aliases = { ...options.aliases };
   const addedLevels = structuredClone(options.addedTraitLevels ?? {});
   const traitAliases = structuredClone(options.traitKeyAliases ?? {});
+  const useInstanceChoices = options.instanceAddedTraitLevels !== undefined;
+  const instanceLevels = new Map<string, Readonly<Record<string, number>>>();
+  const instanceKey = (scenarioId: string, trackId: string) =>
+    JSON.stringify([scenarioId, trackId]);
+  for (const selection of options.instanceAddedTraitLevels ?? []) {
+    const key = instanceKey(selection.scenarioId, selection.trackId);
+    if (instanceLevels.has(key)) throw new Error(`duplicate weapon instance choice ${key}`);
+    instanceLevels.set(key, structuredClone(selection.levels));
+  }
   return {
     fromRevision: source.revision,
     toRevision: target.revision,
@@ -46,11 +65,14 @@ export function createWeaponGameDataMigrator(
       const library = getProjectDefinitionLibrary(value);
       const errors: string[] = [];
       const warnings: string[] = [];
+      const unusedChoices = new Set(instanceLevels.keys());
       value.scenarios.forEach((scenario, scenarioIndex) => {
         scenario.tracks.forEach((track, trackIndex) => {
           const instance = track?.weapon;
           if (!instance || Object.hasOwn(library.weapons, instance.weaponSlug)) return;
           const path = `$.scenarios[${scenarioIndex}].tracks[${trackIndex}].weapon`;
+          const key = instanceKey(scenario.id, track!.id);
+          unusedChoices.delete(key);
           const nextSlug = Object.hasOwn(aliases, instance.weaponSlug)
             ? aliases[instance.weaponSlug]!
             : instance.weaponSlug;
@@ -62,11 +84,16 @@ export function createWeaponGameDataMigrator(
             );
             return;
           }
+          const levels = useInstanceChoices
+            ? instanceLevels.get(key)
+            : Object.hasOwn(addedLevels, nextSlug)
+              ? addedLevels[nextSlug]
+              : undefined;
           const result = migrateWeaponInstance(
             instance,
             oldDefinition,
             nextDefinition,
-            Object.hasOwn(addedLevels, nextSlug) ? addedLevels[nextSlug] : undefined,
+            levels,
             Object.hasOwn(traitAliases, nextSlug) ? traitAliases[nextSlug] : undefined,
           );
           if (!result.ok) {
@@ -76,11 +103,13 @@ export function createWeaponGameDataMigrator(
           track!.weapon = result.value;
           for (const key of result.addedTraitKeys) {
             warnings.push(
-              `${path}: 新词条 '${key}' 使用显式选择的等级 ${addedLevels[nextSlug]![key]}，非原存档恢复值`,
+              `${path}: 新词条 '${key}' 使用显式选择的等级 ${levels![key]}，非原存档恢复值`,
             );
           }
         });
       });
+      for (const key of unusedChoices)
+        errors.push(`unknown or custom weapon instance choice ${key}`);
       if (errors.length > 0) return { ok: false, errors };
       value.gameDataRevision = target.revision;
       const validated = validateProjectWithGameData(value, target);

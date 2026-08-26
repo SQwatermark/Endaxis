@@ -558,8 +558,9 @@ npm run generate:game-data:operator-runtime -- `
 
 正式生成必须包含 startup、Toggle 和动作图的全部活动 Buff 引用；不能只跟随安装根。修正闭包后
 实际生成 108 个 Buff 定义。`CreateBuffAttachingSkill` 的 `lifetimeOwner=currentCastSkill` 必须
-完整传入正式步骤；当前生产端尚未实现精确附着接口，因此明确阻断而不是静默丢弃寿命。
-真实四技能生产门禁为 **65/77 成功、12 项精确已知阻塞**；候选尚未接默认注册，详见
+完整传入正式步骤；生产端已按精确技能实例附着并在结束/中断时清理，不静默丢弃寿命。
+截至 2026-08-27，真实四技能生产门禁 **77/77 成功**，全兼容干员/两端构筑交叉 **966/966 成功、
+0 失败豁免**（早期 65/77、12 阻塞口径已过期）；候选尚未接默认注册，详见
 `src/next/application/generatedWeaponsSimulation.test.ts`。全量运行和关键被动数值/寿命差分满足前，
 不能把“生成成功”升级为“全武器模拟完成”。
 
