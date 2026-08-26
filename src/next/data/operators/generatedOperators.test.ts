@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { compileOperatorDefinitionSkills } from '../../core/compiler/compileScenarioTimeline';
-import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
+import type { OperatorDefinition, SkillDefinition } from '../../core/game-data/operatorDefinition';
 import type { OperatorInstanceDocument } from '../../core/project/schema';
 import { gilbertaBattleSkill } from './generated/gilberta.operator.generated';
 import { fluoriteBattleSkill } from './generated/fluorite.operator.generated';
@@ -146,6 +146,27 @@ describe('新增的完整技能转换干员', () => {
     expect(JSON.stringify(avywenna)).toContain('buff_chr_0012_avywen_lance_pulse_check');
     expect(avywenna.talents[0]?.modifiers).toHaveLength(3);
     expect(avywenna.talents[0]?.passiveSkills?.[0]?.key).toBe('buff_chr_0012_avywen_talent_0');
+  });
+
+  it('Avywenna 处决保留三段破防倍率，并在首段伤害后读取敌人处决技力', () => {
+    const finisher = avywenna.skillGroups
+      .flatMap(group => (Array.isArray(group.skills) ? group.skills : [group.skills]))
+      .find(skill => skill.key === 'finisher') as SkillDefinition | undefined;
+    expect(finisher).toBeDefined();
+    const damageSteps = finisher!.scheduledSequences.flatMap(item =>
+      item.sequence.steps.filter(step => step.kind === 'dealDamage'),
+    );
+    expect(damageSteps.map(step => step.parameters.calculationMultiplier)).toEqual([0.3, 0.2, 0.5]);
+    const firstSequence = finisher!.scheduledSequences.find(item => item.startFrame === 27);
+    expect(firstSequence?.sequence.steps).toMatchObject([
+      { kind: 'dealDamage', parameters: { calculation: 'breakingAttack' } },
+      {
+        kind: 'conditional',
+        whenTrue: {
+          steps: [{ kind: 'gainFinisherSp', parameters: { factor: 1, recipient: 'team' } }],
+        },
+      },
+    ]);
   });
 
   it('管理员只暴露一套以女管理员数据生成的规范技能入口', () => {

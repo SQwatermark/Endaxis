@@ -56,7 +56,8 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
           node =>
             node.body.kind === 'leaf' &&
             node.body.value.family === 'targetGroup' &&
-            node.body.value.action.producerType === 'FindTargetAction' &&
+            (node.body.value.action.producerType === 'FindTargetAction' ||
+              node.body.value.action.producerType === 'ContinuousFindTargetAction') &&
             node.body.value.action.validatorTypes.length === 0 &&
             node.body.value.action.postProcessorTypes.length === 0 &&
             (node.body.value.action.finderType === 'MainTargetFinder' ||

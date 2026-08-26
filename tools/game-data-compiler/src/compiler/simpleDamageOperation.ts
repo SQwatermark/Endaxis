@@ -12,6 +12,8 @@ export interface CompiledSimpleDamageOperationSource {
   readonly parameters: {
     readonly damageType: 'physical' | 'heat' | 'electric' | 'cryo' | 'nature';
     readonly attackScale: CompiledActionValueOperandSource;
+    readonly calculation?: 'breakingAttack';
+    readonly calculationMultiplier?: number;
     readonly tags: readonly (
       | 'normalAttack'
       | 'normalAttackLastCombo'
@@ -31,8 +33,8 @@ export interface CompiledSimpleDamageOperationSource {
 /**
  * 投影固定单敌人场景中的标准攻击倍率伤害（Hp 后接可选的固定 Poise 单元）。
  * simpleCalculation 读取顶层 atkScale；普通 AtkScaleCalculation 读取嵌套倍率。
- * 两者都在执行时读黑板，不能在转换时冻结潜能等动作写入。
- * 仅接入已验收的 NormalSkill/UltimateSkill/ComboSkill/CanBreakWeakness 位；快照、其他公式/掩码及处理器严格拒绝。
+ * 两者都在执行时读黑板，不能在转换时冻结潜能等动作写入。处决的 BreakingAttackCalculation
+ * 额外保留逐命中 multiplier；动态 multiplier 仍严格拒绝。
  */
 export function compileEventTargetSimpleDamageOperationSource(
   action: DamageActionSource,
@@ -105,9 +107,24 @@ export function compileEventTargetSimpleDamageOperationSource(
   ) {
     throw new Error(`${sourcePath}: unsupported simple event DamageUnit behavior`);
   }
+  const breakingCalculation =
+    !unit.simpleCalculation &&
+    unit.serializedAttackCalculationPresent &&
+    unit.attackCalculation?.kind === 'breakingAttack'
+      ? unit.attackCalculation
+      : null;
+  if (
+    breakingCalculation !== null &&
+    (breakingCalculation.multiplier.blackboardKey !== null ||
+      breakingCalculation.multiplier.levelValues !== null)
+  ) {
+    throw new Error(`${sourcePath}: dynamic breaking-attack multiplier is unsupported`);
+  }
   const attackScale = unit.simpleCalculation
     ? unit.attackScale
-    : unit.serializedAttackCalculationPresent && unit.attackCalculation?.kind === 'attackScale'
+    : unit.serializedAttackCalculationPresent &&
+        (unit.attackCalculation?.kind === 'attackScale' ||
+          unit.attackCalculation?.kind === 'breakingAttack')
       ? unit.attackCalculation.attackScale
       : null;
   if (attackScale === null) {
@@ -150,6 +167,12 @@ export function compileEventTargetSimpleDamageOperationSource(
     parameters: {
       damageType,
       attackScale: scalarOperand(attackScale),
+      ...(breakingCalculation === null
+        ? {}
+        : {
+            calculation: 'breakingAttack' as const,
+            calculationMultiplier: breakingCalculation.multiplier.value,
+          }),
       tags: [
         ...(normalAttack ? (['normalAttack'] as const) : []),
         ...(normalAttackLastCombo ? (['normalAttackLastCombo'] as const) : []),

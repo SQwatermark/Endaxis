@@ -449,6 +449,10 @@ key 与二段第 0 帧还原帧。Next 用 `replacementSkills` 保存不可直�
 - `DamageAction.hitEnvironment` 是敌人伤害之外的环境旁路；生成器保留审计事实，但不会额外创建敌人
   命中。`gainCost=false` 允许严格读取序列化残留的 cost 列表而不执行。`atbOnlyMainChar=true` 与
   第五段普通攻击的主控限定失衡分别生成显式 `casterControlled` 条件，不得靠默认场景暗中恒真化。
-- `GainBreakingAttackAtb` 尚未进入正式 DSL。即使已证明它最终取得 PowerAttack 技力，仍必须先证明
-  目标派生基值的字段语义和单位；在此之前，包含该动作的终结攻击必须失败关闭，不能把静态旧定义中
-  的零值当成转换结论。
+- `GainBreakingAttackAtb` 读取命中目标的 `breakingAttackedAtbObtain`，乘 `factor` 后以
+  `PowerAttack + Gain` 进入共享技力链；Next 对应 `gainFinisherSp`，执行时从当前场景敌人的
+  `finisherSpRecovery` 读取基值。来源必须严格归约为 `Source -> Target`；动态 factor、其他目标形状
+  或缺失敌人配置继续失败关闭。艾维文娜处决是统一主动技能入口的首个三段破防计算样本。
+- `ContinuousFindTargetAction` 只有在无验证器/后处理器、`HitBoxFinder + Anti + Normal + alive` 的
+  完整形状下，才与普通 `FindTargetAction` 一样按零空间模型归约为持续命中唯一敌人的稳定目标组。
+  这不建立真实持续范围扫描，也不推广到可变阵营、死亡目标或过滤链。

@@ -5,6 +5,7 @@ import avywennaBasicAttack2Runtime from './generated-active-skills/avywenna/avyw
 import avywennaBasicAttack3Runtime from './generated-active-skills/avywenna/avywenna.basicAttack3.runtime.generated';
 import avywennaBasicAttack4Runtime from './generated-active-skills/avywenna/avywenna.basicAttack4.runtime.generated';
 import avywennaBasicAttack5Runtime from './generated-active-skills/avywenna/avywenna.basicAttack5.runtime.generated';
+import avywennaFinisherRuntime from './generated-active-skills/avywenna/avywenna.finisher.runtime.generated';
 import avywennaBattleSkillRuntime, {
   supplementalBuffDefinitions as battleSkillSupplementalBuffDefinitions,
 } from './generated-active-skills/avywenna/avywenna.battleSkill.runtime.generated';
@@ -23,6 +24,7 @@ const avywennaWithGeneratedCommonAttacks = [
   avywennaBasicAttack3Runtime,
   avywennaBasicAttack4Runtime,
   avywennaBasicAttack5Runtime,
+  avywennaFinisherRuntime,
   avywennaPlungingAttackRuntime,
 ].reduce(
   (operator, skill) => installCompiledSkillDefinition(operator, skill),

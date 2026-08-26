@@ -519,6 +519,41 @@ describe('公共 Action 叶子分派', () => {
       },
     });
   });
+
+  it('严格保留处决目标技力基值的来源、目标和倍率', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.GainBreakingAttackAtb+Data, Gameplay.Beyond',
+          source: targetFixture('Source'),
+          target: targetFixture('Target'),
+          factor: scalarFixture(1),
+        },
+        'fixture.gainBreakingAttackAtb',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'finisherSpGain',
+      action: {
+        kind: 'finisherSpGain',
+        source: { targetSource: 'Source' },
+        target: { targetSource: 'Target' },
+        factor: { value: 1, blackboardKey: null },
+      },
+    });
+  });
+
+  it('LockCameraAimAction 完整解析镜头读取键后仍只进入表现 IR', () => {
+    expect(
+      parseKnownNativeActionLeafSource(lockCameraAimFixture(), 'fixture.lockCameraAim', {
+        camera_min: [-40, -40],
+      }),
+    ).toMatchObject({
+      family: 'presentation',
+      action: { kind: 'lockCameraAim', readBlackboardKeys: ['camera_min'] },
+    });
+  });
 });
 
 function sequence(actionData: unknown[]): Record<string, unknown> {
@@ -526,5 +561,71 @@ function sequence(actionData: unknown[]): Record<string, unknown> {
     actionData,
     onlyExecuteWhenSourceIsMainChar: false,
     onlyExecuteWhenSourceIsGuard: false,
+  };
+}
+
+function lockCameraAimFixture(): Record<string, unknown> {
+  const vector = { x: 0, y: 1, z: 0 };
+  return {
+    ...META,
+    $type: 'Beyond.Gameplay.Core.LockCameraAimAction+LockCameraAimActionData, Gameplay.Beyond',
+    ccsPriority: 20,
+    overrideLowerParamsToDefault: false,
+    angleThreshold: 180,
+    forceFollowMainChar: true,
+    blendInStyle: 'Linear',
+    blendInCustomCurve: [],
+    blendInTime: 0.2,
+    blendOutStyle: 'EaseInOut',
+    blendOutCustomCurve: [],
+    blendOutTime: 1,
+    horizontalBaseAngleMin: -40,
+    horizontalBaseAngleMinBB: scalarFixture(-1000, 'camera_min'),
+    horizontalBaseAngleMax: -40,
+    horizontalBaseAngleMaxBB: scalarFixture(-1000),
+    verticalRelativeToTarget: false,
+    verticalBaseValue: 0.35,
+    verticalBaseValueBB: scalarFixture(-1000),
+    verticalBaseValueMin: 0.3,
+    verticalBaseValueMinBB: scalarFixture(-1000),
+    verticalBaseValueMax: 0.5,
+    verticalBaseValueMaxBB: scalarFixture(-1000),
+    dampingTime: 1,
+    horizontalSpeedFactor: 0.05,
+    verticalSpeedFactor: 0.05,
+    horizontalTweenSpeed: 4,
+    verticalTweenSpeed: 1,
+    allowAimZones: false,
+    useExitParam: true,
+    exitParamOnlyOnComplete: false,
+    exitParam: {
+      applyHorizontalAngle: false,
+      horizontalAngleRelativeToCharacter: false,
+      horizontalAngle: 0,
+      applyVerticalValue: true,
+      verticalValue: 0.6,
+      applyZoomScale: true,
+      zoomScale: 0.7,
+    },
+    disablePlayerInputOnBlendIn: false,
+    disablePlayerInputOnBlendOut: false,
+    disablePlayerInputInState: false,
+    cancelOnDrag: false,
+    cancelOnBeHit: false,
+    cancelOnMove: false,
+    overrideTarget1: true,
+    useMainCharYForTarget1: false,
+    targetSettings: targetFixture('Source'),
+    mountPoint1: 'None',
+    overrideLookAtOffset: true,
+    lookAtOffset: vector,
+    overrideTarget2: true,
+    useMainCharYForTarget2: false,
+    targetSettings2: targetFixture('Target'),
+    mountPoint2: 'None',
+    overrideLookAt2Offset: true,
+    lookAt2Offset: vector,
+    lookAt2OffsetWhenNoOverride: vector,
+    targetAlpha: 0.618,
   };
 }

@@ -66,7 +66,8 @@ export interface CameraPresentationActionSource {
     | 'weaponVisibility'
     | 'voiceTrigger'
     | 'overrideCameraFollow'
-    | 'temporaryUnlock';
+    | 'temporaryUnlock'
+    | 'lockCameraAim';
   readonly readBlackboardKeys?: readonly string[];
 }
 
@@ -331,6 +332,158 @@ export function parseTemporaryUnlockActionSource(
   parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`);
   requireNumber(action.disableLockAimPriority, `${path}.disableLockAimPriority`);
   return { kind: 'temporaryUnlock' };
+}
+
+/** LockCameraAimAction 只建立相机控制状态；严格读取所有 1.4.4 镜头参数后由无渲染后端省略。 */
+export function parseLockCameraAimActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      ...ACTION_META_FIELDS,
+      'ccsPriority',
+      'overrideLowerParamsToDefault',
+      'angleThreshold',
+      'forceFollowMainChar',
+      'blendInStyle',
+      'blendInCustomCurve',
+      'blendInTime',
+      'blendOutStyle',
+      'blendOutCustomCurve',
+      'blendOutTime',
+      'horizontalBaseAngleMin',
+      'horizontalBaseAngleMinBB',
+      'horizontalBaseAngleMax',
+      'horizontalBaseAngleMaxBB',
+      'verticalRelativeToTarget',
+      'verticalBaseValue',
+      'verticalBaseValueBB',
+      'verticalBaseValueMin',
+      'verticalBaseValueMinBB',
+      'verticalBaseValueMax',
+      'verticalBaseValueMaxBB',
+      'dampingTime',
+      'horizontalSpeedFactor',
+      'verticalSpeedFactor',
+      'horizontalTweenSpeed',
+      'verticalTweenSpeed',
+      'allowAimZones',
+      'useExitParam',
+      'exitParamOnlyOnComplete',
+      'exitParam',
+      'disablePlayerInputOnBlendIn',
+      'disablePlayerInputOnBlendOut',
+      'disablePlayerInputInState',
+      'cancelOnDrag',
+      'cancelOnBeHit',
+      'cancelOnMove',
+      'overrideTarget1',
+      'useMainCharYForTarget1',
+      'targetSettings',
+      'mountPoint1',
+      'overrideLookAtOffset',
+      'lookAtOffset',
+      'overrideTarget2',
+      'useMainCharYForTarget2',
+      'targetSettings2',
+      'mountPoint2',
+      'overrideLookAt2Offset',
+      'lookAt2Offset',
+      'lookAt2OffsetWhenNoOverride',
+      'targetAlpha',
+    ]),
+    path,
+  );
+  for (const key of [
+    'ccsPriority',
+    'angleThreshold',
+    'blendInTime',
+    'blendOutTime',
+    'horizontalBaseAngleMin',
+    'horizontalBaseAngleMax',
+    'verticalBaseValue',
+    'verticalBaseValueMin',
+    'verticalBaseValueMax',
+    'dampingTime',
+    'horizontalSpeedFactor',
+    'verticalSpeedFactor',
+    'horizontalTweenSpeed',
+    'verticalTweenSpeed',
+    'targetAlpha',
+  ] as const)
+    requireNumber(action[key], `${path}.${key}`);
+  for (const key of [
+    'overrideLowerParamsToDefault',
+    'forceFollowMainChar',
+    'verticalRelativeToTarget',
+    'allowAimZones',
+    'useExitParam',
+    'exitParamOnlyOnComplete',
+    'disablePlayerInputOnBlendIn',
+    'disablePlayerInputOnBlendOut',
+    'disablePlayerInputInState',
+    'cancelOnDrag',
+    'cancelOnBeHit',
+    'cancelOnMove',
+    'overrideTarget1',
+    'useMainCharYForTarget1',
+    'overrideLookAtOffset',
+    'overrideTarget2',
+    'useMainCharYForTarget2',
+    'overrideLookAt2Offset',
+  ] as const)
+    requireBoolean(action[key], `${path}.${key}`);
+  requireString(action.blendInStyle, `${path}.blendInStyle`);
+  requireString(action.blendOutStyle, `${path}.blendOutStyle`);
+  requireString(action.mountPoint1, `${path}.mountPoint1`);
+  requireString(action.mountPoint2, `${path}.mountPoint2`);
+  parseTimeDilationCurveKeys(action.blendInCustomCurve, `${path}.blendInCustomCurve`);
+  parseTimeDilationCurveKeys(action.blendOutCustomCurve, `${path}.blendOutCustomCurve`);
+  parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`);
+  parseTargetReferenceSource(action.targetSettings2, `${path}.targetSettings2`);
+  const readBlackboardKeys = [
+    'horizontalBaseAngleMinBB',
+    'horizontalBaseAngleMaxBB',
+    'verticalBaseValueBB',
+    'verticalBaseValueMinBB',
+    'verticalBaseValueMaxBB',
+  ]
+    .map(key => parseScalarSource(action[key], `${path}.${key}`, inheritedBlackboard).blackboardKey)
+    .filter((key): key is string => key !== null);
+  const exitParam = requireRecord(action.exitParam, `${path}.exitParam`);
+  requireExactFields(
+    exitParam,
+    new Set([
+      'applyHorizontalAngle',
+      'horizontalAngleRelativeToCharacter',
+      'horizontalAngle',
+      'applyVerticalValue',
+      'verticalValue',
+      'applyZoomScale',
+      'zoomScale',
+    ]),
+    `${path}.exitParam`,
+  );
+  for (const key of [
+    'applyHorizontalAngle',
+    'horizontalAngleRelativeToCharacter',
+    'applyVerticalValue',
+    'applyZoomScale',
+  ] as const)
+    requireBoolean(exitParam[key], `${path}.exitParam.${key}`);
+  for (const key of ['horizontalAngle', 'verticalValue', 'zoomScale'] as const)
+    requireNumber(exitParam[key], `${path}.exitParam.${key}`);
+  for (const key of ['lookAtOffset', 'lookAt2Offset', 'lookAt2OffsetWhenNoOverride'] as const) {
+    const vector = requireRecord(action[key], `${path}.${key}`);
+    requireExactFields(vector, new Set(['x', 'y', 'z']), `${path}.${key}`);
+    for (const axis of ['x', 'y', 'z'] as const)
+      requireNumber(vector[axis], `${path}.${key}.${axis}`);
+  }
+  return { kind: 'lockCameraAim', ...(readBlackboardKeys.length ? { readBlackboardKeys } : {}) };
 }
 
 /**

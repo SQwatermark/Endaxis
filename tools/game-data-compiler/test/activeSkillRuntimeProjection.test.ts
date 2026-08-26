@@ -210,6 +210,25 @@ describe('主动技能正式时间轴投影', () => {
     ]);
   });
 
+  it('处决回能读取场景敌人基值并保留技能侧倍率', () => {
+    const result = compileActiveSkillRuntimeProjectionSource({
+      value: activeWithActions([
+        meta('GainBreakingAttackAtb', {
+          source: targetFixture('Source'),
+          target: targetFixture('Target'),
+          factor: scalarFixture(1),
+        }),
+      ]),
+      sourcePath: 'active.finisher',
+      patch: null,
+      context: ACTIVE_CONTEXT,
+    });
+
+    expect(result.scheduledSequences[0]!.sequence.steps).toEqual([
+      { kind: 'gainFinisherSp', parameters: { factor: 1, recipient: 'team' } },
+    ]);
+  });
+
   it('只省略空 onEnd 的动画；动画结束战斗子图继续严格拒绝', () => {
     const animation = meta('PlayAnimationAction', {
       animName: 'Skill',

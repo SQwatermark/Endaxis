@@ -649,6 +649,10 @@ export type CompiledBuffStepSource =
       readonly kind: 'gainSquadUltimateEnergyFromSkillCost';
       readonly parameters: { readonly coefficient: number };
     }
+  | {
+      readonly kind: 'gainFinisherSp';
+      readonly parameters: { readonly factor: number; readonly recipient: 'team' };
+    }
   | CompiledSimpleDamageOperationSource
   | {
       readonly kind: 'heal';
@@ -1812,14 +1816,13 @@ function compileBuffLeafNode(
   if (node.body.value.family === 'interrupt') {
     const action = node.body.value.action;
     const defenderIsEnemy =
-      (action.defender.targetSource === 'Target' && action.defender.targetGroupKey === '') ||
+      action.defender.targetSource === 'Target' ||
       (action.defender.targetSource === 'Context' &&
         context.staticEnemyTargetGroupKeys?.has(action.defender.targetGroupKey) === true);
     if (
       context.actionTargetTarget !== 'enemy' ||
       context.actionSourceTarget !== 'caster' ||
       action.attacker.targetSource !== 'Source' ||
-      action.attacker.targetGroupKey !== '' ||
       !defenderIsEnemy
     )
       throw new Error(`${node.sourcePath}: unsupported InterruptAction stump projection`);
@@ -1830,7 +1833,7 @@ function compileBuffLeafNode(
     const action = node.body.value.action;
     if (action.kind === 'targetHitStop' && action.affectType === 'Both') {
       const targetIsEnemy =
-        (action.target.targetSource === 'Target' && action.target.targetGroupKey === '') ||
+        action.target.targetSource === 'Target' ||
         (action.target.targetSource === 'Context' &&
           context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey) === true);
       const priority = extensions.resolveTimeDilationPriority?.(
@@ -1841,7 +1844,6 @@ function compileBuffLeafNode(
         context.actionTargetTarget !== 'enemy' ||
         context.actionSourceTarget !== 'caster' ||
         action.source.targetSource !== 'Source' ||
-        action.source.targetGroupKey !== '' ||
         !targetIsEnemy ||
         priority === undefined ||
         !Number.isFinite(priority)
@@ -1866,14 +1868,13 @@ function compileBuffLeafNode(
       };
     }
     const targetIsEnemy =
-      (action.target.targetSource === 'Target' && action.target.targetGroupKey === '') ||
+      action.target.targetSource === 'Target' ||
       (action.target.targetSource === 'Context' &&
         context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey) === true);
     if (
       context.actionTargetTarget !== 'enemy' ||
       context.actionSourceTarget !== 'caster' ||
       action.source.targetSource !== 'Source' ||
-      action.source.targetGroupKey !== '' ||
       !targetIsEnemy
     )
       throw new Error(`${node.sourcePath}: unsupported static-enemy control projection`);
@@ -2781,6 +2782,7 @@ function compileActionNode(
       'blackboardMutation',
       'blackboardCalculation',
       'resource',
+      'finisherSpGain',
       'presentation',
       'presentationCalculation',
       'spatial',
@@ -3193,6 +3195,30 @@ function compileActionNode(
           },
         ]
       : [operation];
+  }
+  if (node.body.value.family === 'finisherSpGain') {
+    const action = node.body.value.action;
+    if (
+      action.source.targetSource !== 'Source' ||
+      action.target.targetSource !== 'Target' ||
+      action.source.targetGroupKey !== '' ||
+      action.target.targetGroupKey !== '' ||
+      context.actionSourceTarget !== 'caster' ||
+      context.actionTargetTarget !== 'enemy'
+    ) {
+      throw new Error(`${node.sourcePath}: unsupported breaking-attack ATB source/target`);
+    }
+    if (action.factor.blackboardKey !== null || action.factor.levelValues !== null) {
+      throw new Error(
+        `${node.sourcePath}.factor: dynamic breaking-attack ATB factor is unsupported`,
+      );
+    }
+    return [
+      {
+        kind: 'gainFinisherSp',
+        parameters: { factor: action.factor.value, recipient: 'team' },
+      },
+    ];
   }
   if (node.body.value.family === 'globalCooldown') {
     const action = node.body.value.action;

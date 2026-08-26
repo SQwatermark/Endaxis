@@ -32,6 +32,14 @@ export interface ResourceGainActionSource {
   readonly target: TargetReferenceSource;
 }
 
+/** GainBreakingAttackAtb：从命中目标读取处决技力基值，再乘动作 factor。 */
+export interface FinisherSpGainActionSource {
+  readonly kind: 'finisherSpGain';
+  readonly source: TargetReferenceSource;
+  readonly target: TargetReferenceSource;
+  readonly factor: ScalarSource;
+}
+
 export interface TimedMarkerApplicationSource {
   readonly kind: 'timedMarkerApplication';
   readonly target: TargetReferenceSource;
@@ -131,6 +139,28 @@ export function parseResourceGainActionSource(
     playAudio: requireBoolean(action.playObtainAtbAudio, `${path}.playObtainAtbAudio`),
     source: parseTargetReferenceSource(action.source, `${path}.source`),
     target: parseTargetReferenceSource(action.target, `${path}.target`),
+  };
+}
+
+/** 严格读取 GainBreakingAttackAtb 的完整 1.4.4 载荷。 */
+export function parseFinisherSpGainActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): FinisherSpGainActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(action, new Set([...ACTION_META_FIELDS, 'source', 'target', 'factor']), path);
+  const factor = requireRecord(action.factor, `${path}.factor`);
+  requireExactFields(
+    factor,
+    new Set(['useBlackboardKey', 'value', 'blackboardKey']),
+    `${path}.factor`,
+  );
+  return {
+    kind: 'finisherSpGain',
+    source: parseTargetReferenceSource(action.source, `${path}.source`),
+    target: parseTargetReferenceSource(action.target, `${path}.target`),
+    factor: parseScalarSource(factor, `${path}.factor`, inheritedBlackboard),
   };
 }
 

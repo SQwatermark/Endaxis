@@ -2883,3 +2883,24 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 - 终结攻击暂未生成：其 `GainBreakingAttackAtb` 已证明最终调用 `BattleManager.GainAtb(PowerAttack,
 Gain)`，且数值为目标派生浮点值乘 `factor`；目标派生字段/枚举值 `8` 的语义尚未闭环。现阶段继续
   保留旧定义并将该项列为证据阻塞，不用 `0` 或经验公式冒充原生结果。
+
+### 2026-08-27：艾维文娜处决闭环并纠正旧阻塞结论
+
+- 既有研究文档、敌人属性表与敌人生成器已经共同证明目标派生值是
+  `breakingAttackedAtbObtain`，Next 归一化字段为 `enemy.stagger.finisherSpRecovery`。上一节把这项
+  已有证据误记为未闭环；本节以实现和生产回归纠正，不再保留该伪阻塞。
+- combat-spec 新增 `GainBreakingAttackAtbAction` 及严格数据适配器：读取被处决目标基值、乘动作
+  factor，再以 `PowerAttack + Gain` 进入既有共享技力效率、上限和 `OnObtainAtb` 链。1.4.4 的 32
+  个真实样本均为 `Source -> Target`、字面 factor 1，但运行时没有把该样本值写死为常量规则。
+- Endaxis 公共来源层接通同一动作和 `BreakingAttackCalculation`；艾维文娜处决三段倍率
+  `0.3/0.2/0.5`、首段伤害后的目标技力恢复、主控条件和命中停顿已由完整 SkillData 生成。
+- 同技能暴露的 `LockCameraAimAction` 以完整镜头字段严格解析后作为无渲染表现省略；持续 HitBox
+  目标组仅在固定单敌人严格形状下归约。固定 Source/Target 的残留 targetGroupKey 不再被误当成
+  Context 查询键。
+- 本阶段完整门禁结果：游戏数据编译器 **476/476**、Next **3206/3206**，
+  `type-check:game-data`、`type-check:next` 与处决生成器 `--check` 均通过。combat-spec 新增动作的
+  定向测试通过；全套为 **1399 通过、17 失败**，17 项均因本机缺少既有
+  `data/research-artifacts` 样本而失败，与本阶段行为无关，不能记成产品回归。
+- 交接后的直接主线是用统一入口选择下一位干员，逐项生成其所有时间轴可放置技能并跑真实放轴门禁；
+  每遇到新载荷，仍先在 combat-spec 依据解包/反编译证据闭环，再接 Endaxis。对唯一木桩伤害没有
+  可见影响的镜头、空间和环境行为，只允许在严格识别完整载荷后审计省略，不扩建无用运行后端。

@@ -50,6 +50,7 @@ import {
   parseCameraRotateActionSource,
   parseAnimatedCameraActionSource,
   parseHideUiActionSource,
+  parseLockCameraAimActionSource,
   parseUltimateShowActionSource,
   parseWeaponVisibilityActionSource,
   parseVoiceTriggerActionSource,
@@ -83,9 +84,11 @@ import {
 } from './referenceActions.ts';
 import {
   parseGlobalCooldownApplicationSource,
+  parseFinisherSpGainActionSource,
   parseResourceGainActionSource,
   parseTimedMarkerApplicationSource,
   type GlobalCooldownApplicationSource,
+  type FinisherSpGainActionSource,
   type ResourceGainActionSource,
   type TimedMarkerApplicationSource,
 } from './resourceActions.ts';
@@ -216,6 +219,7 @@ export type KnownNativeActionLeafSource =
     }
   | { readonly family: 'spatialMeasurement'; readonly action: SaveTargetDistanceActionSource }
   | { readonly family: 'resource'; readonly action: ResourceGainActionSource }
+  | { readonly family: 'finisherSpGain'; readonly action: FinisherSpGainActionSource }
   | {
       readonly family: 'inputControl';
       readonly action: ComboCacheActionSource | AllowNextSkillActionSource;
@@ -395,6 +399,11 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'presentation',
         action: parseUltimateShowActionSource(value, path),
       };
+    case 'LockCameraAimAction':
+      return {
+        family: 'presentation',
+        action: parseLockCameraAimActionSource(value, path, inheritedBlackboard),
+      };
     case 'SimpleCalcBBAction':
       return {
         family: 'blackboardCalculation',
@@ -432,6 +441,11 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'resource',
         action: parseResourceGainActionSource(value, path, inheritedBlackboard),
+      };
+    case 'GainBreakingAttackAtb':
+      return {
+        family: 'finisherSpGain',
+        action: parseFinisherSpGainActionSource(value, path, inheritedBlackboard),
       };
     case 'CreateTimedMarker':
       return {
