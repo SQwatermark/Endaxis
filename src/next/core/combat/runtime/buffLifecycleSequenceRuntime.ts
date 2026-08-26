@@ -33,15 +33,21 @@ import type {
   CombatAbilityLifecycleEvent,
   CombatAbilitySkillEvent,
   CombatAbilityWeaknessTriggeredEvent,
+  CombatAbilitySpellBurstEvent,
 } from './skillRuntime';
 import type { CombatSemanticEvent } from './combatSemanticEventRuntime';
 import { DAMAGE_TYPES, type SkillBuffSlotReplacement } from '../../game-data/operatorDefinition';
+import type { CombatSkillCastInfo } from './skillCastInfo';
 
 /** 由 Buff 所有者环境提供的事件注册端口，避免生命周期层依赖具体伤害环境。 */
 export type RegisterBuffAbilityEventAction = (
   event: Exclude<
     ResolvedSkillBuffAbilityEventResponse['event'],
-    'afterKillEntity' | 'outputKnockDown' | 'skillSpGained' | 'buffConsumed'
+    | 'afterKillEntity'
+    | 'outputKnockDown'
+    | 'afterOutputPhysicalInfliction'
+    | 'skillSpGained'
+    | 'buffConsumed'
   >,
   priority: number,
   handle: (payload: unknown) => void,
@@ -51,13 +57,24 @@ export type RegisterBuffAbilityEventAction = (
 export type RegisterBuffSemanticEventAction = (
   event: Extract<
     ResolvedSkillBuffAbilityEventResponse['event'],
-    'afterKillEntity' | 'outputKnockDown' | 'skillSpGained' | 'buffConsumed'
+    | 'afterKillEntity'
+    | 'outputKnockDown'
+    | 'afterOutputPhysicalInfliction'
+    | 'skillSpGained'
+    | 'buffConsumed'
   >,
   priority: number,
   handle: (
     event: Extract<
       CombatSemanticEvent,
-      { readonly kind: 'enemyDefeated' | 'knockDownOutput' | 'spGained' | 'buffConsumed' }
+      {
+        readonly kind:
+          | 'enemyDefeated'
+          | 'knockDownOutput'
+          | 'physicalInflictionApplied'
+          | 'spGained'
+          | 'buffConsumed';
+      }
     >,
   ) => void,
 ) => AbilityEventRegistration;
@@ -232,6 +249,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
 
   const runtimes = new WeakMap<CombatBuff<Key>, CombatActionSequenceRuntime>();
   const eventRegistrations = new WeakMap<CombatBuff<Key>, AbilityEventRegistration[]>();
+  const childBuffs = new WeakMap<CombatBuff<Key>, { finish(reason: 'other'): boolean }[]>();
   const activeEnableSequences = new WeakMap<CombatBuff<Key>, ActionSequence>();
   const runtimeFor = (buff: CombatBuff<Key>): CombatActionSequenceRuntime => {
     let runtime = runtimes.get(buff);
@@ -247,6 +265,11 @@ export function attachBuffLifecycleSequences<Key extends string>(
       getCurrentBuffEnhanceCount: () => buff.enhanceCount,
       getCurrentBuffRemainingDuration: () => buff.remainingDuration,
       setCurrentBuffRemainingDuration: duration => buff.rawSetRemainingDuration(duration),
+      addCurrentBuffChild: child => {
+        const children = childBuffs.get(buff);
+        if (children === undefined) childBuffs.set(buff, [child]);
+        else children.push(child);
+      },
       setCurrentBuffTimePaused: paused => buff.setTimePaused(paused),
       refreshCurrentBuffAttributeModifiers: () => buff.refreshAttributeModifierValues(),
     };
@@ -292,6 +315,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
         response =>
           response.event !== 'afterKillEntity' &&
           response.event !== 'outputKnockDown' &&
+          response.event !== 'afterOutputPhysicalInfliction' &&
           response.event !== 'skillSpGained' &&
           response.event !== 'buffConsumed',
       ) &&
@@ -304,6 +328,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
         response =>
           response.event === 'afterKillEntity' ||
           response.event === 'outputKnockDown' ||
+          response.event === 'afterOutputPhysicalInfliction' ||
           response.event === 'skillSpGained' ||
           response.event === 'buffConsumed',
       ) &&
@@ -345,6 +370,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
         if (
           group.event === 'afterKillEntity' ||
           group.event === 'outputKnockDown' ||
+          group.event === 'afterOutputPhysicalInfliction' ||
           group.event === 'skillSpGained' ||
           group.event === 'buffConsumed'
         ) {
@@ -353,7 +379,15 @@ export function attachBuffLifecycleSequences<Key extends string>(
               const runtime = runtimeFor(buff);
               for (const response of group.responses) {
                 runtime
-                  .createSequence(response.sequence, { ...runtime.context, event })
+                  .createSequence(response.sequence, {
+                    ...runtime.context,
+                    event,
+                    ...(event.kind === 'physicalInflictionApplied'
+                      ? event.skillCastInfo === undefined
+                        ? {}
+                        : { eventSkillCastInfo: event.skillCastInfo }
+                      : {}),
+                  })
                   .executeInstant({});
               }
             }),
@@ -370,24 +404,20 @@ export function attachBuffLifecycleSequences<Key extends string>(
                 const event = normalizeBuffAbilityEvent(
                   response.event as Exclude<
                     ResolvedSkillBuffAbilityEventResponse['event'],
-                    'afterKillEntity' | 'outputKnockDown' | 'skillSpGained' | 'buffConsumed'
+                    | 'afterKillEntity'
+                    | 'outputKnockDown'
+                    | 'afterOutputPhysicalInfliction'
+                    | 'skillSpGained'
+                    | 'buffConsumed'
                   >,
                   payload,
                 );
+                const eventSkillCastInfo = readEventSkillCastInfo(payload);
                 runtime
                   .createSequence(response.sequence, {
                     ...runtime.context,
                     event,
-                    ...(event.kind === 'abilitySkill' && event.event === 'beforeCastSkill'
-                      ? {
-                          skillCastInfo: {
-                            skillCastId: event.skillCastId,
-                            originSkillId: event.skillId,
-                            originSkillType: event.skillType,
-                            nonReturnedSpCost: 0,
-                          },
-                        }
-                      : {}),
+                    ...(eventSkillCastInfo === undefined ? {} : { eventSkillCastInfo }),
                   })
                   .executeInstant({});
               }
@@ -479,7 +509,8 @@ export function attachBuffLifecycleSequences<Key extends string>(
             return true;
           },
         }),
-    ...(sequences.enable === undefined &&
+    ...(sequences.start === undefined &&
+    sequences.enable === undefined &&
     sequences.finish === undefined &&
     abilityEventResponses.length === 0
       ? {}
@@ -487,6 +518,8 @@ export function attachBuffLifecycleSequences<Key extends string>(
           finish: buff => {
             disposeEventResponses(buff);
             endEnableSequence(buff);
+            for (const child of childBuffs.get(buff) ?? []) child.finish('other');
+            childBuffs.delete(buff);
             execute(sequences.finish, buff);
           },
         }),
@@ -529,10 +562,46 @@ function isCommutativeCurrentBuffTimeResponse(
   return visit(response.sequence, new Set()) && found;
 }
 
+function readEventSkillCastInfo(payload: unknown): CombatSkillCastInfo | undefined {
+  if (typeof payload !== 'object' || payload === null) return undefined;
+  const value = (payload as Record<string, unknown>).skillCastInfo;
+  const payloadRecord = payload as Record<string, unknown>;
+  const nested = typeof value === 'object' && value !== null;
+  const source = nested
+    ? (value as Record<string, unknown>)
+    : typeof payloadRecord.skillCastId === 'number'
+      ? {
+          skillCastId: payloadRecord.skillCastId,
+          originSkillId: payloadRecord.skillId,
+          originSkillType: payloadRecord.skillType,
+          nonReturnedSpCost: 0,
+        }
+      : null;
+  if (source === null) return undefined;
+  if (
+    typeof source.skillCastId !== 'number' ||
+    typeof source.originSkillId !== 'string' ||
+    (source.originSkillType !== 'basicAttack' &&
+      source.originSkillType !== 'plungingAttack' &&
+      source.originSkillType !== 'battleSkill' &&
+      source.originSkillType !== 'comboSkill' &&
+      source.originSkillType !== 'ultimate') ||
+    typeof source.nonReturnedSpCost !== 'number'
+  ) {
+    if (!nested) return undefined;
+    throw new TypeError('Buff ability event payload has invalid skill cast identity');
+  }
+  return source as unknown as CombatSkillCastInfo;
+}
+
 function normalizeBuffAbilityEvent(
   event: Exclude<
     ResolvedSkillBuffAbilityEventResponse['event'],
-    'afterKillEntity' | 'outputKnockDown' | 'skillSpGained' | 'buffConsumed'
+    | 'afterKillEntity'
+    | 'outputKnockDown'
+    | 'afterOutputPhysicalInfliction'
+    | 'skillSpGained'
+    | 'buffConsumed'
   >,
   payload: unknown,
 ):
@@ -540,6 +609,7 @@ function normalizeBuffAbilityEvent(
   | CombatAbilityDamageEvent
   | CombatAbilityPhysicalInflictionEvent
   | CombatAbilitySpellInflictionEvent
+  | CombatAbilitySpellBurstEvent
   | CombatAbilityPoiseEvent
   | CombatAbilityHealEvent
   | CombatAbilitySkillEvent
@@ -600,7 +670,11 @@ function normalizeBuffAbilityEvent(
       features: source.features as CombatAbilityDamageEvent['features'],
     };
   }
-  if (event === 'beforeTakeSpellInfliction' || event === 'beforeTakeInfliction') {
+  if (
+    event === 'beforeTakeSpellInfliction' ||
+    event === 'beforeTakeInfliction' ||
+    event === 'beforeOutputInfliction'
+  ) {
     if (
       source.element !== undefined &&
       source.element !== 'heat' &&
@@ -616,6 +690,18 @@ function normalizeBuffAbilityEvent(
       sourceId: source.sourceId,
       targetId: source.targetId,
       ...(source.element === undefined ? {} : { element: source.element }),
+    };
+  }
+  if (event === 'beforeOutputSpellBurst') {
+    if (typeof source.burstType !== 'string') {
+      throw new TypeError(`Buff ability event '${event}' payload has invalid burst type`);
+    }
+    return {
+      kind: 'abilitySpellBurst',
+      event,
+      sourceId: source.sourceId,
+      targetId: source.targetId,
+      burstType: source.burstType,
     };
   }
   if (event === 'beforeOutputBuff' || event === 'outputBuff' || event === 'addedBuff') {

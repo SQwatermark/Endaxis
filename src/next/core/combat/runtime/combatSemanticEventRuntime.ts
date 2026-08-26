@@ -19,6 +19,7 @@ import type { AbilityEventRegistration } from '../events/abilityEventDispatcher'
 import type { BuffFinishReason } from '../buffs/combatBuffs';
 import { ActionBlackboard } from './actionBlackboard';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
+import type { CombatSkillCastInfo } from './skillCastInfo';
 
 export type CombatSemanticEvent =
   | {
@@ -77,6 +78,7 @@ export type CombatSemanticEvent =
       readonly sourceOperatorId: string;
       readonly targetId: string;
       readonly type: import('../../game-data/operatorDefinition').PhysicalInflictionType;
+      readonly skillCastInfo?: CombatSkillCastInfo;
     }
   | {
       readonly kind: 'elementalAttachmentConsumed';

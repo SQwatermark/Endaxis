@@ -264,6 +264,7 @@ export interface CombatBuffDefinitionCompilerPorts<Key extends string> {
   readonly onSpellBurstTriggered?: (payload: {
     readonly burstType: string;
     readonly sourceId: string;
+    readonly skillCastInfo?: import('../runtime/skillCastInfo').CombatSkillCastInfo;
   }) => void;
   readonly onAttackScaledDamageTriggered?: (payload: {
     readonly damageType: DamageType;
@@ -1639,8 +1640,13 @@ function compileDefinitionActionList<Key extends string>(
             `buff '${entry.id}' triggers spell burst '${action.burstType}' without an onSpellBurstTriggered port`,
           );
         }
-        return buff =>
-          onSpellBurstTriggered({ burstType: action.burstType, sourceId: buff.sourceId });
+        return buff => {
+          onSpellBurstTriggered({
+            burstType: action.burstType,
+            sourceId: buff.sourceId,
+            ...(buff.skillCastInfo === null ? {} : { skillCastInfo: buff.skillCastInfo }),
+          });
+        };
       }
       case 'dealAttackScaledDamage': {
         const onTriggered = ports.onAttackScaledDamageTriggered;

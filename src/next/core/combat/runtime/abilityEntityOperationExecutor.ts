@@ -250,11 +250,11 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       if (context?.targetContext === undefined) {
         throw new Error('Context target count comparison requires a combat target context');
       }
-      return compareCombatNumbers(
-        context.targetContext.get(condition.contextKey).length,
-        condition.value,
-        condition.operator,
-      );
+      const count = context.targetContext.get(condition.contextKey).length;
+      if (condition.outputKey !== undefined) {
+        context.blackboard.assignDynamic(condition.outputKey, count);
+      }
+      return compareCombatNumbers(count, condition.value, condition.operator);
     }
     if (condition.kind === 'abilityEntityRemainingDurationCompare') {
       if (context?.currentTarget === undefined) {

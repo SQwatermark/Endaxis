@@ -103,6 +103,7 @@ export type StandardPlayerDamageEvent =
   | 'beforeTakeDamage'
   | 'beforeTakePhysicalInfliction'
   | 'beforeOutputPhysicalInfliction'
+  | 'afterOutputPhysicalInfliction'
   | 'beforeTakeSpellInfliction'
   | 'beforeOutputDamage'
   | 'beforeKillEntity'
@@ -118,6 +119,7 @@ export type StandardPlayerDamageEvent =
   | 'takePoiseDamage'
   | 'poiseZero'
   | 'beforeOutputInfliction'
+  | 'beforeOutputSpellBurst'
   | 'beforeTakeInfliction'
   | 'afterOutputInfliction'
   | 'afterTakeInfliction'
@@ -901,7 +903,11 @@ export class StandardPlayerDamageEnvironment {
   }
 
   /** 爆发 Buff 触发时执行爆发伤害；数据缺失处明确报错，不假装打出伤害。 */
-  #onSpellBurstTriggered(payload: { readonly burstType: string; readonly sourceId: string }): void {
+  #onSpellBurstTriggered(payload: {
+    readonly burstType: string;
+    readonly sourceId: string;
+    readonly skillCastInfo?: import('./skillCastInfo').CombatSkillCastInfo;
+  }): void {
     const index = this.#ensureElementalDefinitions();
     const definition = index.getSpellBurst(payload.burstType);
     if (definition === null) {
@@ -919,6 +925,12 @@ export class StandardPlayerDamageEnvironment {
     const settings = this.#ensureSkillSettings();
     const operatorAttributes = this.#operatorBuffRuntime(payload.sourceId, panel).container
       .attributes;
+    this.#emit(payload.sourceId, 'beforeOutputSpellBurst', {
+      sourceId: payload.sourceId,
+      targetId: 'enemy',
+      burstType: payload.burstType,
+      ...(payload.skillCastInfo === undefined ? {} : { skillCastInfo: payload.skillCastInfo }),
+    });
     executeSpellBurst({
       definition,
       sourceId: payload.sourceId,

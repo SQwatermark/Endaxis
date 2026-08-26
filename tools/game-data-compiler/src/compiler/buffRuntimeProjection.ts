@@ -150,6 +150,25 @@ export interface CompiledBuffDamageModifierSource {
 
 export type CompiledBuffConditionSource =
   | {
+      readonly kind: 'deckAttributeCompare';
+      readonly left: 'strength' | 'agility' | 'intellect' | 'will';
+      readonly operator:
+        'equal' | 'notEqual' | 'greater' | 'greaterOrEqual' | 'less' | 'lessOrEqual';
+      readonly right: 'strength' | 'agility' | 'intellect' | 'will';
+    }
+  | {
+      readonly kind: 'eventInflictionElementIn';
+      readonly elements: readonly ('heat' | 'electric' | 'cryo' | 'nature')[];
+    }
+  | {
+      readonly kind: 'contextTargetCountCompare';
+      readonly contextKey: string;
+      readonly operator:
+        'equal' | 'notEqual' | 'greater' | 'greaterOrEqual' | 'less' | 'lessOrEqual';
+      readonly value: number;
+      readonly outputKey?: string;
+    }
+  | {
       readonly kind: 'actionValueCompare';
       readonly left: CompiledActionValueOperandSource;
       readonly operator:
@@ -276,6 +295,7 @@ export type CompiledBuffStepSource =
         readonly count?: CompiledActionValueOperandSource;
         readonly inheritSourceSkillCastInfo?: boolean;
         readonly finishByAction?: boolean;
+        readonly asChildBuff?: boolean;
         readonly blackboardAssignments?: Readonly<
           Record<
             string,
@@ -321,6 +341,15 @@ export type CompiledBuffStepSource =
         readonly value:
           | { readonly kind: 'constant'; readonly value: number }
           | { readonly kind: 'blackboard'; readonly key: string };
+      };
+    }
+  | {
+      readonly kind: 'calculateActionValue';
+      readonly parameters: {
+        readonly key: string;
+        readonly operation: 'add' | 'multiply' | 'divide';
+        readonly left: CompiledActionValueOperandSource;
+        readonly right: CompiledActionValueOperandSource;
       };
     }
   | {
@@ -407,7 +436,11 @@ export interface CompiledBuffDefinitionSource {
     readonly event:
       | 'beforeCastSkill'
       | 'outputBuff'
+      | 'beforeOutputBuff'
       | 'beforeOutputPhysicalInfliction'
+      | 'afterOutputPhysicalInfliction'
+      | 'beforeOutputInfliction'
+      | 'beforeOutputSpellBurst'
       | 'outputCriticalDamage'
       | 'outputHeal'
       | 'skillEnd'
@@ -505,7 +538,11 @@ export function compileBuffRuntimeDefinitionSource(
   }
   const beforeCastSteps: CompiledBuffStepSource[] = [];
   const outputBuffSteps: CompiledBuffStepSource[] = [];
+  const beforeOutputBuffSteps: CompiledBuffStepSource[] = [];
   const beforeOutputPhysicalInflictionSteps: CompiledBuffStepSource[] = [];
+  const afterOutputPhysicalInflictionSteps: CompiledBuffStepSource[] = [];
+  const beforeOutputSpellInflictionSteps: CompiledBuffStepSource[] = [];
+  const beforeOutputSpellBurstSteps: CompiledBuffStepSource[] = [];
   const outputCriticalDamageSteps: CompiledBuffStepSource[] = [];
   const outputHealSteps: CompiledBuffStepSource[] = [];
   const skillSpGainedSteps: CompiledBuffStepSource[] = [];
@@ -531,17 +568,25 @@ export function compileBuffRuntimeDefinitionSource(
           ? enterFightSteps
           : event.event === 'OnOutputBuff'
             ? outputBuffSteps
-            : event.event === 'OnBeforeOutputPhysicalInfliction'
-              ? beforeOutputPhysicalInflictionSteps
-              : event.event === 'OnOutputCriticalDamage'
-                ? outputCriticalDamageSteps
-                : event.event === 'OnOutputHeal'
-                  ? outputHealSteps
-                  : event.event === 'OnObtainAtb'
-                    ? skillSpGainedSteps
-                    : event.event === 'OnConsumeBuff'
-                      ? buffConsumedSteps
-                      : null;
+            : event.event === 'OnBeforeOutputBuff'
+              ? beforeOutputBuffSteps
+              : event.event === 'OnBeforeOutputPhysicalInfliction'
+                ? beforeOutputPhysicalInflictionSteps
+                : event.event === 'OnAfterOutputPhysicalInfliction'
+                  ? afterOutputPhysicalInflictionSteps
+                  : event.event === 'OnCharBeforeOutputSpellInfliction'
+                    ? beforeOutputSpellInflictionSteps
+                    : event.event === 'OnCharBeforeOutputSpellBurst'
+                      ? beforeOutputSpellBurstSteps
+                      : event.event === 'OnOutputCriticalDamage'
+                        ? outputCriticalDamageSteps
+                        : event.event === 'OnOutputHeal'
+                          ? outputHealSteps
+                          : event.event === 'OnObtainAtb'
+                            ? skillSpGainedSteps
+                            : event.event === 'OnConsumeBuff'
+                              ? buffConsumedSteps
+                              : null;
     if (target === null)
       throw new Error(`unsupported ability event ${JSON.stringify(event.event)}`);
     for (const sequence of event.actions) {
@@ -627,7 +672,11 @@ export function compileBuffRuntimeDefinitionSource(
         }),
     ...(beforeCastSteps.length === 0 &&
     outputBuffSteps.length === 0 &&
+    beforeOutputBuffSteps.length === 0 &&
     beforeOutputPhysicalInflictionSteps.length === 0 &&
+    afterOutputPhysicalInflictionSteps.length === 0 &&
+    beforeOutputSpellInflictionSteps.length === 0 &&
+    beforeOutputSpellBurstSteps.length === 0 &&
     outputCriticalDamageSteps.length === 0 &&
     outputHealSteps.length === 0 &&
     skillSpGainedSteps.length === 0 &&
@@ -654,6 +703,15 @@ export function compileBuffRuntimeDefinitionSource(
                     sequence: { steps: outputBuffSteps },
                   },
                 ]),
+            ...(beforeOutputBuffSteps.length === 0
+              ? []
+              : [
+                  {
+                    event: 'beforeOutputBuff' as const,
+                    priority: 0 as const,
+                    sequence: { steps: beforeOutputBuffSteps },
+                  },
+                ]),
             ...(beforeOutputPhysicalInflictionSteps.length === 0
               ? []
               : [
@@ -661,6 +719,33 @@ export function compileBuffRuntimeDefinitionSource(
                     event: 'beforeOutputPhysicalInfliction' as const,
                     priority: 0 as const,
                     sequence: { steps: beforeOutputPhysicalInflictionSteps },
+                  },
+                ]),
+            ...(afterOutputPhysicalInflictionSteps.length === 0
+              ? []
+              : [
+                  {
+                    event: 'afterOutputPhysicalInfliction' as const,
+                    priority: 0 as const,
+                    sequence: { steps: afterOutputPhysicalInflictionSteps },
+                  },
+                ]),
+            ...(beforeOutputSpellInflictionSteps.length === 0
+              ? []
+              : [
+                  {
+                    event: 'beforeOutputInfliction' as const,
+                    priority: 0 as const,
+                    sequence: { steps: beforeOutputSpellInflictionSteps },
+                  },
+                ]),
+            ...(beforeOutputSpellBurstSteps.length === 0
+              ? []
+              : [
+                  {
+                    event: 'beforeOutputSpellBurst' as const,
+                    priority: 0 as const,
+                    sequence: { steps: beforeOutputSpellBurstSteps },
                   },
                 ]),
             ...(outputCriticalDamageSteps.length === 0
@@ -1017,6 +1102,31 @@ function compileConditionLeaf(
   condition: Extract<KnownNativeActionLeafSource, { family: 'condition' }>['action'],
   sourcePath: string,
 ): CompiledBuffConditionSource {
+  if (condition.kind === 'deckAttributeCompare') {
+    const attributes = {
+      Str: 'strength',
+      Agi: 'agility',
+      Wisd: 'intellect',
+      Will: 'will',
+    } as const;
+    const left = attributes[condition.leftAttribute as keyof typeof attributes];
+    const right = attributes[condition.rightAttribute as keyof typeof attributes];
+    const operator = COMPARISON_OPERATORS[condition.comparison];
+    if (
+      condition.targetSource !== 'Owner' ||
+      condition.targetGroupKey !== '' ||
+      condition.leftValue.blackboardKey !== null ||
+      condition.leftValue.value !== 0 ||
+      condition.rightValue.blackboardKey !== null ||
+      condition.rightValue.value !== 0 ||
+      left === undefined ||
+      right === undefined ||
+      operator === undefined
+    ) {
+      throw new Error(`${sourcePath}: unsupported Deck attribute comparison`);
+    }
+    return { kind: 'deckAttributeCompare', left, operator, right };
+  }
   if (condition.kind === 'floatCompare') {
     const operator = COMPARISON_OPERATORS[condition.comparison];
     if (operator === undefined) throw new Error(`${sourcePath}: unsupported float comparison`);
@@ -1053,6 +1163,37 @@ function compileConditionLeaf(
           throw new Error(`unsupported native origin skill type ${JSON.stringify(skillType)}`);
         return [mapped];
       }),
+    };
+  }
+  if (condition.kind === 'skillCastId') {
+    return { kind: 'eventSkillCastMatchesBuffSource' };
+  }
+  if (condition.kind === 'inflictionType') {
+    if (condition.savedKey !== '') {
+      throw new Error(`${sourcePath}: saved infliction element is unsupported`);
+    }
+    return {
+      kind: 'eventInflictionElementIn',
+      elements: condition.elements as readonly ('heat' | 'electric' | 'cryo' | 'nature')[],
+    };
+  }
+  if (condition.kind === 'entityCount') {
+    const operator = COMPARISON_OPERATORS[condition.comparison];
+    if (
+      condition.targetSource !== 'Context' ||
+      condition.targetGroupKey === '' ||
+      condition.containsHittableTarget ||
+      condition.excludeDeadEntity ||
+      operator === undefined
+    ) {
+      throw new Error(`${sourcePath}: unsupported Context target count condition`);
+    }
+    return {
+      kind: 'contextTargetCountCompare',
+      contextKey: condition.targetGroupKey,
+      operator,
+      value: condition.minimumCount,
+      ...(condition.storeKey === '' ? {} : { outputKey: condition.storeKey }),
     };
   }
   if (condition.kind === 'targetContains') {
@@ -1425,6 +1566,27 @@ function compileActionNode(
       },
     ];
   }
+  if (node.body.value.family === 'blackboardCalculation') {
+    const action = node.body.value.action;
+    const operation = ACTION_VALUE_OPERATIONS[action.operation];
+    if (
+      (operation !== 'add' && operation !== 'multiply' && operation !== 'divide') ||
+      action.addend !== null
+    ) {
+      throw new Error(`${node.sourcePath}: unsupported blackboard calculation`);
+    }
+    return [
+      {
+        kind: 'calculateActionValue',
+        parameters: {
+          key: action.key,
+          operation,
+          left: actionValueOperand(action.left),
+          right: actionValueOperand(action.right),
+        },
+      },
+    ];
+  }
   if (node.body.value.family === 'resource') {
     const action = node.body.value.action;
     if (
@@ -1517,7 +1679,6 @@ function compileBuffApplication(
   // 纯表现子 Buff 的动作生命周期只持有并清理表现资源；来源已完整解析后可从无渲染后端省略。
   if (action.buffs.every(entry => visualOnlyIds.has(entry.buffId))) return [];
   if (
-    action.autoFinishByAction ||
     action.inheritSkillIds.length > 0 ||
     action.inheritSourceSkillCastId ||
     action.isExtra ||
@@ -1538,7 +1699,9 @@ function compileBuffApplication(
             ? ('party' as const)
             : isPartyExceptOwnerInstantSearch(action.target)
               ? ('partyExceptCaster' as const)
-              : null;
+              : isPartyInstantSearch(action.target)
+                ? ('party' as const)
+                : null;
   const source =
     action.buffSource === 'ActionOwner'
       ? undefined
@@ -1573,6 +1736,8 @@ function compileBuffApplication(
             ? {}
             : { count: actionValueOperand(action.count) }),
           ...(action.inheritSourceSkillCastInfo ? { inheritSourceSkillCastInfo: true } : {}),
+          ...(action.autoFinishByAction ? { finishByAction: true } : {}),
+          ...(action.asChildBuff ? { asChildBuff: true } : {}),
           ...(Object.keys(assignments).length === 0 ? {} : { blackboardAssignments: assignments }),
         },
       },
@@ -1584,7 +1749,6 @@ function compileBuffApplication(
 function isPartyExceptOwnerInstantSearch(target: BuffApplicationActionSource['target']): boolean {
   return (
     target.targetSource === 'InstantSearch' &&
-    target.targetGroupKey === '' &&
     target.selectorOwner === 'ActionOwner' &&
     target.ownerContextKey === '' &&
     target.centerType === 'ActionSource' &&
@@ -1599,6 +1763,32 @@ function isPartyExceptOwnerInstantSearch(target: BuffApplicationActionSource['ta
     target.finderOwnerPartsQuery === null &&
     target.validatorTypes.length === 1 &&
     target.validatorTypes[0] === 'ExcludeOwnerValidator' &&
+    target.postProcessorTypes.length === 0 &&
+    target.priorityFilters.length === 0 &&
+    target.shuffleTargets.length === 0 &&
+    target.distanceValidators.length === 0 &&
+    target.finderSpawnedObjectType === null &&
+    target.validatorTagQueries.length === 0
+  );
+}
+
+/** 固定小队模型中严格折叠无筛选的即时全队搜索。 */
+function isPartyInstantSearch(target: BuffApplicationActionSource['target']): boolean {
+  return (
+    target.targetSource === 'InstantSearch' &&
+    target.selectorOwner === 'ActionOwner' &&
+    target.ownerContextKey === '' &&
+    target.centerType === 'ActionSource' &&
+    target.centerContextKey === '' &&
+    !target.centerToGround &&
+    target.target === 'ActionSource' &&
+    target.targetContextKey === '' &&
+    !target.enableAdvancedDirection &&
+    target.selectorDirection === 'SourceForward' &&
+    target.finderType === 'CharacterTeamFinder' &&
+    target.finderShape === null &&
+    target.finderOwnerPartsQuery === null &&
+    target.validatorTypes.length === 0 &&
     target.postProcessorTypes.length === 0 &&
     target.priorityFilters.length === 0 &&
     target.shuffleTargets.length === 0 &&

@@ -443,4 +443,34 @@ describe('ActionBlackboardOperationExecutor', () => {
     ).toBe(true);
     expect(evaluate).toHaveBeenCalledOnce();
   });
+
+  it('compares the immutable Deck attribute snapshot', () => {
+    const executor = new ActionBlackboardOperationExecutor(
+      delegate,
+      undefined,
+      undefined,
+      undefined,
+      { strength: 10, agility: 20, intellect: 100, will: 100 },
+    );
+
+    expect(
+      executor.evaluate({
+        kind: 'deckAttributeCompare',
+        left: 'intellect',
+        operator: 'greaterOrEqual',
+        right: 'will',
+      }),
+    ).toBe(true);
+  });
+
+  it('rejects Deck comparisons without a build snapshot', () => {
+    expect(() =>
+      new ActionBlackboardOperationExecutor(delegate).evaluate({
+        kind: 'deckAttributeCompare',
+        left: 'intellect',
+        operator: 'greaterOrEqual',
+        right: 'will',
+      }),
+    ).toThrow('deckAttributeCompare requires source Deck attributes');
+  });
 });

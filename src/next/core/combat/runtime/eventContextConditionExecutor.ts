@@ -66,10 +66,11 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
         : this.delegate.evaluate(condition, context);
     }
     if (condition.kind === 'originSkillTypeIn') {
-      if (context?.skillCastInfo === undefined) {
-        throw new Error('originSkillTypeIn requires a Buff source skill cast identity');
+      const skillCastInfo = context?.eventSkillCastInfo ?? context?.skillCastInfo;
+      if (skillCastInfo === undefined) {
+        throw new Error('originSkillTypeIn requires an event source skill cast identity');
       }
-      return condition.skillTypes.includes(context.skillCastInfo.originSkillType);
+      return condition.skillTypes.includes(skillCastInfo.originSkillType);
     }
     if (context?.event === undefined) {
       throw new Error(`${condition.kind} requires a combat event context`);
@@ -120,9 +121,11 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
     }
     if (condition.kind === 'eventPhysicalInflictionTypeIn') {
       return (
-        context.event.kind === 'abilityPhysicalInfliction' &&
-        context.event.type !== undefined &&
-        condition.types.includes(context.event.type)
+        (context.event.kind === 'abilityPhysicalInfliction' &&
+          context.event.type !== undefined &&
+          condition.types.includes(context.event.type)) ||
+        (context.event.kind === 'physicalInflictionApplied' &&
+          condition.types.includes(context.event.type))
       );
     }
     if (condition.kind === 'eventSkillIdIn') {
@@ -131,11 +134,10 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       );
     }
     if (condition.kind === 'eventSkillCastMatchesBuffSource') {
-      const event = context?.event;
       return (
-        event?.kind === 'abilitySkill' &&
         context?.skillCastInfo !== undefined &&
-        event.skillCastId === context.skillCastInfo.skillCastId
+        context.eventSkillCastInfo !== undefined &&
+        context.eventSkillCastInfo.skillCastId === context.skillCastInfo.skillCastId
       );
     }
     if (condition.kind === 'eventBuffIdMatch') {

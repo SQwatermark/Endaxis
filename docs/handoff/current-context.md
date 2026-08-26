@@ -1944,3 +1944,23 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
   `damageTypeMask / damageType / damageDecorateMask / buffStack / entityTag / poise`，最新达到
   **89/107 可编译、4 个木桩省略**。剩余阻塞集中在能力事件、生命周期选项、Deck 属性/定时标记和
   少量载荷族；护盾、韧性修正载荷和离战事件继续后置。
+
+### 2026-08-26：武器输出事件与构筑分支继续收口
+
+- `CompareDeckAttr(Wisd >= Will)` 已按构筑完成时的静态四维快照进入公共 Buff 条件，不读取战斗中
+  Modifier 改写后的实时属性。`wpn_funnel_0016` 因而能在相等时选择智识分支、否则选择意志分支；
+  没有把两种形态保存成项目状态。
+- `CreateBuffAction.asChildBuff` 现保留父子寿命：子实例用精确句柄登记到当前 Buff，父 Buff 正式结束
+  时在自身 Modifier 注销前结束全部子实例；`autoFinishByAction` 仍独立绑定动作域。四二式·肃阵的
+  增伤子 Buff 和剩余时间图标因此都没有被当成纯表现数据丢弃。
+- 元素附着已有的 before/after 输出事件、元素爆发触发点和物理异常语义事实已接入 Buff 响应。
+  当前事件来源施法与监听 Buff 自己的来源施法分开保存，`CheckSkillCastId` 比较两者，
+  `CheckOriginSkillType` 读取触发事件来源，避免恒真或误读母 Buff。物理异常 after 响应复用
+  `physicalInflictionApplied`，统一覆盖浮空、击倒、破防和击溃。
+- 公共投影同步补齐严格的元素类型条件、Context 实例计数并写回 `storeKey`、纯黑板二元计算，以及
+  `CharacterTeamFinder` 的全队/排除 owner 两种固定小队折叠。`buff_wpn_funnel_0006` 与
+  `buff_wpn_funnel_0011` 的“累计本次不同目标数并给队伍加成”链已完整通过审计。
+- 最新武器闭包为 **96/107 可编译、4 个木桩省略**。剩余 7 项为：3 个后置的护盾/韧性/自疗载荷，
+  `buff_wpn_sword_0022_layer` 的离战事件，`buff_wpn_sword_0026_celebration` 的定时标记治疗门槛，
+  以及 `buff_wpn_pistol_0005_inaura`、`buff_wpn_sword_0010_inaura` 的 `OnBeforeAddedBuff` 响应。
+  下一轮优先完成后二者和定时标记；防御、自疗与离战继续按木桩伤害相关性后置，不为凑数字扩模。

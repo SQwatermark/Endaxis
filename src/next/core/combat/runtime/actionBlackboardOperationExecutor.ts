@@ -6,6 +6,7 @@ import type {
   ActionValueCalculationOperation,
   ActionValueOperation,
   CombatCondition,
+  OperatorAttribute,
 } from '../../game-data/operatorDefinition';
 import { resolveActionValueOperand } from './actionBlackboard';
 import { compareCombatNumbers } from './numericComparison';
@@ -30,6 +31,8 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
     },
     /** Buff 内的 StoreCurSkillExecuteFrame 从 Owner AbilitySystem 读取当前技能，而非 Buff 时间。 */
     readonly resolveOwnerCurrentSkillTimelineFrame?: (ownerId: string) => number | undefined,
+    /** 原生 Deck 快照来自构筑完成时的静态四维，不随战斗内 Modifier 改变。 */
+    readonly sourceDeckAttributes?: Readonly<Record<OperatorAttribute, number>>,
   ) {}
 
   execute(
@@ -148,6 +151,16 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
       return compareCombatNumbers(
         resolveActionValueOperand(condition.left, context.blackboard),
         resolveActionValueOperand(condition.right, context.blackboard),
+        condition.operator,
+      );
+    }
+    if (condition.kind === 'deckAttributeCompare') {
+      if (this.sourceDeckAttributes === undefined) {
+        throw new Error('deckAttributeCompare requires source Deck attributes');
+      }
+      return compareCombatNumbers(
+        Math.fround(this.sourceDeckAttributes[condition.left]),
+        Math.fround(this.sourceDeckAttributes[condition.right]),
         condition.operator,
       );
     }

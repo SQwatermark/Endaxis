@@ -156,6 +156,7 @@ export interface BuffOperationDependencies {
     readonly sourceOperatorId: string;
     readonly targetId: string;
     readonly type: 'fracture' | 'crush';
+    readonly skillCastInfo: CombatSkillCastInfo;
   }) => void;
   readonly onBeforeOutputPhysicalInfliction?: (event: {
     readonly sourceId: string;
@@ -246,6 +247,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           sourceOperatorId: this.dependencies.sourceId,
           targetId: target.ownerId,
           type: step.parameters.type,
+          skillCastInfo: context.skillCastInfo,
         });
       }
       if (applied && hasNoGuard) {
@@ -277,9 +279,15 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       }
       const targets = this.#resolveApplicationTargets(step.parameters.target, context);
       const finishByAction = step.parameters.finishByAction === true;
+      const asChildBuff = step.parameters.asChildBuff === true;
+      if (asChildBuff && context?.addCurrentBuffChild === undefined) {
+        throw new Error('asChildBuff applyBuff requires a current Buff operation context');
+      }
       if (
         targets.some(target =>
-          finishByAction ? target.applyScoped === undefined : target.apply === undefined,
+          finishByAction || asChildBuff
+            ? target.applyScoped === undefined
+            : target.apply === undefined,
         )
       ) {
         return context === undefined
@@ -328,9 +336,12 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       // 原生用从 0 开始的整数计数器与 float 次数比较，正小数因此会多执行一次。
       for (let repetition = 0; repetition < count; repetition += 1) {
         for (const target of targets) {
-          if (finishByAction) {
+          if (finishByAction || asChildBuff) {
             const handle = target.applyScoped!(request);
-            if (handle !== null) scoped.push(handle);
+            if (handle !== null) {
+              if (finishByAction) scoped.push(handle);
+              if (asChildBuff) context!.addCurrentBuffChild!(handle);
+            }
           } else {
             target.apply!(request);
           }

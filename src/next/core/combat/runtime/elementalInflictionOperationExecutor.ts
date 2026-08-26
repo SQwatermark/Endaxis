@@ -12,6 +12,7 @@ import {
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from './combatClock';
 import type { CombatOperationExecutor } from './skillRuntime';
+import type { CombatSkillCastInfo } from './skillCastInfo';
 
 type RuntimeOperation = ResolvedCombatOperationStep;
 type InflictionStep = Extract<RuntimeOperation, { kind: 'applyElementalInfliction' }>;
@@ -32,6 +33,7 @@ export interface ElementalInflictionEventPayload {
   readonly skillId: string;
   readonly element: InflictionStep['parameters']['element'];
   readonly isExtra: boolean;
+  readonly skillCastInfo?: CombatSkillCastInfo;
 }
 
 /** 元素附着执行节点所需的状态读写、事件、回执和后继执行端口。 */
@@ -73,13 +75,13 @@ export class ElementalInflictionOperationExecutor implements CombatOperationExec
         ? this.dependencies.delegate.execute(step)
         : this.dependencies.delegate.execute(step, context);
     }
-
     const payload: ElementalInflictionEventPayload = {
       sourceId: this.dependencies.sourceOperatorId,
       targetId: this.dependencies.targetId,
       skillId: this.dependencies.skillId,
       element: step.parameters.element,
       isExtra: step.parameters.isExtra,
+      ...(context?.skillCastInfo === undefined ? {} : { skillCastInfo: context.skillCastInfo }),
     };
     this.dependencies.emitSourceEvent('beforeOutputInfliction', payload);
     this.dependencies.emitTargetEvent('beforeTakeInfliction', payload);

@@ -270,7 +270,12 @@ export interface CombatRuntimeAssemblyOptions {
   /** 已闭环的 AbilitySystem 同步事件。 */
   readonly emitAbilityEvent?: (
     entityId: string,
-    event: 'beforeCastSkill' | 'skillEnd' | 'ownerHpZero' | 'beforeOutputPhysicalInfliction',
+    event:
+      | 'beforeCastSkill'
+      | 'skillEnd'
+      | 'ownerHpZero'
+      | 'beforeOutputPhysicalInfliction'
+      | 'afterOutputPhysicalInfliction',
     payload:
       | {
           readonly sourceId: string;
@@ -646,15 +651,23 @@ export class CombatRuntimeAssembly {
               ? { kind: 'enemyDefeated', scope: 'operator' }
               : event === 'outputKnockDown'
                 ? { kind: 'knockDownOutput' }
-                : event === 'skillSpGained'
-                  ? { kind: 'spGained', source: 'skill', gainKind: 'gain' }
-                  : { kind: 'buffConsumed' },
+                : event === 'afterOutputPhysicalInfliction'
+                  ? {
+                      kind: 'physicalInflictionApplied',
+                      types: ['airborne', 'knockDown', 'fracture', 'crush'],
+                      scope: 'operator',
+                    }
+                  : event === 'skillSpGained'
+                    ? { kind: 'spGained', source: 'skill', gainKind: 'gain' }
+                    : { kind: 'buffConsumed' },
           phase: 'dataAction',
           priority,
           handle: context => {
             if (
               (event === 'afterKillEntity' && context.event.kind !== 'enemyDefeated') ||
               (event === 'outputKnockDown' && context.event.kind !== 'knockDownOutput') ||
+              (event === 'afterOutputPhysicalInfliction' &&
+                context.event.kind !== 'physicalInflictionApplied') ||
               (event === 'skillSpGained' && context.event.kind !== 'spGained') ||
               (event === 'buffConsumed' && context.event.kind !== 'buffConsumed')
             ) {
@@ -664,7 +677,12 @@ export class CombatRuntimeAssembly {
               context.event as Extract<
                 CombatSemanticEvent,
                 {
-                  readonly kind: 'enemyDefeated' | 'knockDownOutput' | 'spGained' | 'buffConsumed';
+                  readonly kind:
+                    | 'enemyDefeated'
+                    | 'knockDownOutput'
+                    | 'physicalInflictionApplied'
+                    | 'spGained'
+                    | 'buffConsumed';
                 }
               >,
             );
@@ -1370,6 +1388,7 @@ export class CombatRuntimeAssembly {
             read: this.#options.readSourceAttributeValue,
           },
       ownerId => this.#abilitySystems.get(ownerId)?.currentSkillTimelineFrame,
+      operator.panel?.attributes,
     );
     rootOperations = new SkillResourceOperationExecutor({
       sourceOperatorId: operatorId,
@@ -1555,6 +1574,8 @@ export class CombatRuntimeAssembly {
             sourceId: operatorId,
             read: options.readSourceAttributeValue,
           },
+      undefined,
+      operator.panel?.attributes,
     );
     reactiveOperations = new SkillResourceOperationExecutor({
       sourceOperatorId: operatorId,
@@ -1781,15 +1802,23 @@ export class CombatRuntimeAssembly {
             ? { kind: 'enemyDefeated', scope: 'operator' }
             : event === 'outputKnockDown'
               ? { kind: 'knockDownOutput' }
-              : event === 'skillSpGained'
-                ? { kind: 'spGained', source: 'skill', gainKind: 'gain' }
-                : { kind: 'buffConsumed' },
+              : event === 'afterOutputPhysicalInfliction'
+                ? {
+                    kind: 'physicalInflictionApplied',
+                    types: ['airborne', 'knockDown', 'fracture', 'crush'],
+                    scope: 'operator',
+                  }
+                : event === 'skillSpGained'
+                  ? { kind: 'spGained', source: 'skill', gainKind: 'gain' }
+                  : { kind: 'buffConsumed' },
         phase: 'dataAction',
         priority,
         handle: context => {
           if (
             (event === 'afterKillEntity' && context.event.kind !== 'enemyDefeated') ||
             (event === 'outputKnockDown' && context.event.kind !== 'knockDownOutput') ||
+            (event === 'afterOutputPhysicalInfliction' &&
+              context.event.kind !== 'physicalInflictionApplied') ||
             (event === 'skillSpGained' && context.event.kind !== 'spGained') ||
             (event === 'buffConsumed' && context.event.kind !== 'buffConsumed')
           ) {
@@ -1799,7 +1828,12 @@ export class CombatRuntimeAssembly {
             context.event as Extract<
               CombatSemanticEvent,
               {
-                readonly kind: 'enemyDefeated' | 'knockDownOutput' | 'spGained' | 'buffConsumed';
+                readonly kind:
+                  | 'enemyDefeated'
+                  | 'knockDownOutput'
+                  | 'physicalInflictionApplied'
+                  | 'spGained'
+                  | 'buffConsumed';
               }
             >,
           );

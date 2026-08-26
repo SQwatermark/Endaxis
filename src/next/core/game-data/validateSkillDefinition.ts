@@ -511,6 +511,7 @@ function validateCombatCondition(
       requireString(record, 'contextKey', path, out);
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
       requireNonNegativeInteger(record, 'value', path, out);
+      if (record.outputKey !== undefined) requireString(record, 'outputKey', path, out);
       break;
     case 'abilityEntityRemainingDurationCompare':
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
@@ -1228,6 +1229,9 @@ function validateCombatStep(
                     response.event !== 'beforeCalculateDamage' &&
                     response.event !== 'beforeTakePhysicalInfliction' &&
                     response.event !== 'beforeOutputPhysicalInfliction' &&
+                    response.event !== 'afterOutputPhysicalInfliction' &&
+                    response.event !== 'beforeOutputInfliction' &&
+                    response.event !== 'beforeOutputSpellBurst' &&
                     response.event !== 'beforeTakeSpellInfliction' &&
                     response.event !== 'beforeTakeInfliction' &&
                     response.event !== 'takeDamage' &&
@@ -1483,6 +1487,9 @@ function validateCombatStep(
       }
       if (parameters.finishByAction !== undefined) {
         requireBoolean(parameters, 'finishByAction', `${path}.parameters`, out);
+      }
+      if (parameters.asChildBuff !== undefined) {
+        requireBoolean(parameters, 'asChildBuff', `${path}.parameters`, out);
       }
       if (parameters.durationSeconds !== undefined) {
         requireFiniteNumber(parameters, 'durationSeconds', `${path}.parameters`, out);

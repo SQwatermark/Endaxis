@@ -49,7 +49,10 @@ export interface CombatAbilityDamageEvent {
 /** AbilitySystem 即将承受物理异常时的同步事件；来源是施加该异常的实体。 */
 export interface CombatAbilityPhysicalInflictionEvent {
   readonly kind: 'abilityPhysicalInfliction';
-  readonly event: 'beforeTakePhysicalInfliction' | 'beforeOutputPhysicalInfliction';
+  readonly event:
+    | 'beforeTakePhysicalInfliction'
+    | 'beforeOutputPhysicalInfliction'
+    | 'afterOutputPhysicalInfliction';
   readonly sourceId: string;
   readonly targetId: string;
   readonly type?: 'airborne' | 'knockDown' | 'fracture' | 'crush';
@@ -58,11 +61,20 @@ export interface CombatAbilityPhysicalInflictionEvent {
 /** AbilitySystem 即将承受元素附着时的同步事件；当前木桩模型不会自行产生角色承术事件。 */
 export interface CombatAbilitySpellInflictionEvent {
   readonly kind: 'abilitySpellInfliction';
-  readonly event: 'beforeTakeSpellInfliction' | 'beforeTakeInfliction';
+  readonly event: 'beforeTakeSpellInfliction' | 'beforeTakeInfliction' | 'beforeOutputInfliction';
   readonly sourceId: string;
   readonly targetId: string;
   /** 角色受术旧事件不一定提供元素；敌人承受元素附着事件始终提供。 */
   readonly element?: import('../../game-data/operatorDefinition').InflictionElement;
+}
+
+/** AbilitySystem 即将输出一次元素爆发；爆发来源施法身份由事件上下文单独携带。 */
+export interface CombatAbilitySpellBurstEvent {
+  readonly kind: 'abilitySpellBurst';
+  readonly event: 'beforeOutputSpellBurst';
+  readonly sourceId: string;
+  readonly targetId: string;
+  readonly burstType: string;
 }
 
 /** AbilitySystem 的失衡归零同步事件；保留本次失衡来源与目标身份。 */
@@ -122,12 +134,15 @@ export interface CombatOperationContext {
   readonly currentTarget?: RuntimeTargetRef;
   /** 执行到当前步骤时的施法信息；扣费前后的未返还技力可能不同。 */
   readonly skillCastInfo?: CombatSkillCastInfo;
+  /** 当前同步事件的来源施法；与拥有该响应的 Buff 自身来源施法严格分离。 */
+  readonly eventSkillCastInfo?: CombatSkillCastInfo;
   /** 仅在同步事件响应期间存在；普通技能步骤不得假设它可用。 */
   readonly event?:
     | CombatSemanticEvent
     | CombatAbilityDamageEvent
     | CombatAbilityPhysicalInflictionEvent
     | CombatAbilitySpellInflictionEvent
+    | CombatAbilitySpellBurstEvent
     | CombatAbilityPoiseEvent
     | CombatAbilityHealEvent
     | CombatAbilitySkillEvent
@@ -145,6 +160,8 @@ export interface CombatOperationContext {
   readonly getCurrentBuffRemainingDuration?: () => number | null;
   /** SetBuffDurationAction 修改当前有限时长实例。 */
   readonly setCurrentBuffRemainingDuration?: (duration: number) => void;
+  /** 把本次创建的 Buff 绑定为当前生命周期 Buff 的子实例。 */
+  readonly addCurrentBuffChild?: (child: { finish(reason: 'other'): boolean }) => void;
   /** 仅由 Buff 生命周期与事件响应提供；暂停只作用于当前实例。 */
   readonly setCurrentBuffTimePaused?: (paused: boolean) => void;
   /** Buff 黑板写入后重建依赖动态键的属性修正；普通技能上下文不提供。 */

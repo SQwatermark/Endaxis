@@ -301,6 +301,8 @@ export type CombatCondition =
       contextKey: string;
       operator: ComparisonOperator;
       value: number;
+      /** 原生 CheckEntityNum.storeKey：判断时同步保存实际数量。 */
+      outputKey?: string;
     }
   | {
       /** 比较当前 Context 迭代目标的有限能力实体剩余时长。 */
@@ -783,6 +785,8 @@ export interface CombatStepParameters {
     inheritSourceSkillCastInfo?: boolean;
     /** 原生区域/动作生命周期结束时，只结束本步骤实际创建的 Buff 实例。 */
     finishByAction?: boolean;
+    /** 原生 asChildBuff：当前动作由 Buff 持有时，父 Buff 结束会同步结束该实例。 */
+    asChildBuff?: boolean;
     durationSeconds?: number;
     effectiveness?: number;
   };
@@ -1274,6 +1278,9 @@ export interface SkillBuffAbilityEventResponse {
     | 'beforeCalculateDamage'
     | 'beforeTakePhysicalInfliction'
     | 'beforeOutputPhysicalInfliction'
+    | 'afterOutputPhysicalInfliction'
+    | 'beforeOutputInfliction'
+    | 'beforeOutputSpellBurst'
     | 'beforeTakeSpellInfliction'
     | 'beforeTakeInfliction'
     | 'takeDamage'

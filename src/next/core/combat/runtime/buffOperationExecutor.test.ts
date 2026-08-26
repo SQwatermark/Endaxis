@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer } from '../buffs/combatBuffs';
 import { GameplayTagRegistry, gameplayTagIdFromPath } from '../tags/gameplayTags';
@@ -242,6 +242,40 @@ describe('BuffOperationExecutor', () => {
 
     executor.end(step, { blackboard: new ActionBlackboard() });
     expect(finished).toEqual(['other']);
+  });
+
+  it('attaches scoped Buff handles to the current parent Buff', () => {
+    const child = { finish: vi.fn(() => true) };
+    const addCurrentBuffChild = vi.fn();
+    const target = {
+      ownerId: 'operator',
+      applyScoped: () => child,
+      getCountByIds: () => 0,
+      finishByIds: () => 0,
+      holdByIds: () => ({ release: () => undefined }),
+      getCountByTags: () => 0,
+      matchesEntityTags: () => false,
+      findFirstByIds: () => undefined,
+      findFirstByTags: () => undefined,
+      finishByTags: () => 0,
+    };
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => target,
+      delegate,
+    });
+
+    expect(
+      executor.execute(
+        {
+          kind: 'applyBuff',
+          parameters: { buffId: 'child', target: 'caster', asChildBuff: true },
+        },
+        { blackboard: new ActionBlackboard(), addCurrentBuffChild },
+      ),
+    ).toBe(true);
+    expect(addCurrentBuffChild).toHaveBeenCalledWith(child);
+    expect(child.finish).not.toHaveBeenCalled();
   });
 
   it('finishes the Buff instance supplied by its lifecycle event context', () => {
