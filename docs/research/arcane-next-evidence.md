@@ -1,6 +1,25 @@
 # 诀新版配置证据记录
 
-## 2026-08-26 交叉构筑审计纠偏（最新）
+## 2026-08-26 本地二进制复核（最新）
+
+已解除先前的 VFS tag 173 解码工具阻塞，但**没有解除 8 项模拟阻塞**：
+
+- VFS `extract_memorypack_unions.py --metadata` 结合已初始化 runtime 锚点和同版本元数据，
+  恢复 386 个动作 union；`extract_memorypack_schema.py --union-map` 显式补齐派生类型根。
+  `ObtainCostAction.uspRecoverTag` 已按原生证据改为 inline int32，修复其后续三字节错位。
+- 控制 Buff seal_total 和连携 SkillData 分别完整消费 **15710、24320 字节**，不依赖 reference
+  JSON 推断。控制 Buff 仍两次读取 `EntityBB_consumed_type`，技能只声明无前缀
+  `consumed_type=0`。没有得到新的写入证据，不应删前缀或补默认值。
+- 诀的 66 份本地 SkillData/BuffData 中 **64 份完整解码**；seal2 与 train_showhp 在
+  `BuffData.applyTags` 格式处拒绝。不能宣称完整覆盖所有实体初始化或客户端没有写入。
+- 原始载荷哈希、命令与偏移见 combat-spec `docs/arcane-consumed-type-gap.md` 和
+  VFS `docs/research/memorypack-arcane-2026-08-26.md`。临时结果为 `tmp/arcane-vfs-audit/`、
+  `tmp/arcane-tool-*`，不提交，不覆盖生产输入或生成定义。
+
+下一步从角色实体模板初始化、IFix/运行时 Patch 及剩余两份资源继续查来源；默认武器库
+仍未切换。以下交叉构筑审计口径保持有效。
+
+## 2026-08-26 交叉构筑审计纠偏
 
 后续核对 `tmp/akedb-next-latest/BuffData` 的同名 seal_total 与当前输入：两者 SHA256 均为
 `A2FF30B1E9BCC2749F262111CDBC730054F12A98E99D85603552C8E33B8517E5`。
@@ -17,8 +36,8 @@
 - 关闭 `wpn_funnel_0003` 全部事件、保留静态属性、仅放诀连携仍重现。
 - combat-spec `docs/arcane-consumed-type-gap.md` 已记录数据路径与原生缺键抛异常证据；
   不给零、不删除前缀、不硬编码元素、不改原始生成产物，也不伪称读分支不可达。
-- 尝试从本机 VFS 核对同一 Buff：可定位、提取 15710 字节，但现有 schema/union 缺 tag 173，
-  严格解码失败。临时结果为 `tmp/arcane-seal-total-vfs*`，未提交，不能作为版本差异证据。
+- 初次从本机 VFS 核对时缺 tag 173，严格解码失败；后续已完成解码，见上方最新复核。
+  初次失败的临时输出不能作为版本差异证据。
 
 矩阵测试精确断言这 8 个诊断，其他 958 个必须成功；新失败和既有阻塞消失都会触发审计更新。
 这不是全矩阵通过，也不是默认库发布许可。后续先补齐同版本解码与实体初始化/运行时 Patch

@@ -6,7 +6,30 @@
 当前主线是在 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
-### 2026-08-26 再续：武器显式存档迁移与同长度错位检查（最新）
+### 2026-08-26 再续：诀本地资源与可重建解码工具（最新）
+
+- 没有修改 Endaxis 游戏规则、默认武器库或生成产物；8 项 `EntityBB_consumed_type`
+  运行阻塞仍在，不能把工具修复说成模拟修复。
+- VFS union 提取器新增同版本 `--metadata`：当前快照仅 49 个动作类型槽已初始化，
+  其余通过精确 byvalTypeIndex + wrapper 名/token 解析。恢复全部 386 个动作 union，以及
+  Finder/Validator/PostProcessor/CalculationBase；已有映射冲突、错误 metadata 均拒绝。
+  schema 提取新增 `--union-map`，显式覆盖原继承索引遗漏的派生类型。
+- 原生 `ObtainCostAction` 序列化证明 `uspRecoverTag` 是 inline int32；修复 VFS 少读
+  三字节导致的错位。seal_total 15710/15710、combo_skill 24320/24320 字节完整解码，
+  两处带前缀读取和无前缀声明仍然存在，没有补出写入证据。
+- 诀 42 Buff + 24 Skill 本地二进制审计：64/66 完整解码。seal2、train_showhp 卡在
+  `BuffData.applyTags[0]`，不能将失败输出用于完整覆盖结论。所有产物仅在 Endaxis `tmp/`。
+- VFS 本批聚焦 8 项测试通过；MemoryPack 全组 11 通过、两项既有失败（SuperArmor 值类型、
+  Enemy AI marker unmanaged layout），已用 HEAD 解码器确认基线，未顺带猜格式修复。
+  Endaxis/C# 本批只更新研究交接，未改模拟实现；重跑 Next **216 文件、2506 测试通过**，
+  包含 8 项已知错误的精确断言。报告 `tmp/arcane-evidence-regression.audit.json`；本批未重跑
+  编译器/C# 全组，不混用上一轮 2798 项的口径。
+- 详见 [诀证据](../research/arcane-next-evidence.md)、combat-spec
+  `docs/arcane-consumed-type-gap.md`、VFS `docs/research/memorypack-arcane-2026-08-26.md`。
+  下一步：补两份标签数组解码，核对角色实体模板初始化与 IFix/运行时 Patch；闭合后再修
+  公共转换并撤掉精确阻塞清单。默认库及显式迁移 UI 仍排在该运行门槛之后。
+
+### 2026-08-26 再续：武器显式存档迁移与同长度错位检查
 
 - 上一轮只看数量仍漏了 5 把三星武器的键变化。现在注册诊断同时检查数量、键顺序和等级容量，
   共报告 **10 项布局差异**：5 把新增词条，另 5 把旧 `skill3` 改名为新 `skill2`。
