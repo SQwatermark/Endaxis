@@ -53,6 +53,7 @@ const loneBarge: WeaponDefinition = {
         {
           key: 'after-electrification-consumed',
           event: { kind: 'statusConsumed', statusKey: 'electrification', target: 'enemy' },
+          priority: 4,
           sequence: {
             steps: [
               {
@@ -109,6 +110,7 @@ describe('compile equipment contributions', () => {
       kind: 'applyStatus',
       parameters: { modifiers: [{ kind: 'attackPercent', value: 0.32 }] },
     });
+    expect(compiled[2]!.eventHandlers[0]!.priority).toBe(4);
   });
 
   it('maps zero-based artificing to one-based level values', () => {
@@ -218,6 +220,28 @@ describe('compile equipment contributions', () => {
       { kind: 'staticHealingIncrease', target: 'output', value: 0.2 },
     ]);
     expect(compiled!.eventHandlers[0]!.blackboard).toEqual({ rate: 0.1 });
+  });
+
+  it('resolves the initialization blackboard at the selected trait level', () => {
+    const definition: WeaponDefinition = {
+      slug: 'runtime-weapon',
+      rarity: 5,
+      weaponType: 'sword',
+      baseAttackAtLevelNodes: [1, 2, 3, 4, 5, 6],
+      traits: [
+        {
+          key: 'runtime',
+          levelCount: 3,
+          initializationBlackboard: { duration: 10, attack_up: [0.1, 0.2, 0.3] },
+          initializationSequence: { steps: [] },
+        },
+      ],
+    };
+
+    expect(compileWeaponContributions(definition, [2], attributes)[0]).toMatchObject({
+      initializationBlackboard: { duration: 10, attack_up: 0.2 },
+      initializationSequence: { steps: [] },
+    });
   });
 
   it('fails when build levels cannot map one-to-one to definition traits', () => {

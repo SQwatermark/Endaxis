@@ -18,6 +18,7 @@ import type {
   BuffApplicationTarget,
   CombatStepParameters,
   CombatTarget,
+  DamageElement,
   SkillType,
 } from '../../game-data/operatorDefinition';
 import type { EnemyRank } from '../../game-data/enemyRank';
@@ -57,6 +58,7 @@ import { ComboWindowOperationExecutor } from './comboWindowOperationExecutor';
 import { CombatSemanticEventRuntime, type CombatSemanticEvent } from './combatSemanticEventRuntime';
 import {
   EquipmentEventRuntime,
+  type RegisterEquipmentAbilityEventAction,
   type EquipmentEventExecutionContext,
 } from './equipmentEventRuntime';
 import { ComboSkillRegistrationRuntime } from './comboSkillRegistrationRuntime';
@@ -98,6 +100,8 @@ export type OperatorBuffRuntime = FrameRuntime &
 /** 一个干员按原生技能定义顺序进入运行时的完整程序。 */
 export interface CombatOperatorProgram {
   readonly operatorId: string;
+  /** CharacterTable.charTypeId 的一一映射；仅角色类型筛选实际出现时要求提供。 */
+  readonly characterTypeId?: DamageElement;
   readonly skills: readonly CompiledSkillProgram[];
   /** 与技能等级解耦的干员附属 Buff 蓝图；不含任何单次模拟实例状态。 */
   readonly buffDefinitions?: Readonly<Record<string, ResolvedSkillBuffDefinition>>;
@@ -272,6 +276,7 @@ export interface CombatRuntimeAssemblyOptions {
     entityId: string,
     event:
       | 'beforeCastSkill'
+      | 'afterSkillApplyCost'
       | 'skillEnd'
       | 'ownerHpZero'
       | 'beforeOutputPhysicalInfliction'
@@ -308,6 +313,8 @@ export interface CombatRuntimeAssemblyOptions {
   readonly createEquipmentEventOperationExecutor?: (
     context: EquipmentEventOperationExecutorContext,
   ) => CombatOperationExecutor;
+  /** 配装原生 AbilitySystem 事件的注册端口；仅有语义事件的旧定义不需要。 */
+  readonly registerEquipmentAbilityEventAction?: RegisterEquipmentAbilityEventAction;
   /** 原生立即连携入口；普通窗口连携不依赖此端口。 */
   readonly castComboSkillImmediately?: (operatorId: string, skillKey: string) => void;
   readonly receipt?: CombatReceiptCollector;
@@ -583,6 +590,7 @@ export class CombatRuntimeAssembly {
           operator.operatorId,
           contributions,
           context => this.#createEquipmentEventOperationChain(operator, context, options),
+          options.registerEquipmentAbilityEventAction,
         ),
       );
     }
@@ -708,7 +716,7 @@ export class CombatRuntimeAssembly {
         );
         const runtime = new CombatActionSequenceRuntime(
           operations,
-          { blackboard: new ActionBlackboard() },
+          { blackboard: new ActionBlackboard(initialization.initialBlackboard) },
           {},
           this.semanticEvents,
           operator.operatorId,
@@ -966,6 +974,8 @@ export class CombatRuntimeAssembly {
       semanticEvents: this.semanticEvents,
       entityBlackboard,
       emitSkillEnd: payload => this.#options.emitAbilityEvent?.(operatorId, 'skillEnd', payload),
+      emitAfterSkillApplyCost: payload =>
+        this.#options.emitAbilityEvent?.(operatorId, 'afterSkillApplyCost', payload),
       ...cooldownBinding,
     });
     return runtime;
@@ -1875,14 +1885,35 @@ export class CombatRuntimeAssembly {
     if (target === 'party' || target === 'partyExceptCaster') {
       return this.#requirePartyBuffTargets(target === 'partyExceptCaster' ? casterId : undefined);
     }
+    if (target === 'partyExceptCasterAndSameCharacterType') {
+      const casterType = this.#operators.get(casterId)?.characterTypeId;
+      if (casterType === undefined) {
+        throw new Error(`combat operator '${casterId}' has no character type identity`);
+      }
+      const targets = [...this.#operatorOrder]
+        .reverse()
+        .filter(
+          operatorId =>
+            operatorId !== casterId &&
+            this.#operators.get(operatorId)?.characterTypeId !== casterType,
+        );
+      return targets.map(operatorId => {
+        const resolved = this.#operatorBuffs.get(operatorId);
+        if (resolved === undefined) {
+          throw new Error(`combat operator '${operatorId}' has no Buff operation target`);
+        }
+        return resolved;
+      });
+    }
     if (
+      target !== 'controlledOperator' &&
       target !== 'casterAndControlledOperator' &&
       target !== 'casterAndLowestHealthRatioOperatorExceptCaster'
     ) {
       return [this.#resolveBuffTarget(target, casterId)];
     }
     let selectedId: string;
-    if (target === 'casterAndControlledOperator') {
+    if (target === 'controlledOperator' || target === 'casterAndControlledOperator') {
       if (isOperatorControlled === undefined) {
         throw new Error(`Buff target '${target}' requires the scenario control timeline`);
       }
@@ -1910,7 +1941,9 @@ export class CombatRuntimeAssembly {
         }
       }
     }
-    return [...new Set([casterId, selectedId])].map(operatorId => {
+    const selectedIds =
+      target === 'controlledOperator' ? [selectedId] : [...new Set([casterId, selectedId])];
+    return selectedIds.map(operatorId => {
       const runtime = this.#operatorBuffs.get(operatorId);
       if (runtime === undefined) {
         throw new Error(`combat operator '${operatorId}' has no Buff operation target`);

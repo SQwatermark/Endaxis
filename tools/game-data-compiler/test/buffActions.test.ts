@@ -65,6 +65,7 @@ describe('Buff 动作公共载荷', () => {
     );
     expect(source).toMatchObject({
       kind: 'buffApplication',
+      lifetimeOwner: 'independent',
       buffs: [
         {
           buffId: 'buff_chr_fixture',

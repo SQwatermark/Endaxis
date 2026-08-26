@@ -38,6 +38,7 @@ import type {
 import type { CombatSemanticEvent } from './combatSemanticEventRuntime';
 import { DAMAGE_TYPES, type SkillBuffSlotReplacement } from '../../game-data/operatorDefinition';
 import type { CombatSkillCastInfo } from './skillCastInfo';
+import type { EquipmentAbilityEvent } from '../../game-data/equipmentDefinition';
 
 /** 由 Buff 所有者环境提供的事件注册端口，避免生命周期层依赖具体伤害环境。 */
 export type RegisterBuffAbilityEventAction = (
@@ -401,7 +402,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
             payload => {
               const runtime = runtimeFor(buff);
               for (const response of group.responses) {
-                const event = normalizeBuffAbilityEvent(
+                const event = normalizeAbilityEventPayload(
                   response.event as Exclude<
                     ResolvedSkillBuffAbilityEventResponse['event'],
                     | 'afterKillEntity'
@@ -594,15 +595,18 @@ function readEventSkillCastInfo(payload: unknown): CombatSkillCastInfo | undefin
   return source as unknown as CombatSkillCastInfo;
 }
 
-function normalizeBuffAbilityEvent(
-  event: Exclude<
-    ResolvedSkillBuffAbilityEventResponse['event'],
-    | 'afterKillEntity'
-    | 'outputKnockDown'
-    | 'afterOutputPhysicalInfliction'
-    | 'skillSpGained'
-    | 'buffConsumed'
-  >,
+/** 把 AbilitySystem 原始负载转换成 Action/Condition 执行器共享的事件上下文。 */
+export function normalizeAbilityEventPayload(
+  event:
+    | Exclude<
+        ResolvedSkillBuffAbilityEventResponse['event'],
+        | 'afterKillEntity'
+        | 'outputKnockDown'
+        | 'afterOutputPhysicalInfliction'
+        | 'skillSpGained'
+        | 'buffConsumed'
+      >
+    | EquipmentAbilityEvent,
   payload: unknown,
 ):
   | CombatSemanticEvent
@@ -704,7 +708,12 @@ function normalizeBuffAbilityEvent(
       burstType: source.burstType,
     };
   }
-  if (event === 'beforeOutputBuff' || event === 'outputBuff' || event === 'addedBuff') {
+  if (
+    event === 'beforeOutputBuff' ||
+    event === 'beforeAddedBuff' ||
+    event === 'outputBuff' ||
+    event === 'addedBuff'
+  ) {
     if (
       typeof source.buffId !== 'string' ||
       !Array.isArray(source.buffTagIds) ||
@@ -740,7 +749,7 @@ function normalizeBuffAbilityEvent(
       reason: source.reason,
     };
   }
-  if (event === 'beforeCastSkill' || event === 'skillEnd') {
+  if (event === 'beforeCastSkill' || event === 'afterSkillApplyCost' || event === 'skillEnd') {
     if (
       source.skillType !== 'basicAttack' &&
       source.skillType !== 'battleSkill' &&

@@ -18,6 +18,49 @@ function vitals(health: number) {
 }
 
 describe('heal modifiers', () => {
+  it('按治疗 Tag 在计算前修改本次治疗的属性快照', () => {
+    const buffs = new CombatBuffContainer('healer', new CombatAttributeSet());
+    buffs.add(
+      {
+        id: 'buff.weapon.tagged-heal-up',
+        stackingType: 'unique',
+        blackboard: { heal_up: 0.2 },
+        healModifiers: [
+          {
+            enabledSide: 'healer',
+            condition: { kind: 'healTagsMatch', match: 'hasAny', tagIds: [-1517158118] },
+            processors: [
+              {
+                kind: 'modifyHealingIncrease',
+                timing: 'beforeCalculation',
+                side: 'healer',
+                addition: { blackboardKey: 'heal_up' },
+              },
+            ],
+          },
+        ],
+      },
+      'healer',
+    );
+    const tagged = new HealCalculationContext(
+      'healer',
+      'ally',
+      vitals(500),
+      100,
+      [-1517158118],
+      0.1,
+      0.05,
+    );
+    const untagged = new HealCalculationContext('healer', 'ally', vitals(500), 100, [], 0.1, 0.05);
+
+    buffs.applyHealModifiers('beforeCalculation', 'healer', tagged);
+    buffs.applyHealModifiers('beforeCalculation', 'healer', untagged);
+
+    expect(tagged.healerOutputIncrease).toBeCloseTo(0.3);
+    expect(tagged.receiverTakenIncrease).toBeCloseTo(0.05);
+    expect(untagged.healerOutputIncrease).toBeCloseTo(0.1);
+  });
+
   it('uses the Buff blackboard and target health condition after calculation', () => {
     const buffs = new CombatBuffContainer('snowshine', new CombatAttributeSet());
     const buff = buffs.add(

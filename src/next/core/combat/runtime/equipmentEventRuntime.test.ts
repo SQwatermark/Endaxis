@@ -89,4 +89,89 @@ describe('EquipmentEventRuntime', () => {
     });
     expect(createExecutor).not.toHaveBeenCalled();
   });
+
+  it('按原生数据动作优先级降序、同级注册顺序执行', () => {
+    const events = new CombatSemanticEventRuntime();
+    const executed: string[] = [];
+    const handlers = [
+      { ...contribution.eventHandlers[0]!, key: 'same-first', priority: 2 },
+      { ...contribution.eventHandlers[0]!, key: 'high', priority: 5 },
+      { ...contribution.eventHandlers[0]!, key: 'same-second', priority: 2 },
+    ];
+    new EquipmentEventRuntime(
+      events,
+      'operator:a',
+      [{ ...contribution, eventHandlers: handlers }],
+      context => ({
+        execute: () => {
+          executed.push(context.handlerKey);
+          return true;
+        },
+        evaluate: () => true,
+      }),
+    );
+
+    events.emit({
+      kind: 'damageTagHit',
+      sourceOperatorId: 'operator:a',
+      tags: ['normalSkill'],
+    });
+    expect(executed).toEqual(['high', 'same-first', 'same-second']);
+  });
+
+  it('通过独立端口注册原生 AbilitySystem 事件并归一化负载', () => {
+    const events = new CombatSemanticEventRuntime();
+    let registered: ((payload: unknown) => void) | undefined;
+    const createExecutor = vi.fn(
+      () =>
+        ({
+          execute: () => true,
+          evaluate: () => true,
+        }) satisfies CombatOperationExecutor,
+    );
+    new EquipmentEventRuntime(
+      events,
+      'operator:a',
+      [
+        {
+          ...contribution,
+          eventHandlers: [
+            {
+              ...contribution.eventHandlers[0]!,
+              event: undefined,
+              abilityEvent: 'beforeCastSkill',
+              priority: 3,
+            },
+          ],
+        },
+      ],
+      createExecutor,
+      (operatorId, event, priority, handle) => {
+        expect({ operatorId, event, priority }).toEqual({
+          operatorId: 'operator:a',
+          event: 'beforeCastSkill',
+          priority: 3,
+        });
+        registered = handle;
+        return { dispose: vi.fn() };
+      },
+    );
+
+    registered?.({
+      sourceId: 'operator:a',
+      targetId: 'enemy',
+      skillType: 'battleSkill',
+      skillId: 'skill:a',
+      skillCastId: 7,
+    });
+    expect(createExecutor).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event: expect.objectContaining({
+          kind: 'abilitySkill',
+          event: 'beforeCastSkill',
+          skillCastId: 7,
+        }),
+      }),
+    );
+  });
 });

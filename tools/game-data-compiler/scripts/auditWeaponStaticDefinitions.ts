@@ -8,6 +8,7 @@ import {
   compileWeaponStaticDefinitionBatchSource,
   isAfterEnemyDefeatedOnlyBuffRuntime,
   isPresentationOnlyBuffStackEffect,
+  standardStumpBuffAbilityEventOmissionReason,
 } from '../src/index.ts';
 
 interface Arguments {
@@ -113,7 +114,18 @@ export function auditWeaponStaticDefinitions(args: Arguments): {
         continue;
       }
       try {
-        compileBuffRuntimeDefinitionSource(source, visualOnlyIds, new Set(['OnTakeDamage']));
+        const omittedAbilityEvents = new Set<string | number>();
+        const omittedReasons: string[] = [];
+        for (const event of source.graph.abilityEvents) {
+          const reason = standardStumpBuffAbilityEventOmissionReason(event.event);
+          if (reason === null) continue;
+          omittedAbilityEvents.add(event.event);
+          omittedReasons.push(`scenario-omitted: BuffData.${buffId}.abilityEventAction: ${reason}`);
+        }
+        if (omittedReasons.length > 0) {
+          scenarioOmissions.push({ weaponId: `BuffData.${buffId}`, reasons: omittedReasons });
+        }
+        compileBuffRuntimeDefinitionSource(source, visualOnlyIds, omittedAbilityEvents);
         compiledBuffCount += 1;
       } catch (error) {
         buffFailures.push({ weaponId: buffId, reasons: [formatError(error)] });

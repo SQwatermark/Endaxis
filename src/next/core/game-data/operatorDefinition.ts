@@ -165,8 +165,10 @@ export type BuffSingleTarget = (typeof BUFF_SINGLE_TARGETS)[number];
 
 export const BUFF_APPLICATION_TARGETS = [
   ...BUFF_SINGLE_TARGETS,
+  'controlledOperator',
   'party',
   'partyExceptCaster',
+  'partyExceptCasterAndSameCharacterType',
   'casterAndControlledOperator',
   'casterAndLowestHealthRatioOperatorExceptCaster',
 ] as const;
@@ -403,6 +405,8 @@ export type CombatCondition =
       /** 匹配触发当前响应的新施加 Buff 身份。 */
       kind: 'eventBuffIdMatch';
       buffIds: readonly string[];
+      /** 条件命中后把事件 Buff ID 写入当前动作黑板。 */
+      buffIdOutputKey?: string;
     }
   /** 当前 Buff 结束事件由原生 Ignite/Early 原因触发。 */
   | { kind: 'eventBuffEndedEarly' }
@@ -429,8 +433,26 @@ export type CombatCondition =
       tagIds: readonly number[];
     }
   | {
+      /** 匹配 OnObtainAtb 事件携带的来源与获得方式。 */
+      kind: 'eventSpGainMatch';
+      sources?: readonly SpGainSource[];
+      gainKinds?: readonly SpGainKind[];
+    }
+  | {
+      /** 比较 OnConsumeBuff 事件快照中的实际消费层数；命中后可写入动作黑板。 */
+      kind: 'eventConsumedBuffLayerCompare';
+      operator: ComparisonOperator;
+      value: ActionValueOperand;
+      outputKey?: string;
+    }
+  | {
       /** 比较治疗事件的来源与目标身份。 */
       kind: 'eventSourceTargetMatch';
+      operator: 'equal' | 'notEqual';
+    }
+  | {
+      /** 比较当前动作宿主与事件目标，不把宿主身份猜成事件来源。 */
+      kind: 'eventActionOwnerTargetMatch';
       operator: 'equal' | 'notEqual';
     }
   | {
@@ -504,6 +526,7 @@ export const COMBAT_CONDITION_KINDS = [
   'eventBuffTagsMatch',
   'eventTargetBuffCountCompare',
   'eventHealTagsMatch',
+  'eventSpGainMatch',
   'eventSourceTargetMatch',
   'eventOverheal',
   'eventSourceMatchesBuffSource',
@@ -835,8 +858,10 @@ export interface CombatStepParameters {
   finishBuffsByTag: {
     target: Exclude<
       BuffApplicationTarget,
+      | 'controlledOperator'
       | 'party'
       | 'partyExceptCaster'
+      | 'partyExceptCasterAndSameCharacterType'
       | 'casterAndControlledOperator'
       | 'casterAndLowestHealthRatioOperatorExceptCaster'
     >;
@@ -1179,7 +1204,7 @@ export type CombatEventTrigger =
   | { kind: 'buffConsumed'; buffIds?: readonly string[] }
   | { kind: 'airborneOutput' }
   | { kind: 'knockDownOutput' }
-  | { kind: 'spGained'; source: SpGainSource; gainKind: SpGainKind }
+  | { kind: 'spGained'; source?: SpGainSource; gainKind?: SpGainKind }
   | { kind: 'damageTagHit'; tag: DamageTag; scope: SkillTriggerScope }
   | {
       kind: 'elementalInflictionApplied';
@@ -1292,8 +1317,10 @@ export interface SkillBuffAbilityEventResponse {
     | 'receiveHeal'
     | 'poiseZero'
     | 'beforeCastSkill'
+    | 'afterSkillApplyCost'
     | 'skillEnd'
     | 'beforeOutputBuff'
+    | 'beforeAddedBuff'
     | 'outputBuff'
     | 'addedBuff'
     | 'finishedBuff'
@@ -1440,6 +1467,12 @@ export interface TrustAttributeBonusDefinition {
   readonly values: readonly number[];
   readonly attributes: readonly (OperatorAttribute | 'main' | 'secondary')[];
 }
+
+/** 未单独声明时，干员四个信赖节点依次增加的主属性。编译器和编辑器共同读取。 */
+export const DEFAULT_TRUST_ATTRIBUTE_BONUS = {
+  values: [10, 15, 15, 20],
+  attributes: ['main'],
+} as const satisfies TrustAttributeBonusDefinition;
 
 export const UPGRADE_BASE_PANEL_STATS = [
   'health',
@@ -1679,6 +1712,8 @@ export interface OperatorDefinition {
   assetSlug?: string;
   gameId: string;
   rarity: OperatorRarity;
+  /** 编辑器选择和“拉满”时使用的产品默认潜能；省略时沿用旧版星级策略。 */
+  defaultPotential?: number;
   weaponType: OperatorWeaponType;
   element: DamageElement;
   role: OperatorRole;

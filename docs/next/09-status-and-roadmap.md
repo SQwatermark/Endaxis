@@ -12,13 +12,14 @@
 > 依赖且 0 阻塞；唯一护盾输出属性按木桩模型明确省略。Main/Sub 目标解析和伤害增幅
 > Addition/BaseAddition 槽位已按原生属性公式纠正。默认仓库的 77 把武器与 248 件单件装备也已
 > 分别装入合法轨道、真实放置普攻并完成模拟，326/326 通过。AKEDB 与旧展示身份可经图标资源
-> 77/77 无歧义连接，但除 `wpn_lance_0014` 外仍未由新编译器生成正式武器行为；下一阶段是建立
-> 正式生成/注册层并逐项闭合 226 条 Buff、Toggle 与动作依赖，而不是继续沿用旧适配结果。
+> 77/77 无歧义连接。统一 TypeScript 编译器现已建立正式武器运行定义批处理，真实全量审计达到
+> **77/77 可完整生成**，共生成 79 个文件；原子写盘门禁保持不变，尚未批量替换默认仓库。
 
-> 武器 Buff 运行闭包已从 107 个节点中的 75 个逐步提升到 **96/107 可编译**，另有 4 个木桩模型
-> 明确省略项。已闭环范围包括剩余时长读写、伤害条件、构筑四维分支、父子 Buff 寿命、元素附着与
-> 爆发输出事件、物理异常 after 事件、Context 目标计数和队伍加成。当前输出相关剩项是两条
-> `OnBeforeAddedBuff` 光环响应与一条定时标记治疗门槛；护盾、韧性、自疗载荷及离战事件继续后置。
+> 武器 Buff 运行闭包已达到 **103/107 可真实编译、4/107 按逐项证据作固定木桩/纯表现省略、0
+> 未知阻塞**。运行程序进一步闭环费用成功事件、Deck 构筑初始化、技力来源/方式通配筛选、主控目标
+> 治疗及可严格折叠的队友 ForEach。Context Buff ID 分支已由 combat-spec 的 1.4.4 机器码闭环；
+> `wpn_funnel_0005` 的角色类型循环则整体投影为排除同 `CharacterTable.charTypeId` 队友的集合目标。
+> 场景使用 CharacterTable 字段到 Next element 的既有一一投影传递身份，不从技能元素或旧版效果反推。
 
 > 2026-08-26 子技能运行边界：投射物命中回调的子 `SkillData` 不再借用根技能 direct blackboard。
 > `withActionBlackboardScope` 为每次子调用保留声明初值、`assignBlackboard` 的命中时继承和调用间隔离；
@@ -651,7 +652,15 @@ ID 当作物品主键。当前 48 条玩家承伤修正只在木桩边界省略�
   没有为武器增加专用状态机。
 - `SaveBuffLifeTime` 与 `SetBuffDurationAction` 已按 1.4.4 机器码在 combat-spec 和 Next 双侧闭环，
   保留有限/无限时长、Environment 当前实例、Assign/Add/Multiply 与负值钳零语义。91 个引用 Buff
-  现展开为 107 个运行时节点，首轮为 75/107；伤害修正层继续复用公共条件接通
-  `damageTypeMask / damageType / damageDecorateMask / buffStack / entityTag / poise` 后达到
-  **89/107 可编译、4 个木桩省略**，并能逐项报告其余阻塞。下一批优先处理仍会改变对敌输出的能力
-  事件与生命周期选项，不先投入护盾、韧性修正载荷或固定时间轴不可达的离战行为。
+  现展开为 107 个运行时节点。伤害修正层复用公共条件接通
+  `damageTypeMask / damageType / damageDecorateMask / buffStack / entityTag / poise`；随后按
+  combat-spec 证据补齐 `beforeAddedBuff`、治疗包即时属性修正、失衡包即时属性修正和公共护盾投影。
+  当前 **103/107 可真实编译、4 个纯表现或固定木桩省略、0 阻塞**。`OnTakeDamage` 与
+  `OnTrulyExitFight` 只能由统一木桩场景策略逐项省略，公共 Buff 编译器不会全局吞掉它们。
+- 上述 107 项只统计 Buff 引用闭包，不包含被动 SkillData 自身的动作程序。完整来源叶子恢复后，
+  武器审计为 67/77；10 把分别被尚无 combat-spec 语义的 `CheckConsumeBuffLayer`、
+  `SaveCharTypeId`、`CreateBuffAttachingSkill` 阻断。117 个唯一被动中另有 64 个携带事件程序，
+  现有武器运行投影尚未执行它们。
+- 下一步先补三种 Action 的反编译证据，再抽取公共、可配置执行身份的 Action 程序投影与
+  AbilityEvent 注册边界。正式生成器已经对非空但未编译的动作图失败关闭；完整事件程序和生产模拟
+  闭环前，不生成并注册缺少被动行为的武器。

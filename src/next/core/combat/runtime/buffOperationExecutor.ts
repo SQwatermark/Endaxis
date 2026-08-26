@@ -619,6 +619,8 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     if (
       target === 'party' ||
       target === 'partyExceptCaster' ||
+      target === 'partyExceptCasterAndSameCharacterType' ||
+      target === 'controlledOperator' ||
       target === 'casterAndControlledOperator' ||
       target === 'casterAndLowestHealthRatioOperatorExceptCaster'
     ) {
@@ -810,7 +812,8 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
   #requireEventSourceId(context: Parameters<CombatOperationExecutor['execute']>[1]): string {
     const event = context?.event;
     if (event === undefined) {
-      throw new Error('eventSource Buff operation requires an event context');
+      if (context?.buffSourceId !== undefined) return context.buffSourceId;
+      throw new Error('eventSource Buff operation requires an event or Buff source context');
     }
     if ('sourceId' in event && typeof event.sourceId === 'string') return event.sourceId;
     if ('sourceOperatorId' in event && typeof event.sourceOperatorId === 'string') {

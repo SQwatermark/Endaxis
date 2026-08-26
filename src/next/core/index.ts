@@ -46,6 +46,7 @@ export * from './combat/infliction/elementalInfliction';
 export * from './combat/damage/playerActiveDamage';
 export * from './combat/damage/playerActiveDamageInput';
 export * from './combat/damage/poiseDamage';
+export * from './combat/damage/poiseModifiers';
 export * from './combat/damage/healthDamage';
 export * from './combat/damage/damageScale';
 export * from './combat/damage/damageScaleAttributes';

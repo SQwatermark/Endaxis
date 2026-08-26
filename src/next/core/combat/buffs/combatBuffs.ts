@@ -35,6 +35,14 @@ import {
   type HealProcessTiming,
 } from '../heal/healModifiers';
 import {
+  PoiseModifier,
+  type PoiseCalculationContext,
+  type PoiseModifierDefinition,
+  type PoiseModifierNumber,
+  type PoiseModifierSide,
+  type PoiseProcessTiming,
+} from '../damage/poiseModifiers';
+import {
   SharedSpGainModifier,
   type SharedSpGainAttribute,
   type SharedSpGainModifierOperation,
@@ -229,6 +237,7 @@ export interface CombatBuffDefinition<Key extends string> {
   readonly damageModifiers?: readonly DamageModifierDefinition[];
   readonly keywordEnhancements?: readonly BuffKeywordEnhancementDefinition[];
   readonly healModifiers?: readonly HealModifierDefinition[];
+  readonly poiseModifiers?: readonly PoiseModifierDefinition[];
   readonly attributeModifiers?: readonly BuffAttributeModifierDefinition<Key>[];
   /**
    * 共享 SP 修正属于战斗级状态，但其注册生命周期归当前 Buff 实例所有。
@@ -262,6 +271,7 @@ export interface CombatBuffAddOptions {
 export class CombatBuff<Key extends string> {
   readonly damageModifiers: readonly DamageModifier[];
   readonly healModifiers: readonly HealModifier[];
+  readonly poiseModifiers: readonly PoiseModifier[];
   readonly blackboard: ActionBlackboard;
   readonly priority: number;
   readonly sourceActionId: string;
@@ -340,6 +350,10 @@ export class CombatBuff<Key extends string> {
     );
     this.healModifiers = (definition.healModifiers ?? []).map(
       modifier => new HealModifier(owner.ownerId, modifier, value => this.resolveHealNumber(value)),
+    );
+    this.poiseModifiers = (definition.poiseModifiers ?? []).map(
+      modifier =>
+        new PoiseModifier(owner.ownerId, modifier, value => this.resolvePoiseNumber(value)),
     );
     this.#attributeModifiers = this.createAttributeModifiers();
     this.#sharedSpGainModifiers = (definition.sharedSpGainModifiers ?? []).map(
@@ -454,6 +468,17 @@ export class CombatBuff<Key extends string> {
     return resolved;
   }
 
+  private resolvePoiseNumber(value: PoiseModifierNumber): number {
+    if (typeof value === 'number') return value;
+    const resolved = this.blackboard.getNumber(value.blackboardKey);
+    if (resolved === undefined) {
+      throw new Error(
+        `buff '${this.definition.id}' poise modifier blackboard value '${value.blackboardKey}' is missing`,
+      );
+    }
+    return resolved;
+  }
+
   /** 按原生 Buff.ContainsTag 语义查询定义携带的 applyTags。 */
   containsTag(tag: GameplayTagId, exact = false): boolean {
     return (this.definition.applyTags ?? []).some(candidate =>
@@ -474,6 +499,7 @@ export class CombatBuff<Key extends string> {
       this.assertAttributeModifierTargetsSupported();
       this.owner.registerDamageModifiers(this.damageModifiers);
       this.owner.registerHealModifiers(this.healModifiers);
+      this.owner.registerPoiseModifiers(this.poiseModifiers);
       this.owner.registerShields(this.shields);
       this.owner.registerSustainedProtection(this);
       for (const modifier of this.attributeModifiers) {
@@ -485,6 +511,7 @@ export class CombatBuff<Key extends string> {
       this.removeAttributeModifiers();
       this.owner.unregisterDamageModifiers(this.damageModifiers);
       this.owner.unregisterHealModifiers(this.healModifiers);
+      this.owner.unregisterPoiseModifiers(this.poiseModifiers);
       this.owner.unregisterShields(this.shields);
       this.owner.unregisterSustainedProtection(this);
       this.#enabled = false;
@@ -500,6 +527,7 @@ export class CombatBuff<Key extends string> {
     this.endDuringEnableAction();
     this.owner.unregisterDamageModifiers(this.damageModifiers);
     this.owner.unregisterHealModifiers(this.healModifiers);
+    this.owner.unregisterPoiseModifiers(this.poiseModifiers);
     this.owner.unregisterShields(this.shields);
     this.owner.unregisterSustainedProtection(this);
     this.removeAttributeModifiers();
@@ -524,6 +552,7 @@ export class CombatBuff<Key extends string> {
     if (hadRegisteredModifiers) {
       this.owner.unregisterDamageModifiers(this.damageModifiers);
       this.owner.unregisterHealModifiers(this.healModifiers);
+      this.owner.unregisterPoiseModifiers(this.poiseModifiers);
       this.owner.unregisterShields(this.shields);
       this.owner.unregisterSustainedProtection(this);
       this.removeAttributeModifiers();
@@ -816,6 +845,7 @@ export class CombatBuffContainer<Key extends string> {
   readonly #buffs: CombatBuff<Key>[] = [];
   readonly #damageModifiers: DamageModifier[] = [];
   readonly #healModifiers: HealModifier[] = [];
+  readonly #poiseModifiers: PoiseModifier[] = [];
   readonly #stackingGroups = new Map<string, BuffStackingGroup<Key>>();
   readonly #entityTagCounts = new Map<GameplayTagId, number>();
   readonly #shields: CombatShield<Key>[] = [];
@@ -1155,6 +1185,14 @@ export class CombatBuffContainer<Key extends string> {
     for (const modifier of this.#healModifiers) modifier.apply(timing, side, context);
   }
 
+  applyPoiseModifiers(
+    timing: PoiseProcessTiming,
+    side: PoiseModifierSide,
+    context: PoiseCalculationContext,
+  ): void {
+    for (const modifier of this.#poiseModifiers) modifier.apply(timing, side, context);
+  }
+
   tick(deltaTime: number | BuffTickDeltas): void {
     for (const buff of this.#buffs) buff.tick(deltaTime);
   }
@@ -1178,6 +1216,17 @@ export class CombatBuffContainer<Key extends string> {
     for (const modifier of modifiers) {
       const index = this.#healModifiers.indexOf(modifier);
       if (index >= 0) this.#healModifiers.splice(index, 1);
+    }
+  }
+
+  registerPoiseModifiers(modifiers: readonly PoiseModifier[]): void {
+    this.#poiseModifiers.push(...modifiers);
+  }
+
+  unregisterPoiseModifiers(modifiers: readonly PoiseModifier[]): void {
+    for (const modifier of modifiers) {
+      const index = this.#poiseModifiers.indexOf(modifier);
+      if (index >= 0) this.#poiseModifiers.splice(index, 1);
     }
   }
 

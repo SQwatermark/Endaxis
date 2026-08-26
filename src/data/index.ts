@@ -140,11 +140,8 @@ function expandLegacyWeaponAliases(value: string | null | undefined): string[] {
 
   const out = new Set([raw, raw.toLowerCase(), normalizeLookupKey(raw)]);
 
-  const replacements: Array<[string, string]> = [
-    ['wpn_claym_', 'wpn_greatsword_'],
-    ['wpn_lance_', 'wpn_polearm_'],
-    ['wpn_pistol_', 'wpn_handcannon_'],
-    ['wpn_funnel_', 'wpn_artsunit_'],
+  const replacements: ReadonlyArray<readonly [string, string]> = [
+    ...NATIVE_WEAPON_ASSET_PREFIX_REPLACEMENTS,
     ['/weapons/claym/', '/weapons/greatsword/'],
     ['/weapons/lance/', '/weapons/polearm/'],
     ['/weapons/pistol/', '/weapons/handcannon/'],
@@ -411,3 +408,4 @@ export function getQualityTier(levelRequirement: number): 'green' | 'blue' | 'pu
   if (levelRequirement >= 20) return 'blue';
   return 'green';
 }
+import { NATIVE_WEAPON_ASSET_PREFIX_REPLACEMENTS } from '../shared/weaponAssetIdentity';

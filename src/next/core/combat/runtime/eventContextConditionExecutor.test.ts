@@ -395,4 +395,79 @@ describe('EventContextConditionExecutor', () => {
     ).toBe(true);
     expect(blackboard.getString('buffid')).toBe('buff:conduct');
   });
+
+  it('按 OnObtainAtb 的来源和获得方式筛选技力事件，并允许未勾选维度作为通配符', () => {
+    const executor = new EventContextConditionExecutor(terminal);
+    const context = {
+      blackboard: new ActionBlackboard(),
+      event: {
+        kind: 'spGained' as const,
+        sourceOperatorId: 'operator',
+        source: 'skill' as const,
+        gainKind: 'gain' as const,
+        amount: 10,
+      },
+    };
+
+    expect(
+      executor.evaluate(
+        { kind: 'eventSpGainMatch', sources: ['skill'], gainKinds: ['gain'] },
+        context,
+      ),
+    ).toBe(true);
+    expect(executor.evaluate({ kind: 'eventSpGainMatch', gainKinds: ['cost'] }, context)).toBe(
+      false,
+    );
+    expect(executor.evaluate({ kind: 'eventSpGainMatch' }, context)).toBe(true);
+  });
+
+  it('compares the consumed layer snapshot and writes the configured output key', () => {
+    const executor = new EventContextConditionExecutor(terminal);
+    const blackboard = new ActionBlackboard({ count: 0 });
+    const context = {
+      blackboard,
+      event: {
+        kind: 'buffConsumed' as const,
+        sourceOperatorId: 'operator',
+        targetId: 'enemy',
+        buffId: 'buff:test',
+        layers: 3,
+      },
+    };
+
+    expect(
+      executor.evaluate(
+        {
+          kind: 'eventConsumedBuffLayerCompare',
+          operator: 'greaterOrEqual',
+          value: { kind: 'constant', value: 1 },
+          outputKey: 'count',
+        },
+        context,
+      ),
+    ).toBe(true);
+    expect(blackboard.getNumber('count')).toBe(3);
+  });
+
+  it('compares the explicit action owner with the event target', () => {
+    const executor = new EventContextConditionExecutor(terminal);
+    const context = {
+      blackboard: new ActionBlackboard(),
+      actionOwnerId: 'operator:owner',
+      event: {
+        kind: 'abilityHeal' as const,
+        event: 'outputHeal' as const,
+        sourceId: 'operator:healer',
+        targetId: 'operator:owner',
+        requestedHealing: 10,
+        actualHealing: 10,
+        overhealing: 0,
+        tagIds: [],
+      },
+    };
+
+    expect(
+      executor.evaluate({ kind: 'eventActionOwnerTargetMatch', operator: 'equal' }, context),
+    ).toBe(true);
+  });
 });

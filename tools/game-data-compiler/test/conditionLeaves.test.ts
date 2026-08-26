@@ -190,15 +190,6 @@ describe('公共条件叶子 IR', () => {
       blackboard: {},
     },
     {
-      name: '事件上下文 Buff Tag',
-      value: condition('CheckBuffIdInContext', {
-        checkType: 'Tag',
-        buffIdList: [{ buffId: '' }],
-        query: { queryType: 'HasAny', tags: [{ tagId: -1480463572 }] },
-      }),
-      blackboard: {},
-    },
-    {
       name: '能力实体剩余时长',
       value: condition('CheckAbilityEntityCurDuration', {
         abilityEntity: targetFixture('Target'),
@@ -252,7 +243,7 @@ describe('公共条件叶子 IR', () => {
     ).toThrow('condition parser has not migrated "UnknownNativeCondition"');
   });
 
-  it('只开放 Advanced 事件 Buff 条件的空 key 纯 Tag 分支', () => {
+  it('按判别字段解析 Advanced 事件 Buff 条件', () => {
     const fixture = (blackboardKey = '', buffIdList: readonly unknown[] = []) =>
       condition('CheckBuffIdInContextAdvanced', {
         checkType: 'Tag',
@@ -263,10 +254,11 @@ describe('公共条件叶子 IR', () => {
     expect(parseConditionLeafSource(fixture(), 'fixture.contextBuffAdvanced', {})).toMatchObject({
       kind: 'contextBuff',
       sourceType: 'CheckBuffIdInContextAdvanced',
-      checkType: 'Tag',
-      buffIds: [],
-      queryType: 'hasAny',
-      buffTagIds: [-1558844517],
+      matcher: {
+        kind: 'tag',
+        queryType: 'hasAny',
+        buffTagIds: [-1558844517],
+      },
     });
     expect(
       parseConditionLeafSource(
@@ -275,13 +267,78 @@ describe('公共条件叶子 IR', () => {
         {},
       ),
     ).toMatchObject({ buffIdOutputKey: 'buffid' });
-    expect(() =>
+    expect(
       parseConditionLeafSource(
-        fixture('', [{ useBlackboardKey: true, value: '', blackboardKey: 'id' }]),
+        condition('CheckBuffIdInContextAdvanced', {
+          checkType: 'Id',
+          buffIdList: [{ useBlackboardKey: true, value: '', blackboardKey: 'id' }],
+          query: { queryType: 'HasAny', tags: [] },
+          blackboardKey: '',
+        }),
         'fixture.contextBuffAdvanced',
         {},
       ),
-    ).toThrow('expected an empty direct Buff ID placeholder');
+    ).toMatchObject({ matcher: { kind: 'id', buffIds: [{ kind: 'blackboard', key: 'id' }] } });
+  });
+
+  it('按 checkType 忽略基础事件 Buff 条件的非活动字段', () => {
+    expect(
+      parseConditionLeafSource(
+        condition('CheckBuffIdInContext', {
+          checkType: 'Tag',
+          buffIdList: [{ buffId: 'stale.serialized.id' }],
+          query: { queryType: 'HasAny', tags: [{ tagId: -1480463572 }] },
+          blackboardKey: '',
+        }),
+        'fixture.contextBuff',
+        {},
+      ),
+    ).toMatchObject({
+      kind: 'contextBuff',
+      matcher: { kind: 'tag', queryType: 'hasAny', buffTagIds: [-1480463572] },
+    });
+  });
+
+  it('严格保留 OnConsumeBuff 消费层数比较和值写回键', () => {
+    expect(
+      parseConditionLeafSource(
+        condition('CheckConsumeBuffLayer', {
+          num: scalarFixture(0, 'minimum_layer'),
+          compareType: 'GE',
+          storeKey: 'consume_layer',
+        }),
+        'fixture.consumeBuffLayer',
+        { minimum_layer: [1, 2] },
+      ),
+    ).toEqual({
+      kind: 'consumeBuffLayer',
+      sourceType: 'CheckConsumeBuffLayer',
+      comparison: 'GE',
+      value: {
+        value: 0,
+        blackboardKey: 'minimum_layer',
+        levelValues: [1, 2],
+      },
+      outputKey: 'consume_layer',
+    });
+  });
+
+  it('CompareString 严格保留两个字符串黑板操作数', () => {
+    expect(
+      parseConditionLeafSource(
+        condition('CompareString', {
+          valueA: { useBlackboardKey: true, value: 'owner_type', blackboardKey: 'owner_type' },
+          valueB: { useBlackboardKey: true, value: '', blackboardKey: 'team_type' },
+        }),
+        'fixture.compareString',
+        {},
+      ),
+    ).toEqual({
+      kind: 'stringCompare',
+      sourceType: 'CompareString',
+      left: { value: 'owner_type', blackboardKey: 'owner_type' },
+      right: { value: '', blackboardKey: 'team_type' },
+    });
   });
 
   it('严格解析物理异常事件类型位集并保留 savedKey 边界', () => {

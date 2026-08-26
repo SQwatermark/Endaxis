@@ -6,6 +6,7 @@
  */
 import { getOperatorSkillMax as getLegacyOperatorSkillMax } from '@/utils/operatorBounds';
 import { skillLevelLabel as getLegacySkillLevelLabel } from '@/utils/operatorBounds';
+import { getPromotionCount as getLegacyPromotionCount } from '@/data/stats/baseValues';
 import { getSkillBounds as getLegacyWeaponSkillBounds } from '@/utils/weaponBounds';
 import {
   getEquipmentLevelColor as getLegacyEquipmentLevelColor,
@@ -32,6 +33,10 @@ export function getOperatorSkillMax(level: NextOperatorLevel, promoted: boolean)
 
 export function formatOperatorSkillLevel(level: number): string {
   return getLegacySkillLevelLabel(level);
+}
+
+export function getOperatorTrustMax(level: NextOperatorLevel, promoted: boolean): number {
+  return getLegacyPromotionCount(level, promoted);
 }
 
 export function getWeaponTraitBounds(

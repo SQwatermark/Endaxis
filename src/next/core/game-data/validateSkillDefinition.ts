@@ -619,6 +619,7 @@ function validateCombatCondition(
       break;
     case 'eventBuffIdMatch':
       validateNonEmptyStringArray(record.buffIds, `${path}.buffIds`, out);
+      if (record.buffIdOutputKey !== undefined) requireString(record, 'buffIdOutputKey', path, out);
       break;
     case 'eventBuffEndedEarly':
       break;
@@ -1245,6 +1246,7 @@ function validateCombatStep(
                     response.event !== 'beforeCastSkill' &&
                     response.event !== 'skillEnd' &&
                     response.event !== 'beforeOutputBuff' &&
+                    response.event !== 'beforeAddedBuff' &&
                     response.event !== 'outputBuff' &&
                     response.event !== 'addedBuff' &&
                     response.event !== 'finishedBuff' &&

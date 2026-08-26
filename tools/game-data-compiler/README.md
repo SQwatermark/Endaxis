@@ -494,16 +494,39 @@ npm run download:game-data:operator-closure -- --vfs-fallback http://desktop:876
   突破/潜能/基质算法解析的实例等级；选级后再应用请求额外黑板，复现同名值最终覆盖顺序；
 - Python oracle JSON 差分通道及真实 SkillPatch 导出切片。
 
-当前 30 名干员、301 个技能已达到逐项模拟 301/301。77 件武器的静态定义全量审计也达到
-77/77：226 条运行依赖全部发现，唯一 `ShieldOutputIncrease` 按木桩模型显式省略，0 项阻塞。
-下一阶段建立正式武器生成/注册层，并逐项闭合每个词条的 Buff、Toggle 和动作引用；身份审计能把
-77 个 AKEDB ID 无歧义连接到旧展示 slug，但不能代替运行行为重建。仍缺定义的
-AbilityEntity/Projectile 引用继续失败关闭。
+当前 30 名干员、301 个技能已达到逐项模拟 301/301。武器的 **77/77 静态定义**、226 条运行依赖，
+以及 103 个可编译 Buff 节点加 4 个有依据的场景省略，只证明静态词条、安装引用和 Buff 递归闭包；
+它们不包含被动 `SkillData` 自身的事件动作程序。117 个唯一武器被动中有 64 个携带事件程序，当前
+运行投影尚未编译。完整 Action 来源解析后，1.4.4 当前为 **67/77 可解析**；其余 10 把严格阻断于
+尚无 combat-spec 语义的 `CheckConsumeBuffLayer`、`SaveCharTypeId` 或
+`CreateBuffAttachingSkill`。这些 Action 不得按名称或旧 Python 猜造。
+
+武器运行依赖必须携带完整动作图；非空程序在公共投影完成前会阻断正式生成，不允许静默丢弃后仍
+输出 `WeaponDefinition`。下一阶段不是直接注册 77 把候选，而是先补反编译证据，再建立领域无关、
+可配置 Owner/Source/Target 上下文的 Action 程序投影和公共 AbilityEvent 注册边界。身份审计能把
+77 个 AKEDB ID 无歧义连接到旧展示 slug，但不能代替运行行为重建；AbilityEntity/Projectile 缺失
+定义同样继续失败关闭。
+
+公共事件程序投影必须遵守以下不可退化规则：
+
+- 一个原生 AbilityEvent 下的每条 `SequenceAction` 都是独立注册项，禁止为了少生成对象而拼接成
+  一条步骤序列；否则条件短路、优先级和同级注册顺序都会改变。
+- 来源事件数组和 `actions` 数组的顺序就是注册顺序。禁止按事件名、武器 ID、Buff ID 或生成 key
+  重排；空程序可以删除，其余程序不能合并。
+- 原生队列按整数优先级降序，同级按注册顺序执行。当前来源只确认 `Default + priorityOffset 0`
+  对应运行优先级 0；完整枚举映射进入 combat-spec 前，生成器遇到其他组合必须失败关闭。
+- Buff、武器、装备只负责提供各自的安装与生命周期输入。AbilityEvent 编排、Action/Condition 投影
+  和顺序规则属于公共编译层，不允许在三个领域内各复制一套 switch。
+
+正式生成命令不会在第一把失败时中断审计：它逐把收集来源错误，再合并运行投影诊断，全部通过后
+才渲染并原子替换目录。当前 1.4.4 会一次报告 64 条阻断（10 条未知 Action 来源、54 条其余武器的
+未编译被动程序），且不会创建半成品输出目录。
 
 武器静态审计不写中间产物；某把武器失败时仍继续报告其余身份：
 
 ```powershell
-npm run audit:game-data:weapons -- --tables <TableCfg目录> --skill-data <SkillData目录>
+npm run audit:game-data:weapons -- --tables <TableCfg目录> --skill-data <SkillData目录> `
+  --buff-data <BuffData目录>
 ```
 
 Operator 主动技能库可用以下命令批量审计；任何干员失败都会保留逐项诊断并使进程返回非零：

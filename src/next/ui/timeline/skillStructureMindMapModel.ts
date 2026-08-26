@@ -659,13 +659,14 @@ export function buildEquipmentContributionMindMap(
         acceptsChildKind: 'equipmentHandler',
         children: handlers.map((handler, index) => {
           const handlerPath = `eventHandlers[${index}]`;
+          const eventLabel = handler.abilityEvent ?? handler.event?.kind ?? '未设置';
           return {
             id: `equipment:handler:${index}`,
             label: handler.key,
             kind: '事件响应',
-            summary: handler.event.kind,
+            summary: eventLabel,
             sourcePath: handlerPath,
-            details: { 事件: handler.event.kind, 条件: describeCondition(handler.condition) },
+            details: { 事件: eventLabel, 条件: describeCondition(handler.condition) },
             editorSection: index,
             payloadKind: 'equipmentHandler' as const,
             ...(handler.condition === undefined ? { canAddChild: 'combatCondition' as const } : {}),

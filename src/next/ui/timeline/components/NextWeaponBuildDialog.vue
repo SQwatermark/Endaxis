@@ -21,6 +21,7 @@ import { GameRichTextRenderer } from '../../legacy/legacyPresentation';
 import type { WeaponDefinition } from '../../../core/game-data/equipmentDefinition';
 import type { WeaponInstanceChanges } from '../loadoutBuildCommands';
 import type { WeaponInstanceViewModel } from '../loadoutBuildViewModel';
+import { resolveMaxWeaponTraitLevels } from '../../../application/editor/loadoutBuildFactory';
 
 const LEVELS = [1, 20, 40, 60, 80, 90] as const satisfies readonly NextWeaponLevel[];
 const ABSOLUTE_MAX_TRAIT_LEVEL = 9;
@@ -204,15 +205,11 @@ function maxOut(): void {
   const weapon = props.weapon;
   if (!weapon) return;
   const potential = weapon.definition.rarity <= 5 ? 5 : weapon.potential;
-  const bounds = boundsFor(90, true, potential);
   emitChange({
     level: 90,
     tuned: true,
     potential,
-    traitLevels: weapon.definition.traits.map(trait => {
-      if (!isWeaponTraitKey(trait.key)) return trait.levelCount;
-      return Math.min(bounds[trait.key].max, trait.levelCount);
-    }),
+    traitLevels: resolveMaxWeaponTraitLevels(weapon.definition, potential),
   });
 }
 </script>

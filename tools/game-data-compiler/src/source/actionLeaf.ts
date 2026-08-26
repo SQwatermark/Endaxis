@@ -26,6 +26,10 @@ import {
   type BuffStackReadActionSource,
 } from './buffQueryActions.ts';
 import { parseConditionLeafSource, type NativeConditionSource } from './condition.ts';
+import {
+  parseCharacterTypeIdReadActionSource,
+  type CharacterTypeIdReadActionSource,
+} from './characterIdentityActions.ts';
 import { parseNativeSequenceSource, type NativeSequenceSource } from './controlFlow.ts';
 import { parseDamageActionSource, type DamageActionSource } from './damageActions.ts';
 import { parseHealActionSource, type HealActionSource } from './healActions.ts';
@@ -74,6 +78,7 @@ import { parseTargetGroupActionSource, type TargetGroupActionSource } from './ta
 const CONDITION_ACTION_NAMES = new Set([
   'OrConditionAction',
   'CompareFloat',
+  'CompareString',
   'CheckMainCharacterCondition',
   'CheckDistanceCondition',
   'CheckEntityNum',
@@ -101,6 +106,7 @@ const CONDITION_ACTION_NAMES = new Set([
   'CheckOverHeal',
   'CheckBuffIdInContext',
   'CheckBuffIdInContextAdvanced',
+  'CheckConsumeBuffLayer',
   'CheckGlobalCDTimerAction',
   'CheckSkillHasHit',
   'CheckSkillCastId',
@@ -114,6 +120,7 @@ const CONDITION_ACTION_NAMES = new Set([
 /** 引用闭包需要严格读取的动作身份；集合与分派实现同属公共来源层，调用方不再复制 switch。 */
 const REFERENCE_CLOSURE_ACTION_NAMES = new Set([
   'CreateBuffAction',
+  'CreateBuffAttachingSkill',
   'AuraAction',
   'FinishBuffAction',
   'FinishBuffAdvanced',
@@ -131,6 +138,7 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'blackboardMutation'; readonly action: BlackboardMutationActionSource }
   | { readonly family: 'randomBlackboard'; readonly action: RandomBlackboardActionSource }
   | { readonly family: 'attributeSnapshot'; readonly action: AttributeSnapshotActionSource }
+  | { readonly family: 'characterIdentity'; readonly action: CharacterTypeIdReadActionSource }
   | { readonly family: 'targetGroup'; readonly action: TargetGroupActionSource }
   | { readonly family: 'resource'; readonly action: ResourceGainActionSource }
   | { readonly family: 'timedMarker'; readonly action: TimedMarkerApplicationSource }
@@ -214,6 +222,11 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'attributeSnapshot',
         action: parseAttributeSnapshotActionSource(value, path, inheritedBlackboard),
       };
+    case 'SaveCharTypeId':
+      return {
+        family: 'characterIdentity',
+        action: parseCharacterTypeIdReadActionSource(value, path),
+      };
     case 'FindTargetAction':
     case 'ContinuousFindTargetAction':
     case 'MergeTargetAction':
@@ -241,6 +254,16 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'buffApplication',
         action: parseBuffApplicationActionSource(value, path, inheritedBlackboard),
+      };
+    case 'CreateBuffAttachingSkill':
+      return {
+        family: 'buffApplication',
+        action: parseBuffApplicationActionSource(
+          value,
+          path,
+          inheritedBlackboard,
+          'currentCastSkill',
+        ),
       };
     case 'AuraAction':
       return {

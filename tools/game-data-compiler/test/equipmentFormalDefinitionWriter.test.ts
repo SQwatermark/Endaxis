@@ -43,7 +43,7 @@ describe('装备正式定义原子写盘', () => {
       writeEquipmentDefinitionFiles(output, [
         { relativePath: '../escape.ts', content: 'escape\n' },
       ]),
-    ).rejects.toThrow('unsafe rendered equipment path');
+    ).rejects.toThrow('unsafe rendered definition path');
     await expect(readFile(join(output, 'existing.generated.ts'), 'utf8')).resolves.toBe(
       'existing\n',
     );
@@ -53,7 +53,7 @@ describe('装备正式定义原子写盘', () => {
         { relativePath: 'same.ts', content: 'left\n' },
         { relativePath: './same.ts', content: 'right\n' },
       ]),
-    ).rejects.toThrow('duplicate rendered equipment path');
+    ).rejects.toThrow('duplicate rendered definition path');
   });
 });
 

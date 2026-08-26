@@ -3,9 +3,125 @@
 > 更新时间：2026-08-26（Asia/Shanghai）
 > 本文是变化最快、优先级最高的交接入口。完全不了解背景时，先读 [交接文档首页](./README.md)，再读本文和 [Next 文档入口](../next/README.md)。
 
-当前主线是在台式机（文档语义中的“远程”）工作树 `D:\Projects\Endaxis` 的
-`refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
+当前主线是在 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
+
+### 2026-08-26：武器运行定义全量审计达到 77/77
+
+- 正式武器运行批处理已不再停留在“安装根 Buff”：被动 AbilityEvent、动作黑板、公共条件/动作序列
+  和递归 Buff 闭包会作为一个整体编译。当前真实 1.4.4 批次已达到 **77/77** 可完整生成，共写出
+  79 个生成文件；生成器仍保持原子写盘，任何后续来源阻塞都不会留下半批正式目录。
+- `OnAfterSkillApplyCost` 已依据 combat-spec 的 `_ApplyCost` 顺序接入公共技能 AbilityEvent：费用
+  实际支付成功后、同帧时间轴动作前同步触发；费用失败不触发。它不是武器专用事件，也没有被近似成
+  `beforeCastSkill`。
+- `OnCharDeckAttrChanged` 的响应按构筑边界折叠为配装初始化程序。原生 Deck 快照只在非战斗构筑
+  刷新链末尾通知，而 Next 场景在开战后不修改配装；因此保留 `CompareDeckAttr` 和动作顺序，只在
+  面板/Deck 属性完成解析后执行一次，不新增战斗内伪事件。`wpn_funnel_0016` 已由此闭环。
+- 公共控制流允许领域在严格证明语义等价时折叠 `ForEach`。当前只接受
+  `CharacterTeamFinder + ExcludeOwnerValidator`，且循环体完全由对当前 Target 的 Buff 施加组成；
+  该形状等价为 `partyExceptCaster` 集合施加，`wpn_sword_0016` 已闭环。含条件、身份读取或其他动作的
+  循环继续失败关闭。
+- `CheckObtainAtbType` 不再把未勾选维度错误收窄为固定值：外层监听广义 `spGained`，序列内的
+  `eventSpGainMatch` 分别保留来源/获得方式筛选；未勾选轴是通配符。主控干员 Buff 目标、属性治疗、
+  事件伤害/治疗标签、消费层数和 ActionOwner/Target 身份比较也已进入同一公共投影与运行时。
+- `CheckBuffIdInContext` 已先由 1.4.4 RVA `0x03F34960/0x03F35F80` 在 combat-spec 闭环：`checkType`
+  是 ID/Tag 判别字段，ID 列表任一匹配，Advanced ID 可从动作黑板读取，命中后可写回事件 Buff ID。
+  Endaxis 来源 IR 改为判别联合，四把武器由公共 `eventBuffIdMatch` 闭环，没有武器特判。
+- `wpn_funnel_0005` 的 `SaveCharTypeId -> ForEach teammate -> Not CompareString` 已整体投影为
+  “排除施法者及同 CharacterTable.charTypeId 队友”的集合目标。Next `element` 是该原生字段的一一
+  映射，场景装配显式把身份传入运行程序；不是从技能伤害元素反推角色身份。
+- `wpn_sword_0017` 随后暴露的 Source 目标 Buff 实例计数也复用公共
+  `SaveBuffStackNumAdvanced(Id + BuffCount)` 与统一 ActionSource 映射闭环。
+- 本轮验证：`type-check:game-data`、`type-check:next` 通过；游戏数据测试 **62 文件、290 项**，
+  Next 测试 **213 文件、2199 项**全部通过。聚焦覆盖费用事件时序、技力事件通配、主控 Buff 施加
+  和两类 ForEach 折叠；全量生成命令已成功输出 77 把武器。真实输入和审计输出仍只在 `tmp/`，不得提交。
+
+### 2026-08-26：公共 AbilityEvent 程序边界开始落地
+
+- 新增领域无关的 `abilityEventProgram.ts`：按来源顺序逐事件、逐 `SequenceAction` 生成独立程序，
+  不再允许按事件把多条序列拼成一条。Buff 运行投影已经切换到该入口；一个事件下的两条序列现会
+  保留为两个同级注册项，而不是把第二条接到第一条条件短路之后。
+- 公共层保留数值优先级和稳定注册顺序。combat-spec 已证明原生按优先级降序、同级先注册先执行；
+  当前资产已审计的 `Default + 0` 映射为 0，其他 `priorityLevel/priorityOffset` 在完整映射有证据前
+  直接失败关闭，不再静默归零。
+- `EquipmentEventHandlerDefinition` 与运行时已贯通可选数值优先级，构筑编译后总会物化为整数，
+  事件中心按同一公共排序规则执行。现有旧定义省略时继续严格等价为 0。
+- 真实武器动作库存仍为 64 个带事件程序的唯一被动、17 种原生事件。下一步继续把
+  `buffRuntimeProjection.ts` 中的 Action/Condition 序列投影迁到公共编译模块，再由武器使用同一
+  投影生成事件处理器；在原生 AbilitySystem 事件和当前高层语义事件的注册端口统一前，正式目录
+  仍保持 fail-closed。
+
+本轮聚焦门禁：游戏数据编译器 61 文件、281 测试通过；`tmp/` 下仅有本地库存脚本与机器分析输出，
+不得提交。
+
+### 2026-08-26：武器完整来源图 77/77
+
+- 上一节列出的三类来源阻塞已经全部按 combat-spec/1.4.4 机器码闭环：
+  `CheckConsumeBuffLayer`、`SaveCharTypeId + CompareString`、`CreateBuffAttachingSkill`。武器完整
+  来源图由 **67/77 提升为 77/77**，运行依赖为 226，直接引用 BuffData 为 96。
+- `CreateBuffAttachingSkill` 不是武器专用创建协议。原生类继承 `CreateBuffAction`，只在成功创建
+  钩子中从当前 `CastSkillContext` 取技能并调用 `Skill.AttachBuff`；技能结束时正序结束这些 Buff。
+  combat-spec 与 TypeScript 来源 IR 都复用公共 Buff 创建结构，仅额外保留
+  `lifetimeOwner = currentCastSkill`，禁止复制一套武器 Buff parser。
+- 三份武器 Buff 的 `FinishBuffAdvanced.buffOwner = Source` 已按 combat-spec 的公共
+  `TargetSettings` 语义投影为 Endaxis `caster`；不能把多数 Buff 使用的 `Owner -> buffOwner`
+  错当成唯一合法组合。Buff 运行闭包现为 **108/112**，其余 4 项均为已登记木桩场景省略，
+  未知动作/目标阻塞为 0。
+- 游戏数据编译器门禁为 **60 文件、279 测试**，专用类型检查通过；combat-spec 新增聚焦测试通过。
+  combat-spec 全套测试当前 1209/1223，通过之外的 14 项来自本机更大的外部资产扫描（缺少旧装备
+  artifact 或扫描到新增敌方资源导致旧固定计数变化），与本轮新增聚焦测试无关，不能宣称全绿。
+
+下一步不是直接接正式武器目录，而是把 `buffRuntimeProjection.ts` 中可复用的条件、序列与 AbilityEvent
+投影抽到公共 Action 程序编译层。武器被动的 64 个事件程序要保留事件身份、每条 SequenceAction 的
+优先级/注册顺序和逐级动作黑板，再生成 `EquipmentEventHandlerDefinition`；Buff、武器和装备只能在
+公共投影之上处理各自的安装与生命周期特性。正式批处理在这一步完成前继续 fail-closed。
+
+### 2026-08-26：武器完整动作程序审计纠偏
+
+- 此前的 **77/77 静态定义** 和 **103 个 Buff 可编译 + 4 个场景省略**只覆盖静态词条、安装引用与
+  Buff 递归闭包，不能代表被动 `SkillData.actionGroupData` 已经执行闭环。117 个唯一武器被动中有
+  64 个携带事件程序，涉及 17 种原生 AbilitySystem 事件；现有武器运行投影尚未编译这些程序。
+- 公共被动来源解析已改为读取完整 Action 叶子，不再沿用只为引用闭包服务的 `untracked` 叶子。
+  全量 1.4.4 重新审计为 **67/77 可进入完整来源图**；另外 10 把被三种尚无 combat-spec 语义的
+  Action 严格阻断：`CheckConsumeBuffLayer` 5 把、`SaveCharTypeId` 1 把、
+  `CreateBuffAttachingSkill` 4 把。不得根据旧 Python 或名称猜实现。
+- 武器运行依赖现在强制携带完整动作图；只要时间轴或被动事件非空且尚未投影，正式运行批处理就
+  报 `weapon passive SkillData action program is not yet compiled`，不会再静默生成缺少被动的武器。
+  曾暂时生成的 77 把候选已清除，生产仓库继续使用现有稳定武器定义；生成注册辅助层尚未接生产。
+- 正式生成入口按武器独立收集来源错误，再与未编译动作程序诊断合并后一次性失败。当前真实批次
+  同时报告 10 条来源 Action 阻断和 54 条其余武器的未编译程序，共 64 条诊断；任一阻断都发生在
+  渲染和原子写盘之前，不会留下半批生成目录。
+- 已修复真实生产试跑暴露出的三个公共问题：Buff 伤害条件的数值来源类型、治疗输出/承疗属性映射，
+  以及无事件 Buff 生命周期中的 `ActionSource -> buffSourceId`。这些修复属于公共运行时，不是武器
+  专用补丁。
+
+下一步先依据 combat-spec/反编译证据补齐上述三种 Action 的来源语义，再从公共 Buff 投影中抽出
+可配置执行上下文的 Action 程序投影，并为装备贡献增加公共 AbilityEvent 注册边界。武器只负责提供
+被动安装和逐级黑板；事件顺序、来源/目标身份、优先级和序列执行必须复用公共机制。完成 64 个事件
+程序的严格投影及生产模拟前，不接通正式生成目录和默认注册。
+
+### 2026-08-26：武器 Buff 执行闭包 107/107 收口
+
+- 77 把武器仍为 **77/77 静态定义、226 条运行依赖**；91 个直接引用 Buff 递归展开为 107 个
+  运行时节点。当前 **103/107 可由公共 Buff 定义真实编译，4/107 为逐项登记的纯表现或固定木桩
+  场景省略，剩余阻塞 0**。
+- `beforeAddedBuff` 已按 combat-spec 的原生顺序接在来源方 `beforeOutputBuff/outputBuff` 之后、目标
+  Buff 真正加入之前；目标条件、事件载荷和编辑器查看入口使用同一公共事件模型。
+- `InstantModifyAttributeForHeal` 与 `CheckHealTag` 已进入公共治疗包，计算前只修改本次治疗的
+  `HealOutputIncrease/HealTakenIncrease` 快照；不为武器另建治疗公式。
+- `InstantModifyAttributeForPoise` 已按 combat-spec 的 `BeforeCalculation` 证据进入公共失衡包。
+  `buff_wpn_claym_0008` 的“主控 + 普攻末段”条件和 `PoiseDamageOutputScalar.BaseAddition` 均由
+  通用 Buff 修饰器表达。
+- `shieldConfigs` 复用既有公共护盾运行时，严格读取 `DefiniteValueCalculation`、容量、吸收类型、
+  次数、优先级和耗尽行为；空 `damageAbsorptions` 按 combat-spec 证据表示全类型 1:1 吸收。
+- 固定木桩场景的不可达事件由 `standardStumpScenarioPolicy.ts` 统一分类。`OnTakeDamage` 仅因敌人
+  无主动行为省略，`OnTrulyExitFight` 仅因固定时间轴结束前不会离战省略；公共来源层和投影层仍
+  严格，审计会输出每一条省略原因。
+- 当前回归门禁：游戏数据编译器 **60 文件、274 测试**，Next **211 文件、2178 测试**，两个
+  TypeScript 类型检查通过。完整审计命令
+  必须同时提供 `--buff-data`；只跑武器静态层不能宣称 Buff 执行闭包完成。
+
+本节的“收口”仅指 Buff 引用闭包；完整被动动作程序边界以上方纠偏章节为准。
 
 ### 2026-08-26：武器静态定义 77/77 与全配装运行门禁
 

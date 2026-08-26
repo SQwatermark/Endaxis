@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import type { GearDefinition, WeaponDefinition } from '../../core/game-data/equipmentDefinition';
 import { perlica } from '../../data/operators';
+import { nextGameDataRepository } from '../../data/gameDataRepository';
+import { getOperator, getOperatorTalentGroups, getWeapon } from '@/data';
+import { getSkillBounds } from '@/utils/weaponBounds';
 import {
   createDefaultGearInstance,
   createDefaultOperatorInstance,
@@ -17,6 +20,13 @@ describe('loadoutBuildFactory', () => {
       battleSkill: 12,
       comboSkill: 12,
       ultimate: 12,
+    });
+    expect(build).toMatchObject({
+      level: 90,
+      promoted: true,
+      potential: 5,
+      trustLevel: 4,
+      talentStates: { 0: 2, 1: 1 },
     });
   });
 
@@ -42,7 +52,97 @@ describe('loadoutBuildFactory', () => {
       ],
     };
 
-    expect(createDefaultWeaponInstance(weapon).traitLevels).toEqual([1, 1]);
+    expect(createDefaultWeaponInstance(weapon)).toMatchObject({
+      level: 90,
+      tuned: true,
+      potential: 0,
+      traitLevels: [9, 9],
+    });
     expect(createDefaultGearInstance(gear, 3).artificingLevels).toEqual([3, 3]);
+  });
+
+  it('沿用旧版低星满潜和显式默认潜能策略', () => {
+    const lowRarityWeapon: WeaponDefinition = {
+      slug: 'weapon-low',
+      rarity: 5,
+      weaponType: 'sword',
+      baseAttackAtLevelNodes: [1, 2, 3, 4, 5, 6],
+      traits: [
+        { key: 'skill1', levelCount: 9 },
+        { key: 'skill2', levelCount: 9 },
+        { key: 'skill3', levelCount: 9 },
+      ],
+    };
+    expect(createDefaultWeaponInstance(lowRarityWeapon)).toMatchObject({
+      potential: 5,
+      traitLevels: [9, 9, 9],
+    });
+    expect(
+      createDefaultOperatorInstance({ ...perlica, rarity: 6, defaultPotential: 2 }),
+    ).toMatchObject({ potential: 2 });
+  });
+
+  it('所有具备旧版身份的正式干员保持相同的默认潜能与技能、天赋加点', () => {
+    const missingPresentations: string[] = [];
+    for (const operator of nextGameDataRepository.getOperators()) {
+      const assetSlug = operator.assetSlug ?? operator.slug;
+      const legacy = getOperator(assetSlug);
+      if (!legacy) {
+        missingPresentations.push(operator.slug);
+        continue;
+      }
+
+      const build = createDefaultOperatorInstance(operator);
+      const expectedPotential =
+        legacy.defaultPotential ?? (Number(legacy.rarity || 6) <= 5 ? 5 : 0);
+      const expectedSkillLevels = Object.fromEntries(
+        Object.keys(legacy.combatSkills ?? {}).map(key => [key, 12]),
+      );
+      const expectedTalentStates = Object.fromEntries(
+        getOperatorTalentGroups(assetSlug).map((talent, index) => [
+          String(index),
+          talent.levels ?? 0,
+        ]),
+      );
+
+      expect(build.potential, `${operator.slug} 默认潜能`).toBe(expectedPotential);
+      expect(build.skillLevels, `${operator.slug} 默认技能加点`).toEqual(expectedSkillLevels);
+      expect(build.talentStates, `${operator.slug} 默认天赋加点`).toEqual(expectedTalentStates);
+    }
+    // 当前分支没有梨诺的旧版 OperatorSheet；其富文本另由已有主线 i18n 证据覆盖。
+    expect(missingPresentations, '缺少旧版干员展示身份').toEqual(['liino']);
+  });
+
+  it('所有具备旧版身份的正式武器保持相同的默认潜能与词条上限', () => {
+    const missingPresentations: string[] = [];
+    for (const weapon of nextGameDataRepository.getWeapons()) {
+      const assetSlug = weapon.assetSlug ?? weapon.slug;
+      const legacy = getWeapon(assetSlug);
+      if (!legacy) {
+        missingPresentations.push(weapon.slug);
+        continue;
+      }
+
+      const build = createDefaultWeaponInstance(weapon);
+      const potential = Number(legacy.rarity || 6) <= 5 ? 5 : 0;
+      const bounds = getSkillBounds(90, true, potential);
+      const expectedTraitLevels = weapon.traits.map(trait => {
+        if (trait.key === 'skill1' || trait.key === 'skill2' || trait.key === 'skill3') {
+          return Math.min(trait.levelCount, bounds[trait.key].max);
+        }
+        return Math.min(trait.levelCount, 9);
+      });
+
+      expect(build, `${weapon.slug} 默认武器养成`).toMatchObject({
+        level: 90,
+        tuned: true,
+        potential,
+        traitLevels: expectedTraitLevels,
+      });
+    }
+    // 该武器来自新 AKEDB 静态定义；当前分支没有旧 WeaponSheet，但已有主线 i18n 文本。
+    expect(missingPresentations, '缺少旧版武器展示身份').toEqual([
+      'bedazzling-night-debut',
+    ]);
   });
 });

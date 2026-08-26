@@ -246,8 +246,8 @@ function matches(registration: Registration, event: CombatSemanticEvent): boolea
       return (
         event.kind === 'spGained' &&
         event.sourceOperatorId === ownerOperatorId &&
-        event.source === trigger.source &&
-        event.gainKind === trigger.gainKind
+        (trigger.source === undefined || event.source === trigger.source) &&
+        (trigger.gainKind === undefined || event.gainKind === trigger.gainKind)
       );
     case 'enemyDefeated':
       return (

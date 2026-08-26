@@ -6,8 +6,12 @@ import type {
   EquipmentEventHandlerDefinition,
   EquipmentModifierDefinition,
   EquipmentPanelStat,
+  EquipmentAbilityEvent,
 } from '../../../core/game-data/equipmentDefinition';
-import { EQUIPMENT_PANEL_STATS } from '../../../core/game-data/equipmentDefinition';
+import {
+  EQUIPMENT_ABILITY_EVENTS,
+  EQUIPMENT_PANEL_STATS,
+} from '../../../core/game-data/equipmentDefinition';
 import {
   DAMAGE_TYPES,
   OPERATOR_ATTRIBUTES,
@@ -599,7 +603,24 @@ function toggleSkillType(skillType: SkillType): void {
             "
           />
         </label>
+        <label v-if="selectedHandler.abilityEvent !== undefined">
+          <span>AbilitySystem 事件</span>
+          <select
+            :value="selectedHandler.abilityEvent"
+            @change="
+              replaceSelected({
+                ...selectedHandler,
+                abilityEvent: ($event.target as HTMLSelectElement).value as EquipmentAbilityEvent,
+              })
+            "
+          >
+            <option v-for="event in EQUIPMENT_ABILITY_EVENTS" :key="event" :value="event">
+              {{ event }}
+            </option>
+          </select>
+        </label>
         <CombatEventTriggerEditor
+          v-else
           :event="selectedHandler.event"
           @update="replaceSelected({ ...selectedHandler, event: $event })"
         />

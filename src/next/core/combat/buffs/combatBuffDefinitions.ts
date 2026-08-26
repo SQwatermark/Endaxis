@@ -50,6 +50,7 @@ import type {
 import { DAMAGE_SCALE_SIDES, DAMAGE_SCALE_ZONES } from '../damage/damageScale';
 import { DAMAGE_MODIFIER_SIDES } from '../damage/playerDamageContext';
 import type { HealModifierDefinition } from '../heal/healModifiers';
+import type { PoiseModifierCondition, PoiseModifierDefinition } from '../damage/poiseModifiers';
 
 export const COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION = 1 as const;
 
@@ -231,6 +232,7 @@ export interface CombatBuffDefinitionEntry {
   readonly damageModifiers?: readonly CombatBuffDefinitionDamageModifier[];
   readonly keywordEnhancements?: readonly BuffKeywordEnhancementDefinition[];
   readonly healModifiers?: readonly HealModifierDefinition[];
+  readonly poiseModifiers?: readonly PoiseModifierDefinition[];
   readonly shields?: readonly BuffShieldDefinition[];
   readonly sustainedProtection?: BuffSustainedProtectionDefinition;
   readonly role?: CombatBuffSemanticRole;
@@ -364,6 +366,7 @@ export class CompiledCombatBuffDefinitions<
       damageModifiers: entry.damageModifiers,
       keywordEnhancements: entry.keywordEnhancements,
       healModifiers: entry.healModifiers,
+      poiseModifiers: entry.poiseModifiers,
       shields: entry.shields,
       sustainedProtection: entry.sustainedProtection,
       actions: compileLifecycleActions(entry, ports),
@@ -472,6 +475,7 @@ export function parseCombatBuffDefinitionEntry(
     'damageModifiers',
     'keywordEnhancements',
     'healModifiers',
+    'poiseModifiers',
     'shields',
     'sustainedProtection',
     'role',
@@ -507,6 +511,7 @@ export function parseCombatBuffDefinitionEntry(
     ...parseOptionalDamageModifiers(entry, path),
     ...parseOptionalKeywordEnhancements(entry, path),
     ...parseOptionalHealModifiers(entry, path),
+    ...parseOptionalPoiseModifiers(entry, path),
     ...parseOptionalShields(entry, path),
     ...parseOptionalSustainedProtection(entry, path),
     ...parseOptionalRole(entry, path),
@@ -798,15 +803,34 @@ function parseOptionalHealModifiers(
         processors: modifier.processors.map((inputProcessor, processorIndex) => {
           const processorPath = `${modifierPath}.processors[${processorIndex}]`;
           const processor = requireObject(inputProcessor, processorPath);
+          if (processor.kind === 'modifyHealingIncrease') {
+            requireOnlyKeys(processor, processorPath, ['kind', 'timing', 'side', 'addition']);
+            return {
+              kind: 'modifyHealingIncrease' as const,
+              timing: requireEnum(
+                processor.timing,
+                ['beforeCalculation'] as const,
+                `${processorPath}.timing`,
+              ),
+              side: requireEnum(
+                processor.side,
+                ['healer', 'receiver'] as const,
+                `${processorPath}.side`,
+              ),
+              addition: parseDefinitionNumberOperand(
+                processor.addition,
+                `${processorPath}.addition`,
+              ),
+            };
+          }
           requireOnlyKeys(processor, processorPath, [
             'kind',
             'timing',
             'baseMultiplier',
             'multiplierCount',
           ]);
-          if (processor.kind !== 'modifyCalculationResult') {
+          if (processor.kind !== 'modifyCalculationResult')
             throw new Error(`${processorPath}.kind: unsupported heal processor`);
-          }
           return {
             kind: 'modifyCalculationResult' as const,
             timing: requireEnum(
@@ -834,6 +858,17 @@ function parseHealModifierCondition(
   path: string,
 ): NonNullable<HealModifierDefinition['condition']> {
   const condition = requireObject(input, path);
+  if (condition.kind === 'healTagsMatch') {
+    requireOnlyKeys(condition, path, ['kind', 'match', 'tagIds']);
+    if (!Array.isArray(condition.tagIds)) throw new Error(`${path}.tagIds: expected array`);
+    return {
+      kind: 'healTagsMatch',
+      match: requireEnum(condition.match, ['hasAny', 'hasAll'] as const, `${path}.match`),
+      tagIds: condition.tagIds.map((tagId, index) =>
+        requireInteger(tagId, `${path}.tagIds[${index}]`),
+      ),
+    };
+  }
   if (condition.kind === 'targetHealthCompare') {
     requireOnlyKeys(condition, path, ['kind', 'valueType', 'operator', 'value']);
     return {
@@ -857,6 +892,92 @@ function parseHealModifierCondition(
     };
   }
   throw new Error(`${path}.kind: unsupported heal modifier condition '${String(condition.kind)}'`);
+}
+
+function parseOptionalPoiseModifiers(
+  entry: Readonly<Record<string, unknown>>,
+  path: string,
+): { poiseModifiers?: readonly PoiseModifierDefinition[] } {
+  if (entry.poiseModifiers === undefined) return {};
+  if (!Array.isArray(entry.poiseModifiers)) {
+    throw new Error(`${path}.poiseModifiers: expected array`);
+  }
+  return {
+    poiseModifiers: entry.poiseModifiers.map((input, index) => {
+      const modifierPath = `${path}.poiseModifiers[${index}]`;
+      const modifier = requireObject(input, modifierPath);
+      requireOnlyKeys(modifier, modifierPath, ['enabledSide', 'condition', 'processors']);
+      if (!Array.isArray(modifier.processors) || modifier.processors.length === 0) {
+        throw new Error(`${modifierPath}.processors: expected non-empty array`);
+      }
+      return {
+        enabledSide: requireEnum(
+          modifier.enabledSide,
+          ['attacker', 'defender'] as const,
+          `${modifierPath}.enabledSide`,
+        ),
+        ...(modifier.condition === undefined
+          ? {}
+          : {
+              condition: parsePoiseModifierCondition(
+                modifier.condition,
+                `${modifierPath}.condition`,
+              ),
+            }),
+        processors: modifier.processors.map((inputProcessor, processorIndex) => {
+          const processorPath = `${modifierPath}.processors[${processorIndex}]`;
+          const processor = requireObject(inputProcessor, processorPath);
+          requireOnlyKeys(processor, processorPath, ['kind', 'timing', 'side', 'addition']);
+          if (processor.kind !== 'modifyPoiseScalar') {
+            throw new Error(`${processorPath}.kind: unsupported poise processor`);
+          }
+          return {
+            kind: 'modifyPoiseScalar' as const,
+            timing: requireEnum(
+              processor.timing,
+              ['beforeCalculation'] as const,
+              `${processorPath}.timing`,
+            ),
+            side: requireEnum(
+              processor.side,
+              ['attacker', 'defender'] as const,
+              `${processorPath}.side`,
+            ),
+            addition: parseDefinitionNumberOperand(processor.addition, `${processorPath}.addition`),
+          };
+        }),
+      };
+    }),
+  };
+}
+
+function parsePoiseModifierCondition(input: unknown, path: string): PoiseModifierCondition {
+  const condition = requireObject(input, path);
+  if (condition.kind === 'casterControlled') {
+    requireOnlyKeys(condition, path, ['kind']);
+    return { kind: 'casterControlled' };
+  }
+  if (condition.kind === 'eventDamageTagsMatch') {
+    requireOnlyKeys(condition, path, ['kind', 'match', 'tags']);
+    return {
+      kind: 'eventDamageTagsMatch',
+      match: requireEnum(condition.match, ['hasAny', 'hasAll'] as const, `${path}.match`),
+      tags: parseEnumArray(condition.tags, DAMAGE_TAGS, `${path}.tags`),
+    };
+  }
+  if (condition.kind === 'all') {
+    requireOnlyKeys(condition, path, ['kind', 'conditions']);
+    if (!Array.isArray(condition.conditions) || condition.conditions.length === 0) {
+      throw new Error(`${path}.conditions: expected non-empty array`);
+    }
+    return {
+      kind: 'all',
+      conditions: condition.conditions.map((child, index) =>
+        parsePoiseModifierCondition(child, `${path}.conditions[${index}]`),
+      ),
+    };
+  }
+  throw new Error(`${path}.kind: unsupported poise modifier condition '${String(condition.kind)}'`);
 }
 
 function parseDamageModifierCondition(input: unknown, path: string): DamageModifierCondition {
@@ -1078,6 +1199,12 @@ function requireFiniteNumber(input: unknown, path: string): number {
     throw new Error(`${path}: expected finite number`);
   }
   return input;
+}
+
+function requireInteger(input: unknown, path: string): number {
+  const value = requireFiniteNumber(input, path);
+  if (!Number.isInteger(value)) throw new Error(`${path}: expected integer`);
+  return value;
 }
 
 function parseOptionalAttributeModifiers(

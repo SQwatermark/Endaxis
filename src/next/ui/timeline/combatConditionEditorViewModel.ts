@@ -127,6 +127,8 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
       };
     case 'eventHealTagsMatch':
       return { kind, match: 'hasAny', tagIds: [0] };
+    case 'eventSpGainMatch':
+      return { kind, sources: ['skill'], gainKinds: ['gain'] };
     case 'eventSourceTargetMatch':
       return { kind, operator: 'notEqual' };
     case 'eventOverheal':

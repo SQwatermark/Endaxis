@@ -20,21 +20,43 @@ export function createDefaultOperatorInstance(
     operatorSlug: operator.slug,
     level: 90,
     promoted: true,
-    potential: 0,
+    potential: resolveDefaultOperatorPotential(operator),
     trustLevel: 4,
     skillLevels,
-    talentStates: {},
+    talentStates: Object.fromEntries(
+      operator.talents.map((talent, index) => [String(index), talent.levels]),
+    ),
   };
 }
 
 export function createDefaultWeaponInstance(weapon: WeaponDefinition): WeaponInstanceDocument {
+  const potential = weapon.rarity <= 5 ? 5 : 0;
   return {
     weaponSlug: weapon.slug,
     level: 90,
     tuned: true,
-    potential: 0,
-    traitLevels: weapon.traits.map(() => 1),
+    potential,
+    traitLevels: resolveMaxWeaponTraitLevels(weapon, potential),
   };
+}
+
+/** 与旧版时间轴选择及干员编辑器“拉满”按钮一致。 */
+export function resolveDefaultOperatorPotential(operator: OperatorDefinition): number {
+  return operator.defaultPotential ?? (operator.rarity <= 5 ? 5 : 0);
+}
+
+/**
+ * 复现旧版 90 级、已调谐武器的词条上限：前两条随调谐达到 9，第三条由潜能达到 4..9。
+ * 自定义/未来词条仍受定义自身 levelCount 限制，不把旧三槽身份外推成游戏规则。
+ */
+export function resolveMaxWeaponTraitLevels(
+  weapon: WeaponDefinition,
+  potential: number,
+): number[] {
+  return weapon.traits.map(trait => {
+    const legacyMaximum = trait.key === 'skill3' ? 4 + potential : 9;
+    return Math.min(trait.levelCount, legacyMaximum);
+  });
 }
 
 export function createDefaultGearInstance(

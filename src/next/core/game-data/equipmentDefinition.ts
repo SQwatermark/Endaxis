@@ -96,15 +96,39 @@ export type EquipmentModifierDefinition =
       readonly value: LevelValues;
     };
 
-/** 配装能力监听战斗事件后执行的纯数据序列。 */
-export interface EquipmentEventHandlerDefinition {
+/** 配装被动直接监听的原生 AbilitySystem 事件。 */
+export const EQUIPMENT_ABILITY_EVENTS = [
+  'enterFight',
+  'beforeOutputDamage',
+  'outputCriticalDamage',
+  'outputHeal',
+  'beforeCastSkill',
+  'afterSkillApplyCost',
+  'beforeOutputPhysicalInfliction',
+  'beforeOutputInfliction',
+  'beforeOutputSpellBurst',
+  'beforeOutputBuff',
+  'outputBuff',
+  'addedBuff',
+] as const;
+export type EquipmentAbilityEvent = (typeof EQUIPMENT_ABILITY_EVENTS)[number];
+
+interface EquipmentEventHandlerDefinitionBase {
   readonly key: string;
-  readonly event: CombatEventTrigger;
+  /** 原生数据动作优先级；同级按定义中的注册顺序执行。 */
+  readonly priority?: number;
   readonly condition?: CombatCondition;
   /** 按当前词条等级展开，并在每次事件响应时复制到独立动作黑板。 */
   readonly blackboard?: Readonly<Record<string, LevelValues>>;
   readonly sequence: ActionSequenceDefinition;
 }
+
+/** 配装能力监听战斗事件后执行的纯数据序列。 */
+export type EquipmentEventHandlerDefinition = EquipmentEventHandlerDefinitionBase &
+  (
+    | { readonly event: CombatEventTrigger; readonly abilityEvent?: never }
+    | { readonly event?: never; readonly abilityEvent: EquipmentAbilityEvent }
+  );
 
 /** 武器词条、装备词条与套装共用的声明式贡献集合。 */
 export interface EquipmentContributionDefinition {
@@ -112,6 +136,8 @@ export interface EquipmentContributionDefinition {
   readonly eventHandlers?: readonly EquipmentEventHandlerDefinition[];
   /** 该贡献安装行为所引用的 Buff 蓝图；与干员 Buff 共用同一运行时。 */
   readonly buffDefinitions?: OperatorBuffDefinitions;
+  /** 构筑编译时按当前词条等级解析，随后作为帧 0 初始化序列的动作黑板。 */
+  readonly initializationBlackboard?: Readonly<Record<string, LevelValues>>;
   /** 构筑满足后在帧 0 执行一次，典型用途是安装套装根 Buff。 */
   readonly initializationSequence?: ActionSequenceDefinition;
 }

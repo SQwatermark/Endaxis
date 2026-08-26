@@ -76,15 +76,17 @@ export class HealOperationExecutor implements CombatOperationExecutor {
       target.operatorId,
       target.vitals,
       Math.fround(Math.fround(attributeValue * multiplier) + addition),
+      step.parameters.tagIds,
+      this.dependencies.resolveHealingIncrease?.('healer', sourceOperatorId) ?? 0,
+      this.dependencies.resolveHealingIncrease?.('receiver', target.operatorId) ?? 0,
     );
+    this.dependencies.applyHealModifiers?.('beforeCalculation', 'healer', calculation);
+    this.dependencies.applyHealModifiers?.('beforeCalculation', 'receiver', calculation);
     this.dependencies.applyHealModifiers?.('afterCalculation', 'healer', calculation);
     this.dependencies.applyHealModifiers?.('afterCalculation', 'receiver', calculation);
     // BattleFormula.CalculateHeal：普通治疗在 AfterCalculation 修正之后，
     // 乘创建 HealPack 时双方属性快照的 1 + output + taken。
-    calculation.value *=
-      1 +
-      (this.dependencies.resolveHealingIncrease?.('healer', sourceOperatorId) ?? 0) +
-      (this.dependencies.resolveHealingIncrease?.('receiver', target.operatorId) ?? 0);
+    calculation.value *= 1 + calculation.healerOutputIncrease + calculation.receiverTakenIncrease;
     const requested = Math.max(0, calculation.value);
     const result = target.vitals.heal(requested);
     this.dependencies.receipt.record({

@@ -241,12 +241,14 @@ export function compileScenarioRuntimeAssembly(
           : [
               {
                 key: equipmentContributionKey(contribution),
+                initialBlackboard: contribution.initializationBlackboard,
                 sequence: contribution.initializationSequence,
               },
             ],
       );
       return {
         ...operator,
+        characterTypeId: build.operator.element,
         ...(Object.keys(equipmentBuffDefinitions).length === 0
           ? {}
           : { buffDefinitions: equipmentBuffDefinitions }),

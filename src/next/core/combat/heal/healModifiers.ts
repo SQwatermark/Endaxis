@@ -18,6 +18,11 @@ export type HealModifierCondition =
       readonly left: HealModifierNumber;
       readonly operator: ComparisonOperator;
       readonly right: HealModifierNumber;
+    }
+  | {
+      readonly kind: 'healTagsMatch';
+      readonly match: 'hasAny' | 'hasAll';
+      readonly tagIds: readonly number[];
     };
 
 export interface ModifyHealCalculationResultProcessorDefinition {
@@ -27,10 +32,19 @@ export interface ModifyHealCalculationResultProcessorDefinition {
   readonly multiplierCount: HealModifierNumber;
 }
 
+export interface ModifyHealingIncreaseProcessorDefinition {
+  readonly kind: 'modifyHealingIncrease';
+  readonly timing: 'beforeCalculation';
+  readonly side: HealModifierSide;
+  readonly addition: HealModifierNumber;
+}
+
 export interface HealModifierDefinition {
   readonly enabledSide: HealModifierSide;
   readonly condition?: HealModifierCondition;
-  readonly processors: readonly ModifyHealCalculationResultProcessorDefinition[];
+  readonly processors: readonly (
+    ModifyHealCalculationResultProcessorDefinition | ModifyHealingIncreaseProcessorDefinition
+  )[];
 }
 
 export class HealCalculationContext {
@@ -39,6 +53,9 @@ export class HealCalculationContext {
     readonly receiverId: string,
     readonly receiverVitals: CombatVitals,
     public value: number,
+    readonly tagIds: readonly number[] = [],
+    public healerOutputIncrease = 0,
+    public receiverTakenIncrease = 0,
   ) {}
 
   getEntityId(side: HealModifierSide): string {
@@ -63,14 +80,26 @@ export class HealModifier {
     }
     for (const processor of this.definition.processors) {
       if (processor.timing !== timing) continue;
-      context.value *=
-        1 +
-        this.resolveNumber(processor.baseMultiplier) *
-          this.resolveNumber(processor.multiplierCount);
+      if (processor.kind === 'modifyCalculationResult') {
+        context.value *=
+          1 +
+          this.resolveNumber(processor.baseMultiplier) *
+            this.resolveNumber(processor.multiplierCount);
+      } else if (processor.side === 'healer') {
+        context.healerOutputIncrease += this.resolveNumber(processor.addition);
+      } else {
+        context.receiverTakenIncrease += this.resolveNumber(processor.addition);
+      }
     }
   }
 
   #evaluate(condition: HealModifierCondition, context: HealCalculationContext): boolean {
+    if (condition.kind === 'healTagsMatch') {
+      const actual = new Set(context.tagIds);
+      return condition.match === 'hasAny'
+        ? condition.tagIds.some(tagId => actual.has(tagId))
+        : condition.tagIds.every(tagId => actual.has(tagId));
+    }
     if (condition.kind === 'buffBlackboardCompare') {
       return compareCombatNumbers(
         this.resolveNumber(condition.left),

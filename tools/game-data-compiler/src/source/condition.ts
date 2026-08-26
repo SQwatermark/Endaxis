@@ -11,7 +11,13 @@ import {
   requireString,
 } from './primitives.ts';
 import { projectNativeDamageElement } from './damageElement.ts';
-import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
+import {
+  parseScalarSource,
+  parseStringScalarSource,
+  type BlackboardLevelValues,
+  type ScalarSource,
+  type StringScalarSource,
+} from './scalar.ts';
 import { parseCharacterTeamSelectionRole } from './selectorFacts.ts';
 import { parseTagQuerySource, type TagQueryType } from './tagQuery.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
@@ -32,6 +38,11 @@ export type NativeConditionSource =
       readonly comparison: string;
       readonly left: ScalarSource;
       readonly right: ScalarSource;
+    })
+  | (ConditionIdentity & {
+      readonly kind: 'stringCompare';
+      readonly left: StringScalarSource;
+      readonly right: StringScalarSource;
     })
   | (ConditionIdentity & {
       readonly kind: 'mainOperator';
@@ -167,11 +178,27 @@ export type NativeConditionSource =
     })
   | (ConditionIdentity & {
       readonly kind: 'contextBuff';
-      readonly checkType: string;
-      readonly buffIds: readonly string[];
-      readonly queryType: string;
-      readonly buffTagIds: readonly number[];
+      readonly matcher:
+        | {
+            readonly kind: 'id';
+            readonly buffIds: readonly (
+              | { readonly kind: 'constant'; readonly value: string }
+              | { readonly kind: 'blackboard'; readonly key: string }
+            )[];
+          }
+        | {
+            readonly kind: 'tag';
+            readonly queryType: string;
+            readonly buffTagIds: readonly number[];
+          };
       readonly buffIdOutputKey?: string;
+    })
+  | (ConditionIdentity & {
+      /** OnConsumeBuff 事件保存的消费层数；命中后可写入动作黑板。 */
+      readonly kind: 'consumeBuffLayer';
+      readonly comparison: string;
+      readonly value: ScalarSource;
+      readonly outputKey: string;
     })
   | (ConditionIdentity & {
       readonly kind: 'globalCooldown';
@@ -271,6 +298,26 @@ export function parseConditionLeafSource(
         comparison: requireNonEmptyString(condition.compare, `${path}.compare`),
         left: parseScalarSource(condition.valueA, `${path}.valueA`, inheritedBlackboard),
         right: parseScalarSource(condition.valueB, `${path}.valueB`, inheritedBlackboard),
+      };
+    case 'CompareString':
+      requireExactFields(
+        condition,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'valueA',
+          'valueB',
+        ]),
+        path,
+      );
+      return {
+        kind: 'stringCompare',
+        sourceType,
+        left: parseStringScalarSource(condition.valueA, `${path}.valueA`),
+        right: parseStringScalarSource(condition.valueB, `${path}.valueB`),
       };
     case 'CheckMainCharacterCondition':
       return parseMainOperator(condition, path, sourceType);
@@ -486,6 +533,28 @@ export function parseConditionLeafSource(
       return parseContextBuff(condition, path, sourceType);
     case 'CheckBuffIdInContextAdvanced':
       return parseAdvancedContextBuff(condition, path, sourceType);
+    case 'CheckConsumeBuffLayer':
+      requireExactFields(
+        condition,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'num',
+          'compareType',
+          'storeKey',
+        ]),
+        path,
+      );
+      return {
+        kind: 'consumeBuffLayer',
+        sourceType,
+        comparison: requireNonEmptyString(condition.compareType, `${path}.compareType`),
+        value: parseScalarSource(condition.num, `${path}.num`, inheritedBlackboard),
+        outputKey: requireString(condition.storeKey, `${path}.storeKey`),
+      };
     case 'CheckGlobalCDTimerAction': {
       const target = requireRecord(condition.target, `${path}.target`);
       return {
@@ -866,35 +935,43 @@ function parseContextBuff(
   sourceType: string,
 ): NativeConditionSource {
   const checkType = requireNonEmptyString(condition.checkType, `${path}.checkType`);
-  const buffIds = requireArray(condition.buffIdList, `${path}.buffIdList`).flatMap(
-    (rawBuff, index) => {
+  const rawBuffIds = requireArray(condition.buffIdList, `${path}.buffIdList`);
+  const blackboardKey = requireString(condition.blackboardKey, `${path}.blackboardKey`);
+  let matcher: Extract<NativeConditionSource, { readonly kind: 'contextBuff' }>['matcher'];
+  if (checkType === 'Id') {
+    matcher = {
+      kind: 'id',
+      buffIds: rawBuffIds.map((rawBuff, index) => {
+        const buffPath = `${path}.buffIdList[${index}]`;
+        const buff = requireRecord(rawBuff, buffPath);
+        return {
+          kind: 'constant' as const,
+          value: requireNonEmptyString(buff.buffId, `${buffPath}.buffId`),
+        };
+      }),
+    };
+  } else if (checkType === 'Tag') {
+    // 原生 checkType 是判别字段；Tag 分支忽略 buffIdList 中的序列化残留。
+    rawBuffIds.forEach((rawBuff, index) => {
       const buffPath = `${path}.buffIdList[${index}]`;
       const buff = requireRecord(rawBuff, buffPath);
-      const buffId = requireString(buff.buffId, `${buffPath}.buffId`);
-      if (!buffId && checkType !== 'Tag') {
-        throw new Error(`${buffPath}.buffId: expected non-empty string`);
-      }
-      return buffId ? [buffId] : [];
-    },
-  );
-  const query = requireRecord(condition.query, `${path}.query`);
-  const buffTagIds = requireArray(query.tags ?? [], `${path}.query.tags`).map((rawTag, index) => {
-    const tag = requireRecord(rawTag, `${path}.query.tags[${index}]`);
-    return requireInteger(tag.tagId, `${path}.query.tags[${index}].tagId`);
-  });
+      requireString(buff.buffId, `${buffPath}.buffId`);
+    });
+    const query = parseTagQuerySource(condition.query, `${path}.query`);
+    matcher = { kind: 'tag', queryType: query.queryType, buffTagIds: query.tagIds };
+  } else {
+    throw new Error(`${path}.checkType: unsupported value ${JSON.stringify(checkType)}`);
+  }
   return {
     kind: 'contextBuff',
     sourceType,
-    checkType,
-    buffIds,
-    queryType: requireNonEmptyString(query.queryType, `${path}.query.queryType`),
-    buffTagIds,
+    matcher,
+    ...(blackboardKey === '' ? {} : { buffIdOutputKey: blackboardKey }),
   };
 }
 
 /**
- * 1.4.4 Advanced 的已闭环 Tag 条件分支。原生数据允许保留一个空的直接 ID
- * 占位符；非空 blackboardKey 会把匹配到的事件 Buff ID 写入动作黑板。
+ * Advanced 与基础动作共享同一个判别语义；区别仅在于 ID 项允许从动作黑板取值。
  */
 function parseAdvancedContextBuff(
   condition: Record<string, unknown>,
@@ -917,37 +994,39 @@ function parseAdvancedContextBuff(
     path,
   );
   const checkType = requireNonEmptyString(condition.checkType, `${path}.checkType`);
-  if (checkType !== 'Tag') {
-    throw new Error(`${path}.checkType: only the confirmed Tag branch is supported`);
-  }
   const buffIdList = requireArray(condition.buffIdList, `${path}.buffIdList`);
-  if (buffIdList.length > 1) {
-    throw new Error(`${path}.buffIdList: Advanced Tag projection accepts at most one placeholder`);
-  }
-  if (buffIdList.length === 1) {
-    const placeholder = requireRecord(buffIdList[0], `${path}.buffIdList[0]`);
+  const parseId = (rawValue: unknown, index: number) => {
+    const idPath = `${path}.buffIdList[${index}]`;
+    const value = requireRecord(rawValue, idPath);
     requireExactFields(
-      placeholder,
+      value,
       new Set(['useBlackboardKey', 'value', 'blackboardKey']),
-      `${path}.buffIdList[0]`,
+      idPath,
     );
-    if (
-      requireBoolean(placeholder.useBlackboardKey, `${path}.buffIdList[0].useBlackboardKey`) ||
-      requireString(placeholder.value, `${path}.buffIdList[0].value`) !== '' ||
-      requireString(placeholder.blackboardKey, `${path}.buffIdList[0].blackboardKey`) !== ''
-    ) {
-      throw new Error(`${path}.buffIdList[0]: expected an empty direct Buff ID placeholder`);
+    const useBlackboardKey = requireBoolean(value.useBlackboardKey, `${idPath}.useBlackboardKey`);
+    const directValue = requireString(value.value, `${idPath}.value`);
+    const key = requireString(value.blackboardKey, `${idPath}.blackboardKey`);
+    if (useBlackboardKey) {
+      return { kind: 'blackboard' as const, key: requireNonEmptyString(key, `${idPath}.blackboardKey`) };
     }
-  }
+    return { kind: 'constant' as const, value: directValue };
+  };
   const blackboardKey = requireString(condition.blackboardKey, `${path}.blackboardKey`);
-  const query = parseTagQuerySource(condition.query, `${path}.query`);
+  let matcher: Extract<NativeConditionSource, { readonly kind: 'contextBuff' }>['matcher'];
+  if (checkType === 'Id') {
+    matcher = { kind: 'id', buffIds: buffIdList.map(parseId) };
+  } else if (checkType === 'Tag') {
+    // Tag 分支不读取 BlackboardBuffId，但仍验证其数据外形。
+    buffIdList.forEach(parseId);
+    const query = parseTagQuerySource(condition.query, `${path}.query`);
+    matcher = { kind: 'tag', queryType: query.queryType, buffTagIds: query.tagIds };
+  } else {
+    throw new Error(`${path}.checkType: unsupported value ${JSON.stringify(checkType)}`);
+  }
   return {
     kind: 'contextBuff',
     sourceType,
-    checkType,
-    buffIds: [],
-    queryType: query.queryType,
-    buffTagIds: query.tagIds,
+    matcher,
     ...(blackboardKey === '' ? {} : { buffIdOutputKey: blackboardKey }),
   };
 }

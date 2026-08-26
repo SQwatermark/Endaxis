@@ -29,6 +29,11 @@ import {
   type PoiseDamageEvent,
   type PoiseDamageModifier,
 } from '../damage/poiseDamage';
+import {
+  PoiseCalculationContext,
+  type PoiseModifierSide,
+  type PoiseProcessTiming,
+} from '../damage/poiseModifiers';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from './combatClock';
 import type { CombatVitals } from './combatVitals';
@@ -100,6 +105,12 @@ export interface PlayerDamageOperationDependencies {
     context: PlayerDamageContext,
   ) => void;
   readonly resolvePoiseMultipliers: (step: PoiseStep) => PoiseDamageMultipliers;
+  readonly applyPoiseModifiers?: (
+    timing: PoiseProcessTiming,
+    side: PoiseModifierSide,
+    context: PoiseCalculationContext,
+  ) => void;
+  readonly isSourceControlled?: () => boolean;
   readonly emitHealthSourceEvent: Parameters<typeof executeHealthDamage>[0]['emitSourceEvent'];
   readonly emitHealthTargetEvent: Parameters<typeof executeHealthDamage>[0]['emitTargetEvent'];
   readonly absorbHealthDamage?: Parameters<typeof executeHealthDamage>[0]['absorbDamage'];
@@ -339,13 +350,25 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
 
   #executePoise(step: PoiseStep, calculationValue: number): void {
     const multipliers = this.dependencies.resolvePoiseMultipliers(step);
+    const poiseContext = new PoiseCalculationContext(
+      this.dependencies.sourceOperatorId,
+      this.dependencies.targetId,
+      step.kind === 'dealStagger' ? [] : step.parameters.tags,
+      this.dependencies.isSourceControlled?.() ?? false,
+      multipliers.output,
+      multipliers.taken,
+    );
+    for (const timing of ['beforeCalculation', 'afterCalculation'] as const) {
+      this.dependencies.applyPoiseModifiers?.(timing, 'attacker', poiseContext);
+      this.dependencies.applyPoiseModifiers?.(timing, 'defender', poiseContext);
+    }
     executePoiseDamage({
       sourceId: this.dependencies.sourceOperatorId,
       targetId: this.dependencies.targetId,
       target: this.dependencies.targetVitals,
       calculationValue,
-      outputMultiplier: multipliers.output,
-      takenMultiplier: multipliers.taken,
+      outputMultiplier: poiseContext.outputMultiplier,
+      takenMultiplier: poiseContext.takenMultiplier,
       ignorePoiseImmune: multipliers.ignorePoiseImmune,
       clock: this.dependencies.clock,
       receipt: this.dependencies.receipt,

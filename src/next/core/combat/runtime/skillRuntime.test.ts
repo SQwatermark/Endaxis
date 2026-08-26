@@ -24,6 +24,9 @@ function createBattleSkillRuntime(
   cooldownFrames?: number,
   skillDefinition: SkillDefinition = findPerlicaSkill('battleSkill'),
   emitSkillEnd?: ConstructorParameters<typeof SkillRuntime>[1]['emitSkillEnd'],
+  emitAfterSkillApplyCost?: ConstructorParameters<
+    typeof SkillRuntime
+  >[1]['emitAfterSkillApplyCost'],
 ) {
   const clock = new CombatClock();
   const resources = new CombatResources({
@@ -73,6 +76,7 @@ function createBattleSkillRuntime(
     allocateSkillCastId: () => nextSkillCastId++,
     semanticEvents,
     emitSkillEnd,
+    emitAfterSkillApplyCost,
   });
   const simulation = new CombatSimulation(clock);
   simulation.add(runtime);
@@ -433,6 +437,72 @@ describe('SkillRuntime', () => {
       'SpChanged',
       'SkillCostApplied',
     ]);
+  });
+
+  it('在费用成功应用后、同帧时间轴动作前同步发布费用事件', () => {
+    const emitted = vi.fn();
+    const fixture = createBattleSkillRuntime(
+      300,
+      0,
+      undefined,
+      {
+        key: 'cost-event-order',
+        costFrame: 0,
+        costs: [{ resource: 'sp', value: 100 }],
+        timelineBlockFrames: 1,
+        scheduledSequences: [
+          {
+            startFrame: 0,
+            sequence: {
+              steps: [
+                {
+                  kind: 'modifyActionValue',
+                  parameters: {
+                    key: 'hit',
+                    operation: 'assign',
+                    value: { kind: 'constant', value: 1 },
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+      undefined,
+      payload => {
+        expect(fixture.resources.sp).toBe(200);
+        expect(fixture.operations.execute).not.toHaveBeenCalled();
+        emitted(payload);
+      },
+    );
+
+    fixture.runtime.tryStart();
+
+    expect(emitted).toHaveBeenCalledOnce();
+    expect(emitted).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event: 'afterSkillApplyCost',
+        skillId: 'cost-event-order',
+        skillCastId: 1,
+      }),
+    );
+    expect(fixture.operations.execute).toHaveBeenCalledOnce();
+  });
+
+  it('费用失败时不发布费用事件', () => {
+    const emitted = vi.fn();
+    const fixture = createBattleSkillRuntime(
+      99,
+      0,
+      undefined,
+      findPerlicaSkill('battleSkill'),
+      undefined,
+      emitted,
+    );
+
+    fixture.runtime.tryStart();
+
+    expect(emitted).not.toHaveBeenCalled();
   });
 
   it('updates the current skill-cast info only when delayed cost is actually paid', () => {

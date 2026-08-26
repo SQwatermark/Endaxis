@@ -9,11 +9,15 @@ import {
 import {
   parseSkillDefinitionReferenceSource,
   type DefinitionReferenceSource,
-  type ReferenceAwareActionLeafSource,
 } from './referenceGraph.ts';
 import type { BlackboardLevelValues } from './scalar.ts';
 import { parseSkillBuffInstallSources, type SkillBuffInstallSource } from './skillBuffInstall.ts';
 import type { SkillActionGraphSource } from './skillActionGraph.ts';
+import { parseSkillActionGraphSource } from './skillActionGraph.ts';
+import {
+  parseKnownNativeActionLeafSource,
+  type KnownNativeActionLeafSource,
+} from './actionLeaf.ts';
 import {
   parseGameplayAttributeModifierSource,
   type GameplayAttributeModifierSource,
@@ -37,7 +41,7 @@ export interface NativePassiveSkillSource {
   readonly cardAttributeModifiers: GameplayAttributeModifierSource;
   readonly startupBuffs: readonly SkillBuffInstallSource[];
   readonly toggleBuffs: readonly PassiveSkillToggleBuffSource[];
-  readonly actionGraph: SkillActionGraphSource<ReferenceAwareActionLeafSource>;
+  readonly actionGraph: SkillActionGraphSource<KnownNativeActionLeafSource>;
   readonly references: readonly DefinitionReferenceSource[];
 }
 
@@ -80,7 +84,13 @@ export function parseNativePassiveSkillSource(
       passiveType === 'ToggleBuff'
         ? parseToggleBuffs(root.toggleBuffs, `${sourcePath}.toggleBuffs`, inheritedBlackboard)
         : requireIgnoredToggleBuffArray(root.toggleBuffs, `${sourcePath}.toggleBuffs`),
-    actionGraph: definition.actionGraph,
+    // 引用闭包允许把无引用叶子标成 untracked；可执行被动程序必须重新走完整公共 Action parser。
+    actionGraph: parseSkillActionGraphSource(
+      value,
+      sourcePath,
+      inheritedBlackboard,
+      (leaf, leafPath) => parseKnownNativeActionLeafSource(leaf, leafPath, inheritedBlackboard),
+    ),
     references: definition.references,
   };
 }

@@ -6,6 +6,7 @@ import type {
   EquipmentContributionDefinition,
   EquipmentDamageScaleTarget,
   EquipmentEventHandlerDefinition,
+  EquipmentAbilityEvent,
   EquipmentModifierDefinition,
   EquipmentPanelStat,
   GearDefinition,
@@ -65,14 +66,21 @@ export type ResolvedEquipmentModifier =
     };
 
 /** 动作序列已解析，但尚未注册到事件总线的一项配装监听器。 */
-export interface CompiledEquipmentEventHandler {
+interface CompiledEquipmentEventHandlerBase {
   readonly key: string;
-  readonly event: CombatEventTrigger;
+  /** 编译器始终写入；可选只为兼容外部测试/装配端口的旧记录。 */
+  readonly priority?: number;
   readonly condition?: CombatCondition;
   /** 编译器始终写入；可选只为兼容外部测试/装配端口的空黑板记录。 */
   readonly blackboard?: Readonly<Record<string, number>>;
   readonly sequence: ResolvedActionSequence;
 }
+
+export type CompiledEquipmentEventHandler = CompiledEquipmentEventHandlerBase &
+  (
+    | { readonly event: CombatEventTrigger; readonly abilityEvent?: never }
+    | { readonly event?: never; readonly abilityEvent: EquipmentAbilityEvent }
+  );
 
 /** 单个定义能力的解析结果；来源身份供面板明细、诊断和卸载使用。 */
 export interface CompiledEquipmentContribution {
@@ -81,6 +89,7 @@ export interface CompiledEquipmentContribution {
   readonly modifiers: readonly ResolvedEquipmentModifier[];
   readonly eventHandlers: readonly CompiledEquipmentEventHandler[];
   readonly buffDefinitions?: Readonly<Record<string, ResolvedSkillBuffDefinition>>;
+  readonly initializationBlackboard?: Readonly<Record<string, number>>;
   readonly initializationSequence?: ResolvedActionSequence;
 }
 
@@ -145,9 +154,16 @@ function compileEventHandler(
   level: number,
   path: string,
 ): CompiledEquipmentEventHandler {
+  const priority = handler.priority ?? 0;
+  if (!Number.isInteger(priority)) {
+    throw new TypeError(`${path}.priority must be an integer`);
+  }
   return {
     key: handler.key,
-    event: handler.event,
+    ...(handler.abilityEvent !== undefined
+      ? { abilityEvent: handler.abilityEvent }
+      : { event: handler.event }),
+    priority,
     ...(handler.condition === undefined ? {} : { condition: handler.condition }),
     blackboard: Object.fromEntries(
       Object.entries(handler.blackboard ?? {}).map(([key, value]) => [
@@ -187,6 +203,16 @@ function compileContribution(
       compileEventHandler(handler, selectedLevel, `${path}.eventHandlers[${index}]`),
     ),
     buffDefinitions: resources.buffDefinitions,
+    ...(definition.initializationBlackboard === undefined
+      ? {}
+      : {
+          initializationBlackboard: Object.fromEntries(
+            Object.entries(definition.initializationBlackboard).map(([key, value]) => [
+              key,
+              resolveLevelValue(value, selectedLevel, `${path}.initializationBlackboard.${key}`),
+            ]),
+          ),
+        }),
     ...(definition.initializationSequence === undefined
       ? {}
       : {

@@ -12,6 +12,7 @@ import type {
   UpgradeModifierDefinition,
   UpgradeStaticDamageIncreaseTarget,
 } from '../game-data/operatorDefinition';
+import { DEFAULT_TRUST_ATTRIBUTE_BONUS } from '../game-data/operatorDefinition';
 import type { OperatorInstanceDocument } from '../project/schema';
 import type {
   CompiledEquipmentContribution,
@@ -28,10 +29,6 @@ import {
 
 const LEVEL_NODES = [1, 20, 40, 60, 80, 90] as const;
 const ATTRIBUTES = ['strength', 'agility', 'intellect', 'will'] as const;
-const DEFAULT_TRUST_BONUS: TrustAttributeBonusDefinition = {
-  values: [10, 15, 15, 20],
-  attributes: ['main'],
-};
 const PANEL_STAT_TARGETS: Readonly<Record<EquipmentPanelStat, OperatorPanelStat>> = {
   attackFlat: 'attack',
   attackPercent: 'attack',
@@ -354,7 +351,7 @@ export function resolveOperatorPanel(build: ResolvedScenarioBuild): ResolvedOper
     },
   );
 
-  const trust = build.operator.trustAttributeBonus ?? DEFAULT_TRUST_BONUS;
+  const trust = build.operator.trustAttributeBonus ?? DEFAULT_TRUST_ATTRIBUTE_BONUS;
   const unlockedTrustLevel = maxTrustLevel(build.operatorInstance);
   if (
     !Number.isInteger(build.operatorInstance.trustLevel) ||

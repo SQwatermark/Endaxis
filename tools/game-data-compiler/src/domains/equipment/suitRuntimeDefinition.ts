@@ -19,6 +19,7 @@ import type {
   UnresolvedSkillBlackboardValueSource,
 } from './suitStaticDefinition.ts';
 import type { EquipmentDefinitionDiagnosticSource } from './formalDefinition.ts';
+import { standardStumpBuffAbilityEventOmissionReason } from '../../compiler/standardStumpScenarioPolicy.ts';
 
 export interface CompiledEquipmentSuitRuntimeBatchSource {
   readonly definitions: readonly (CompiledGearSetStaticDefinitionSource & {
@@ -145,12 +146,13 @@ export function compileEquipmentSuitRuntimeBatchSource(
       }
       const omittedAbilityEvents = new Set<string | number>();
       for (const event of source.graph.abilityEvents) {
-        if (event.event !== 'OnTakeDamage') continue;
+        const reason = standardStumpBuffAbilityEventOmissionReason(event.event);
+        if (reason === null) continue;
         omittedAbilityEvents.add(event.event);
         diagnostics.push({
           status: 'scenario-omitted',
           sourcePath: `BuffData.${buffId}.abilityEventAction`,
-          reason: 'player damage taken cannot occur without enemy active behavior',
+          reason,
         });
       }
       try {

@@ -25,12 +25,35 @@ export interface CompiledSimpleDamageOperationSource {
 export function compileEventTargetSimpleDamageOperationSource(
   action: DamageActionSource,
   sourcePath: string,
+  context: {
+    readonly actionOwnerTarget: 'buffOwner' | 'caster';
+    readonly actionSourceTarget: 'caster';
+  } = { actionOwnerTarget: 'caster', actionSourceTarget: 'caster' },
 ): CompiledSimpleDamageOperationSource {
-  if (!action.alwaysNext || action.attacker !== 'ActionOwner' || action.hitEnvironment) {
+  const attackerTarget =
+    action.attacker === 'ActionOwner'
+      ? ('caster' as const)
+      : action.attacker === 'ActionSource'
+        ? context.actionSourceTarget
+        : null;
+  if (!action.alwaysNext || attackerTarget !== 'caster' || action.hitEnvironment) {
     throw new Error(`${sourcePath}: unsupported simple damage action control flags`);
   }
   requireFixedTarget(action.target, 'Target', `${sourcePath}.target`);
-  requireFixedTarget(action.effectSource, 'Owner', `${sourcePath}.effectSource`);
+  const effectSourceTarget =
+    action.effectSource.targetSource === 'Owner'
+      ? ('caster' as const)
+      : action.effectSource.targetSource === 'Source'
+        ? context.actionSourceTarget
+        : null;
+  if (effectSourceTarget !== 'caster') {
+    throw new Error(`${sourcePath}.effectSource: unsupported simple event damage source`);
+  }
+  requireFixedTarget(
+    action.effectSource,
+    action.effectSource.targetSource as 'Owner' | 'Source',
+    `${sourcePath}.effectSource`,
+  );
   if (action.units.length < 1 || action.units.length > 2) {
     throw new Error(
       `${sourcePath}: simple event damage requires an Hp unit and optional Poise unit`,
@@ -110,7 +133,7 @@ function compileSimplePoiseOperand(
 
 function requireFixedTarget(
   target: TargetReferenceSource,
-  targetSource: 'Target' | 'Owner',
+  targetSource: 'Target' | 'Owner' | 'Source',
   sourcePath: string,
 ): void {
   if (

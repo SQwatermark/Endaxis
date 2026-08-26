@@ -21,6 +21,8 @@ import {
 import { parseWeaponBaseAttackSources } from './baseAttack.ts';
 import { parseWeaponBasicSources } from './basicTable.ts';
 import { discoverWeaponPassiveSkillRequests } from './passiveDiscovery.ts';
+import type { SkillActionGraphSource } from '../../source/skillActionGraph.ts';
+import type { KnownNativeActionLeafSource } from '../../source/actionLeaf.ts';
 
 const FORMAL_BASE_ATTACK_LEVELS = [1, 20, 40, 60, 80, 90] as const;
 const FORMAL_WEAPON_RARITIES = new Set([3, 4, 5, 6]);
@@ -65,6 +67,11 @@ export interface CompiledWeaponTraitRuntimeDependencySource {
   readonly traitKey: string;
   readonly slotIndex: number;
   readonly skillId: string;
+  /**
+   * 被动 SkillData 的完整可执行动作图。它不能因 Buff 引用闭包已闭合而被丢弃；
+   * 正式运行定义必须显式编译它，或对非空程序失败关闭。
+   */
+  readonly actionGraph: SkillActionGraphSource<KnownNativeActionLeafSource>;
   readonly levels: readonly CompiledWeaponTraitLevelRuntimeDependencySource[];
   readonly referencedBuffIds: readonly string[];
 }
@@ -151,6 +158,7 @@ export function compileWeaponStaticDefinitionBatchSource(
         slotIndex:
           request.levelSource.kind === 'weaponProgression' ? request.levelSource.slotIndex : -1,
         skillId: request.skillId,
+        actionGraph: compiled.definition.skill.actionGraph,
         levels: installations.map(installation => ({
           level: installation.level,
           installation,

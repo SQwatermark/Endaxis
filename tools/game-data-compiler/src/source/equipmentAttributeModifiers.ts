@@ -7,13 +7,13 @@ import {
 } from './attributeModifiers.ts';
 import {
   requireArray,
-  requireBoolean,
   requireExactFields,
   requireNonNegativeInteger,
   requireNumber,
   requireRecord,
   requireString,
 } from './primitives.ts';
+import { parseItemIdentitySource, type ItemIdentitySource } from './itemIdentity.ts';
 
 const EQUIPMENT_FIELDS = new Set([
   'displayAttrModifiers',
@@ -42,42 +42,7 @@ const DISPLAY_MODIFIER_FIELDS = new Set([
   'enhancedAttrValues',
   'modifierType',
 ]);
-const ITEM_FIELDS = new Set([
-  'backpackCanDiscard',
-  'decoDesc',
-  'desc',
-  'iconCompositeId',
-  'iconId',
-  'id',
-  'maxBackpackStackCount',
-  'maxStackCount',
-  'modelKey',
-  'name',
-  'noObtainWayConditionId',
-  'noObtainWayHint',
-  'noObtainWayId',
-  'notObtainShow',
-  'notObtainShowTimeId',
-  'obtainWayIds',
-  'outcomeItemIds',
-  'rarity',
-  'showAllDepotCount',
-  'showingType',
-  'sortId1',
-  'sortId2',
-  'type',
-  'valuableDepotRedDot',
-  'valuableTabType',
-]);
-
-export interface EquipmentItemIdentitySource {
-  readonly sourcePath: string;
-  readonly itemId: string;
-  readonly iconId: string;
-  readonly iconCompositeId: string;
-  readonly rarity: number;
-  readonly itemType: number;
-}
+export type EquipmentItemIdentitySource = ItemIdentitySource;
 
 export const EQUIPMENT_PART_TYPES = ['Body', 'Hand', 'EDC', 'EndNum', 'Head', 'Ring'] as const;
 export type EquipmentPartTypeSource = (typeof EQUIPMENT_PART_TYPES)[number];
@@ -176,7 +141,7 @@ export function parseEquipmentItemSources(
     return {
       sourcePath,
       equipmentId,
-      identity: parseItemIdentity(itemTable[equipmentId], equipmentId, itemSourceName),
+      identity: parseItemIdentitySource(itemTable[equipmentId], equipmentId, itemSourceName),
       domainId: requireString(row.domainId, `${sourcePath}.domainId`),
       suitId: requireString(row.suitID, `${sourcePath}.suitID`),
       minimumWearLevel: requireNonNegativeInteger(row.minWearLv, `${sourcePath}.minWearLv`),
@@ -256,50 +221,6 @@ function parseEquipmentAttributeModifier(
   };
 }
 
-function parseItemIdentity(
-  value: unknown,
-  equipmentId: string,
-  sourceName: string,
-): EquipmentItemIdentitySource {
-  const sourcePath = `${sourceName}.${equipmentId}`;
-  const row = requireRecord(value, sourcePath);
-  requireExactFields(row, ITEM_FIELDS, sourcePath);
-  const itemId = requireString(row.id, `${sourcePath}.id`);
-  if (itemId !== equipmentId) {
-    throw new Error(`${sourcePath}.id: expected ${JSON.stringify(equipmentId)}`);
-  }
-
-  requireBoolean(row.backpackCanDiscard, `${sourcePath}.backpackCanDiscard`);
-  requireRecord(row.decoDesc, `${sourcePath}.decoDesc`);
-  requireRecord(row.desc, `${sourcePath}.desc`);
-  requireNonNegativeInteger(row.maxBackpackStackCount, `${sourcePath}.maxBackpackStackCount`);
-  requireNonNegativeInteger(row.maxStackCount, `${sourcePath}.maxStackCount`);
-  requireString(row.modelKey, `${sourcePath}.modelKey`);
-  requireRecord(row.name, `${sourcePath}.name`);
-  validateStringArray(row.noObtainWayConditionId, `${sourcePath}.noObtainWayConditionId`);
-  requireRecord(row.noObtainWayHint, `${sourcePath}.noObtainWayHint`);
-  validateStringArray(row.noObtainWayId, `${sourcePath}.noObtainWayId`);
-  requireBoolean(row.notObtainShow, `${sourcePath}.notObtainShow`);
-  requireString(row.notObtainShowTimeId, `${sourcePath}.notObtainShowTimeId`);
-  validateStringArray(row.obtainWayIds, `${sourcePath}.obtainWayIds`);
-  validateStringArray(row.outcomeItemIds, `${sourcePath}.outcomeItemIds`);
-  requireBoolean(row.showAllDepotCount, `${sourcePath}.showAllDepotCount`);
-  requireNonNegativeInteger(row.showingType, `${sourcePath}.showingType`);
-  requireNumber(row.sortId1, `${sourcePath}.sortId1`);
-  requireNumber(row.sortId2, `${sourcePath}.sortId2`);
-  requireBoolean(row.valuableDepotRedDot, `${sourcePath}.valuableDepotRedDot`);
-  requireNonNegativeInteger(row.valuableTabType, `${sourcePath}.valuableTabType`);
-
-  return {
-    sourcePath,
-    itemId,
-    iconId: requireString(row.iconId, `${sourcePath}.iconId`),
-    iconCompositeId: requireString(row.iconCompositeId, `${sourcePath}.iconCompositeId`),
-    rarity: requireNonNegativeInteger(row.rarity, `${sourcePath}.rarity`),
-    itemType: requireNonNegativeInteger(row.type, `${sourcePath}.type`),
-  };
-}
-
 function parseDisplayModifier(value: unknown, path: string, allowEmpty: boolean): void {
   const modifier = requireRecord(value, path);
   if (allowEmpty && Object.keys(modifier).length === 0) return;
@@ -314,8 +235,4 @@ function parseDisplayModifier(value: unknown, path: string, allowEmpty: boolean)
     requireNumber(item, `${path}.enhancedAttrValues[${index}]`),
   );
   requireNonNegativeInteger(modifier.modifierType, `${path}.modifierType`);
-}
-
-function validateStringArray(value: unknown, path: string): void {
-  requireArray(value, path).forEach((item, index) => requireString(item, `${path}[${index}]`));
 }

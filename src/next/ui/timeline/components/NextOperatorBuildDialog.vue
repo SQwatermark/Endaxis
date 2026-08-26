@@ -12,7 +12,6 @@ import {
   getGameClassName,
   getGameElementName,
   getGameWeaponTypeName,
-  getOperatorCombatSkillDescription,
   getOperatorGameName,
   getOperatorPotentialDescription,
   getOperatorPotentialName,
@@ -23,15 +22,22 @@ import {
 import {
   formatOperatorSkillLevel,
   getOperatorSkillMax,
+  getOperatorTrustMax,
   type NextOperatorLevel,
 } from '../../legacy/legacyProgression';
-import { GameRichTextRenderer } from '../../legacy/legacyPresentation';
+import {
+  GameRichTextRenderer,
+  getLegacyOperatorSheet,
+  OperatorSkillTooltip,
+} from '../../legacy/legacyPresentation';
 import type {
   OperatorDefinition,
   SkillLevelSource,
 } from '../../../core/game-data/operatorDefinition';
+import { DEFAULT_TRUST_ATTRIBUTE_BONUS } from '../../../core/game-data/operatorDefinition';
 import type { OperatorInstanceChanges } from '../loadoutBuildCommands';
 import type { OperatorInstanceViewModel } from '../loadoutBuildViewModel';
+import { createDefaultOperatorInstance } from '../../../application/editor/loadoutBuildFactory';
 
 const LEVELS = [1, 20, 40, 60, 80, 90] as const satisfies readonly NextOperatorLevel[];
 const SKILL_ORDER = ['basicAttack', 'battleSkill', 'comboSkill', 'ultimate'] as const;
@@ -63,6 +69,12 @@ const emit = defineEmits<{
 
 const { t, locale } = useI18n({ useScope: 'global' });
 const definition = computed(() => props.customDefinition ?? props.operator?.definition ?? null);
+const legacyOperatorSheet = computed(() => {
+  const operator = props.operator;
+  return operator
+    ? getLegacyOperatorSheet(operator.definition.assetSlug ?? operator.operatorSlug)
+    : undefined;
+});
 const rarityColor = computed(() => {
   const rarity = definition.value?.rarity ?? 0;
   if (rarity === 6) return 'var(--ea-gold)';
@@ -87,13 +99,9 @@ const canPromote = computed(() => {
 });
 const maxTrust = computed(() => {
   const operator = props.operator;
-  if (!operator) return 0;
-  if (operator.level >= 90) return 4;
-  if (operator.level >= 80) return operator.promoted ? 4 : 3;
-  if (operator.level >= 60) return operator.promoted ? 3 : 2;
-  if (operator.level >= 40) return operator.promoted ? 2 : 1;
-  if (operator.level >= 20) return operator.promoted ? 1 : 0;
-  return 0;
+  return operator
+    ? getOperatorTrustMax(operator.level as NextOperatorLevel, operator.promoted)
+    : 0;
 });
 const potentialCount = computed(() =>
   (definition.value?.potentials ?? []).reduce((sum, potential) => sum + potential.levels, 0),
@@ -102,7 +110,21 @@ const availableSkillSources = computed(() => {
   const sources = new Set((definition.value?.skillGroups ?? []).map(group => group.levelSource));
   return SKILL_ORDER.filter(source => sources.has(source));
 });
-const trustAttribute = computed(() => definition.value?.mainAttribute ?? null);
+const trustAttributeKeys = computed(() => {
+  const currentDefinition = definition.value;
+  if (!currentDefinition) return [];
+  const trust = currentDefinition.trustAttributeBonus ?? DEFAULT_TRUST_ATTRIBUTE_BONUS;
+  return [...new Set(trust.attributes.map(attribute => {
+    if (attribute === 'main') return currentDefinition.mainAttribute;
+    if (attribute === 'secondary') return currentDefinition.secondaryAttribute;
+    return attribute;
+  }))];
+});
+const trustAttributeLabel = computed(() =>
+  trustAttributeKeys.value
+    .map(attribute => getGameAttributeName(attribute, locale.value))
+    .join(String(locale.value).startsWith('zh') ? '、' : ' / '),
+);
 
 function update(changes: OperatorInstanceChanges): void {
   if (props.operator !== null) emit('change', changes);
@@ -130,16 +152,6 @@ function skillIcon(source: SkillLevelSource): string {
   return `/operators/${operator.definition.assetSlug ?? operator.operatorSlug}/${file}`;
 }
 
-function skillDescription(source: SkillLevelSource): string {
-  const operator = props.operator;
-  if (!operator) return '';
-  return getOperatorCombatSkillDescription(
-    operator.definition.assetSlug ?? operator.operatorSlug,
-    source,
-    locale.value,
-  );
-}
-
 function setSkillLevel(source: SkillLevelSource, level: number): void {
   const operator = props.operator;
   if (!operator) return;
@@ -154,6 +166,14 @@ function togglePotential(level: number): void {
 function setTrustLevel(level: number): void {
   const operator = props.operator;
   if (operator) update({ trustLevel: operator.trustLevel === level ? level - 1 : level });
+}
+
+function trustDescription(level: number): string {
+  const currentDefinition = definition.value;
+  if (!currentDefinition) return '';
+  const trust = currentDefinition.trustAttributeBonus ?? DEFAULT_TRUST_ATTRIBUTE_BONUS;
+  const bonus = trust.values[level - 1] ?? 0;
+  return trustAttributeLabel.value ? `+${bonus} ${trustAttributeLabel.value}` : `+${bonus}`;
 }
 
 function setTalentState(index: number, level: number): void {
@@ -234,18 +254,8 @@ function maxOut(): void {
   const operator = props.operator;
   const currentDefinition = definition.value;
   if (!operator || !currentDefinition) return;
-  const skillLevels = Object.fromEntries(availableSkillSources.value.map(source => [source, 12]));
-  const talentStates = Object.fromEntries(
-    currentDefinition.talents.map((talent, index) => [String(index), talent.levels]),
-  );
-  update({
-    level: 90,
-    promoted: true,
-    potential: potentialCount.value,
-    trustLevel: 4,
-    skillLevels,
-    talentStates,
-  });
+  const { operatorSlug: _operatorSlug, ...maximum } = createDefaultOperatorInstance(currentDefinition);
+  update(maximum);
 }
 </script>
 
@@ -370,17 +380,16 @@ function maxOut(): void {
                 effect="dark"
                 :show-after="120"
                 :enterable="true"
-                :disabled="!skillDescription(source)"
                 popper-class="operator-edit-tooltip-popper"
               >
                 <template #content>
-                  <div class="operator-edit-tooltip">
-                    <GameRichTextRenderer
-                      class="operator-edit-tooltip-desc"
-                      :text="skillDescription(source)"
-                      :locale="locale"
-                    />
-                  </div>
+                  <OperatorSkillTooltip
+                    :operator="legacyOperatorSheet"
+                    :operator-slug="operator.definition.assetSlug ?? operator.operatorSlug"
+                    :skill-key="source"
+                    :skill-level="operator.skillLevels[source] ?? 1"
+                    :skill-type-name="skillTypeName(source)"
+                  />
                 </template>
                 <div class="skill-icon-frame">
                   <img :src="skillIcon(source)" alt="" class="skill-icon" />
@@ -417,9 +426,7 @@ function maxOut(): void {
           <div class="talent-row">
             <div class="talent-info">
               <span class="talent-name">{{ t('armory.common.trust') }}</span>
-              <span v-if="trustAttribute" class="talent-sub">
-                {{ getGameAttributeName(trustAttribute, locale) }}
-              </span>
+              <span v-if="trustAttributeLabel" class="talent-sub">{{ trustAttributeLabel }}</span>
             </div>
             <div class="talent-nodes">
               <template v-for="level in 4" :key="level">
@@ -428,20 +435,39 @@ function maxOut(): void {
                   class="talent-chain"
                   :class="{ active: operator.trustLevel >= level }"
                 />
-                <button
-                  type="button"
-                  class="talent-node"
-                  :class="{ active: operator.trustLevel >= level, disabled: level > maxTrust }"
-                  :disabled="level > maxTrust"
-                  @click="setTrustLevel(level)"
+                <el-tooltip
+                  effect="dark"
+                  placement="top"
+                  :show-after="120"
+                  popper-class="operator-edit-tooltip-popper"
                 >
-                  <img
-                    v-if="trustAttribute"
-                    :src="ATTRIBUTE_ICON[trustAttribute]"
-                    alt=""
-                    class="talent-icon"
-                  />
-                </button>
+                  <template #content>
+                    <div class="operator-edit-tooltip">
+                      <div class="operator-edit-tooltip-desc">{{ trustDescription(level) }}</div>
+                    </div>
+                  </template>
+                  <span class="talent-node-tooltip-anchor">
+                    <button
+                      type="button"
+                      class="talent-node"
+                      :class="{
+                        active: operator.trustLevel >= level,
+                        disabled: level > maxTrust,
+                        'is-multi-attr': trustAttributeKeys.length > 1,
+                      }"
+                      :disabled="level > maxTrust"
+                      @click="setTrustLevel(level)"
+                    >
+                      <img
+                        v-for="attribute in trustAttributeKeys"
+                        :key="attribute"
+                        :src="ATTRIBUTE_ICON[attribute]"
+                        alt=""
+                        class="talent-icon"
+                      />
+                    </button>
+                  </span>
+                </el-tooltip>
               </template>
             </div>
           </div>
@@ -756,6 +782,14 @@ function maxOut(): void {
   width: 28px;
   height: 28px;
   object-fit: contain;
+}
+.talent-node.is-multi-attr {
+  gap: 1px;
+  padding: 0 3px;
+}
+.talent-node.is-multi-attr .talent-icon {
+  width: 16px;
+  height: 16px;
 }
 .talent-node-tooltip-anchor {
   display: inline-flex;

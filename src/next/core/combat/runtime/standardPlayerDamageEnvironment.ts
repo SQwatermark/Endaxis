@@ -86,6 +86,7 @@ type EnvironmentOptions = Pick<
   | 'createOperationExecutor'
   | 'emitAbilityEvent'
   | 'createEquipmentEventOperationExecutor'
+  | 'registerEquipmentAbilityEventAction'
   | 'resolveVitals'
   | 'resolveOperatorVitals'
   | 'probabilitySamples'
@@ -128,6 +129,7 @@ export type StandardPlayerDamageEvent =
   | 'beforeCastSkill'
   | 'skillEnd'
   | 'beforeOutputBuff'
+  | 'beforeAddedBuff'
   | 'outputBuff'
   | 'addedBuff'
   | 'finishedBuff'
@@ -217,6 +219,7 @@ export class StandardPlayerDamageEnvironment {
       },
       event => this.#emit(event.sourceId, 'beforeOutputBuff', event),
       event => this.#emit(event.sourceId, 'outputBuff', event),
+      event => this.#emit('enemy', 'beforeAddedBuff', event),
     );
     // 敌人生命账本由场景装配层创建并注入，环境只持有引用，不在首次绑定时另行构造。
     this.#enemyVitals = options.enemyVitals;
@@ -262,6 +265,7 @@ export class StandardPlayerDamageEnvironment {
           event => this.#emit(entityId, 'addedBuff', event),
           event => this.#emit(event.sourceId, 'beforeOutputBuff', event),
           event => this.#emit(event.sourceId, 'outputBuff', event),
+          event => this.#emit(entityId, 'beforeAddedBuff', event),
         ),
       createOperationExecutor: context => this.#createOperationExecutor(context),
       readSourceAttributeValue: (sourceId, request) =>
@@ -283,6 +287,10 @@ export class StandardPlayerDamageEnvironment {
         }),
       // 配装事件的通用操作由装配根处理；未闭环的末端操作必须严格失败。
       createEquipmentEventOperationExecutor: () => strictTerminal,
+      registerEquipmentAbilityEventAction: (operatorId, event, priority, handle) =>
+        this.eventsFor(operatorId).registerAction(event, priority, context =>
+          handle(context.payload),
+        ),
       resolveVitals: (target, operatorId, buffSourceId) => {
         if (target === 'enemy') return this.enemyVitals;
         if (target === 'caster') return this.#requireOperatorVitals(operatorId);
@@ -401,6 +409,12 @@ export class StandardPlayerDamageEnvironment {
         output: 1 + (context.panel?.staggerDamagePercent ?? 0),
         taken: 1,
       }),
+      applyPoiseModifiers: (timing, side, poiseContext) =>
+        this.#buffContainer(side, operatorBuffs).applyPoiseModifiers(timing, side, poiseContext),
+      isSourceControlled: () => {
+        if (this.options.isOperatorControlled === undefined || this.#clock === null) return false;
+        return this.options.isOperatorControlled(operatorBuffs.ownerId, this.#clock.frame);
+      },
       emitHealthSourceEvent: (event, payload) => {
         if (event === 'afterKillEntity') {
           context.semanticEvents.emit({
@@ -744,6 +758,7 @@ export class StandardPlayerDamageEnvironment {
         },
         event => this.#emit(event.sourceId, 'beforeOutputBuff', event),
         event => this.#emit(event.sourceId, 'outputBuff', event),
+        event => this.#emit(operatorId, 'beforeAddedBuff', event),
       );
       this.#operatorBuffRuntimes.set(operatorId, runtime);
     }

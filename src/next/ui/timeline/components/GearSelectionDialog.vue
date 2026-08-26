@@ -8,9 +8,12 @@ import { Search } from '@element-plus/icons-vue';
 import { useI18n } from 'vue-i18n';
 import { getGearPieceGameName, getGearSetGameName } from '../../legacy/legacyGameText';
 import { getEquipmentLevelColor } from '../../legacy/legacyProgression';
-import '../../legacy/legacyPresentation';
 import { getSharedEquipmentSupport } from '../../../data/equipment';
 import type { GearDefinition } from '../../../core/game-data/equipmentDefinition';
+import {
+  EquipmentSelectionTooltip,
+  getLegacyGearSelectionAffixRows,
+} from '../../legacy/legacyPresentation';
 
 export interface GearSelectionDialogLabels {
   readonly title: string;
@@ -57,6 +60,13 @@ interface GearListItem {
   readonly gearSetName: string;
   readonly isPartial: boolean;
   readonly supportSummary: string;
+  readonly legacyPreviewIdentity: {
+    readonly id: string;
+    readonly canonicalId: string;
+    readonly name: string;
+    readonly category: string;
+  };
+  readonly previewRows: ReturnType<typeof getLegacyGearSelectionAffixRows>;
 }
 
 interface GearLevelGroup {
@@ -115,6 +125,13 @@ const gearItems = computed<readonly GearListItem[]>(() =>
       supportSummary: [
         ...new Set(issues.map(issue => `${issue.sourceKind}.${issue.path}: ${issue.message}`)),
       ].join('\n'),
+      legacyPreviewIdentity: {
+        id: definition.slug,
+        canonicalId: assetSlug,
+        name: definition.displayName ?? getGearPieceGameName(assetSlug, locale.value),
+        category: gearSetSlug ?? '',
+      },
+      previewRows: getLegacyGearSelectionAffixRows(assetSlug, t, locale.value),
     };
   }),
 );
@@ -323,23 +340,16 @@ function clearGear(): void {
               popper-class="equipment-selection-preview-popper"
             >
               <template #content>
-                <div class="next-gear-preview">
-                  <div class="next-gear-preview__name">{{ gear.name }}</div>
-                  <div class="next-gear-preview__row">
-                    <span>{{ labels.defense }}</span>
-                    <strong>{{ gear.definition.baseDefense }}</strong>
-                  </div>
-                  <div class="next-gear-preview__row">
-                    <span>{{ t('timelineGrid.equipmentDialog.setBonusTitle') }}</span>
-                    <strong>{{ gear.gearSetName }}</strong>
-                  </div>
-                  <div
-                    v-if="gear.isPartial"
-                    class="next-gear-preview__warning"
-                    :title="gear.supportSummary"
-                  >
-                    {{ labels.partialSupport }}
-                  </div>
+                <EquipmentSelectionTooltip
+                  :equipment="gear.legacyPreviewIdentity"
+                  :affix-rows="[...gear.previewRows]"
+                />
+                <div
+                  v-if="gear.isPartial"
+                  class="next-gear-preview__warning"
+                  :title="gear.supportSummary"
+                >
+                  {{ labels.partialSupport }}
                 </div>
               </template>
               <div class="selection-card-tooltip-target">
@@ -368,41 +378,10 @@ function clearGear(): void {
 </template>
 
 <style scoped>
-:global(.equipment-selection-preview-popper.el-popper.is-dark) {
-  max-width: min(360px, calc(100vw - 32px));
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: #050505;
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.72);
-}
-
-.next-gear-preview {
-  min-width: 220px;
-  display: grid;
-  gap: 8px;
-  line-height: 1.4;
-}
-
-.next-gear-preview__name {
-  padding-bottom: 6px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.next-gear-preview__row {
-  display: flex;
-  justify-content: space-between;
-  gap: 18px;
-  color: rgba(255, 255, 255, 0.75);
-}
-
-.next-gear-preview__row strong {
-  color: #facc15;
-}
-
 .next-gear-preview__warning {
-  padding-top: 7px;
-  border-top: 1px solid rgba(250, 204, 21, 0.22);
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
   color: #facc15;
   font-size: 12px;
 }

@@ -40,6 +40,8 @@ export interface BuffIconDurationSource {
 
 export interface BuffApplicationActionSource {
   readonly kind: 'buffApplication';
+  /** 原生派生类只改变成功创建后的归属，不改变公共 Buff 创建数据结构。 */
+  readonly lifetimeOwner: 'independent' | 'currentCastSkill';
   readonly buffs: readonly BuffApplicationEntrySource[];
   readonly count: ScalarSource;
   readonly target: TargetReferenceSource;
@@ -89,6 +91,7 @@ export function parseBuffApplicationActionSource(
   value: unknown,
   path: string,
   inheritedBlackboard: BlackboardLevelValues,
+  lifetimeOwner: BuffApplicationActionSource['lifetimeOwner'] = 'independent',
 ): BuffApplicationActionSource {
   const action = requireRecord(value, path);
   requireExactFields(
@@ -115,6 +118,7 @@ export function parseBuffApplicationActionSource(
   );
   return {
     kind: 'buffApplication',
+    lifetimeOwner,
     buffs: parseBuffEntries(action.buffs, `${path}.buffs`),
     count: parseScalarSource(action.count, `${path}.count`, inheritedBlackboard),
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),

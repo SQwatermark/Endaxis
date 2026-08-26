@@ -226,6 +226,31 @@ function validateContribution(
     );
   }
 
+  if (record.initializationBlackboard !== undefined) {
+    const blackboard = asRecord(
+      record.initializationBlackboard,
+      `${path}.initializationBlackboard`,
+      issues,
+    );
+    if (blackboard !== null) {
+      for (const [blackboardKey, value] of Object.entries(blackboard)) {
+        issues.push(
+          ...validateLevelValuesDefinition(
+            value,
+            `${path}.initializationBlackboard.${blackboardKey}`,
+          ),
+        );
+        if (Array.isArray(value) && value.length !== levelCount) {
+          push(
+            issues,
+            `${path}.initializationBlackboard.${blackboardKey}`,
+            `expected ${levelCount} level values`,
+          );
+        }
+      }
+    }
+  }
+
   if (record.eventHandlers === undefined) return;
   if (!Array.isArray(record.eventHandlers)) {
     push(issues, `${path}.eventHandlers`, 'expected an array');

@@ -1,5 +1,7 @@
 import {
+  parseGameplayAttributeModifierEntrySource,
   parseGameplayAttributeModifierSource,
+  type GameplayAttributeModifierEntrySource,
   type GameplayAttributeModifierSource,
 } from './attributeModifiers.ts';
 import { numericDeclaredBlackboard } from './blackboard.ts';
@@ -21,7 +23,13 @@ import {
   requireRecord,
   requireString,
 } from './primitives.ts';
-import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
+import {
+  parseIntegerScalarSource,
+  parseScalarSource,
+  type BlackboardLevelValues,
+  type IntegerScalarSource,
+  type ScalarSource,
+} from './scalar.ts';
 
 export const BUFF_STACKING_TYPES = [
   'Unlimited',
@@ -82,6 +90,43 @@ export interface BuffDamageModifierSource {
   readonly processors: readonly DamageProcessorSource[];
 }
 
+export interface BuffHealModifierSource {
+  readonly enabledSide: string;
+  readonly condition: NativeSequenceSource<KnownNativeActionLeafSource>;
+  readonly processors: readonly {
+    readonly kind: 'instantAttribute';
+    readonly modifyTargetSide: string;
+    readonly modifier: GameplayAttributeModifierEntrySource;
+  }[];
+}
+
+export interface BuffPoiseModifierSource {
+  readonly enabledSide: string;
+  readonly condition: NativeSequenceSource<KnownNativeActionLeafSource>;
+  readonly processors: readonly {
+    readonly kind: 'instantAttribute';
+    readonly modifyTargetSide: string;
+    readonly modifier: GameplayAttributeModifierEntrySource;
+  }[];
+}
+
+export interface BuffShieldSource {
+  readonly infinityValue: boolean;
+  readonly value: ScalarSource;
+  readonly applyScale: boolean;
+  readonly valueScale: ScalarSource;
+  readonly damageAbsorptions: readonly {
+    readonly damageType: string;
+    readonly ratio: ScalarSource;
+    readonly scale: ScalarSource;
+  }[];
+  readonly absorbCount: IntegerScalarSource;
+  readonly absorbAllDamageWhenConsumed: boolean;
+  readonly removeBuffWhenConsumed: boolean;
+  readonly priority: string;
+  readonly replaceHitEffect: boolean;
+}
+
 /**
  * BuffData 的公共、可审计运行时切片。根字段先由动作图读取器做精确校验；这里再保留生命
  * 周期、图标、标签和属性修正，并把尚未结构化的非空载荷显式列出。
@@ -92,6 +137,9 @@ export interface BuffRuntimeSource {
   readonly lifecycle: BuffLifecycleSource;
   readonly attributeModifiers: GameplayAttributeModifierSource;
   readonly damageModifiers: readonly BuffDamageModifierSource[];
+  readonly healModifiers: readonly BuffHealModifierSource[];
+  readonly poiseModifiers: readonly BuffPoiseModifierSource[];
+  readonly shields: readonly BuffShieldSource[];
   readonly applyTagIds: readonly number[];
   readonly extendTagIds: readonly number[];
   readonly unsupportedPayloads: readonly UnsupportedBuffPayloadSource[];
@@ -117,12 +165,7 @@ export function parseBuffRuntimeSource(
   const graph = parseKnownNativeBuffActionGraphSource(value, sourcePath, localBlackboard);
 
   validatePassiveFlags(root, sourcePath, localBlackboard);
-  const unsupportedPayloads = [
-    ...unsupportedArray(root, sourcePath, 'healModifier'),
-    ...unsupportedArray(root, sourcePath, 'poiseModifier'),
-    ...unsupportedArray(root, sourcePath, 'globalModifier'),
-    ...unsupportedArray(root, sourcePath, 'shieldConfigs'),
-  ];
+  const unsupportedPayloads = [...unsupportedArray(root, sourcePath, 'globalModifier')];
 
   const stacking = requireRecord(root.stackingSettings, `${sourcePath}.stackingSettings`);
   requireExactFields(
@@ -217,6 +260,17 @@ export function parseBuffRuntimeSource(
       `${sourcePath}.damageModifier`,
       localBlackboard,
     ),
+    healModifiers: parseBuffHealModifiers(
+      root.healModifier,
+      `${sourcePath}.healModifier`,
+      localBlackboard,
+    ),
+    poiseModifiers: parseBuffPoiseModifiers(
+      root.poiseModifier,
+      `${sourcePath}.poiseModifier`,
+      localBlackboard,
+    ),
+    shields: parseBuffShields(root.shieldConfigs, `${sourcePath}.shieldConfigs`, localBlackboard),
     applyTagIds: parseTagIds(root.applyTags, `${sourcePath}.applyTags`),
     extendTagIds: parseTagIds(
       root.tagsAfterTriggerExtendBuffAction,
@@ -224,6 +278,196 @@ export function parseBuffRuntimeSource(
     ),
     unsupportedPayloads,
   };
+}
+
+function parseBuffShields(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): readonly BuffShieldSource[] {
+  return requireArray(value, path).map((raw, index) => {
+    const itemPath = `${path}[${index}]`;
+    const item = requireRecord(raw, itemPath);
+    requireExactFields(
+      item,
+      new Set([
+        'infinityValue',
+        'valueCalculation',
+        'damageAbsorptions',
+        'absorbCnt',
+        'absorbAllDmgWhenConsume',
+        'removeBuffWhenConsume',
+        'priority',
+        'replaceHitEffect',
+        'hitEffect',
+      ]),
+      itemPath,
+    );
+    const calculationPath = `${itemPath}.valueCalculation`;
+    const calculation = requireRecord(item.valueCalculation, calculationPath);
+    requireExactFields(
+      calculation,
+      new Set(['$type', 'value', 'applyScale', 'valueScale']),
+      calculationPath,
+    );
+    const calculationType = requireNonEmptyString(calculation.$type, `${calculationPath}.$type`);
+    if (calculationType !== 'Beyond.Gameplay.Core.DefiniteValueCalculation, Gameplay.Beyond') {
+      throw new Error(
+        `${calculationPath}.$type: unsupported shield calculation ${JSON.stringify(calculationType)}`,
+      );
+    }
+    requireRecord(item.hitEffect, `${itemPath}.hitEffect`);
+    return {
+      infinityValue: requireBoolean(item.infinityValue, `${itemPath}.infinityValue`),
+      value: parseScalarSource(calculation.value, `${calculationPath}.value`, inheritedBlackboard),
+      applyScale: requireBoolean(calculation.applyScale, `${calculationPath}.applyScale`),
+      valueScale: parseScalarSource(
+        calculation.valueScale,
+        `${calculationPath}.valueScale`,
+        inheritedBlackboard,
+      ),
+      damageAbsorptions: requireArray(item.damageAbsorptions, `${itemPath}.damageAbsorptions`).map(
+        (rawAbsorption, absorptionIndex) => {
+          const absorptionPath = `${itemPath}.damageAbsorptions[${absorptionIndex}]`;
+          const absorption = requireRecord(rawAbsorption, absorptionPath);
+          requireExactFields(
+            absorption,
+            new Set(['damageType', 'absorptionRatio', 'absorptionScale']),
+            absorptionPath,
+          );
+          return {
+            damageType: requireNonEmptyString(
+              absorption.damageType,
+              `${absorptionPath}.damageType`,
+            ),
+            ratio: parseScalarSource(
+              absorption.absorptionRatio,
+              `${absorptionPath}.absorptionRatio`,
+              inheritedBlackboard,
+            ),
+            scale: parseScalarSource(
+              absorption.absorptionScale,
+              `${absorptionPath}.absorptionScale`,
+              inheritedBlackboard,
+            ),
+          };
+        },
+      ),
+      absorbCount: parseIntegerScalarSource(item.absorbCnt, `${itemPath}.absorbCnt`),
+      absorbAllDamageWhenConsumed: requireBoolean(
+        item.absorbAllDmgWhenConsume,
+        `${itemPath}.absorbAllDmgWhenConsume`,
+      ),
+      removeBuffWhenConsumed: requireBoolean(
+        item.removeBuffWhenConsume,
+        `${itemPath}.removeBuffWhenConsume`,
+      ),
+      priority: requireNonEmptyString(item.priority, `${itemPath}.priority`),
+      replaceHitEffect: requireBoolean(item.replaceHitEffect, `${itemPath}.replaceHitEffect`),
+    };
+  });
+}
+
+function parseBuffPoiseModifiers(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): readonly BuffPoiseModifierSource[] {
+  return requireArray(value, path).map((raw, index) => {
+    const itemPath = `${path}[${index}]`;
+    const item = requireRecord(raw, itemPath);
+    requireExactFields(item, new Set(['enableSide', 'condition', 'poiseProcessors']), itemPath);
+    const processors = requireArray(item.poiseProcessors, `${itemPath}.poiseProcessors`).map(
+      (rawProcessor, processorIndex) => {
+        const processorPath = `${itemPath}.poiseProcessors[${processorIndex}]`;
+        const processor = requireRecord(rawProcessor, processorPath);
+        requireExactFields(
+          processor,
+          new Set(['$type', 'modifyTargetSide', 'modifier']),
+          processorPath,
+        );
+        const type = requireNonEmptyString(processor.$type, `${processorPath}.$type`);
+        if (type !== 'Beyond.Gameplay.Core.InstantModifyAttributeForPoise, Gameplay.Beyond') {
+          throw new Error(
+            `${processorPath}.$type: unsupported poise processor ${JSON.stringify(type)}`,
+          );
+        }
+        return {
+          kind: 'instantAttribute' as const,
+          modifyTargetSide: requireNonEmptyString(
+            processor.modifyTargetSide,
+            `${processorPath}.modifyTargetSide`,
+          ),
+          modifier: parseGameplayAttributeModifierEntrySource(
+            processor.modifier,
+            `${processorPath}.modifier`,
+            inheritedBlackboard,
+          ),
+        };
+      },
+    );
+    return {
+      enabledSide: requireNonEmptyString(item.enableSide, `${itemPath}.enableSide`),
+      condition: parseNativeSequenceSource(
+        item.condition,
+        `${itemPath}.condition`,
+        inheritedBlackboard,
+        (leaf, leafPath) => parseKnownNativeActionLeafSource(leaf, leafPath, inheritedBlackboard),
+      ),
+      processors,
+    };
+  });
+}
+
+function parseBuffHealModifiers(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): readonly BuffHealModifierSource[] {
+  return requireArray(value, path).map((raw, index) => {
+    const itemPath = `${path}[${index}]`;
+    const item = requireRecord(raw, itemPath);
+    requireExactFields(item, new Set(['enableSide', 'condition', 'healProcessors']), itemPath);
+    const processors = requireArray(item.healProcessors, `${itemPath}.healProcessors`).map(
+      (rawProcessor, processorIndex) => {
+        const processorPath = `${itemPath}.healProcessors[${processorIndex}]`;
+        const processor = requireRecord(rawProcessor, processorPath);
+        requireExactFields(
+          processor,
+          new Set(['$type', 'modifyTargetSide', 'modifier']),
+          processorPath,
+        );
+        const type = requireNonEmptyString(processor.$type, `${processorPath}.$type`);
+        if (type !== 'Beyond.Gameplay.Core.InstantModifyAttributeForHeal, Gameplay.Beyond') {
+          throw new Error(
+            `${processorPath}.$type: unsupported heal processor ${JSON.stringify(type)}`,
+          );
+        }
+        return {
+          kind: 'instantAttribute' as const,
+          modifyTargetSide: requireNonEmptyString(
+            processor.modifyTargetSide,
+            `${processorPath}.modifyTargetSide`,
+          ),
+          modifier: parseGameplayAttributeModifierEntrySource(
+            processor.modifier,
+            `${processorPath}.modifier`,
+            inheritedBlackboard,
+          ),
+        };
+      },
+    );
+    return {
+      enabledSide: requireNonEmptyString(item.enableSide, `${itemPath}.enableSide`),
+      condition: parseNativeSequenceSource(
+        item.condition,
+        `${itemPath}.condition`,
+        inheritedBlackboard,
+        (leaf, leafPath) => parseKnownNativeActionLeafSource(leaf, leafPath, inheritedBlackboard),
+      ),
+      processors,
+    };
+  });
 }
 
 function parseBuffDamageModifiers(

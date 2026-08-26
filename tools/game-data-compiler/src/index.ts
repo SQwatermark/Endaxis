@@ -18,6 +18,19 @@ export {
   type CompiledGameplayTagDefinitionSource,
 } from './compiler/gameplayTagCatalog.ts';
 export {
+  compileAbilityEventPrograms,
+  type AbilityEventProgramSource,
+  type CompiledAbilityEventProgram,
+  type CompileAbilityEventProgramOptions,
+} from './compiler/abilityEventProgram.ts';
+export {
+  compileActionNodePrograms,
+  compileActionSequenceProgram,
+  type CompiledActionNodeProgram,
+  type CompiledActionSequenceProgram,
+  type CompileActionSequenceProgramOptions,
+} from './compiler/actionSequenceProgram.ts';
+export {
   compileAbilityEntityTemplateCatalogSource,
   resolveAbilityEntityTemplateIdsByTagQuery,
   type CompiledAbilityEntityTemplateCatalogSource,
@@ -50,6 +63,10 @@ export {
   parseKnownNativeActionSequenceSource,
   type KnownNativeActionLeafSource,
 } from './source/actionLeaf.ts';
+export {
+  parseCharacterTypeIdReadActionSource,
+  type CharacterTypeIdReadActionSource,
+} from './source/characterIdentityActions.ts';
 export {
   parseAdvancedBuffFinishActionSource,
   parseBuffApplicationActionSource,
@@ -355,6 +372,10 @@ export {
 export { discoverWeaponPassiveSkillRequests } from './domains/weapon/passiveDiscovery.ts';
 export { parseWeaponBasicSources, type WeaponBasicSource } from './domains/weapon/basicTable.ts';
 export {
+  attachWeaponProductIdentities,
+  type IdentifiedWeaponStaticDefinitionSource,
+} from './domains/weapon/productIdentity.ts';
+export {
   parseWeaponBaseAttackSources,
   resolveWeaponBaseAttackModifier,
   type ResolvedWeaponBaseAttackModifierSource,
@@ -384,6 +405,15 @@ export {
   type CompiledWeaponToggleBuffGroupSource,
   type CompiledWeaponToggleConditionSource,
 } from './domains/weapon/staticDefinition.ts';
+export {
+  compileWeaponRuntimeDefinitionBatchSource,
+  type CompiledWeaponRuntimeDefinitionSource,
+  type CompiledWeaponRuntimeDefinitionBatchSource,
+} from './domains/weapon/runtimeDefinition.ts';
+export {
+  renderWeaponDefinitionFiles,
+  type RenderedWeaponDefinitionFileSource,
+} from './domains/weapon/renderRuntimeDefinitions.ts';
 export { discoverEquipmentSuitPassiveSkillRequests } from './domains/equipment/passiveDiscovery.ts';
 export {
   compileEquipmentSuitSourceClosure,
@@ -409,6 +439,8 @@ export {
   buffRuntimeReadsBlackboardKey,
   collectBuffRuntimeClosure,
   compileBuffRuntimeDefinitionSource,
+  compileCombatActionSequenceSource,
+  compileSkillSpGainActionSequenceSource,
   isAfterEnemyDefeatedOnlyBuffRuntime,
   isPresentationOnlyBuffStackEffect,
   type CompiledBuffAttributeModifierSource,
@@ -418,7 +450,17 @@ export {
   type CompiledBuffPresentationSource,
   type CompiledBuffSequenceSource,
   type CompiledBuffStepSource,
+  type CombatActionProjectionContextSource,
 } from './compiler/buffRuntimeProjection.ts';
+export {
+  evaluateStandardStumpFullHealthComparison,
+  standardStumpBuffAbilityEventOmissionReason,
+} from './compiler/standardStumpScenarioPolicy.ts';
+export {
+  compileStandardStumpBuffClosure,
+  type CompiledStandardStumpBuffClosure,
+  type StandardStumpBuffClosureDiagnostic,
+} from './compiler/standardStumpBuffClosure.ts';
 export {
   renderEquipmentSuitDefinitionFiles,
   type RenderedEquipmentSuitDefinitionFileSource,
@@ -433,6 +475,7 @@ export {
   type EquipmentPartTypeSource,
   type ResolvedEquipmentAttributeModifierSource,
 } from './source/equipmentAttributeModifiers.ts';
+export { parseItemIdentitySource, type ItemIdentitySource } from './source/itemIdentity.ts';
 export {
   projectEquipmentAttributeModifier,
   type EquipmentAttributeModifierProjectionSource,
@@ -457,6 +500,11 @@ export {
   type RenderedEquipmentDefinitionFileSource,
 } from './domains/equipment/renderFormalDefinitions.ts';
 export { writeEquipmentDefinitionFiles } from './domains/equipment/writeFormalDefinitions.ts';
+export {
+  writeGeneratedDefinitionFiles,
+  type RenderedDefinitionFileSource,
+} from './compiler/writeGeneratedDefinitionFiles.ts';
+export { writeWeaponDefinitionFiles } from './domains/weapon/writeRuntimeDefinitions.ts';
 export {
   compilePassiveSkillSource,
   type CompiledPassiveSkillSource,

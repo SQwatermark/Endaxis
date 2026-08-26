@@ -2,3 +2,4 @@
 export * from './adaptSharedEquipment';
 export * from './sharedEquipmentDefinitions';
 export * from './generatedGearRegistration';
+export * from './generatedWeaponRegistration';

@@ -227,9 +227,9 @@ describe('HealOperationExecutor', () => {
       receipt: new CombatReceiptCollector(),
       resolveSourceAttribute: () => 100,
       resolveTarget: () => ({ operatorId: 'operator:target', vitals: target }),
-      applyHealModifiers: (_timing, side, context) => {
-        stages.push(side);
-        context.value *= side === 'healer' ? 1.1 : 1.2;
+      applyHealModifiers: (timing, side, context) => {
+        stages.push(`${timing}:${side}`);
+        if (timing === 'afterCalculation') context.value *= side === 'healer' ? 1.1 : 1.2;
       },
       resolveHealingIncrease: side => (side === 'healer' ? 0.2 : 0.3),
       delegate: terminal,
@@ -247,7 +247,12 @@ describe('HealOperationExecutor', () => {
       },
     });
 
-    expect(stages).toEqual(['healer', 'receiver']);
+    expect(stages).toEqual([
+      'beforeCalculation:healer',
+      'beforeCalculation:receiver',
+      'afterCalculation:healer',
+      'afterCalculation:receiver',
+    ]);
     expect(target.health).toBeCloseTo(898);
   });
 

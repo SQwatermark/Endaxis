@@ -34,6 +34,7 @@ export interface CombatAbilityDamageEvent {
   readonly kind: 'abilityDamage';
   readonly event:
     | 'beforeCalculateDamage'
+    | 'beforeOutputDamage'
     | 'beforeTakeDamage'
     | 'takeDamage'
     | 'takeCriticalDamage'
@@ -100,7 +101,7 @@ export interface CombatAbilityHealEvent {
 /** AbilitySystem 在技能正式启动前发出的施放事件。 */
 export interface CombatAbilitySkillEvent {
   readonly kind: 'abilitySkill';
-  readonly event: 'beforeCastSkill' | 'skillEnd';
+  readonly event: 'beforeCastSkill' | 'afterSkillApplyCost' | 'skillEnd';
   readonly sourceId: string;
   readonly targetId: string;
   readonly skillType: import('../../game-data/operatorDefinition').SkillType;
@@ -152,6 +153,8 @@ export interface CombatOperationContext {
   readonly buffSourceId?: string;
   /** 仅由 Buff 实例响应提供；用于保留原生 ActionOwner 身份。 */
   readonly buffOwnerId?: string;
+  /** 事件动作宿主；武器/装备是装备者，Buff 是当前 Buff owner。 */
+  readonly actionOwnerId?: string;
   /** 仅由 Buff 生命周期与事件响应提供；Environment 查询精确指向当前实例。 */
   readonly finishCurrentBuff?: (reason: BuffFinishReason) => boolean;
   /** Environment BuffCount 查询读取正在执行的当前 Buff 增强层数。 */
@@ -202,6 +205,8 @@ interface SkillRuntimeDependencies {
   readonly advancesCooldown?: boolean;
   /** 原生 CastEnd 清理完成后向所有者 AbilitySystem 同步发布 OnSkillEnd。 */
   readonly emitSkillEnd?: (payload: CombatAbilitySkillEvent) => void;
+  /** 原生费用实际应用成功后、同帧时间轴动作前同步发布 OnAfterSkillApplyCost。 */
+  readonly emitAfterSkillApplyCost?: (payload: CombatAbilitySkillEvent) => void;
 }
 
 /** 一次编译后技能的有状态实例；创建后只用于一场战斗。 */
@@ -519,6 +524,9 @@ export class SkillRuntime {
             this.#program.operatorId,
           ),
         });
+        this.#dependencies.emitAfterSkillApplyCost?.(
+          this.#skillEventPayload('afterSkillApplyCost'),
+        );
       } else {
         this.record('SkillCostRejected');
       }
@@ -550,15 +558,19 @@ export class SkillRuntime {
   }
 
   #emitSkillEnd(): void {
-    this.#dependencies.emitSkillEnd?.({
+    this.#dependencies.emitSkillEnd?.(this.#skillEventPayload('skillEnd'));
+  }
+
+  #skillEventPayload(event: CombatAbilitySkillEvent['event']): CombatAbilitySkillEvent {
+    return {
       kind: 'abilitySkill',
-      event: 'skillEnd',
+      event,
       sourceId: this.#program.operatorId,
       targetId: this.#program.operatorId,
       skillType: this.#program.skillType,
       skillId: this.#program.sourceSkillId ?? this.#program.skillId,
       skillCastId: this.#skillCastId,
-    });
+    };
   }
 }
 

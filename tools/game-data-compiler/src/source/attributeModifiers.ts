@@ -176,38 +176,41 @@ export function parseGameplayAttributeModifierSource(
       `${path}.isConvertedAttribute`,
     ),
     modifiers: requireArray(container.attributeModifiers, `${path}.attributeModifiers`).map(
-      (rawModifier, index) => {
-        const modifierPath = `${path}.attributeModifiers[${index}]`;
-        const modifier = requireRecord(rawModifier, modifierPath);
-        requireExactFields(
-          modifier,
-          new Set(['modifyAttributeType', 'attributeType', 'formulaItem', 'param']),
-          modifierPath,
-        );
-        return {
-          modifyAttributeType: requireEnumName(
-            modifier.modifyAttributeType,
-            MODIFY_ATTRIBUTE_TYPES,
-            `${modifierPath}.modifyAttributeType`,
-          ),
-          attributeType: requireEnumName(
-            modifier.attributeType,
-            ATTRIBUTE_TYPES,
-            `${modifierPath}.attributeType`,
-          ),
-          formulaItem: requireEnumName(
-            modifier.formulaItem,
-            MODIFIER_TYPES,
-            `${modifierPath}.formulaItem`,
-          ),
-          parameter: parseScalarSource(
-            modifier.param,
-            `${modifierPath}.param`,
-            inheritedBlackboard,
-          ),
-        };
-      },
+      (rawModifier, index) =>
+        parseGameplayAttributeModifierEntrySource(
+          rawModifier,
+          `${path}.attributeModifiers[${index}]`,
+          inheritedBlackboard,
+        ),
     ),
+  };
+}
+
+/** 读取所有原生即时/常驻处理器共同复用的单项 AttributeModifier。 */
+export function parseGameplayAttributeModifierEntrySource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): GameplayAttributeModifierEntrySource {
+  const modifier = requireRecord(value, path);
+  requireExactFields(
+    modifier,
+    new Set(['modifyAttributeType', 'attributeType', 'formulaItem', 'param']),
+    path,
+  );
+  return {
+    modifyAttributeType: requireEnumName(
+      modifier.modifyAttributeType,
+      MODIFY_ATTRIBUTE_TYPES,
+      `${path}.modifyAttributeType`,
+    ),
+    attributeType: requireEnumName(
+      modifier.attributeType,
+      ATTRIBUTE_TYPES,
+      `${path}.attributeType`,
+    ),
+    formulaItem: requireEnumName(modifier.formulaItem, MODIFIER_TYPES, `${path}.formulaItem`),
+    parameter: parseScalarSource(modifier.param, `${path}.param`, inheritedBlackboard),
   };
 }
 

@@ -14,6 +14,76 @@ const META = {
 } as const;
 
 describe('公共 Action 叶子分派', () => {
+  it('CreateBuffAttachingSkill 复用公共 Buff 载荷并保留当前施放技能生命周期', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Example.CreateBuffAttachingSkill+Data, Example',
+          buffs: [
+            {
+              buffId: 'buff.weapon.during-skill',
+              assignBlackboard: false,
+              assignItems: [],
+              readIdFromBlackboard: false,
+              buffIdKey: '',
+            },
+          ],
+          count: scalarFixture(1),
+          targetSettings: targetFixture('Owner'),
+          buffSource: 'ActionSource',
+          contextKey: '',
+          autoFinishByAction: false,
+          inheritSkillIdList: [],
+          finishWithNextSkillIfNotInherited: true,
+          asChildBuff: false,
+          inheritSourceSkillCastId: false,
+          inheritSourceSkillCastInfo: true,
+          isExtra: false,
+          passTargetGroupsToBuff: false,
+          overrideBuffIconDuration: false,
+          buffIconDurationSource: {
+            m_abilityEntityTypeInfo: 'editor hint',
+            m_timedMarkerInfo: 'editor hint',
+            durationSourceType: 'AbilityEntity',
+            timedMarkerId: '',
+          },
+        },
+        'fixture.createBuffAttachingSkill',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'buffApplication',
+      action: {
+        kind: 'buffApplication',
+        lifetimeOwner: 'currentCastSkill',
+        buffs: [{ buffId: 'buff.weapon.during-skill' }],
+      },
+    });
+  });
+
+  it('SaveCharTypeId 进入公共角色表身份读取 IR', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Example.SaveCharTypeId+Data, Example',
+          target: targetFixture('Owner'),
+          storeKey: 'owner_char_type',
+        },
+        'fixture.characterTypeId',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'characterIdentity',
+      action: {
+        kind: 'characterTypeIdRead',
+        target: { targetSource: 'Owner', targetGroupKey: '' },
+        outputKey: 'owner_char_type',
+      },
+    });
+  });
+
   it('控制流和叶子使用同一入口，不由领域适配器再次解释类型', () => {
     const parsed = parseKnownNativeActionSequenceSource(
       sequence([

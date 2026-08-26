@@ -54,6 +54,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
     readonly onBuffApplied?: (event: BuffAppliedEvent) => void,
     readonly onBeforeBuffApplied?: (event: BuffAppliedEvent) => void,
     readonly onOutputBuff?: (event: BuffAppliedEvent) => void,
+    readonly onBeforeBuffAdded?: (event: BuffAppliedEvent) => void,
   ) {}
 
   get ownerId(): string {
@@ -91,6 +92,8 @@ export class BuffDefinitionOperationTarget<Key extends string>
     };
     // 原生 OnBeforeOutputBuff 在来源 AbilitySystem 上同步发布，且早于目标 Buff 实例创建。
     this.onBeforeBuffApplied?.(event);
+    // 原生 OnBeforeAddedBuff 随后在接收目标 AbilitySystem 上同步发布，仍早于实例创建。
+    this.onBeforeBuffAdded?.(event);
     const applied = this.container.add(definition, request.sourceId, {
       blackboardValues: request.blackboardValues,
       sourceActionId: request.sourceActionId ?? request.buffId,

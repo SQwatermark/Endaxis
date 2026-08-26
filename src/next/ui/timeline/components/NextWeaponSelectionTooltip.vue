@@ -6,11 +6,16 @@
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getWeaponSkillDescription, getWeaponSkillName } from '../../legacy/legacyGameText';
-import { GameRichTextRenderer } from '../../legacy/legacyPresentation';
+import {
+  GameRichTextRenderer,
+  hasLegacyWeaponPresentation,
+  WeaponSelectionTooltip,
+} from '../../legacy/legacyPresentation';
 import type {
   WeaponDefinition,
   WeaponTraitDefinition,
 } from '../../../core/game-data/equipmentDefinition';
+import { resolveMaxWeaponTraitLevels } from '../../../application/editor/loadoutBuildFactory';
 
 const props = defineProps<{
   weapon: WeaponDefinition;
@@ -19,10 +24,18 @@ const props = defineProps<{
 }>();
 
 const { t, locale } = useI18n({ useScope: 'global' });
+const textSlug = computed(() => props.weapon.assetSlug ?? props.weapon.slug);
+const legacyPresentationIdentity = computed(() => ({
+  id: textSlug.value,
+  canonicalId: textSlug.value,
+  name: props.name,
+  rarity: props.weapon.rarity,
+}));
+const useLegacyPresentation = computed(() => hasLegacyWeaponPresentation(textSlug.value));
 
 function traitLevel(trait: WeaponTraitDefinition): number {
-  // 武器初始词条为 1 级，满潜增加 5 级；基质等级不属于选择器的 Ctrl 预览范围。
-  return Math.min(trait.levelCount, props.fullPotential ? 6 : 1);
+  const index = props.weapon.traits.indexOf(trait);
+  return resolveMaxWeaponTraitLevels(props.weapon, props.fullPotential ? 5 : 0)[index] ?? 1;
 }
 
 function isWeaponSkillKey(value: string): value is 'skill1' | 'skill2' | 'skill3' {
@@ -38,8 +51,8 @@ const preview = computed(() => ({
       {
         key: trait.key,
         level,
-        name: getWeaponSkillName(props.weapon.slug, trait.key, locale.value),
-        description: getWeaponSkillDescription(props.weapon.slug, trait.key, locale.value, level),
+        name: getWeaponSkillName(textSlug.value, trait.key, locale.value),
+        description: getWeaponSkillDescription(textSlug.value, trait.key, locale.value, level),
       },
     ];
   }),
@@ -47,7 +60,12 @@ const preview = computed(() => ({
 </script>
 
 <template>
-  <div class="weapon-selection-preview">
+  <WeaponSelectionTooltip
+    v-if="useLegacyPresentation"
+    :weapon="legacyPresentationIdentity"
+    :full-potential="fullPotential"
+  />
+  <div v-else class="weapon-selection-preview">
     <div class="weapon-selection-preview__name">{{ name }}</div>
     <div class="weapon-selection-preview__meta">
       Lv90 · {{ t('armory.common.baseAtk') }}

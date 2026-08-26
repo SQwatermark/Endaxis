@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buffRuntimeReadsBlackboardKey,
   compileBuffRuntimeDefinitionSource,
+  compileCombatActionSequenceSource,
   evaluateFixedFullHealthToggleCondition,
   type BuffRuntimeSource,
   type DamageActionSource,
@@ -10,6 +11,269 @@ import {
 } from '../src/index.ts';
 
 describe('公共 Buff 运行时投影', () => {
+  it('公共动作投影按宿主上下文解析 ActionOwner，而不把武器宿主伪装成 Buff', () => {
+    const source = sourceFixture();
+    const sequence = source.graph.abilityEvents[0]!.actions[0]!;
+
+    expect(
+      compileCombatActionSequenceSource(sequence, {
+        actionOwnerTarget: 'caster',
+        actionSourceTarget: 'caster',
+        actionTargetTarget: 'eventTarget',
+      }).steps[0],
+    ).toMatchObject({
+      kind: 'conditional',
+      whenTrue: {
+        steps: [{ kind: 'applyBuff', parameters: { target: 'caster' } }],
+      },
+    });
+  });
+
+  it('按 combat-spec 保留 FinishBuffAdvanced 的 Buff 来源目标', () => {
+    const source = sourceFixture();
+    const sequence = source.graph.abilityEvents[0]!.actions[0]!;
+    const metadata = sequence.actions[0]!.metadata;
+    const definition = compileBuffRuntimeDefinitionSource({
+      ...source,
+      graph: {
+        ...source.graph,
+        abilityEvents: [],
+        buffEvents: [
+          {
+            event: 'OnBuffFinish',
+            actions: [
+              {
+                ...sequence,
+                actions: [
+                  {
+                    sourcePath: 'BuffData.buff_root.finishSourceBuff',
+                    metadata,
+                    body: {
+                      kind: 'leaf',
+                      value: {
+                        family: 'buffFinish',
+                        action: {
+                          kind: 'buffFinishByQuery',
+                          owner: fixedTarget('Source'),
+                          settings: {
+                            checkType: 'Id',
+                            buffIds: ['buff.weapon.exist'],
+                            tagQuery: { queryType: 'hasAny', tagIds: [] },
+                          },
+                          finishAll: true,
+                          finishLayerCount: { value: 1, blackboardKey: null, levelValues: null },
+                          limitSource: false,
+                          buffSource: fixedTarget('Source'),
+                          isFinishedEarly: false,
+                          isAbsorbed: false,
+                          finishSource: fixedTarget('Source'),
+                        },
+                      },
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    });
+
+    expect(definition.lifecycleSequences?.finish).toEqual({
+      steps: [
+        {
+          kind: 'finishBuffsById',
+          parameters: {
+            target: 'caster',
+            buffIds: ['buff.weapon.exist'],
+            reason: 'other',
+          },
+        },
+      ],
+    });
+  });
+
+  it('把治疗 Tag 条件和即时治疗属性修正投影到公共治疗修正', () => {
+    const source = sourceFixture();
+    const conditionNode = source.graph.abilityEvents[0]!.actions[0]!.actions[0]!;
+    const definition = compileBuffRuntimeDefinitionSource({
+      ...source,
+      healModifiers: [
+        {
+          enabledSide: 'Healer',
+          condition: {
+            onlyExecuteWhenSourceIsMainCharacter: false,
+            onlyExecuteWhenSourceIsGuard: false,
+            actions: [
+              {
+                ...conditionNode,
+                body: {
+                  kind: 'leaf',
+                  value: {
+                    family: 'condition',
+                    action: {
+                      kind: 'healTag',
+                      sourceType: 'CheckHealTag',
+                      queryType: 'hasAny',
+                      tagIds: [-1517158118],
+                    },
+                  },
+                },
+              },
+            ],
+          },
+          processors: [
+            {
+              kind: 'instantAttribute',
+              modifyTargetSide: 'Attacker',
+              modifier: {
+                modifyAttributeType: 'Specific',
+                attributeType: 'HealOutputIncrease',
+                formulaItem: 'BaseAddition',
+                parameter: { value: 0, blackboardKey: 'heal_up', levelValues: [0.05] },
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(definition.healModifiers).toEqual([
+      {
+        enabledSide: 'healer',
+        condition: { kind: 'healTagsMatch', match: 'hasAny', tagIds: [-1517158118] },
+        processors: [
+          {
+            kind: 'modifyHealingIncrease',
+            timing: 'beforeCalculation',
+            side: 'healer',
+            addition: { blackboardKey: 'heal_up' },
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('把主控普攻末段的即时失衡属性修正投影到公共失衡修正', () => {
+    const source = sourceFixture();
+    const template = source.graph.abilityEvents[0]!.actions[0]!.actions[0]!;
+    const definition = compileBuffRuntimeDefinitionSource({
+      ...source,
+      poiseModifiers: [
+        {
+          enabledSide: 'Attacker',
+          condition: {
+            onlyExecuteWhenSourceIsMainCharacter: false,
+            onlyExecuteWhenSourceIsGuard: false,
+            actions: [
+              {
+                ...template,
+                body: {
+                  kind: 'leaf',
+                  value: {
+                    family: 'condition',
+                    action: {
+                      kind: 'damageDecorateMask',
+                      sourceType: 'CheckDamageDecorateMask',
+                      checkType: 'HasAll',
+                      mask: 2097152,
+                    },
+                  },
+                },
+              },
+              {
+                ...template,
+                sourcePath: `${template.sourcePath}.main`,
+                body: {
+                  kind: 'leaf',
+                  value: {
+                    family: 'condition',
+                    action: {
+                      kind: 'mainOperator',
+                      sourceType: 'CheckMainCharacterCondition',
+                      targetSource: 'Source',
+                      targetGroupKey: '',
+                    },
+                  },
+                },
+              },
+            ],
+          },
+          processors: [
+            {
+              kind: 'instantAttribute',
+              modifyTargetSide: 'Attacker',
+              modifier: {
+                modifyAttributeType: 'Specific',
+                attributeType: 'PoiseDamageOutputScalar',
+                formulaItem: 'BaseAddition',
+                parameter: { value: 0, blackboardKey: 'poise_up', levelValues: [0.3] },
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(definition.poiseModifiers).toEqual([
+      {
+        enabledSide: 'attacker',
+        condition: {
+          kind: 'all',
+          conditions: [
+            {
+              kind: 'eventDamageTagsMatch',
+              match: 'hasAll',
+              tags: ['normalAttackLastCombo'],
+            },
+            { kind: 'casterControlled' },
+          ],
+        },
+        processors: [
+          {
+            kind: 'modifyPoiseScalar',
+            timing: 'beforeCalculation',
+            side: 'attacker',
+            addition: { blackboardKey: 'poise_up' },
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('把有限容量护盾投影到公共 Buff 护盾定义', () => {
+    const definition = compileBuffRuntimeDefinitionSource({
+      ...sourceFixture(),
+      shields: [
+        {
+          infinityValue: false,
+          value: { value: 0, blackboardKey: 'shield_valid', levelValues: [500] },
+          applyScale: false,
+          valueScale: { value: 0, blackboardKey: null, levelValues: null },
+          damageAbsorptions: [],
+          absorbCount: { value: -1, blackboardKey: null },
+          absorbAllDamageWhenConsumed: false,
+          removeBuffWhenConsumed: true,
+          priority: 'Normal',
+          replaceHitEffect: true,
+        },
+      ],
+    });
+
+    expect(definition.shields).toEqual([
+      {
+        infinityValue: false,
+        value: { blackboardKey: 'shield_valid' },
+        damageAbsorptions: [],
+        absorbCount: -1,
+        absorbAllDamageWhenConsumed: false,
+        removeBuffWhenConsumed: true,
+        priority: 'normal',
+        replaceHitEffect: true,
+      },
+    ]);
+  });
+
   it('把 Buff 来源技能类型与当前事件技能类型分开投影', () => {
     const source = sourceFixture();
     const condition = source.graph.abilityEvents[0]?.actions[0]?.actions[0];
@@ -151,7 +415,21 @@ describe('公共 Buff 运行时投影', () => {
       {
         event: 'skillSpGained',
         sequence: {
-          steps: [{ kind: 'applyBuff', parameters: { target: 'party' } }],
+          steps: [
+            {
+              kind: 'conditional',
+              parameters: {
+                condition: {
+                  kind: 'eventSpGainMatch',
+                  sources: ['skill'],
+                  gainKinds: ['gain'],
+                },
+              },
+              whenTrue: {
+                steps: [{ kind: 'applyBuff', parameters: { target: 'party' } }],
+              },
+            },
+          ],
         },
       },
     ]);
@@ -273,14 +551,14 @@ describe('公共 Buff 运行时投影', () => {
         target: 'enemy',
         buffIds: ['buff_physical_no_guard'],
         operator: 'greaterOrEqual',
-        value: { kind: 'constant', value: 1 },
+        value: 1,
       },
       {
         kind: 'targetPoiseCompare',
         target: 'enemy',
         returnValueIfMissing: false,
         operator: 'lessOrEqual',
-        value: { kind: 'constant', value: 0 },
+        value: 0,
       },
     ]);
   });
@@ -421,10 +699,11 @@ describe('公共 Buff 运行时投影', () => {
                         action: {
                           kind: 'contextBuff',
                           sourceType: 'CheckBuffIdInContext',
-                          checkType: 'Tag',
-                          buffIds: [],
-                          queryType: 'HasAny',
-                          buffTagIds: [1466867135],
+                          matcher: {
+                            kind: 'tag',
+                            queryType: 'HasAny',
+                            buffTagIds: [1466867135],
+                          },
                         },
                       },
                     },
@@ -777,10 +1056,11 @@ describe('公共 Buff 运行时投影', () => {
           action: {
             kind: 'contextBuff' as const,
             sourceType: 'CheckBuffIdInContext',
-            checkType: 'Tag',
-            buffIds: [],
-            queryType: 'HasAny',
-            buffTagIds: [-6380412],
+            matcher: {
+              kind: 'tag' as const,
+              queryType: 'HasAny',
+              buffTagIds: [-6380412],
+            },
           },
         },
       },
@@ -996,6 +1276,13 @@ describe('公共 Buff 运行时投影', () => {
               parameters: { condition: { kind: 'eventOverheal' } },
               whenTrue: { steps: [{ parameters: { target: 'eventTarget' } }] },
             },
+          ],
+        },
+      },
+      {
+        event: 'outputHeal',
+        sequence: {
+          steps: [
             {
               parameters: {
                 condition: { kind: 'not', condition: { kind: 'eventOverheal' } },
@@ -1146,6 +1433,7 @@ function sourceFixture(): BuffRuntimeSource {
                       family: 'buffApplication',
                       action: {
                         kind: 'buffApplication',
+                        lifetimeOwner: 'independent',
                         buffs: [
                           {
                             buffId: 'buff_child',
@@ -1232,6 +1520,9 @@ function sourceFixture(): BuffRuntimeSource {
       ],
     },
     damageModifiers: [],
+    healModifiers: [],
+    poiseModifiers: [],
+    shields: [],
     applyTagIds: [],
     extendTagIds: [],
     unsupportedPayloads: [],

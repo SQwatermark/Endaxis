@@ -7,6 +7,8 @@
 import type { CombatCondition, DamageFeature, DamageTag } from '../../game-data/operatorDefinition';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import type { GameplayTagQueryType } from '../tags/gameplayTags';
+import { resolveActionValueOperand } from './actionBlackboard';
+import { compareCombatNumbers } from './numericComparison';
 
 type EventDamageTagsCondition = Extract<CombatCondition, { kind: 'eventDamageTagsMatch' }>;
 type EventDamageFeaturesCondition = Extract<CombatCondition, { kind: 'eventDamageFeaturesMatch' }>;
@@ -55,7 +57,10 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       condition.kind !== 'eventBuffEndedEarly' &&
       condition.kind !== 'eventBuffTagsMatch' &&
       condition.kind !== 'eventHealTagsMatch' &&
+      condition.kind !== 'eventSpGainMatch' &&
+      condition.kind !== 'eventConsumedBuffLayerCompare' &&
       condition.kind !== 'eventSourceTargetMatch' &&
+      condition.kind !== 'eventActionOwnerTargetMatch' &&
       condition.kind !== 'eventOverheal' &&
       condition.kind !== 'eventSourceMatchesBuffSource' &&
       condition.kind !== 'eventSourceMatchesBuffSourceEntitySource' &&
@@ -141,10 +146,16 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       );
     }
     if (condition.kind === 'eventBuffIdMatch') {
-      return (
-        (context.event.kind === 'buffApplied' || context.event.kind === 'buffFinished') &&
-        condition.buffIds.includes(context.event.buffId)
-      );
+      const event = context.event;
+      const matched =
+        (event.kind === 'buffApplied' ||
+          event.kind === 'buffFinished' ||
+          event.kind === 'buffConsumed') &&
+        condition.buffIds.includes(event.buffId);
+      if (matched && condition.buffIdOutputKey !== undefined) {
+        context.blackboard.assign({ [condition.buffIdOutputKey]: event.buffId });
+      }
+      return matched;
     }
     if (condition.kind === 'eventBuffEndedEarly') {
       return (
@@ -175,13 +186,54 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
         event.kind === 'abilityHeal' || event.kind === 'operatorHealed' ? event.tagIds : null;
       return tagIds !== null && matchValues(tagIds, condition.tagIds, condition.match);
     }
+    if (condition.kind === 'eventSpGainMatch') {
+      const event = context.event;
+      return (
+        event.kind === 'spGained' &&
+        (condition.sources === undefined || condition.sources.includes(event.source)) &&
+        (condition.gainKinds === undefined || condition.gainKinds.includes(event.gainKind))
+      );
+    }
+    if (condition.kind === 'eventConsumedBuffLayerCompare') {
+      const event = context.event;
+      if (event.kind !== 'buffConsumed') return false;
+      if (condition.outputKey !== undefined) {
+        context.blackboard.assignDynamic(condition.outputKey, event.layers);
+      }
+      return compareCombatNumbers(
+        event.layers,
+        resolveActionValueOperand(condition.value, context.blackboard),
+        condition.operator,
+      );
+    }
     if (condition.kind === 'eventSourceTargetMatch') {
       const event = context.event;
-      if (event.kind !== 'abilityHeal' && event.kind !== 'operatorHealed') return false;
       const equal =
         event.kind === 'operatorHealed'
           ? event.sourceOperatorId === event.targetOperatorId
-          : event.sourceId === event.targetId;
+          : 'sourceId' in event &&
+              typeof event.sourceId === 'string' &&
+              'targetId' in event &&
+              typeof event.targetId === 'string'
+            ? event.sourceId === event.targetId
+            : null;
+      if (equal === null) return false;
+      return condition.operator === 'equal' ? equal : !equal;
+    }
+    if (condition.kind === 'eventActionOwnerTargetMatch') {
+      const ownerId = context.actionOwnerId ?? context.buffOwnerId;
+      if (ownerId === undefined) {
+        throw new Error('eventActionOwnerTargetMatch requires an action owner identity');
+      }
+      const event = context.event;
+      const targetId =
+        'targetId' in event && typeof event.targetId === 'string'
+          ? event.targetId
+          : event.kind === 'operatorHealed'
+            ? event.targetOperatorId
+            : null;
+      if (targetId === null) return false;
+      const equal = ownerId === targetId;
       return condition.operator === 'equal' ? equal : !equal;
     }
     if (condition.kind === 'eventOverheal') {

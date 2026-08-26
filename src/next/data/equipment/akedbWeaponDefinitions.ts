@@ -17,7 +17,6 @@ const traitValues = {
 
 export const bedazzlingNightDebut: WeaponDefinition = {
   slug: 'bedazzling-night-debut',
-  displayName: '曜夜的首演',
   assetSlug: 'bedazzling-night-debut',
   iconPath: '/weapons/polearm/wpn_polearm_0014.webp',
   rarity: 6,
