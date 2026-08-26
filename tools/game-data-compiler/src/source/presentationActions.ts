@@ -129,7 +129,7 @@ export function parsePlaySoundActionSource(value: unknown, path: string): PlaySo
   };
 }
 
-/** DebugPrintAction 只写开发日志；完整校验载荷后在无日志渲染后端中作为表现 no-op。 */
+/** 1.4.4 原生 fallback 直接返回 true，不读取 bbKey；完整保存载荷，见 combat-spec/docs/combo-condition-leaves.md。 */
 export function parseDebugPrintActionSource(value: unknown, path: string): DebugPrintActionSource {
   const action = requireRecord(value, path);
   requireExactFields(

@@ -6,7 +6,26 @@
 当前主线是在 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
-### 2026-08-26 再续：角色模板顺序导出与连携条件环境（最新）
+### 2026-08-26 再续：连携直接条件 14/14 与 trigger 绑定（最新）
+
+- VFS 已补齐 TargetSettings/SelectorData/DirectionSettings 字段读取和目标类型/标签层数/
+  DebugPrint 叶子；诀 5 条条件的 **14/14 直接动作载荷完整消费**。真实样本没有非空嵌套
+  选择器引用，总体角色模板仍 partial（908 字节后缀），不把字段可读冒充完整角色转换。
+- combat-spec 新增 CheckBuffStackNumByTag：首目标为空直接 false、不读阈值，与 Advanced
+  不同；保留增强层/不同 ID 计数及间接部位回主体。DebugPrint 原生无 IFix 分支直接 true，
+  不读黑板。两者已接严格适配器，Next 公共来源层的日志注释同步纠正，没有改生产投影。
+- 由机器码参数和 metadata 字面量确认 triggerTarget 与 inputTarget 分开；条件环境新增显式
+  trigger 输入，执行后清理目标组，不从 input 补默认。按真实 5 条条件形状覆盖四元素测试。
+- 新增 C# 24 + VFS 3 项测试通过；C# 全量 **1296 通过、17 项既有资产缺失失败**，失败名
+  集合不变；UnityWorker **32 通过、4 跳过**；统一 TS 类型检查通过。Next 运行测试本批未重跑。
+- **8 场 Next 阻塞未撤销**。下轮不再查叶子格式，优先：TriggerComboSkillEvent 的
+  oneReady/maxPassedTime 与阈值门禁、发布方传入的两个目标、Pending 黑板传递、初始化
+  覆盖和 IFix，然后接公共 TS IR/Next。不要把第 5 条做成无条件监听器或只填实体初值。
+- 证据：combat-spec `docs/combo-condition-leaves.md`，VFS
+  `docs/research/character-template-prefix.md`；真实导出只在 tmp/arcane-character-conditions-complete.json。
+  默认武器库/迁移 UI 不切换；本批本地提交不推送。
+
+### 2026-08-26 再续：角色模板顺序导出与连携条件环境（上一批）
 
 - VFS 新增 CharacterTemplate 根校验、AbilitySystemData 顺序前缀解码及导出脚本。
   真实诀 raw 从组件起点 4092 消费到 6460，得到实体四键、5 条连携条件及独立的

@@ -1,5 +1,20 @@
 # 诀新版配置证据记录
 
+## 2026-08-26 直接条件叶子完成，待门禁与正式接入
+
+VFS 新导出已完整消费全部 14 个直接条件载荷（角色组件后缀仍 partial）。前四条分别检查
+trigger 为敌人 + Natural/Fire/Pulse/Cryst，其中后三条另要求对应附着标签增强层数 >= 1；
+第五条 DebugPrint 的原生 fallback 直接 true，之后才判断属性分支并保存元素。
+ByTag 的无目标路径直接 false，不能重用 Advanced 的零值比较；原生依据和 24 项新增 C# 测试
+见 combat-spec `docs/combo-condition-leaves.md`。trigger 字符串由调用点 metadata literal 60333
+核实，参数来自独立 triggerTargetHandle，不能用技能 inputTarget 冒充。
+
+VFS 新增 3 项测试，全组 32 pass/4 skip；C# 全量 1296 pass/17 原有资产缺失且失败名未变；
+统一 TS 类型检查通过。Next 仍保留 8 场阻塞，生产行为未变，未重跑 Next 全组。
+下一步聚焦条件执行前的冷却/可用性门禁、事件发布参数、Pending 黑板传递和初始化覆盖；
+本轮已确认 NeedTriggerComboSkill 有全局禁用标志与事件注册检查，后续 oneReady/maxPassedTime
+判断仍有阈值来源未闭环，不足以安装无条件元素监听器。
+
 ## 2026-08-26 顺序导出与独立连携环境（最新）
 
 本轮工具代码进入 VFS，原生运行语义先进入 combat-spec；Endaxis 只更新交接，未改生产数据。
