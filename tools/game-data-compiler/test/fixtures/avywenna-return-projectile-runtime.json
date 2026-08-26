@@ -1,0 +1,100 @@
+[
+  {
+    "$decoded": true,
+    "$partial": true,
+    "layout": "Beyond.Gameplay.Core.ProjectileComponentData",
+    "decodeStatus": "partial",
+    "id": "projectile_chr_0012_avywen_combo_skill_lance_back",
+    "sourceSha256": "8391a88b037a8ce14aa5167f29c450b8ade6e0f47f888a0abbe838761d8301ae",
+    "finishOnReach": true,
+    "hitOnReach": false,
+    "targetFilter": {
+      "checkAlive": true,
+      "autoSetTargetFaction": true,
+      "factionTarget": { "value": 1 },
+      "filterObjectType": false,
+      "filterSlot": false,
+      "filterGameplayTag": false
+    },
+    "maxHitCount": { "valueIntCandidate": -1 },
+    "allowHitSameTarget": false,
+    "collisionDetectTiming": { "value": 0 },
+    "hitAndBlockDetectDelayTime": {
+      "useBlackboardKey": false,
+      "value": 0,
+      "blackboardKey": ""
+    },
+    "hitAndBlockDetectDelayDistance": {
+      "useBlackboardKey": false,
+      "value": 0,
+      "blackboardKey": ""
+    },
+    "keepMoveOnReach": false,
+    "canTraceTargetAfterReach": false,
+    "presetPointKeys": ["LaunchPoint", "TargetPoint"],
+    "useSegmentMove": false,
+    "moveSegments": [
+      {
+        "startPointKey": "LaunchPoint",
+        "moveModeId": "Default",
+        "endPointKey": "TargetPoint",
+        "earlyNextByDuration": false,
+        "segmentDuration": {
+          "useBlackboardKey": false,
+          "value": 0,
+          "blackboardKey": ""
+        },
+        "skipHitAndBlockDetection": false
+      }
+    ]
+  },
+  {
+    "$decoded": true,
+    "$partial": true,
+    "layout": "Beyond.Gameplay.Core.ProjectileComponentData",
+    "decodeStatus": "partial",
+    "id": "projectile_chr_0012_avywen_ultimate_skill_lance_back",
+    "sourceSha256": "82807ea31da6944c48874859360c2ad8e63ff93d4bb528e778006e30a891d228",
+    "finishOnReach": true,
+    "hitOnReach": false,
+    "targetFilter": {
+      "checkAlive": true,
+      "autoSetTargetFaction": true,
+      "factionTarget": { "value": 1 },
+      "filterObjectType": false,
+      "filterSlot": false,
+      "filterGameplayTag": false
+    },
+    "maxHitCount": { "valueIntCandidate": -1 },
+    "allowHitSameTarget": false,
+    "collisionDetectTiming": { "value": 0 },
+    "hitAndBlockDetectDelayTime": {
+      "useBlackboardKey": false,
+      "value": 0,
+      "blackboardKey": ""
+    },
+    "hitAndBlockDetectDelayDistance": {
+      "useBlackboardKey": false,
+      "value": 0,
+      "blackboardKey": ""
+    },
+    "keepMoveOnReach": false,
+    "canTraceTargetAfterReach": false,
+    "presetPointKeys": ["LaunchPoint", "TargetPoint"],
+    "useSegmentMove": false,
+    "moveSegments": [
+      {
+        "startPointKey": "LaunchPoint",
+        "moveModeId": "Default",
+        "endPointKey": "TargetPoint",
+        "earlyNextByDuration": false,
+        "segmentDuration": {
+          "useBlackboardKey": false,
+          "value": 0,
+          "blackboardKey": ""
+        },
+        "skipHitAndBlockDetection": false
+      }
+    ]
+  }
+]

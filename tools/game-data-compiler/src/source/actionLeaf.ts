@@ -42,10 +42,21 @@ import {
 } from './primitives.ts';
 import {
   parseDebugPrintActionSource,
+  parseCameraPresentationActionSource,
+  parseEffectActionSource,
   parsePlaySoundActionSource,
   type DebugPrintActionSource,
+  type CameraPresentationActionSource,
+  type EffectActionSource,
   type PlaySoundActionSource,
 } from './presentationActions.ts';
+import { parseInterruptActionSource, type InterruptActionSource } from './interruptAction.ts';
+import {
+  parseEnemyHurtAnimationActionSource,
+  parsePullActionSource,
+  parseTargetHitStopActionSource,
+  type StumpControlActionSource,
+} from './stumpControlActions.ts';
 import {
   parseAbilityEntitySpawnActionSource,
   parseProjectileLaunchActionSource,
@@ -160,8 +171,14 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'damage'; readonly action: DamageActionSource }
   | {
       readonly family: 'presentation';
-      readonly action: PlaySoundActionSource | DebugPrintActionSource;
+      readonly action:
+        | PlaySoundActionSource
+        | DebugPrintActionSource
+        | EffectActionSource
+        | CameraPresentationActionSource;
     }
+  | { readonly family: 'interrupt'; readonly action: InterruptActionSource }
+  | { readonly family: 'stumpControl'; readonly action: StumpControlActionSource }
   | { readonly family: 'projectile'; readonly action: ProjectileLaunchActionSource }
   | { readonly family: 'abilityEntity'; readonly action: AbilityEntitySpawnActionSource }
   | { readonly family: 'skillCast'; readonly action: SkillCastActionSource };
@@ -327,6 +344,31 @@ export function tryParseKnownNativeActionLeafSource(
       return { family: 'presentation', action: parsePlaySoundActionSource(value, path) };
     case 'DebugPrintAction':
       return { family: 'presentation', action: parseDebugPrintActionSource(value, path) };
+    case 'EffectAction':
+      return { family: 'presentation', action: parseEffectActionSource(value, path) };
+    case 'InterruptAction':
+      return { family: 'interrupt', action: parseInterruptActionSource(value, path) };
+    case 'EnemyHurtAnimAction':
+      return { family: 'stumpControl', action: parseEnemyHurtAnimationActionSource(value, path) };
+    case 'PullAction':
+      return { family: 'stumpControl', action: parsePullActionSource(value, path) };
+    case 'HitStopAction':
+      return { family: 'stumpControl', action: parseTargetHitStopActionSource(value, path) };
+    case 'CameraImpulseAction':
+      return {
+        family: 'presentation',
+        action: parseCameraPresentationActionSource(value, path, 'cameraImpulse'),
+      };
+    case 'AddCameraControlStateAction':
+      return {
+        family: 'presentation',
+        action: parseCameraPresentationActionSource(value, path, 'cameraControlState'),
+      };
+    case 'AddDynamicCcsAction':
+      return {
+        family: 'presentation',
+        action: parseCameraPresentationActionSource(value, path, 'dynamicCameraControlState'),
+      };
     case 'LaunchProjectile':
       return { family: 'projectile', action: parseProjectileLaunchActionSource(value, path) };
     case 'SpawnAbilityEntity':

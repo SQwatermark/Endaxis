@@ -21,6 +21,7 @@ import {
   type BuffStackingTypeSource,
 } from '../source/buffRuntime.ts';
 import type { KnownNativeActionLeafSource } from '../source/actionLeaf.ts';
+import type { ProjectileLaunchActionSource } from '../source/referenceActions.ts';
 import type { ScalarSource } from '../source/scalar.ts';
 import { parseObjectTypeMask } from '../source/objectType.ts';
 import { compileAbilityEventPrograms } from './abilityEventProgram.ts';
@@ -58,6 +59,16 @@ export interface CombatActionProjectionContextSource {
     readonly catalog: CompiledAbilityEntityTemplateCatalogSource;
     readonly gameplayTagRegistry: GameplayTagRegistry;
   };
+}
+
+/** 领域宿主可显式补入公共动作叶子的已审计投影；未提供时仍严格失败。 */
+export interface CombatActionProjectionExtensionsSource {
+  readonly compileProjectileLaunch?: (
+    action: ProjectileLaunchActionSource,
+    sourcePath: string,
+    context: CombatActionProjectionContextSource,
+  ) => readonly CompiledBuffStepSource[];
+  readonly resolveTimeDilationPriority?: (tagId: number, sourcePath: string) => number;
 }
 
 const BUFF_ACTION_CONTEXT: CombatActionProjectionContextSource = {
@@ -427,6 +438,51 @@ export type CompiledBuffConditionSource =
     };
 
 export type CompiledBuffStepSource =
+  | {
+      readonly kind: 'startTimeDilation';
+      readonly parameters:
+        | {
+            readonly scope: 'global';
+            readonly durationSeconds: CompiledActionValueOperandSource;
+            readonly slot: number;
+            readonly priority: number;
+            readonly curve: {
+              readonly kind: 'inline';
+              readonly keys: readonly {
+                readonly time: number;
+                readonly value: number;
+                readonly inTangent: number;
+                readonly outTangent: number;
+                readonly weightedMode: number;
+                readonly inWeight: number;
+                readonly outWeight: number;
+              }[];
+            };
+            readonly finishByAction: boolean;
+            readonly ignoredTargets: readonly ['controlled'];
+          }
+        | {
+            readonly scope: 'entity';
+            readonly durationSeconds: CompiledActionValueOperandSource;
+            readonly slot: number;
+            readonly priority: number;
+            readonly curve: { readonly kind: 'named'; readonly key: string };
+            readonly finishByAction: boolean;
+            readonly targets: readonly ['enemy', 'caster'];
+          };
+    }
+  | {
+      readonly kind: 'withActionBlackboardScope';
+      readonly parameters: {
+        readonly scopeKey: string;
+        readonly lifetime: 'execution';
+        readonly alwaysNext?: boolean;
+        readonly initialValues: Readonly<Record<string, number>>;
+        readonly inheritParent: boolean;
+        readonly entityInitialValues?: Readonly<Record<string, number>>;
+      };
+      readonly body: CompiledBuffSequenceSource;
+    }
   | {
       readonly kind: 'findOwnerSpawnedAbilityEntities';
       readonly parameters: {
@@ -1323,8 +1379,9 @@ export function compileCombatActionSequenceSource(
   source: NativeSequenceSource<KnownNativeActionLeafSource>,
   context: CombatActionProjectionContextSource,
   visualOnlyIds: ReadonlySet<string> = new Set(),
+  extensions: CombatActionProjectionExtensionsSource = {},
 ): CompiledBuffSequenceSource {
-  return compileLinearSequence(source, visualOnlyIds, context);
+  return compileLinearSequence(source, visualOnlyIds, context, extensions);
 }
 
 /** 连携等调用方消费整个序列的布尔结果；即使尾条件不写黑板，也不能删除。 */
@@ -1352,13 +1409,18 @@ function compileLinearSequence(
   source: NativeSequenceSource<KnownNativeActionLeafSource>,
   visualOnlyIds: ReadonlySet<string>,
   context: CombatActionProjectionContextSource = BUFF_ACTION_CONTEXT,
+  extensions: CombatActionProjectionExtensionsSource = {},
 ): CompiledBuffSequenceSource {
-  return compileActionSequenceProgram(source, createBuffSequenceProjection(visualOnlyIds, context));
+  return compileActionSequenceProgram(
+    source,
+    createBuffSequenceProjection(visualOnlyIds, context, extensions),
+  );
 }
 
 function createBuffSequenceProjection(
   visualOnlyIds: ReadonlySet<string>,
   context: CombatActionProjectionContextSource,
+  extensions: CombatActionProjectionExtensionsSource = {},
 ): CompileActionSequenceProgramOptions<
   KnownNativeActionLeafSource,
   CompiledBuffConditionSource,
@@ -1373,7 +1435,7 @@ function createBuffSequenceProjection(
       conditions.length === 1 ? conditions[0]! : { kind: 'all', conditions },
     negateCondition: condition => ({ kind: 'not', condition }),
     compileLeaf: (node, partyTargetGroups) =>
-      compileBuffLeafNode(node, visualOnlyIds, partyTargetGroups, context),
+      compileBuffLeafNode(node, visualOnlyIds, partyTargetGroups, context, extensions),
     compileNodePrefix: (nodes, partyTargetGroups) =>
       compileDifferentCharacterTypePartyLoop(nodes, visualOnlyIds, partyTargetGroups, context),
     compileForEach: (node, partyTargetGroups) => {
@@ -1388,7 +1450,7 @@ function createBuffSequenceProjection(
           actionTargetTarget: 'currentAbilityEntity',
         };
         const body = compileActionSequenceProgram(node.body.action, {
-          ...createBuffSequenceProjection(visualOnlyIds, loopContext),
+          ...createBuffSequenceProjection(visualOnlyIds, loopContext, extensions),
           initialState: () => partyTargetGroups,
         });
         return {
@@ -1538,12 +1600,133 @@ function compileBuffLeafNode(
   visualOnlyIds: ReadonlySet<string>,
   partyTargetGroups: ReadonlyMap<string, ProjectedTargetGroup>,
   context: CombatActionProjectionContextSource,
+  extensions: CombatActionProjectionExtensionsSource = {},
 ): {
   readonly steps: readonly CompiledBuffStepSource[];
   readonly state: ReadonlyMap<string, ProjectedTargetGroup>;
 } {
   if (node.body.kind !== 'leaf') {
     throw new Error(`${node.sourcePath}: expected an action leaf`);
+  }
+  if (node.body.value.family === 'projectile') {
+    const compile = extensions.compileProjectileLaunch;
+    if (compile === undefined)
+      throw new Error(`${node.sourcePath}: projectile launch projection is unavailable`);
+    return {
+      steps: compile(node.body.value.action, node.sourcePath, context),
+      state: partyTargetGroups,
+    };
+  }
+  if (node.body.value.family === 'interrupt') {
+    const action = node.body.value.action;
+    if (
+      context.actionTargetTarget !== 'enemy' ||
+      context.actionSourceTarget !== 'caster' ||
+      action.attacker.targetSource !== 'Source' ||
+      action.attacker.targetGroupKey !== '' ||
+      action.defender.targetSource !== 'Target' ||
+      action.defender.targetGroupKey !== ''
+    )
+      throw new Error(`${node.sourcePath}: unsupported InterruptAction stump projection`);
+    // 静态木桩没有正在执行的技能或主动行为；控制结果对可见伤害/资源账本无影响。
+    return { steps: [], state: partyTargetGroups };
+  }
+  if (node.body.value.family === 'stumpControl') {
+    const action = node.body.value.action;
+    if (
+      context.actionTargetTarget !== 'enemy' ||
+      context.actionSourceTarget !== 'caster' ||
+      action.source.targetSource !== 'Source' ||
+      action.source.targetGroupKey !== '' ||
+      action.target.targetSource !== 'Target' ||
+      action.target.targetGroupKey !== ''
+    )
+      throw new Error(`${node.sourcePath}: unsupported static-enemy control projection`);
+    // 木桩无主动行为，且 Endaxis 距离恒为零；受击动画、拉拽和 OnlyTarget hit-stop
+    // 均不改变玩家动作、伤害或资源账本。
+    return { steps: [], state: partyTargetGroups };
+  }
+  if (node.body.value.family === 'timeDilation') {
+    const action = node.body.value.action;
+    if (action.kind !== 'timeDilation')
+      throw new Error(`${node.sourcePath}: ultimate time dilation is unsupported here`);
+    const priority = extensions.resolveTimeDilationPriority?.(
+      action.priorityTagId,
+      node.sourcePath,
+    );
+    if (
+      action.useTimeScaleForSkillCooldownTick ||
+      action.influenceSkillCooldownTime.blackboardKey !== null ||
+      action.influenceSkillCooldownTime.value !== 0 ||
+      priority === undefined ||
+      !Number.isFinite(priority)
+    )
+      throw new Error(`${node.sourcePath}: unsupported time-dilation cooldown/priority projection`);
+    if (action.layer === 'Entity') {
+      const target = action.effectTargets[0];
+      const source = action.effectTargets[1];
+      if (
+        !action.useCurveKey ||
+        action.curveKey.length === 0 ||
+        action.inlineCurveKeys.length !== 0 ||
+        action.ignoreTargets.length !== 0 ||
+        action.effectTargets.length !== 2 ||
+        target?.targetSource !== 'Target' ||
+        target.targetGroupKey !== '' ||
+        source?.targetSource !== 'Source' ||
+        source.targetGroupKey !== ''
+      )
+        throw new Error(`${node.sourcePath}: unsupported entity time-dilation projection`);
+      return {
+        steps: [
+          {
+            kind: 'startTimeDilation',
+            parameters: {
+              scope: 'entity',
+              durationSeconds: actionValueOperand(action.duration),
+              slot: action.slotTagId,
+              priority,
+              curve: { kind: 'named', key: action.curveKey },
+              finishByAction: action.finishByAction,
+              targets: ['enemy', 'caster'],
+            },
+          },
+        ],
+        state: partyTargetGroups,
+      };
+    }
+    const ignored = action.ignoreTargets[0];
+    const affected = action.effectTargets[0];
+    if (
+      action.useCurveKey ||
+      action.curveKey !== '' ||
+      action.inlineCurveKeys.length === 0 ||
+      action.ignoreTargets.length !== 1 ||
+      ignored === undefined ||
+      !isControlledOperatorInstantSearch(ignored) ||
+      action.effectTargets.length !== 1 ||
+      affected === undefined ||
+      affected.targetSource !== 'Source' ||
+      affected.targetGroupKey !== ''
+    )
+      throw new Error(`${node.sourcePath}: unsupported global time-dilation projection`);
+    return {
+      steps: [
+        {
+          kind: 'startTimeDilation',
+          parameters: {
+            scope: 'global',
+            durationSeconds: actionValueOperand(action.duration),
+            slot: action.slotTagId,
+            priority,
+            curve: { kind: 'inline', keys: action.inlineCurveKeys },
+            finishByAction: action.finishByAction,
+            ignoredTargets: ['controlled'],
+          },
+        },
+      ],
+      state: partyTargetGroups,
+    };
   }
   if (node.body.value.family === 'targetGroup') {
     const queryInputs = context.abilityEntityQueries;
@@ -1725,6 +1908,19 @@ function compileConditionLeaf(
     throw new Error(`${sourcePath}: unaudited receiving Buff event condition ${condition.kind}`);
   if (condition.kind === 'mainOperator') {
     if (
+      condition.targetSource === 'Target' &&
+      condition.targetGroupKey === '' &&
+      context.actionTargetTarget === 'enemy'
+    ) {
+      // 静态敌方木桩不可能是玩家主控；用显式假条件保留 alwaysNext/fail 分支结构。
+      return {
+        kind: 'actionValueCompare',
+        left: { kind: 'constant', value: 0 },
+        operator: 'equal',
+        right: { kind: 'constant', value: 1 },
+      };
+    }
+    if (
       condition.targetSource !== 'Owner' ||
       condition.targetGroupKey !== '' ||
       context.actionOwnerTarget !== 'caster'
@@ -1840,6 +2036,26 @@ function compileConditionLeaf(
   }
   if (condition.kind === 'entityCount') {
     const operator = COMPARISON_OPERATORS[condition.comparison];
+    if (
+      condition.targetSource === 'Target' &&
+      condition.targetGroupKey === '' &&
+      !condition.containsHittableTarget &&
+      !condition.excludeDeadEntity &&
+      condition.storeKey === '' &&
+      operator !== undefined &&
+      ['enemy', 'currentAbilityEntity', 'eventTarget', 'eventSource'].includes(
+        context.actionTargetTarget,
+      )
+    ) {
+      // 已绑定单一 ActionTarget 的回调不会以空集合调用；保留为显式常量比较，
+      // 不把一般 Context 集合查询错误简化为唯一木桩。
+      return {
+        kind: 'actionValueCompare',
+        left: { kind: 'constant', value: 1 },
+        operator,
+        right: { kind: 'constant', value: condition.minimumCount },
+      };
+    }
     if (
       condition.targetSource !== 'Context' ||
       condition.targetGroupKey === '' ||
@@ -2193,6 +2409,8 @@ function compileActionNode(
       'blackboardMutation',
       'blackboardCalculation',
       'resource',
+      'presentation',
+      'timeDilation',
     ].includes(node.body.value.family)
   )
     throw new Error(`${node.sourcePath}: unaudited single-enemy action ${node.body.value.family}`);

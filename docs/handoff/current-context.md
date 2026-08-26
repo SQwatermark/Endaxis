@@ -6,7 +6,28 @@
 当前主线是在 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
-### 2026-08-27：回收枪 JumpTo 与死亡/释放边界闭环（最新）
+### 2026-08-27：回收枪首帧调度与完整回调动作图进入统一编译器（最新）
+
+- combat-spec `ef1b068` 依据 `ProjectileMovementSubComponent.OnTick` 恢复两阶段顺序：首帧先
+  `_CheckCollision`，再移动/Reach；普通帧则相反。`Reach` 自身先施放 reach 技能，再检查
+  `hitOnReach`。因此只对“首帧与唯一木桩重叠、同帧到达、hitOnReach=false”投影 hit → reach，
+  不能把该顺序推广到一般投射物。
+- 两份艾维文娜回收枪 ProjectileData 均严格满足该边界。公共来源新增 partial
+  `ProjectileComponentData` 解析器，验证目标筛选、零延迟、单段 LaunchPoint → TargetPoint、
+  `finishOnReach=true` 等字段；任何变化都会失败关闭。
+- 公共 Action 序列只在宿主显式安装投射物扩展时消费 `LaunchProjectile`。扩展从完整 hit/reach
+  SkillData 动作图编译，不再依赖手选写入/伤害/回能切片；每颗枪及每次回调仍各有独立 direct 板，
+  同一枪共享模板实体板。
+- 本机完整源验证已通过两份 hit SkillData 与公共 reach SkillData。命中侧保留潜能伤害分支和
+  终结技实体时间膨胀；到达侧保留主控分支、全局时间膨胀和双守卫回能。Interrupt、受击动画、
+  拉拽、OnlyTarget hit-stop 仅在静态木桩无主动行为/零距离边界省略；特效和镜头只在无渲染后端省略。
+- **正式艾维文娜定义尚未由新 TS 主动技能渲染器重生成，两个连续排轴诊断仍必须保留。** 下一步是
+  把本扩展接入正式主动技能时间轴装配，替换旧展平产物后再做连续排轴、终结技枪、重复回收、
+  天赋/潜能和 `wpn_lance_0006` 数值差分；禁止手改生成文件或回到旧 Python。
+- 两套类型检查通过；Next+统一编译器全量 305 文件/3647 项通过（其中两项仍是上述已知失败诊断），
+  武器生成 `--check` 77 把/78 文件通过。完整源与一次性审计只在 tmp/，未进入 Git。
+
+### 2026-08-27：回收枪 JumpTo 与死亡/释放边界闭环（上一批）
 
 - combat-spec `ba62cd6` 依据 1.4.4 方法体补齐 `JumpToAction`：Execute 立即尝试、条件未满足时
   随 Tick 重试、首次成功先锁门再跳；时间轴丢弃目标帧前未启动项、结束被跨过的短活动项，目标帧

@@ -111,6 +111,34 @@ Buff 目标隔离 3）；两侧类型检查、武器重建 `--check` 77 把/78 �
 报告 `tmp/projectile-return-damage.audit.json` 不提交。正式数据及武器 revision r3 不变；
 combat-spec/VFS 本轮未改未重跑，沿用其既有证据和上批测试基线，不把旧 C# 结果写成本轮验收。
 
+## 最新实现：首帧调度证据与完整回调动作图
+
+combat-spec `ef1b068` 从 1.4.4 `ProjectileMovementSubComponent.OnTick`（RVA `0x03D7E690`）
+恢复了非对称 tick 顺序：首次 tick 在 `0x03D7E6F7` 先 `_CheckCollision`，随后在
+`0x03D7EF64` 移动/判定 Reach；普通 tick 到 `0x03D7F0B4` 才在移动后查碰撞。
+`ProjectileComponent.Reach` 又会先同步施放 reach 技能，再读取 `hitOnReach`。两份回收枪均为
+`finishOnReach=true`、`hitOnReach=false`，零距离唯一木桩模型使它们首帧重叠且同帧到达，故这里
+可严格得到 hit → reach。一般飞行帧、`hitOnReach=true` 或非重叠起点不得复用该结论。
+
+统一 TS 编译器新增：
+
+- ProjectileComponentData partial 来源解析，保留并门禁目标筛选、命中次数/重复命中、碰撞时机、
+  时间/距离延迟、到达结束、预设点和移动段；
+- 宿主显式安装的 `LaunchProjectile` 公共叶子扩展；缺扩展继续带来源路径失败；
+- 从完整 hit/reach SkillData 动作图编译回调的入口，只接受 startFrame=0 的同步回调；endFrame 是
+  动作区间而非延迟触发时间，不要求为 0；
+- 原生时间膨胀优先级由调用方版本目录解析；inline 全局曲线与命名 Entity 曲线进入现有 DSL；
+- Interrupt、EnemyHurtAnim、Pull、OnlyTarget HitStop 只在敌方静态木桩目标下省略；Effect 与镜头
+  动作严格校验根字段后在无渲染后端省略，其他目标/形状仍失败关闭。
+
+本机直接读取两份完整 hit SkillData、公共 reach SkillData、两份 ProjectileData 和模板黑板证据，
+两条整链均成功生成独立 hit/reach 作用域。完整源仍在 tmp/，Git 只保存固定哈希的有界来源夹具。
+这已消除“切片可能漏掉控制/时间膨胀”的编译器风险，但**还没有正式重生成艾维文娜技能定义**；
+旧展平定义和两条连续排轴失败诊断暂不改动。
+
+本批最终门禁：Next+统一编译器 305 文件/3647 项通过，两套类型检查通过；武器定义
+`--check` 为 77 把/78 文件。combat-spec 投射物路由聚焦测试 7/7 通过。
+
 ## 来源与结论
 
 先沿既有 combat-spec `skill-blackboard.md`、`launch-projectile-skill-routing.md` 追踪所有权，

@@ -772,6 +772,13 @@ Owner 生命周期动作和 219 个时间膨胀动作。
 旧导出器的 `FAnimationCurve` 包装表示，并统一进入同一求值结构。来源 IR 已按当前字段签名
 187/187 严格读取；Endaxis 的时间缩放仲裁、时钟与曲线执行投影仍需单独接入，不能把来源可读
 误写成模拟执行已完成。
+
+艾维文娜回收枪现建立了第一个严格投射物运行投影：`source/projectileRuntime.ts` 读取 partial
+ProjectileComponentData 的首帧相关字段，`compiler/projectileRuntimeProjection.ts` 只接受
+combat-spec 已证明的“首帧重叠碰撞 → 同帧 Reach、hitOnReach=false”形状。公共动作序列默认仍拒绝
+LaunchProjectile；正式宿主必须显式提供扩展，并从完整 hit/reach SkillData 动作图、模板实体黑板和
+版本化时间膨胀优先级目录建立每次发射的独立作用域。该入口不是通用移动/碰撞模拟器，任何延迟回调、
+其他移动段或 hitOnReach 形状都继续失败关闭。
 2459/2459 份 SkillData 均通过动作图根结构读取，共包含 39529 个时间轴项和 112 个被动事件。
 其中 5 个敌方被动事件把 `abilityEvent` 序列化为未命名数值 0，来源层保留该数值而不猜测事件名；
 该动作图统计只证明容器、时间和叶子身份可读，叶子进入正式公共 IR 仍以上述统一入口结果为准。

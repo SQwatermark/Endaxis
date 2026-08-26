@@ -19,7 +19,7 @@ export interface CompiledActionBlackboardScopeSource {
     readonly entityInitialValues?: Readonly<Record<string, number>>;
   };
   readonly body: {
-    readonly steps: readonly (CompiledBuffStepSource | CompiledActionBlackboardScopeSource)[];
+    readonly steps: readonly CompiledBuffStepSource[];
   };
 }
 
@@ -63,7 +63,7 @@ export function compileSynchronousProjectileCallbackScopesSource(input: {
     routes.set(callback.event, callback.skillId);
   }
   const skills = new Set<string>();
-  const steps = invocations.map(invocation => {
+  const steps: CompiledBuffStepSource[] = invocations.map(invocation => {
     if (routes.get(invocation.event) !== invocation.skillId)
       throw new Error(
         `${sourcePath}: callback ${invocation.event} does not match the enabled native route`,

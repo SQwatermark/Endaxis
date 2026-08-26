@@ -467,6 +467,7 @@ export {
   type CompiledBuffSequenceSource,
   type CompiledBuffStepSource,
   type CombatActionProjectionContextSource,
+  type CombatActionProjectionExtensionsSource,
 } from './compiler/buffRuntimeProjection.ts';
 export {
   evaluateStandardStumpFullHealthComparison,
@@ -664,6 +665,16 @@ export {
   type CompiledActionBlackboardScopeSource,
   type ProjectileCallbackInvocationSource,
 } from './compiler/projectileCallbackScopes.ts';
+export {
+  compileImmediateProjectileCallbackSkillSource,
+  compileZeroDistanceProjectileLaunchFromSources,
+  compileZeroDistanceFirstTickProjectileSource,
+  type ZeroDistanceProjectileCallbackSource,
+} from './compiler/projectileRuntimeProjection.ts';
+export {
+  parseProjectileRuntimeSource,
+  type ProjectileRuntimeSource,
+} from './source/projectileRuntime.ts';
 export {
   compileOperatorRuntimeDefinitionSource,
   renderOperatorRuntimeDefinitionSource,

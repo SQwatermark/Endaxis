@@ -44,6 +44,158 @@ export interface DebugPrintActionSource {
   readonly identifier: string;
 }
 
+export interface EffectActionSource {
+  readonly kind: 'effect';
+  readonly target: TargetReferenceSource;
+  readonly effectSource: TargetReferenceSource;
+  readonly effectName: string;
+}
+
+export interface CameraPresentationActionSource {
+  readonly kind: 'cameraImpulse' | 'cameraControlState' | 'dynamicCameraControlState';
+}
+
+const ACTION_META_FIELDS = [
+  '$type',
+  'isEnable',
+  'priorityLevel',
+  'priorityOffset',
+  'serverActionIndex',
+];
+
+export function parseCameraPresentationActionSource(
+  value: unknown,
+  path: string,
+  kind: CameraPresentationActionSource['kind'],
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  const fields =
+    kind === 'cameraImpulse'
+      ? [
+          ...ACTION_META_FIELDS,
+          'realCameraShake2D',
+          'targetSettings',
+          'releaseWhenActionEnds',
+          '_mountPoint',
+          '_boneNode',
+          '_positionOffset',
+          '_followTarget',
+          '_impulseDefinitionData',
+        ]
+      : kind === 'cameraControlState'
+        ? [
+            ...ACTION_META_FIELDS,
+            'configKey',
+            'customPriority',
+            'ccsPriority',
+            'useCcsCondition',
+            'overrideBlendIn',
+            'blendInStyle',
+            'blendInCustomCurve',
+            'blendInTime',
+            'overrideBlendOut',
+            'blendOutStyle',
+            'blendOutCustomCurve',
+            'blendOutTime',
+            'removeByDuration',
+            'ccsDuration',
+            'removeByActionEnd',
+            'inheritByNextSkill',
+            'inheritKey',
+            'inheritSkillIds',
+            'keepAdditiveParamOnLeave',
+          ]
+        : [
+            ...ACTION_META_FIELDS,
+            'debugName',
+            'customPriority',
+            'ccsPriority',
+            'overrideLowerParamsToDefault',
+            'useCondition',
+            'enterConditionsOr',
+            'leaveConditionsOr',
+            'blendInStyle',
+            'blendInCustomCurve',
+            'blendInTime',
+            'blendOutStyle',
+            'blendOutCustomCurve',
+            'blendOutTime',
+            'removeByDuration',
+            'ccsDuration',
+            'removeByActionEnd',
+            'useAdditiveParam',
+            'additiveHorizontalAngle',
+            'additiveVerticalValue',
+            'additiveZoomScale',
+            'keepAdditiveParamOnLeave',
+            'useMinZoom',
+            'minZoom',
+            'useMaxZoom',
+            'maxZoom',
+            'useMinVerticalValue',
+            'minVerticalValue',
+            'useMaxVerticalValue',
+            'maxVerticalValue',
+            'enableHorizontalAngleLimit',
+            'minHorizontalAngle',
+            'maxHorizontalAngle',
+            'useFovCurve',
+            'fovCurve',
+            'useScreenYCurve',
+            'screenYCurve',
+            'useShoulderOffset',
+            'shoulderOffset',
+            'useAdditionalShoulderOffset',
+            'additionalShoulderOffset',
+            'useLookAtOffset',
+            'lookAtOffset',
+            'useAdditionalLookAtOffset',
+            'additionalLookAtOffset',
+            'useAdditiveFOV',
+            'additiveFOV',
+          ];
+  requireExactFields(action, new Set(fields), path);
+  if (kind === 'cameraImpulse')
+    parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`);
+  return { kind };
+}
+
+/** EffectAction 的根路由严格读取；渲染专属配置保留在来源 JSON，不进入无渲染战斗 IR。 */
+export function parseEffectActionSource(value: unknown, path: string): EffectActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'targetSettings',
+      'effectSource',
+      'useGuardLodSourceOverride',
+      'guardLodSource',
+      'isMainCharacterActive',
+      'isTargetMainCharacterActive',
+      'isShowBigEffect',
+      'bigEffectName',
+      'playOnHittableObjects',
+      'effectActionCfg',
+      'saveEffectIdToBlackboard',
+      'forceMainBody',
+      'isCreateWithSourceModelActive',
+    ]),
+    path,
+  );
+  const config = requireRecord(action.effectActionCfg, `${path}.effectActionCfg`);
+  return {
+    kind: 'effect',
+    target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
+    effectSource: parseTargetReferenceSource(action.effectSource, `${path}.effectSource`),
+    effectName: requireString(config.effectName, `${path}.effectActionCfg.effectName`),
+  };
+}
+
 /**
  * combat-spec 1.4.4 的 PlaySoundAction.ExecuteInternal 只解析目标并进入音频播放路径。
  * 来源层仍完整校验已知字段；投影层可据此将它保留为有证据的表现 no-op。

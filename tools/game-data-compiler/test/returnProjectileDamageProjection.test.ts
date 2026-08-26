@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import fixtures from './fixtures/avywenna-return-damage.json';
 import scopeFixtures from './fixtures/avywenna-return-blackboard.json';
+import runtimeFixtures from './fixtures/avywenna-return-projectile-runtime.json';
 import { parseDamageActionSource } from '../src/source/damageActions.ts';
 import { compileEventTargetSimpleDamageOperationSource } from '../src/compiler/simpleDamageOperation.ts';
 import { compileCombatActionSequenceSource } from '../src/compiler/buffRuntimeProjection.ts';
+import { compileImmediateProjectileCallbackSkillSource } from '../src/compiler/projectileRuntimeProjection.ts';
+import { parseProjectileLaunchActionSource } from '../src/source/referenceActions.ts';
 import {
   makeReturnProjection,
   parseReturnSequence,
@@ -18,6 +21,144 @@ function damageSource(index = 0) {
 }
 
 describe('公共回调伤害投影', () => {
+  it('完整回调动作图保留 startFrame=0 的区间时间膨胀，并拒绝延迟启动', () => {
+    const launch = parseProjectileLaunchActionSource(scopeFixtures[0]!.launch, 'launch');
+    const controlled = {
+      ...launch.projectileSource,
+      targetSource: 'InstantSearch',
+      finderType: 'CharacterTeamFinder',
+      validatorTypes: ['MainCharacterValidator'],
+    };
+    const graph = {
+      skillId: 'callback',
+      level: 1,
+      durationFrame: 15,
+      declaredBlackboard: [],
+      actionGroup: {
+        passiveEvents: [],
+        timelineActions: [
+          {
+            startFrame: 0,
+            endFrame: 15,
+            forceSyncAnimation: {
+              forceSync: false,
+              montageName: '',
+              targetFrame: 0,
+              playbackSpeed: 1,
+            },
+            sequence: {
+              onlyExecuteWhenSourceIsMainCharacter: false,
+              onlyExecuteWhenSourceIsGuard: false,
+              actions: [
+                {
+                  sourcePath: 'callback.timeDilation',
+                  metadata: {
+                    nativeType: 'TimeDilationAction',
+                    nativeName: 'TimeDilationAction',
+                    enabled: true,
+                    priorityLevel: 'Default',
+                    priorityOffset: 0,
+                    serverActionIndex: 0,
+                  },
+                  body: {
+                    kind: 'leaf' as const,
+                    value: {
+                      family: 'timeDilation' as const,
+                      action: {
+                        kind: 'timeDilation' as const,
+                        layer: 'Global' as const,
+                        slotTagId: 1464849466,
+                        priorityTagId: 451969779,
+                        duration: { value: 0.2, blackboardKey: null, levelValues: null },
+                        useCurveKey: false,
+                        curveKey: '',
+                        inlineCurveKeys: [
+                          {
+                            time: 0,
+                            value: 0.2,
+                            inTangent: 0,
+                            outTangent: 0,
+                            weightedMode: 0,
+                            inWeight: 0,
+                            outWeight: 0,
+                          },
+                        ],
+                        finishByAction: false,
+                        ignoreTargets: [controlled],
+                        effectTargets: [launch.projectileSource],
+                        useTimeScaleForSkillCooldownTick: false,
+                        influenceSkillCooldownTime: {
+                          value: 0,
+                          blackboardKey: null,
+                          levelValues: null,
+                        },
+                      },
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    };
+    expect(
+      compileImmediateProjectileCallbackSkillSource({
+        graph,
+        context: returnProjectionContext,
+        extensions: { resolveTimeDilationPriority: () => 10 },
+      }).sequence.steps[0],
+    ).toMatchObject({
+      kind: 'startTimeDilation',
+      parameters: { scope: 'global', priority: 10, ignoredTargets: ['controlled'] },
+    });
+    graph.actionGroup.timelineActions[0]!.startFrame = 1;
+    expect(() =>
+      compileImmediateProjectileCallbackSkillSource({
+        graph,
+        context: returnProjectionContext,
+        extensions: { resolveTimeDilationPriority: () => 10 },
+      }),
+    ).toThrow('delayed projectile callback is unsupported');
+  });
+
+  it('公共序列入口只在宿主提供投射物投影扩展时消费 LaunchProjectile', () => {
+    const sequence = parseReturnSequence(
+      {
+        actionData: [scopeFixtures[0]!.launch],
+        onlyExecuteWhenSourceIsMainChar: false,
+        onlyExecuteWhenSourceIsGuard: false,
+      },
+      'battle.returnLaunch',
+    );
+    expect(() => compileCombatActionSequenceSource(sequence, returnProjectionContext)).toThrow(
+      'projectile launch projection is unavailable',
+    );
+    const projected = compileCombatActionSequenceSource(
+      sequence,
+      returnProjectionContext,
+      new Set(),
+      {
+        compileProjectileLaunch: (_launch, sourcePath) => {
+          expect(sourcePath).toContain('battle.returnLaunch');
+          return [makeReturnProjection(0)];
+        },
+      },
+    );
+    expect(projected.steps[0]).toMatchObject({
+      kind: 'withActionBlackboardScope',
+      parameters: { entityInitialValues: { EntityBB_talent0: 0 } },
+    });
+  });
+
+  it('不把 hitOnReach 或非首帧形状冒充艾维文娜的命中后到达链', () => {
+    const runtime = structuredClone(runtimeFixtures[0]!);
+    runtime.hitOnReach = true;
+    expect(() => makeReturnProjection(0, true, runtime)).toThrow(
+      'outside the proven zero-distance first-tick shape',
+    );
+  });
+
   it.each(['attacker', 'effectSource'] as const)(
     '未投影的投射物 Owner 不能由 %s 借用为施法者',
     field => {
