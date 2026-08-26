@@ -1,7 +1,52 @@
 # 艾维文娜回收枪：黑板宿主与回调切片
 
-2026-08-27。本批闭合模板初值证据、公共回调作用域及写入/资源守卫切片，
-**尚未替换正式艾维文娜技能定义，连续排轴的原始报错仍存在**。不得把切片测试计入整技能成功率。
+2026-08-27。最新批将伤害、潜能倍率及回能切片接入真实场景模拟；上一批闭合模板初值证据、
+公共回调作用域及写入/资源守卫。**尚未替换正式艾维文娜技能定义，连续排轴的原始报错仍存在**。
+不得把切片测试计入整技能成功率。
+
+## 最新：动态伤害与真实资源总线验收
+
+公共 `compileEventTargetSimpleDamageOperationSource` 现在保留 Hp 的动态攻击倍率、后置 Poise，
+并严格映射 `NormalSkill=256`、`CanBreakWeakness=4096`。其他位（包括 JS 32 位截断可能漏掉的
+高位）拒绝。普通 `AtkScaleCalculation` 读嵌套倍率，简单计算读顶层倍率且不读失效的残留公式。
+这里复用 combat-spec `damage-formula.md`、`skill-data-damage-adapter.md`、`DamageEnums.g.cs`
+已有证据，不新增原生规则；同时修正此前未拒绝 `takeAtkSnapshot=true` 的边界，未实现施法快照时
+必须失败，不能偷偷改成命中实时计算。
+
+公共 Action/Condition 投影增加显式 `Target=enemy` 的有界入口。原来的 Buff 事件 Target 不变；
+主动回调查询木桩 Buff 时不再要求虚构事件，Source/Source 的 Buff 和资源归已绑定施法者。
+投射物 Owner 暂未接入的部分用 `actionOwnerTarget=unavailable` 标明，Owner 伤害、Buff 条件、
+施加来源或资源动作继续拒绝，不能把投射物本身误认成角色。TargetGroup/ForEach、事件专用条件等
+尚未验收的主动路径不会因此被放行。
+
+两类回收命中的原始潜能分支固定在 `tools/game-data-compiler/test/fixtures/avywenna-return-damage.json`，
+保留源 SHA、原始动作序号、分支条件、乘算及两侧伤害，并列出从切片排除的动作序号。
+该有意选择的测试夹具不是生产定义/中间审计；完整源文件、抽取脚本和全量测试报告仍在 tmp/。
+
+`projectileCallbackDamageSimulation.test.ts` 现在通过真实 `ScenarioSimulationService` 排入测试技能：
+
+- 两种枪的生命/失衡/回能依次发生，非零伤害实际写入敌人生命；不是 mock 接收端。
+- 标签与潜能条件同时满足时，真实最终伤害比无潜能对照提高到约 1.15 倍，失衡不跟着乘算。
+  给施法者增加 40% 战技伤害的测试 Buff 后，真实最终伤害为 1.4 倍，证明分类进入公式。
+- 0/2/3/4/5/6 回能输入 × 天赋 Buff 有/无 × 两种枪全部验证；非零回能只进施法者资源账本，
+  不流向同队另一实例。此处只借正式角色面板和天赋存在 Buff，不安装旧技能或养成补丁。
+- 同一静态发射节点连续三次、再施放一次得到六次相同倍率，回能 6×6=36，不累乘潜能、不串板。
+  只给 reach 调用时，模板零值不产生伤害、失衡或回能。
+
+**仍然只是切片**：测试显式输入 hit→reach 顺序，不证明游戏零距离时的事件次序；原生 Target 资格、
+枪实体创建与回收、终结技枪的附着、中断/拉拽、时间膨胀不在此测试中。标签状态用无其他效果的
+测试 Buff 提供，不宣称已经证明哪种完整游戏异常满足它。测试输入倍率/回能也不是完整养成转换
+的证明。正式的两个连续排轴报错断言仍保留，`wpn_lance_0006` 三层增伤验证仍未解锁。
+
+下一批不再重复补黑板默认值，直接围绕原战技 timelineActions[1]/[8]/[9]/[10] 统一投影
+目标组和逐枪操作：回收标记应作用于当前能力实体，回调伤害 Target 才是木桩。随后闭合有效枪的
+回收/退出生命周期，以及影响 hit 时刻的附着和时间膨胀；仅保留会影响模型输出的行为，
+不建立移动/碰撞/敌人主动行为系统。正式重建完成后才替换旧生成定义及已知报错门禁。
+
+最新验收：Next+统一编译器 **303 文件/3614 项通过**，净增 67（真实模拟 38、公共伤害/边界 26、
+Buff 目标隔离 3）；两侧类型检查、武器重建 `--check` 77 把/78 文件通过。
+报告 `tmp/projectile-return-damage.audit.json` 不提交。正式数据及武器 revision r3 不变；
+combat-spec/VFS 本轮未改未重跑，沿用其既有证据和上批测试基线，不把旧 C# 结果写成本轮验收。
 
 ## 来源与结论
 
@@ -32,7 +77,7 @@ componentList，确认其实际引用的唯一 AbilitySystemData，再用 VFS �
 旧正式产物在战技中展平了回调：保留回能读取，却丢失写入和上述两个守卫；还丢失投射物宿主边界。
 因此给角色 entityBlackboard 补零既不能恢复非零回能，也会把不同发射的生命周期混在一起。
 
-## 本批实现
+## 上一批实现：黑板与守卫
 
 - 现有 `withActionBlackboardScope` 增加可选 `lifetime: execution`：每次执行创建新板，
   但同次执行的 tick/end 使用同一板。缺省仍复用，缓存由静态 scopeKey 改为父板身份 + scopeKey。
@@ -65,7 +110,7 @@ componentList，确认其实际引用的唯一 AbilitySystemData，再用 VFS �
 不处理敌人主动行为、盾/霸体等当前无可见输出的机制。不修改旧版或 Python 生成器。
 本批正式干员/武器数据不变，武器 revision 保持 r3。
 
-## 复核
+## 上一批复核
 
 ```powershell
 pwsh -NoProfile -File D:/Projects/combat-spec/tools/Inspect-ProjectileBlackboard.ps1 `

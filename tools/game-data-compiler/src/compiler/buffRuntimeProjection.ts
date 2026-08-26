@@ -33,12 +33,17 @@ export type CompiledBuffNumberSource = number | { readonly blackboardKey: string
 
 /** 原生动作身份由宿主及事件方向共同投影，不能把物理事件来源一律当作 ActionSource。 */
 export interface CombatActionProjectionContextSource {
-  readonly actionOwnerTarget: 'buffOwner' | 'caster';
+  /** 回调宿主未投影时显式 unavailable；读取 Owner 必须失败，不能借用发射者。 */
+  readonly actionOwnerTarget: 'buffOwner' | 'caster' | 'unavailable';
   /** 接收侧 Buff 事件保留监听器创建者；其他路径沿用已审计的宿主投影。 */
   readonly actionSourceTarget: 'caster' | 'buffSource';
-  /** 接收侧 Target 是事件施加者；可折叠逐队员循环时改为已证明的集合。 */
+  /** 主动命中可显式绑定 enemy；不伪造 Buff 事件。接收侧 Target 是事件施加者。 */
   readonly actionTargetTarget:
-    'eventTarget' | 'eventSource' | 'partyExceptCaster' | 'partyExceptCasterAndSameCharacterType';
+    | 'enemy'
+    | 'eventTarget'
+    | 'eventSource'
+    | 'partyExceptCaster'
+    | 'partyExceptCasterAndSameCharacterType';
 }
 
 const BUFF_ACTION_CONTEXT: CombatActionProjectionContextSource = {
@@ -367,7 +372,7 @@ export type CompiledBuffConditionSource =
     }
   | {
       readonly kind: 'buffStackCompare';
-      readonly target: 'eventTarget' | 'buffOwner' | 'buffSource' | 'caster';
+      readonly target: 'enemy' | 'eventTarget' | 'buffOwner' | 'buffSource' | 'caster';
       readonly tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
       readonly buffTagIds: readonly number[];
       readonly operator:
@@ -378,7 +383,7 @@ export type CompiledBuffConditionSource =
     }
   | {
       readonly kind: 'buffIdStackCompare';
-      readonly target: 'eventTarget' | 'buffOwner' | 'buffSource' | 'caster';
+      readonly target: 'enemy' | 'eventTarget' | 'buffOwner' | 'buffSource' | 'caster';
       readonly buffIds: readonly string[];
       readonly operator:
         'equal' | 'notEqual' | 'greater' | 'greaterOrEqual' | 'less' | 'lessOrEqual';
@@ -1283,7 +1288,7 @@ function compileSkillSpGainSequence(
   return compileLinearSequence(source, visualOnlyIds, context);
 }
 
-/** 被动技能、Buff、武器与装备共享的 Action/Condition 序列投影入口。 */
+/** 主动命中切片、被动技能、Buff、武器与装备共享的 Action/Condition 序列投影入口。 */
 export function compileCombatActionSequenceSource(
   source: NativeSequenceSource<KnownNativeActionLeafSource>,
   context: CombatActionProjectionContextSource,
@@ -1342,7 +1347,8 @@ function createBuffSequenceProjection(
     compileNodePrefix: (nodes, partyTargetGroups) =>
       compileDifferentCharacterTypePartyLoop(nodes, visualOnlyIds, partyTargetGroups, context),
     compileForEach: (node, partyTargetGroups) => {
-      if (context.actionTargetTarget === 'eventSource') return null;
+      if (context.actionTargetTarget === 'eventSource' || context.actionTargetTarget === 'enemy')
+        return null;
       if (!isPartyExceptOwnerInstantSearch(node.body.target)) return null;
       if (
         node.body.action.onlyExecuteWhenSourceIsMainCharacter ||
@@ -1400,6 +1406,7 @@ function compileDifferentCharacterTypePartyLoop(
   readonly steps: readonly CompiledBuffStepSource[];
   readonly state: ReadonlyMap<string, 'party' | 'partyExceptCaster'>;
 } | null {
+  if (context.actionTargetTarget === 'enemy') return null;
   const ownerRead = nodes[0];
   const loop = nodes[1];
   if (
@@ -1479,6 +1486,8 @@ function compileBuffLeafNode(
     throw new Error(`${node.sourcePath}: expected an action leaf`);
   }
   if (node.body.value.family === 'targetGroup') {
+    if (context.actionTargetTarget === 'enemy')
+      throw new Error(`${node.sourcePath}: unaudited single-enemy action target group`);
     if (context.actionTargetTarget === 'eventSource')
       throw new Error(`${node.sourcePath}: unaudited receiving Buff event target group`);
     const action = node.body.value.action;
@@ -1567,6 +1576,12 @@ function compileConditionLeaf(
   sourcePath: string,
   context: CombatActionProjectionContextSource,
 ): CompiledBuffConditionSource {
+  // 主动动作/命中回调没有 Buff 事件环境；只有已验收的条件可使用显式木桩 Target。
+  if (
+    context.actionTargetTarget === 'enemy' &&
+    !['floatCompare', 'buffStack', 'mainOperator', 'poise', 'any'].includes(condition.kind)
+  )
+    throw new Error(`${sourcePath}: unaudited single-enemy action condition ${condition.kind}`);
   if (
     context.actionTargetTarget === 'eventSource' &&
     ![
@@ -1904,10 +1919,10 @@ function compileConditionLeaf(
         kind: 'buffStackCompare',
         target:
           condition.targetSource === 'Owner'
-            ? context.actionOwnerTarget
+            ? requireActionOwnerProjection(context, sourcePath)
             : condition.targetSource === 'Source'
               ? context.actionSourceTarget
-              : 'eventTarget',
+              : singleBuffConditionTarget(context, sourcePath),
         tagQueryType: condition.tagQueryType,
         buffTagIds: condition.buffTagIds,
         operator,
@@ -1919,10 +1934,10 @@ function compileConditionLeaf(
         kind: 'buffIdStackCompare',
         target:
           condition.targetSource === 'Owner'
-            ? context.actionOwnerTarget
+            ? requireActionOwnerProjection(context, sourcePath)
             : condition.targetSource === 'Source'
               ? context.actionSourceTarget
-              : 'eventTarget',
+              : singleBuffConditionTarget(context, sourcePath),
         buffIds: condition.buffIds,
         operator,
         value: actionValueOperand(condition.value),
@@ -1975,7 +1990,7 @@ function compileConditionLeaf(
       condition.targetSource === 'Target'
         ? ('eventTarget' as const)
         : condition.targetSource === 'Owner'
-          ? context.actionOwnerTarget
+          ? requireActionOwnerProjection(context, sourcePath)
           : condition.targetSource === 'Source'
             ? context.actionSourceTarget
             : null;
@@ -2001,6 +2016,26 @@ function compileConditionLeaf(
   throw new Error(`${sourcePath}: unsupported Buff runtime condition ${condition.kind}`);
 }
 
+function singleBuffConditionTarget(
+  context: CombatActionProjectionContextSource,
+  sourcePath: string,
+): 'enemy' | 'eventTarget' {
+  if (context.actionTargetTarget === 'enemy' || context.actionTargetTarget === 'eventTarget') {
+    return context.actionTargetTarget;
+  }
+  throw new Error(`${sourcePath}: unsupported single Buff condition target`);
+}
+
+function requireActionOwnerProjection(
+  context: CombatActionProjectionContextSource,
+  sourcePath: string,
+): 'buffOwner' | 'caster' {
+  if (context.actionOwnerTarget === 'unavailable') {
+    throw new Error(`${sourcePath}: action Owner projection is unavailable`);
+  }
+  return context.actionOwnerTarget;
+}
+
 function compileActionNode(
   node: NativeActionNodeSource<KnownNativeActionLeafSource>,
   visualOnlyIds: ReadonlySet<string>,
@@ -2010,6 +2045,17 @@ function compileActionNode(
   if (node.body.kind !== 'leaf') {
     throw new Error(`${node.sourcePath}: unsupported Buff runtime action`);
   }
+  if (
+    context.actionTargetTarget === 'enemy' &&
+    ![
+      'damage',
+      'buffApplication',
+      'blackboardMutation',
+      'blackboardCalculation',
+      'resource',
+    ].includes(node.body.value.family)
+  )
+    throw new Error(`${node.sourcePath}: unaudited single-enemy action ${node.body.value.family}`);
   if (
     context.actionTargetTarget === 'eventSource' &&
     ![
@@ -2101,7 +2147,10 @@ function compileActionNode(
         parameters: {
           // combat-spec 的公共 TargetSettings 语义：Buff 环境 Owner 是 Buff 接收者，
           // Source 是 Buff 来源。这里保持二者身份，不因多数样本使用 Owner 而合并。
-          target: action.owner.targetSource === 'Owner' ? context.actionOwnerTarget : 'caster',
+          target:
+            action.owner.targetSource === 'Owner'
+              ? requireActionOwnerProjection(context, node.sourcePath)
+              : 'caster',
           buffIds,
           reason: action.isFinishedEarly ? 'early' : 'other',
           ...(action.finishAll ? {} : { count: actionValueOperand(action.finishLayerCount) }),
@@ -2110,7 +2159,10 @@ function compileActionNode(
     ];
   }
   if (node.body.value.family === 'damage') {
-    if (context.actionSourceTarget !== 'caster')
+    if (
+      context.actionSourceTarget !== 'caster' ||
+      !['enemy', 'eventTarget'].includes(context.actionTargetTarget)
+    )
       throw new Error(`${node.sourcePath}: unsupported Buff damage source`);
     return [
       compileEventTargetSimpleDamageOperationSource(node.body.value.action, node.sourcePath, {
@@ -2200,7 +2252,7 @@ function compileActionNode(
         parameters: {
           target:
             action.target.targetSource === 'Owner'
-              ? context.actionOwnerTarget
+              ? requireActionOwnerProjection(context, node.sourcePath)
               : action.target.targetSource === 'Source'
                 ? context.actionSourceTarget
                 : 'eventTarget',
@@ -2292,7 +2344,7 @@ function compileActionNode(
     const action = node.body.value.action;
     const target =
       action.target.targetSource === 'Owner'
-        ? context.actionOwnerTarget
+        ? requireActionOwnerProjection(context, node.sourcePath)
         : action.target.targetSource === 'Source'
           ? context.actionSourceTarget
           : null;
@@ -2351,7 +2403,9 @@ function compileActionNode(
       action.target.targetSource === 'Source' &&
       context.actionSourceTarget === 'caster';
     const usesOwner =
-      action.source.targetSource === 'Owner' && action.target.targetSource === 'Owner';
+      action.source.targetSource === 'Owner' &&
+      action.target.targetSource === 'Owner' &&
+      context.actionOwnerTarget !== 'unavailable';
     if (
       (!usesOwner && !usesCasterSource) ||
       action.source.targetGroupKey !== '' ||
@@ -2383,7 +2437,7 @@ function compileActionNode(
     const action = node.body.value.action;
     const target =
       action.target.targetSource === 'Owner'
-        ? context.actionOwnerTarget
+        ? requireActionOwnerProjection(context, node.sourcePath)
         : action.target.targetSource === 'Source'
           ? context.actionSourceTarget
           : null;
@@ -2413,7 +2467,7 @@ function compileActionNode(
       action.target.targetSource === 'Target'
         ? ('eventTarget' as const)
         : action.target.targetSource === 'Owner'
-          ? context.actionOwnerTarget
+          ? requireActionOwnerProjection(context, node.sourcePath)
           : action.target.targetSource === 'Source'
             ? context.actionSourceTarget
             : null;
@@ -2494,11 +2548,13 @@ function compileBuffApplication(
   }
   const target =
     action.target.targetSource === 'Owner'
-      ? context.actionOwnerTarget
+      ? requireActionOwnerProjection(context, sourcePath)
       : action.target.targetSource === 'Source'
         ? context.actionSourceTarget === 'buffSource'
           ? 'buffSource'
-          : 'eventSource'
+          : context.actionTargetTarget === 'enemy'
+            ? 'caster'
+            : 'eventSource'
         : action.target.targetSource === 'Target'
           ? context.actionTargetTarget
           : action.target.targetSource === 'Context' &&
@@ -2513,13 +2569,17 @@ function compileBuffApplication(
                   : null;
   const source =
     action.buffSource === 'ActionOwner'
-      ? context.actionSourceTarget === 'buffSource'
-        ? 'buffOwner'
-        : undefined
+      ? context.actionOwnerTarget === 'unavailable'
+        ? null
+        : context.actionSourceTarget === 'buffSource'
+          ? 'buffOwner'
+          : undefined
       : action.buffSource === 'ActionSource'
         ? context.actionSourceTarget === 'buffSource'
           ? 'buffSource'
-          : 'eventSource'
+          : context.actionTargetTarget === 'enemy'
+            ? undefined
+            : 'eventSource'
         : null;
   if (target === null || source === null)
     throw new Error(`${sourcePath}: unsupported Buff target/source`);

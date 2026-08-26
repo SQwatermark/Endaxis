@@ -397,7 +397,13 @@ npm run download:game-data:operator-closure -- --vfs-fallback http://desktop:876
 各回调 direct 从自身声明和发射快照建立，同投射物共享实体层。重复子技能、实体赋值等未闭合路径
 明确拒绝，独立 SkillPatch/extra 和异步调度尚未接入。不能把该入口误当完整 LaunchProjectile 编译器。
 
-艾维文娜真实写入/到达资源守卫已从公共源 IR 接至 Next 切片回归，正式技能尚未替换，
+艾维文娜真实写入/潜能伤害分支/到达资源守卫已从公共源 IR 接至真实 Next 场景模拟。
+公共伤害保留实时倍率、NormalSkill/CanBreakWeakness 位与后置 Poise；普通 AtkScaleCalculation
+读嵌套倍率，简单公式不读序列化的残留公式。其他掩码/公式、施法攻击快照仍严格拒绝。
+公共动作可显式绑定 `Target=enemy` 而不虚构 Buff 事件；回调未绑定的 Owner 标为 unavailable，
+不能代用发射者。这个窄入口不放行未覆盖的目标组、循环或事件条件。
+两类枪已验证真实伤害、潜能差分、Buff 守卫、资源账本和重复发射；仍未纳入整条回收/附着/时间
+膨胀链，测试提供的 hit/reach 顺序不是原生调度证据。正式技能尚未替换，
 详见 `docs/research/avywenna-return-projectile-blackboard.md`。不得修改旧 Python 或手补生成产物绕过边界。
 
 ### 角色模板常驻运行定义的可重建入口

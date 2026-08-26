@@ -11,6 +11,87 @@ import {
 } from '../src/index.ts';
 
 describe('公共 Buff 运行时投影', () => {
+  it.each(['Target', 'Source'] as const)(
+    '主动动作的 %s Buff 目标不需要伪造事件上下文',
+    targetSource => {
+      const sequence = sourceFixture().graph.abilityEvents[0]!.actions[0]!;
+      const apply = sequence.actions[1]!;
+      if (apply.body.kind !== 'leaf' || apply.body.value.family !== 'buffApplication')
+        throw new Error('fixture');
+      const projected = compileCombatActionSequenceSource(
+        {
+          ...sequence,
+          actions: [
+            {
+              ...apply,
+              body: {
+                kind: 'leaf',
+                value: {
+                  family: 'buffApplication',
+                  action: {
+                    ...apply.body.value.action,
+                    target: fixedTarget(targetSource),
+                    buffSource: 'ActionSource',
+                  },
+                },
+              },
+            },
+          ],
+        },
+        {
+          actionOwnerTarget: 'unavailable',
+          actionSourceTarget: 'caster',
+          actionTargetTarget: 'enemy',
+        },
+      );
+      expect(projected.steps[0]).toMatchObject({
+        kind: 'applyBuff',
+        parameters: {
+          target: targetSource === 'Target' ? 'enemy' : 'caster',
+        },
+      });
+      expect(
+        projected.steps[0]!.kind === 'applyBuff' && projected.steps[0]!.parameters.source,
+      ).toBeUndefined();
+    },
+  );
+
+  it('主动回调尚未绑定 Owner 时拒绝把它当作 Buff 施加来源', () => {
+    const sequence = sourceFixture().graph.abilityEvents[0]!.actions[0]!;
+    const apply = sequence.actions[1]!;
+    if (apply.body.kind !== 'leaf' || apply.body.value.family !== 'buffApplication')
+      throw new Error('fixture');
+    const action = apply.body.value.action;
+    expect(() =>
+      compileCombatActionSequenceSource(
+        {
+          ...sequence,
+          actions: [
+            {
+              ...apply,
+              body: {
+                kind: 'leaf',
+                value: {
+                  family: 'buffApplication',
+                  action: {
+                    ...action,
+                    target: fixedTarget('Target'),
+                    buffSource: 'ActionOwner',
+                  },
+                },
+              },
+            },
+          ],
+        },
+        {
+          actionOwnerTarget: 'unavailable',
+          actionSourceTarget: 'caster',
+          actionTargetTarget: 'enemy',
+        },
+      ),
+    ).toThrow('unsupported Buff target/source');
+  });
+
   it('目标侧前置事件不沿用未经审计的技能事件条件', () => {
     const source = sourceFixture();
     expect(() =>

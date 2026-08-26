@@ -12,24 +12,32 @@ export interface CompiledSimpleDamageOperationSource {
   readonly parameters: {
     readonly damageType: 'physical' | 'heat' | 'electric' | 'cryo' | 'nature';
     readonly attackScale: CompiledActionValueOperandSource;
-    readonly tags: readonly [];
+    readonly tags: readonly 'normalSkill'[];
+    readonly features?: readonly 'canBreakWeakness'[];
     readonly stagger?: CompiledActionValueOperandSource;
   };
 }
 
 /**
- * 投影固定单敌人场景中、由 ActionOwner 对当前事件 Target 造成的标准攻击倍率伤害。
- * 该窄入口只接受公共 DamageAction 来源 IR 中的简单 Hp 单元；任何附加计算、失衡单元、
- * 处理器、费用或目标选择行为都失败关闭。
+ * 投影固定单敌人场景中的标准攻击倍率伤害（Hp 后接可选的固定 Poise 单元）。
+ * simpleCalculation 读取顶层 atkScale；普通 AtkScaleCalculation 读取嵌套倍率。
+ * 两者都在执行时读黑板，不能在转换时冻结潜能等动作写入。
+ * 仅接入已验收的 NormalSkill/CanBreakWeakness 位；快照、其他公式/掩码及处理器严格拒绝。
  */
 export function compileEventTargetSimpleDamageOperationSource(
   action: DamageActionSource,
   sourcePath: string,
   context: {
-    readonly actionOwnerTarget: 'buffOwner' | 'caster';
+    readonly actionOwnerTarget: 'buffOwner' | 'caster' | 'unavailable';
     readonly actionSourceTarget: 'caster';
   } = { actionOwnerTarget: 'caster', actionSourceTarget: 'caster' },
 ): CompiledSimpleDamageOperationSource {
+  if (
+    context.actionOwnerTarget === 'unavailable' &&
+    (action.attacker === 'ActionOwner' || action.effectSource.targetSource === 'Owner')
+  ) {
+    throw new Error(`${sourcePath}: damage action Owner projection is unavailable`);
+  }
   const attackerTarget =
     action.attacker === 'ActionOwner'
       ? ('caster' as const)
@@ -67,13 +75,10 @@ export function compileEventTargetSimpleDamageOperationSource(
   );
   if (
     unit.attributeType !== 'Hp' ||
-    !unit.simpleCalculation ||
-    unit.serializedAttackCalculationPresent ||
-    unit.attackCalculation !== null ||
+    unit.takeAttackSnapshot ||
     unit.serializedPoiseCalculationPresent ||
     unit.poiseCalculation !== null ||
     unit.processors.length > 0 ||
-    unit.damageDecorateMask !== 0 ||
     unit.onlyEnableForMainOperator ||
     unit.ignoreDamageImmuneLevel !== 'None' ||
     unit.ignorePoiseImmune ||
@@ -83,6 +88,26 @@ export function compileEventTargetSimpleDamageOperationSource(
   ) {
     throw new Error(`${sourcePath}: unsupported simple event DamageUnit behavior`);
   }
+  const attackScale = unit.simpleCalculation
+    ? unit.attackScale
+    : unit.serializedAttackCalculationPresent && unit.attackCalculation?.kind === 'attackScale'
+      ? unit.attackCalculation.attackScale
+      : null;
+  if (attackScale === null) {
+    throw new Error(`${sourcePath}: unsupported event attack calculation`);
+  }
+  // DamageEnums.g.cs / skill-data-damage-adapter.md：4352 = NormalSkill | CanBreakWeakness。
+  // 用安全整数和减法验剩余位，避免 JS 位运算把高位截断后误当作已覆盖。
+  const mask = unit.damageDecorateMask;
+  const normalSkill = Math.floor(mask / 256) % 2 === 1;
+  const canBreakWeakness = Math.floor(mask / 4096) % 2 === 1;
+  if (
+    !Number.isSafeInteger(mask) ||
+    mask < 0 ||
+    mask - (normalSkill ? 256 : 0) - (canBreakWeakness ? 4096 : 0) !== 0
+  ) {
+    throw new Error(`${sourcePath}: unsupported event damage decorate mask ${mask}`);
+  }
   const stagger =
     poiseUnit === undefined
       ? undefined
@@ -91,8 +116,9 @@ export function compileEventTargetSimpleDamageOperationSource(
     kind: 'dealDamage',
     parameters: {
       damageType,
-      attackScale: scalarOperand(unit.attackScale),
-      tags: [],
+      attackScale: scalarOperand(attackScale),
+      tags: normalSkill ? ['normalSkill'] : [],
+      ...(canBreakWeakness ? { features: ['canBreakWeakness'] as const } : {}),
       ...(stagger === undefined ? {} : { stagger }),
     },
   };
@@ -108,6 +134,7 @@ function compileSimplePoiseOperand(
     unit.damageType !== damageType ||
     unit.attributeType !== 'Poise' ||
     !unit.simpleCalculation ||
+    unit.takeAttackSnapshot ||
     unit.attackScale.blackboardKey !== null ||
     unit.attackScale.value !== 0 ||
     unit.serializedAttackCalculationPresent ||
