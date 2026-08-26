@@ -28,6 +28,11 @@ import {
   compileActionSequenceProgram,
   type CompileActionSequenceProgramOptions,
 } from './actionSequenceProgram.ts';
+import type { GameplayTagRegistry } from '../../../../src/shared/gameplayTags.ts';
+import type { CompiledAbilityEntityTemplateCatalogSource } from './abilityEntityCatalog.ts';
+import { compileTargetGroupAbilityEntityQuerySource } from './abilityEntityQuery.ts';
+
+type ProjectedTargetGroup = 'party' | 'partyExceptCaster' | 'abilityEntity';
 
 export type CompiledBuffNumberSource = number | { readonly blackboardKey: string };
 
@@ -40,10 +45,19 @@ export interface CombatActionProjectionContextSource {
   /** 主动命中可显式绑定 enemy；不伪造 Buff 事件。接收侧 Target 是事件施加者。 */
   readonly actionTargetTarget:
     | 'enemy'
+    | 'currentAbilityEntity'
     | 'eventTarget'
     | 'eventSource'
     | 'partyExceptCaster'
     | 'partyExceptCasterAndSameCharacterType';
+  /**
+   * 同版本模板与标签目录；仅适用于已核实查询标签不会被运行时增删的 born-tag 筛选。
+   * 动态实体标签需另接运行时验证，不能以目录候选替代；目录本身也不是已生成实例集合。
+   */
+  readonly abilityEntityQueries?: {
+    readonly catalog: CompiledAbilityEntityTemplateCatalogSource;
+    readonly gameplayTagRegistry: GameplayTagRegistry;
+  };
 }
 
 const BUFF_ACTION_CONTEXT: CombatActionProjectionContextSource = {
@@ -372,7 +386,8 @@ export type CompiledBuffConditionSource =
     }
   | {
       readonly kind: 'buffStackCompare';
-      readonly target: 'enemy' | 'eventTarget' | 'buffOwner' | 'buffSource' | 'caster';
+      readonly target:
+        'enemy' | 'currentAbilityEntity' | 'eventTarget' | 'buffOwner' | 'buffSource' | 'caster';
       readonly tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
       readonly buffTagIds: readonly number[];
       readonly operator:
@@ -383,7 +398,8 @@ export type CompiledBuffConditionSource =
     }
   | {
       readonly kind: 'buffIdStackCompare';
-      readonly target: 'enemy' | 'eventTarget' | 'buffOwner' | 'buffSource' | 'caster';
+      readonly target:
+        'enemy' | 'currentAbilityEntity' | 'eventTarget' | 'buffOwner' | 'buffSource' | 'caster';
       readonly buffIds: readonly string[];
       readonly operator:
         'equal' | 'notEqual' | 'greater' | 'greaterOrEqual' | 'less' | 'lessOrEqual';
@@ -412,6 +428,19 @@ export type CompiledBuffConditionSource =
 
 export type CompiledBuffStepSource =
   | {
+      readonly kind: 'findOwnerSpawnedAbilityEntities';
+      readonly parameters: {
+        readonly saveToContextKey: string;
+        readonly abilityEntityIds: readonly string[];
+        readonly sameSourceSkillCast?: boolean;
+      };
+    }
+  | {
+      readonly kind: 'forEachContextTarget';
+      readonly parameters: { readonly contextKey: string };
+      readonly body: CompiledBuffSequenceSource;
+    }
+  | {
       readonly kind: 'mergeContextTargets';
       readonly parameters: {
         readonly saveToContextKey: string;
@@ -428,6 +457,7 @@ export type CompiledBuffStepSource =
         readonly target:
           | 'caster'
           | 'enemy'
+          | 'currentAbilityEntity'
           | 'eventTarget'
           | 'eventSource'
           | 'buffOwner'
@@ -1333,10 +1363,10 @@ function createBuffSequenceProjection(
   KnownNativeActionLeafSource,
   CompiledBuffConditionSource,
   CompiledBuffStepSource,
-  ReadonlyMap<string, 'party' | 'partyExceptCaster'>
+  ReadonlyMap<string, ProjectedTargetGroup>
 > {
   return {
-    initialState: () => new Map<string, 'party' | 'partyExceptCaster'>(),
+    initialState: () => new Map<string, ProjectedTargetGroup>(),
     compileCondition: node => compileEventCondition(node, context),
     canOmitTerminalCondition: condition => !conditionWritesBlackboard(condition),
     combineConditions: conditions =>
@@ -1347,6 +1377,32 @@ function createBuffSequenceProjection(
     compileNodePrefix: (nodes, partyTargetGroups) =>
       compileDifferentCharacterTypePartyLoop(nodes, visualOnlyIds, partyTargetGroups, context),
     compileForEach: (node, partyTargetGroups) => {
+      if (
+        (context.actionTargetTarget === 'enemy' ||
+          context.actionTargetTarget === 'currentAbilityEntity') &&
+        node.body.target.targetSource === 'Context' &&
+        partyTargetGroups.get(node.body.target.targetGroupKey) === 'abilityEntity'
+      ) {
+        const loopContext: CombatActionProjectionContextSource = {
+          ...context,
+          actionTargetTarget: 'currentAbilityEntity',
+        };
+        const body = compileActionSequenceProgram(node.body.action, {
+          ...createBuffSequenceProjection(visualOnlyIds, loopContext),
+          initialState: () => partyTargetGroups,
+        });
+        return {
+          steps: [
+            {
+              kind: 'forEachContextTarget',
+              parameters: { contextKey: node.body.target.targetGroupKey },
+              body,
+            },
+          ],
+          state: partyTargetGroups,
+        };
+      }
+      if (context.actionTargetTarget === 'currentAbilityEntity') return null;
       if (context.actionTargetTarget === 'eventSource' || context.actionTargetTarget === 'enemy')
         return null;
       if (!isPartyExceptOwnerInstantSearch(node.body.target)) return null;
@@ -1399,14 +1455,18 @@ function createBuffSequenceProjection(
 function compileDifferentCharacterTypePartyLoop(
   nodes: readonly NativeActionNodeSource<KnownNativeActionLeafSource>[],
   visualOnlyIds: ReadonlySet<string>,
-  partyTargetGroups: ReadonlyMap<string, 'party' | 'partyExceptCaster'>,
+  partyTargetGroups: ReadonlyMap<string, ProjectedTargetGroup>,
   context: CombatActionProjectionContextSource,
 ): {
   readonly consumedNodeCount: number;
   readonly steps: readonly CompiledBuffStepSource[];
-  readonly state: ReadonlyMap<string, 'party' | 'partyExceptCaster'>;
+  readonly state: ReadonlyMap<string, ProjectedTargetGroup>;
 } | null {
-  if (context.actionTargetTarget === 'enemy') return null;
+  if (
+    context.actionTargetTarget === 'enemy' ||
+    context.actionTargetTarget === 'currentAbilityEntity'
+  )
+    return null;
   const ownerRead = nodes[0];
   const loop = nodes[1];
   if (
@@ -1476,16 +1536,59 @@ function compileDifferentCharacterTypePartyLoop(
 function compileBuffLeafNode(
   node: NativeActionNodeSource<KnownNativeActionLeafSource>,
   visualOnlyIds: ReadonlySet<string>,
-  partyTargetGroups: ReadonlyMap<string, 'party' | 'partyExceptCaster'>,
+  partyTargetGroups: ReadonlyMap<string, ProjectedTargetGroup>,
   context: CombatActionProjectionContextSource,
 ): {
   readonly steps: readonly CompiledBuffStepSource[];
-  readonly state: ReadonlyMap<string, 'party' | 'partyExceptCaster'>;
+  readonly state: ReadonlyMap<string, ProjectedTargetGroup>;
 } {
   if (node.body.kind !== 'leaf') {
     throw new Error(`${node.sourcePath}: expected an action leaf`);
   }
   if (node.body.value.family === 'targetGroup') {
+    const queryInputs = context.abilityEntityQueries;
+    const write = node.body.value.action;
+    if (queryInputs !== undefined && write.finderType === 'OwnerSpawnedEntityFinder') {
+      if (
+        write.producerType !== 'FindTargetAction' ||
+        context.actionOwnerTarget !== 'caster' ||
+        context.actionSourceTarget !== 'caster' ||
+        !['enemy', 'currentAbilityEntity'].includes(context.actionTargetTarget)
+      )
+        throw new Error(`${node.sourcePath}: unsupported AbilityEntity query environment`);
+      const query = compileTargetGroupAbilityEntityQuerySource(
+        write,
+        queryInputs.catalog,
+        queryInputs.gameplayTagRegistry,
+        node.sourcePath,
+      );
+      if (
+        !['actionOwner', 'actionSource'].includes(query.owner.kind) ||
+        !['actionOwner', 'actionSource'].includes(query.center.kind) ||
+        query.validators.some(validator => validator.kind === 'distance') ||
+        query.postProcessors.length > 0
+      )
+        throw new Error(`${node.sourcePath}: unsupported AbilityEntity runtime query filter`);
+      const nextGroups = new Map(partyTargetGroups);
+      nextGroups.set(write.targetGroupKey, 'abilityEntity');
+      return {
+        steps: [
+          {
+            kind: 'findOwnerSpawnedAbilityEntities',
+            parameters: {
+              saveToContextKey: write.targetGroupKey,
+              abilityEntityIds: query.candidateTemplateIds,
+              ...(query.validators.some(validator => validator.kind === 'sameSkillCast')
+                ? { sameSourceSkillCast: true }
+                : {}),
+            },
+          },
+        ],
+        state: nextGroups,
+      };
+    }
+    if (context.actionTargetTarget === 'currentAbilityEntity')
+      throw new Error(`${node.sourcePath}: unaudited AbilityEntity target group`);
     if (context.actionTargetTarget === 'enemy')
       throw new Error(`${node.sourcePath}: unaudited single-enemy action target group`);
     if (context.actionTargetTarget === 'eventSource')
@@ -1579,9 +1682,35 @@ function compileConditionLeaf(
   // 主动动作/命中回调没有 Buff 事件环境；只有已验收的条件可使用显式木桩 Target。
   if (
     context.actionTargetTarget === 'enemy' &&
-    !['floatCompare', 'buffStack', 'mainOperator', 'poise', 'any'].includes(condition.kind)
+    !['floatCompare', 'buffStack', 'mainOperator', 'poise', 'any', 'entityCount'].includes(
+      condition.kind,
+    )
   )
     throw new Error(`${sourcePath}: unaudited single-enemy action condition ${condition.kind}`);
+  if (
+    context.actionTargetTarget === 'currentAbilityEntity' &&
+    !['floatCompare', 'buffStack', 'distance', 'entityCount', 'any'].includes(condition.kind)
+  )
+    throw new Error(`${sourcePath}: unaudited AbilityEntity condition ${condition.kind}`);
+  if (condition.kind === 'distance') {
+    if (
+      context.actionTargetTarget !== 'currentAbilityEntity' ||
+      context.actionOwnerTarget !== 'caster' ||
+      condition.source.targetSource !== 'Owner' ||
+      condition.target.targetSource !== 'Target' ||
+      condition.includeTargetRadius ||
+      condition.containsHittableObject
+    )
+      throw new Error(`${sourcePath}: unsupported zero-distance condition endpoints/options`);
+    // ForEach guarantees a concrete entity; an absent target must not become distance zero.
+    // Native lessThan=true is <=, not < (combat-spec foreach-target-and-distance.md).
+    return {
+      kind: 'actionValueCompare',
+      left: { kind: 'constant', value: 0 },
+      operator: condition.lessThan ? 'lessOrEqual' : 'greater',
+      right: { kind: 'constant', value: condition.distance },
+    };
+  }
   if (
     context.actionTargetTarget === 'eventSource' &&
     ![
@@ -2019,8 +2148,12 @@ function compileConditionLeaf(
 function singleBuffConditionTarget(
   context: CombatActionProjectionContextSource,
   sourcePath: string,
-): 'enemy' | 'eventTarget' {
-  if (context.actionTargetTarget === 'enemy' || context.actionTargetTarget === 'eventTarget') {
+): 'enemy' | 'currentAbilityEntity' | 'eventTarget' {
+  if (
+    context.actionTargetTarget === 'enemy' ||
+    context.actionTargetTarget === 'eventTarget' ||
+    context.actionTargetTarget === 'currentAbilityEntity'
+  ) {
     return context.actionTargetTarget;
   }
   throw new Error(`${sourcePath}: unsupported single Buff condition target`);
@@ -2039,12 +2172,19 @@ function requireActionOwnerProjection(
 function compileActionNode(
   node: NativeActionNodeSource<KnownNativeActionLeafSource>,
   visualOnlyIds: ReadonlySet<string>,
-  partyTargetGroups: ReadonlyMap<string, 'party' | 'partyExceptCaster'> = new Map(),
+  partyTargetGroups: ReadonlyMap<string, ProjectedTargetGroup> = new Map(),
   context: CombatActionProjectionContextSource = BUFF_ACTION_CONTEXT,
 ): CompiledBuffStepSource[] {
   if (node.body.kind !== 'leaf') {
     throw new Error(`${node.sourcePath}: unsupported Buff runtime action`);
   }
+  if (
+    context.actionTargetTarget === 'currentAbilityEntity' &&
+    !['buffApplication', 'blackboardMutation', 'blackboardCalculation'].includes(
+      node.body.value.family,
+    )
+  )
+    throw new Error(`${node.sourcePath}: unaudited AbilityEntity action ${node.body.value.family}`);
   if (
     context.actionTargetTarget === 'enemy' &&
     ![
@@ -2523,7 +2663,7 @@ function compileBuffApplication(
   action: BuffApplicationActionSource,
   visualOnlyIds: ReadonlySet<string>,
   sourcePath: string,
-  partyTargetGroups: ReadonlyMap<string, 'party' | 'partyExceptCaster'> = new Map(),
+  partyTargetGroups: ReadonlyMap<string, ProjectedTargetGroup> = new Map(),
   context: CombatActionProjectionContextSource = BUFF_ACTION_CONTEXT,
 ): CompiledBuffStepSource[] {
   for (const entry of action.buffs) {
@@ -2552,7 +2692,8 @@ function compileBuffApplication(
       : action.target.targetSource === 'Source'
         ? context.actionSourceTarget === 'buffSource'
           ? 'buffSource'
-          : context.actionTargetTarget === 'enemy'
+          : context.actionTargetTarget === 'enemy' ||
+              context.actionTargetTarget === 'currentAbilityEntity'
             ? 'caster'
             : 'eventSource'
         : action.target.targetSource === 'Target'
@@ -2577,11 +2718,12 @@ function compileBuffApplication(
       : action.buffSource === 'ActionSource'
         ? context.actionSourceTarget === 'buffSource'
           ? 'buffSource'
-          : context.actionTargetTarget === 'enemy'
+          : context.actionTargetTarget === 'enemy' ||
+              context.actionTargetTarget === 'currentAbilityEntity'
             ? undefined
             : 'eventSource'
         : null;
-  if (target === null || source === null)
+  if (target === null || target === 'abilityEntity' || source === null)
     throw new Error(`${sourcePath}: unsupported Buff target/source`);
   return action.buffs.flatMap(entry => {
     if (visualOnlyIds.has(entry.buffId)) return [];

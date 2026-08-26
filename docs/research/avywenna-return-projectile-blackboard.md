@@ -1,10 +1,55 @@
 # 艾维文娜回收枪：黑板宿主与回调切片
 
-2026-08-27。最新批将伤害、潜能倍率及回能切片接入真实场景模拟；上一批闭合模板初值证据、
-公共回调作用域及写入/资源守卫。**尚未替换正式艾维文娜技能定义，连续排轴的原始报错仍存在**。
+2026-08-27。最新批贯通逐枪目标与回收标记；此前将伤害、潜能倍率及回能切片接入真实场景模拟，
+并闭合模板初值证据、公共回调作用域及写入/资源守卫。**尚未替换正式艾维文娜技能定义，连续排轴的原始报错仍存在**。
 不得把切片测试计入整技能成功率。
 
-## 最新：动态伤害与真实资源总线验收
+## 最新：查询实例、逐枪守卫与回收 Buff
+
+combat-spec `f3bb824` 先补 `docs/foreach-target-and-distance.md` 和两个运行时原语。
+`ForEachAction.ExecuteInternal` RVA 0x045826A0 先复制目标列表，每项以单目标句柄执行子序列，
+不传播子序列 false，不改变 Owner/Source/黑板；不遍历独立 hittable 列表。
+`CheckDistanceCondition.ExecuteInternal` 0x0456DF60 的无半径分支证明 lessThan 为 <=，
+反向为 >，任一位置缺失则 false。空间归零仅在 Endaxis 投影，复刻库仍按真实位置计算。
+
+源夹具 `tools/game-data-compiler/test/fixtures/avywenna-return-targets.json` 固定原战技
+timelineActions[9]/[10] 的查询、数量、lance_count 写入，以及 ForEach 中的距离与 called Buff，
+附源 SHA 和两个模板的原始 JSON/哈希。显式排除动作 66/67、74/75（发射点与投射物发射）。
+不是生产中间产物，也不是完整战技定义。
+
+公共 Action 投影复用 `compileTargetGroupAbilityEntityQuerySource`，只允许已绑定施法者的
+Owner/Source 查询、模板 born-tag 筛选及同施法验证器；查询结果仍来自真实实例目录并保留
+生成顺序。零对象掩码保留空数组，不能退化为所有实例。此标签降级要求调用方确认相关标签不会
+运行时增删；动态实体标签不在这条投影内。连续查找、其他 owner、距离验证器/排序后处理及
+excludeDeadEntity 等未接路径严格拒绝。条件/循环复用同一公共 Sequence 编译器，没有第二套
+干员专用动作分派。
+
+ForEach 将 Target 绑定为 currentAbilityEntity，固定 Target 下残留的 `targetGroupKey=lances`
+不生效；CreateBuff 的 ActionSource 保持 caster，并继承当前回收施法信息。Next 运行层同步修复
+了逐项 false 抛错，改为只停止当前项后继；异常仍抛出。快照、空集合、共享黑板、循环后继均回归。
+
+验收分层：
+
+- 14 项公共编译与拒绝测试；13 项实例/Buff 联合测试（其中 4 项真正经 placeSkillGroup →
+  ScenarioSimulationService）。两类枪、0/1/3 数量、队友/模板/同施法隔离、唯一 Buff 和零距离
+  边界都验证。正式场景中的 100 固定伤害是只在枪上读到标记才执行的测试探针，不是游戏伤害。
+- 2 项运行层测试证明 false 只跳过本项、原组改写不改变本轮快照、空组成功且异常不被吞掉。
+- 全量 Next+公共编译器 **305 文件/3643 项通过**，净增 29；两侧类型检查与武器 --check 77/78
+  通过。C# 新增 9 项通过，全量 1388 通过、17 项既有本机资产缺失失败（未扩大失败集合）。
+  报告 `tmp/ability-entity-return-targets.audit.json` 与复刻库
+  `tmp/foreach-distance-tests/foreach-distance.trx` 均不提交。
+
+**未完成**：标记不会自行销毁枪。原子技能每帧检测自身 called Buff，JumpTo(1500) 后执行
+FinishOwner；静态方法链确认 TryJump 0x033D87A0 消费条件并请求 TimelineActionProcessor.JumpTo，
+但完整动作装配仍待实现。复刻库既有 `zhuangfy-sword-replacement.md` 证明 FinishOwner 对普通
+AbilitySystem 是 HP=0/Die，不是立即从 parent.children 移除；死亡到 Finish/Release 的具体时序
+尚不清楚。当前 Next 活动实例目录没有这个中间态，因此不能把它当作重复回收规则的证据。
+
+下一步优先核对并接入上述子技能结束路径及输出相关的退出边界，再接发射/回调时序、终结技枪
+附着与时间膨胀。只处理会改变命中/能量/可见时刻的分支，不建立空间或敌人主动行为系统。
+本批未替换正式技能和两条缺键门禁；wpn_lance_0006 三层 0.3/0.84 分支仍待解锁，revision r3 不变。
+
+## 上一批：动态伤害与真实资源总线验收
 
 公共 `compileEventTargetSimpleDamageOperationSource` 现在保留 Hp 的动态攻击倍率、后置 Poise，
 并严格映射 `NormalSkill=256`、`CanBreakWeakness=4096`。其他位（包括 JS 32 位截断可能漏掉的

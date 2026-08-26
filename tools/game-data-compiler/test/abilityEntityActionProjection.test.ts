@@ -1,0 +1,188 @@
+import { describe, expect, it } from 'vitest';
+import { compileCombatActionSequenceSource } from '../src/compiler/buffRuntimeProjection.ts';
+import { collectNativeActionNodes } from '../src/source/controlFlow.ts';
+import { parseReturnSequence } from './support/avywennaReturnProjection.ts';
+import {
+  makeReturnTargetProjection,
+  returnTargetContext,
+  returnTargetFixture,
+} from './support/avywennaReturnTargets.ts';
+
+function nodes(index = 0) {
+  return parseReturnSequence(returnTargetFixture.timelines[index]!.sequence, 'return');
+}
+
+describe('原生查询 → Context → 逐能力实体动作的公共投影', () => {
+  it.each([0, 1])('真实枪类型 %i 只查询模板候选，不制造实例；Buff 的 Target 是当前枪', index => {
+    const result = makeReturnTargetProjection(index);
+    expect(result.steps[0]).toEqual({
+      kind: 'findOwnerSpawnedAbilityEntities',
+      parameters: {
+        saveToContextKey: index === 0 ? 'ComboLances' : 'UltiLances',
+        abilityEntityIds: [
+          index === 0
+            ? 'abilityentity_chr_0012_avywen_combo_skill_lance'
+            : 'abilityentity_chr_0012_avywen_ultimate_skill',
+        ],
+      },
+    });
+    const guard = result.steps[1];
+    expect(guard?.kind).toBe('conditional');
+    if (guard?.kind !== 'conditional') throw new Error('missing count guard');
+    const loop = guard.whenTrue.steps[1];
+    if (loop?.kind !== 'forEachContextTarget') throw new Error('missing loop');
+    expect(loop.body.steps[0]).toMatchObject({
+      kind: 'conditional',
+      parameters: {
+        condition: {
+          kind: 'actionValueCompare',
+          operator: 'lessOrEqual',
+          left: { kind: 'constant', value: 0 },
+          right: { kind: 'constant', value: 50 },
+        },
+      },
+      whenTrue: {
+        steps: [
+          {
+            kind: 'applyBuff',
+            parameters: { target: 'currentAbilityEntity', inheritSourceSkillCastInfo: true },
+          },
+        ],
+      },
+    });
+    const distance = loop.body.steps[0]!;
+    if (distance.kind !== 'conditional') throw new Error('missing distance');
+    expect(distance.whenTrue.steps[0]).not.toHaveProperty('parameters.source'); // defaults to caster, not eventSource
+  });
+
+  it('未提供目录时拒绝查询，不能用木桩代替能力实体', () => {
+    const { abilityEntityQueries: _, ...context } = returnTargetContext;
+    expect(() => compileCombatActionSequenceSource(nodes(), context)).toThrow('target group');
+  });
+
+  it('当前枪不覆盖 owner/source，未绑定宿主时拒绝 owner 查询', () => {
+    expect(() =>
+      compileCombatActionSequenceSource(nodes(), {
+        ...returnTargetContext,
+        actionOwnerTarget: 'unavailable',
+      }),
+    ).toThrow('query environment');
+  });
+
+  it('ForEach 必须来自已投影的实体查询，不能猜一个 Context 的类型', () => {
+    const source = nodes();
+    expect(() =>
+      compileCombatActionSequenceSource(
+        { ...source, actions: source.actions.slice(3) },
+        returnTargetContext,
+      ),
+    ).toThrow('unsupported Buff runtime action');
+  });
+
+  it('查询零对象掩码保留空 ID 列表，不能退化成所有实体', () => {
+    const source = nodes();
+    const first = source.actions[0]!;
+    if (first.body.kind !== 'leaf' || first.body.value.family !== 'targetGroup') throw new Error();
+    const query = { ...first.body.value.action, finderSpawnedObjectType: '0' };
+    const result = compileCombatActionSequenceSource(
+      {
+        ...source,
+        actions: [
+          { ...first, body: { kind: 'leaf', value: { family: 'targetGroup', action: query } } },
+          ...source.actions.slice(1),
+        ],
+      },
+      returnTargetContext,
+    );
+    expect(result.steps[0]).toHaveProperty('parameters.abilityEntityIds', []);
+  });
+
+  it.each([
+    'ContinuousFindTargetAction',
+    'contextOwner',
+    'postProcessor',
+    'excludeDeadEntity',
+  ] as const)('未知投影选项 %s 严格拒绝，不静默丢失时序或过滤', option => {
+    const source = nodes();
+    const first = source.actions[0]!;
+    const second = source.actions[1]!;
+    if (
+      first.body.kind !== 'leaf' ||
+      first.body.value.family !== 'targetGroup' ||
+      second.body.kind !== 'leaf' ||
+      second.body.value.family !== 'condition' ||
+      second.body.value.action.kind !== 'entityCount'
+    )
+      throw new Error();
+    const query = first.body.value.action;
+    const changed =
+      option === 'ContinuousFindTargetAction'
+        ? { ...query, producerType: option }
+        : option === 'contextOwner'
+          ? { ...query, selectorOwner: 'ContextTarget', selectorOwnerContextKey: 'missing' }
+          : option === 'postProcessor'
+            ? { ...query, postProcessorTypes: ['unknown'] }
+            : query;
+    const condition =
+      option === 'excludeDeadEntity'
+        ? { ...second.body.value.action, excludeDeadEntity: true }
+        : second.body.value.action;
+    expect(() =>
+      compileCombatActionSequenceSource(
+        {
+          ...source,
+          actions: [
+            { ...first, body: { kind: 'leaf', value: { family: 'targetGroup', action: changed } } },
+            {
+              ...second,
+              body: { kind: 'leaf', value: { family: 'condition', action: condition } },
+            },
+            ...source.actions.slice(2),
+          ],
+        },
+        returnTargetContext,
+      ),
+    ).toThrow();
+  });
+
+  it.each(['distance', 'source', 'includeTargetRadius', 'containsHittableObject'] as const)(
+    '未证明的距离选项 %s 不在循环外或未知目标上放行',
+    field => {
+      const source = nodes();
+      const node = collectNativeActionNodes(source).find(
+        node =>
+          node.body.kind === 'leaf' &&
+          node.body.value.family === 'condition' &&
+          node.body.value.action.kind === 'distance',
+      )!;
+      if (
+        node.body.kind !== 'leaf' ||
+        node.body.value.family !== 'condition' ||
+        node.body.value.action.kind !== 'distance'
+      )
+        throw new Error();
+      const condition = node.body.value.action;
+      const bad =
+        field === 'source'
+          ? { ...condition, source: { ...condition.source, targetSource: 'Context' } }
+          : field === 'distance'
+            ? condition
+            : { ...condition, [field]: true };
+      expect(() =>
+        compileCombatActionSequenceSource(
+          {
+            ...source,
+            actions: [
+              { ...node, body: { kind: 'leaf', value: { family: 'condition', action: bad } } },
+              source.actions[2]!,
+            ],
+          },
+          {
+            ...returnTargetContext,
+            actionTargetTarget: field === 'distance' ? 'enemy' : 'currentAbilityEntity',
+          },
+        ),
+      ).toThrow(/distance|zero-distance/);
+    },
+  );
+});

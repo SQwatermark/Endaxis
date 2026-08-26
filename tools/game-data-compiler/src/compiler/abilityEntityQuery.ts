@@ -1,5 +1,5 @@
 import type { GameplayTagRegistry } from '../../../../src/shared/gameplayTags.ts';
-import type { TargetGroupWriteSource } from '../source/targetGroup.ts';
+import type { TargetGroupActionSource } from '../source/targetGroup.ts';
 import type { TargetReferenceSource } from '../source/target.ts';
 import type { TagQuerySource, TagQueryType } from '../source/tagQuery.ts';
 import type {
@@ -37,8 +37,7 @@ export interface CompiledAbilityEntityShuffleSource {
 }
 
 export type CompiledAbilityEntityPostProcessorSource =
-  | CompiledAbilityEntityDistanceFromOwnerSource
-  | CompiledAbilityEntityShuffleSource;
+  CompiledAbilityEntityDistanceFromOwnerSource | CompiledAbilityEntityShuffleSource;
 
 /**
  * OwnerSpawnedEntityFinder 的静态查询投影。
@@ -80,7 +79,7 @@ const TAG_QUERY_TYPES: Readonly<Record<string, TagQueryType>> = {
 
 /** 编译 FindTargetAction 已解析出的 owner-spawned AbilityEntity 查询。 */
 export function compileTargetGroupAbilityEntityQuerySource(
-  source: TargetGroupWriteSource,
+  source: TargetGroupActionSource,
   catalog: CompiledAbilityEntityTemplateCatalogSource,
   registry: GameplayTagRegistry,
   sourcePath: string,
@@ -257,7 +256,9 @@ function compileOwnerDistancePriorityFilter(
         ? 'descending'
         : null;
   if (!order) {
-    throw new Error(`${sourcePath}: unsupported PriorityFilter ${JSON.stringify(source.filterType)}`);
+    throw new Error(
+      `${sourcePath}: unsupported PriorityFilter ${JSON.stringify(source.filterType)}`,
+    );
   }
   if (source.onlyReserveMaxPriorityTargets) {
     throw new Error(`${sourcePath}: onlyReserveMaxPriorityTargets is unsupported`);

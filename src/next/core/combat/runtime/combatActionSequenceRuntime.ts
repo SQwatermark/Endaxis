@@ -182,14 +182,11 @@ class ForEachContextTargetStep extends CombatStep {
     }
     const targets = targetContext.get(this.step.parameters.contextKey);
     for (const currentTarget of targets) {
-      const result = this.runtime
+      // Native ForEachAction ignores ExecuteInstant's result for each item.
+      // A failed guard stops only this item's sequence, never the following targets.
+      this.runtime
         .createSequence(this.step.body, { ...this.operationContext, currentTarget })
         .executeInstant(context);
-      if (!result) {
-        throw new Error(
-          'forEachContextTarget body returned false; native cross-item short-circuit is not modeled',
-        );
-      }
     }
     return true;
   }

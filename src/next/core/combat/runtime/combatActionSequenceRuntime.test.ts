@@ -32,6 +32,80 @@ function createFixture(conditionResult = true) {
 }
 
 describe('CombatActionSequenceRuntime', () => {
+  it('逐项失败只跳过本项后继；保留目标快照与共享黑板，循环后继续', () => {
+    const targetContext = new RuntimeTargetContext();
+    targetContext.set('items', [
+      { kind: 'abilityEntity', instanceId: 1 },
+      { kind: 'abilityEntity', instanceId: 2 },
+    ]);
+    const blackboard = new ActionBlackboard({ count: 0 });
+    const seen: unknown[] = [];
+    const runtime = new CombatActionSequenceRuntime(
+      {
+        execute: (step, context) => {
+          if (step.kind !== 'setContextFlag') throw new Error('unexpected test operation');
+          seen.push([step.parameters.flag, context?.currentTarget]);
+          expect(context?.blackboard).toBe(blackboard);
+          return true;
+        },
+        evaluate: (_condition, context) => {
+          targetContext.set('items', []);
+          context!.blackboard.assignDynamic('count', context!.blackboard.getNumber('count')! + 1);
+          return (
+            context?.currentTarget?.kind === 'abilityEntity' &&
+            context.currentTarget.instanceId === 2
+          );
+        },
+      },
+      { blackboard, targetContext },
+    );
+    expect(
+      runtime
+        .createSequence(
+          sequence(
+            {
+              kind: 'forEachContextTarget',
+              parameters: { contextKey: 'items' },
+              body: sequence({
+                kind: 'conditional',
+                parameters: { condition: { kind: 'combatActive' } },
+                whenTrue: sequence(operation('accepted')),
+              }),
+            },
+            operation('after'),
+          ),
+        )
+        .executeInstant({}),
+    ).toBe(true);
+    expect(seen).toEqual([
+      ['accepted', { kind: 'abilityEntity', instanceId: 2 }],
+      ['after', undefined],
+    ]);
+    expect(blackboard.getNumber('count')).toBe(2);
+  });
+
+  it('逐目标循环空集合成功，但未知异常不得被当成条件失败吞掉', () => {
+    const targetContext = new RuntimeTargetContext();
+    targetContext.set('items', []);
+    const runtime = new CombatActionSequenceRuntime(
+      {
+        execute: () => {
+          throw new Error('invalid data');
+        },
+        evaluate: () => false,
+      },
+      { blackboard: new ActionBlackboard(), targetContext },
+    );
+    const definition = sequence({
+      kind: 'forEachContextTarget',
+      parameters: { contextKey: 'items' },
+      body: sequence(operation('bad')),
+    });
+    expect(runtime.createSequence(definition).executeInstant({})).toBe(true);
+    targetContext.set('items', [{ kind: 'abilityEntity', instanceId: 1 }]);
+    expect(() => runtime.createSequence(definition).executeInstant({})).toThrow('invalid data');
+  });
+
   it('同名子作用域只在同一父黑板内复用，不跨投射物宿主串板', () => {
     const fixture = createFixture();
     const step = {

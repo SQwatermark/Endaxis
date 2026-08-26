@@ -6,7 +6,28 @@
 当前主线是在 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
-### 2026-08-27：回收命中动态伤害与真实回能验收（最新）
+### 2026-08-27：逐枪查询与回收标记贯通（最新）
+
+- 先在 combat-spec `f3bb824` 依据方法体实现 ForEachAction 和有界距离条件：目标快照，逐项
+  ExecuteInstant，子序列 false 不阻断下一项；lessThan=true 实际是 <=，反向为 >。
+  不建立空间系统，半径/hittable/槽位位置未恢复路径继续拒绝。
+- Next 修复 forEachContextTarget 遇到子条件 false 就抛错的问题。公共 Action 投影现在复用
+  既有模板/标签查询器，生成真实 owner 实例查询、数量守卫和逐枪循环；固定 Target 的回收
+  Buff 施加到 currentAbilityEntity，Source 仍是施法者，残留 targetGroupKey 不改变固定目标。
+- 两类原战技查询/数量/写入/距离/Buff 切片进入真实实例目录与 Buff 容器；覆盖 0/1/3 枪、
+  不同模板、队友排除、同施法筛选、唯一 Buff 重复施加与零距离边界。另有 4 项经正式排轴/
+  ScenarioSimulationService 验证实际枪上的 Buff 可读取；100 固定伤害仅为测试探针，不是原技能伤害。
+- **正式艾维文娜定义仍未替换，两个连续排轴缺键断言仍在，不计成功。** 本批没有投射物调度、
+  JumpTo/FinishOwner 整链、终结技枪附着或时间膨胀；枪死亡并不等于立刻从父对象 children 移除，
+  不得凭直觉加“立即删枪”或“一次性回收”过滤。模板标签投影只适用于已确认不动态增删的查询标签。
+- 下一步：接枪子技能的 called Buff → JumpTo(1500) → 结束路径，核对会影响重复查询/伤害的
+  死亡到退出边界，再接回调调度。只研究影响木桩输出的节点；正式完整重建后才更新旧产物和失败门禁。
+- Next+统一编译器 **305 文件/3643 项通过**，净增 29；两侧类型检查、武器 --check 77/78 通过。
+  C# 新增 9 项通过；全量 1388 通过、17 项既有本机资产缺失失败。审计只在两仓 tmp/。
+  正式武器 revision r3 不变；未改旧版、旧 Python、VFS；只本地提交、不推送。
+  证据和精确切片边界见 [回收枪研究](../research/avywenna-return-projectile-blackboard.md)。
+
+### 2026-08-27：回收命中动态伤害与真实回能验收（上一批）
 
 - 公共伤害投影保留实时黑板倍率、战技/击破弱点位、Hp 后置 Poise；区分简单公式与嵌套
   AtkScaleCalculation。未知位及未实现的施法攻击快照严格拒绝，复用既有 C# 证据。

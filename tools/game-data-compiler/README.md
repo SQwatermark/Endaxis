@@ -390,6 +390,24 @@ npm run download:game-data:operator-closure -- --vfs-fallback http://desktop:876
 
 ## 11. 当前迁移状态
 
+### 逐能力实体目标的有界公共投影
+
+`compileCombatActionSequenceSource` 现在可注入同版本 `abilityEntityQueries` 目录/标签表，
+沿既有公共查询编译器生成 `findOwnerSpawnedAbilityEntities`，并把已知 Context 的 ForEach
+编为逐实际实例执行；数量守卫继续使用公共条件。目录 ID 只是候选，不能制造实例或跨 owner。
+当前只覆盖施法者 Owner/Source、已确认不动态增删的 born-tag 筛选及同施法验证器；连续查询、
+其他 anchor、排序/距离后处理、动态标签和死亡中间态不在此入口内。
+
+循环内 `Target=currentAbilityEntity`，不改变 Owner/Source 或黑板。固定 Target 的 CreateBuff
+不消费残留 targetGroupKey；Source 仍为施法者，无需虚构事件。Owner→当前枪的无半径距离条件
+按项目零空间投影，并保留原生 <= / > 边界。复刻库先补 ForEach/CheckDistanceCondition 证据与
+运行时；Next 修复逐项 false 抛错，保留局部短路、目标快照及正常后继，不吞运行异常。
+
+两类原战技标记切片经过公共编译、实体/Buff 联合测试和正式场景装配。新增 29 项，Next+统一
+编译器全量 305 文件/3643 项通过，两侧类型检查、武器 --check 77/78 通过。正式干员定义未变，
+原连续排轴仍缺键；JumpTo/FinishOwner/退出及投射物调度仍是下一项，不把标记成功冒充整技能修复。
+精确源路径、排除动作序号及测试边界见 `docs/research/avywenna-return-projectile-blackboard.md`。
+
 ### 投射物回调黑板的有界公共投影
 
 `compileSynchronousProjectileCallbackScopesSource` 只包装外层已经证明可同步执行的回调切片，
