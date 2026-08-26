@@ -386,6 +386,10 @@ npm run download:game-data:operator-closure -- --vfs-fallback http://desktop:876
 
 已完成：
 
+- AbilitySystemData 两层黑板的公共安装投影：实体字面值与启用/禁用的条件局部板分离，动态声明
+  不当作编译期常量；Next 实体初值可随场景装配进入共享运行板，但五条原生连携条件尚未自动注册。
+- CheckSpellInflictionType 的原生数值/命名/零 mask 与 savedKey 写回投影；有写入副作用的尾条件
+  保留执行及前置守卫，不能按“没有后继步骤”省略。证据见 combat-spec/docs/check-spell-infliction-type.md。
 - 独立 TypeScript 工具链、类型检查和测试命令；
 - 严格对象、数组、数值、字符串、布尔值和字段集合读取；
 - 原生 Action 类型名与 Selector 嵌套类型名读取；

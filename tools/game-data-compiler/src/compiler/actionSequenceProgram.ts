@@ -13,6 +13,8 @@ export interface CompiledActionNodeProgram<TStep, TState> {
 export interface CompileActionSequenceProgramOptions<TLeaf, TCondition, TStep, TState> {
   readonly initialState: () => TState;
   readonly compileCondition: (node: NativeActionNodeSource<TLeaf>) => TCondition | null;
+  /** 只有已证明无副作用且结果不被消费的尾条件才可删；缺省保留求值。 */
+  readonly canOmitTerminalCondition?: (condition: TCondition) => boolean;
   readonly combineConditions: (conditions: readonly TCondition[]) => TCondition;
   readonly negateCondition: (condition: TCondition) => TCondition;
   readonly compileLeaf: (
@@ -92,7 +94,7 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
       throw new Error(`${first!.sourcePath}: NotNextCheckAction must precede a condition`);
     }
     const body = compileActionNodePrograms(bodyNodes, options, state);
-    return body.length === 0
+    return body.length === 0 && options.canOmitTerminalCondition?.(condition) === true
       ? []
       : [
           options.createConditionalStep({
@@ -105,7 +107,7 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
   const condition = options.compileCondition(first!);
   if (condition !== null) {
     const body = compileActionNodePrograms(rest, options, state);
-    return body.length === 0
+    return body.length === 0 && options.canOmitTerminalCondition?.(condition) === true
       ? []
       : [
           options.createConditionalStep({

@@ -9,6 +9,7 @@ import type { CombatOperationContext, CombatOperationExecutor } from './skillRun
 import type { GameplayTagQueryType } from '../tags/gameplayTags';
 import { resolveActionValueOperand } from './actionBlackboard';
 import { compareCombatNumbers } from './numericComparison';
+import { NATIVE_ELEMENT_VALUES } from '../infliction/elementalInfliction';
 
 type EventDamageTagsCondition = Extract<CombatCondition, { kind: 'eventDamageTagsMatch' }>;
 type EventDamageFeaturesCondition = Extract<CombatCondition, { kind: 'eventDamageFeaturesMatch' }>;
@@ -136,11 +137,29 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       );
     }
     if (condition.kind === 'eventInflictionElementIn') {
-      return (
-        context.event.kind === 'abilitySpellInfliction' &&
-        context.event.element !== undefined &&
-        condition.elements.includes(context.event.element)
-      );
+      const event = context.event;
+      if (
+        event.kind !== 'abilitySpellInfliction' ||
+        event.element === undefined ||
+        !condition.elements.includes(event.element)
+      )
+        return false;
+      if (condition.outputKey !== undefined && condition.outputKey !== '') {
+        // CheckSpellInflictionType 先严格 GetFloat，再比较 float32 epsilon，最后 AssignDynamic。
+        // 不能直接写入：缺声明、direct 遮蔽 entity 及相等时不写都属于可观察语义。
+        const old = Math.fround(
+          resolveActionValueOperand(
+            { kind: 'blackboard', key: condition.outputKey },
+            context.blackboard,
+          ),
+        );
+        const value = NATIVE_ELEMENT_VALUES[event.element];
+        if (!(Math.abs(Math.fround(old - value)) <= Math.fround(0.00001))) {
+          context.blackboard.assignDynamicUnconditionally(condition.outputKey, value);
+          context.refreshCurrentBuffAttributeModifiers?.();
+        }
+      }
+      return true;
     }
     if (condition.kind === 'eventPhysicalInflictionTypeIn') {
       return (

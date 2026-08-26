@@ -891,14 +891,28 @@ function parseInflictionType(
   path: string,
   sourceType: string,
 ): NativeConditionSource {
-  const nativeElements = requireString(condition.mask, `${path}.mask`)
-    .split(',')
-    .map(item => item.trim())
-    .filter(Boolean);
+  // 同版本 CheckSpellInflictionEnum 位集；0 合法，All=15。MemoryPack 为数字，JSON 可命名。
+  const mask = condition.mask;
+  const numeric =
+    typeof mask === 'number'
+      ? mask
+      : typeof mask === 'string' && /^\d+$/.test(mask.trim())
+        ? Number(mask)
+        : null;
+  const names = ['Fire', 'Pulse', 'Cryst', 'Natural'];
+  if (numeric !== null && (!Number.isInteger(numeric) || numeric < 0 || numeric > 15))
+    throw new Error(`${path}.mask: unsupported value ${JSON.stringify(mask)}`);
+  const nativeElements =
+    numeric === null
+      ? requireNonEmptyString(mask, `${path}.mask`)
+          .split(',')
+          .map(item => item.trim())
+          .flatMap(item => (item === 'All' ? names : [item]))
+      : names.filter((_, index) => (numeric & (1 << index)) !== 0);
   const elements = [
     ...new Set(nativeElements.map(item => projectNativeDamageElement(item, `${path}.mask`))),
   ];
-  if (elements.length === 0 || elements.includes('physical')) {
+  if (elements.includes('physical')) {
     throw new Error(`${path}.mask: unsupported value ${JSON.stringify(condition.mask)}`);
   }
   return {

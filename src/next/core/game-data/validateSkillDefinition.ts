@@ -579,8 +579,9 @@ function validateCombatCondition(
       }
       break;
     case 'eventInflictionElementIn':
-      if (!Array.isArray(record.elements) || record.elements.length === 0) {
-        push(out, `${path}.elements`, 'expected a non-empty array');
+      // 原生 mask=0 合法且恒不匹配；不能把它扩大为全部元素。
+      if (!Array.isArray(record.elements)) {
+        push(out, `${path}.elements`, 'expected an array');
       } else {
         record.elements.forEach((element, index) => {
           if (typeof element !== 'string' || !INFLICTION_ELEMENTS_SET.has(element)) {
@@ -588,6 +589,7 @@ function validateCombatCondition(
           }
         });
       }
+      if (record.outputKey !== undefined) requireString(record, 'outputKey', path, out);
       break;
     case 'eventPhysicalInflictionTypeIn': {
       const known = new Set(['airborne', 'knockDown', 'fracture', 'crush']);

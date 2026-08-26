@@ -224,6 +224,7 @@ export type CompiledBuffConditionSource =
   | {
       readonly kind: 'eventInflictionElementIn';
       readonly elements: readonly ('heat' | 'electric' | 'cryo' | 'nature')[];
+      readonly outputKey?: string;
     }
   | {
       readonly kind: 'contextTargetCountCompare';
@@ -1289,6 +1290,7 @@ function createBuffSequenceProjection(
   return {
     initialState: () => new Map<string, 'party' | 'partyExceptCaster'>(),
     compileCondition: node => compileEventCondition(node, context),
+    canOmitTerminalCondition: condition => !conditionWritesBlackboard(condition),
     combineConditions: conditions =>
       conditions.length === 1 ? conditions[0]! : { kind: 'all', conditions },
     negateCondition: condition => ({ kind: 'not', condition }),
@@ -1499,6 +1501,21 @@ function compileEventCondition(
   return compileConditionLeaf(node.body.value.action, node.sourcePath, context);
 }
 
+/** 条件也可能写黑板；即便没有后继步骤，写入及其前置守卫也不能消去。 */
+function conditionWritesBlackboard(condition: CompiledBuffConditionSource): boolean {
+  if (condition.kind === 'all' || condition.kind === 'any')
+    return condition.conditions.some(conditionWritesBlackboard);
+  if (condition.kind === 'not') return conditionWritesBlackboard(condition.condition);
+  return (
+    ('outputKey' in condition && condition.outputKey !== undefined) ||
+    ('buffIdOutputKey' in condition && condition.buffIdOutputKey !== undefined) ||
+    (condition.kind === 'eventOverheal' &&
+      [condition.overHealKey, condition.finalHealKey, condition.realHealKey].some(
+        key => key !== undefined,
+      ))
+  );
+}
+
 function compileConditionLeaf(
   condition: Extract<KnownNativeActionLeafSource, { family: 'condition' }>['action'],
   sourcePath: string,
@@ -1613,12 +1630,10 @@ function compileConditionLeaf(
     return { kind: 'eventSkillCastMatchesBuffSource' };
   }
   if (condition.kind === 'inflictionType') {
-    if (condition.savedKey !== '') {
-      throw new Error(`${sourcePath}: saved infliction element is unsupported`);
-    }
     return {
       kind: 'eventInflictionElementIn',
       elements: condition.elements as readonly ('heat' | 'electric' | 'cryo' | 'nature')[],
+      ...(condition.savedKey === '' ? {} : { outputKey: condition.savedKey }),
     };
   }
   if (condition.kind === 'entityCount') {

@@ -377,6 +377,8 @@ export type CombatCondition =
       /** 匹配触发当前响应的元素附着类型。 */
       kind: 'eventInflictionElementIn';
       elements: readonly InflictionElement[];
+      /** 命中后把原生元素编号写入已声明键；缺键报错，EntityBB_ 写入共享实体板。 */
+      outputKey?: string;
     }
   | {
       /** 匹配来源 AbilitySystem 即将输出的物理异常类型。 */
@@ -1741,6 +1743,8 @@ export interface OperatorDefinition {
   abilityEntityDefinitions?: OperatorAbilityEntityDefinitions;
   /** 角色级首段连携入口；多段连携的后续窗口仍由技能序列中的步骤开启。 */
   comboSkillRegistrations?: readonly ComboSkillRegistrationDefinition[];
+  /** 角色模板的字面实体初值；不是技能初值，动态值也不随每次技能施放重置。 */
+  entityBlackboard?: Readonly<Record<string, number | string>>;
   /** 技能间共享的实体黑板初值；条件只读取已解析的静态构筑。 */
   entityBlackboardInitializers?: readonly OperatorEntityBlackboardInitializerDefinition[];
   /** 角色自身始终安装的隐藏基础被动；与受构筑开关控制的天赋/潜能被动分开。 */

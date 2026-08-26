@@ -6,7 +6,29 @@
 当前主线是在 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
-### 2026-08-26 再续：施法目标设置、后备目标与公共策略头（最新）
+### 2026-08-26 再续：实体初值和有副作用条件进入 Next（最新）
+
+- 公共编译新增两层黑板安装投影，保留动态来源、启用/null 与启用空板区别。Next 正式模型新增
+  entityBlackboard 字面初值，场景装配进入角色共享板；现有 Deck 派生 initializers 可覆盖模板，
+  不把两者混成技能初值。实际连续技能启动已验证跨次保留/跨场重置，字符串值也可保留。
+- CheckSpellInflictionType 的 mask 数字/命名 All/零及 savedKey 已由公共条件编译进入 Next。
+  匹配后先严格 GetFloat，再 float32 epsilon 判断，再按前缀写入；不存在的键仍报错。
+  新增原生无条件动态赋值入口，避免按 direct 遮蔽值比较后又按 entity 值二次去重。
+- 修复公共序列编译：末尾条件自身有写回副作用时，即使无后继动作也不能删；其前置守卫、
+  NotNext 和嵌套 AND/OR 短路均保留。缺少纯条件证明的泛型调用方默认保留求值。
+- 实读本机角色导出四实体/两局部初值及 RID 2708501211437859835 的 mask/savedKey 成功。
+  四元素写入、缺键/错类型、direct 遮蔽、连续事件及附着前回调时序已测；完整角色仍 partial。
+- **Next 8 场阻塞仍保留**：没有把模板零值单独填入正式诀定义，没有自动安装五条连携条件，
+  没有声称冷却/资格门禁、Pending 到施法全链完成。现有 elementalInflictionApplied 是后置事件，
+  下一步必须把原生附着前事件接到 combo 阶段，再装每条独立条件环境及 Pending，不可用后置事件替代。
+- 详细范围见 docs/research/arcane-next-evidence.md；报告在
+  tmp/entity-initialization-saved-element-regression.audit.json，不提交。
+  新增 **45 项测试**，Next+统一编译器 **282 文件/2873 项全部通过**；
+  type-check:next 与 type-check:game-data 均通过。
+  本批未改 C# 行为实现，规格库仅同步交接；C#/VFS 不重跑，原有 C# 1376/17 是上批基线。
+  默认武器库/迁移 UI 不切换，未改旧版/旧 Python/正式生成定义，仅本地提交不推送。
+
+### 2026-08-26 再续：施法目标设置、后备目标与公共策略头（上一批）
 
 - combat-spec 已补 StoreSmartTarget 的锁定/主目标设置覆盖及 GetDefaultTarget 实体路径，
   实际附着至第 0 帧测试改用完整外层子集。**更正上一批“输入设备类型”说法**：2/3 来自

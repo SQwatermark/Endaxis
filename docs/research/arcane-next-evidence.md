@@ -1,6 +1,39 @@
 # 诀新版配置证据记录
 
-## 2026-08-26 施法目标设置与后备路径（最新）
+## 2026-08-26 模板初值与条件写回进入 Next（最新）
+
+公共 `compileAbilitySystemBlackboardsSource` 保留 source 路径/动态标记，并分别投影实体字面值及
+条件局部值；后者禁用返回 null，启用空板返回空对象。动态项属于安装初值，不能套用仅取静态值的
+SkillPatch 常量解析。Next 新增 `OperatorDefinition.entityBlackboard`，装配时安装到共享实体板；
+现有 Deck 派生 initializers 在模板之后覆盖，重复派生键仍拒绝，保留面板键冲突/非有限值诊断。
+普通施法可跨次读到实体写入，新场次恢复模板；字符串及 double 字面值无损保留。
+
+`CheckSpellInflictionType.savedKey` 经唯一公共条件编译入口转成 `eventInflictionElementIn.outputKey`。
+原生数值 mask、命名 All、0 均可读；0 保持不匹配。运行时先匹配事件，再严格读取现值，按 float32
+epsilon 决定是否 AssignDynamic；没有补缺键，没有抹前缀。编号与复合状态载荷共用同一个映射。
+直接板遮蔽读取、实体写入归属、缺键/错类型、连续事件、非匹配不读黑板均有回归。
+另新增无条件动态赋值入口：原生 AssignDynamic 本身不做 epsilon 比较，条件已按 direct 优先值
+比较后，不能再按写入目标 entity 的另一个值去重。既有融合比较入口不改，避免无关行为变化。
+
+发现并修复公共序列编译的尾条件问题：有 savedKey 等写入副作用的条件即使后继为空也必须保留，
+其前置守卫不能删；NotNext、嵌套 AND/OR 继续短路，纯尾条件才可省略。公共泛型接口缺省不假定纯。
+真实附着执行器回调的测试证明已选中条件在 beforeTakeInfliction 时写入，早于目标附着查询/修改；
+没有把后置 `elementalInflictionApplied` 语义事件冒充这个原生前置事件。
+
+本机 `tmp/arcane-character-conditions-complete.json` 再次实读：sourceSha256
+`33934515ea8b90efdf35f3fae4901124ed54fc16c087a9755574d8db58dca0bc`，四实体键为 0/0/0/1、
+两局部短键为 0/0；RID `2708501211437859835` 的 mask=15 / savedKey=EntityBB_consumed_type
+进入 TS 条件来源层。该调用依据 registry 的 namespace/class/assembly 组装类型身份，并非扫描名字。
+角色总体仍 partial，剩余 908 字节未读；测试中的 CompareFloat 使用已归一的字段切片，不是直接消费
+整个原生 CharacterTemplate。第五条 DebugPrint 的 no-op 已有规格，但本测试只取后两项数值切片。
+
+**8 场 Next 阻塞仍在**。本批没有把新初值单独填入正式诀定义，没有自动注册五条条件，没有宣称
+条件局部板的生产安装、冷却/资格门禁、Pending 选择及施法覆盖已完成。
+下一步按这条顺序接公共注册程序及实际事件 combo 阶段；复用既有叶子/规格，不另建逐干员监听器。
+测试报告在 `tmp/entity-initialization-saved-element-regression.audit.json`；C#/VFS 本批未重跑。
+新增 **45** 项，Next+统一编译器 **282 文件/2873 项全部通过**，两侧类型检查通过。
+
+## 2026-08-26 施法目标设置与后备路径（上一批）
 
 复刻库补 StoreSmartTarget 外层设置覆盖及 GetDefaultTarget 实体路径；真实附着至第 0 帧
 测试现走外层子集。上一批“输入设备类型 2/3”不准确，已由 Common metadata 更正为

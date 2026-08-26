@@ -15,6 +15,7 @@ import type {
 } from './elementalInfliction';
 import type { InflictionElement } from '../../game-data/operatorDefinition';
 import type { CombatSkillCastInfo } from '../runtime/skillCastInfo';
+import { NATIVE_ELEMENT_VALUES } from './elementalInfliction';
 
 /** 附着适配器读取 Buff 定义和复合状态工厂的定义端口。 */
 export interface ElementalInflictionBuffIndex<Key extends string> {
@@ -26,13 +27,6 @@ export interface ElementalInflictionBuffIndex<Key extends string> {
     incomingElement: InflictionElement,
   ): CombatBuffDefinition<Key>;
 }
-
-const NATIVE_ELEMENT_VALUES: Readonly<Record<InflictionElement, number>> = {
-  heat: 0,
-  electric: 1,
-  cryo: 2,
-  nature: 3,
-};
 
 /** 附着实际写入后发布给关卡事件系统的稳定负载。 */
 export interface ElementalInflictionStartedPayload {

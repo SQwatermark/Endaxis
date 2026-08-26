@@ -68,9 +68,17 @@ export interface CompileScenarioRuntimeAssemblyOptions {
 export function compileOperatorEntityBlackboardInitialValues(
   operator: OperatorDefinition,
   panel: ResolvedOperatorPanel,
-): Readonly<Record<string, number>> {
+): Readonly<Record<string, number | string>> {
   const initializers = operator.entityBlackboardInitializers ?? [];
-  const values: Record<string, number> = {
+  if (
+    operator.entityBlackboard !== undefined &&
+    (operator.entityBlackboard === null ||
+      typeof operator.entityBlackboard !== 'object' ||
+      Array.isArray(operator.entityBlackboard))
+  ) {
+    throw new TypeError(`operator '${operator.slug}'.entityBlackboard must be a value record`);
+  }
+  const panelValues = {
     level: panel.level,
     // StoreAttributeValue(MaxHp/FinalNonConverted) 与四维使用同一静态面板投影；
     // 动作执行时从实体黑板读取，不能在生成期烘焙具体构筑数值。
@@ -80,17 +88,32 @@ export function compileOperatorEntityBlackboardInitialValues(
     intellect: Math.fround(panel.attributes.intellect),
     will: Math.fround(panel.attributes.will),
   };
+  for (const [key, value] of Object.entries(operator.entityBlackboard ?? {})) {
+    if (key.length === 0 || Object.hasOwn(panelValues, key)) {
+      throw new Error(
+        `operator '${operator.slug}'.entityBlackboard has empty or reserved key '${key}'`,
+      );
+    }
+    if (typeof value !== 'string' && (typeof value !== 'number' || !Number.isFinite(value))) {
+      throw new TypeError(
+        `operator '${operator.slug}'.entityBlackboard.${key} must be a finite number or string`,
+      );
+    }
+  }
+  const values: Record<string, number | string> = { ...panelValues, ...operator.entityBlackboard };
+  const initialized = new Set<string>();
   for (const [index, initializer] of initializers.entries()) {
     if (!initializer.key.startsWith('EntityBB_') || initializer.key.length === 9) {
       throw new Error(
         `operator '${operator.slug}'.entityBlackboardInitializers[${index}].key must be a non-empty EntityBB_ key`,
       );
     }
-    if (initializer.key in values) {
+    if (initialized.has(initializer.key)) {
       throw new Error(
         `operator '${operator.slug}' duplicates entity blackboard initializer '${initializer.key}'`,
       );
     }
+    initialized.add(initializer.key);
     const condition = initializer.condition;
     const matched = compareCombatNumbers(
       panel.attributes[condition.left],
@@ -103,6 +126,7 @@ export function compileOperatorEntityBlackboardInitialValues(
         `operator '${operator.slug}'.entityBlackboardInitializers[${index}] resolved a non-finite value`,
       );
     }
+    // 模板初值先安装，后续 Deck 派生写入可覆盖；不能把这类写入误判为重复模板键。
     values[initializer.key] = Math.fround(value);
   }
   return values;

@@ -5,6 +5,7 @@ import {
   type EnemyBuffRuntime,
 } from '../combat/runtime/combatRuntimeAssembly';
 import type { CombatOperationExecutor } from '../combat/runtime/skillRuntime';
+import type { CompiledSkillProgram } from './combatProgram';
 import { createEmptyScenario } from '../project/createProject';
 import type { ScenarioDocument } from '../project/schema';
 import { perlica } from '../../data/operators/perlica';
@@ -92,6 +93,128 @@ function options(): CompileScenarioRuntimeAssemblyOptions {
 }
 
 describe('compileScenarioRuntimeAssembly', () => {
+  it('shares installed template values across real skill starts but not across battles', () => {
+    const settings = options();
+    const observed: unknown[] = [];
+    const make = () => {
+      const compiled = compileScenarioRuntimeAssembly(createScenario(), {
+        ...settings,
+        index: {
+          ...settings.index,
+          getOperator: () => ({
+            ...perlica,
+            entityBlackboard: { EntityBB_type: 2, label: 'template' },
+          }),
+        },
+      });
+      const program: CompiledSkillProgram = {
+        operatorId: 'track:0',
+        skillGroupKey: 'battleSkill',
+        skillId: 'probe',
+        skillType: 'battleSkill',
+        skillLevel: 1,
+        initialBlackboard: { consumed_type: 5 },
+        costs: [],
+        timelineBlockFrames: 1,
+        timelineActions: [
+          {
+            startFrame: 0,
+            sequence: {
+              steps: [
+                {
+                  kind: 'dealDamage',
+                  parameters: { damageType: 'physical', attackScale: 1, tags: [] },
+                },
+                {
+                  kind: 'modifyActionValue',
+                  parameters: {
+                    key: 'EntityBB_type',
+                    operation: 'assign',
+                    value: { kind: 'constant', value: 3 },
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      };
+      return new CombatRuntimeAssembly({
+        ...compiled,
+        inputs: [],
+        operators: [{ ...compiled.operators[0]!, comboSkillRegistrations: [], skills: [program] }],
+        createOperationExecutor: () => ({
+          evaluate: () => false,
+          execute: (_step, context) => {
+            observed.push([
+              context!.blackboard.getNumber('EntityBB_type'),
+              context!.blackboard.getNumber('consumed_type'),
+              context!.blackboard.getString('label'),
+            ]);
+            return true;
+          },
+        }),
+      });
+    };
+    const first = make();
+    expect(first.tryStartSkill('track:0', 'probe')).toBe(true);
+    first.advanceFrames(2);
+    expect(first.tryStartSkill('track:0', 'probe')).toBe(true);
+    expect(make().tryStartSkill('track:0', 'probe')).toBe(true);
+    expect(observed).toEqual([
+      [2, 5, 'template'],
+      [3, 5, 'template'],
+      [2, 5, 'template'],
+    ]);
+  });
+
+  it('installs template literals before Deck writes without leaking them into skill direct values', () => {
+    const scenario = createScenario();
+    const settings = options();
+    const operator = {
+      ...perlica,
+      entityBlackboard: { EntityBB_form: 7, EntityBB_type: 0, label: 'template' },
+      entityBlackboardInitializers: [
+        {
+          key: 'EntityBB_form',
+          condition: {
+            kind: 'deckAttributeCompare',
+            left: 'intellect',
+            operator: 'greaterOrEqual',
+            right: 'will',
+          },
+          trueValue: 1,
+          falseValue: 0,
+        },
+      ],
+    } as const;
+    const compiled = compileScenarioRuntimeAssembly(scenario, {
+      ...settings,
+      index: { ...settings.index, getOperator: () => operator },
+    });
+    expect(compiled.operators[0]!.initialEntityBlackboard).toMatchObject({
+      EntityBB_form: 1,
+      EntityBB_type: 0,
+      label: 'template',
+    });
+    expect(() => new CombatRuntimeAssembly(compiled)).not.toThrow();
+    expect(operator.entityBlackboard.EntityBB_form).toBe(7);
+    for (const skill of compiled.operators[0]!.skills)
+      expect(skill.initialBlackboard).not.toHaveProperty('EntityBB_type');
+  });
+
+  it.each<Record<string, number>>([
+    { '': 0 },
+    { level: 1 },
+    { strength: 99 },
+    { invalid: Infinity },
+    { invalid: NaN },
+  ])('rejects invalid or panel-reserved template values %j', entityBlackboard => {
+    const panel = compileScenarioRuntimeAssembly(createScenario(), options()).operators[0]!.panel!;
+    expect(() =>
+      compileOperatorEntityBlackboardInitialValues({ ...perlica, entityBlackboard }, panel),
+    ).toThrow('entityBlackboard');
+  });
+
   it('derives entity blackboard values from final deck attributes, including equality', () => {
     const panel = compileScenarioRuntimeAssembly(createScenario(), options()).operators[0]!.panel!;
     const operator = {

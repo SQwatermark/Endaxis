@@ -38,15 +38,25 @@ export class ActionBlackboard {
   }
 
   assignDynamic(key: string, value: number): boolean {
-    const target = key.startsWith(ENTITY_BLACKBOARD_PREFIX)
-      ? (this.#entityBlackboard ?? this)
-      : this;
+    const target = this.#dynamicTarget(key);
     const current = target.#getDirectValue(key);
     if (typeof current === 'number' && Math.abs(current - value) <= FLOAT_ASSIGNMENT_EPSILON) {
       return false;
     }
     target.#values.set(key, value);
     return true;
+  }
+
+  /**
+   * 原生 AssignDynamic 本身不做 epsilon 检查。调用方已按 GetFloat 比较（可能读到 direct 遮蔽）
+   * 后必须用此入口，不能再按目标实体板的另一个值跳过赋值。既有融合比较入口仍保持不变。
+   */
+  assignDynamicUnconditionally(key: string, value: number): void {
+    this.#dynamicTarget(key).#values.set(key, value);
+  }
+
+  #dynamicTarget(key: string): ActionBlackboard {
+    return key.startsWith(ENTITY_BLACKBOARD_PREFIX) ? (this.#entityBlackboard ?? this) : this;
   }
 
   snapshot(): Readonly<Record<string, ActionBlackboardValue>> {

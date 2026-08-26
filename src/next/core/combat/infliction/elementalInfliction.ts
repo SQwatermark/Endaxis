@@ -4,6 +4,14 @@
  */
 import type { InflictionElement } from '../../game-data/operatorDefinition';
 
+/** 原生 EnergyShardType；条件 savedKey 与复合状态载荷共用同一编号。 */
+export const NATIVE_ELEMENT_VALUES: Readonly<Record<InflictionElement, number>> = {
+  heat: 0,
+  electric: 1,
+  cryo: 2,
+  nature: 3,
+};
+
 export const ELEMENTAL_INFLICTION_OUTCOME_KINDS = [
   'attachmentOnly',
   'burst',

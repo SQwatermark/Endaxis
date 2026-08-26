@@ -127,7 +127,7 @@ export interface CombatOperatorProgram {
   /** 场景编译入口提供的静态面板；底层运行时单元测试可按需省略。 */
   readonly panel?: ResolvedOperatorPanel;
   /** 已由场景编译器从静态构筑条件求值；运行时只负责在技能创建前安装。 */
-  readonly initialEntityBlackboard?: Readonly<Record<string, number>>;
+  readonly initialEntityBlackboard?: Readonly<Record<string, number | string>>;
   /** 同一实例既参与原生帧阶段，也承载该干员可被技能查询的 Buff。 */
   readonly buffRuntime?: OperatorBuffRuntime;
   /** 通用语义状态与 Buff 分属两个显式所有者；容器只在本次模拟中使用。 */

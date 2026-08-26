@@ -47,6 +47,7 @@ function options(): CompileActionSequenceProgramOptions<
 > {
   return {
     initialState: () => [],
+    canOmitTerminalCondition: () => true,
     compileCondition: node =>
       node.body.kind === 'leaf' && node.body.value.startsWith('?')
         ? { kind: 'condition', value: node.body.value }
@@ -79,6 +80,14 @@ function options(): CompileActionSequenceProgramOptions<
 }
 
 describe('公共 Action 序列控制流投影', () => {
+  it('没有纯条件证明时保留尾部求值；显式允许才可省略', () => {
+    const configured = options();
+    const source = sequence([leaf('?last')]);
+    expect(compileActionSequenceProgram(source, configured).steps).toEqual([]);
+    const { canOmitTerminalCondition: _, ...unproven } = configured;
+    expect(compileActionSequenceProgram(source, unproven).steps).toHaveLength(1);
+  });
+
   it('条件叶子守卫全部剩余兄弟步骤', () => {
     expect(
       compileActionSequenceProgram(sequence([leaf('?ready'), leaf('a'), leaf('b')]), options()),
