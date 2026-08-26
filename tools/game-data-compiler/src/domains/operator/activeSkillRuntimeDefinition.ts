@@ -100,7 +100,7 @@ export function renderOperatorActiveSkillRuntimeDefinitionSource(input: {
     throw new Error('operatorSlug: expected stable kebab-case identity');
   return {
     relativePath: `${input.operatorSlug}.${input.definition.key}.runtime.generated.ts`,
-    content: `/** 由 tools/game-data-compiler 从完整主动 SkillData 动作图生成；不要手工编辑。 */\nimport type { OperatorBuffDefinitions, SkillDefinition } from '../../../../core/game-data/operatorDefinition';\n\n// prettier-ignore\nexport const supplementalBuffDefinitions = ${JSON.stringify(input.supplementalBuffDefinitions ?? {}, null, 2)} as const satisfies OperatorBuffDefinitions;\n\n// prettier-ignore\nexport default ${JSON.stringify(input.definition, null, 2)} as const satisfies SkillDefinition;\n`,
+    content: `/** 由 tools/game-data-compiler 从完整主动 SkillData 动作图生成；不要手工编辑。 */\nimport type {\n  OperatorBuffDefinitions,\n  SkillDefinition,\n} from '../../../../core/game-data/operatorDefinition';\n\n// prettier-ignore\nexport const supplementalBuffDefinitions = ${JSON.stringify(input.supplementalBuffDefinitions ?? {}, null, 2)} as const satisfies OperatorBuffDefinitions;\n\n// prettier-ignore\nexport default ${JSON.stringify(input.definition, null, 2)} as const satisfies SkillDefinition;\n`,
   };
 }
 
