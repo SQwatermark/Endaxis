@@ -6,7 +6,34 @@
 当前主线是在 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
-### 2026-08-26 再续：诀本地资源与可重建解码工具（最新）
+### 2026-08-26 再续：诀角色初值与元素条件写入已定位（最新）
+
+- VFS 按原生 raw int32 数组证据修复 `BuffData.applyTags`。诀 42 Buff + 24 Skill
+  **66/66 完整解码**，新增三项边界测试；MemoryPack 全组 14 通过、2 项既有格式失败。
+- 当前 manifest 的角色模板 raw（13724 字节）中找到真正的带前缀 DataPair 初值：
+  consumed_type=0、consumed_layer=0、ult_hit=0、wisd_greater_will=1，均 EntityBB_、dynamic。
+  CharacterTemplateData 根已完整消费并验证 26 项组件引用；不是把技能短键当实体键。
+- 同一角色 AbilitySystemData 还引用 `CheckSpellInflictionType.Data`，mask=15、
+  savedKey=`EntityBB_consumed_type`。combat-spec 已先补其原生 fallback：匹配事件类型后
+  GetFloat 读旧值、按 epsilon 决定 AssignDynamic；缺键报错，server op 不冒充 AbilityEvent。
+  新增 29 项动作/适配测试通过，全量 **1266 通过、17 项既有本机资产缺失失败**。
+- **8 场 Next 运行阻塞仍在，默认武器库/迁移 UI 未切换**。当前只闭合了动作本身，尚未
+  接通角色模板正式导出、完整连携条件链、事件注册与黑板初始化。不能只填零让测试过关。
+  AbilitySystemData 黑板列表扫描存在 bool32=true 被误识别为 count=1 的嵌套候选，仍严格拒绝；
+  TypeTree 文本仅消费 2264/13724 也不得作完整来源。下一批应做按字段路径的严格导出，
+  再进入统一 TS compiler 和 Next，不扩展旧 Python 生成器。
+- 关键本机文件：`tmp/arcane-character.ab`、`tmp/arcane-character-raw/objects/0000-pAD03AA3777D0B4C2.dat`、
+  `tmp/inspect_arcane_character_root.ps1`、`tmp/inspect_arcane_blackboard.ps1`，均忽略不提交。
+  精确哈希、偏移与证据边界见 [诀证据](../research/arcane-next-evidence.md) 及复刻库
+  `docs/arcane-consumed-type-gap.md`。IFix ID `0xF2D2` 的补丁状态本批未验证。
+- 本批没有改 Endaxis 运行代码/生成产物，未重跑 Next；上一批 Next 2506 通过仅为历史口径。
+  本机 SDK10 CLI 启动时出现 AccessViolation，已用临时 `combat-spec/tmp/sdk8/global.json`
+  选择已安装 SDK8 完成验证，不改仓库配置，也未据此断言硬件故障。
+- 同日重启重试：默认 SDK10 已正常构建，29 项聚焦测试及全量 1266 通过/17 既有失败再次确认；
+  VFS MemoryPack 仍为 14 通过/2 既有失败。确认无 Git 进程后，仅清除 combat-spec 与 VFS
+  重启前遗留的两个空 `index.lock`，原有暂存和工作文件保留；本批提交仅本地，不推送。
+
+### 2026-08-26 再续：诀本地资源与可重建解码工具（上一批）
 
 - 没有修改 Endaxis 游戏规则、默认武器库或生成产物；8 项 `EntityBB_consumed_type`
   运行阻塞仍在，不能把工具修复说成模拟修复。

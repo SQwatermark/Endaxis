@@ -1,6 +1,30 @@
 # 诀新版配置证据记录
 
-## 2026-08-26 本地二进制复核（最新）
+## 2026-08-26 角色模板初值与 savedKey 写入（最新）
+
+本批 VFS 已按原生证据补齐 BuffData.applyTags，关联资源由 64/66 到 **66/66 完整解码**。
+Skill/Buff 内仍只有读取，但当前 manifest 的 CharacterTemplateData 中找到了缺失来源：
+
+- 原生路径 `assets/beyond/dynamicassets/gamedata/characterdata/data_chr_0032_lizhiyan.asset`，
+  raw 13724 字节，SHA256 `33934515EA8B90EFDF35F3FAE4901124ED54FC16C087A9755574D8DB58DCA0BC`。
+- 根载荷 `[168,544)` 已完整读取、验证 id 与全部 26 个组件引用。AbilitySystemData
+  `[4092,7368)` 内有四项 EntityBB_ DataPair（`[6284,6460)`）：consumed_type/layer/ult_hit=0，
+  wisd_greater_will=1，全部 dynamic=true。AbilitySystemData 前缀仍需逐字段解码，不直接把
+  局部扫描候选喂给生成器。模板默认值与后续 Deck 属性初始化器也不能混淆。
+- 条件 RID `2708501211437859835` 的 CheckSpellInflictionType.Data 完整载荷为
+  `[12164,12212)`，mask=15、savedKey=`EntityBB_consumed_type`、serverActionIndex=1013；
+  该 RID 确实被角色 AbilitySystemData 引用。完整 ComboSkillCondition 路径、前置守卫、
+  事件注册及执行环境仍待核实，不先假定任何元素事件都写这个值。
+- combat-spec 已先实现原生未补丁动作：上下文类型/mask 匹配才读写，非空 savedKey 必须已存在；
+  按单精度 epsilon 更新 EntityBB_，不发布虚构的 AbilityEvent。29 项新测试通过，
+  全量 1266 通过、17 项既有资产缺失失败。IFix ID 0xF2D2 的实际槽状态未核实。
+
+**Next 的 8 场阻塞仍保留**；本批未修改其代码、默认库或生成定义。下一步是角色数据严格导出，
+再接公共 TS 编译器的初始化和带写入条件，最后用不同元素/不同属性分支重跑实际场景。
+详细原生 RVA、数据偏移与工具复现见 combat-spec `docs/check-spell-infliction-type.md`、
+`docs/arcane-consumed-type-gap.md` 和 VFS `docs/research/memorypack-arcane-2026-08-26.md`。
+
+## 2026-08-26 本地二进制复核（上一批）
 
 已解除先前的 VFS tag 173 解码工具阻塞，但**没有解除 8 项模拟阻塞**：
 

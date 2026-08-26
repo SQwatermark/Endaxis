@@ -2,10 +2,11 @@
 
 本文只给出架构级状态。逐功能的定义、编译、执行和 UI 门槛以[功能迁移矩阵](../architecture/endaxis-next-feature-matrix.md)为准。
 
-> 2026-08-26 诀本地证据复核：已修复 VFS 部分初始化类型映射和 ObtainCost GameplayTag
-> 解码；控制 Buff/连携技能完整解码，66 份关联 Skill/Buff 中 64 份完整。但仍只有缺失实体键
-> 的读取，没有写入证据，**8 项运行阻塞未解除**，默认武器库未切换。下一步核对剩余两份
-> Buff 标签数组、角色实体初始化和运行时 Patch。见[诀证据](../research/arcane-next-evidence.md)。
+> 2026-08-26 诀最新来源：VFS Buff 标签数组已修复，关联 Skill/Buff **66/66 完整解码**。
+> 角色模板内找到 EntityBB_consumed_type 初值及 CheckSpellInflictionType.savedKey 写入条件；
+> 复刻库先补原生动作，29 项新测试通过。角色组件的完整字段导出、条件事件链与 Next 初始化
+> 尚未接通，**8 项运行阻塞仍在**；未切默认武器库，也未用补零放行。下一步严格导出角色
+> 数据、核对 IFix 与事件注册，再接统一 TS compiler。见[诀证据](../research/arcane-next-evidence.md)。
 
 > 2026-08-26 最新存档迁移：已支持稳定词条键和显式重命名，77 把真实武器迁移后可重新通过
 > 项目校验；佩丽卡战技项目另验证迁移后实际模拟。注册审计发现 **10 项**布局变化（5 新增、
