@@ -7,6 +7,8 @@ export type GeneratedWeaponRegistrationIssue =
       readonly legacySlug: string;
       readonly legacyLevelCounts: readonly number[];
       readonly generatedLevelCounts: readonly number[];
+      readonly legacyTraitKeys: readonly string[];
+      readonly generatedTraitKeys: readonly string[];
     }
   | {
       readonly code: 'missingLegacyPresentation';
@@ -68,7 +70,9 @@ export function registerGeneratedWeaponDefinitions(
     if (
       canonical.traits.length !== definition.traits.length ||
       canonical.traits.some(
-        (trait, index) => trait.levelCount < (definition.traits[index]?.levelCount ?? 0),
+        (trait, index) =>
+          trait.key !== definition.traits[index]?.key ||
+          trait.levelCount < (definition.traits[index]?.levelCount ?? 0),
       )
     ) {
       // 图标身份能证明别名，不能证明按数组槽位保存的词条等级可以直接迁移。
@@ -78,6 +82,8 @@ export function registerGeneratedWeaponDefinitions(
         legacySlug: definition.slug,
         legacyLevelCounts: definition.traits.map(trait => trait.levelCount),
         generatedLevelCounts: canonical.traits.map(trait => trait.levelCount),
+        legacyTraitKeys: definition.traits.map(trait => trait.key),
+        generatedTraitKeys: canonical.traits.map(trait => trait.key),
       });
     }
     const aliases = legacyByGeneratedSlug.get(candidates[0]!.slug) ?? [];

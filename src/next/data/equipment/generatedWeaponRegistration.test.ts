@@ -6,12 +6,19 @@ import { generatedWeaponDefinitions } from './generated-weapons/index.generated'
 import { sharedWeaponDefinitions } from './sharedEquipmentDefinitions';
 
 describe('generated weapon registration', () => {
-  it('maps real identities and icons but reports the five incompatible saved trait layouts', () => {
+  it('reports five added slots and five same-length renamed layouts without altering generated behavior', () => {
     const result = registerGeneratedWeaponDefinitions(
       generatedWeaponDefinitions,
       sharedWeaponDefinitions,
     );
-    expect(result.issues).toEqual(
+    expect(result.issues).toHaveLength(10);
+    expect(
+      result.issues.filter(
+        issue =>
+          issue.code === 'legacyTraitLayoutMismatch' &&
+          issue.legacyLevelCounts.length !== issue.generatedLevelCounts.length,
+      ),
+    ).toEqual(
       [
         ['freedom-to-proselytize', 'wpn_funnel_0012'],
         ['dreams-of-the-starry-beach', 'wpn_funnel_0013'],
@@ -24,6 +31,27 @@ describe('generated weapon registration', () => {
         canonicalSlug,
         legacyLevelCounts: [9, 9],
         generatedLevelCounts: [9, 9, 9],
+        legacyTraitKeys: ['wpn_funnel_0016', 'wpn_claym_0006'].includes(canonicalSlug!)
+          ? ['skill1', 'skill2']
+          : ['skill1', 'skill3'],
+        generatedTraitKeys: ['skill1', 'skill2', 'skill3'],
+      })),
+    );
+    expect(
+      result.issues.filter(
+        issue =>
+          issue.code === 'legacyTraitLayoutMismatch' &&
+          issue.legacyLevelCounts.length === issue.generatedLevelCounts.length,
+      ),
+    ).toEqual(
+      ['jiminy-12', 'darhoff-7', 'peco-5', 'opero-77', 'tarr-11'].map(legacySlug => ({
+        code: 'legacyTraitLayoutMismatch',
+        legacySlug,
+        canonicalSlug: result.aliases[legacySlug],
+        legacyLevelCounts: [9, 9],
+        generatedLevelCounts: [9, 9],
+        legacyTraitKeys: ['skill1', 'skill3'],
+        generatedTraitKeys: ['skill1', 'skill2'],
       })),
     );
     expect(result.definitions).toHaveLength(77);
@@ -55,6 +83,8 @@ describe('generated weapon registration', () => {
         legacySlug: legacy.slug,
         legacyLevelCounts: [9],
         generatedLevelCounts: [8],
+        legacyTraitKeys: ['legacy-trait'],
+        generatedTraitKeys: ['skill1'],
       },
     ]);
   });
