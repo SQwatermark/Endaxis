@@ -62,6 +62,17 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
       return { kind, probability: { kind: 'constant', value: 0.5 } };
     case 'contextTargetCountCompare':
       return { kind, contextKey: 'custom-targets', operator: 'greaterOrEqual', value: 1 };
+    case 'contextTargetObjectTypeMatch':
+      return { kind, contextKey: 'custom-targets', objectTypeMask: 16 };
+    case 'contextTargetBuffStackCompare':
+      return {
+        kind,
+        contextKey: 'custom-targets',
+        tagQueryType: 'hasAny',
+        buffTagIds: [0],
+        operator: 'greaterOrEqual',
+        value: { kind: 'constant', value: 1 },
+      };
     case 'abilityEntityRemainingDurationCompare':
       return {
         kind,

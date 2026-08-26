@@ -312,6 +312,21 @@ export type CombatCondition =
       outputKey?: string;
     }
   | {
+      /** 原生 CheckObjectTypeMatch：命名组中任一对象的类型被 mask 完整包含。 */
+      kind: 'contextTargetObjectTypeMatch';
+      contextKey: string;
+      objectTypeMask: number;
+    }
+  | {
+      /** CheckBuffStackNumByTag 的首目标增强层数；空组直接 false，不读取阈值。 */
+      kind: 'contextTargetBuffStackCompare';
+      contextKey: string;
+      tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+      buffTagIds: readonly number[];
+      operator: ComparisonOperator;
+      value: ActionValueOperand;
+    }
+  | {
       /** 比较当前 Context 迭代目标的有限能力实体剩余时长。 */
       kind: 'abilityEntityRemainingDurationCompare';
       operator: ComparisonOperator;
@@ -511,6 +526,8 @@ export const COMBAT_CONDITION_KINDS = [
   'actionValueCompare',
   'probability',
   'contextTargetCountCompare',
+  'contextTargetObjectTypeMatch',
+  'contextTargetBuffStackCompare',
   'abilityEntityRemainingDurationCompare',
   'statusActive',
   'buffStackCompare',

@@ -81,6 +81,8 @@ function inspectCondition(
     case 'deckAttributeCompare':
     case 'probability':
     case 'contextTargetCountCompare':
+    case 'contextTargetObjectTypeMatch':
+    case 'contextTargetBuffStackCompare':
     case 'abilityEntityRemainingDurationCompare':
     case 'timedMarkerPresent':
     case 'abilityEntityTimedMarkerPresent':

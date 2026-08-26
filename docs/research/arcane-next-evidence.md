@@ -1,6 +1,42 @@
 # 诀新版配置证据记录
 
-## 2026-08-26 原生附着事件的连携条件注册（最新）
+## 2026-08-26 五条真实条件的公共来源/查询执行（最新）
+
+新增 parseUnityComboSkillConditionsSource，输入为 VFS character-template-prefix-v1 中的
+comboSkillConditions 与 conditionReferences。RID 必须为字符串、精确指向 complete 的同程序集
+已审计叶子；仅按五种原生类型的字段签名规范化，不按 ID/显示名猜行为。优先级只接已证实的 0，
+Scalar useKey/key 转成公共包装，Target/Compare/StackNum/TagQuery 枚举按复刻库定义映射；
+标签 signed value、hex 及查询 name/value 相互校验。非空 finder/方向 RID 仍拒绝。
+DebugPrint 的 logType 原整数保留，不为 no-op 猜日志语义；所有动作仍走既有严格读取/编译入口。
+
+本机 tmp/arcane-character-conditions-complete.json 的 sourceSha256 为
+33934515ea8b90efdf35f3fae4901124ed54fc16c087a9755574d8db58dca0bc。
+14 条实际 data 与 test/unityComboConditionFixture.ts 手写最小切片逐项 deepEqual，公共 source
+结构也相同，5/5 条件编译成功。整个角色仍 partial（908 字节后缀未消费），不能据此升级完整解码。
+
+公共条件新增 contextTargetObjectTypeMatch 与 contextTargetBuffStackCompare：
+前者复用 ObjectType signed-mask 语义，对 Context 中任一目标做完整包含检查，Enemy 扩展 EnemyPart；
+Next 可表示目标仍只有角色/木桩/能力实体，不伪造部位实例。后者只接原生 ByTag/BuffCount 分支，
+读取首目标容器的增强层数；缺组或空组 false，不先读取阈值。非空目标缺黑板/解析端口严格报错。
+BuffIdCount 的不同 ID 去重语义没有投影，不用实例数替代；Advanced 的无目标语义也不借用此分支。
+新条件已进入公共编译、正式校验、原有运行执行链及基础字段编辑，UI 未进行浏览器交互验收。
+
+顺带修复上一批过宽的 InputTarget 拦截：关闭动作与原生不读取目标的 DebugPrint 不应被残留
+Target 字段阻塞。真正使用 InputTarget 的条件继续报错，不能偷偷指向物理 eventTarget。
+
+真实五条最小切片经过 RID → 公共 source → 公共编译 → 正式条件校验 → Next sequence → 标准环境
+连续两次附着执行。四元素各测试构筑守卫 0/1；火/电/冰首轮无旧层数、次轮有旧层数，自然直接
+匹配，第五条按守卫写 EntityBB_consumed_type。没有手动调用条件替代实际附着事件，Pending 回调
+仅用于观察成功事实，不代表候选选择或施法已接通。单测另固定任一/首目标差异、空组、强化三层
+只有一个实例、结束 Buff 排除、非法掩码、缺引用、未知枚举和未支持 ID 计数。
+
+**8 场正式阻塞仍在**；下一步安装角色常驻注册和资格端口，再接 Pending 的选择/施法覆盖。
+已有公共 Target/Tag/BuffCount 投影为 eventTargetBuffCountCompare，但后者实际为实例计数；
+Owner/Source 也共用该输出，这是需单独审计的旧分支差异。本批不修改旧正式生成数据以掩盖问题。
+新增 42 项，全量 286 文件/2959 项通过，两侧类型检查通过；C#/VFS 不重跑。
+报告 tmp/combo-condition-target-queries.audit.json 不入 Git。
+
+## 2026-08-26 原生附着事件的连携条件注册（上一批）
 
 复用 combat-spec 的 combo-condition-environment.md、combo-event-gates-and-pending.md、
 combo-cast-preparation.md，Next 新增 ComboSkillConditionRuntime。标准环境真实附着动作的四个

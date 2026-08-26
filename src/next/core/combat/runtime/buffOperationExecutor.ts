@@ -706,6 +706,28 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     condition: Parameters<CombatOperationExecutor['evaluate']>[0],
     context?: Parameters<CombatOperationExecutor['evaluate']>[1],
   ): boolean {
+    if (condition.kind === 'contextTargetBuffStackCompare') {
+      if (context?.targetContext === undefined)
+        throw new Error('context Buff count requires a combat target context');
+      const first = context.targetContext.getOptional(condition.contextKey)?.[0];
+      if (first === undefined) return false;
+      const target =
+        first.kind === 'abilityEntity'
+          ? this.dependencies.resolveCurrentAbilityEntityTarget?.(first)
+          : this.dependencies.resolveEventTarget?.(
+              first.kind === 'enemy' ? 'enemy' : first.operatorId,
+            );
+      if (target === undefined) throw new Error('context Buff count requires a target resolver');
+      const count = target.getCountByTags(
+        condition.buffTagIds.map(gameplayTagId),
+        condition.tagQueryType,
+      );
+      return compareCombatNumbers(
+        count,
+        resolveActionValueOperand(condition.value, context.blackboard),
+        condition.operator,
+      );
+    }
     if (condition.kind === 'eventTargetBuffCountCompare') {
       if (context?.event === undefined || !('targetId' in context.event)) {
         throw new Error('eventTargetBuffCountCompare requires an event target identity');

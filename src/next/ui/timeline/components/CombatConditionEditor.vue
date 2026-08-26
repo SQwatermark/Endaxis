@@ -135,6 +135,7 @@ function setComparison(event: Event): void {
       emit('update', { ...condition, operator });
       break;
     case 'eventTargetBuffCountCompare':
+    case 'contextTargetBuffStackCompare':
       emit('update', { ...condition, operator });
       break;
     case 'buffIdStackCompare':
@@ -160,6 +161,8 @@ function setOperand(
   else if (condition.kind === 'cameraToTargetAngleCompare' && field === 'value')
     emit('update', { ...condition, value });
   else if (condition.kind === 'buffStackCompare' && field === 'value')
+    emit('update', { ...condition, value });
+  else if (condition.kind === 'contextTargetBuffStackCompare' && field === 'value')
     emit('update', { ...condition, value });
   else if (condition.kind === 'eventTargetBuffCountCompare' && field === 'value')
     emit('update', { ...condition, value });
@@ -197,7 +200,10 @@ function setContextValueKind(event: Event): void {
 }
 
 function setGameplayTagIds(values: readonly number[]): void {
-  if (props.condition.kind === 'buffStackCompare')
+  if (
+    props.condition.kind === 'buffStackCompare' ||
+    props.condition.kind === 'contextTargetBuffStackCompare'
+  )
     emit('update', { ...props.condition, buffTagIds: values });
   else if (props.condition.kind === 'entityTagMatch')
     emit('update', { ...props.condition, tagIds: values });
@@ -239,12 +245,32 @@ function setTagQueryType(event: Event): void {
   const tagQueryType = (event.target as HTMLSelectElement)
     .value as (typeof TAG_QUERY_TYPES)[number];
   if (!TAG_QUERY_TYPES.includes(tagQueryType)) return;
-  if (props.condition.kind === 'buffStackCompare')
+  if (
+    props.condition.kind === 'buffStackCompare' ||
+    props.condition.kind === 'contextTargetBuffStackCompare'
+  )
     emit('update', { ...props.condition, tagQueryType });
   else if (props.condition.kind === 'eventTargetBuffCountCompare')
     emit('update', { ...props.condition, tagQueryType });
   else if (props.condition.kind === 'entityTagMatch')
     emit('update', { ...props.condition, tagQueryType });
+}
+
+function setContextKey(event: Event): void {
+  const condition = props.condition;
+  if (
+    condition.kind === 'contextTargetObjectTypeMatch' ||
+    condition.kind === 'contextTargetBuffStackCompare'
+  )
+    emit('update', { ...condition, contextKey: (event.target as HTMLInputElement).value });
+}
+
+function setObjectTypeMask(event: Event): void {
+  if (props.condition.kind !== 'contextTargetObjectTypeMatch') return;
+  const raw = (event.target as HTMLInputElement).value;
+  const value = Number(raw);
+  if (raw.trim() !== '' && Number.isInteger(value) && value >= -2147483648 && value <= 2147483647)
+    emit('update', { ...props.condition, objectTypeMask: value });
 }
 
 function setEventTagMatch(event: Event): void {
@@ -412,6 +438,27 @@ function removeChild(index: number): void {
     <p v-if="isLeafWithoutParameters" class="condition-editor__note">
       {{ t('nextTimeline.skillEditing.conditionNoParameters') }}
     </p>
+    <label
+      v-if="
+        condition.kind === 'contextTargetObjectTypeMatch' ||
+        condition.kind === 'contextTargetBuffStackCompare'
+      "
+      class="condition-editor__field"
+    >
+      <EditorFieldLabel :label="t('nextTimeline.skillEditing.conditionContextKey')" />
+      <input type="text" :value="condition.contextKey" @input="setContextKey" />
+    </label>
+    <label v-if="condition.kind === 'contextTargetObjectTypeMatch'" class="condition-editor__field">
+      <EditorFieldLabel :label="t('nextTimeline.skillEditing.conditionObjectTypeMask')" />
+      <input
+        type="number"
+        step="1"
+        min="-2147483648"
+        max="2147483647"
+        :value="condition.objectTypeMask"
+        @input="setObjectTypeMask"
+      />
+    </label>
 
     <label v-if="condition.kind === 'skillBranchEnabled'" class="condition-editor__field"
       ><EditorFieldLabel
@@ -717,6 +764,7 @@ function removeChild(index: number): void {
     <template
       v-if="
         condition.kind === 'buffStackCompare' ||
+        condition.kind === 'contextTargetBuffStackCompare' ||
         condition.kind === 'eventTargetBuffCountCompare' ||
         condition.kind === 'entityTagMatch'
       "
@@ -742,7 +790,9 @@ function removeChild(index: number): void {
       </label>
       <template
         v-if="
-          condition.kind === 'buffStackCompare' || condition.kind === 'eventTargetBuffCountCompare'
+          condition.kind === 'buffStackCompare' ||
+          condition.kind === 'eventTargetBuffCountCompare' ||
+          condition.kind === 'contextTargetBuffStackCompare'
         "
         ><label class="condition-editor__field"
           ><EditorFieldLabel

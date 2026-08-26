@@ -22,6 +22,7 @@ import {
 } from '../source/buffRuntime.ts';
 import type { KnownNativeActionLeafSource } from '../source/actionLeaf.ts';
 import type { ScalarSource } from '../source/scalar.ts';
+import { parseObjectTypeMask } from '../source/objectType.ts';
 import { compileAbilityEventPrograms } from './abilityEventProgram.ts';
 import {
   compileActionSequenceProgram,
@@ -233,6 +234,20 @@ export type CompiledBuffConditionSource =
         'equal' | 'notEqual' | 'greater' | 'greaterOrEqual' | 'less' | 'lessOrEqual';
       readonly value: number;
       readonly outputKey?: string;
+    }
+  | {
+      readonly kind: 'contextTargetObjectTypeMatch';
+      readonly contextKey: string;
+      readonly objectTypeMask: number;
+    }
+  | {
+      readonly kind: 'contextTargetBuffStackCompare';
+      readonly contextKey: string;
+      readonly tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+      readonly buffTagIds: readonly number[];
+      readonly operator:
+        'equal' | 'notEqual' | 'greater' | 'greaterOrEqual' | 'less' | 'lessOrEqual';
+      readonly value: CompiledActionValueOperandSource;
     }
   | {
       readonly kind: 'healthCompare';
@@ -1778,6 +1793,18 @@ function compileConditionLeaf(
         : { buffIdOutputKey: condition.buffIdOutputKey }),
     };
   }
+  if (condition.kind === 'objectTypeMatch') {
+    if (condition.target.targetSource !== 'Context' || condition.target.targetGroupKey === '') {
+      throw new Error(
+        `${sourcePath}: unsupported object type target; expected named Context group`,
+      );
+    }
+    return {
+      kind: 'contextTargetObjectTypeMatch',
+      contextKey: condition.target.targetGroupKey,
+      objectTypeMask: parseObjectTypeMask(condition.objectTypeMask, `${sourcePath}.objectTypeMask`),
+    };
+  }
   if (condition.kind === 'targetIdentity') {
     const first = condition.first;
     const second = condition.second;
@@ -1800,6 +1827,27 @@ function compileConditionLeaf(
     return { kind: 'eventSourceTargetMatch', operator: 'equal' };
   }
   if (condition.kind === 'buffStack') {
+    // ByTag 无目标返回 false；不能沿用 Advanced 的零层路径或实例计数。
+    if (
+      condition.targetSource === 'Context' &&
+      condition.targetGroupKey !== '' &&
+      condition.sourceType === 'CheckBuffStackNumByTag' &&
+      condition.buffCheckType === 'Tag' &&
+      condition.countType === 'BuffCount' &&
+      !condition.limitSkillCastId
+    ) {
+      const operator = COMPARISON_OPERATORS[condition.comparison];
+      if (operator === undefined)
+        throw new Error(`${sourcePath}: unsupported Buff stack comparison`);
+      return {
+        kind: 'contextTargetBuffStackCompare',
+        contextKey: condition.targetGroupKey,
+        tagQueryType: condition.tagQueryType,
+        buffTagIds: condition.buffTagIds,
+        operator,
+        value: actionValueOperand(condition.value),
+      };
+    }
     if (
       (condition.targetSource !== 'Target' &&
         condition.targetSource !== 'Owner' &&

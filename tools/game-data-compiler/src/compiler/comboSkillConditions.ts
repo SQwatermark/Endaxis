@@ -39,6 +39,25 @@ export function compilePendingComboConditionSource(
 /** 公共 Buff 投影的 Target 是物理 eventTarget，不能套到连携 InputTarget。未接适配前严格拒绝。 */
 function rejectUnboundInputTargets(value: unknown, path: string): void {
   if (value === null || typeof value !== 'object') return;
+  if (
+    'metadata' in value &&
+    typeof value.metadata === 'object' &&
+    value.metadata !== null &&
+    'enabled' in value.metadata &&
+    value.metadata.enabled === false
+  )
+    return;
+  // 原生 DebugPrint fallback 不读取目标/黑板，不能被关闭字段中的 Target 假阻塞。
+  if (
+    'family' in value &&
+    value.family === 'presentation' &&
+    'action' in value &&
+    typeof value.action === 'object' &&
+    value.action !== null &&
+    'kind' in value.action &&
+    value.action.kind === 'debugPrint'
+  )
+    return;
   for (const [key, child] of Object.entries(value)) {
     if (key === 'targetSource' && child === 'Target') {
       throw new Error(`${path}: combo InputTarget projection is not installed`);

@@ -32,7 +32,7 @@ export interface PlaySoundActionSource {
 
 export interface DebugPrintActionSource {
   readonly kind: 'debugPrint';
-  readonly logType: string;
+  readonly logType: string | number;
   readonly target: TargetReferenceSource;
   readonly color: {
     readonly r: number;
@@ -152,7 +152,10 @@ export function parseDebugPrintActionSource(value: unknown, path: string): Debug
   requireExactFields(color, new Set(['r', 'g', 'b', 'a']), `${path}.color`);
   return {
     kind: 'debugPrint',
-    logType: requireString(action.logType, `${path}.logType`),
+    logType:
+      typeof action.logType === 'number'
+        ? requireInteger(action.logType, `${path}.logType`)
+        : requireString(action.logType, `${path}.logType`),
     target: parseTargetReferenceSource(action.target, `${path}.target`),
     color: {
       r: requireNumber(color.r, `${path}.color.r`),

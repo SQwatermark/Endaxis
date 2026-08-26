@@ -22,6 +22,15 @@ import { skillSettings } from '../../../data/combat/skillSettings';
 import { ELEMENTAL_INFLICTION_EVENTS } from './elementalInflictionOperationExecutor';
 import { EventContextConditionExecutor } from './eventContextConditionExecutor';
 import type { PendingComboCondition } from './comboSkillConditionRuntime';
+import { parseUnityComboSkillConditionsSource } from '../../../../../tools/game-data-compiler/src/source/unityComboSkillConditions.ts';
+import { compilePendingComboConditionSource } from '../../../../../tools/game-data-compiler/src/compiler/comboSkillConditions.ts';
+import { unityComboConditionFixture } from '../../../../../tools/game-data-compiler/test/unityComboConditionFixture.ts';
+import { compileActionSequence } from '../../compiler/compileSkill';
+import type { ActionSequenceDefinition } from '../../game-data/operatorDefinition';
+import { validateSkillDefinition } from '../../game-data/validateSkillDefinition';
+import { ActionBlackboardOperationExecutor } from './actionBlackboardOperationExecutor';
+import { BuffOperationExecutor } from './buffOperationExecutor';
+import { TargetContextOperationExecutor } from './targetContextOperationExecutor';
 
 const damageStep: Extract<ResolvedCombatStep, { kind: 'dealDamage' }> = {
   kind: 'dealDamage',
@@ -326,6 +335,110 @@ function createSkillSettings(): SkillSettingsDocument {
 }
 
 describe('StandardPlayerDamageEnvironment', () => {
+  it.each(['heat', 'electric', 'cryo', 'nature'] as const)(
+    '%s 真实五条条件经 RID 来源/公共编译，在连续两次附着前查询旧层数',
+    element => {
+      for (const deckGate of [0, 1]) {
+        const context = createContext();
+        const environment = new StandardPlayerDamageEnvironment({
+          criticalSamples: { nextCriticalSample: () => 1 },
+          resolveNonRandomRuntimeSnapshot: () => ({
+            runtimeExtensionMultiplier: 1,
+            appliesIgniteDamageMultiplier: false,
+            appliesPhysicalInflictionDamageMultiplier: false,
+          }),
+          enemyVitals: createEnemyCombatVitals(testEnemy),
+          elementalInflictionDocument: elementalAttachments,
+          spellInflictionSettings: skillSettings,
+        });
+        const executor = environment.runtimeOptions.createOperationExecutor(context);
+        const terminal = {
+          execute: () => {
+            throw new Error('unexpected operation');
+          },
+          evaluate: () => {
+            throw new Error('unexpected condition');
+          },
+        };
+        const queries = new BuffOperationExecutor({
+          sourceId: 'owner',
+          resolveTarget: () => {
+            throw new Error('wrong target channel');
+          },
+          resolveEventTarget: id => {
+            expect(id).toBe('enemy');
+            return environment.runtimeOptions.enemyBuffRuntime;
+          },
+          delegate: new TargetContextOperationExecutor('owner', terminal),
+        });
+        const operations = new ActionBlackboardOperationExecutor(
+          new EventContextConditionExecutor(queries),
+        );
+        const fixture = unityComboConditionFixture();
+        const source = parseUnityComboSkillConditionsSource(
+          fixture.conditions,
+          fixture.references,
+          'fixture.combo',
+        );
+        const entity = new ActionBlackboard({
+          EntityBB_consumed_type: 0,
+          EntityBB_wisd_greater_will: deckGate,
+        });
+        const pending: number[] = [];
+        source.conditions.forEach((condition, index) => {
+          const compiled = compilePendingComboConditionSource(condition, {
+            actionOwnerTarget: 'caster',
+            actionSourceTarget: 'caster',
+            actionTargetTarget: 'eventTarget',
+          });
+          expect(
+            validateSkillDefinition({
+              key: 'check',
+              timelineBlockFrames: 1,
+              scheduledSequences: [{ startFrame: 0, sequence: compiled.sequence }],
+            }),
+          ).toEqual([]);
+          environment.comboConditions.registerPendingCondition({
+            event: compiled.event,
+            ownerId: 'owner',
+            sourceId: 'owner',
+            entityBlackboard: entity,
+            initialValues: { consumed_type: 0, consumed_layer: 0 },
+            sequence: compileActionSequence(compiled.sequence as ActionSequenceDefinition, 1),
+            operations,
+            isOwnerAlive: () => true,
+            isOwnerSilenced: () => false,
+            currentComboCooldown: () => ({ oneReady: true, maxPassedTime: 0, startCdFrame: 0 }),
+            resolveTarget: id =>
+              id === 'enemy' ? { kind: 'enemy' } : { kind: 'operator', operatorId: id },
+            onPending: p => {
+              pending.push(index);
+              expect(p.assignPairs).toEqual({ consumed_type: 0, consumed_layer: 0 });
+            },
+          });
+        });
+        const step = {
+          kind: 'applyElementalInfliction' as const,
+          parameters: { element, isExtra: false },
+        };
+        executor.execute(step);
+        expect(pending).toEqual([
+          ...(element === 'nature' ? [0] : []),
+          ...(deckGate === 0 ? [4] : []),
+        ]);
+        pending.length = 0;
+        executor.execute(step);
+        expect(pending).toEqual([
+          { nature: 0, heat: 1, electric: 2, cryo: 3 }[element],
+          ...(deckGate === 0 ? [4] : []),
+        ]);
+        expect(entity.getNumber('EntityBB_consumed_type')).toBe(
+          deckGate === 0 ? { heat: 0, electric: 1, cryo: 2, nature: 3 }[element] : 0,
+        );
+      }
+    },
+  );
+
   it.each(['heat', 'electric', 'cryo', 'nature'] as const)(
     '%s 真实附着按 callback→action→combo 分派四阶段，前置检查先于 Buff 写入',
     element => {

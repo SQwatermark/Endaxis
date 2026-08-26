@@ -6,7 +6,31 @@
 当前主线是在 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
-### 2026-08-26 再续：附着事件连携阶段与独立条件注册进入 Next（最新）
+### 2026-08-26 再续：五条真实连携条件的来源与查询闭合（最新）
+
+- 新增 Unity 已解码 RID 适配，按 assembly/namespace/class 和完整消费状态验证 14 条叶子，
+  将字段/枚举包装规范化后交给唯一公共 Action/Condition 读取器；保留 RID 与原始来源记录。
+  本机真实导出与固定最小测试切片的 14 条 data 逐项深比较一致，五条完整条件全部编译成功。
+  DebugPrint 的原生 fallback 不读目标，修复上一批 Target 拦截误伤；关闭动作同样不应假阻塞。
+- 新增 Context 对象类型查询与首目标标签 Buff 增强层数查询，进入正式条件校验及已有执行链。
+  对象检查任一目标满足完整掩码；标签检查只看首目标，空组直接 false、非空严格解析阈值。
+  不把 trigger 写死成敌人，不把增强层数算成实例数。两条件基础编辑字段/三语标签已补，
+  本批未进行浏览器交互验收。
+- 五条最小真实切片已在 StandardPlayerDamageEnvironment 的连续两次附着中执行：
+  火/电/冰首轮层数条件不成立、次轮成立，自然元素直接匹配；第五条按构筑守卫写元素实体值。
+  覆盖四元素和守卫 0/1，Pending 仍只捕获条件局部板，不把实体动态写入混进去。
+- **8 场正式阻塞仍保留**：没有把五条注册自动装进生产角色，也没有接 Pending 候选/施法消费。
+  下一步重点是 CombatRuntimeAssembly 的角色常驻注册、alive/InSilence/当前槽冷却端口，
+  然后接 Pending 到施法覆盖与 SmartTarget；不要再重复已闭合的五条叶子和 RID 研究。
+  InputTarget 动作目标仍未投影，只有本批所需 Context 查询闭合；非空嵌套 RID/未知类型仍拒绝。
+  BuffIdCount 是不同 Buff ID 数，本批未支持，不能当实例数或增强层数放行。
+- 另发现旧公共 Target/Tag/BuffCount 分支输出 eventTargetBuffCountCompare，而该 Next 条件
+  明确统计实例数，Owner/Source 也共用这个输出；需独立按原生来源审计并迁移，不能盲改正式库。
+- 新增 **42 项**；Next+统一编译器 **286 文件/2959 项通过**，两侧类型检查通过。
+  报告 tmp/combo-condition-target-queries.audit.json 不提交；C#/VFS 本批未重跑，复刻库只同步交接。
+  未改旧版/旧 Python/正式生成数据，默认武器库/迁移 UI 不切换；两库本地提交，不推送。
+
+### 2026-08-26 再续：附着事件连携阶段与独立条件注册进入 Next（上一批）
 
 - 标准环境的真实附着执行现按 callback → data action → combo 派发四类已审计事件；
   不把后置 semantic event 用作 event=121。既有 dispatcher 支持的 skill 阶段在标准环境仍为空，

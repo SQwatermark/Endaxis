@@ -386,6 +386,10 @@ npm run download:game-data:operator-closure -- --vfs-fallback http://desktop:876
 
 已完成：
 
+- VFS 已解码 Unity 连携 RID 的有界规范化适配，五种已审计叶子仍复用公共 Action/Condition 解析；
+  真实 14 条来源核对一致，五条条件可编译。Context 对象类型及 ByTag 首目标增强层数进入 Next。
+  DebugPrint/关闭动作不再被残留 Target 假阻塞；真正的 InputTarget、非空子 RID 和 BuffIdCount
+  仍是显式边界。角色生产安装/资格端口/Pending 施法尚未自动贯通，不等同正式转换完成。
 - 公共连携条件来源读取与四类已审计附着事件 Pending 编译，复用公共条件/序列而不另写叶子；
   布尔结果被消费时保留纯尾条件。原始 RID 未展开、immediate、主控/支援过滤、未审计事件仍拒绝；
   InputTarget 尚未投影时禁止把 Target 编成 Buff 的物理 eventTarget。证据见 combat-spec 的

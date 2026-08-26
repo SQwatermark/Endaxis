@@ -513,6 +513,24 @@ function validateCombatCondition(
       requireNonNegativeInteger(record, 'value', path, out);
       if (record.outputKey !== undefined) requireString(record, 'outputKey', path, out);
       break;
+    case 'contextTargetObjectTypeMatch':
+      requireString(record, 'contextKey', path, out);
+      if (
+        !Number.isInteger(record.objectTypeMask) ||
+        typeof record.objectTypeMask !== 'number' ||
+        record.objectTypeMask < -2147483648 ||
+        record.objectTypeMask > 2147483647
+      ) {
+        push(out, `${path}.objectTypeMask`, 'expected signed int32 mask');
+      }
+      break;
+    case 'contextTargetBuffStackCompare':
+      requireString(record, 'contextKey', path, out);
+      requireEnum(record, 'tagQueryType', TAG_QUERY_TYPES_SET, path, out);
+      validateNonEmptyIntegerArray(record.buffTagIds, `${path}.buffTagIds`, out);
+      requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
+      validateActionValueOperand(record.value, `${path}.value`, out);
+      break;
     case 'abilityEntityRemainingDurationCompare':
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
       validateActionValueOperand(record.value, `${path}.value`, out);

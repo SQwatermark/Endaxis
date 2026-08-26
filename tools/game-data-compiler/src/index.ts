@@ -656,6 +656,8 @@ export {
   parseComboSkillConditionsSource,
   type ComboSkillConditionSource,
 } from './source/comboSkillConditions.ts';
+export { parseUnityComboSkillConditionsSource } from './source/unityComboSkillConditions.ts';
+export { parseObjectTypeMask } from './source/objectType.ts';
 export {
   compilePendingComboConditionSource,
   type CompiledComboConditionSource,

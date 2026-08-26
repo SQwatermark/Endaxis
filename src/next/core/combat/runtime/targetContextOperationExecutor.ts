@@ -40,6 +40,17 @@ export class TargetContextOperationExecutor implements CombatOperationExecutor {
     condition: Parameters<CombatOperationExecutor['evaluate']>[0],
     context?: CombatOperationContext,
   ): boolean {
+    if (condition.kind === 'contextTargetObjectTypeMatch') {
+      if (context?.targetContext === undefined)
+        throw new Error('object type check requires a combat target context');
+      // combat-spec CheckObjectTypeMatchAction：Enemy 同时接受 EnemyPart；不是简单的任一位相交。
+      const mask =
+        condition.objectTypeMask & 16 ? condition.objectTypeMask | 16384 : condition.objectTypeMask;
+      return (context.targetContext.getOptional(condition.contextKey) ?? []).some(target => {
+        const objectType = target.kind === 'enemy' ? 16 : target.kind === 'operator' ? 8 : 512;
+        return (mask & objectType) === objectType;
+      });
+    }
     if (condition.kind !== 'contextTargetContains') {
       return context === undefined
         ? this.delegate.evaluate(condition)

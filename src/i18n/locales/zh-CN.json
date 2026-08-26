@@ -1545,6 +1545,8 @@
         "abilityEntityRemainingDurationCompare": "能力实体剩余时长比较",
         "statusActive": "状态生效中",
         "buffStackCompare": "按标签比较 Buff 层数",
+        "contextTargetObjectTypeMatch": "目标组对象类型匹配",
+        "contextTargetBuffStackCompare": "目标组首目标 Buff 层数比较",
         "eventTargetBuffCountCompare": "比较事件目标的 Buff 实例数",
         "entityTagMatch": "实体标签匹配",
         "buffIdStackCompare": "按身份比较 Buff 层数",
@@ -1559,6 +1561,8 @@
         "deckAttributeCompare": "干员属性比较"
       },
       "conditionNoParameters": "该条件不需要额外参数。",
+      "conditionContextKey": "目标组键",
+      "conditionObjectTypeMask": "对象类型掩码（ObjectType）",
       "probability": "触发概率",
       "superArmor": "霸体值",
       "cameraTargetAngle": "有符号夹角（度）",

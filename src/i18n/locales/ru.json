@@ -1428,6 +1428,8 @@
         "abilityEntityRemainingDurationCompare": "Оставшееся время сущности способности",
         "statusActive": "Статус активен",
         "buffStackCompare": "Сравнение слоёв Buff по тегу",
+        "contextTargetObjectTypeMatch": "Тип объекта в группе целей",
+        "contextTargetBuffStackCompare": "Слои Buff первой цели группы",
         "eventTargetBuffCountCompare": "Число экземпляров Buff у цели события",
         "entityTagMatch": "Теги сущности",
         "buffIdStackCompare": "Сравнение слоёв Buff по ID",
@@ -1442,6 +1444,8 @@
         "deckAttributeCompare": "Сравнение атрибутов"
       },
       "conditionNoParameters": "У этого условия нет дополнительных параметров.",
+      "conditionContextKey": "Ключ группы целей",
+      "conditionObjectTypeMask": "Маска ObjectType",
       "probability": "Вероятность",
       "superArmor": "Суперброня",
       "cameraTargetAngle": "Знаковый угол (градусы)",

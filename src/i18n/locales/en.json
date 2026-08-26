@@ -1551,6 +1551,8 @@
         "abilityEntityRemainingDurationCompare": "Ability entity remaining duration",
         "statusActive": "Status active",
         "buffStackCompare": "Buff tag stack comparison",
+        "contextTargetObjectTypeMatch": "Context target object type match",
+        "contextTargetBuffStackCompare": "First context target Buff stack comparison",
         "eventTargetBuffCountCompare": "Event target Buff instance count",
         "entityTagMatch": "Entity tag match",
         "buffIdStackCompare": "Buff identity stack comparison",
@@ -1565,6 +1567,8 @@
         "deckAttributeCompare": "Operator attribute comparison"
       },
       "conditionNoParameters": "This condition has no additional parameters.",
+      "conditionContextKey": "Target context key",
+      "conditionObjectTypeMask": "ObjectType mask",
       "probability": "Probability",
       "superArmor": "Super armor",
       "cameraTargetAngle": "Signed angle (degrees)",
