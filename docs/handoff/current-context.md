@@ -6,7 +6,24 @@
 当前主线是在 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
-### 2026-08-26 再续：附着事件通路、连携冷却与 Pending 快照（最新）
+### 2026-08-26 再续：注册门禁到实际施法第 0 帧（最新）
+
+- 剩余虚调用已由同版本 metadata 方法 row 54263/slot 78 证实是 AbilitySystem.alive，
+  原生读取 entity.markDie，不按 HP 判断。combat-spec 新增有限四附着事件注册通路：
+  全局禁用/注册 → 存活 → 沉默 → 当前连携冷却 → 条件 → Pending 输出，支持注销。
+- Pending 不是技能初值：原生在 afterCastStartCallback 中，先绑定 trigger/处理 SmartTarget，
+  再普通 Assign 覆盖技能 direct；null trigger 分支不写 assignItems，非 null 空句柄仍写。
+  新增回调工厂接既有 TryCast，目标独立复制，下一次普通施法不串动态值/trigger 组。
+- 新增 C# **15 项**，全量 **1334 pass/17 既有本机资产缺失失败**，失败名单不变。
+  真实附着 → 注册 → 条件 → Pending 快照 → TryCast 回调 → 第 0 帧已在一项测试贯通。
+  报告在 combat-spec tmp/test-results/combo-cast-preparation-{focused,full}.trx。
+- **SmartTarget 仍是必须显式提供的端口**，测试选取规则不冒充原生；未复制玩家指令、AI、
+  多候选优先级/有效期。注册安装的 main/guard 过滤与 immediately 分支也不在该接口范围。
+- **Next 8 场阻塞保留**，Endaxis 本批仅文档，未重跑 TS/Next/VFS，默认武器库不切换。
+  下一步优先角色初始化覆盖、SmartTarget 与 IFix，再接公共 TS IR/Next；不重复查门禁或回调时序。
+  原生地址与证据边界：combat-spec `docs/combo-cast-preparation.md`。仅本地提交，不推送。
+
+### 2026-08-26 再续：附着事件通路、连携冷却与 Pending 快照（上一批）
 
 - combat-spec 修复真实附着动作的事件发布：OnEnemy 事件由被附着方发布、输入为施加方，
   并进入原来缺失的 combo 阶段；OnChar 则相反。四事件均以发布者作为独立 trigger。

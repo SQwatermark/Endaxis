@@ -1,6 +1,19 @@
 # 诀新版配置证据记录
 
-## 2026-08-26 附着事件通路、冷却门禁与 Pending 快照（最新）
+## 2026-08-26 注册到施法第 0 帧（最新）
+
+剩余虚调用的 metadata slot 78 已确认为 AbilitySystem.alive，fallback 读取 markDie 而非 HP。
+复刻库新增有限的四附着事件注册/注销与全局禁用、存活、沉默、冷却门禁。Pending 数据经
+afterCastStartCallback 写入技能 direct，发生在本次动态值恢复后、第 0 帧前；原生 null trigger
+分支不应用 assignItems，不能把 null 和非 null 空句柄合并。目标句柄按原生复制。
+
+新增 15 项测试，全量 1334 pass/17 既有失败、失败名不变。真实附着动作至注册、条件、Pending、
+普通施法第 0 帧已串起；SmartTarget 仍要求显式端口，不宣称完整队列/玩家指令或智能目标选择。
+原生 RVA、metadata 行号和准确边界见 combat-spec `docs/combo-cast-preparation.md`。
+**Next 8 场保留**，本批仅复刻库实现与交接，未重跑 TS/Next/VFS。下一步初始化覆盖/SmartTarget/
+IFix，再接统一编译器；不再重复查已确认的门禁及 Pending 覆盖时序。
+
+## 2026-08-26 附着事件通路、冷却门禁与 Pending 快照（上一批）
 
 combat-spec 已修复 DataDrivenSpellInflictionAction 的四事件目标绑定与 OnEnemy 缺失的连携
 发布阶段。原生 121/130 由被附着方发布，EventContext.target 为施加方，trigger 为被附着方；
