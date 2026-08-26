@@ -1,6 +1,29 @@
 # 诀新版配置证据记录
 
-## 2026-08-26 角色模板初值与 savedKey 写入（最新）
+## 2026-08-26 顺序导出与独立连携环境（最新）
+
+本轮工具代码进入 VFS，原生运行语义先进入 combat-spec；Endaxis 只更新交接，未改生产数据。
+
+- `CharacterTemplateDecoder` 从 MonoBehaviour 根核对角色 ID/26 个组件，唯一定位所属
+  AbilitySystemData；`AbilitySystemDataPrefixDecoder` 按字段消费 `[4092,6460)`，不再搜索
+  EntityBB_ 键。`[6460,7368)` 的 908 字节保留，导出 `decodeStatus=partial`。
+- SkillDataBundle 有 5 条 comboSkillConditions，event=121；独立 comboSkillBlackboard
+  为 consumed_layer/type=0，与角色的 EntityBB_ 声明、技能 direct 声明不是同一个容器。
+- 按配置的每条动作 RID 保留关联，14 个直接引用中 6 个完整、8 个 raw。第五条的中间
+  CompareFloat 读 EntityBB_wisd_greater_will，与 1 作 LT 比较，之后才是保存元素类型的动作。
+  原生注册使用集合，暂不推断不同条件的稳定遍历顺序，也不跳过未知 DebugPrint 认定全链闭合。
+- 复刻库新增有限的 ComboSkillConditionEnvironment，验证每注册独立 local/shared owner
+  entity、前置条件短路、重复事件重算和 Context 恢复；不自动触发技能或连携窗口。
+  原生 ctor/Register/Trigger RVA 与未知门禁见 `combat-spec/docs/combo-condition-environment.md`。
+- 新增 C# 6 项、VFS 9 项测试；C# 全量 1272 pass/17 既有失败且失败名无变化，UnityWorker
+  29 pass/4 外部资产测试 skip；真实 raw 另行严格导出复核。没有重跑 Next，也未撤销 8 场失败。
+
+剩余顺序：补目标类型/标签层数/DebugPrint 等条件；追踪 trigger 命名目标绑定、连携门禁、
+热修复与模板初始化覆盖；先补规格，再送公共 TS source IR/编译器与 Next 运行层；最后以
+四元素、智识/意志两侧及 966 场武器交叉构筑验收，不以默认值消除异常代替完整转换。
+VFS 复现命令见 `docs/research/character-template-prefix.md`，中间产物仅在忽略的 tmp/。
+
+## 2026-08-26 角色模板初值与 savedKey 写入（上一批）
 
 本批 VFS 已按原生证据补齐 BuffData.applyTags，关联资源由 64/66 到 **66/66 完整解码**。
 Skill/Buff 内仍只有读取，但当前 manifest 的 CharacterTemplateData 中找到了缺失来源：

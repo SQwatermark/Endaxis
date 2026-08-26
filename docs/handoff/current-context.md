@@ -6,7 +6,29 @@
 当前主线是在 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
-### 2026-08-26 再续：诀角色初值与元素条件写入已定位（最新）
+### 2026-08-26 再续：角色模板顺序导出与连携条件环境（最新）
+
+- VFS 新增 CharacterTemplate 根校验、AbilitySystemData 顺序前缀解码及导出脚本。
+  真实诀 raw 从组件起点 4092 消费到 6460，得到实体四键、5 条连携条件及独立的
+  comboSkillBlackboard；不再扫描键或选择最大列表。后缀 908 字节未解释，总体明确 partial。
+  RID 输出字符串防止 JS 精度损失；引用丢失、角色不符、截断等严格拒绝。
+- 五条事件均为 121（OnEnemyBeforeTakeSpellInfliction），各有独立条件环境，不是技能施法前
+  无条件动作。14 个直接引用有 6 个叶子完整解码、8 个仍 raw；第五条中的 CompareFloat
+  为 `EntityBB_wisd_greater_will < 1`，后面才是 mask=15 / savedKey=EntityBB_consumed_type。
+- combat-spec 按原生构造/注册/执行路径新增 ComboSkillConditionEnvironment：局部黑板按
+  每条注册复制，实体板由角色共享；条件短路、动作状态 reset 与实体值生命周期分开。
+  不自动注册事件，不冒充完整连携可用性/冷却窗口，不将时间轴施法伪造为元素事件。
+- 新增 VFS 9 项合成测试、C# 6 项环境测试。UnityWorker 全组 **29 通过、4 项外部资产测试
+  跳过**；C# 全量 **1272 通过、17 项既有资产缺失失败**，与上一轮失败名集合完全一致。
+  另实际执行真实角色 raw 导出并核对 hash/偏移/守卫。未修改 Next/TS 代码，本批未重跑其测试。
+- **8 场 Next 阻塞仍保留**，默认武器库/迁移 UI 仍未切换。下一批聚焦剩余目标类型/标签
+  层数条件、DebugPrint、命名 trigger 目标注入、事件门禁与 IFix，再接公共 TS source IR、
+  实体初值及运行写入；不要重启旧 Python 生成器或只补零撤掉错误断言。
+- 复现：VFS `docs/research/character-template-prefix.md`；原生 RVA：combat-spec
+  `docs/combo-condition-environment.md`。导出结果 `tmp/arcane-character-prefix-verified.json`，
+  所有二进制/中间产物仍在 tmp，不提交；本轮仅本地提交，不推送。
+
+### 2026-08-26 再续：诀角色初值与元素条件写入已定位（上一批）
 
 - VFS 按原生 raw int32 数组证据修复 `BuffData.applyTags`。诀 42 Buff + 24 Skill
   **66/66 完整解码**，新增三项边界测试；MemoryPack 全组 14 通过、2 项既有格式失败。
