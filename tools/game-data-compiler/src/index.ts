@@ -1,4 +1,9 @@
 export {
+  parseSkillTargetSelectionHeaderSource,
+  type SkillTargetSelectionHeaderSource,
+} from './source/skillTargetSelection.ts';
+
+export {
   parseAbilitySystemBlackboardsSource,
   type AbilitySystemBlackboardsSource,
 } from './source/abilitySystemBlackboards.ts';

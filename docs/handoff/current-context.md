@@ -6,11 +6,34 @@
 当前主线是在 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
-### 2026-08-26 再续：连携目标选择、模板初始化与 TS 黑板来源（最新）
+### 2026-08-26 再续：施法目标设置、后备目标与公共策略头（最新）
+
+- combat-spec 已补 StoreSmartTarget 的锁定/主目标设置覆盖及 GetDefaultTarget 实体路径，
+  实际附着至第 0 帧测试改用完整外层子集。**更正上一批“输入设备类型”说法**：2/3 来自
+  controllerCachedSkillCastTarget 施法目标设置，不是键鼠/手柄类型；旧记录相关措辞已纠正。
+- default null/非 null 空句柄、两种范围、主控 Entity.position/battleRootPosition、无目标保留原组
+  均分别处理。虚拟目标几何仍是显式端口，不假设 dummy 就是敌人；Buff/Tag 评分仍未实现。
+- AssignData 原生保存组件 data；InitSelf 中两个待查调用已识别为技能/特效预加载，
+  不是黑板覆盖。尚未排除其他上游 data 组装或核验运行中 IFix，不冒充全客户端等价。
+- 统一 TS 主动技能编译入口新增目标策略头，保留策略名、dummy 开关与偏移，未知值拒绝。
+  真实诀 combo 四字段实读为 SelectSmartObject / SelectComboSkillTrigger / true / [0,0,6]。
+  此为来源 IR，不表示已接入 Next 选敌执行，也不将评分配置称为完整支持。
+- 新增 C# **20**、TS **20** 项；C# 全量 **1376 pass/17 既有资产缺失失败**，失败名集合不变；
+  Next+统一编译器 **280 文件/2828 项通过**，统一编译器类型检查通过。真实样本偏移核对后，
+  两组 TS **24/24** 再次通过。本批未重跑 VFS；报告在两库 tmp/，不入库。
+- **Next 8 场阻塞仍在**，通过数含错误断言，默认武器库/迁移 UI 不切换。
+  下一步优先公共角色条件编译及运行安装：分别接实体初值/每条条件局部板、真实附着事件、
+  实体写入和 Pending 到施法的传递；验证四元素及连续施法差分后再撤销阻塞。
+  不重复查已闭合的叶子、门禁、快照、目标实体路径；保留 IFix/dummy/评分边界。
+- 证据与复现：combat-spec docs/skill-smart-target-outer.md；Endaxis
+  tmp/smart-target-outer-regression.audit.json、combat-spec tmp/test-results/smart-target-outer-*.trx。
+  未改旧版/旧 Python 生成器/正式生成定义，仅本地提交，不推送。
+
+### 2026-08-26 再续：连携目标选择、模板初始化与 TS 黑板来源（上一批）
 
 - combat-spec 已恢复 FindSmartTarget 的 combo/trigger 两分支：首实体存活/可选中/范围检查，
   成功复制整组；失败只复制显式 default，不自动猜成敌人。范围相对主控位置，不是施法者。
-  真实附着至第 0 帧测试改用具体选择器，smart_target 不再人工指定；设备覆盖/后备主目标仍未实现。
+  真实附着至第 0 帧测试改用具体选择器，smart_target 不再人工指定；当时施法目标设置覆盖/后备主目标仍未实现。
 - _DoInit 先清 source/entity 板，再 Assign 模板实体值；新增 InitializeTemplateBlackboards，
   能力实体复用同一入口。实体动态值跨技能施放保留，不能把该入口当成每次施法重置。
 - 统一 TS source 新增 parseAbilitySystemBlackboardsSource：两层初值、条件板开关及字段路径分离，
@@ -22,7 +45,7 @@
 - **Next 8 场已知阻塞保留**，上述通过数包含错误断言，默认武器库不切换。
   下一步核实角色 data 初始化覆盖/IFix，完成固定木桩所需的 SmartTarget 外层投影，再接条件/实体初值
   到公共编译及运行时；不重复查已闭合的叶子、门禁、快照覆盖和两条目标选择分支。
-- 原生地址、首目标包装器限制、设备分支边界：combat-spec docs/combo-smart-target-and-template-init.md。
+- 原生地址、首目标包装器限制、设置分支边界：combat-spec docs/combo-smart-target-and-template-init.md。
   本轮未改旧版或生成定义，仅本地提交，不推送。
 
 ### 2026-08-26 再续：注册门禁到实际施法第 0 帧（上一批）

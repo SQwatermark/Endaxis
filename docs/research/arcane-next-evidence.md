@@ -1,9 +1,30 @@
 # 诀新版配置证据记录
 
-## 2026-08-26 连携智能目标与模板黑板（最新）
+## 2026-08-26 施法目标设置与后备路径（最新）
+
+复刻库补 StoreSmartTarget 外层设置覆盖及 GetDefaultTarget 实体路径；真实附着至第 0 帧
+测试现走外层子集。上一批“输入设备类型 2/3”不准确，已由 Common metadata 更正为
+controllerCachedSkillCastTarget：OnlyForceLock / MarkTargetWhenNoForceLock，不能按设备分流。
+default null 与空组、锁定失败不回退 trigger、后备主目标范围及主控坐标来源分别有回归。
+
+AssignData 保存组件 data，InitSelf 前的待查调用已识别为技能与特效预加载；未证明所有
+上游组装或 IFix 都无覆盖。dummy 几何保留显式端口，不能将虚拟位置替换为敌人或零。
+
+公共 TS 主动技能 source IR 已保留目标策略头。真实 combo 二进制四字段实读得到
+SelectSmartObject / SelectComboSkillTrigger / true / [0,0,6]；研究导出无关曲线包含 Infinity，
+仅以 Python 读取后投影四字段，再经标准 JSON 交 TS parser；不是修改曲线来通过完整 JSON 解析。
+Buff/Tag/层数策略只保留身份，不声称已实现评分或 Next 执行。
+
+新增 C# 20、TS 20；C# 1376 pass/17 既有资产缺失失败名不变，Next+编译器 280 文件/2828 pass，
+统一 TS 类型检查通过；真实偏移核对后两组 TS 24/24 再次通过，VFS 未重跑。
+原生地址/哈希/复现见 combat-spec docs/skill-smart-target-outer.md；报告均在两库 tmp/。
+**Next 8 场阻塞保留**，下一步公共角色初值/条件运行安装，验证四元素写入及连续施法，
+不再重复已完成的叶子/门禁/目标路径。默认武器库和迁移 UI 未切换。
+
+## 2026-08-26 连携智能目标与模板黑板（上一批）
 
 复刻库已补 FindSmartTarget 的两条连携句柄分支，真实事件至第 0 帧测试改用具体选择器；
-尚未覆盖外层输入设备分支与后备主目标/dummy。_DoInit 的 source/entity 清空及模板赋值
+当时尚未覆盖外层施法目标设置分支与后备主目标/dummy。_DoInit 的 source/entity 清空及模板赋值
 已提取为共用初始化入口，能力实体复用。实体值不会随普通技能 Start 重置。
 
 统一 TS source 开始分别读取实体初值、条件局部初值及启用开关，复用已有 DataPair 解析并保留路径。
