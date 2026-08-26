@@ -66,6 +66,8 @@ export interface PlayerDamageOperationDependencies {
   readonly sourceOperatorId: string;
   /** 存档中的技能释放身份；伤害回执凭它与具体施放对应。单元测试程序可能缺失。 */
   readonly castId?: string;
+  /** 非主动技能的可审计来源，不用于生成轴上技能 castId。 */
+  readonly sourceActionId?: string;
   /** 只用于把本次公式已经确定的技能分类写入伤害详情回执。 */
   readonly skillType?: SkillType;
   readonly targetId: string;
@@ -232,6 +234,9 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
         features: step.parameters.features ?? [],
         result: damageResult,
         detail: {
+          ...(this.dependencies.sourceActionId === undefined
+            ? {}
+            : { sourceActionId: this.dependencies.sourceActionId }),
           ...(this.dependencies.skillType === undefined
             ? {}
             : { skillType: this.dependencies.skillType }),

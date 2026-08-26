@@ -56,6 +56,7 @@ import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
 import type {
   CombatBattleRuntimeContext,
   CombatOperationExecutorContext,
+  CombatDamageExecutorContext,
   CombatRuntimeAssemblyOptions,
 } from './combatRuntimeAssembly';
 import { CombatVitals } from './combatVitals';
@@ -142,7 +143,7 @@ export interface StandardPlayerDamageEnvironmentOptions {
   /** RandomUtil.Dice 的独立样本源，不与暴击随机流混用。 */
   readonly probabilitySamples?: ProbabilitySampleSource;
   readonly resolveNonRandomRuntimeSnapshot: (
-    context: CombatOperationExecutorContext,
+    context: CombatDamageExecutorContext,
     step: DamageStep,
   ) => PlayerDamageNonRandomRuntimeSnapshot;
   /** 提供后，`applyElementalInfliction` 步骤按定义附着状态机执行。 */
@@ -286,8 +287,7 @@ export class StandardPlayerDamageEnvironment {
           sourceId: operatorId,
           targetId: 'enemy',
         }),
-      // 配装事件的通用操作由装配根处理；未闭环的末端操作必须严格失败。
-      createEquipmentEventOperationExecutor: () => strictTerminal,
+      createEquipmentEventOperationExecutor: context => this.#createOperationExecutor(context),
       registerEquipmentAbilityEventAction: (operatorId, event, priority, handle) =>
         this.eventsFor(operatorId).registerAction(event, priority, context =>
           handle(context.payload),
@@ -321,20 +321,24 @@ export class StandardPlayerDamageEnvironment {
     return dispatcher;
   }
 
-  #createOperationExecutor(context: CombatOperationExecutorContext): CombatOperationExecutor {
+  #createOperationExecutor(context: CombatDamageExecutorContext): CombatOperationExecutor {
+    const program = 'program' in context ? context.program : undefined;
+    const operatorId = 'program' in context ? context.program.operatorId : context.operatorId;
     this.#bindBattleRuntime(context);
     if (context.panel !== undefined) {
-      this.#operatorPanels.set(context.program.operatorId, context.panel);
-      this.#ensureOperatorVitals(context.program.operatorId, context.panel);
+      this.#operatorPanels.set(operatorId, context.panel);
+      this.#ensureOperatorVitals(operatorId, context.panel);
     }
-    const operatorBuffs = this.#operatorBuffRuntime(
-      context.program.operatorId,
-      context.panel,
-    ).container;
+    const operatorBuffs = this.#operatorBuffRuntime(operatorId, context.panel).container;
     const damage = new PlayerDamageOperationExecutor({
-      sourceOperatorId: context.program.operatorId,
-      castId: context.program.castId,
-      skillType: context.program.skillType,
+      sourceOperatorId: operatorId,
+      castId: program?.castId,
+      skillType: program?.skillType,
+      ...('program' in context
+        ? {}
+        : {
+            sourceActionId: `equipment:${context.source.kind}:${context.source.slug}:${context.handlerKey}`,
+          }),
       targetId: 'enemy',
       targetVitals: this.enemyVitals,
       clock: context.clock,
@@ -369,7 +373,7 @@ export class StandardPlayerDamageEnvironment {
       criticalSamples: this.options.criticalSamples,
       isCriticalForced: step =>
         step.key !== undefined &&
-        (context.program.simulationInputs?.forcedCriticalStepKeys ?? []).includes(step.key),
+        (program?.simulationInputs?.forcedCriticalStepKeys ?? []).includes(step.key),
       resolveNonRandomRuntimeSnapshot: step =>
         this.options.resolveNonRandomRuntimeSnapshot(context, step),
       applyDamageModifiers: (timing, side, damageContext) =>
@@ -403,8 +407,7 @@ export class StandardPlayerDamageEnvironment {
       },
       clearInstantAttributeModifiers: side =>
         this.#buffContainer(side, operatorBuffs).attributes.clearInstantModifiers(),
-      emitPreparationEvent: (event, payload) =>
-        this.#emit(context.program.operatorId, event, payload),
+      emitPreparationEvent: (event, payload) => this.#emit(operatorId, event, payload),
       // PoiseDamageOutputScalar 的基础值为 1；构筑面板保存 BaseAddition 的增量。
       resolvePoiseMultipliers: () => ({
         output: 1 + (context.panel?.staggerDamagePercent ?? 0),
@@ -420,38 +423,46 @@ export class StandardPlayerDamageEnvironment {
         if (event === 'afterKillEntity') {
           context.semanticEvents.emit({
             kind: 'enemyDefeated',
-            sourceOperatorId: context.program.operatorId,
+            sourceOperatorId: operatorId,
             tags: payload.tags,
             features: payload.features,
           });
           return;
         }
-        this.#emit(context.program.operatorId, event, payload);
+        this.#emit(operatorId, event, payload);
       },
       emitHealthTargetEvent: (event, payload) => this.#emit('enemy', event, payload),
       absorbHealthDamage: (damageType, value) => this.#enemyBuffs.absorbDamage(damageType, value),
-      emitPoiseSourceEvent: (event, modifier) =>
-        this.#emit(context.program.operatorId, event, modifier),
+      emitPoiseSourceEvent: (event, modifier) => this.#emit(operatorId, event, modifier),
       emitPoiseTargetEvent: (event, modifier) => this.#emit('enemy', event, modifier),
       emitSemanticHit: step => {
         context.semanticEvents.emit({
           kind: 'damageTagHit',
-          sourceOperatorId: context.program.operatorId,
+          sourceOperatorId: operatorId,
           tags: step.parameters.tags,
           features: step.parameters.features ?? [],
         });
-        if (context.program.skillGroupKey.length > 0) {
+        if (program !== undefined && program.skillGroupKey.length > 0) {
           context.semanticEvents.emit({
             kind: 'skillHit',
-            sourceOperatorId: context.program.operatorId,
-            skillGroupKey: context.program.skillGroupKey,
+            sourceOperatorId: operatorId,
+            skillGroupKey: program.skillGroupKey,
           });
         }
       },
-      delegate: this.#createReactionExecutor(context),
+      // 配装元素链仍需独立闭环，不能因 HP 伤害可用而自动开放。
+      delegate: 'program' in context ? this.#createReactionExecutor(context) : strictTerminal,
     });
+    return this.#createHealExecutor(context, operatorId, damage);
+  }
+
+  #createHealExecutor(
+    context: Pick<CombatOperationExecutorContext, 'clock' | 'receipt' | 'semanticEvents'>,
+    sourceOperatorId: string,
+    delegate: CombatOperationExecutor,
+  ): CombatOperationExecutor {
     return new HealOperationExecutor({
-      sourceOperatorId: context.program.operatorId,
+      sourceOperatorId,
       clock: context.clock,
       receipt: context.receipt,
       resolveSourceAttribute: (sourceOperatorId, attribute) =>
@@ -462,7 +473,7 @@ export class StandardPlayerDamageEnvironment {
       resolveTarget: (target, buffSourceId, buffOwnerId) =>
         this.#resolveHealTarget(
           target,
-          context.program.operatorId,
+          sourceOperatorId,
           context.clock.frame,
           buffSourceId,
           buffOwnerId,
@@ -497,7 +508,7 @@ export class StandardPlayerDamageEnvironment {
           tagIds: event.tagIds,
         });
       },
-      delegate: damage,
+      delegate,
     });
   }
 

@@ -162,15 +162,6 @@ function inspectSequence(
       case 'startCurrentAbilityEntityChildSkill':
         return;
       case 'dealDamage': {
-        if (source === 'equipment') {
-          report(
-            collect,
-            'unsupported-step',
-            stepPath,
-            'equipment-triggered damage requires a recovered source-classification path',
-          );
-          return;
-        }
         const parameters = step.parameters;
         if (parameters.damageType === 'lifeDrain') {
           report(
@@ -191,15 +182,6 @@ function inspectSequence(
         return;
       }
       case 'dealFixedDamage':
-        if (source === 'equipment') {
-          report(
-            collect,
-            'unsupported-step',
-            stepPath,
-            'equipment-triggered damage requires a recovered source-classification path',
-          );
-          return;
-        }
         if (step.parameters.damageType === 'lifeDrain') {
           report(
             collect,

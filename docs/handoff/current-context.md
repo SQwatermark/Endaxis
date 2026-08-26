@@ -6,7 +6,35 @@
 当前主线是在 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
-### 2026-08-26 再续：Stack 优先级与配装初始化所有权闭环（最新）
+### 2026-08-26 再续：武器伤害/治疗末端接通，四技能基线 77/77（最新）
+
+- 最后两个已知阻塞已消除：`wpn_lance_0010` 物理异常事件的追加伤害、
+  `wpn_sword_0026` Buff 到期治疗。77 把候选全部实际装配并放置普攻/战技/连携/终结技，
+  正式模拟 **77/77 成功、0 失败豁免**；测试已删除已知失败清单与捕获放行逻辑。
+- 伤害分类先核对复刻库及原始 `sk_wpn_lance_0010`：被动事件伤害的 `damageDecorateMask=0`，
+  不能借用触发事件的技能类别。补查 1.4.4 `Ability.Init/Enable` 与 sourceSkill / castOriginSkill
+  字段区别，补充 combat-spec `docs/passive-direct-damage.md` 和未施放被动伤害测试。
+  已有玩家 HP 伤害公式可以复用，不需要发明“武器伤害公式”。
+- 标准伤害环境接收技能或配装的真实联合上下文。装备事件不再落到严格空末端，也不伪造技能
+  程序；保留装备 `sourceActionId`，无主动 castId/skillType，不借用技能专属暴击/失衡修正或
+  强制暴击输入，不发送伪 skillHit。来源掩码增伤、动态 Buff 修正和敌方生命账本仍共用。
+  配装元素附着、生命汲取等未闭环分支没有随之自动开放。
+- 治疗提取为共用末端，装备事件及其 Buff 生命周期使用同一治疗公式、目标选择和事件链。
+  空技能轴上的入战武器 Buff 在 20 秒结束后仍执行治疗：基础值 122 保留在 addition，最终值
+  再应用干员治疗修正；满血 actualHealing=0 仍保留 overhealing，按 outputHeal、receiveHeal 发布。
+- 新增真实李枫战技差分：启用武器事件比同面板禁用事件多出的总伤害，等于追加伤害回执之和；
+  追加回执不冒充触发技能。单元测试另检查技能增伤过滤、无条件类型增伤保留、实时事件来源不会
+  替代未施放被动自身的空施法来源、没有主动技能时的装备治疗事件顺序。
+- 验证：Next + 游戏数据 **276 文件、2612 测试通过**；Next/编译器类型检查与 77 把生成
+  `--check` 通过。combat-spec 聚焦 12 项通过；全量 **1234 通过、17 项既有本机资产缺失失败**。
+  审计为 Endaxis `tmp/weapon-terminal-regression.audit.json`、复刻库
+  `tmp/test-results/weapon-terminal.trx`，均不提交；未修改旧版代码。
+- 下一步：候选仍未切换默认库。先扩展影响伤害的队伍触发、词条等级和关键条件分支差分，再
+  核对默认库切换的稳定 ID、图标与项目引用兼容，分阶段替换。当前 77/77 只证明固定四技能基线，
+  不代表全部分支/等级/队伍完成。额外伤害已有独立来源回执，专门的轴上标记与详情关联仍需验收；
+  不应为了显示把它附会到主动技能 castId。干员 partial 的证据清理和装备套装全量迁移也仍在后续。
+
+### 2026-08-26 再续：Stack 优先级与配装初始化所有权闭环（上一批）
 
 - 重新检查 1.4.4 `Buff._LoadPriority` / `StackingSettings.isPriorityType`：只有 HighPriority
   和 HighPriorityWithMaxStack 会读取配置优先级，普通 Stack 不读取残留 `lv`。黑板分支才应用

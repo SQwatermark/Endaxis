@@ -9,7 +9,6 @@ import { generatedWeaponDefinitions } from '../data/equipment/generated-weapons/
 import { createGameDataRepository, nextGameDataRepository } from '../data/gameDataRepository';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { ScenarioSimulationService } from './scenarioSimulationService';
-import { StandardPlayerDamageCompatibilityError } from '../core/combat/runtime/standardPlayerDamageCompatibility';
 
 // 候选定义必须实际经过生产编译/战斗环境；不借用旧武器行为，也不依赖本地原始资源。
 const candidates: readonly WeaponDefinition[] = generatedWeaponDefinitions;
@@ -21,13 +20,52 @@ const repository = createGameDataRepository({
   commonAbilityEntityDefinitions: nextGameDataRepository.getCommonAbilityEntityDefinitions?.(),
 });
 
-// 明确失败边界，不是完成豁免：新增失败或旧失败消失都会使门禁变红，必须同步审计。
-const knownBlockers: Readonly<Record<string, string>> = {
-  wpn_lance_0010: 'equipment-triggered damage requires a recovered source-classification path',
-  wpn_sword_0026: "standard player damage environment does not support 'heal'",
-};
-
 describe('生成武器的正式模拟门禁', () => {
+  it('武器物理异常追加伤害使用独立来源，不伪装为触发技能命中', async () => {
+    const weapon = candidates.find(item => item.slug === 'wpn_lance_0010')!;
+    const operator = repository.getOperator('lifeng')!;
+    const disabled = {
+      ...weapon,
+      traits: weapon.traits.map(({ eventHandlers: _events, ...trait }) => trait),
+    };
+    const active = await simulateWeapon(weapon, operator, ['battleSkill']);
+    const baseline = await simulateWeapon(disabled, operator, ['battleSkill']);
+    const extra = active.receiptEntries.filter(
+      entry =>
+        entry.event === 'DamageApplied' &&
+        typeof entry.data?.sourceActionId === 'string' &&
+        entry.data.sourceActionId.includes(weapon.slug),
+    );
+    expect(extra.length).toBeGreaterThan(0);
+    for (const hit of extra) {
+      expect(hit.sourceId).toBe('track:weapon-owner');
+      expect(hit.data?.skillType).toBeUndefined();
+      expect(hit.data?.castId).toBeUndefined();
+      expect(Number(hit.data?.value)).toBeGreaterThan(0);
+    }
+    expect(baseline.finalEnemyHealth - active.finalEnemyHealth).toBeCloseTo(
+      extra.reduce((sum, hit) => sum + Number(hit.data?.value), 0),
+      4,
+    );
+  });
+
+  it('入战武器 Buff 结束后即使满血仍治疗，并保留来源与数值', async () => {
+    const weapon = candidates.find(item => item.slug === 'wpn_sword_0026')!;
+    const operator = repository.getOperators().find(item => item.weaponType === weapon.weaponType)!;
+    const result = await simulateWeapon(weapon, operator, []);
+    const heals = result.receiptEntries.filter(entry => entry.event === 'HealingApplied');
+    expect(heals).toHaveLength(1);
+    expect(heals[0]).toMatchObject({
+      sourceId: 'track:weapon-owner',
+      targetId: 'track:weapon-owner',
+      data: { attribute: 'definite', addition: 122, actualHealing: 0 },
+    });
+    // 实际治疗还会应用该干员的治疗增幅，不把配置基础值误作最终值。
+    expect(Number(heals[0]!.data?.requestedHealing)).toBeGreaterThanOrEqual(122);
+    expect(heals[0]!.data?.overhealing).toBe(heals[0]!.data?.requestedHealing);
+    expect(heals[0]!.time).toBeCloseTo(20, 1);
+  });
+
   it('Stack 武器战技可叠层并实际提高物理伤害，无需伪造 lv', async () => {
     const weapon = candidates.find(item => item.slug === 'wpn_claym_0016')!;
     const operator = repository.getOperator('da-pan')!;
@@ -83,13 +121,9 @@ describe('生成武器的正式模拟门禁', () => {
   it('包含全部 77 把候选且不从旧适配定义补行为', () => {
     expect(candidates).toHaveLength(77);
     expect(new Set(candidates.map(weapon => weapon.slug)).size).toBe(77);
-    expect(Object.keys(knownBlockers)).toHaveLength(2);
-    expect(
-      Object.keys(knownBlockers).every(slug => candidates.some(item => item.slug === slug)),
-    ).toBe(true);
   });
 
-  it.each(candidates)('$slug 四类技能生产模拟或精确报告已知阻塞', async weapon => {
+  it.each(candidates)('$slug 四类技能生产模拟全部成功，不设置失败豁免', async weapon => {
     const operator = repository
       .getOperators()
       .find(
@@ -100,22 +134,7 @@ describe('生成武器的正式模拟门禁', () => {
           ),
       );
     if (!operator) throw new Error(`no compatible operator for ${weapon.slug}`);
-    let result;
-    try {
-      result = await simulateWeapon(weapon, operator);
-    } catch (error) {
-      const expected = knownBlockers[weapon.slug];
-      if (expected === undefined) throw error;
-      if (error instanceof StandardPlayerDamageCompatibilityError) {
-        expect(error.issues.length).toBeGreaterThan(0);
-        expect(error.issues.every(issue => issue.detail === expected)).toBe(true);
-      } else {
-        expect(error).toBeInstanceOf(Error);
-        expect((error as Error).message).toBe(expected);
-      }
-      return;
-    }
-    expect(knownBlockers[weapon.slug], '已知阻塞已修复，必须移出清单').toBeUndefined();
+    const result = await simulateWeapon(weapon, operator);
     expect(result.finalEnemyHealth).toBeLessThan(result.enemyVitals.initialHealth);
   });
 

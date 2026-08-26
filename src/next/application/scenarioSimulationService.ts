@@ -6,7 +6,7 @@
  * 页面拿来直接用，不用自己再算一遍。
  */
 import type { ResolvedCombatStep } from '../core/compiler/combatProgram';
-import type { CombatOperationExecutorContext } from '../core/combat/runtime/combatRuntimeAssembly';
+import type { CombatDamageExecutorContext } from '../core/combat/runtime/combatRuntimeAssembly';
 import type { CombatBuffDefinitionsDocument } from '../core/combat/buffs/combatBuffDefinitions';
 import type { SkillSettingsDocument } from '../core/combat/infliction/skillSettings';
 import type { CompoundStatusFactoriesDocument } from '../core/combat/infliction/compoundStatusFactories';
@@ -67,7 +67,7 @@ export interface ScenarioSimulationServiceOptions {
   readonly criticalSamples?: CriticalSampleSource;
   readonly probabilitySamples?: ProbabilitySampleSource;
   readonly resolveNonRandomRuntimeSnapshot?: (
-    context: CombatOperationExecutorContext,
+    context: CombatDamageExecutorContext,
     step: DamageStep,
   ) => PlayerDamageNonRandomRuntimeSnapshot;
   /** 元素附着定义集；默认使用当前游戏数据版本已审核的附着定义。 */

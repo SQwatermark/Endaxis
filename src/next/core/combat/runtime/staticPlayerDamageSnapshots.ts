@@ -16,7 +16,7 @@ import {
   type DamageScaleAttributeSnapshot,
 } from '../damage/damageScaleAttributes';
 import type { PlayerDamageAttributeSnapshots } from '../damage/playerDamageContext';
-import type { CombatOperationExecutorContext } from './combatRuntimeAssembly';
+import type { CombatDamageExecutorContext } from './combatRuntimeAssembly';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { resolveOperatorAttack } from '../attributes/operatorAttackAttributes';
 
@@ -77,7 +77,7 @@ function includesValue<T>(filter: T | readonly T[], value: T): boolean {
 }
 
 function resolveStaticDamageScales(
-  context: CombatOperationExecutorContext,
+  context: CombatDamageExecutorContext,
   step: DamageStep,
 ): DamageScaleAttributeSnapshot {
   const result = emptyDamageScaleSnapshot();
@@ -92,7 +92,7 @@ function resolveStaticDamageScales(
     if (!includesValue(modifier.damageTypes, step.parameters.damageType)) continue;
     if (
       modifier.skillTypes !== undefined &&
-      !includesValue(modifier.skillTypes, context.program.skillType)
+      (!('program' in context) || !includesValue(modifier.skillTypes, context.program.skillType))
     ) {
       continue;
     }
@@ -109,14 +109,16 @@ function resolveStaticDamageScales(
 
 /** 为一次标准玩家主动伤害冻结当前已闭环的静态攻防属性。 */
 export function resolveStaticPlayerDamageSnapshots(
-  context: CombatOperationExecutorContext,
+  context: CombatDamageExecutorContext,
   step: DamageStep,
   operatorAttributes: CombatAttributeSet<string>,
   enemyResistanceAttributes?: CombatAttributeSet<string>,
 ): PlayerDamageAttributeSnapshots {
   const panel = context.panel;
   if (panel === undefined) {
-    throw new Error(`operator '${context.program.operatorId}' has no resolved panel`);
+    throw new Error(
+      `operator '${'program' in context ? context.program.operatorId : context.operatorId}' has no resolved panel`,
+    );
   }
   const staticDamageScales = resolveStaticDamageScales(context, step);
   const attackerDamageScales = Object.fromEntries(
@@ -126,7 +128,9 @@ export function resolveStaticPlayerDamageSnapshots(
     ]),
   ) as Record<DamageScaleAttributeKey, number>;
   attackerDamageScales.damageToStaggeredEnemyIncrease +=
-    context.program.statModifiers?.damageToStaggeredEnemyIncrease ?? 0;
+    ('program' in context
+      ? context.program.statModifiers?.damageToStaggeredEnemyIncrease
+      : undefined) ?? 0;
   const result: PlayerDamageAttributeSnapshots = {
     attacker: {
       ...attackerDamageScales,
@@ -144,7 +148,7 @@ export function resolveStaticPlayerDamageSnapshots(
         : {}),
       criticalRate:
         panel.criticalRate +
-        (context.program.statModifiers?.criticalRate ?? 0) +
+        (('program' in context ? context.program.statModifiers?.criticalRate : undefined) ?? 0) +
         operatorAttributes.get('criticalRate'),
       criticalDamageIncrease:
         panel.criticalDamage + operatorAttributes.get('criticalDamageIncrease'),

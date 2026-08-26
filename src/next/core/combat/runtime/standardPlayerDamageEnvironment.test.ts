@@ -5,7 +5,11 @@ import type { SkillSettingsDocument } from '../infliction/skillSettings';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { CombatClock } from './combatClock';
 import { CombatResources } from './combatResources';
-import type { CombatEnemyProgram, CombatOperationExecutorContext } from './combatRuntimeAssembly';
+import type {
+  CombatEnemyProgram,
+  CombatOperationExecutorContext,
+  EquipmentEventOperationExecutorContext,
+} from './combatRuntimeAssembly';
 import { StandardPlayerDamageEnvironment } from './standardPlayerDamageEnvironment';
 import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 import { createEnemyCombatVitals } from './combatVitalsFactory';
@@ -114,6 +118,84 @@ function createEnvironment(
     enemyVitals: createEnemyCombatVitals(enemy),
   });
 }
+
+function createEquipmentContext(): EquipmentEventOperationExecutorContext {
+  const { program: _program, equipmentContributions: _contributions, ...battle } = createContext();
+  return {
+    ...battle,
+    operatorId: 'operator',
+    source: { kind: 'weaponTrait', slug: 'fixture', traitKey: 'effect' },
+    handlerKey: 'additional-hit',
+    event: {
+      kind: 'physicalInflictionApplied',
+      sourceOperatorId: 'operator',
+      targetId: 'enemy',
+      type: 'airborne',
+    },
+  };
+}
+
+it('装备末端从真实配装上下文结算伤害，不继承触发技能或发送伪技能命中', () => {
+  const context = createEquipmentContext();
+  const environment = createEnvironment();
+  const events: unknown[] = [];
+  environment
+    .eventsFor('operator')
+    .registerAction('outputDamage', 0, event => events.push(event.payload));
+  let skillHits = 0;
+  context.semanticEvents.register({
+    ownerOperatorId: 'operator',
+    trigger: { kind: 'skillHit', skillGroupKey: 'battleSkill', scope: 'operator' },
+    phase: 'dataAction',
+    handle: () => {
+      skillHits += 1;
+    },
+  });
+  const executor = environment.runtimeOptions.createEquipmentEventOperationExecutor!(context);
+  executor.execute(
+    { ...damageStep, parameters: { ...damageStep.parameters, tags: [] } },
+    {
+      blackboard: new ActionBlackboard(),
+      eventSkillCastInfo: {
+        skillCastId: 42,
+        originSkillId: 'trigger-skill',
+        originSkillType: 'battleSkill',
+        nonReturnedSpCost: 100,
+      },
+    },
+  );
+  expect(events).toHaveLength(1);
+  expect(events[0]).toMatchObject({ skillCastInfo: null });
+  const hit = (context.receipt as CombatReceiptCollector).entries.find(
+    entry => entry.event === 'DamageApplied',
+  )!;
+  expect(hit.data?.value).toBeCloseTo((700 / 3) * 0.8);
+  expect(hit.data?.sourceActionId).toBe('equipment:weaponTrait:fixture:additional-hit');
+  expect(hit.data?.castId).toBeUndefined();
+  expect(hit.data?.skillType).toBeUndefined();
+  expect(skillHits).toBe(0);
+});
+
+it('装备末端满血治疗仍按 output、receive 顺序发布事件，且不需要任何主动技能', () => {
+  const context = createEquipmentContext();
+  const environment = createEnvironment();
+  const events: string[] = [];
+  for (const event of ['outputHeal', 'receiveHeal'] as const) {
+    environment.eventsFor('operator').registerAction(event, 0, current => {
+      expect(current.payload).toMatchObject({
+        requestedHealing: 100,
+        actualHealing: 0,
+        overhealing: 100,
+      });
+      events.push(event);
+    });
+  }
+  const executor = environment.runtimeOptions.createEquipmentEventOperationExecutor!(context);
+  expect(
+    executor.execute({ kind: 'heal', parameters: { target: 'caster', amount: 100, tagIds: [] } }),
+  ).toBe(true);
+  expect(events).toEqual(['outputHeal', 'receiveHeal']);
+});
 
 it('publishes take/output critical events only for a critical health-damage result', () => {
   const reached: string[] = [];

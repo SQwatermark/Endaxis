@@ -3,7 +3,11 @@ import type { ResolvedCombatStep } from '../../compiler/combatProgram';
 import type { ResolvedOperatorPanel } from '../../compiler/resolveOperatorPanel';
 import { CombatClock } from './combatClock';
 import { CombatResources } from './combatResources';
-import type { CombatEnemyProgram, CombatOperationExecutorContext } from './combatRuntimeAssembly';
+import type {
+  CombatEnemyProgram,
+  CombatOperationExecutorContext,
+  EquipmentEventOperationExecutorContext,
+} from './combatRuntimeAssembly';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { CombatVitals } from './combatVitals';
 import { PlayerDamageOperationExecutor } from './playerDamageOperationExecutor';
@@ -111,6 +115,29 @@ const electricDamage: Extract<ResolvedCombatStep, { kind: 'dealDamage' }> = {
 };
 
 describe('resolveStaticPlayerDamageSnapshots', () => {
+  it('配装快照不读取触发技能修正，但保留面板的无条件类型增伤', () => {
+    const skillContext = createContext();
+    const { program: _program, equipmentContributions: _contributions, ...battle } = skillContext;
+    const context: EquipmentEventOperationExecutorContext = {
+      ...battle,
+      operatorId: 'operator',
+      source: { kind: 'weaponTrait', slug: 'fixture', traitKey: 'effect' },
+      handlerKey: 'extra',
+      event: { kind: 'damageTagHit', sourceOperatorId: 'operator', tags: ['normalSkill'] },
+    };
+    const attributes = createOperatorAttackAttributes(panel);
+    const electric = resolveStaticPlayerDamageSnapshots(context, electricDamage, attributes);
+    const heat = resolveStaticPlayerDamageSnapshots(
+      context,
+      { ...electricDamage, parameters: { ...electricDamage.parameters, damageType: 'heat' } },
+      attributes,
+    );
+    expect(electric.attacker.electricDamageIncrease).toBe(0);
+    expect(electric.attacker.criticalRate).toBe(panel.criticalRate);
+    expect(electric.attacker.damageToStaggeredEnemyIncrease).toBe(0);
+    expect(heat.attacker.heatDamageIncrease).toBe(0.5);
+  });
+
   it('从同一构筑面板和敌人程序冻结基础攻防属性', () => {
     const snapshots = resolveStaticPlayerDamageSnapshots(
       createContext(),

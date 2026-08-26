@@ -566,7 +566,7 @@ describe('standardPlayerDamageCompatibility', () => {
         ],
       }),
     );
-    expect(issues).toContainEqual(expect.objectContaining({ code: 'unsupported-step' }));
+    expect(issues).toEqual([]);
   });
 
   it('rejects elemental infliction without an installed infliction document', () => {

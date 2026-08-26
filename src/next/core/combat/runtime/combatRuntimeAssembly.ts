@@ -201,6 +201,10 @@ export interface EquipmentEventOperationExecutorContext extends EquipmentEventEx
   readonly semanticEvents: CombatSemanticEventRuntime;
 }
 
+/** HP 伤害共用末端，但配装来源不能冒充主动技能程序。 */
+export type CombatDamageExecutorContext =
+  CombatOperationExecutorContext | EquipmentEventOperationExecutorContext;
+
 export interface CombatRuntimeAssemblyOptions {
   readonly resources: CombatResourceSnapshot;
   /** RandomUtil.Dice 使用的独立样本源；只有实际执行概率条件时才要求存在。 */

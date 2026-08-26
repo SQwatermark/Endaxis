@@ -14,7 +14,7 @@ import {
   StandardPlayerDamageEnvironment,
   type StandardPlayerDamageEnvironmentOptions,
 } from '../core/combat/runtime/standardPlayerDamageEnvironment';
-import type { CombatOperationExecutorContext } from '../core/combat/runtime/combatRuntimeAssembly';
+import type { CombatDamageExecutorContext } from '../core/combat/runtime/combatRuntimeAssembly';
 import {
   executeCompiledScenarioSimulation,
   type ScenarioSimulationResult,
@@ -41,7 +41,7 @@ export interface RunStandardPlayerDamageScenarioInput {
   readonly criticalSamples: CriticalSampleSource;
   readonly probabilitySamples?: ProbabilitySampleSource;
   readonly resolveNonRandomRuntimeSnapshot: (
-    context: CombatOperationExecutorContext,
+    context: CombatDamageExecutorContext,
     step: DamageStep,
   ) => PlayerDamageNonRandomRuntimeSnapshot;
   /** 提供后 `applyElementalInfliction` 步骤按定义附着状态机执行。 */
