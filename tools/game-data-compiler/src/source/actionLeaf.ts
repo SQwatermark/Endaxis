@@ -44,6 +44,9 @@ import {
   parseDebugPrintActionSource,
   parseCameraPresentationActionSource,
   parseCameraRotateActionSource,
+  parseAnimatedCameraActionSource,
+  parseHideUiActionSource,
+  parseUltimateShowActionSource,
   parseWeaponVisibilityActionSource,
   parseVoiceTriggerActionSource,
   parseEffectActionSource,
@@ -109,6 +112,8 @@ import {
   parseSelfRotateActionSource,
   parseTeleportActionSource,
   parseReceiveMoveInputActionSource,
+  parseMoveToActionSource,
+  type MoveToActionSource,
   type ReceiveMoveInputActionSource,
   type SelfRotateActionSource,
   type TeleportActionSource,
@@ -186,7 +191,11 @@ export type KnownNativeActionLeafSource =
     }
   | {
       readonly family: 'spatial';
-      readonly action: SelfRotateActionSource | TeleportActionSource | ReceiveMoveInputActionSource;
+      readonly action:
+        | SelfRotateActionSource
+        | TeleportActionSource
+        | ReceiveMoveInputActionSource
+        | MoveToActionSource;
     }
   | { readonly family: 'resource'; readonly action: ResourceGainActionSource }
   | {
@@ -282,6 +291,11 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'spatial',
         action: parseReceiveMoveInputActionSource(value, path, inheritedBlackboard),
       };
+    case 'MoveToAction':
+      return {
+        family: 'spatial',
+        action: parseMoveToActionSource(value, path, inheritedBlackboard),
+      };
     case 'SetSuperArmorAction':
       return {
         family: 'selfDefense',
@@ -321,6 +335,21 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'presentation',
         action: parseCameraRotateActionSource(value, path, inheritedBlackboard),
+      };
+    case 'AnimatedCameraAction':
+      return {
+        family: 'presentation',
+        action: parseAnimatedCameraActionSource(value, path),
+      };
+    case 'HideUIAction':
+      return {
+        family: 'presentation',
+        action: parseHideUiActionSource(value, path),
+      };
+    case 'UltimateShowAction':
+      return {
+        family: 'presentation',
+        action: parseUltimateShowActionSource(value, path),
       };
     case 'SimpleCalcBBAction':
       return {

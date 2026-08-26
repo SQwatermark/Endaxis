@@ -2832,3 +2832,19 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
   `buff_wpn_sword_0022_layer` 的离战事件，`buff_wpn_sword_0026_celebration` 的定时标记治疗门槛，
   以及 `buff_wpn_pistol_0005_inaura`、`buff_wpn_sword_0010_inaura` 的 `OnBeforeAddedBuff` 响应。
   下一轮优先完成后二者和定时标记；防御、自疗与离战继续按木桩伤害相关性后置，不为凑数字扩模。
+
+### 2026-08-27：艾维文娜终结技进入统一主动技能生成链
+
+- 统一 TS 入口现可在同一干员目录生成并保留多个主动技能文件。艾维文娜普通战技与终结技分别由
+  根 SkillData 重建，安装层按稳定 key 组合，不再依赖手写展平动作或生成目录单文件假设。
+- 终结技新接通严格解析的 `MoveToAction`、`AnimatedCameraAction`、`HideUIAction` 与
+  `UltimateShowAction`。前者仅在固定零距离模型且后续数值不读取空间结果时审计省略，后三者仅作
+  无渲染后端的表现省略；出现未知字段或影响战斗载荷仍失败关闭。
+- 能力实体生成、静态单敌人 Context/ForEach、终结技专用时间膨胀、终结技伤害掩码和失衡包均进入
+  公共投影。生成步骤保留原生 `endFrame`，修复持续动作被安装成同帧启动/停止的问题。
+- VFS 依据 `_CalculateTouchingLayer` 机器码纠正枚举：`-1=Custom, 0=Nothing,
+1=WallAndGround`。`ProjectileMovementSubComponent.OnTick` 又证明首 tick 碰撞早于移动；Next 只对
+  艾维文娜终结技投射物已验证的无延迟、单段、球形、墙地阻挡形状同步执行 block 回调，不推广为
+  任意投射物或任意地形规则。回调若读取未声明实体黑板仍严格拒绝。
+- 生产回归观察到能力实体在第 45 帧生成、直接终结技电伤害在第 51 帧发生，并验证能量返还与时间
+  膨胀结束帧。下一步先完成全量门禁和三仓阶段提交，再以相同入口迁移下一项复杂主动技能。

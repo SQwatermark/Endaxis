@@ -60,9 +60,95 @@ export interface CameraPresentationActionSource {
     | 'cameraControlState'
     | 'dynamicCameraControlState'
     | 'cameraRotate'
+    | 'animatedCamera'
+    | 'hideUi'
+    | 'ultimateShow'
     | 'weaponVisibility'
     | 'voiceTrigger';
   readonly readBlackboardKeys?: readonly string[];
+}
+
+export function parseHideUiActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(action, new Set([...ACTION_META_FIELDS, 'onlyBlockInput']), path);
+  requireBoolean(action.onlyBlockInput, `${path}.onlyBlockInput`);
+  return { kind: 'hideUi' };
+}
+
+export function parseUltimateShowActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(action, new Set(ACTION_META_FIELDS), path);
+  return { kind: 'ultimateShow' };
+}
+
+export function parseAnimatedCameraActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      ...ACTION_META_FIELDS,
+      'cameraAnimKey',
+      'duration',
+      'horizontalInheritType',
+      'outRelativeHorizontalAngle',
+      'verticalInheritType',
+      'outVerticalValue',
+      'zoomScaleInheritType',
+      'outZoomScale',
+      'fitByCameraPos',
+      'followPosition',
+      'followRotation',
+      'easeIn',
+      'easeInTime',
+      'easeOut',
+      'easeOutTime',
+      'hideAllRendererEffect',
+      'affectedByTimeScale',
+      'checkCollisionOnEnd',
+      'checkCollisionTime',
+      'endByInput',
+    ]),
+    path,
+  );
+  requireString(action.cameraAnimKey, `${path}.cameraAnimKey`);
+  for (const key of [
+    'duration',
+    'outRelativeHorizontalAngle',
+    'outVerticalValue',
+    'outZoomScale',
+    'easeInTime',
+    'easeOutTime',
+    'checkCollisionTime',
+  ] as const)
+    requireNumber(action[key], `${path}.${key}`);
+  for (const key of [
+    'horizontalInheritType',
+    'verticalInheritType',
+    'zoomScaleInheritType',
+  ] as const)
+    requireString(action[key], `${path}.${key}`);
+  for (const key of [
+    'fitByCameraPos',
+    'followPosition',
+    'followRotation',
+    'easeIn',
+    'easeOut',
+    'hideAllRendererEffect',
+    'affectedByTimeScale',
+    'checkCollisionOnEnd',
+    'endByInput',
+  ] as const)
+    requireBoolean(action[key], `${path}.${key}`);
+  return { kind: 'animatedCamera' };
 }
 
 export function parseWeaponVisibilityActionSource(

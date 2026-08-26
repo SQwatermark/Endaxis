@@ -57,12 +57,13 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
             node.body.kind === 'leaf' &&
             node.body.value.family === 'targetGroup' &&
             node.body.value.action.producerType === 'FindTargetAction' &&
-            node.body.value.action.finderType === 'HitBoxFinder' &&
-            node.body.value.action.finderFactionTarget === 'Anti' &&
-            node.body.value.action.finderTargetObjectType === 'Normal' &&
-            node.body.value.action.finderCheckAlive === true &&
             node.body.value.action.validatorTypes.length === 0 &&
-            node.body.value.action.postProcessorTypes.length === 0,
+            node.body.value.action.postProcessorTypes.length === 0 &&
+            (node.body.value.action.finderType === 'MainTargetFinder' ||
+              (node.body.value.action.finderType === 'HitBoxFinder' &&
+                node.body.value.action.finderFactionTarget === 'Anti' &&
+                node.body.value.action.finderTargetObjectType === 'Normal' &&
+                node.body.value.action.finderCheckAlive === true)),
         )
         .map(node =>
           node.body.kind === 'leaf' && node.body.value.family === 'targetGroup'

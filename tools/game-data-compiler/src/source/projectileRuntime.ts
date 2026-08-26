@@ -19,6 +19,14 @@ export interface ProjectileRuntimeSource {
   readonly hitAndBlockDetectDelayDistance: number;
   readonly keepMoveOnReach: boolean;
   readonly canTraceTargetAfterReach: boolean;
+  readonly colliderShape: {
+    readonly shapeType: number;
+    readonly radius: number;
+  } | null;
+  readonly blockLayerDef: {
+    readonly value: number;
+    readonly name: string;
+  } | null;
   readonly targetFilter: {
     readonly checkAlive: boolean;
     readonly autoSetTargetFaction: boolean;
@@ -50,6 +58,18 @@ export function parseProjectileRuntimeSource(
   if (root.decodeStatus !== 'partial' && root.decodeStatus !== 'complete')
     throw new Error(`${path}.decodeStatus: expected decoded component`);
   const targetFilter = requireRecord(root.targetFilter, `${path}.targetFilter`);
+  const colliderShape =
+    root.colliderShapeData === undefined
+      ? null
+      : requireRecord(root.colliderShapeData, `${path}.colliderShapeData`);
+  const shapeType =
+    colliderShape === null
+      ? null
+      : requireRecord(colliderShape.shapeType, `${path}.colliderShapeData.shapeType`);
+  const blockLayerDef =
+    root.blockLayerDef === undefined
+      ? null
+      : requireRecord(root.blockLayerDef, `${path}.blockLayerDef`);
   const factionTarget = requireRecord(
     targetFilter.factionTarget,
     `${path}.targetFilter.factionTarget`,
@@ -102,6 +122,23 @@ export function parseProjectileRuntimeSource(
       root.canTraceTargetAfterReach,
       `${path}.canTraceTargetAfterReach`,
     ),
+    colliderShape:
+      colliderShape === null || shapeType === null
+        ? null
+        : {
+            shapeType: requireInteger(shapeType.value, `${path}.colliderShapeData.shapeType.value`),
+            radius: parseDirectBlackboardDouble(
+              colliderShape.radius,
+              `${path}.colliderShapeData.radius`,
+            ),
+          },
+    blockLayerDef:
+      blockLayerDef === null
+        ? null
+        : {
+            value: requireInteger(blockLayerDef.value, `${path}.blockLayerDef.value`),
+            name: requireNonEmptyString(blockLayerDef.name, `${path}.blockLayerDef.name`),
+          },
     targetFilter: {
       checkAlive: requireBoolean(targetFilter.checkAlive, `${path}.targetFilter.checkAlive`),
       autoSetTargetFaction: requireBoolean(

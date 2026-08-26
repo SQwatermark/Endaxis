@@ -48,7 +48,7 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
     if (!runtime) throw new Error(`${sourcePath}: missing ProjectileData ${launch.projectileId}`);
     const template = input.catalog.templates.get(launch.projectileId) ?? null;
     const enabled = launch.callbacks.filter(callback => callback.enabled);
-    const callback = (event: 'hit' | 'reach') => {
+    const callback = (event: 'block' | 'hit' | 'reach') => {
       const routes = enabled.filter(item => item.event === event);
       if (routes.length !== 1 || !routes[0]!.skillId)
         throw new Error(`${sourcePath}: expected one enabled projectile ${event} callback`);
@@ -59,9 +59,25 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
         );
       return graph;
     };
+    if (enabled.length === 1 && enabled[0]!.event === 'block') {
+      return [
+        compileZeroDistanceFirstTickBlockProjectileSource({
+          sourcePath,
+          launch,
+          runtime,
+          template,
+          blockGraph: callback('block'),
+          callbackContext: input.callbackContext,
+          visualOnlyIds: input.visualOnlyIds,
+          callbackExtensions: input.callbackExtensions,
+        }),
+      ];
+    }
     const unsupported = enabled.filter(item => item.event !== 'hit' && item.event !== 'reach');
-    if (unsupported.length > 0)
-      throw new Error(`${sourcePath}: unsupported projectile callback ${unsupported[0]!.event}`);
+    if (unsupported.length > 0 || enabled.length !== 2)
+      throw new Error(
+        `${sourcePath}: unsupported projectile callback set ${enabled.map(item => item.event).join(',')}`,
+      );
     return [
       compileZeroDistanceProjectileLaunchFromSources({
         sourcePath,
@@ -76,6 +92,42 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
       }),
     ];
   };
+}
+
+/**
+ * 将首 tick 墙地阻挡回调编译为同步回调。空间折叠只消除行进距离；阻挡层、检测时机、
+ * 碰撞体和回调路由仍须由 ProjectileData/LaunchProjectile 逐项证明。
+ */
+export function compileZeroDistanceFirstTickBlockProjectileSource(input: {
+  readonly sourcePath: string;
+  readonly launch: ProjectileLaunchActionSource;
+  readonly runtime: ProjectileRuntimeSource;
+  readonly template: {
+    readonly projectileId: string;
+    readonly entityBlackboard: readonly DeclaredBlackboardValueSource[];
+  } | null;
+  readonly blockGraph: SkillActionGraphSource<KnownNativeActionLeafSource>;
+  readonly callbackContext: CombatActionProjectionContextSource;
+  readonly visualOnlyIds?: ReadonlySet<string>;
+  readonly callbackExtensions?: CombatActionProjectionExtensionsSource;
+}): CompiledActionBlackboardScopeSource {
+  const { sourcePath, launch, runtime, template } = input;
+  if (runtime.projectileId !== launch.projectileId)
+    throw new Error(`${sourcePath}: ProjectileData identity mismatch`);
+  assertSupportedFirstTickBlockShape(runtime, sourcePath);
+  const block = compileImmediateProjectileCallbackSkillSource({
+    graph: input.blockGraph,
+    context: input.callbackContext,
+    visualOnlyIds: input.visualOnlyIds,
+    extensions: input.callbackExtensions,
+  });
+  return compileSynchronousProjectileCallbackScopesSource({
+    sourcePath,
+    launch,
+    template,
+    invocations: [{ event: 'block', ...block }],
+    allowMissingEntityBlackboardEvidence: true,
+  });
 }
 
 /** 将立即执行的回调 SkillData 动作图完整编译为一次回调，不抽取手选动作切片。 */
@@ -202,5 +254,36 @@ function assertSupportedFirstTickShape(runtime: ProjectileRuntimeSource, path: s
     segment.skipHitAndBlockDetection
   ) {
     throw new Error(`${path}: ProjectileData is outside the proven zero-distance first-tick shape`);
+  }
+}
+
+function assertSupportedFirstTickBlockShape(runtime: ProjectileRuntimeSource, path: string): void {
+  const segment = runtime.moveSegments[0];
+  if (
+    runtime.finishOnReach ||
+    runtime.hitOnReach ||
+    runtime.collisionDetectTiming !== 0 ||
+    runtime.hitAndBlockDetectDelayTime !== 0 ||
+    runtime.hitAndBlockDetectDelayDistance !== 0 ||
+    runtime.colliderShape === null ||
+    runtime.colliderShape.shapeType !== 1 ||
+    !(runtime.colliderShape.radius > 0) ||
+    runtime.blockLayerDef === null ||
+    runtime.blockLayerDef.value !== 1 ||
+    runtime.blockLayerDef.name !== 'WallAndGround' ||
+    runtime.presetPointKeys.length !== 2 ||
+    runtime.presetPointKeys[0] !== 'LaunchPoint' ||
+    runtime.presetPointKeys[1] !== 'TargetPoint' ||
+    runtime.useSegmentMove ||
+    runtime.moveSegments.length !== 1 ||
+    segment === undefined ||
+    segment.startPointKey !== 'LaunchPoint' ||
+    segment.moveModeId !== 'Default' ||
+    segment.endPointKey !== 'TargetPoint' ||
+    segment.earlyNextByDuration ||
+    segment.segmentDuration !== 0 ||
+    segment.skipHitAndBlockDetection
+  ) {
+    throw new Error(`${path}: ProjectileData is outside the proven zero-distance block shape`);
   }
 }

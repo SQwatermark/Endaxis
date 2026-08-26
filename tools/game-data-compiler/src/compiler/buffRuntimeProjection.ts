@@ -472,8 +472,16 @@ export type CompiledBuffStepSource =
             readonly priority: number;
             readonly curve: { readonly kind: 'named'; readonly key: string };
             readonly finishByAction: boolean;
-            readonly targets: readonly ['enemy', 'caster'];
+            readonly targets: readonly ('enemy' | 'caster')[];
           };
+    }
+  | {
+      readonly kind: 'startUltimateTimeDilation';
+      readonly parameters: {
+        readonly priority: number;
+        readonly targetScale: CompiledActionValueOperandSource;
+        readonly ignoredTargets: readonly [];
+      };
     }
   | {
       readonly kind: 'withActionBlackboardScope';
@@ -493,6 +501,14 @@ export type CompiledBuffStepSource =
         readonly saveToContextKey: string;
         readonly abilityEntityIds: readonly string[];
         readonly sameSourceSkillCast?: boolean;
+      };
+    }
+  | {
+      readonly kind: 'spawnAbilityEntity';
+      readonly parameters: {
+        readonly abilityEntityId: string;
+        readonly inheritActionBlackboard: boolean;
+        readonly dieWhenSourceDies: boolean;
       };
     }
   | {
@@ -1478,6 +1494,25 @@ function createBuffSequenceProjection(
       compileDifferentCharacterTypePartyLoop(nodes, visualOnlyIds, partyTargetGroups, context),
     compileForEach: (node, partyTargetGroups) => {
       if (
+        context.actionTargetTarget === 'enemy' &&
+        node.body.target.targetSource === 'Context' &&
+        context.staticEnemyTargetGroupKeys?.has(node.body.target.targetGroupKey) === true &&
+        node.body.target.finderType === null &&
+        node.body.target.validatorTypes.length === 0 &&
+        node.body.target.postProcessorTypes.length === 0 &&
+        !node.body.action.onlyExecuteWhenSourceIsMainCharacter &&
+        !node.body.action.onlyExecuteWhenSourceIsGuard
+      ) {
+        // 固定木桩模型中该静态集合恒为且仅为一个敌人，ForEach 因而精确执行一次。
+        return {
+          steps: compileActionSequenceProgram(node.body.action, {
+            ...createBuffSequenceProjection(visualOnlyIds, context, extensions),
+            initialState: () => partyTargetGroups,
+          }).steps,
+          state: partyTargetGroups,
+        };
+      }
+      if (
         (context.actionTargetTarget === 'enemy' ||
           context.actionTargetTarget === 'currentAbilityEntity') &&
         node.body.target.targetSource === 'Context' &&
@@ -1695,6 +1730,62 @@ function compileBuffLeafNode(
       state: partyTargetGroups,
     };
   }
+  if (node.body.value.family === 'abilityEntity') {
+    const action = node.body.value.action;
+    const bornAtBlockPoint =
+      action.bornAt.targetSource === 'Target' &&
+      action.bornAt.targetGroupKey === '' &&
+      action.bornAt.finderType === null &&
+      action.bornAt.validatorTypes.length === 0 &&
+      action.bornAt.postProcessorTypes.length === 0;
+    if (
+      !action.setSource ||
+      action.sourceType !== 'ActionSource' ||
+      action.sourceContextKey !== '' ||
+      action.setTarget ||
+      !bornAtBlockPoint ||
+      action.bornMountPoint !== 'None' ||
+      action.bornPositionOffset.some(value => value !== 0) ||
+      action.checkNavmeshAreaName ||
+      action.forbiddenAreaNames.length !== 0 ||
+      action.attachToClosestMeshPoint ||
+      action.rotateYFromBoneToCurrentPosition ||
+      action.bornRotation !== 'SourceForward' ||
+      action.bornRotationContextTarget !== '' ||
+      action.useAdvancedDirection ||
+      action.clampToXZPlane ||
+      action.applyBornRotationOffset ||
+      action.bornRotationOffset.some((value, index) => value !== (index === 3 ? 1 : 0)) ||
+      action.assignEntityBlackboard ||
+      action.assignments.length !== 0 ||
+      !action.assignBlackboard ||
+      action.overrideDuration ||
+      action.duration.blackboardKey !== null ||
+      action.duration.value !== 0 ||
+      action.saveToContext ||
+      action.contextKey !== '' ||
+      action.pauseEffectOnEnd ||
+      !action.inheritSourceSkillCastId ||
+      action.dieWhenSourceDies ||
+      action.forceSyncInit ||
+      action.dieOnEnd
+    )
+      throw new Error(`${node.sourcePath}: unsupported AbilityEntity spawn projection`);
+    // bornAt=Target 在 block 回调中是命中点；零空间模型只保留实体身份与黑板继承。
+    return {
+      steps: [
+        {
+          kind: 'spawnAbilityEntity',
+          parameters: {
+            abilityEntityId: action.abilityEntityId,
+            inheritActionBlackboard: true,
+            dieWhenSourceDies: false,
+          },
+        },
+      ],
+      state: partyTargetGroups,
+    };
+  }
   if (node.body.value.family === 'interrupt') {
     const action = node.body.value.action;
     const defenderIsEnemy =
@@ -1717,7 +1808,8 @@ function compileBuffLeafNode(
     if (action.kind === 'targetHitStop' && action.affectType === 'Both') {
       const targetIsEnemy =
         (action.target.targetSource === 'Target' && action.target.targetGroupKey === '') ||
-        (action.target.targetSource === 'Context' && action.target.targetGroupKey === 'targets');
+        (action.target.targetSource === 'Context' &&
+          context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey) === true);
       const priority = extensions.resolveTimeDilationPriority?.(
         action.priorityTagId,
         node.sourcePath,
@@ -1768,8 +1860,33 @@ function compileBuffLeafNode(
   }
   if (node.body.value.family === 'timeDilation') {
     const action = node.body.value.action;
-    if (action.kind !== 'timeDilation')
-      throw new Error(`${node.sourcePath}: ultimate time dilation is unsupported here`);
+    if (action.kind === 'ultimateTimeDilation') {
+      const priority = extensions.resolveTimeDilationPriority?.(
+        action.priorityTagId,
+        node.sourcePath,
+      );
+      if (
+        priority === undefined ||
+        !Number.isFinite(priority) ||
+        !Number.isFinite(action.timeScale) ||
+        action.timeScale < 0 ||
+        action.ignoreTargets.length !== 0
+      )
+        throw new Error(`${node.sourcePath}: unsupported ultimate time-dilation projection`);
+      return {
+        steps: [
+          {
+            kind: 'startUltimateTimeDilation',
+            parameters: {
+              priority,
+              targetScale: { kind: 'constant', value: action.timeScale },
+              ignoredTargets: [],
+            },
+          },
+        ],
+        state: partyTargetGroups,
+      };
+    }
     const priority = extensions.resolveTimeDilationPriority?.(
       action.priorityTagId,
       node.sourcePath,
@@ -1785,16 +1902,24 @@ function compileBuffLeafNode(
     if (action.layer === 'Entity') {
       const target = action.effectTargets[0];
       const source = action.effectTargets[1];
+      const targets =
+        action.effectTargets.length === 1 &&
+        target?.targetSource === 'Owner' &&
+        target.targetGroupKey === ''
+          ? (['caster'] as const)
+          : action.effectTargets.length === 2 &&
+              target?.targetSource === 'Target' &&
+              target.targetGroupKey === '' &&
+              source?.targetSource === 'Source' &&
+              source.targetGroupKey === ''
+            ? (['enemy', 'caster'] as const)
+            : null;
       if (
         !action.useCurveKey ||
         action.curveKey.length === 0 ||
         action.inlineCurveKeys.length !== 0 ||
         action.ignoreTargets.length !== 0 ||
-        action.effectTargets.length !== 2 ||
-        target?.targetSource !== 'Target' ||
-        target.targetGroupKey !== '' ||
-        source?.targetSource !== 'Source' ||
-        source.targetGroupKey !== ''
+        targets === null
       )
         throw new Error(`${node.sourcePath}: unsupported entity time-dilation projection`);
       return {
@@ -1808,7 +1933,7 @@ function compileBuffLeafNode(
               priority,
               curve: { kind: 'named', key: action.curveKey },
               finishByAction: action.finishByAction,
-              targets: ['enemy', 'caster'],
+              targets,
             },
           },
         ],
@@ -3132,13 +3257,16 @@ function compileBuffApplication(
           : action.target.targetSource === 'Context' &&
               partyTargetGroups.has(action.target.targetGroupKey ?? '')
             ? partyTargetGroups.get(action.target.targetGroupKey ?? '')!
-            : isControlledOperatorInstantSearch(action.target)
-              ? ('controlledOperator' as const)
-              : isPartyExceptOwnerInstantSearch(action.target)
-                ? ('partyExceptCaster' as const)
-                : isPartyInstantSearch(action.target)
-                  ? ('party' as const)
-                  : null;
+            : action.target.targetSource === 'Context' &&
+                context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey ?? '') === true
+              ? ('enemy' as const)
+              : isControlledOperatorInstantSearch(action.target)
+                ? ('controlledOperator' as const)
+                : isPartyExceptOwnerInstantSearch(action.target)
+                  ? ('partyExceptCaster' as const)
+                  : isPartyInstantSearch(action.target)
+                    ? ('party' as const)
+                    : null;
   const source =
     action.buffSource === 'ActionOwner'
       ? context.actionOwnerTarget === 'unavailable'

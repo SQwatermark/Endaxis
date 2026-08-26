@@ -150,6 +150,7 @@ describe('主动技能正式时间轴投影', () => {
       context: ACTIVE_CONTEXT,
       extensions: { resolveTimeDilationPriority: tagId => (tagId === -2059842104 ? 10 : NaN) },
     });
+    expect(result.scheduledSequences[0]).toMatchObject({ startFrame: 5, endFrame: 8 });
     expect(result.scheduledSequences[0]!.sequence.steps).toEqual([
       {
         kind: 'startTimeDilation',

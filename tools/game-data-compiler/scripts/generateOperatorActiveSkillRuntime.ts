@@ -213,10 +213,15 @@ export async function generateOperatorActiveSkillRuntime(args: Arguments) {
     )
       throw new Error(`operator active skill runtime is stale: ${destination}`);
   } else {
-    await writeGeneratedDefinitionFiles(args.output, [rendered]);
+    await writeGeneratedDefinitionFiles(args.output, [
+      ...readOwnedSiblingFiles(args.output, rendered.relativePath),
+      rendered,
+    ]);
+    const auditName = `${args.slug}.${args.key}.runtime.audit.json`;
     await writeGeneratedDefinitionFiles(args.auditOutput, [
+      ...readOwnedSiblingFiles(args.auditOutput, auditName),
       {
-        relativePath: `${args.slug}.${args.key}.runtime.audit.json`,
+        relativePath: auditName,
         content:
           JSON.stringify(
             {
@@ -235,6 +240,20 @@ export async function generateOperatorActiveSkillRuntime(args: Arguments) {
     ]);
   }
   return { output: destination, skillId, sequences: definition.scheduledSequences.length };
+}
+
+function readOwnedSiblingFiles(
+  directory: string,
+  replacedName: string,
+): Array<{ relativePath: string; content: string }> {
+  if (!fs.existsSync(directory)) return [];
+  return fs
+    .readdirSync(directory)
+    .filter(name => name !== replacedName)
+    .map(name => ({
+      relativePath: name,
+      content: fs.readFileSync(path.resolve(directory, name), 'utf8'),
+    }));
 }
 
 function readJson(file: string): unknown {
@@ -308,8 +327,21 @@ function requireOwnedDirectory(directory: string, slug: string, expectedName: st
     throw new Error(`output directory must belong to '${slug}'`);
   if (!fs.existsSync(directory)) return;
   const names = fs.readdirSync(directory);
-  if (names.some(name => name !== expectedName))
+  const suffix = expectedName.endsWith('.runtime.generated.ts')
+    ? '.runtime.generated.ts'
+    : expectedName.endsWith('.runtime.audit.json')
+      ? '.runtime.audit.json'
+      : null;
+  const siblingPattern =
+    suffix === null
+      ? null
+      : new RegExp(`^${escapeRegExp(slug)}\\.[A-Za-z][A-Za-z0-9]*${escapeRegExp(suffix)}$`);
+  if (names.some(name => name !== expectedName && siblingPattern?.test(name) !== true))
     throw new Error(`refusing to replace unrelated files in ${directory}`);
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 const normalize = (value: string) => value.replaceAll('\r\n', '\n');

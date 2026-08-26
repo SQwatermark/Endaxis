@@ -47,11 +47,21 @@ export function compileSynchronousProjectileCallbackScopesSource(input: {
     readonly entityBlackboard: readonly DeclaredBlackboardValueSource[];
   } | null;
   readonly invocations: readonly ProjectileCallbackInvocationSource[];
+  /** 仅限调用方已由完整 ProjectileData 证明不需要实体黑板的特殊回调。 */
+  readonly allowMissingEntityBlackboardEvidence?: boolean;
 }): CompiledActionBlackboardScopeSource {
   const { sourcePath, launch, template, invocations } = input;
-  if (template === null)
+  const callbackReadsEntityBlackboard = invocations.some(invocation =>
+    invocation.declaredBlackboard.some(value => value.key.startsWith('EntityBB_')),
+  );
+  if (
+    template === null &&
+    (!input.allowMissingEntityBlackboardEvidence ||
+      launch.assignEntityBlackboard ||
+      callbackReadsEntityBlackboard)
+  )
     throw new Error(`${sourcePath}: projectile entity blackboard evidence is missing`);
-  if (template.projectileId !== launch.projectileId)
+  if (template !== null && template.projectileId !== launch.projectileId)
     throw new Error(`${sourcePath}: projectile template identity mismatch`);
   if (launch.assignEntityBlackboard)
     throw new Error(`${sourcePath}: projectile entity blackboard assignments are not projected`);
@@ -92,7 +102,11 @@ export function compileSynchronousProjectileCallbackScopesSource(input: {
       lifetime: 'execution',
       initialValues: {},
       inheritParent: launch.assignBlackboard,
-      entityInitialValues: numericInitialValues(template.entityBlackboard, sourcePath, true),
+      ...(template === null
+        ? {}
+        : {
+            entityInitialValues: numericInitialValues(template.entityBlackboard, sourcePath, true),
+          }),
     },
     body: { steps },
   };

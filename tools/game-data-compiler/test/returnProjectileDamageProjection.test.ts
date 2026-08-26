@@ -215,7 +215,7 @@ describe('公共回调伤害投影', () => {
     });
   });
 
-  it.each([0, 256, 4096, 4352])('严格分解已覆盖伤害位 %i', mask => {
+  it.each([0, 256, 512, 4096, 4352, 4608])('严格分解已覆盖伤害位 %i', mask => {
     const source = damageSource();
     const result = compileEventTargetSimpleDamageOperationSource(
       {
@@ -224,8 +224,25 @@ describe('公共回调伤害投影', () => {
       },
       'damage',
     );
-    expect(result.parameters.tags).toEqual(mask === 256 || mask === 4352 ? ['normalSkill'] : []);
+    expect(result.parameters.tags).toEqual(
+      mask === 256 || mask === 4352
+        ? ['normalSkill']
+        : mask === 512 || mask === 4608
+          ? ['ultimateSkill']
+          : [],
+    );
     expect(result.parameters.features).toEqual(mask >= 4096 ? ['canBreakWeakness'] : undefined);
+  });
+
+  it('PoisePack 不保存元素类型，允许 Hp 电磁与 Poise 物理共用同一伤害动作', () => {
+    const source = damageSource();
+    const units = source.units.map((unit, index) =>
+      index === 1 ? { ...unit, damageType: 'Physical' as const } : unit,
+    );
+    expect(
+      compileEventTargetSimpleDamageOperationSource({ ...source, units }, 'ultimate.damage')
+        .parameters.stagger,
+    ).toEqual({ kind: 'blackboard', key: 'poise_lance' });
   });
 
   it.each([1, 128, 8192, 4353, 2 ** 32 + 4352, Number.MAX_SAFE_INTEGER + 1, -1, 0.5])(

@@ -373,6 +373,83 @@ describe('registered generated operators', () => {
     );
   });
 
+  it('runs Avywenna ultimate block callback, lance spawn, and direct hit through production', () => {
+    const scenario = createEmptyScenario('scenario:avywenna:ultimate', 'Avywenna 终结技生产回归');
+    scenario.battle.durationFrames = 90;
+    scenario.enemy.editable.hp = 10_000_000;
+    scenario.tracks[0] = {
+      id: 'track:avywenna:ultimate',
+      operator: {
+        operatorSlug: avywenna.slug,
+        level: 90,
+        promoted: true,
+        potential: 5,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 2, 1: 2 },
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 1000, maxUltimateEnergyOverride: 1000 },
+      skillCasts: [],
+    };
+    const placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: avywenna,
+      skillGroupKey: 'ultimate',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:avywenna:ultimate` },
+    }).scenario;
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      endFrame: 90,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+      elementalInflictionDocument: elementalAttachments,
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+          ultimateEnergySystemUnlocked: true,
+        },
+      },
+    });
+
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'AbilityEntitySpawned',
+        frame: 45,
+        sourceId: 'track:avywenna:ultimate',
+        data: expect.objectContaining({
+          abilityEntityId: 'abilityentity_chr_0012_avywen_ultimate_skill',
+        }),
+      }),
+    );
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'DamageApplied',
+        frame: 51,
+        sourceId: 'track:avywenna:ultimate',
+        targetId: 'enemy',
+      }),
+    );
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'TimeDilationEnded',
+        frame: 45,
+        sourceId: 'track:avywenna:ultimate',
+        data: expect.objectContaining({ slot: 'ultimate' }),
+      }),
+    );
+  });
+
   it('runs Avywenna combo-lance return callbacks through the compiled production skill', () => {
     let scenario = createEmptyScenario('scenario:avywenna:return', 'Avywenna 回枪生产回归');
     scenario.battle.durationFrames = 120;

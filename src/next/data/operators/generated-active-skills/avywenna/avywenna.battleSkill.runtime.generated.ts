@@ -76,6 +76,7 @@ export default {
   "scheduledSequences": [
     {
       "startFrame": 0,
+      "endFrame": 3,
       "sequence": {
         "steps": [
           {
@@ -119,6 +120,7 @@ export default {
     },
     {
       "startFrame": 18,
+      "endFrame": 21,
       "sequence": {
         "steps": [
           {
@@ -153,6 +155,7 @@ export default {
     },
     {
       "startFrame": 18,
+      "endFrame": 21,
       "sequence": {
         "steps": [
           {
@@ -236,6 +239,7 @@ export default {
     },
     {
       "startFrame": 0,
+      "endFrame": 6,
       "sequence": {
         "steps": [
           {
@@ -318,6 +322,7 @@ export default {
     },
     {
       "startFrame": 7,
+      "endFrame": 10,
       "sequence": {
         "steps": [
           {
@@ -758,6 +763,7 @@ export default {
     },
     {
       "startFrame": 7,
+      "endFrame": 10,
       "sequence": {
         "steps": [
           {

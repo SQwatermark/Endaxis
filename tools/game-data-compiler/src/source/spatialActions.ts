@@ -1,6 +1,7 @@
 import {
   requireBoolean,
   requireExactFields,
+  requireInteger,
   requireNonEmptyString,
   requireNumber,
   requireRecord,
@@ -29,6 +30,16 @@ export interface ReceiveMoveInputActionSource {
   readonly kind: 'receiveMoveInput';
   readonly duration: ScalarSource;
   readonly inputDirection: string;
+}
+
+export interface MoveToActionSource {
+  readonly kind: 'moveTo';
+  readonly moveType: string;
+  readonly totalTime: ScalarSource;
+  readonly target: TargetReferenceSource;
+  readonly updateMoveTarget: boolean;
+  readonly directionType: string;
+  readonly speedType: string;
 }
 
 /**
@@ -194,4 +205,151 @@ export function parseReceiveMoveInputActionSource(
     duration: parseScalarSource(action.duration, `${path}.duration`, inheritedBlackboard),
     inputDirection: requireNonEmptyString(action.inputDirection, `${path}.inputDirection`),
   };
+}
+
+/**
+ * MoveToAction 的原生完成时机仍受 IFix 保护；这里只严格保存完整空间载荷，并交由固定零距离
+ * 投影判断是否可省略。不能据此把动作解释为同步瞬移。
+ */
+export function parseMoveToActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): MoveToActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'moveType',
+      'totalTime',
+      'updateMoveTarget',
+      'directionType',
+      'target',
+      'fixAngle',
+      'fixDirectionType',
+      'fixPosAngle',
+      'fixPosLength',
+      'blockRadius',
+      'enableMaxDistanceCheckWhenMoveBack',
+      'maxDistanceWhenMoveBack',
+      'useExtraBlockRadiusForInt',
+      'extraRadiusForInt',
+      'counterClockwise',
+      'faceToMoveDir',
+      'overrideRotateRate',
+      'rotateRate',
+      'speedType',
+      'speed',
+      'speedCurve',
+      'rootMotionAnimKey',
+      'startOffsetFrame',
+      'autoScaled',
+      'rootMotionScale',
+      'dontClampDirToXZ',
+      'enableXAxisMove',
+      'xAxisSpeed',
+      'enableYAxisMove',
+      'yAxisSpeed',
+      'limitMoveDirRotateSpeed',
+      'moveDirYRotateSpeed',
+      'disableReachAutoEnd',
+      'ignoreNavmesh',
+      'ignoreAllCollision',
+      'ignoreCollisionLayer',
+      'stopByCliff',
+      'overrideStepOffset',
+      'stepOffset',
+    ]),
+    path,
+  );
+  parseNumberVector3(action.fixAngle, `${path}.fixAngle`);
+  parseScalarVector3(action.fixPosAngle, `${path}.fixPosAngle`, inheritedBlackboard);
+  for (const key of [
+    'fixPosLength',
+    'blockRadius',
+    'maxDistanceWhenMoveBack',
+    'extraRadiusForInt',
+    'rotateRate',
+    'speed',
+    'rootMotionScale',
+  ] as const)
+    parseScalarSource(action[key], `${path}.${key}`, inheritedBlackboard);
+  parseTimeDilationCurveKeys(action.speedCurve, `${path}.speedCurve`);
+  parseMoveSubSpeed(action.xAxisSpeed, `${path}.xAxisSpeed`, inheritedBlackboard);
+  parseMoveSubSpeed(action.yAxisSpeed, `${path}.yAxisSpeed`, inheritedBlackboard);
+  for (const key of [
+    'updateMoveTarget',
+    'enableMaxDistanceCheckWhenMoveBack',
+    'useExtraBlockRadiusForInt',
+    'counterClockwise',
+    'faceToMoveDir',
+    'overrideRotateRate',
+    'autoScaled',
+    'dontClampDirToXZ',
+    'enableXAxisMove',
+    'enableYAxisMove',
+    'limitMoveDirRotateSpeed',
+    'disableReachAutoEnd',
+    'ignoreNavmesh',
+    'ignoreAllCollision',
+    'stopByCliff',
+    'overrideStepOffset',
+  ] as const)
+    requireBoolean(action[key], `${path}.${key}`);
+  requireNonEmptyString(action.fixDirectionType, `${path}.fixDirectionType`);
+  requireString(action.rootMotionAnimKey, `${path}.rootMotionAnimKey`);
+  requireInteger(action.startOffsetFrame, `${path}.startOffsetFrame`);
+  requireNumber(action.moveDirYRotateSpeed, `${path}.moveDirYRotateSpeed`);
+  requireNumber(action.stepOffset, `${path}.stepOffset`);
+  const ignoredLayers = requireRecord(action.ignoreCollisionLayer, `${path}.ignoreCollisionLayer`);
+  requireExactFields(ignoredLayers, new Set(), `${path}.ignoreCollisionLayer`);
+  return {
+    kind: 'moveTo',
+    moveType: requireNonEmptyString(action.moveType, `${path}.moveType`),
+    totalTime: parseScalarSource(action.totalTime, `${path}.totalTime`, inheritedBlackboard),
+    target: parseTargetReferenceSource(action.target, `${path}.target`),
+    updateMoveTarget: requireBoolean(action.updateMoveTarget, `${path}.updateMoveTarget`),
+    directionType: requireNonEmptyString(action.directionType, `${path}.directionType`),
+    speedType: requireNonEmptyString(action.speedType, `${path}.speedType`),
+  };
+}
+
+function parseNumberVector3(value: unknown, path: string) {
+  const vector = requireRecord(value, path);
+  requireExactFields(vector, new Set(['x', 'y', 'z']), path);
+  for (const key of ['x', 'y', 'z'] as const) requireNumber(vector[key], `${path}.${key}`);
+}
+
+function parseScalarVector3(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+) {
+  const vector = requireRecord(value, path);
+  requireExactFields(vector, new Set(['x', 'y', 'z']), path);
+  for (const key of ['x', 'y', 'z'] as const)
+    parseScalarSource(vector[key], `${path}.${key}`, inheritedBlackboard);
+}
+
+function parseMoveSubSpeed(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+) {
+  const speed = requireRecord(value, path);
+  requireExactFields(
+    speed,
+    new Set(['speedType', 'fixedSpeed', 'speedCurve', 'rootMotionAnimKey', 'rootMotionScale']),
+    path,
+  );
+  requireNonEmptyString(speed.speedType, `${path}.speedType`);
+  parseScalarSource(speed.fixedSpeed, `${path}.fixedSpeed`, inheritedBlackboard);
+  parseTimeDilationCurveKeys(speed.speedCurve, `${path}.speedCurve`);
+  requireString(speed.rootMotionAnimKey, `${path}.rootMotionAnimKey`);
+  parseScalarSource(speed.rootMotionScale, `${path}.rootMotionScale`, inheritedBlackboard);
 }

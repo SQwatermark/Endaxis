@@ -26,6 +26,7 @@ export interface CompiledOperatorActiveSkillRuntimeDefinitionSource {
   readonly costFrame: number;
   readonly scheduledSequences: readonly {
     readonly startFrame: number;
+    readonly endFrame: number;
     readonly sequence: CompiledActiveSkillRuntimeProjectionSource['scheduledSequences'][number]['sequence'];
   }[];
 }
@@ -57,6 +58,7 @@ export function compileOperatorActiveSkillRuntimeDefinitionSource(input: {
     costFrame,
     scheduledSequences: runtime.scheduledSequences.map(item => ({
       startFrame: item.startFrame,
+      endFrame: item.endFrame,
       sequence: item.sequence,
     })),
   };

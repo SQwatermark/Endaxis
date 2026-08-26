@@ -54,6 +54,18 @@ Aura 对目标的进入、离开和整体结束是实例生命周期，而不是
 npm run generate:game-data:operator-active-skill -- --source-root tmp/game-data-sources --source-file chr_0012_avywen_normal_skill.json --skill-patch-table tmp/game-data-sources/TableCfg-1.4.4-9433094-12/SkillPatchTable.json --buff-data-root tmp/game-data-sources/BuffData --supplemental-buff-ids buff_chr_0012_avywen_lance_becalled_ready --ability-entity-catalog src/next/data/ability-entities/ability-entity-templates-1.4.4.json --projectile-blackboard-catalog src/next/data/projectiles/projectile-entity-blackboards-1.4.4.json --gameplay-tag-catalog src/next/data/combat/gameplayTagCatalog.generated.ts --time-dilation-catalog src/next/data/combat/timeDilationCatalog.ts --slug avywenna --key battleSkill --skill-type battleSkill --output src/next/data/operators/generated-active-skills/avywenna --audit-output tmp/game-data-audit/operator-active-skills/avywenna
 ```
 
+同一干员目录可以保存多个独立主动技能产物。生成器会验证并保留已有的同干员兄弟文件，而不是生成
+第二个技能时清空目录。艾维文娜终结技使用同一入口，只替换根技能和稳定身份：
+
+```powershell
+npm run generate:game-data:operator-active-skill -- --source-root tmp/game-data-sources --source-file chr_0012_avywen_ultimate_skill.json --skill-patch-table tmp/game-data-sources/TableCfg-1.4.4-9433094-12/SkillPatchTable.json --buff-data-root tmp/game-data-sources/BuffData --ability-entity-catalog src/next/data/ability-entities/ability-entity-templates-1.4.4.json --projectile-blackboard-catalog src/next/data/projectiles/projectile-entity-blackboards-1.4.4.json --gameplay-tag-catalog src/next/data/combat/gameplayTagCatalog.generated.ts --time-dilation-catalog src/next/data/combat/timeDilationCatalog.ts --slug avywenna --key ultimate --skill-type ultimate --output src/next/data/operators/generated-active-skills/avywenna --audit-output tmp/game-data-audit/operator-active-skills/avywenna
+```
+
+终结技投射物的 block 回调只在来源满足当前严格零空间形状时同步投影：首 tick 无延迟、单段、球形
+碰撞体、`blockLayerDef=WallAndGround`，且回调不依赖未声明的投射物实体黑板。1.4.4 原生首 tick
+先检查碰撞再移动，但这不证明任意地形、任意轨迹都会阻挡；不满足该形状必须失败关闭。枚举与调度
+证据见 `combat-spec/docs/launch-projectile-skill-routing.md`。
+
 正式输出和审计目录由脚本硬限制：前者只能位于
 `src/next/data/operators/generated-active-skills/<slug>`，后者只能位于
 `tmp/game-data-audit/operator-active-skills/<slug>`。来源路径会规范化为 `SkillData.<id>`，生成模块不得
