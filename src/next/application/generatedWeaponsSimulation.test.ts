@@ -12,19 +12,6 @@ import { ScenarioSimulationService } from './scenarioSimulationService';
 
 // 候选定义必须实际经过生产编译/战斗环境；不借用旧武器行为，也不依赖本地原始资源。
 const candidates: readonly WeaponDefinition[] = generatedWeaponDefinitions;
-// 审计发现的干员证据缺口，不计为模拟成功；默认库切换必须先清空它。
-// 详见 docs/research/arcane-next-evidence.md。严格核对报错，不能吞掉其他故障。
-const arcaneBlockedWeapons = new Set([
-  'wpn_funnel_0003',
-  'wpn_funnel_0006',
-  'wpn_funnel_0007',
-  'wpn_funnel_0010',
-  'wpn_funnel_0011',
-  'wpn_funnel_0012',
-  'wpn_funnel_0015',
-  'wpn_funnel_0017',
-]);
-const arcaneMissingValue = "action blackboard value 'EntityBB_consumed_type' is missing";
 const repository = createGameDataRepository({
   revision: 'generated-weapon-production-audit',
   operators: nextGameDataRepository.getOperators(),
@@ -145,7 +132,6 @@ describe('生成武器的正式模拟门禁', () => {
         0,
       ),
     ).toBe(966);
-    expect(arcaneBlockedWeapons.size).toBe(8);
   });
 
   it.each(candidates)('$slug 四类技能生产模拟全部成功，不设置失败豁免', async weapon => {
@@ -186,21 +172,66 @@ describe('生成武器的正式模拟门禁', () => {
         }
       }
     }
-    // 成功与证据阻塞分开记录；已知阻塞消失同样使断言失败，要求重新审计并删掉清单。
-    expect(failures).toEqual(
-      arcaneBlockedWeapons.has(weapon.slug) ? [`arcane/maximum: ${arcaneMissingValue}`] : [],
-    );
+    // 正式诀已安装模板初值与动态条件；966 场全部必须成功，不再保留失败豁免。
+    expect(failures).toEqual([]);
   });
 
-  it('诀的黑板缺口在关闭武器事件后仍存在，不能误修成武器默认值', async () => {
+  it('诀单放连携也能从角色模板读取初值，不依赖武器事件补值', async () => {
     const weapon = candidates.find(item => item.slug === 'wpn_funnel_0003')!;
     const disabled = {
       ...weapon,
       traits: weapon.traits.map(({ eventHandlers: _events, ...trait }) => trait),
     };
-    await expect(
-      simulateWeapon(disabled, repository.getOperator('arcane')!, ['comboSkill']),
-    ).rejects.toThrow(arcaneMissingValue);
+    const result = await simulateWeapon(disabled, repository.getOperator('arcane')!, [
+      'comboSkill',
+    ]);
+    expect(result.finalEnemyHealth).toBeLessThan(result.enemyVitals.initialHealth);
+    expect(
+      result.receiptEntries
+        .filter(entry => entry.event === 'ElementalInflictionApplied')
+        .map(entry => entry.data?.requestedElement),
+    ).toEqual(['heat']);
+  });
+
+  it('诀战技动态写入元素后连携读到新值，而不是一直使用模板零值', async () => {
+    const weapon = candidates.find(item => item.slug === 'wpn_funnel_0003')!;
+    const disabled = {
+      ...weapon,
+      traits: weapon.traits.map(({ eventHandlers: _events, ...trait }) => trait),
+    };
+    const result = await simulateWeapon(disabled, repository.getOperator('arcane')!, [
+      'battleSkill',
+      'comboSkill',
+    ]);
+    const combo = result.receiptEntries.find(
+      entry => entry.event === 'SkillStarted' && entry.data?.skillId === 'comboSkill',
+    )!;
+    const inflictions = result.receiptEntries.filter(
+      entry =>
+        entry.event === 'ElementalInflictionApplied' && entry.data?.castId === combo.data?.castId,
+    );
+    expect(inflictions.map(entry => entry.data?.requestedElement)).toEqual(['nature']);
+    expect(result.receiptEntries.some(entry => entry.event === 'ComboWindowOpened')).toBe(true);
+    expect(result.finalEnemyHealth).toBeLessThan(result.enemyVitals.initialHealth);
+    // 仅移除动态条件作反事实对照，面板/动作/模板初值不变：应回退到初始火元素并改变伤害结果。
+    const baseline = await simulateWeapon(
+      disabled,
+      { ...repository.getOperator('arcane')!, comboSkillConditions: [] },
+      ['battleSkill', 'comboSkill'],
+    );
+    const baselineCombo = baseline.receiptEntries.find(
+      entry => entry.event === 'SkillStarted' && entry.data?.skillId === 'comboSkill',
+    )!;
+    expect(
+      baseline.receiptEntries
+        .filter(
+          entry =>
+            entry.event === 'ElementalInflictionApplied' &&
+            entry.data?.castId === baselineCombo.data?.castId,
+        )
+        .map(entry => entry.data?.requestedElement),
+    ).toEqual(['heat']);
+    expect(result.finalEnemyHealth).not.toBe(baseline.finalEnemyHealth);
   });
 
   it('终结技武器加攻只覆盖异属性队友，并实际提高队友命中伤害', async () => {
@@ -407,6 +438,7 @@ async function simulateWeapon(
     index: {
       ...repository,
       getWeapon: slug => (slug === weapon.slug ? weapon : repository.getWeapon(slug)),
+      getOperator: slug => (slug === operator.slug ? operator : repository.getOperator(slug)),
     },
     repositoryRevision: repository.revision,
     resources: {

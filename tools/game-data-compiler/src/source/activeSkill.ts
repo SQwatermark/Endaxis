@@ -3,7 +3,7 @@ import {
   type DefinitionReferenceSource,
   type ReferenceAwareActionLeafSource,
 } from './referenceGraph.ts';
-import { requireNonEmptyString, requireRecord } from './primitives.ts';
+import { requireNonEmptyString, requireNonNegativeInteger, requireRecord } from './primitives.ts';
 import type { BlackboardLevelValues } from './scalar.ts';
 import type { SkillActionGraphSource } from './skillActionGraph.ts';
 import {
@@ -18,6 +18,21 @@ export interface NativeActiveSkillSource {
   readonly targetSelection: SkillTargetSelectionHeaderSource;
   readonly actionGraph: SkillActionGraphSource<ReferenceAwareActionLeafSource>;
   readonly references: readonly DefinitionReferenceSource[];
+}
+
+/** 已证实的施法元数据切片，不冒充完整 SkillData/动作图读取。 */
+export function parseSkillCastMetadataSource(value: unknown, sourcePath: string) {
+  const root = requireRecord(value, sourcePath);
+  const castData = requireRecord(root.castData, `${sourcePath}.castData`);
+  return {
+    sourcePath,
+    skillId: requireNonEmptyString(root.skillId, `${sourcePath}.skillId`),
+    startCdFrame: requireNonNegativeInteger(
+      castData.startCdFrame,
+      `${sourcePath}.castData.startCdFrame`,
+    ),
+    targetSelection: parseSkillTargetSelectionHeaderSource(value, sourcePath),
+  };
 }
 
 export function parseNativeActiveSkillSource(

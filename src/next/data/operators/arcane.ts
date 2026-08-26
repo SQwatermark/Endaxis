@@ -1,2 +1,6 @@
-/** Arcane 已通过正式生成门禁；保留稳定模块路径供注册表与既有调用方使用。 */
-export { arcaneGeneratedOperator as arcane } from './generated/arcane.operator.generated';
+import { applyOperatorRuntimeDefinition } from '../../core/game-data/operatorRuntimeDefinition';
+import { arcaneGeneratedOperator } from './generated/arcane.operator.generated';
+import runtime from './generated-runtime/arcane/arcane.runtime.generated';
+
+/** 迁移期动作保留旧产物，角色常驻运行定义由统一 TS 编译器接管。 */
+export const arcane = applyOperatorRuntimeDefinition(arcaneGeneratedOperator, runtime);

@@ -20,6 +20,7 @@
     "audit:game-data:operators": "node --experimental-strip-types tools/game-data-compiler/scripts/auditOperatorSourceClosures.ts",
     "audit:game-data:weapons": "node --experimental-strip-types tools/game-data-compiler/scripts/auditWeaponStaticDefinitions.ts",
     "generate:game-data:weapons": "node --experimental-strip-types tools/game-data-compiler/scripts/generateWeaponDefinitions.ts",
+    "generate:game-data:operator-runtime": "node --experimental-strip-types tools/game-data-compiler/scripts/generateOperatorRuntimeDefinition.ts",
     "plan:game-data:operator-unity-templates": "node --experimental-strip-types tools/game-data-compiler/scripts/planOperatorUnityTemplates.ts",
     "download:game-data:operator-closure": "node --experimental-strip-types tools/game-data-compiler/scripts/downloadOperatorSourceClosure.ts",
     "download:game-data:sources": "node --experimental-strip-types tools/game-data-compiler/scripts/downloadAkedbSources.ts",

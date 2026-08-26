@@ -390,32 +390,57 @@ npm run download:game-data:operator-closure -- --vfs-fallback http://desktop:876
 
 ## 11. 当前迁移状态
 
+### 角色模板常驻运行定义的可重建入口
+
+这是完整干员迁移前的增量入口：仅编译模板实体初值、原生连携条件及连携施法元数据，
+不重编旧动作/Buff/天赋。输入为 VFS 已导出的角色前缀和真实 SkillData；来源 partial 状态保留，
+不是完整 CharacterTemplateData 解码的声明。正式安装按 slug、组 key、sourceSkillId 严格匹配。
+
+在仓库根目录运行（以下为 PowerShell；输入文件需先按诀证据文档导出到 tmp/）：
+
+```powershell
+npm run generate:game-data:operator-runtime -- `
+  --template tmp/arcane-character-conditions-complete.json `
+  --combo-skill tmp/game-data-sources/skill-data-cdn/chr_0032_lizhiyan_combo_skill.json `
+  --slug arcane --skill-group comboSkill `
+  --output src/next/data/operators/generated-runtime/arcane `
+  --audit-output tmp/generated-operator-runtime/arcane
+```
+
+附加 `--check` 只核对正式文件是否可重建（容许 Git 的 CRLF 换行），不写文件。
+正式输出和审计输出不得重叠，目录末级必须是显式 slug；只允许该角色的生成文件，拒绝替换
+手工文件或混合目录。审计必须写入仓库 tmp/，不进入 Git；正式 TS 只含运行定义。
+默认 arcane 包装器已安装产物，来源哈希/原始树/审计不混入浏览器运行库。
+
 已完成：
 
+- 诀正式模板运行定义已生成和注册；原来的 8 场交叉阻塞清零，**966/966 成功、0 豁免**。
+  真实战技→连携与关闭条件的同构筑对照产生不同元素及伤害；全技能上轴 301/301 继续通过。
+  全量 294 文件/3097 项及两侧类型检查通过。默认武器库/迁移 UI 尚未切换，完整干员迁移仍待推进。
 - 公共 compileComboSmartTargetSource 将已审计连携目标策略头投影为 comboSmartTarget，保留
   来源及固定木桩投影分类。定义/存档/编译已接入；Pending 经现有窗口进入 afterCastStart，
-  实际诀连携的四元素/两构筑隔离回归已有真实伤害。正式诀来源组装/产物尚未切换，8 场阻塞保留。
+  实际诀连携的四元素/两构筑隔离回归已有真实伤害；正式模板运行定义也已接入。
 - 公共连携来源可投影到正式 comboSkillConditions，显式绑定 key/连携组，审计来源与定义分开。
   项目模板结构校验/存档往返与正式场景编译已接入，引用/等级在编译阶段严格解析。
-  五条真实条件走此链路及连续附着回归；资格与 Pending 施法已接木桩投影，尚未切换正式诀生成数据，
+  五条真实条件走此链路及连续附着回归；资格与 Pending 施法已接木桩投影，正式诀常驻数据已安装，
   不能称完整角色转换或图形编辑入口已完成。
 - 正式场景编译从已解析等级/养成的完整定义提取静态冷却目录，空轴/未放置连携与变体也有账本，
   但不安装未放置动作。设置/减少与槽位继承操作使用完整目录，重复放置不重复推进。
-  下一步转正式角色产物与交叉回归；缺确认帧/多充能等边界不变。
+  正式诀交叉回归通过；缺确认帧/多充能等边界不变。
 - Next 编译程序 comboConditionPrograms 已由 assembly 自动安装到标准环境真实事件阶段，
   复用角色共享板和当前槽单充能冷却。五条真实来源通过正式定义/场景的实际技能附着回归；
-  正式角色生成数据尚未切换，不能把此称为干员转换完成。标准场景提供资格简化，Pending 由
+  正式诀常驻数据已切换，但不能把此称为完整干员编译器迁移完成。标准场景提供资格简化，Pending 由
   assembly 自动入窗口；外部接收回调仅作可选观察者，afterCastStart 保留独立目标与 direct 快照。
 - VFS 已解码 Unity 连携 RID 的有界规范化适配，五种已审计叶子仍复用公共 Action/Condition 解析；
   真实 14 条来源核对一致，五条条件可编译。Context 对象类型及 ByTag 首目标增强层数进入 Next。
   DebugPrint/关闭动作不再被残留 Target 假阻塞；真正的 InputTarget、非空子 RID 和 BuffIdCount
-  仍是显式边界。角色生产产物未切换，不等同正式转换完成；木桩资格和 Pending 施法已接通。
+  仍是显式边界。诀常驻产物已切换，不等同完整干员迁移完成；木桩资格和 Pending 施法已接通。
 - 公共连携条件来源读取与四类已审计附着事件 Pending 编译，复用公共条件/序列而不另写叶子；
   布尔结果被消费时保留纯尾条件。原始 RID 未展开、immediate、主控/支援过滤、未审计事件仍拒绝；
   InputTarget 尚未投影时禁止把 Target 编成 Buff 的物理 eventTarget。证据见 combat-spec 的
   combo-condition-environment.md、combo-event-gates-and-pending.md；正式定义到场景生成已接通。
 - AbilitySystemData 两层黑板的公共安装投影：实体字面值与启用/禁用的条件局部板分离，动态声明
-  不当作编译期常量；Next 实体初值可随场景装配进入共享运行板，正式角色常驻条件生成尚未切换。
+  不当作编译期常量；Next 实体初值随场景装配进入共享运行板，正式诀常驻条件生成已切换。
 - CheckSpellInflictionType 的原生数值/命名/零 mask 与 savedKey 写回投影；有写入副作用的尾条件
   保留执行及前置守卫，不能按“没有后继步骤”省略。证据见 combat-spec/docs/check-spell-infliction-type.md。
 - 独立 TypeScript 工具链、类型检查和测试命令；

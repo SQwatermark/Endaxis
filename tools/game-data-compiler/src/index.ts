@@ -660,6 +660,10 @@ export { parseUnityComboSkillConditionsSource } from './source/unityComboSkillCo
 export { parseObjectTypeMask } from './source/objectType.ts';
 export { compileComboSmartTargetSource } from './compiler/comboSmartTarget.ts';
 export {
+  compileOperatorRuntimeDefinitionSource,
+  renderOperatorRuntimeDefinitionSource,
+} from './domains/operator/runtimeDefinition.ts';
+export {
   compilePendingComboConditionSource,
   compileComboSkillConditionDefinitionSource,
   type CompiledComboConditionSource,

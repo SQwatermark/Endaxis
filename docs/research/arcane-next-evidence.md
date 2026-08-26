@@ -1,6 +1,26 @@
 # 诀新版配置证据记录
 
-## 2026-08-27 木桩下 Pending 到实际连携（最新）
+## 2026-08-27 正式运行定义生成与默认角色接入（最新）
+
+新增 parseOperatorRuntimeTemplateSource / compileOperatorRuntimeDefinitionSource，直接读取此前
+已导出的 character-template-prefix-v1 与连携 SkillData 策略头。复用公共来源/编译，不增加原生规则。
+四个实体字面初值、五条条件与连携 startCdFrame=0 / trigger 智能目标生成独立正式运行定义；
+原组件仍 partial，审计保留该状态，不把 14 条叶子完整解码外推到整个模板。
+
+默认 arcane 包装器通过严格身份绑定安装该定义，原有动作/Buff/天赋与 Deck 构筑初始化保留。
+正式文件在 src/next/data/operators/generated-runtime/arcane/，原始来源和审计在 tmp/。
+generate:game-data:operator-runtime 支持原子生成与只读 --check；确切命令见编译器 README。
+
+此前 8 场正式阻塞全部解除，77 把候选武器 × 兼容干员 × 两端词条构筑 **966/966 成功**，
+没有失败豁免。真实诀单连携走模板火元素；战技→连携走条件记录的自然元素。相同构筑禁用条件后
+恢复火元素且最终伤害不同，动态写回与真实模拟已关联。四元素/两构筑的隔离测试仍保留。
+全干员 301 个技能逐项上轴通过；全量 **294 文件/3097 项**及两侧类型检查通过。
+报告 tmp/arcane-formal-runtime.audit.json；C#/VFS 未重跑，无新增原生规则。
+
+边界：此次只迁移模板常驻运行数据，不是完整干员生成器替换。默认武器库/迁移 UI 尚未切换；
+旧诀处决重复 step key 的整模板存档问题仍待后续稳定身份处理，不改旧产物或放宽校验。
+
+## 2026-08-27 木桩下 Pending 到实际连携（上一批，8 场阻塞已闭合）
 
 用户明确以对敌伤害和必要时间轴表现为目标，不追求客户端完整状态机。依据既有
 combo-cast-preparation / skill-smart-target-outer 规格执行场景投影：标准环境角色恒存活、无沉默；
