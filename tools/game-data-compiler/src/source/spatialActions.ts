@@ -42,6 +42,22 @@ export interface MoveToActionSource {
   readonly speedType: string;
 }
 
+export interface CustomRootMotionActionSource {
+  readonly kind: 'customRootMotion';
+  readonly target: TargetReferenceSource;
+  readonly animationKey: string;
+  readonly rootMotionCurveMask: string;
+  readonly updateDirection: boolean;
+  readonly startOffsetFrame: number;
+}
+
+export interface SaveTargetDistanceActionSource {
+  readonly kind: 'saveTargetDistance';
+  readonly source: TargetReferenceSource;
+  readonly target: TargetReferenceSource;
+  readonly outputKey: string;
+}
+
 /**
  * 方向在 Endaxis 的零距离、全实例、唯一木桩模型中不改变目标集合或伤害数值，但仍严格读取
  * 原生载荷；若未来接入方向条件，必须在投影层重新评估这项省略，不能从来源层删除证据。
@@ -316,6 +332,113 @@ export function parseMoveToActionSource(
     updateMoveTarget: requireBoolean(action.updateMoveTarget, `${path}.updateMoveTarget`),
     directionType: requireNonEmptyString(action.directionType, `${path}.directionType`),
     speedType: requireNonEmptyString(action.speedType, `${path}.speedType`),
+  };
+}
+
+/**
+ * CustomRootMotionAction 的原生 executeReturnType 为 CustomReturnType；动作在自己的时间线区间内
+ * 创建、更新并在 OnEnd 释放 MoveRequestHandle。来源层保存完整移动载荷，固定零距离投影只能在
+ * 后续战斗动作不读取空间结果时省略，不能把它解释为同步瞬移或无条件成功。
+ */
+export function parseCustomRootMotionActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): CustomRootMotionActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'moveTo',
+      'animKey',
+      'rootMotionCurveMask',
+      'scaleX',
+      'scaleY',
+      'enableScaleZWithDistanceCurve',
+      'distance2ScaleZ',
+      'scaleZ',
+      'blockRadius',
+      'useExtraBlockRadiusForInt',
+      'extraRadiusForInt',
+      'enableMaxDistanceCheckWhenMoveBack',
+      'maxDistanceWhenMoveBack',
+      'updateDir',
+      'startOffsetFrame',
+      'playbackSpeed',
+      'stopByCliff',
+      'ignoreAllCollision',
+      'ignoreCollisionLayer',
+    ]),
+    path,
+  );
+  for (const key of [
+    'scaleX',
+    'scaleY',
+    'scaleZ',
+    'blockRadius',
+    'extraRadiusForInt',
+    'maxDistanceWhenMoveBack',
+    'playbackSpeed',
+  ] as const)
+    parseScalarSource(action[key], `${path}.${key}`, inheritedBlackboard);
+  parseTimeDilationCurveKeys(action.distance2ScaleZ, `${path}.distance2ScaleZ`);
+  for (const key of [
+    'enableScaleZWithDistanceCurve',
+    'useExtraBlockRadiusForInt',
+    'enableMaxDistanceCheckWhenMoveBack',
+    'updateDir',
+    'stopByCliff',
+    'ignoreAllCollision',
+  ] as const)
+    requireBoolean(action[key], `${path}.${key}`);
+  const ignoredLayers = requireRecord(action.ignoreCollisionLayer, `${path}.ignoreCollisionLayer`);
+  requireExactFields(ignoredLayers, new Set(), `${path}.ignoreCollisionLayer`);
+  return {
+    kind: 'customRootMotion',
+    target: parseTargetReferenceSource(action.moveTo, `${path}.moveTo`),
+    animationKey: requireString(action.animKey, `${path}.animKey`),
+    rootMotionCurveMask: requireNonEmptyString(
+      action.rootMotionCurveMask,
+      `${path}.rootMotionCurveMask`,
+    ),
+    updateDirection: requireBoolean(action.updateDir, `${path}.updateDir`),
+    startOffsetFrame: requireInteger(action.startOffsetFrame, `${path}.startOffsetFrame`),
+  };
+}
+
+/**
+ * 原生动作测量两个 battle-root 的三维距离并写入动作黑板。来源层保留真实端点，只有投影层
+ * 才能依据 Endaxis 固定零距离模型把结果改写为 0。
+ */
+export function parseSaveTargetDistanceActionSource(
+  value: unknown,
+  path: string,
+): SaveTargetDistanceActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'source',
+      'target',
+      'bbKey',
+    ]),
+    path,
+  );
+  return {
+    kind: 'saveTargetDistance',
+    source: parseTargetReferenceSource(action.source, `${path}.source`),
+    target: parseTargetReferenceSource(action.target, `${path}.target`),
+    outputKey: requireNonEmptyString(action.bbKey, `${path}.bbKey`),
   };
 }
 

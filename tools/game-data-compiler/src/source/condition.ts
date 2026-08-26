@@ -29,6 +29,11 @@ interface ConditionIdentity {
 export type NativeConditionSource =
   | (ConditionIdentity & { readonly kind: 'squadInFight' })
   | (ConditionIdentity & {
+      /** 仅选择连携镜头跟随强度；不属于战斗条件。 */
+      readonly kind: 'comboCameraAlphaSetting';
+      readonly desiredSetting: string;
+    })
+  | (ConditionIdentity & {
       /** AbilitySystem 被动条件；这里只保留比较结构，不在来源层读取或计算生命比例。 */
       readonly kind: 'currentHpRatio';
       readonly comparison: string;
@@ -282,6 +287,27 @@ export function parseConditionLeafSource(
   const sourceType = typeof condition.$type === 'string' ? nativeActionName(condition.$type) : '';
 
   switch (sourceType) {
+    case 'CheckComboSkillCameraAlphaSetting':
+      requireExactFields(
+        condition,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'desiredAlphaSetting',
+        ]),
+        path,
+      );
+      return {
+        kind: 'comboCameraAlphaSetting',
+        sourceType,
+        desiredSetting: requireNonEmptyString(
+          condition.desiredAlphaSetting,
+          `${path}.desiredAlphaSetting`,
+        ),
+      };
     case 'CheckSquadInFight':
       requireExactFields(
         condition,

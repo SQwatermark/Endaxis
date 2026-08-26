@@ -49,6 +49,8 @@ import {
   parseUltimateShowActionSource,
   parseWeaponVisibilityActionSource,
   parseVoiceTriggerActionSource,
+  parseOverrideCameraFollowActionSource,
+  parseTemporaryUnlockActionSource,
   parseEffectActionSource,
   parsePlayAnimationActionSource,
   parsePlaySoundActionSource,
@@ -113,6 +115,10 @@ import {
   parseTeleportActionSource,
   parseReceiveMoveInputActionSource,
   parseMoveToActionSource,
+  parseCustomRootMotionActionSource,
+  parseSaveTargetDistanceActionSource,
+  type CustomRootMotionActionSource,
+  type SaveTargetDistanceActionSource,
   type MoveToActionSource,
   type ReceiveMoveInputActionSource,
   type SelfRotateActionSource,
@@ -160,6 +166,7 @@ const CONDITION_ACTION_NAMES = new Set([
   'CheckTargetAngle',
   'CheckPoiseValue',
   'CheckSquadInFight',
+  'CheckComboSkillCameraAlphaSetting',
 ]);
 
 /** 引用闭包需要严格读取的动作身份；集合与分派实现同属公共来源层，调用方不再复制 switch。 */
@@ -195,8 +202,10 @@ export type KnownNativeActionLeafSource =
         | SelfRotateActionSource
         | TeleportActionSource
         | ReceiveMoveInputActionSource
-        | MoveToActionSource;
+        | MoveToActionSource
+        | CustomRootMotionActionSource;
     }
+  | { readonly family: 'spatialMeasurement'; readonly action: SaveTargetDistanceActionSource }
   | { readonly family: 'resource'; readonly action: ResourceGainActionSource }
   | {
       readonly family: 'inputControl';
@@ -295,6 +304,16 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'spatial',
         action: parseMoveToActionSource(value, path, inheritedBlackboard),
+      };
+    case 'CustomRootMotionAction':
+      return {
+        family: 'spatial',
+        action: parseCustomRootMotionActionSource(value, path, inheritedBlackboard),
+      };
+    case 'SaveTargetDistanceAction':
+      return {
+        family: 'spatialMeasurement',
+        action: parseSaveTargetDistanceActionSource(value, path),
       };
     case 'SetSuperArmorAction':
       return {
@@ -500,6 +519,16 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'presentation',
         action: parseCameraPresentationActionSource(value, path, 'dynamicCameraControlState'),
+      };
+    case 'OverrideCameraFollowAction':
+      return {
+        family: 'presentation',
+        action: parseOverrideCameraFollowActionSource(value, path, inheritedBlackboard),
+      };
+    case 'TemporaryUnlockAction':
+      return {
+        family: 'presentation',
+        action: parseTemporaryUnlockActionSource(value, path),
       };
     case 'LaunchProjectile':
       return { family: 'projectile', action: parseProjectileLaunchActionSource(value, path) };

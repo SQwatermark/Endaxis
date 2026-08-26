@@ -64,7 +64,9 @@ export interface CameraPresentationActionSource {
     | 'hideUi'
     | 'ultimateShow'
     | 'weaponVisibility'
-    | 'voiceTrigger';
+    | 'voiceTrigger'
+    | 'overrideCameraFollow'
+    | 'temporaryUnlock';
   readonly readBlackboardKeys?: readonly string[];
 }
 
@@ -275,6 +277,61 @@ const ACTION_META_FIELDS = [
   'priorityOffset',
   'serverActionIndex',
 ];
+
+export function parseOverrideCameraFollowActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      ...ACTION_META_FIELDS,
+      'targetSettings',
+      'targetSettings2',
+      'targetAlpha',
+      'blendInStyle',
+      'blendInTime',
+      'blendOutStyle',
+      'blendOutTime',
+      'ccsPriority',
+    ]),
+    path,
+  );
+  parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`);
+  parseTargetReferenceSource(action.targetSettings2, `${path}.targetSettings2`);
+  const values = [
+    parseScalarSource(action.targetAlpha, `${path}.targetAlpha`, inheritedBlackboard),
+    parseScalarSource(action.blendInTime, `${path}.blendInTime`, inheritedBlackboard),
+    parseScalarSource(action.blendOutTime, `${path}.blendOutTime`, inheritedBlackboard),
+    parseScalarSource(action.ccsPriority, `${path}.ccsPriority`, inheritedBlackboard),
+  ];
+  requireString(action.blendInStyle, `${path}.blendInStyle`);
+  requireString(action.blendOutStyle, `${path}.blendOutStyle`);
+  return {
+    kind: 'overrideCameraFollow',
+    readBlackboardKeys: values
+      .map(value => value.blackboardKey)
+      .filter((key): key is string => key !== null),
+  };
+}
+
+export function parseTemporaryUnlockActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([...ACTION_META_FIELDS, 'compareTarget', 'targetSettings', 'disableLockAimPriority']),
+    path,
+  );
+  requireBoolean(action.compareTarget, `${path}.compareTarget`);
+  parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`);
+  requireNumber(action.disableLockAimPriority, `${path}.disableLockAimPriority`);
+  return { kind: 'temporaryUnlock' };
+}
 
 /**
  * 无渲染后端只可省略没有 onEnd 子动作的动画。onEnd 可能承载战斗逻辑，因此非空时严格拒绝，

@@ -6,6 +6,24 @@
 当前主线是在 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
+### 2026-08-27：艾维文娜连携技进入完整主动技能生成闭环（最新）
+
+- `chr_0012_avywen_combo_skill` 已由统一入口生成并安装到正式干员定义，不再使用旧展平连携技能。
+  连携命中保留电磁伤害、连携技分类、击破弱点、失衡、天赋回能，以及三把枪的 block 回调生成；
+  随后的正式战技可继续查询并回收这些枪。
+- 新接入 `CustomRootMotionAction`、`SaveTargetDistanceAction`、
+  `CheckComboSkillCameraAlphaSetting`、`OverrideCameraFollowAction` 和 `TemporaryUnlockAction` 的严格来源
+  解析。真实距离写入在双方存在性可证明时投影为 0；只流入镜头支链时整枝消去。根运动、镜头
+  跟随和临时取消锁定保留审计但不进入无渲染战斗后端。
+- 固定点目标组及其 Merge 只保留 `spatialPoint` 身份，供投射物落点闭包核验，不冒充敌人或队友。
+  连携命中伤害补齐原生 `DamageDecorateMask.ComboSkill=8192`；全局命名 `ComboSkill` 时间膨胀保留
+  `ignoredTargets=['caster']`，并明确忽略施法者拥有的能力实体。
+- 本地旧 ProjectileData 曾把原值 1 错标为 `Nothing`；当前 VFS 服务已按既有反编译证据导出
+  `WallAndGround`，只刷新了 `tmp/` 临时来源，没有放宽正式首 tick block 校验。连携生成 `--check`、
+  游戏数据 74 文件/464 项、Next 235 文件/3205 项与两套类型检查全量通过；真实武器场景中的
+  三次连携生成三枪 → 战技回收 → 正式回调伤害也通过。combat-spec 1396 项通过，17 项仍只是本机
+  未提供 `artifacts/skill-data-cdn` 的既有资产门禁失败。
+
 ### 2026-08-27：首个完整主动技能正式生成闭环（最新）
 
 - 新增统一 TS 入口 `generate:game-data:operator-active-skill`。它从根 SkillData、SkillPatchTable、

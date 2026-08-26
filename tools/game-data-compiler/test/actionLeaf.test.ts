@@ -155,6 +155,86 @@ describe('公共 Action 叶子分派', () => {
     ).toThrow('fixture.unknown.$type: unsupported native action "UnknownCombatAction"');
   });
 
+  it('CustomRootMotionAction 严格保留目标、动画与移动区间载荷', () => {
+    const source = {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.CustomRootMotionAction+Data, Gameplay.Beyond',
+      moveTo: targetFixture('Target', undefined, 'MainTar'),
+      animKey: 'ComboSkill',
+      rootMotionCurveMask: 'PosZ',
+      scaleX: scalarFixture(1),
+      scaleY: scalarFixture(1),
+      enableScaleZWithDistanceCurve: false,
+      distance2ScaleZ: [
+        {
+          time: 0,
+          value: 1,
+          inTangent: 0,
+          outTangent: 0,
+          inWeight: 0,
+          outWeight: 0,
+          weightedMode: 0,
+        },
+      ],
+      scaleZ: scalarFixture(1.5),
+      blockRadius: scalarFixture(1),
+      useExtraBlockRadiusForInt: false,
+      extraRadiusForInt: scalarFixture(1.5),
+      enableMaxDistanceCheckWhenMoveBack: false,
+      maxDistanceWhenMoveBack: scalarFixture(5),
+      updateDir: true,
+      startOffsetFrame: 6,
+      playbackSpeed: scalarFixture(1),
+      stopByCliff: true,
+      ignoreAllCollision: false,
+      ignoreCollisionLayer: {},
+    };
+    expect(parseKnownNativeActionLeafSource(source, 'fixture.rootMotion', {})).toMatchObject({
+      family: 'spatial',
+      action: {
+        kind: 'customRootMotion',
+        target: { targetSource: 'Target', targetGroupKey: 'MainTar' },
+        animationKey: 'ComboSkill',
+        rootMotionCurveMask: 'PosZ',
+        updateDirection: true,
+        startOffsetFrame: 6,
+      },
+    });
+    expect(() =>
+      parseKnownNativeActionLeafSource(
+        { ...source, unknownCombatField: true },
+        'fixture.rootMotion',
+        {},
+      ),
+    ).toThrow('fixture.rootMotion: unexpected fields');
+  });
+
+  it('SaveTargetDistanceAction 保留真实端点和黑板输出键', () => {
+    const source = {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.SaveTargetDistanceAction+Data, Gameplay.Beyond',
+      source: targetFixture('Context', undefined, 'mainchar'),
+      target: targetFixture('Owner'),
+      bbKey: 'owner_mainchar_distance',
+    };
+    expect(parseKnownNativeActionLeafSource(source, 'fixture.distance', {})).toMatchObject({
+      family: 'spatialMeasurement',
+      action: {
+        kind: 'saveTargetDistance',
+        source: { targetSource: 'Context', targetGroupKey: 'mainchar' },
+        target: { targetSource: 'Owner', targetGroupKey: '' },
+        outputKey: 'owner_mainchar_distance',
+      },
+    });
+    expect(() =>
+      parseKnownNativeActionLeafSource(
+        { ...source, unknownDistanceField: true },
+        'fixture.distance',
+        {},
+      ),
+    ).toThrow('fixture.distance: unexpected fields');
+  });
+
   it('SaveBuffStackNumAdvanced 进入公共 Buff 查询 IR', () => {
     expect(
       parseKnownNativeActionLeafSource(

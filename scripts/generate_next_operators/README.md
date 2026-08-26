@@ -61,6 +61,12 @@ npm run generate:game-data:operator-active-skill -- --source-root tmp/game-data-
 npm run generate:game-data:operator-active-skill -- --source-root tmp/game-data-sources --source-file chr_0012_avywen_ultimate_skill.json --skill-patch-table tmp/game-data-sources/TableCfg-1.4.4-9433094-12/SkillPatchTable.json --buff-data-root tmp/game-data-sources/BuffData --ability-entity-catalog src/next/data/ability-entities/ability-entity-templates-1.4.4.json --projectile-blackboard-catalog src/next/data/projectiles/projectile-entity-blackboards-1.4.4.json --gameplay-tag-catalog src/next/data/combat/gameplayTagCatalog.generated.ts --time-dilation-catalog src/next/data/combat/timeDilationCatalog.ts --slug avywenna --key ultimate --skill-type ultimate --output src/next/data/operators/generated-active-skills/avywenna --audit-output tmp/game-data-audit/operator-active-skills/avywenna
 ```
 
+连携技也由同一入口生成；它会闭合三把落点枪的 block 回调、连携伤害和命中时间膨胀：
+
+```powershell
+npm run generate:game-data:operator-active-skill -- --source-root tmp/game-data-sources --source-file chr_0012_avywen_combo_skill.json --skill-patch-table tmp/game-data-sources/TableCfg-1.4.4-9433094-12/SkillPatchTable.json --buff-data-root tmp/game-data-sources/BuffData --ability-entity-catalog src/next/data/ability-entities/ability-entity-templates-1.4.4.json --projectile-blackboard-catalog src/next/data/projectiles/projectile-entity-blackboards-1.4.4.json --gameplay-tag-catalog src/next/data/combat/gameplayTagCatalog.generated.ts --time-dilation-catalog src/next/data/combat/timeDilationCatalog.ts --slug avywenna --key comboSkill --skill-type comboSkill --output src/next/data/operators/generated-active-skills/avywenna --audit-output tmp/game-data-audit/operator-active-skills/avywenna
+```
+
 终结技投射物的 block 回调只在来源满足当前严格零空间形状时同步投影：首 tick 无延迟、单段、球形
 碰撞体、`blockLayerDef=WallAndGround`，且回调不依赖未声明的投射物实体黑板。1.4.4 原生首 tick
 先检查碰撞再移动，但这不证明任意地形、任意轨迹都会阻挡；不满足该形状必须失败关闭。枚举与调度

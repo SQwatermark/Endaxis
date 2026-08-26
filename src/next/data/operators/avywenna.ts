@@ -3,6 +3,9 @@ import { installCompiledSkillDefinition } from '../../core/game-data/installComp
 import avywennaBattleSkillRuntime, {
   supplementalBuffDefinitions as battleSkillSupplementalBuffDefinitions,
 } from './generated-active-skills/avywenna/avywenna.battleSkill.runtime.generated';
+import avywennaComboSkillRuntime, {
+  supplementalBuffDefinitions as comboSkillSupplementalBuffDefinitions,
+} from './generated-active-skills/avywenna/avywenna.comboSkill.runtime.generated';
 import avywennaUltimateRuntime, {
   supplementalBuffDefinitions as ultimateSupplementalBuffDefinitions,
 } from './generated-active-skills/avywenna/avywenna.ultimate.runtime.generated';
@@ -10,7 +13,11 @@ import { avywennaGeneratedOperator } from './generated/avywenna.operator.generat
 
 export const avywenna = installCompiledSkillDefinition(
   installCompiledSkillDefinition(
-    avywennaGeneratedOperator,
+    installCompiledSkillDefinition(
+      avywennaGeneratedOperator,
+      avywennaComboSkillRuntime,
+      comboSkillSupplementalBuffDefinitions,
+    ),
     avywennaBattleSkillRuntime,
     battleSkillSupplementalBuffDefinitions,
   ),

@@ -125,6 +125,7 @@ export function parseUltimateTimeActionSource(
 export function parseTimeDilationCurveKeys(
   value: unknown,
   path: string,
+  allowSerializedInfinity = false,
 ): TimeDilationCurveKeySource[] {
   return requireArray(value, path).map((raw, index) => {
     const keyPath = `${path}[${index}]`;
@@ -145,13 +146,23 @@ export function parseTimeDilationCurveKeys(
     return {
       time: requireNumber(key.time, `${keyPath}.time`),
       value: requireNumber(key.value, `${keyPath}.value`),
-      inTangent: requireNumber(key.inTangent, `${keyPath}.inTangent`),
-      outTangent: requireNumber(key.outTangent, `${keyPath}.outTangent`),
+      inTangent: parseCurveNumber(key.inTangent, `${keyPath}.inTangent`, allowSerializedInfinity),
+      outTangent: parseCurveNumber(
+        key.outTangent,
+        `${keyPath}.outTangent`,
+        allowSerializedInfinity,
+      ),
       weightedMode: requireInteger(key.weightedMode, `${keyPath}.weightedMode`),
       inWeight: requireNumber(key.inWeight, `${keyPath}.inWeight`),
       outWeight: requireNumber(key.outWeight, `${keyPath}.outWeight`),
     };
   });
+}
+
+function parseCurveNumber(value: unknown, path: string, allowSerializedInfinity: boolean): number {
+  if (allowSerializedInfinity && value === 'Infinity') return Number.POSITIVE_INFINITY;
+  if (allowSerializedInfinity && value === '-Infinity') return Number.NEGATIVE_INFINITY;
+  return requireNumber(value, path);
 }
 
 function parseTagId(value: unknown, path: string): number {

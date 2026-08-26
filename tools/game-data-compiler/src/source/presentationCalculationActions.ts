@@ -90,6 +90,6 @@ export function parseCurveEvaluateFloatActionSource(
     kind: 'evaluateCurve',
     input: parseScalarSource(action.inputValue, `${path}.inputValue`, inheritedBlackboard),
     outputKey: requireNonEmptyString(action.key, `${path}.key`),
-    curve: parseTimeDilationCurveKeys(action.customCurve, `${path}.customCurve`),
+    curve: parseTimeDilationCurveKeys(action.customCurve, `${path}.customCurve`, true),
   };
 }

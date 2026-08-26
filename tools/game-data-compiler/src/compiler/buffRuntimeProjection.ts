@@ -23,6 +23,7 @@ import {
 import type { KnownNativeActionLeafSource } from '../source/actionLeaf.ts';
 import type { ProjectileLaunchActionSource } from '../source/referenceActions.ts';
 import type { ScalarSource } from '../source/scalar.ts';
+import type { TargetReferenceSource } from '../source/target.ts';
 import { parseObjectTypeMask } from '../source/objectType.ts';
 import { compileAbilityEventPrograms } from './abilityEventProgram.ts';
 import {
@@ -35,7 +36,7 @@ import { compileTargetGroupAbilityEntityQuerySource } from './abilityEntityQuery
 import { gameplayTagIdFromPath } from '../../../../src/shared/gameplayTags.ts';
 
 type ProjectedTargetGroup =
-  'party' | 'partyExceptCaster' | 'abilityEntity' | 'controlledOperator' | 'enemy';
+  'party' | 'partyExceptCaster' | 'abilityEntity' | 'controlledOperator' | 'enemy' | 'spatialPoint';
 
 export type CompiledBuffNumberSource = number | { readonly blackboardKey: string };
 
@@ -450,20 +451,23 @@ export type CompiledBuffStepSource =
             readonly durationSeconds: CompiledActionValueOperandSource;
             readonly slot: number;
             readonly priority: number;
-            readonly curve: {
-              readonly kind: 'inline';
-              readonly keys: readonly {
-                readonly time: number;
-                readonly value: number;
-                readonly inTangent: number;
-                readonly outTangent: number;
-                readonly weightedMode: number;
-                readonly inWeight: number;
-                readonly outWeight: number;
-              }[];
-            };
+            readonly curve:
+              | {
+                  readonly kind: 'inline';
+                  readonly keys: readonly {
+                    readonly time: number;
+                    readonly value: number;
+                    readonly inTangent: number;
+                    readonly outTangent: number;
+                    readonly weightedMode: number;
+                    readonly inWeight: number;
+                    readonly outWeight: number;
+                  }[];
+                }
+              | { readonly kind: 'named'; readonly key: string };
             readonly finishByAction: boolean;
-            readonly ignoredTargets: readonly ['controlled'];
+            readonly ignoredTargets: readonly ('controlled' | 'caster')[];
+            readonly ignoredAbilityEntityTargets?: readonly [{ readonly kind: 'ownerSpawned' }];
           }
         | {
             readonly scope: 'entity';
@@ -1436,6 +1440,20 @@ function compileLinearSequence(
   extensions: CombatActionProjectionExtensionsSource = {},
 ): CompiledBuffSequenceSource {
   assertPresentationCalculationIsolation(source);
+  if (
+    (source.onlyExecuteWhenSourceIsMainCharacter || source.onlyExecuteWhenSourceIsGuard) &&
+    collectNativeActionNodes(source)
+      .filter(node => node.metadata.enabled)
+      .every(
+        node =>
+          node.body.kind !== 'leaf' ||
+          ['presentation', 'presentationCalculation', 'spatial', 'selfDefense'].includes(
+            node.body.value.family,
+          ),
+      )
+  ) {
+    return { steps: [] };
+  }
   return compileActionSequenceProgram(
     source,
     createBuffSequenceProjection(visualOnlyIds, context, extensions),
@@ -1449,13 +1467,9 @@ function assertPresentationCalculationIsolation(
   const leaves = collectNativeActionNodes(source).filter(
     node => node.body.kind === 'leaf',
   ) as NativeActionNodeSource<KnownNativeActionLeafSource>[];
-  const outputs = new Set<string>();
   for (const node of leaves) {
     if (node.body.kind !== 'leaf' || node.body.value.family !== 'presentationCalculation') continue;
     const key = node.body.value.action.outputKey;
-    if (outputs.has(key))
-      throw new Error(`${node.sourcePath}: duplicate presentation output ${key}`);
-    outputs.add(key);
     for (const consumer of leaves) {
       if (consumer === node || consumer.body.kind !== 'leaf') continue;
       if (!JSON.stringify(consumer.body.value.action).includes(JSON.stringify(key))) continue;
@@ -1611,11 +1625,20 @@ function isCombatInvisibleIfElse(
     'twoDirectionAngle',
     'entityCount',
     'floatCompare',
+    'comboCameraAlphaSetting',
   ]);
   return nodes.every(child => {
     if (child.body.kind !== 'leaf') return true;
     const leaf = child.body.value;
     if (invisibleFamilies.has(leaf.family)) return true;
+    if (leaf.family === 'spatialMeasurement') {
+      const key = leaf.action.outputKey;
+      return nodes.every(consumer => {
+        if (consumer === child || consumer.body.kind !== 'leaf') return true;
+        if (!JSON.stringify(consumer.body.value.action).includes(JSON.stringify(key))) return true;
+        return ['presentation', 'presentationCalculation'].includes(consumer.body.value.family);
+      });
+    }
     if (leaf.family !== 'condition' || !safeConditions.has(leaf.action.kind)) return false;
     if (leaf.action.kind === 'entityCount') return leaf.action.storeKey === '';
     return true;
@@ -1942,6 +1965,36 @@ function compileBuffLeafNode(
     }
     const ignored = action.ignoreTargets[0];
     const affected = action.effectTargets[0];
+    const namedComboGlobal =
+      action.useCurveKey &&
+      action.curveKey.length > 0 &&
+      action.inlineCurveKeys.length === 0 &&
+      action.ignoreTargets.length === 2 &&
+      ignored?.targetSource === 'Owner' &&
+      ignored.targetGroupKey === '' &&
+      isOwnerSpawnedAbilityEntityInstantSearch(action.ignoreTargets[1]!) &&
+      action.effectTargets.length === 0 &&
+      context.actionOwnerTarget === 'caster';
+    if (namedComboGlobal) {
+      return {
+        steps: [
+          {
+            kind: 'startTimeDilation',
+            parameters: {
+              scope: 'global',
+              durationSeconds: actionValueOperand(action.duration),
+              slot: action.slotTagId,
+              priority,
+              curve: { kind: 'named', key: action.curveKey },
+              finishByAction: action.finishByAction,
+              ignoredTargets: ['caster'],
+              ignoredAbilityEntityTargets: [{ kind: 'ownerSpawned' }],
+            },
+          },
+        ],
+        state: partyTargetGroups,
+      };
+    }
     if (
       action.useCurveKey ||
       action.curveKey !== '' ||
@@ -2037,7 +2090,23 @@ function compileBuffLeafNode(
       write.finderType === 'FixedPointFinder' &&
       write.postProcessorTypes.length === 0
     ) {
-      return { steps: [], state: partyTargetGroups };
+      const nextGroups = new Map(partyTargetGroups);
+      nextGroups.set(write.targetGroupKey, 'spatialPoint');
+      return { steps: [], state: nextGroups };
+    }
+    if (
+      write.producerType === 'MergeTargetAction' &&
+      write.inputTargets.length > 0 &&
+      write.inputTargets.every(
+        target =>
+          target.targetSource === 'Context' &&
+          target.targetGroupKey !== '' &&
+          partyTargetGroups.get(target.targetGroupKey) === 'spatialPoint',
+      )
+    ) {
+      const nextGroups = new Map(partyTargetGroups);
+      nextGroups.set(write.targetGroupKey, 'spatialPoint');
+      return { steps: [], state: nextGroups };
     }
     if (context.actionTargetTarget === 'currentAbilityEntity')
       throw new Error(`${node.sourcePath}: unaudited AbilityEntity target group`);
@@ -2714,6 +2783,7 @@ function compileActionNode(
       'presentation',
       'presentationCalculation',
       'spatial',
+      'spatialMeasurement',
       'selfDefense',
       'inputControl',
       'timeDilation',
@@ -3004,6 +3074,25 @@ function compileActionNode(
       },
     ];
   }
+  if (node.body.value.family === 'spatialMeasurement') {
+    const action = node.body.value.action;
+    if (
+      !isProvenSpatialMeasurementEndpoint(action.source, partyTargetGroups, context) ||
+      !isProvenSpatialMeasurementEndpoint(action.target, partyTargetGroups, context)
+    ) {
+      throw new Error(`${node.sourcePath}: unresolved target-distance endpoint`);
+    }
+    return [
+      {
+        kind: 'modifyActionValue',
+        parameters: {
+          key: action.outputKey,
+          operation: 'assign',
+          value: { kind: 'constant', value: 0 },
+        },
+      },
+    ];
+  }
   if (node.body.value.family === 'attributeSnapshot') {
     const action = node.body.value.action;
     const target =
@@ -3169,6 +3258,23 @@ function compileActionNode(
   throw new Error(`${node.sourcePath}: unsupported Buff runtime action`);
 }
 
+function isProvenSpatialMeasurementEndpoint(
+  target: TargetReferenceSource,
+  targetGroups: ReadonlyMap<string, ProjectedTargetGroup>,
+  context: CombatActionProjectionContextSource,
+): boolean {
+  if (target.targetSource === 'Owner' && target.targetGroupKey === '')
+    return context.actionOwnerTarget !== 'unavailable';
+  if (target.targetSource === 'Source' && target.targetGroupKey === '') return true;
+  if (target.targetSource === 'Target' && target.targetGroupKey === '') return true;
+  if (target.targetSource === 'Context' && target.targetGroupKey !== '')
+    return (
+      targetGroups.has(target.targetGroupKey) &&
+      targetGroups.get(target.targetGroupKey) !== 'spatialPoint'
+    );
+  return false;
+}
+
 /** 已严格解析、但在无渲染后端中不产生战斗状态的表现动作路径。 */
 export function collectBuffRuntimePresentationActionPaths(
   source: BuffRuntimeSource,
@@ -3255,8 +3361,12 @@ function compileBuffApplication(
         : action.target.targetSource === 'Target'
           ? context.actionTargetTarget
           : action.target.targetSource === 'Context' &&
-              partyTargetGroups.has(action.target.targetGroupKey ?? '')
-            ? partyTargetGroups.get(action.target.targetGroupKey ?? '')!
+              partyTargetGroups.has(action.target.targetGroupKey ?? '') &&
+              partyTargetGroups.get(action.target.targetGroupKey ?? '') !== 'spatialPoint'
+            ? (partyTargetGroups.get(action.target.targetGroupKey ?? '')! as Exclude<
+                ProjectedTargetGroup,
+                'spatialPoint'
+              >)
             : action.target.targetSource === 'Context' &&
                 context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey ?? '') === true
               ? ('enemy' as const)
@@ -3357,6 +3467,19 @@ function isControlledOperatorInstantSearch(target: BuffApplicationActionSource['
     target.validatorTypes.length === 1 &&
     target.validatorTypes[0] === 'MainCharacterValidator' &&
     target.postProcessorTypes.length === 0
+  );
+}
+
+function isOwnerSpawnedAbilityEntityInstantSearch(
+  target: BuffApplicationActionSource['target'],
+): boolean {
+  return (
+    target.targetSource === 'InstantSearch' &&
+    target.finderType === 'OwnerSpawnedEntityFinder' &&
+    target.finderSpawnedObjectType === 'AbilityEntity' &&
+    target.validatorTypes.length === 0 &&
+    target.postProcessorTypes.length === 0 &&
+    target.validatorTagQueries.length === 0
   );
 }
 
