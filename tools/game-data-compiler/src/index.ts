@@ -1,4 +1,9 @@
 export {
+  parseAbilitySystemBlackboardsSource,
+  type AbilitySystemBlackboardsSource,
+} from './source/abilitySystemBlackboards.ts';
+
+export {
   parseOperatorProductIdentitySource,
   type OperatorProductIdentitySource,
 } from './domains/operator/productIdentity.ts';

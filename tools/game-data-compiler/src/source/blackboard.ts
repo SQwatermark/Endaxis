@@ -45,27 +45,33 @@ export function parseDeclaredBlackboard(
   sourcePath: string,
 ): DeclaredBlackboardValueSource[] {
   const source = requireRecord(root, sourcePath);
-  const result = requireArray(source.blackboard, `${sourcePath}.blackboard`).map(
-    (rawEntry, index) => {
-      const path = `${sourcePath}.blackboard[${index}]`;
-      const entry = requireRecord(rawEntry, path);
-      requireExactFields(entry, new Set(['key', 'valueDouble', 'valueStr', 'isDynamic']), path);
-      const key = requireNonEmptyString(entry.key, `${path}.key`);
-      const numericValue = requireNumber(entry.valueDouble, `${path}.valueDouble`);
-      const stringValue = requireString(entry.valueStr, `${path}.valueStr`);
-      if (stringValue && numericValue !== 0) {
-        throw new Error(`${path}: numeric and string values are both set`);
-      }
-      return {
-        key,
-        value: stringValue || numericValue,
-        isDynamic: requireBoolean(entry.isDynamic, `${path}.isDynamic`),
-      };
-    },
-  );
+  return parseBlackboardDataPairs(source.blackboard, `${sourcePath}.blackboard`);
+}
+
+/** 同一原生 List<Blackboard.DataPair> 在技能、实体和连携条件中复用，字段路径不可改写。 */
+export function parseBlackboardDataPairs(
+  value: unknown,
+  sourcePath: string,
+): DeclaredBlackboardValueSource[] {
+  const result = requireArray(value, sourcePath).map((rawEntry, index) => {
+    const path = `${sourcePath}[${index}]`;
+    const entry = requireRecord(rawEntry, path);
+    requireExactFields(entry, new Set(['key', 'valueDouble', 'valueStr', 'isDynamic']), path);
+    const key = requireNonEmptyString(entry.key, `${path}.key`);
+    const numericValue = requireNumber(entry.valueDouble, `${path}.valueDouble`);
+    const stringValue = requireString(entry.valueStr, `${path}.valueStr`);
+    if (stringValue && numericValue !== 0) {
+      throw new Error(`${path}: numeric and string values are both set`);
+    }
+    return {
+      key,
+      value: stringValue || numericValue,
+      isDynamic: requireBoolean(entry.isDynamic, `${path}.isDynamic`),
+    };
+  });
 
   if (new Set(result.map(item => item.key)).size !== result.length) {
-    throw new Error(`${sourcePath}.blackboard: duplicate key`);
+    throw new Error(`${sourcePath}: duplicate key`);
   }
   return result.sort((left, right) => left.key.localeCompare(right.key));
 }

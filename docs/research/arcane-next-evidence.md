@@ -1,6 +1,20 @@
 # 诀新版配置证据记录
 
-## 2026-08-26 注册到施法第 0 帧（最新）
+## 2026-08-26 连携智能目标与模板黑板（最新）
+
+复刻库已补 FindSmartTarget 的两条连携句柄分支，真实事件至第 0 帧测试改用具体选择器；
+尚未覆盖外层输入设备分支与后备主目标/dummy。_DoInit 的 source/entity 清空及模板赋值
+已提取为共用初始化入口，能力实体复用。实体值不会随普通技能 Start 重置。
+
+统一 TS source 开始分别读取实体初值、条件局部初值及启用开关，复用已有 DataPair 解析并保留路径。
+实际读取 tmp/arcane-character-conditions-complete.json 得到 4/2 键；这只是已解码字段子集，
+不把角色组件 908 字节未知后缀变成完整支持，也没有提前安装条件或补零。
+
+新增 C# 22、TS 10 项；C# 1356 pass/17 既有失败不变，Next+编译器 2808 pass。
+**8 场阻塞保留**。下一步为角色初始化覆盖/IFix、SmartTarget 外层投影及公共运行安装。
+精确 RVA/哈希/复现边界见 combat-spec docs/combo-smart-target-and-template-init.md。
+
+## 2026-08-26 注册到施法第 0 帧（上一批）
 
 剩余虚调用的 metadata slot 78 已确认为 AbilitySystem.alive，fallback 读取 markDie 而非 HP。
 复刻库新增有限的四附着事件注册/注销与全局禁用、存活、沉默、冷却门禁。Pending 数据经

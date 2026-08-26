@@ -6,7 +6,26 @@
 当前主线是在 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
-### 2026-08-26 再续：注册门禁到实际施法第 0 帧（最新）
+### 2026-08-26 再续：连携目标选择、模板初始化与 TS 黑板来源（最新）
+
+- combat-spec 已恢复 FindSmartTarget 的 combo/trigger 两分支：首实体存活/可选中/范围检查，
+  成功复制整组；失败只复制显式 default，不自动猜成敌人。范围相对主控位置，不是施法者。
+  真实附着至第 0 帧测试改用具体选择器，smart_target 不再人工指定；设备覆盖/后备主目标仍未实现。
+- _DoInit 先清 source/entity 板，再 Assign 模板实体值；新增 InitializeTemplateBlackboards，
+  能力实体复用同一入口。实体动态值跨技能施放保留，不能把该入口当成每次施法重置。
+- 统一 TS source 新增 parseAbilitySystemBlackboardsSource：两层初值、条件板开关及字段路径分离，
+  复用原 DataPair 解析器。已实读本机真实导出四实体键/两局部短键；尚未接入角色生产安装/运行写入。
+- 新增 C# **22**、TS **10** 项。C# 全量 **1356 pass/17 既有资产缺失失败**且失败名不变；
+  Next+编译器 **279 文件/2808 项通过**，统一编译器类型检查通过；本轮未重跑 VFS。
+  报告：combat-spec tmp/test-results/combo-smart-target-{focused,full}.trx、
+  Endaxis tmp/combo-template-source-regression.audit.json；均不提交。
+- **Next 8 场已知阻塞保留**，上述通过数包含错误断言，默认武器库不切换。
+  下一步核实角色 data 初始化覆盖/IFix，完成固定木桩所需的 SmartTarget 外层投影，再接条件/实体初值
+  到公共编译及运行时；不重复查已闭合的叶子、门禁、快照覆盖和两条目标选择分支。
+- 原生地址、首目标包装器限制、设备分支边界：combat-spec docs/combo-smart-target-and-template-init.md。
+  本轮未改旧版或生成定义，仅本地提交，不推送。
+
+### 2026-08-26 再续：注册门禁到实际施法第 0 帧（上一批）
 
 - 剩余虚调用已由同版本 metadata 方法 row 54263/slot 78 证实是 AbilitySystem.alive，
   原生读取 entity.markDie，不按 HP 判断。combat-spec 新增有限四附着事件注册通路：
