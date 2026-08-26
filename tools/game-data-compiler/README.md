@@ -386,12 +386,16 @@ npm run download:game-data:operator-closure -- --vfs-fallback http://desktop:876
 
 已完成：
 
+- 公共连携来源可投影到正式 comboSkillConditions，显式绑定 key/连携组，审计来源与定义分开。
+  项目模板结构校验/存档往返与正式场景编译已接入，引用/等级在编译阶段严格解析。
+  五条真实条件走此链路及连续附着回归；尚未切换正式诀生成数据、资格来源与 Pending 施法，
+  不能称完整角色转换或图形编辑入口已完成。
 - 正式场景编译从已解析等级/养成的完整定义提取静态冷却目录，空轴/未放置连携与变体也有账本，
   但不安装未放置动作。设置/减少与槽位继承操作使用完整目录，重复放置不重复推进。
-  下一步接正式角色常驻条件定义、资格来源与 Pending 施法；缺确认帧/多充能等边界不变。
+  下一步接资格来源与 Pending 施法；缺确认帧/多充能等边界不变。
 - Next 编译程序 comboConditionPrograms 已由 assembly 自动安装到标准环境真实事件阶段，
-  复用角色共享板和当前槽单充能冷却。五条真实来源通过实际技能附着回归；正式角色定义/场景
-  生成尚未接入，不能把此称为干员转换完成。未放置槽位的静态冷却账本已接通，下一步接资格来源及
+  复用角色共享板和当前槽单充能冷却。五条真实来源通过正式定义/场景的实际技能附着回归；
+  正式角色生成数据尚未切换，不能把此称为干员转换完成。下一步接资格来源及
   Pending 选择/afterCastStart 覆盖。alive/InSilence 和 Pending 接收仍是必需显式端口。
 - VFS 已解码 Unity 连携 RID 的有界规范化适配，五种已审计叶子仍复用公共 Action/Condition 解析；
   真实 14 条来源核对一致，五条条件可编译。Context 对象类型及 ByTag 首目标增强层数进入 Next。
@@ -400,7 +404,7 @@ npm run download:game-data:operator-closure -- --vfs-fallback http://desktop:876
 - 公共连携条件来源读取与四类已审计附着事件 Pending 编译，复用公共条件/序列而不另写叶子；
   布尔结果被消费时保留纯尾条件。原始 RID 未展开、immediate、主控/支援过滤、未审计事件仍拒绝；
   InputTarget 尚未投影时禁止把 Target 编成 Buff 的物理 eventTarget。证据见 combat-spec 的
-  combo-condition-environment.md、combo-event-gates-and-pending.md；尚未接正式角色定义到场景生成。
+  combo-condition-environment.md、combo-event-gates-and-pending.md；正式定义到场景生成已接通。
 - AbilitySystemData 两层黑板的公共安装投影：实体字面值与启用/禁用的条件局部板分离，动态声明
   不当作编译期常量；Next 实体初值可随场景装配进入共享运行板，正式角色常驻条件生成尚未切换。
 - CheckSpellInflictionType 的原生数值/命名/零 mask 与 savedKey 写回投影；有写入副作用的尾条件

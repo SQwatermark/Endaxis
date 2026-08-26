@@ -1730,6 +1730,24 @@ export interface OperatorEntityBlackboardInitializerDefinition {
   falseValue: number;
 }
 
+export const COMBO_SKILL_CONDITION_EVENTS = [
+  'beforeOutputInfliction',
+  'beforeTakeInfliction',
+  'afterOutputInfliction',
+  'afterTakeInfliction',
+] as const;
+
+/** 原生角色常驻条件；独立于技能块，也不复用附着完成后的语义连携规则。 */
+export interface ComboSkillConditionDefinition {
+  key: string;
+  /** 绑定当前连携槽位，条件序列按该组的 levelSource 编译。 */
+  skillGroupKey: string;
+  event: (typeof COMBO_SKILL_CONDITION_EVENTS)[number];
+  /** 模板字面初值，不是等级数组；null 为禁用，{} 为启用空板，每条注册独立复制。 */
+  initialValues: Readonly<Record<string, number | string | null>> | null;
+  sequence: ActionSequenceDefinition;
+}
+
 export interface OperatorDefinition {
   slug: string;
   /** 项目模板可提供独立展示名；内置定义继续使用本地化文本。 */
@@ -1760,6 +1778,8 @@ export interface OperatorDefinition {
   abilityEntityDefinitions?: OperatorAbilityEntityDefinitions;
   /** 角色级首段连携入口；多段连携的后续窗口仍由技能序列中的步骤开启。 */
   comboSkillRegistrations?: readonly ComboSkillRegistrationDefinition[];
+  /** 四类已取证附着事件的原生条件；与旧 semantic 连携入口明确分开。 */
+  comboSkillConditions?: readonly ComboSkillConditionDefinition[];
   /** 角色模板的字面实体初值；不是技能初值，动态值也不随每次技能施放重置。 */
   entityBlackboard?: Readonly<Record<string, number | string>>;
   /** 技能间共享的实体黑板初值；条件只读取已解析的静态构筑。 */

@@ -44,6 +44,7 @@ import {
 import { deriveHitId } from '../combat/timeline/deriveHitId';
 import type { OperatorAttribute } from '../game-data/operatorDefinition';
 import { resolveOperatorPanel } from './resolveOperatorPanel';
+import { compileOperatorComboSkillConditions } from './compileOperatorComboSkillConditions';
 
 interface SkillCompilationBinding {
   readonly skill: SkillDefinition;
@@ -506,6 +507,11 @@ function compileResolvedTimelineTracks(
         ? {}
         : { abilityEntityDefinitions: buffAbilityEntityDefinitions }),
       comboSkillRegistrations: compileComboSkillRegistrations(operatorInstance, operator),
+      ...(operator.comboSkillConditions === undefined
+        ? {}
+        : {
+            comboConditionPrograms: compileOperatorComboSkillConditions(operator, operatorInstance),
+          }),
       skillSlotGroups: compileSkillSlotGroups(operator),
       initializationPrograms: compileOperatorInitializationPrograms(activeUpgrades),
       passivePrograms: compileOperatorPassivePrograms(

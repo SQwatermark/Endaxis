@@ -1,6 +1,25 @@
 # 诀新版配置证据记录
 
-## 2026-08-27 未放置连携的冷却目录（最新）
+## 2026-08-27 正式定义、项目存档与场景编译（最新）
+
+公共 compileComboSkillConditionDefinitionSource 显式接收条件 key 与连携组绑定，输出正式定义和
+独立来源记录；初值只取该条条件 direct 板，不混入共享实体初值，也不把字面数字当逐级值。
+OperatorDefinition.comboSkillConditions 只接受四类已审计事件及公共 sequence。
+项目保存阶段校验结构但允许悬空组引用；compileOperatorComboSkillConditions 在实际编译时要求
+恰好一个 comboSkill 组，按该组 levelSource 解析正整数等级，再复用 compileActionSequence。
+程序无须技能块，沿用既有 assembly 自动注册与冷却账本。
+
+五条真实 RID 切片现经公共来源投影、项目模板序列化往返、正式编译与标准环境两次实际附着验证。
+四元素 × 构筑守卫 0/1 全部通过，Pending 仍只含局部副本。测试使用佩丽卡作为最小载体并显式
+注入 alive/InSilence；不能宣称正式诀的完整生成、生产资格来源或实际连携施法已完成。
+新增 39 项，全量 **289 文件/3042 项通过**，两侧类型检查通过；报告
+tmp/native-combo-definition-pipeline.audit.json 不提交，C#/VFS 未重跑。
+
+**8 场正式阻塞不撤销**。下一步接资格来源、Pending 候选生命周期、afterCastStart 覆盖和目标传递、
+SmartTarget，再切正式诀并验证真实伤害。旧窗口数值板及提前覆盖不能直接复用；正式条件的图形编辑
+入口亦未提供。无新原生规则，默认武器库与迁移 UI 未切换。
+
+## 2026-08-27 未放置连携的冷却目录（上一批）
 
 正式 compileScenarioRuntimeAssembly 复用一次 compileOperatorDefinitionSkills 的等级/养成结果，
 分别供资源规则和静态 skillCooldownPrograms 使用。后者只带身份、类型、来源 ID、冷却和确认帧，

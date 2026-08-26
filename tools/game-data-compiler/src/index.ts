@@ -660,5 +660,6 @@ export { parseUnityComboSkillConditionsSource } from './source/unityComboSkillCo
 export { parseObjectTypeMask } from './source/objectType.ts';
 export {
   compilePendingComboConditionSource,
+  compileComboSkillConditionDefinitionSource,
   type CompiledComboConditionSource,
 } from './compiler/comboSkillConditions.ts';

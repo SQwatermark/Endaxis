@@ -401,11 +401,7 @@ export interface CompiledComboSkillConditionProgram {
   readonly key: string;
   /** 每次求值读取该槽的当前形态，而不是注册时的技能 ID。 */
   readonly skillGroupKey: string;
-  readonly event:
-    | 'beforeOutputInfliction'
-    | 'beforeTakeInfliction'
-    | 'afterOutputInfliction'
-    | 'afterTakeInfliction';
+  readonly event: import('../game-data/operatorDefinition').ComboSkillConditionDefinition['event'];
   /** null 为禁用，{} 为启用空板；字符串/空值不降格成数值。 */
   readonly initialValues: Readonly<Record<string, number | string | null>> | null;
   readonly sequence: ResolvedActionSequence;

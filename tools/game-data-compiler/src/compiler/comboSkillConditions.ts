@@ -1,4 +1,6 @@
 import type { ComboSkillConditionSource } from '../source/comboSkillConditions.ts';
+import type { CompiledAbilitySystemBlackboardsSource } from './abilitySystemBlackboards.ts';
+import { requireNonEmptyString } from '../source/primitives.ts';
 import {
   compileCombatConditionSequenceSource,
   type CombatActionProjectionContextSource,
@@ -16,6 +18,32 @@ export interface CompiledComboConditionSource {
   readonly source: ComboSkillConditionSource;
   readonly event: (typeof INFLICTION_COMBO_EVENTS)[keyof typeof INFLICTION_COMBO_EVENTS];
   readonly sequence: CompiledBuffSequenceSource;
+}
+
+/** 供正式定义渲染的字段投影；来源记录另存审计，不能混入项目定义。 */
+export function compileComboSkillConditionDefinitionSource(
+  source: ComboSkillConditionSource,
+  blackboards: CompiledAbilitySystemBlackboardsSource,
+  binding: { readonly key: string; readonly skillGroupKey: string },
+  context: CombatActionProjectionContextSource,
+) {
+  const compiled = compilePendingComboConditionSource(source, context);
+  return {
+    source: { condition: compiled.source, blackboards: blackboards.source },
+    definition: {
+      key: requireNonEmptyString(binding.key, `${source.sourcePath}.binding.key`),
+      skillGroupKey: requireNonEmptyString(
+        binding.skillGroupKey,
+        `${source.sourcePath}.binding.skillGroupKey`,
+      ),
+      event: compiled.event,
+      initialValues:
+        blackboards.comboConditionInitialValues === null
+          ? null
+          : { ...blackboards.comboConditionInitialValues },
+      sequence: compiled.sequence,
+    },
+  };
 }
 
 /** 只编译已审计的四类附着 Pending 注册；不猜 immediate、主控/支援过滤或其他事件目标。 */

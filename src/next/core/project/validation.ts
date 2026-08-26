@@ -25,6 +25,7 @@ import {
   validateWeaponInstance,
 } from './scenarioValidation';
 import { validateSkillDefinition } from '../game-data/validateSkillDefinition';
+import { validateComboSkillConditions } from '../game-data/validateComboSkillConditions';
 import { collectDamageStepKeys } from '../game-data/collectDamageStepKeys';
 import {
   isObject,
@@ -84,6 +85,12 @@ function validateProjectTemplateRecord(
     }
     const definitionPath = `${templatePath}.definition`;
     if (kind === 'operator') {
+      issues.push(
+        ...validateComboSkillConditions(
+          template.definition.comboSkillConditions,
+          `${definitionPath}.comboSkillConditions`,
+        ),
+      );
       requireString(template.definition, 'gameId', definitionPath, issues);
       if (!Array.isArray(template.definition.skillGroups)) {
         issues.push({ path: `${definitionPath}.skillGroups`, message: 'expected an array' });
