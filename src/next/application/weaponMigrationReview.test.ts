@@ -3,7 +3,7 @@ import { createEmptyProject, createEmptyScenario } from '../core/project/createP
 import type { EndaxisProjectDocument, TrackDocument } from '../core/project/schema';
 import { generatedWeaponDefinitions } from '../data/equipment/generated-weapons/index.generated';
 import { registerGeneratedWeaponDefinitions } from '../data/equipment/generatedWeaponRegistration';
-import { nextGameDataRepository as source } from '../data/gameDataRepository';
+import { weaponV1MigrationSource as source } from '../data/gameDataRepository';
 import { openProject } from './openProject';
 import type { WeaponInstanceTraitLevelSelection } from './weaponGameDataMigration';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';

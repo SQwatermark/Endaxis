@@ -416,7 +416,7 @@ npm run generate:game-data:operator-runtime -- `
 
 - 诀正式模板运行定义已生成和注册；原来的 8 场交叉阻塞清零，**966/966 成功、0 豁免**。
   真实战技→连携与关闭条件的同构筑对照产生不同元素及伤害；全技能上轴 301/301 继续通过。
-  全量 294 文件/3097 项及两侧类型检查通过。默认武器库/迁移 UI 尚未切换，完整干员迁移仍待推进。
+  该批全量 294 文件/3097 项及两侧类型检查通过。后续默认武器库/迁移 UI 已切换，完整干员迁移仍待推进。
 - 公共 compileComboSmartTargetSource 将已审计连携目标策略头投影为 comboSmartTarget，保留
   来源及固定木桩投影分类。定义/存档/编译已接入；Pending 经现有窗口进入 afterCastStart，
   实际诀连携的四元素/两构筑隔离回归已有真实伤害；正式模板运行定义也已接入。
@@ -560,7 +560,7 @@ npm run generate:game-data:operator-runtime -- `
 实际生成 108 个 Buff 定义。`CreateBuffAttachingSkill` 的 `lifetimeOwner=currentCastSkill` 必须
 完整传入正式步骤；生产端已按精确技能实例附着并在结束/中断时清理，不静默丢弃寿命。
 截至 2026-08-27，真实四技能生产门禁 **77/77 成功**，全兼容干员/两端构筑交叉 **966/966 成功、
-0 失败豁免**（早期 65/77、12 阻塞口径已过期）；候选尚未接默认注册，详见
+0 失败豁免**（早期 65/77、12 阻塞口径已过期）；已进入 v2 默认库，详见
 `src/next/application/generatedWeaponsSimulation.test.ts`。全量运行和关键被动数值/寿命差分满足前，
 不能把“生成成功”升级为“全武器模拟完成”。
 
@@ -577,8 +577,10 @@ npm run generate:game-data:operator-runtime -- `
 
 正式生成命令不会在第一把失败时中断审计：它逐把收集来源错误，再合并运行投影诊断，全部通过后
 才渲染并原子替换目录。正式目录只保存 78 个 TypeScript 文件；机器审计写入被忽略的
-`tmp/generated-next-weapons`，`--check` 不读取也不修改审计文件。生成目录只供候选门禁使用，
-默认仓库接入是独立步骤。
+`tmp/generated-next-weapons`，`--check` 不读取也不修改审计文件。生成目录已接入默认仓库，
+版本为 `endaxis-next-definitions-v2-weapons-1.4.4-r1`；新旧武器内容有 revision/哈希发布门禁，
+重新生成有差异时必须显式决定迁移边，不能只改哈希掩盖同版本内容变化。旧 v1 武器快照是正式
+兼容数据，不是可丢弃中间产物。浏览器确认/备份流程见 docs/next/weapon-data-migration.md。
 
 ```powershell
 npm run generate:game-data:weapons -- --tables <TableCfg目录> --skill-data <SkillData目录> `

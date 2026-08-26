@@ -31,6 +31,7 @@ defineEmits<{
   paste: [];
   reset: [];
   open: [];
+  backups: [];
   export: [];
 }>();
 </script>
@@ -101,6 +102,13 @@ defineEmits<{
     </div>
 
     <div class="scenario-toolbar__actions">
+      <button
+        type="button"
+        class="command-button command-button--project-io"
+        @click="$emit('backups')"
+      >
+        迁移备份
+      </button>
       <span class="cursor-position">{{ cursorText }}</span>
       <button type="button" class="command-button command-button--analysis" disabled>
         <svg viewBox="0 0 24 24" aria-hidden="true">

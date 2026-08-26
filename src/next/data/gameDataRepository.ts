@@ -55,14 +55,15 @@ import {
   nextGearSetDefinitionRegistration,
   nextGearDefinitions,
   sharedGearSetDefinitions,
-  sharedWeaponDefinitions,
 } from './equipment';
 import { legacyEnemyDefinitions } from './adapters/legacyEnemyDefinitionAdapter';
 import { generatedCommonBuffDefinitions } from './operators/generated/commonBuffDefinitions.generated';
 import { generatedCommonAbilityEntityDefinitions } from './operators/generated/commonAbilityEntityDefinitions.generated';
+import { nextWeaponDefinitions } from './equipment/nextWeaponDefinitions';
+import { legacyWeaponDefinitions, LEGACY_WEAPON_REVISION } from './revisions/weapons-v1';
 
 /** 游戏数据内容发生任何会影响项目解析的变化时必须显式更新。 */
-export const NEXT_GAME_DATA_REVISION = 'endaxis-next-definitions-v1';
+export const NEXT_GAME_DATA_REVISION = 'endaxis-next-definitions-v2-weapons-1.4.4-r1';
 
 export interface GameDataRepositoryInput {
   readonly revision: string;
@@ -196,10 +197,21 @@ export const nextGameDataRepository = createGameDataRepository({
     catcher,
     ardelia,
   ],
-  weapons: sharedWeaponDefinitions,
+  weapons: nextWeaponDefinitions,
   gears: nextGearDefinitions,
   gearAliases: nextGearDefinitionRegistration.gearAliases,
   gearSets: sharedGearSetDefinitions,
   gearSetAliases: nextGearSetDefinitionRegistration.aliases,
   enemies: legacyEnemyDefinitions,
+});
+
+const legacyWeaponsBySlug = new Map(
+  legacyWeaponDefinitions.map(definition => [definition.slug, definition]),
+);
+/** 仅供 v1 武器引用/词条兼容检查；其他定义沿用当前库，不承诺复现历史模拟结果。 */
+export const weaponV1MigrationSource: GameDataRepository & GameDataBrowser = Object.freeze({
+  ...nextGameDataRepository,
+  revision: LEGACY_WEAPON_REVISION,
+  getWeapons: () => legacyWeaponDefinitions,
+  getWeapon: (slug: string) => legacyWeaponsBySlug.get(slug) ?? null,
 });

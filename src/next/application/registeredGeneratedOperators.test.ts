@@ -1486,7 +1486,7 @@ describe('registered generated operators', () => {
         },
         weapon: equipWeapon
           ? {
-              weaponSlug: 'bedazzling-night-debut',
+              weaponSlug: 'wpn_lance_0014',
               level: 90,
               tuned: true,
               potential: 0,

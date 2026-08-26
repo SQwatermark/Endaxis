@@ -141,8 +141,6 @@ describe('loadoutBuildFactory', () => {
       });
     }
     // 该武器来自新 AKEDB 静态定义；当前分支没有旧 WeaponSheet，但已有主线 i18n 文本。
-    expect(missingPresentations, '缺少旧版武器展示身份').toEqual([
-      'bedazzling-night-debut',
-    ]);
+    expect(missingPresentations, '缺少旧版武器展示身份').toEqual(['wpn_lance_0014']);
   });
 });

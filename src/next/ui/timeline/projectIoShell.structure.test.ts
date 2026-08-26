@@ -3,17 +3,27 @@ import editorSource from './NextTimelineEditor.vue?raw';
 import toolbarSource from './components/TimelineHeaderToolbar.vue?raw';
 
 describe('Next project I/O shell', () => {
+  it('routes the exact legacy revision to review and marks a migrated project unsaved', () => {
+    expect(editorSource).toContain('result.projectRevision === weaponV1MigrationSource.revision');
+    expect(editorSource).toContain('prepareDefaultWeaponMigration(result.project)');
+    expect(editorSource).toContain('persistBackup:');
+    expect(editorSource).toContain('projectDirty.value = migrated');
+    expect(editorSource).toContain('pendingWeaponMigration.value !== null');
+    expect(editorSource).toContain('migrationBackups.value !== null');
+    expect(editorSource).toContain('@backups="showMigrationBackups"');
+  });
+
   it('routes project files through the application open boundary', () => {
     expect(editorSource).toContain('import { openProject, type OpenProjectResult }');
     expect(editorSource).toContain('openProject(await file.text()');
-    expect(editorSource).toContain('projectSession.replaceProject(result.project)');
+    expect(editorSource).toContain('projectSession.replaceProject(project)');
     expect(editorSource).toContain('type="file"');
     expect(editorSource).toContain('@change="handleProjectFileChange"');
   });
 
   it('serializes the complete project instead of exporting a scenario projection', () => {
     expect(editorSource).toContain('serializeProjectDocument(project, true)');
-    expect(editorSource).toContain("new Blob([content], { type: 'application/json' })");
+    expect(editorSource).toContain('downloadProjectJson(content,');
     expect(editorSource).toContain('@export="exportProject"');
     expect(toolbarSource).toContain('export: [];');
     expect(toolbarSource).toContain('open: [];');

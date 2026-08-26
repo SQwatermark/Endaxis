@@ -9,6 +9,7 @@ import { useI18n } from 'vue-i18n';
 import { getGameWeaponTypeName, getWeaponGameName } from '../../legacy/legacyGameText';
 import '../../legacy/legacyPresentation';
 import { getSharedEquipmentSupport, type SharedEquipmentSupport } from '../../../data/equipment';
+import { nextWeaponDefinitions } from '../../../data/equipment/nextWeaponDefinitions';
 import type { WeaponDefinition } from '../../../core/game-data/equipmentDefinition';
 import NextWeaponSelectionTooltip from './NextWeaponSelectionTooltip.vue';
 
@@ -78,7 +79,10 @@ function summarizeSupport(support: SharedEquipmentSupport | null): string {
 const weaponItems = computed<readonly WeaponListItem[]>(() =>
   props.weapons.map(definition => {
     const assetSlug = definition.assetSlug ?? definition.slug;
-    const support = getSharedEquipmentSupport('weapon', assetSlug);
+    // 正式生成武器不沿用旧适配器的部分转换标记；自定义/其他来源仍使用各自诊断。
+    const support = nextWeaponDefinitions.some(item => item.slug === definition.slug)
+      ? null
+      : getSharedEquipmentSupport('weapon', assetSlug);
     return {
       definition,
       name: definition.displayName ?? getWeaponGameName(assetSlug, locale.value),

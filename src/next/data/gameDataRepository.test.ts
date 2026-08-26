@@ -36,13 +36,13 @@ import {
   nextGearDefinitions,
   sharedGearDefinitions,
   sharedGearSetDefinitions,
-  sharedWeaponDefinitions,
 } from './equipment';
 import {
   createGameDataRepository,
   NEXT_GAME_DATA_REVISION,
   nextGameDataRepository,
 } from './gameDataRepository';
+import { nextWeaponDefinitions } from './equipment/nextWeaponDefinitions';
 
 describe('gameDataRepository', () => {
   it('exposes the explicit definition revision', () => {
@@ -117,10 +117,10 @@ describe('gameDataRepository', () => {
   });
 
   it('registers complete and explicitly marked partial equipment definitions', () => {
-    expect(nextGameDataRepository.getWeapons()).toEqual(sharedWeaponDefinitions);
+    expect(nextGameDataRepository.getWeapons()).toEqual(nextWeaponDefinitions);
     expect(nextGameDataRepository.getGears()).toEqual(nextGearDefinitions);
     expect(nextGameDataRepository.getGearSets()).toEqual(sharedGearSetDefinitions);
-    expect(nextGameDataRepository.getWeapon('tarr-11')).not.toBeNull();
+    expect(nextGameDataRepository.getWeapon('tarr-11')).toBeNull();
     expect(nextGameDataRepository.getGear('xiranflow-light-armor')).not.toBeNull();
     const xiranflowAliasTarget =
       nextGearDefinitionRegistration.gearAliases['xiranflow-light-armor'];
@@ -130,7 +130,7 @@ describe('gameDataRepository', () => {
     );
     expect(nextGameDataRepository.getGear(xiranflowAliasTarget!)?.slug).toBe(xiranflowAliasTarget);
     expect(nextGameDataRepository.getGearSet('aic-fieldwork')).not.toBeNull();
-    expect(nextGameDataRepository.getWeapon('lone-barge')).not.toBeNull();
+    expect(nextGameDataRepository.getWeapons()).toHaveLength(77);
     expect(nextGameDataRepository.getGearSet('xiranflow')).not.toBeNull();
     expect(nextGameDataRepository.getWeapon('missing')).toBeNull();
     expect(nextGameDataRepository.getGear('missing')).toBeNull();

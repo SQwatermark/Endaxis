@@ -22,6 +22,15 @@ import NextWeaponBuildDialog from './components/NextWeaponBuildDialog.vue';
 import WeaponDefinitionWorkspaceDialog from './components/WeaponDefinitionWorkspaceDialog.vue';
 import OperatorSelectionDialog from './components/OperatorSelectionDialog.vue';
 import WeaponSelectionDialog from './components/WeaponSelectionDialog.vue';
+import WeaponMigrationDialog from './components/WeaponMigrationDialog.vue';
+import WeaponMigrationBackupsDialog from './components/WeaponMigrationBackupsDialog.vue';
+import { prepareDefaultWeaponMigration } from '../../application/defaultWeaponMigration';
+import type { WeaponMigrationReview } from '../../application/weaponMigrationReview';
+import type { WeaponInstanceTraitLevelSelection } from '../../application/weaponGameDataMigration';
+import {
+  createWeaponMigrationBackupStorage,
+  type StoredWeaponMigrationBackup,
+} from './weaponMigrationBackupStorage';
 import TimelineActionBlock from './components/TimelineActionBlock.vue';
 import TimelineActionContextMenu from './components/TimelineActionContextMenu.vue';
 import TimelineActionInspector from './components/TimelineActionInspector.vue';
@@ -57,6 +66,7 @@ import {
 import type { OperatorUltimateEnergyCurve } from '../../core/projection/resourceCurves';
 import {
   PROJECT_FPS,
+  type EndaxisProjectDocument,
   type ProjectDefinitionLibraryDocument,
   type ScenarioDocument,
   type TrackIndex,
@@ -78,7 +88,8 @@ import {
 import { createEmptyProject } from '../../core/project/createProject';
 import { serializeProjectDocument } from '../../core/project/serialization';
 import { openProject, type OpenProjectResult } from '../../application/openProject';
-import { nextGameDataRepository } from '../../data/gameDataRepository';
+import { downloadProjectJson } from './downloadProjectJson';
+import { nextGameDataRepository, weaponV1MigrationSource } from '../../data/gameDataRepository';
 import { skillSettings } from '../../data/combat/skillSettings';
 import { diffSkillDefinition } from '../../core/game-data/diffSkillDefinition';
 import { resolveSkillTemplateDefinition } from '../../core/compiler/resolveSkillDefinition';
@@ -252,6 +263,17 @@ const projectSession = new ProjectEditorSession(initialProject);
 const scenarioSession = new ActiveScenarioEditorSession(projectSession);
 const ids = createProjectDocumentIdAllocator(() => projectSession.snapshot.project);
 const savedProjectSnapshot = shallowRef(initialProject);
+const pendingWeaponMigration = shallowRef<{
+  project: EndaxisProjectDocument;
+  review: WeaponMigrationReview;
+  editingProject: EndaxisProjectDocument;
+} | null>(null);
+const weaponMigrationBusy = ref(false);
+const weaponMigrationError = ref('');
+const migrationBackups = shallowRef<{
+  records: readonly StoredWeaponMigrationBackup[];
+  errors: readonly string[];
+} | null>(null);
 const projectDirty = ref(false);
 const scenario = shallowRef(scenarioSession.snapshot.scenario);
 const canUndo = ref(scenarioSession.canUndo);
@@ -343,30 +365,108 @@ async function handleProjectFileChange(event: Event): Promise<void> {
   const file = input.files?.[0];
   input.value = '';
   if (file === undefined) return;
+  const editingProject = projectSession.snapshot.project;
   try {
     const result = openProject(await file.text(), { gameDataRepository: nextGameDataRepository });
+    if (projectSession.snapshot.project !== editingProject)
+      throw new Error('读取文件期间当前项目已变化，请重新加载');
     if (!result.ok) {
+      if (
+        result.kind === 'game-data-revision-mismatch' &&
+        result.projectRevision === weaponV1MigrationSource.revision
+      ) {
+        const prepared = prepareDefaultWeaponMigration(result.project);
+        if (!prepared.ok) throw new Error(prepared.errors.join('\n'));
+        weaponMigrationError.value = '';
+        pendingWeaponMigration.value = {
+          project: result.project,
+          review: prepared.review,
+          editingProject,
+        };
+        return;
+      }
       ElMessage.error(projectOpenFailureMessage(result));
       return;
     }
-    showSkillDefinitionEditor.value = false;
-    showOperatorDefinitionWorkspace.value = false;
-    showWeaponDefinitionWorkspace.value = false;
-    gearDefinitionWorkspaceSlot.value = null;
-    gearSetDefinitionWorkspaceId.value = null;
-    projectSession.replaceProject(result.project);
-    savedProjectSnapshot.value = result.project;
-    projectDirty.value = false;
-    selectedTrack.value = 0;
-    selectedCastId.value = null;
-    actionSelection.value = createEmptyTimelineActionSelection();
-    timelineClipboard.value = null;
-    simulationService.clearCache();
-    await nextTick();
-    void simulateNow();
-    ElMessage.success(`已打开项目：${scenarioSession.snapshot.scenario.name}`);
+    await acceptOpenedProject(result.project, false);
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '打开项目失败');
+  }
+}
+
+async function acceptOpenedProject(
+  project: EndaxisProjectDocument,
+  migrated: boolean,
+): Promise<void> {
+  showSkillDefinitionEditor.value = false;
+  showOperatorDefinitionWorkspace.value = false;
+  showWeaponDefinitionWorkspace.value = false;
+  gearDefinitionWorkspaceSlot.value = null;
+  gearSetDefinitionWorkspaceId.value = null;
+  projectSession.replaceProject(project);
+  if (!migrated) savedProjectSnapshot.value = project;
+  projectDirty.value = migrated;
+  selectedTrack.value = 0;
+  selectedCastId.value = null;
+  actionSelection.value = createEmptyTimelineActionSelection();
+  timelineClipboard.value = null;
+  simulationService.clearCache();
+  await nextTick();
+  void simulateNow();
+  ElMessage.success(
+    migrated
+      ? '已备份并迁移打开，请导出新版项目。原文件未修改。'
+      : `已打开项目：${scenarioSession.snapshot.scenario.name}`,
+  );
+}
+
+async function confirmWeaponMigration(
+  choices: readonly WeaponInstanceTraitLevelSelection[],
+): Promise<void> {
+  const pending = pendingWeaponMigration.value;
+  if (!pending || weaponMigrationBusy.value) return;
+  weaponMigrationBusy.value = true;
+  weaponMigrationError.value = '';
+  try {
+    const result = await pending.review.confirm({
+      confirmed: true,
+      choices,
+      getCurrentProject: () =>
+        projectSession.snapshot.project === pending.editingProject
+          ? pending.project
+          : projectSession.snapshot.project,
+      persistBackup: backup => createWeaponMigrationBackupStorage(window.localStorage).save(backup),
+    });
+    if (!result.ok) {
+      weaponMigrationError.value = result.errors.join('\n');
+      return;
+    }
+    pendingWeaponMigration.value = null;
+    await acceptOpenedProject(result.value, true);
+  } catch (error) {
+    weaponMigrationError.value = error instanceof Error ? error.message : '迁移失败，原项目未替换';
+  } finally {
+    weaponMigrationBusy.value = false;
+  }
+}
+
+function showMigrationBackups(): void {
+  try {
+    migrationBackups.value = createWeaponMigrationBackupStorage(window.localStorage).list();
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '无法读取迁移备份');
+  }
+}
+
+function downloadMigrationBackup(record: StoredWeaponMigrationBackup, original: boolean): void {
+  try {
+    const content = original ? record.backup.projectJson : JSON.stringify(record, null, 2);
+    downloadProjectJson(
+      content,
+      `endaxis-${original ? 'original-project' : 'migration-backup'}-${record.createdAt.replace(/[^0-9]/g, '')}.json`,
+    );
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '备份导出失败，浏览器内备份仍保留');
   }
 }
 
@@ -374,16 +474,11 @@ function exportProject(): void {
   try {
     const project = projectSession.snapshot.project;
     const content = serializeProjectDocument(project, true);
-    const blobUrl = URL.createObjectURL(new Blob([content], { type: 'application/json' }));
-    const anchor = document.createElement('a');
-    anchor.href = blobUrl;
     const activeScenario = project.scenarios.find(value => value.id === project.activeScenarioId);
     const fileBase = (activeScenario?.name ?? project.activeScenarioId)
       .replace(/[^A-Za-z0-9._-]+/g, '-')
       .replace(/^-+|-+$/g, '');
-    anchor.download = `${fileBase || 'endaxis-project'}.json`;
-    anchor.click();
-    URL.revokeObjectURL(blobUrl);
+    downloadProjectJson(content, `${fileBase || 'endaxis-project'}.json`);
     savedProjectSnapshot.value = project;
     projectDirty.value = false;
     ElMessage.success('项目 JSON 已导出');
@@ -1977,6 +2072,8 @@ function cycleOccupiedTrack(direction: -1 | 1): boolean {
 
 const hasModalPanel = computed(
   () =>
+    pendingWeaponMigration.value !== null ||
+    migrationBackups.value !== null ||
     operatorDialogTrack.value !== null ||
     weaponDialogTrack.value !== null ||
     gearDialogTarget.value !== null ||
@@ -2091,6 +2188,22 @@ function setPanelDialogVisible(visible: boolean): void {
 </script>
 
 <template>
+  <WeaponMigrationDialog
+    v-if="pendingWeaponMigration"
+    :preview="pendingWeaponMigration.review.preview"
+    :project="pendingWeaponMigration.project"
+    :busy="weaponMigrationBusy"
+    :error="weaponMigrationError"
+    @cancel="!weaponMigrationBusy && (pendingWeaponMigration = null)"
+    @confirm="confirmWeaponMigration"
+  />
+  <WeaponMigrationBackupsDialog
+    v-if="migrationBackups"
+    :records="migrationBackups.records"
+    :errors="migrationBackups.errors"
+    @close="migrationBackups = null"
+    @download="downloadMigrationBackup"
+  />
   <input
     ref="projectFileInput"
     class="project-file-input"
@@ -2242,6 +2355,7 @@ function setPanelDialogVisible(visible: boolean): void {
         @redo="restoreEditorHistory('redo')"
         @paste="pasteClipboardAtCursor"
         @open="requestOpenProject"
+        @backups="showMigrationBackups"
         @export="exportProject"
         @reset="resetScenario"
       />
