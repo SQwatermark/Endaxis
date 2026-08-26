@@ -1959,12 +1959,14 @@ export class CombatRuntimeAssembly {
       }
       selectedId = controlled[0]!;
     } else {
+      const candidates = [...this.#operatorOrder].reverse().filter(id => id !== casterId);
+      // Native MergeTargetAction merges the selected teammate group with Owner.
+      // An empty teammate group still leaves the caster; there is no health read.
+      if (candidates.length === 0) {
+        return [this.#resolveBuffTarget('caster', casterId)];
+      }
       if (resolveOperatorVitals === undefined) {
         throw new Error(`Buff target '${target}' requires operator health ledgers`);
-      }
-      const candidates = [...this.#operatorOrder].reverse().filter(id => id !== casterId);
-      if (candidates.length === 0) {
-        throw new Error(`Buff target '${target}' has no teammate except the caster`);
       }
       selectedId = candidates[0]!;
       for (const candidateId of candidates.slice(1)) {

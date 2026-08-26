@@ -12,6 +12,19 @@ import { ScenarioSimulationService } from './scenarioSimulationService';
 
 // 候选定义必须实际经过生产编译/战斗环境；不借用旧武器行为，也不依赖本地原始资源。
 const candidates: readonly WeaponDefinition[] = generatedWeaponDefinitions;
+// 审计发现的干员证据缺口，不计为模拟成功；默认库切换必须先清空它。
+// 详见 docs/research/arcane-next-evidence.md。严格核对报错，不能吞掉其他故障。
+const arcaneBlockedWeapons = new Set([
+  'wpn_funnel_0003',
+  'wpn_funnel_0006',
+  'wpn_funnel_0007',
+  'wpn_funnel_0010',
+  'wpn_funnel_0011',
+  'wpn_funnel_0012',
+  'wpn_funnel_0015',
+  'wpn_funnel_0017',
+]);
+const arcaneMissingValue = "action blackboard value 'EntityBB_consumed_type' is missing";
 const repository = createGameDataRepository({
   revision: 'generated-weapon-production-audit',
   operators: nextGameDataRepository.getOperators(),
@@ -121,6 +134,18 @@ describe('生成武器的正式模拟门禁', () => {
   it('包含全部 77 把候选且不从旧适配定义补行为', () => {
     expect(candidates).toHaveLength(77);
     expect(new Set(candidates.map(weapon => weapon.slug)).size).toBe(77);
+    expect(repository.getOperators()).toHaveLength(30);
+    expect(
+      candidates.reduce(
+        (count, weapon) =>
+          count +
+          2 *
+            repository.getOperators().filter(operator => operator.weaponType === weapon.weaponType)
+              .length,
+        0,
+      ),
+    ).toBe(966);
+    expect(arcaneBlockedWeapons.size).toBe(8);
   });
 
   it.each(candidates)('$slug 四类技能生产模拟全部成功，不设置失败豁免', async weapon => {
@@ -136,6 +161,77 @@ describe('生成武器的正式模拟门禁', () => {
     if (!operator) throw new Error(`no compatible operator for ${weapon.slug}`);
     const result = await simulateWeapon(weapon, operator);
     expect(result.finalEnemyHealth).toBeLessThan(result.enemyVitals.initialHealth);
+  });
+
+  it.each(candidates)('$slug 全兼容干员/词条两端审计：不得出现未知失败', async weapon => {
+    const operators = repository
+      .getOperators()
+      .filter(operator => operator.weaponType === weapon.weaponType);
+    expect(operators.length).toBeGreaterThan(0);
+    const failures: string[] = [];
+    for (const operator of operators) {
+      for (const tier of ['minimum', 'maximum'] as const) {
+        try {
+          const result = await simulateWeapon(
+            weapon,
+            operator,
+            undefined,
+            weapon.traits.map(trait => (tier === 'minimum' ? 1 : trait.levelCount)),
+          );
+          expect(result.finalEnemyHealth).toBeLessThan(result.enemyVitals.initialHealth);
+        } catch (error) {
+          failures.push(
+            `${operator.slug}/${tier}: ${error instanceof Error ? error.message : String(error)}`,
+          );
+        }
+      }
+    }
+    // 成功与证据阻塞分开记录；已知阻塞消失同样使断言失败，要求重新审计并删掉清单。
+    expect(failures).toEqual(
+      arcaneBlockedWeapons.has(weapon.slug) ? [`arcane/maximum: ${arcaneMissingValue}`] : [],
+    );
+  });
+
+  it('诀的黑板缺口在关闭武器事件后仍存在，不能误修成武器默认值', async () => {
+    const weapon = candidates.find(item => item.slug === 'wpn_funnel_0003')!;
+    const disabled = {
+      ...weapon,
+      traits: weapon.traits.map(({ eventHandlers: _events, ...trait }) => trait),
+    };
+    await expect(
+      simulateWeapon(disabled, repository.getOperator('arcane')!, ['comboSkill']),
+    ).rejects.toThrow(arcaneMissingValue);
+  });
+
+  it('终结技武器加攻只覆盖异属性队友，并实际提高队友命中伤害', async () => {
+    const weapon = candidates.find(item => item.slug === 'wpn_funnel_0005')!;
+    const owner = repository.getOperator('perlica')!;
+    const teammates = ['antal', 'wulfgard', 'xaihi'].map(slug => repository.getOperator(slug)!);
+    const disabled = {
+      ...weapon,
+      traits: weapon.traits.map(({ eventHandlers: _events, ...trait }) => trait),
+    };
+    const active = await simulateWeapon(weapon, owner, ['ultimate'], undefined, teammates);
+    const baseline = await simulateWeapon(disabled, owner, ['ultimate'], undefined, teammates);
+    const recipients = active.receiptEntries.filter(
+      entry =>
+        entry.event === 'BuffApplied' && entry.data?.buffId === 'buff_wpn_funnel_0005_atk_up',
+    );
+    expect(recipients.map(entry => entry.targetId).sort()).toEqual([
+      'track:teammate:1',
+      'track:teammate:2',
+    ]);
+    const damageBy = (result: typeof active, sourceId: string) =>
+      result.receiptEntries
+        .filter(entry => entry.event === 'DamageApplied' && entry.sourceId === sourceId)
+        .reduce((sum, entry) => sum + Number(entry.data?.value), 0);
+    for (const trackId of ['track:weapon-owner', 'track:teammate:0']) {
+      expect(damageBy(active, trackId)).toBeGreaterThan(0);
+      expect(damageBy(active, trackId)).toBeCloseTo(damageBy(baseline, trackId), 6);
+    }
+    for (const trackId of ['track:teammate:1', 'track:teammate:2']) {
+      expect(damageBy(active, trackId)).toBeGreaterThan(damageBy(baseline, trackId));
+    }
   });
 
   it('真实战技触发武器加攻，后续技能伤害提高，图标 Buff 在 20 秒后结束', async () => {
@@ -234,7 +330,10 @@ async function simulateWeapon(
   operator: OperatorDefinition,
   skillGroups: readonly string[] = ['basicAttack', 'battleSkill', 'comboSkill', 'ultimate'],
   traitLevels?: readonly number[],
+  teammates: readonly OperatorDefinition[] = [],
 ) {
+  const teammateTrackIndices = [1, 2, 3] as const;
+  if (teammates.length > teammateTrackIndices.length) throw new Error('at most three teammates');
   let scenario = createEmptyScenario(`audit:generated:${weapon.slug}`, '生成武器生产验证');
   scenario.battle.durationFrames = 1800;
   scenario.enemy.editable.hp = 1_000_000_000;
@@ -268,6 +367,21 @@ async function simulateWeapon(
     skillCasts: [],
   };
   scenario.tracks[0] = track;
+  for (const [index, teammate] of teammates.entries()) {
+    scenario.tracks[teammateTrackIndices[index]!] = {
+      ...structuredClone(track),
+      id: `track:teammate:${index}`,
+      operator: {
+        ...track.operator!,
+        operatorSlug: teammate.slug,
+        skillLevels: Object.fromEntries(teammate.skillGroups.map(group => [group.key, 12])),
+        talentStates: Object.fromEntries(
+          teammate.talents.map((_, talentIndex) => [talentIndex, 0]),
+        ),
+      },
+      weapon: null,
+    };
+  }
   let id = 0;
   for (const [index, skillGroupKey] of skillGroups.entries()) {
     scenario = placeSkillGroup({
@@ -276,6 +390,16 @@ async function simulateWeapon(
       operator,
       skillGroupKey,
       startFrame: 1 + index * 300,
+      ids: { allocate: kind => `${kind}:generated-audit:${id++}` },
+    }).scenario;
+  }
+  for (const [index, teammate] of teammates.entries()) {
+    scenario = placeSkillGroup({
+      scenario,
+      trackIndex: teammateTrackIndices[index]!,
+      operator: teammate,
+      skillGroupKey: 'basicAttack',
+      startFrame: 300,
       ids: { allocate: kind => `${kind}:generated-audit:${id++}` },
     }).scenario;
   }

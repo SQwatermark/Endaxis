@@ -3092,94 +3092,105 @@ describe('CombatRuntimeAssembly', () => {
   it.each([
     {
       target: 'casterAndControlledOperator' as const,
+      operatorIds: ['operator-a', 'operator-b', 'operator-c'],
       expected: ['operator-a', 'operator-c'],
     },
     {
       target: 'casterAndLowestHealthRatioOperatorExceptCaster' as const,
+      operatorIds: ['operator-a', 'operator-b', 'operator-c'],
       expected: ['operator-a', 'operator-b'],
     },
-  ])('routes the proven teammate collection $target', ({ target, expected }) => {
-    const appliedTo: string[] = [];
-    const createBuffRuntime = (ownerId: string) => ({
-      ownerId,
-      advanceFrame: () => undefined,
-      apply: () => {
-        appliedTo.push(ownerId);
-        return true;
-      },
-      getCountByIds: () => 0,
-      finishByIds: () => 0,
-      holdByIds: () => ({ release: () => undefined }),
-      getCountByTags: () => 0,
-      matchesEntityTags: () => false,
-      findFirstByIds: () => undefined,
-      findFirstByTags: () => undefined,
-      finishByTags: () => 0,
-    });
-    const createVitals = (health: number) =>
-      new CombatVitals({
-        health,
-        maxHealth: 100,
-        maxPoise: 0,
-        poise: 0,
-        poiseRecoveryTime: 0,
-        poiseRecoveryTimeMultiplier: 1,
-        poiseBrokenEndTime: 0,
-        poiseImmune: false,
-      });
-    const vitals = new Map([
-      ['operator-a', createVitals(100)],
-      ['operator-b', createVitals(20)],
-      ['operator-c', createVitals(80)],
-    ]);
-    const program = skill({
-      operatorId: 'operator-a',
-      costFrame: undefined,
-      costs: [],
-      timelineActions: [
-        {
-          startFrame: 0,
-          sequence: {
-            steps: [{ kind: 'applyBuff', parameters: { buffId: 'shield', target } }],
-          },
+    {
+      target: 'casterAndLowestHealthRatioOperatorExceptCaster' as const,
+      operatorIds: ['operator-a'],
+      expected: ['operator-a'],
+    },
+  ])(
+    'routes the proven teammate collection $target with $operatorIds',
+    ({ target, operatorIds, expected }) => {
+      const appliedTo: string[] = [];
+      const createBuffRuntime = (ownerId: string) => ({
+        ownerId,
+        advanceFrame: () => undefined,
+        apply: () => {
+          appliedTo.push(ownerId);
+          return true;
         },
-      ],
-    });
-    const assembly = new CombatRuntimeAssembly({
-      enemy: testEnemy,
-      resources: {
-        sp: 0,
-        maxSp: 300,
-        returnedSp: 0,
-        sharedSpGain: { baseGainEfficiency: 1 },
-        spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
-        ultimateEnergySystemUnlocked: true,
-        normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
-        squad: ['operator-a', 'operator-b', 'operator-c'].map(operatorId => ({
+        getCountByIds: () => 0,
+        finishByIds: () => 0,
+        holdByIds: () => ({ release: () => undefined }),
+        getCountByTags: () => 0,
+        matchesEntityTags: () => false,
+        findFirstByIds: () => undefined,
+        findFirstByTags: () => undefined,
+        finishByTags: () => 0,
+      });
+      const createVitals = (health: number) =>
+        new CombatVitals({
+          health,
+          maxHealth: 100,
+          maxPoise: 0,
+          poise: 0,
+          poiseRecoveryTime: 0,
+          poiseRecoveryTimeMultiplier: 1,
+          poiseBrokenEndTime: 0,
+          poiseImmune: false,
+        });
+      const vitals = new Map([
+        ['operator-a', createVitals(100)],
+        ['operator-b', createVitals(20)],
+        ['operator-c', createVitals(80)],
+      ]);
+      const program = skill({
+        operatorId: 'operator-a',
+        costFrame: undefined,
+        costs: [],
+        timelineActions: [
+          {
+            startFrame: 0,
+            sequence: {
+              steps: [{ kind: 'applyBuff', parameters: { buffId: 'shield', target } }],
+            },
+          },
+        ],
+      });
+      const assembly = new CombatRuntimeAssembly({
+        enemy: testEnemy,
+        resources: {
+          sp: 0,
+          maxSp: 300,
+          returnedSp: 0,
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+          ultimateEnergySystemUnlocked: true,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+          squad: operatorIds.map(operatorId => ({
+            operatorId,
+            ultimateEnergy: 0,
+            maxUltimateEnergy: 100,
+            ultimateEnergyGainMultiplier: 1,
+            allowedUltimateEnergyRecoveryTagIds: null,
+          })),
+        },
+        enemyBuffRuntime: emptyEnemyBuffRuntime,
+        operators: operatorIds.map(operatorId => ({
           operatorId,
-          ultimateEnergy: 0,
-          maxUltimateEnergy: 100,
-          ultimateEnergyGainMultiplier: 1,
-          allowedUltimateEnergyRecoveryTagIds: null,
+          skills: operatorId === 'operator-a' ? [program] : [],
+          buffRuntime: createBuffRuntime(operatorId),
         })),
-      },
-      enemyBuffRuntime: emptyEnemyBuffRuntime,
-      operators: ['operator-a', 'operator-b', 'operator-c'].map(operatorId => ({
-        operatorId,
-        skills: operatorId === 'operator-a' ? [program] : [],
-        buffRuntime: createBuffRuntime(operatorId),
-      })),
-      isOperatorControlled:
-        target === 'casterAndControlledOperator'
-          ? operatorId => operatorId === 'operator-c'
-          : undefined,
-      resolveOperatorVitals: operatorId => vitals.get(operatorId)!,
-      createOperationExecutor: () => rejectingExecutor,
-    });
+        isOperatorControlled:
+          target === 'casterAndControlledOperator'
+            ? operatorId => operatorId === 'operator-c'
+            : undefined,
+        resolveOperatorVitals:
+          operatorIds.length > 1 ? operatorId => vitals.get(operatorId)! : undefined,
+        createOperationExecutor: () => rejectingExecutor,
+      });
 
-    expect(assembly.tryStartSkill('operator-a', 'skill')).toBe(true);
-    expect(appliedTo).toEqual(expected);
-  });
+      expect(assembly.tryStartSkill('operator-a', 'skill')).toBe(true);
+      expect(appliedTo).toEqual(expected);
+    },
+  );
 
   it('routes caster Buff identity operations to that operator Buff runtime', () => {
     const casterBuffs = new CombatBuffContainer('operator', new CombatAttributeSet());

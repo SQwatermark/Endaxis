@@ -2,6 +2,13 @@ import type { WeaponDefinition } from '../../core/game-data/equipmentDefinition'
 
 export type GeneratedWeaponRegistrationIssue =
   | {
+      readonly code: 'legacyTraitLayoutMismatch';
+      readonly canonicalSlug: string;
+      readonly legacySlug: string;
+      readonly legacyLevelCounts: readonly number[];
+      readonly generatedLevelCounts: readonly number[];
+    }
+  | {
       readonly code: 'missingLegacyPresentation';
       readonly canonicalSlug: string;
     }
@@ -56,6 +63,22 @@ export function registerGeneratedWeaponDefinitions(
         });
       }
       continue;
+    }
+    const canonical = candidates[0]!;
+    if (
+      canonical.traits.length !== definition.traits.length ||
+      canonical.traits.some(
+        (trait, index) => trait.levelCount < (definition.traits[index]?.levelCount ?? 0),
+      )
+    ) {
+      // 图标身份能证明别名，不能证明按数组槽位保存的词条等级可以直接迁移。
+      issues.push({
+        code: 'legacyTraitLayoutMismatch',
+        canonicalSlug: canonical.slug,
+        legacySlug: definition.slug,
+        legacyLevelCounts: definition.traits.map(trait => trait.levelCount),
+        generatedLevelCounts: canonical.traits.map(trait => trait.levelCount),
+      });
     }
     const aliases = legacyByGeneratedSlug.get(candidates[0]!.slug) ?? [];
     aliases.push(definition);
