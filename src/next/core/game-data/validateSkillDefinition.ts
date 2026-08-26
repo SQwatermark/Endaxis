@@ -2296,6 +2296,8 @@ export function validateSkillDefinition(
       }
     }
   }
+  if (record.comboSmartTarget !== undefined)
+    requireEnum(record, 'comboSmartTarget', new Set(['input', 'trigger']), path, out);
 
   if (record.availability !== undefined) {
     validateCombatCondition(record.availability, `${path}.availability`, out);

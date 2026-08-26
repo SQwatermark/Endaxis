@@ -902,6 +902,12 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
       resolveLevelValue(value, input.skillLevel, `blackboard.${key}`),
     ]),
   );
+  if (
+    input.skill.comboSmartTarget !== undefined &&
+    input.skill.comboSmartTarget !== 'input' &&
+    input.skill.comboSmartTarget !== 'trigger'
+  )
+    throw new Error(`skill '${input.skill.key}' has unsupported comboSmartTarget`);
   const cooldownFrames =
     input.skill.cooldownFrames === undefined
       ? undefined
@@ -944,6 +950,9 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
     skillType: input.skillType,
     skillLevel: input.skillLevel,
     initialBlackboard,
+    ...(input.skill.comboSmartTarget === undefined
+      ? {}
+      : { comboSmartTarget: input.skill.comboSmartTarget }),
     timelineBlockFrames: input.skill.timelineBlockFrames,
     ...(cooldownFrames === undefined ? {} : { cooldownFrames }),
     ...(input.skill.costFrame === undefined ? {} : { costFrame: input.skill.costFrame }),

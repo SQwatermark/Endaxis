@@ -42,9 +42,9 @@ export interface ComboConditionRegistration {
   readonly entityBlackboard: ActionBlackboard;
   readonly initialValues: BlackboardSnapshot | null;
   readonly operations: CombatOperationExecutor;
-  /** 必须接 entity.markDie 的 alive 语义，不能用血量替代。 */
+  /** entity.markDie 的 alive 语义或显式木桩投影；不能用血量替代。 */
   readonly isOwnerAlive: () => boolean;
-  /** 必须由实际 InSilence 查询提供，不在此猜 Tag ID。 */
+  /** InSilence 查询或显式无沉默场景投影，不在此猜 Tag ID。 */
   readonly isOwnerSilenced: () => boolean;
   /** 每次读取当前 ComboSkill 槽位及其计时器，不能缓存替换前的技能。缺失返回 null。 */
   readonly currentComboCooldown: () => {

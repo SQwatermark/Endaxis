@@ -353,6 +353,7 @@ export interface CompiledSkillProgram {
   readonly skillLevel: number;
   /** 已按技能等级解析；每次释放复制到该运行实例的动作黑板。 */
   readonly initialBlackboard: Readonly<Record<string, number>>;
+  readonly comboSmartTarget?: 'input' | 'trigger';
   /** 时间轴投影使用的技能块宽度，不参与技能生命周期和中断判断。 */
   readonly timelineBlockFrames: number;
   readonly cooldownFrames?: number;

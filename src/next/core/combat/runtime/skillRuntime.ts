@@ -200,6 +200,9 @@ export interface CombatOperationExecutor {
   ): boolean;
 }
 
+/** Start 恢复局部板及目标组之后、执行第零帧之前；不得用于改写实体初始化。 */
+export type AfterSkillCastStart = (context: CombatOperationContext) => void;
+
 interface SkillRuntimeDependencies {
   readonly clock: CombatClock;
   readonly resources: CombatResources;
@@ -244,6 +247,7 @@ export class SkillRuntime {
   #preparedSkillCastId = 0;
   readonly #attachedBuffs = new Set<BuffApplicationHandle>();
   #preparedStartBlackboard: Readonly<Record<string, number>> = {};
+  #afterCastStart: AfterSkillCastStart | undefined;
 
   constructor(program: CompiledSkillProgram, dependencies: SkillRuntimeDependencies) {
     this.#program = program;
@@ -348,6 +352,11 @@ export class SkillRuntime {
     this.#preparedStartBlackboard = Object.freeze({ ...values });
   }
 
+  prepareAfterCastStart(callback: AfterSkillCastStart): void {
+    if (!this.canStart()) throw new Error(`skill '${this.skillId}' is already casting`);
+    this.#afterCastStart = callback;
+  }
+
   prepareSkillCastId(skillCastId: number): void {
     if (this.#state === 'casting') {
       throw new Error(`skill '${this.#program.skillId}' is already casting`);
@@ -416,6 +425,9 @@ export class SkillRuntime {
     }
     this.#state = 'casting';
     this.record('SkillStarted');
+    const afterCastStart = this.#afterCastStart;
+    this.#afterCastStart = undefined;
+    afterCastStart?.(this.#operationContext);
     // 原生 `TryCastSkill` 会立即执行一次 `OnTick(0, 0)`。
     this.#tick(0);
     return true;

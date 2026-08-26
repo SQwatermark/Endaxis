@@ -94,6 +94,7 @@ type EnvironmentOptions = Pick<
   | 'createEquipmentEventOperationExecutor'
   | 'registerEquipmentAbilityEventAction'
   | 'registerComboSkillCondition'
+  | 'comboConditionEligibility'
   | 'resolveVitals'
   | 'resolveOperatorVitals'
   | 'probabilitySamples'
@@ -300,6 +301,9 @@ export class StandardPlayerDamageEnvironment {
         ),
       registerComboSkillCondition: registration =>
         this.comboConditions.registerPendingCondition(registration),
+      // 固定木桩投影：没有干员死亡或敌方沉默状态；不把 HP=0 当 markDie，也不猜查询 Tag。
+      // 未来若引入这两类外部事实，调用方必须覆盖该资格端口。
+      comboConditionEligibility: { isAlive: () => true, isSilenced: () => false },
       resolveVitals: (target, operatorId, buffSourceId) => {
         if (target === 'enemy') return this.enemyVitals;
         if (target === 'caster') return this.#requireOperatorVitals(operatorId);

@@ -7,6 +7,7 @@
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import { COMBAT_FRAMES_PER_SECOND, type CombatClock } from './combatClock';
 import type { FrameRuntime } from './combatSimulation';
+import type { PendingComboCondition } from './comboSkillConditionRuntime';
 
 export const COMBO_WINDOW_DURATION_FRAMES = 5 * COMBAT_FRAMES_PER_SECOND;
 
@@ -18,6 +19,8 @@ export interface PendingComboWindow {
   readonly openedFrame: number;
   /** 从角色级连携注册复制的本次候选参数；不能回写干员定义。 */
   readonly blackboard: Readonly<Record<string, number>>;
+  /** 原生条件候选；与旧语义窗口的数值板分开，在 Start 恢复后才应用。 */
+  readonly nativeCondition?: PendingComboCondition & { readonly skillGroupKey: string };
   remainingFrames: number;
 }
 
@@ -68,6 +71,7 @@ export class ComboWindowRuntime implements FrameRuntime {
     operatorId: string,
     nextSkillKey: string,
     blackboard: Readonly<Record<string, number>> = {},
+    nativeCondition?: PendingComboCondition & { readonly skillGroupKey: string },
   ): PendingComboWindow {
     if (operatorId.length === 0) throw new Error('combo window operatorId must not be empty');
     if (nextSkillKey.length === 0) throw new Error('combo window nextSkillKey must not be empty');
@@ -77,6 +81,19 @@ export class ComboWindowRuntime implements FrameRuntime {
       nextSkillKey,
       openedFrame: this.clock.frame,
       blackboard: Object.freeze({ ...blackboard }),
+      ...(nativeCondition === undefined
+        ? {}
+        : {
+            nativeCondition: Object.freeze({
+              ...nativeCondition,
+              inputTarget: Object.freeze({ ...nativeCondition.inputTarget }),
+              triggerTarget: Object.freeze({ ...nativeCondition.triggerTarget }),
+              assignPairs:
+                nativeCondition.assignPairs === null
+                  ? null
+                  : Object.freeze({ ...nativeCondition.assignPairs }),
+            }),
+          }),
       remainingFrames: COMBO_WINDOW_DURATION_FRAMES,
     };
     this.#nextSequence += 1;
@@ -120,7 +137,11 @@ export class ComboWindowRuntime implements FrameRuntime {
    * 消费当前可交互候选，并为合法性诊断保留失败原因。
    * 本方法不阻止技能执行；调用方决定是否把失败写入回执。
    */
-  consume(operatorId: string, skillKey: string): ComboWindowConsumeResult {
+  consume(
+    operatorId: string,
+    skillKey: string,
+    nativeSkillGroupKey?: string,
+  ): ComboWindowConsumeResult {
     const active = this.#orderedRecords()[0];
     const candidate = active?.candidates.at(-1);
     if (active === undefined || candidate === undefined) {
@@ -129,7 +150,12 @@ export class ComboWindowRuntime implements FrameRuntime {
     if (active.operatorId !== operatorId) {
       return { consumed: false, reason: 'releaseOrderMismatch', expected: candidate };
     }
-    if (candidate.nextSkillKey !== skillKey) {
+    // 原生候选绑定连携槽，施法时才取当前技能；旧语义窗口仍按多段技能身份严格匹配。
+    if (
+      candidate.nativeCondition === undefined
+        ? candidate.nextSkillKey !== skillKey
+        : candidate.nativeCondition.skillGroupKey !== nativeSkillGroupKey
+    ) {
       return { consumed: false, reason: 'skillStageMismatch', expected: candidate };
     }
     this.#records.delete(operatorId);

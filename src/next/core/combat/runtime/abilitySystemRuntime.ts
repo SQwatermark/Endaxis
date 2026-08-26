@@ -4,7 +4,11 @@
  */
 import type { FrameRuntime } from './combatSimulation';
 import type { SkillType } from '../../game-data/operatorDefinition';
-import type { RuntimeSkillInterruptReason, RuntimeSkillState } from './skillRuntime';
+import type {
+  AfterSkillCastStart,
+  RuntimeSkillInterruptReason,
+  RuntimeSkillState,
+} from './skillRuntime';
 import type { BuffApplicationHandle } from './buffOperationExecutor';
 import { uniformAbilityTickDeltas, type AbilityTickDeltas } from './timeDilationRuntime';
 import { COMBAT_FRAME_INTERVAL, COMBAT_FRAMES_PER_SECOND } from './combatClock';
@@ -27,6 +31,7 @@ export interface AbilitySkillRuntime extends FrameRuntime {
   canStart(): boolean;
   /** 本次启动前合并进动作黑板的运行时参数，例如连携候选携带的黑板。 */
   prepareStartBlackboard?(values: Readonly<Record<string, number>>): void;
+  prepareAfterCastStart?(callback: AfterSkillCastStart): void;
   /** 装配层在施放前事件之前预分配的原生技能释放序号。 */
   prepareSkillCastId?(skillCastId: number): void;
   attachBuffToCast?(skillCastId: number, buff: BuffApplicationHandle): void;
@@ -222,6 +227,10 @@ export class AbilitySystemRuntime implements FrameRuntime {
     return this.#requireSkill(skillId, castId).canStart();
   }
 
+  resolveSkillId(skillId: string, castId?: string): string {
+    return this.#requireSkill(skillId, castId).skillId;
+  }
+
   prepareSkillStartBlackboard(
     skillId: string,
     castId: string | undefined,
@@ -243,6 +252,17 @@ export class AbilitySystemRuntime implements FrameRuntime {
       throw new Error(`skill '${skillId}' cannot receive a prepared skill cast id`);
     }
     skill.prepareSkillCastId(skillCastId);
+  }
+
+  prepareAfterSkillCastStart(
+    skillId: string,
+    castId: string | undefined,
+    callback: AfterSkillCastStart,
+  ): void {
+    const skill = this.#requireSkill(skillId, castId);
+    if (skill.prepareAfterCastStart === undefined)
+      throw new Error(`skill '${skillId}' cannot receive afterCastStart preparation`);
+    skill.prepareAfterCastStart(callback);
   }
 
   attachBuffToSkillCast(

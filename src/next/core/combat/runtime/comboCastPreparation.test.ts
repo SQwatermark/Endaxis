@@ -1,0 +1,99 @@
+import { describe, expect, it } from 'vitest';
+import { ActionBlackboard } from './actionBlackboard';
+import { RuntimeTargetContext } from './runtimeTargetContext';
+import { prepareComboCast } from './comboCastPreparation';
+import type { PendingComboCondition } from './comboSkillConditionRuntime';
+
+function pending(
+  assignPairs: PendingComboCondition['assignPairs'] = {
+    local: 4,
+    label: 'saved',
+    empty: null,
+    EntityBB_value: 9,
+  },
+): PendingComboCondition {
+  return {
+    event: {
+      event: 'beforeTakeInfliction',
+      payload: {
+        sourceId: 'owner',
+        targetId: 'enemy',
+        skillId: 'test',
+        element: 'nature',
+        isExtra: false,
+      },
+    },
+    inputTarget: { kind: 'operator', operatorId: 'owner' },
+    triggerTarget: { kind: 'enemy' },
+    assignPairs,
+  };
+}
+
+describe('木桩连携施法准备', () => {
+  it('绑定真实 trigger/smart_target，快照只覆盖 direct，保留字符串/null', () => {
+    const source = { local: 4, label: 'saved', empty: null, EntityBB_value: 9 };
+    const callback = prepareComboCast({ comboSmartTarget: 'trigger' }, pending(source));
+    source.local = 99;
+    const entity = new ActionBlackboard({ EntityBB_value: 2 });
+    const context = {
+      blackboard: new ActionBlackboard({ local: 0 }, entity),
+      targetContext: new RuntimeTargetContext(),
+    };
+    callback(context);
+    expect(context.blackboard.snapshot()).toEqual({
+      local: 4,
+      label: 'saved',
+      empty: null,
+      EntityBB_value: 9,
+    });
+    expect(entity.getNumber('EntityBB_value')).toBe(2);
+    expect(context.targetContext.get('trigger')).toEqual([{ kind: 'enemy' }]);
+    expect(context.targetContext.get('smart_target')).toEqual([{ kind: 'enemy' }]);
+  });
+
+  it.each([null, {}])('禁用/空局部板 %j 不覆盖技能初值', assignPairs => {
+    const context = {
+      blackboard: new ActionBlackboard({ local: 3 }),
+      targetContext: new RuntimeTargetContext(),
+    };
+    prepareComboCast({}, pending(assignPairs))(context);
+    expect(context.blackboard.snapshot()).toEqual({ local: 3 });
+    expect(context.targetContext.getOptional('smart_target')).toBeUndefined();
+  });
+
+  it('无候选时只建立固定主目标，不创建 trigger 或沿用候选板', () => {
+    const context = {
+      blackboard: new ActionBlackboard({ local: 0 }),
+      targetContext: new RuntimeTargetContext(),
+    };
+    prepareComboCast({ comboSmartTarget: 'trigger' })(context);
+    expect(context.blackboard.snapshot()).toEqual({ local: 0 });
+    expect(context.targetContext.getOptional('trigger')).toBeUndefined();
+    expect(context.targetContext.get('smart_target')).toEqual([{ kind: 'enemy' }]);
+  });
+
+  it('output 事件 input 为木桩时可以选择 input，但保留友方 trigger 身份', () => {
+    const context = {
+      blackboard: new ActionBlackboard(),
+      targetContext: new RuntimeTargetContext(),
+    };
+    prepareComboCast(
+      { comboSmartTarget: 'input' },
+      {
+        ...pending(),
+        inputTarget: { kind: 'enemy' },
+        triggerTarget: { kind: 'operator', operatorId: 'owner' },
+      },
+    )(context);
+    expect(context.targetContext.get('trigger')).toEqual([
+      { kind: 'operator', operatorId: 'owner' },
+    ]);
+    expect(context.targetContext.get('smart_target')).toEqual([{ kind: 'enemy' }]);
+  });
+
+  it('不能把非敌人的智能候选静默改成敌人', () => {
+    expect(() => prepareComboCast({ comboSmartTarget: 'input' }, pending())).toThrow(
+      'non-enemy target',
+    );
+  });
+});

@@ -145,6 +145,158 @@ function setup() {
 }
 
 describe('assembly 原生常驻连携条件', () => {
+  it('无需外部 Pending 接收方：条件快照进窗口并在第零帧前覆盖，下一次不残留', () => {
+    const f = setup();
+    const frames: unknown[] = [];
+    const probe: ResolvedCombatStep = {
+      kind: 'dealDamage',
+      parameters: { damageType: 'nature', attackScale: 1, tags: ['comboSkill'] },
+    };
+    f.owner.skills = [
+      {
+        ...combo(),
+        comboSmartTarget: 'trigger',
+        initialBlackboard: { local: 0 },
+        timelineActions: [{ startFrame: 0, sequence: { steps: [probe] } }],
+      },
+    ];
+    const assembly = new CombatRuntimeAssembly({
+      ...f.options,
+      onPendingComboCondition: undefined,
+      createOperationExecutor: () => ({
+        execute: (_step, context) => {
+          frames.push({
+            local: context!.blackboard.snapshot(),
+            trigger: context!.targetContext!.getOptional('trigger'),
+            smart: context!.targetContext!.getOptional('smart_target'),
+          });
+          return true;
+        },
+        evaluate: () => true,
+      }),
+    });
+    f.emit();
+    expect(assembly.comboWindows.first?.nativeCondition?.assignPairs).toEqual({
+      local: 1,
+      label: 'condition',
+    });
+    f.emit(); // 同一条件再次执行，旧候选保持旧副本，木桩沿用现有末候选规则。
+    expect(assembly.comboWindows.pending[0]!.nativeCondition!.assignPairs!.local).toBe(1);
+    expect(assembly.tryStartSkill('owner', 'combo')).toBe(true);
+    expect(assembly.comboWindows.pending).toEqual([]);
+    expect(frames).toEqual([
+      {
+        local: { local: 2, label: 'condition' },
+        trigger: [{ kind: 'enemy' }],
+        smart: [{ kind: 'enemy' }],
+      },
+    ]);
+    expect(assembly.tryStartSkill('owner', 'combo')).toBe(false);
+    assembly.simulation.advanceFrames(1);
+    assembly.tryStartSkill('owner', 'combo');
+    expect(frames[1]).toEqual({
+      local: { local: 0 },
+      trigger: undefined,
+      smart: [{ kind: 'enemy' }],
+    });
+  });
+
+  it('原生候选过期后手工排轴仍施法，但不使用旧快照', () => {
+    const f = setup();
+    let observed = -1;
+    f.owner.skills = [
+      {
+        ...combo(),
+        initialBlackboard: { local: 0 },
+        timelineActions: [
+          {
+            startFrame: 0,
+            sequence: {
+              steps: [
+                {
+                  kind: 'dealDamage',
+                  parameters: { damageType: 'nature', attackScale: 1, tags: ['comboSkill'] },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    ];
+    const assembly = new CombatRuntimeAssembly({
+      ...f.options,
+      createOperationExecutor: () => ({
+        execute: (_step, context) => {
+          observed = context!.blackboard.getNumber('local')!;
+          return true;
+        },
+        evaluate: () => true,
+      }),
+    });
+    f.emit();
+    assembly.simulation.advanceFrames(150);
+    expect(assembly.comboWindows.pending).toEqual([]);
+    expect(assembly.tryStartSkill('owner', 'combo')).toBe(true);
+    expect(observed).toBe(0);
+    expect(
+      assembly.receipt.entries.some(entry => entry.event === 'ComboWindowUnavailableAtStart'),
+    ).toBe(true);
+  });
+
+  it('候选绑定槽位，触发后换槽仍在实际变体的第零帧应用快照', () => {
+    const f = setup();
+    let observed = -1;
+    f.owner.skillSlotGroups[0]!.replacementSkillKeys.push('replacement');
+    f.owner.skills.push({
+      ...combo('replacement'),
+      initialBlackboard: { local: 0 },
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'dealDamage',
+                parameters: { damageType: 'nature', attackScale: 1, tags: ['comboSkill'] },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    f.owner.skills.push(
+      action('switch', [
+        {
+          kind: 'changeSkillSlot',
+          parameters: {
+            skillGroupKey: 'combo',
+            targetSkillKey: 'replacement',
+            inheritOriginSkillCooldownProgress: false,
+          },
+        },
+      ]),
+    );
+    const assembly = new CombatRuntimeAssembly({
+      ...f.options,
+      createOperationExecutor: () => ({
+        execute: (_step, context) => {
+          observed = context!.blackboard.getNumber('local')!;
+          return true;
+        },
+        evaluate: () => true,
+      }),
+    });
+    f.emit();
+    assembly.tryStartSkill('owner', 'switch');
+    assembly.tryStartSkill('owner', 'combo');
+    expect(observed).toBe(1);
+    expect(assembly.comboWindows.pending).toEqual([]);
+    expect(
+      assembly.receipt.entries.filter(entry => entry.event === 'SkillStarted').at(-1)?.data
+        ?.skillId,
+    ).toBe('replacement');
+  });
+
   it('未放置任何连携时安装静态账本和条件，不创建可施放的空技能', () => {
     const f = setup();
     f.owner.skills = [];
@@ -543,18 +695,17 @@ describe('assembly 原生常驻连携条件', () => {
     },
   );
 
-  it.each([
-    'registerComboSkillCondition',
-    'comboConditionEligibility',
-    'onPendingComboCondition',
-  ] as const)('缺 %s 明确失败，不丢弃条件或 Pending', port => {
-    const f = setup();
-    expect(() => new CombatRuntimeAssembly({ ...f.options, [port]: undefined })).toThrow(
-      'require event registration, alive/InSilence eligibility and Pending sink',
-    );
-    f.emit();
-    expect(f.pending).toEqual([]);
-  });
+  it.each(['registerComboSkillCondition', 'comboConditionEligibility'] as const)(
+    '缺 %s 明确失败，不丢弃条件或 Pending',
+    port => {
+      const f = setup();
+      expect(() => new CombatRuntimeAssembly({ ...f.options, [port]: undefined })).toThrow(
+        'require event registration and alive/InSilence eligibility',
+      );
+      f.emit();
+      expect(f.pending).toEqual([]);
+    },
+  );
 
   it.each([
     'no-skill',

@@ -84,6 +84,51 @@ function createBattleSkillRuntime(
 }
 
 describe('SkillRuntime', () => {
+  it('afterCastStart 在初值恢复和 SkillStarted 后、费用及第零帧动作前，只消费一次', () => {
+    const fixture = createBattleSkillRuntime(300, 0, undefined, {
+      key: 'probe',
+      blackboard: { local: 0 },
+      timelineBlockFrames: 1,
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'dealDamage',
+                parameters: {
+                  damageType: 'nature',
+                  attackScale: { kind: 'blackboard', key: 'local' },
+                  tags: ['normalSkill'],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const observed: number[] = [];
+    vi.mocked(fixture.operations.execute).mockImplementation((_step, context) => {
+      observed.push(context!.blackboard.getNumber('local')!);
+      return true;
+    });
+    const callback = vi.fn(context => {
+      expect(fixture.runtime.state).toBe('casting');
+      expect(context.blackboard.getNumber('local')).toBe(0);
+      expect(fixture.receipt.entries.at(-1)?.event).toBe('SkillStarted');
+      expect(observed).toEqual([]);
+      context.blackboard.assign({ local: 4 });
+    });
+    fixture.runtime.prepareAfterCastStart(callback);
+    fixture.runtime.tryStart();
+    expect(observed).toEqual([4]);
+    expect(() => fixture.runtime.prepareAfterCastStart(callback)).toThrow('already casting');
+    fixture.simulation.advanceFrames(1);
+    fixture.runtime.tryStart();
+    expect(observed).toEqual([4, 0]);
+    expect(callback).toHaveBeenCalledTimes(1);
+  });
+
   it('keeps attachments on the addressed runtime while another skill is casting', () => {
     const previous = createBattleSkillRuntime(300).runtime;
     const next = createBattleSkillRuntime(300).runtime;

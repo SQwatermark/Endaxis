@@ -5,9 +5,16 @@ import { parseAbilitySystemBlackboardsSource } from '../../../../tools/game-data
 import { compileAbilitySystemBlackboardsSource } from '../../../../tools/game-data-compiler/src/compiler/abilitySystemBlackboards.ts';
 import { compileComboSkillConditionDefinitionSource } from '../../../../tools/game-data-compiler/src/compiler/comboSkillConditions.ts';
 import { perlica } from '../../data/operators/perlica';
+import { arcane } from '../../data/operators/arcane';
+import { parseSkillTargetSelectionHeaderSource } from '../../../../tools/game-data-compiler/src/source/skillTargetSelection.ts';
+import { compileComboSmartTargetSource } from '../../../../tools/game-data-compiler/src/compiler/comboSmartTarget.ts';
 import { createGameDataRepository } from '../../data/gameDataRepository';
 import { elementalAttachments } from '../../data/buffs/elementalAttachments';
 import { skillSettings } from '../../data/combat/skillSettings';
+import {
+  timeDilationRuntimeConfig,
+  STANDARD_TIME_MANAGER_DELTA_MODE,
+} from '../../data/combat/timeDilationConfig';
 import { createEmptyProject } from '../project/createProject';
 import {
   deriveProjectOperatorTemplate,
@@ -31,7 +38,9 @@ import { CombatRuntimeAssembly } from '../combat/runtime/combatRuntimeAssembly';
 function template(
   element: 'heat' | 'electric' | 'cryo' | 'nature',
   deckGate: number,
+  actualCombo = false,
 ): OperatorDefinition {
+  const carrier = actualCombo ? arcane : perlica;
   const pair = (key: string, valueDouble = 0) => ({
     key,
     valueDouble,
@@ -78,58 +87,86 @@ function template(
   // 仅在公共严格结构校验后进入正式定义类型；不会将审计 source 一起塞进项目。
   const comboSkillConditions = definitions as readonly ComboSkillConditionDefinition[];
   return {
-    ...perlica,
+    ...carrier,
     comboSkillRegistrations: [],
     entityBlackboard: blackboards.entityInitialValues,
+    // 两个构筑分支显式独立测试，不借载体面板恰好选择其中一侧。
+    entityBlackboardInitializers: [],
     comboSkillConditions,
-    skillGroups: perlica.skillGroups.map(group =>
-      group.key === 'comboSkill'
-        ? {
-            ...group,
-            skills: { ...(group.skills as SkillDefinition), cooldownFrames: 300, costFrame: 0 },
-          }
-        : group.key !== 'battleSkill'
-          ? group
-          : {
+    // 只保留本次链路入口，避免将旧产物其他技能的编辑身份问题混入连携验证。
+    skillGroups: carrier.skillGroups
+      .filter(group => !actualCombo || group.key === 'battleSkill' || group.key === 'comboSkill')
+      .map(group =>
+        group.key === 'comboSkill'
+          ? {
               ...group,
               skills: {
                 ...(group.skills as SkillDefinition),
-                costs: [],
-                costFrame: undefined,
-                cooldownFrames: undefined,
-                timelineBlockFrames: 1,
-                scheduledSequences: [
-                  {
-                    startFrame: 0,
-                    sequence: {
-                      steps: [
+                cooldownFrames: (group.skills as SkillDefinition).cooldownFrames ?? 300,
+                // 诀真实 CastData.startCdFrame=0；补旧产物遗漏的静态元数据，不改它的动作。
+                costFrame: 0,
+                ...(actualCombo
+                  ? compileComboSmartTargetSource(
+                      parseSkillTargetSelectionHeaderSource(
                         {
-                          kind: 'applyElementalInfliction',
-                          parameters: { element, isExtra: false },
+                          selectStrategy: 4,
+                          smartTargetSelectStrategy: 1,
+                          canDummyCast: true,
+                          dummyPositionOffset: { x: 0, y: 0, z: 6 },
                         },
-                      ],
-                    },
-                  },
-                ],
+                        'chr_0032_lizhiyan_combo_skill',
+                      ),
+                    ).definition
+                  : {}),
               },
-            },
-    ),
+            }
+          : group.key !== 'battleSkill'
+            ? group
+            : {
+                ...group,
+                skills: {
+                  ...(group.skills as SkillDefinition),
+                  costs: [],
+                  costFrame: undefined,
+                  cooldownFrames: undefined,
+                  timelineBlockFrames: 1,
+                  scheduledSequences: [
+                    {
+                      startFrame: 0,
+                      sequence: {
+                        steps: [
+                          {
+                            kind: 'applyElementalInfliction',
+                            parameters: { element, isExtra: false },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+      ),
   };
 }
 
 describe('原生条件经正式项目定义进入实际附着', () => {
-  it.each(['heat', 'electric', 'cryo', 'nature'] as const)(
-    '%s 来源→模板持久化→场景→未放置连携条件→连续附着',
-    element => {
+  it.each(
+    (['heat', 'electric', 'cryo', 'nature'] as const).flatMap(element =>
+      [false, true].map(actualCombo => ({ element, actualCombo })),
+    ),
+  )(
+    '$element 来源→模板持久化→场景→连续附着，实际诀连携=$actualCombo',
+    ({ element, actualCombo }) => {
       for (const deckGate of [0, 1]) {
-        const definition = template(element, deckGate);
-        const base = createGameDataRepository({ revision: 'fixture', operators: [perlica] });
+        const definition = template(element, deckGate, actualCombo);
+        const carrier = actualCombo ? arcane : perlica;
+        const base = createGameDataRepository({ revision: 'fixture', operators: [carrier] });
         const project = deriveProjectOperatorTemplate(
           createEmptyProject({ createdWith: 'test', gameDataRevision: base.revision }),
           {
             id: 'project:operator:native-combo',
             name: 'native combo fixture',
-            baseTemplateId: perlica.slug,
+            baseTemplateId: carrier.slug,
             definition,
           },
         );
@@ -150,7 +187,10 @@ describe('原生条件经正式项目定义进入实际附着', () => {
           },
           weapon: null,
           gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
-          initialState: { ultimateEnergy: 0 },
+          initialState: {
+            ultimateEnergy: 0,
+            ...(actualCombo ? { maxUltimateEnergyOverride: 100 } : {}),
+          },
           skillCasts: [],
         };
         let nextId = 0;
@@ -161,6 +201,15 @@ describe('原生条件经正式项目定义进入实际附着', () => {
             operator: persisted,
             skillGroupKey: 'battleSkill',
             startFrame,
+            ids: { allocate: kind => `${kind}:${++nextId}` },
+          }).scenario;
+        if (actualCombo)
+          scenario = placeSkillGroup({
+            scenario,
+            trackIndex: 0,
+            operator: persisted,
+            skillGroupKey: 'comboSkill',
+            startFrame: 4,
             ids: { allocate: kind => `${kind}:${++nextId}` },
           }).scenario;
         project.scenarios[0] = scenario;
@@ -193,7 +242,10 @@ describe('原生条件经正式项目定义进入实际附着', () => {
           },
           environment: {
             ...environment.runtimeOptions,
-            comboConditionEligibility: { isAlive: () => true, isSilenced: () => false },
+            timeDilation: {
+              config: timeDilationRuntimeConfig,
+              timeManagerDeltaMode: STANDARD_TIME_MANAGER_DELTA_MODE,
+            },
             onPendingComboCondition: (operatorId, program, value) => {
               expect(operatorId).toBe('owner');
               expect(value.assignPairs).toEqual({ consumed_layer: 0, consumed_type: 0 });
@@ -205,7 +257,7 @@ describe('原生条件经正式项目定义进入实际附着', () => {
         });
         expect(compiled.operators[0]!.comboConditionPrograms).toHaveLength(5);
         expect(compiled.operators[0]!.skills.some(skill => skill.skillType === 'comboSkill')).toBe(
-          false,
+          actualCombo,
         );
         const assembly = new CombatRuntimeAssembly(compiled);
         expect(pending).toEqual([
@@ -223,6 +275,27 @@ describe('原生条件经正式项目定义进入实际附着', () => {
             'owner',
           )!.entityBlackboard!.getNumber('EntityBB_consumed_type'),
         ).toBe(deckGate === 0 ? { heat: 0, electric: 1, cryo: 2, nature: 3 }[element] : 0);
+        if (actualCombo) {
+          assembly.simulation.advanceFrames(600);
+          expect(
+            assembly.receipt.entries.some(entry => entry.event === 'ComboWindowConsumed'),
+          ).toBe(true);
+          expect(
+            assembly.receipt.entries.some(entry => entry.event === 'ComboWindowUnavailableAtStart'),
+          ).toBe(false);
+          const extraInflictions = assembly.receipt.entries.filter(
+            entry => entry.event === 'ElementalInflictionApplied' && entry.frame >= 4,
+          );
+          // 意志分支读取条件写入的真实元素；智识分支不执行这段附着。
+          expect(extraInflictions.map(entry => entry.data?.requestedElement)).toEqual(
+            deckGate === 0 ? [element] : [],
+          );
+          const damage = assembly.receipt.entries.filter(
+            entry => entry.event === 'DamageApplied' && entry.data?.skillType === 'comboSkill',
+          );
+          expect(damage.length).toBeGreaterThanOrEqual(2);
+          expect(damage.every(entry => Number(entry.data?.value ?? 0) > 0)).toBe(true);
+        }
         assembly.disposeComboSkillConditions();
       }
     },

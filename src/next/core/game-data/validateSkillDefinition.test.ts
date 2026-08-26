@@ -23,6 +23,16 @@ function damageStep(key?: string): Record<string, unknown> {
 }
 
 describe('validateSkillDefinition', () => {
+  it.each(['input', 'trigger', undefined])('接受有界连携智能目标 %s', comboSmartTarget => {
+    expect(validateSkillDefinition({ ...baseSkill(), comboSmartTarget })).toEqual([]);
+  });
+  it.each([null, 1, 'enemy', 'nearest', {}])('拒绝未知连携智能目标 %j', comboSmartTarget => {
+    expect(validateSkillDefinition({ ...baseSkill(), comboSmartTarget })).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ path: expect.stringContaining('comboSmartTarget') }),
+      ]),
+    );
+  });
   it('validates the fixed fracture entry and both inline Buff definitions', () => {
     const definition = baseSkill();
     definition.scheduledSequences = [

@@ -61,6 +61,7 @@ import { CameraTargetAngleConditionExecutor } from './cameraTargetAngleCondition
 import { TimedMarkerContainer } from './timedMarkers';
 import { TimedMarkerOperationExecutor } from './timedMarkerOperationExecutor';
 import { ComboWindowRuntime } from './comboWindowRuntime';
+import { prepareComboCast } from './comboCastPreparation';
 import { ComboWindowOperationExecutor } from './comboWindowOperationExecutor';
 import { CombatSemanticEventRuntime, type CombatSemanticEvent } from './combatSemanticEventRuntime';
 import {
@@ -342,12 +343,12 @@ export interface CombatRuntimeAssemblyOptions {
   readonly registerComboSkillCondition?: (
     registration: ComboConditionRegistration,
   ) => AbilityEventRegistration;
-  /** 必须来自实体 markDie / InSilence 查询。暂不以 HP 或任意 Tag ID 回退。 */
+  /** 原生 markDie / InSilence 语义或显式场景投影；标准木桩环境提供存活/未沉默常量。 */
   readonly comboConditionEligibility?: {
     readonly isAlive: (operatorId: string) => boolean;
     readonly isSilenced: (operatorId: string) => boolean;
   };
-  /** 当前只交付独立 Pending 快照；候选选择及 afterCastStart 覆盖另行接线。 */
+  /** 可选审计观察者；候选始终由 assembly 写入连携窗口，不依赖外部接收方。 */
   readonly onPendingComboCondition?: (
     operatorId: string,
     program: CompiledComboSkillConditionProgram,
@@ -978,11 +979,22 @@ export class CombatRuntimeAssembly {
     const ability = this.#requireAbilitySystem(operatorId);
     const skillCastId = this.#skillCastIds.allocate();
     ability.prepareSkillCastId(skillId, castId, skillCastId);
-    const program = this.#skillPrograms.get(`${operatorId}\u0000${skillId}\u0000${castId ?? ''}`);
+    const resolvedSkillId = ability.resolveSkillId(skillId, castId);
+    const program = this.#skillPrograms.get(
+      `${operatorId}\u0000${resolvedSkillId}\u0000${castId ?? ''}`,
+    );
     if (program?.skillType === 'comboSkill') {
-      const result = this.comboWindows.consume(operatorId, skillId);
+      const result = this.comboWindows.consume(operatorId, resolvedSkillId, program.skillGroupKey);
       if (result.consumed) {
-        ability.prepareSkillStartBlackboard(skillId, castId, result.window.blackboard);
+        if (result.window.nativeCondition !== undefined) {
+          ability.prepareAfterSkillCastStart(
+            skillId,
+            castId,
+            prepareComboCast(program, result.window.nativeCondition),
+          );
+        } else {
+          ability.prepareSkillStartBlackboard(skillId, castId, result.window.blackboard);
+        }
       } else {
         const invalidCastBlackboard = this.#operators
           .get(operatorId)
@@ -1006,6 +1018,11 @@ export class CombatRuntimeAssembly {
           },
         });
       }
+      if (
+        (!result.consumed || result.window.nativeCondition === undefined) &&
+        program.comboSmartTarget !== undefined
+      )
+        ability.prepareAfterSkillCastStart(skillId, castId, prepareComboCast(program));
     }
     if (program !== undefined) {
       this.#options.emitAbilityEvent?.(operatorId, 'beforeCastSkill', {
@@ -1217,9 +1234,9 @@ export class CombatRuntimeAssembly {
     const register = options.registerComboSkillCondition;
     const eligibility = options.comboConditionEligibility;
     const onPending = options.onPendingComboCondition;
-    if (register === undefined || eligibility === undefined || onPending === undefined) {
+    if (register === undefined || eligibility === undefined) {
       throw new Error(
-        'native combo conditions require event registration, alive/InSilence eligibility and Pending sink',
+        'native combo conditions require event registration and alive/InSilence eligibility',
       );
     }
     for (const { operator, program } of pending) {
@@ -1250,7 +1267,18 @@ export class CombatRuntimeAssembly {
             );
           },
           resolveTarget: entityId => this.#resolveRuntimeTarget(entityId),
-          onPending: value => onPending(operatorId, program, value),
+          onPending: value => {
+            const skillKey = this.#requireAbilitySystem(operatorId).currentSkillKeyForSlot(
+              program.skillGroupKey,
+            );
+            this.comboWindows.open(
+              operatorId,
+              skillKey,
+              {},
+              { ...value, skillGroupKey: program.skillGroupKey },
+            );
+            onPending?.(operatorId, program, value);
+          },
         }),
       );
     }
