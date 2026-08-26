@@ -127,6 +127,7 @@ export type StandardPlayerDamageEvent =
   | 'elementalInflictionStarted'
   | 'poiseRecovered'
   | 'beforeCastSkill'
+  | 'afterSkillApplyCost'
   | 'skillEnd'
   | 'beforeOutputBuff'
   | 'beforeAddedBuff'

@@ -165,6 +165,8 @@ export interface CombatOperationContext {
   readonly setCurrentBuffRemainingDuration?: (duration: number) => void;
   /** 把本次创建的 Buff 绑定为当前生命周期 Buff 的子实例。 */
   readonly addCurrentBuffChild?: (child: { finish(reason: 'other'): boolean }) => void;
+  /** 动作所有者为 Ability 时绑定到其自身寿命，不能绑定到当前事件的来源技能。 */
+  readonly addAbilityChildBuff?: (child: { finish(reason: 'other'): boolean }) => void;
   /** 仅由 Buff 生命周期与事件响应提供；暂停只作用于当前实例。 */
   readonly setCurrentBuffTimePaused?: (paused: boolean) => void;
   /** Buff 黑板写入后重建依赖动态键的属性修正；普通技能上下文不提供。 */

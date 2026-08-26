@@ -139,9 +139,11 @@ export function compileWeaponRuntimeDefinitionBatchSource(
     ) {
       continue;
     }
-    const rootIds = plans.flatMap(levels =>
-      levels.flatMap(level => level.map(item => item.buffId)),
-    );
+    // 初始化安装不是完整来源图：被动事件创建的 Buff 同样必须进入递归定义闭包。
+    const rootIds = [
+      ...typedDependencies.flatMap(dependency => dependency.referencedBuffIds),
+      ...plans.flatMap(levels => levels.flatMap(level => level.map(item => item.buffId))),
+    ];
     const closure = compileStandardStumpBuffClosure([...new Set(rootIds)], buffDataValue);
     diagnostics.push(...closure.diagnostics);
     if (closure.diagnostics.some(item => item.status === 'blocked')) continue;

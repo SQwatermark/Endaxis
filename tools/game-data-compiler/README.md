@@ -494,18 +494,17 @@ npm run download:game-data:operator-closure -- --vfs-fallback http://desktop:876
   突破/潜能/基质算法解析的实例等级；选级后再应用请求额外黑板，复现同名值最终覆盖顺序；
 - Python oracle JSON 差分通道及真实 SkillPatch 导出切片。
 
-当前 30 名干员、301 个技能已达到逐项模拟 301/301。武器的 **77/77 静态定义**、226 条运行依赖，
-以及 103 个可编译 Buff 节点加 4 个有依据的场景省略，只证明静态词条、安装引用和 Buff 递归闭包；
-它们不包含被动 `SkillData` 自身的事件动作程序。117 个唯一武器被动中有 64 个携带事件程序，当前
-运行投影尚未编译。完整 Action 来源解析后，1.4.4 当前为 **67/77 可解析**；其余 10 把严格阻断于
-尚无 combat-spec 语义的 `CheckConsumeBuffLayer`、`SaveCharTypeId` 或
-`CreateBuffAttachingSkill`。这些 Action 不得按名称或旧 Python 猜造。
+当前 30 名干员、301 个技能已达到逐项模拟 301/301。武器来源和候选生成达到 **77/77**、226 条
+运行依赖；117 个唯一被动中的 64 个事件程序现已进入公共 Action/AbilityEvent 编译层。
+`CheckConsumeBuffLayer`、`SaveCharTypeId` 和 `CreateBuffAttachingSkill` 已有 combat-spec 证据；
+此前 67/77 的来源阻塞统计已过期。
 
-武器运行依赖必须携带完整动作图；非空程序在公共投影完成前会阻断正式生成，不允许静默丢弃后仍
-输出 `WeaponDefinition`。下一阶段不是直接注册 77 把候选，而是先补反编译证据，再建立领域无关、
-可配置 Owner/Source/Target 上下文的 Action 程序投影和公共 AbilityEvent 注册边界。身份审计能把
-77 个 AKEDB ID 无歧义连接到旧展示 slug，但不能代替运行行为重建；AbilityEntity/Projectile 缺失
-定义同样继续失败关闭。
+正式生成必须包含 startup、Toggle 和动作图的全部活动 Buff 引用；不能只跟随安装根。修正闭包后
+实际生成 108 个 Buff 定义。`CreateBuffAttachingSkill` 的 `lifetimeOwner=currentCastSkill` 必须
+完整传入正式步骤；当前生产端尚未实现精确附着接口，因此明确阻断而不是静默丢弃寿命。
+真实四技能生产门禁为 **65/77 成功、12 项精确已知阻塞**；候选尚未接默认注册，详见
+`src/next/application/generatedWeaponsSimulation.test.ts`。全量运行和关键被动数值/寿命差分满足前，
+不能把“生成成功”升级为“全武器模拟完成”。
 
 公共事件程序投影必须遵守以下不可退化规则：
 
@@ -519,8 +518,15 @@ npm run download:game-data:operator-closure -- --vfs-fallback http://desktop:876
   和顺序规则属于公共编译层，不允许在三个领域内各复制一套 switch。
 
 正式生成命令不会在第一把失败时中断审计：它逐把收集来源错误，再合并运行投影诊断，全部通过后
-才渲染并原子替换目录。当前 1.4.4 会一次报告 64 条阻断（10 条未知 Action 来源、54 条其余武器的
-未编译被动程序），且不会创建半成品输出目录。
+才渲染并原子替换目录。正式目录只保存 78 个 TypeScript 文件；机器审计写入被忽略的
+`tmp/generated-next-weapons`，`--check` 不读取也不修改审计文件。生成目录只供候选门禁使用，
+默认仓库接入是独立步骤。
+
+```powershell
+npm run generate:game-data:weapons -- --tables <TableCfg目录> --skill-data <SkillData目录> `
+  --buff-data <BuffData目录>
+# 同参数追加 --check 校验确定性输出；审计可通过 --audit-output 指定临时目录。
+```
 
 武器静态审计不写中间产物；某把武器失败时仍继续报告其余身份：
 

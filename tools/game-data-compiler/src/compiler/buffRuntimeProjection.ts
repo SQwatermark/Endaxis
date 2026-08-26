@@ -37,9 +37,7 @@ export interface CombatActionProjectionContextSource {
   readonly actionSourceTarget: 'caster';
   /** 普通事件序列的 Target 来自事件；可折叠逐队员循环时改为已证明的集合。 */
   readonly actionTargetTarget:
-    | 'eventTarget'
-    | 'partyExceptCaster'
-    | 'partyExceptCasterAndSameCharacterType';
+    'eventTarget' | 'partyExceptCaster' | 'partyExceptCasterAndSameCharacterType';
 }
 
 const BUFF_ACTION_CONTEXT: CombatActionProjectionContextSource = {
@@ -339,7 +337,7 @@ export type CompiledBuffConditionSource =
     }
   | {
       readonly kind: 'timedMarkerPresent';
-      readonly target: 'caster' | 'eventTarget';
+      readonly target: 'caster' | 'eventTarget' | 'buffOwner' | 'buffSource';
       readonly markerId: string;
     }
   | {
@@ -412,6 +410,7 @@ export type CompiledBuffStepSource =
         readonly inheritSourceSkillCastInfo?: boolean;
         readonly finishByAction?: boolean;
         readonly asChildBuff?: boolean;
+        readonly lifetimeOwner?: 'currentCastSkill';
         readonly blackboardAssignments?: Readonly<
           Record<
             string,
@@ -532,7 +531,7 @@ export type CompiledBuffStepSource =
   | {
       readonly kind: 'createTimedMarker';
       readonly parameters: {
-        readonly target: 'caster' | 'eventTarget';
+        readonly target: 'caster' | 'eventTarget' | 'buffOwner' | 'buffSource';
         readonly markerId: string;
         readonly durationSeconds:
           | { readonly kind: 'constant'; readonly value: number }
@@ -1296,12 +1295,7 @@ function createBuffSequenceProjection(
     compileLeaf: (node, partyTargetGroups) =>
       compileBuffLeafNode(node, visualOnlyIds, partyTargetGroups, context),
     compileNodePrefix: (nodes, partyTargetGroups) =>
-      compileDifferentCharacterTypePartyLoop(
-        nodes,
-        visualOnlyIds,
-        partyTargetGroups,
-        context,
-      ),
+      compileDifferentCharacterTypePartyLoop(nodes, visualOnlyIds, partyTargetGroups, context),
     compileForEach: (node, partyTargetGroups) => {
       if (!isPartyExceptOwnerInstantSearch(node.body.target)) return null;
       if (
@@ -1406,12 +1400,10 @@ function compileDifferentCharacterTypePartyLoop(
   const teamKey = teamRead.body.value.action.outputKey;
   const leftKey = compare.body.value.action.left.blackboardKey;
   const rightKey = compare.body.value.action.right.blackboardKey;
-  if (
-    !(
-      (leftKey === ownerKey && rightKey === teamKey) ||
-      (leftKey === teamKey && rightKey === ownerKey)
-    )
-  ) {
+  if (!(
+    (leftKey === ownerKey && rightKey === teamKey) ||
+    (leftKey === teamKey && rightKey === ownerKey)
+  )) {
     return null;
   }
 
@@ -1868,7 +1860,10 @@ function compileConditionLeaf(
             ? context.actionSourceTarget
             : null;
     if (
-      (target !== 'caster' && target !== 'eventTarget') ||
+      (target !== 'caster' &&
+        target !== 'eventTarget' &&
+        target !== 'buffOwner' &&
+        target !== 'buffSource') ||
       condition.targetGroupKey !== '' ||
       condition.useBlackboardKey ||
       condition.blackboardKey !== '' ||
@@ -2045,9 +2040,9 @@ function compileActionNode(
   if (node.body.value.family === 'buffQuery') {
     const action = node.body.value.action;
     if (
-      action.target.targetSource !== 'Target' &&
-      action.target.targetSource !== 'Owner' &&
-      action.target.targetSource !== 'Source' ||
+      (action.target.targetSource !== 'Target' &&
+        action.target.targetSource !== 'Owner' &&
+        action.target.targetSource !== 'Source') ||
       action.target.targetGroupKey !== '' ||
       action.countType !== 'BuffCount' ||
       action.limitSkillCastId
@@ -2281,7 +2276,10 @@ function compileActionNode(
             ? context.actionSourceTarget
             : null;
     if (
-      (target !== 'caster' && target !== 'eventTarget') ||
+      (target !== 'caster' &&
+        target !== 'eventTarget' &&
+        target !== 'buffOwner' &&
+        target !== 'buffSource') ||
       action.marker.blackboardKey !== null ||
       action.marker.value.length === 0 ||
       action.useTimeDilationDeltaTime
@@ -2400,6 +2398,9 @@ function compileBuffApplication(
           ...(action.inheritSourceSkillCastInfo ? { inheritSourceSkillCastInfo: true } : {}),
           ...(action.autoFinishByAction ? { finishByAction: true } : {}),
           ...(action.asChildBuff ? { asChildBuff: true } : {}),
+          ...(action.lifetimeOwner === 'currentCastSkill'
+            ? { lifetimeOwner: action.lifetimeOwner }
+            : {}),
           ...(Object.keys(assignments).length === 0 ? {} : { blackboardAssignments: assignments }),
         },
       },

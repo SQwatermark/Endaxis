@@ -54,6 +54,20 @@ const dependency: CompiledWeaponTraitRuntimeDependencySource = {
 };
 
 describe('weapon runtime definitions', () => {
+  it('事件引用的 Buff 缺失时必须阻断，即使没有启动或 Toggle 安装', () => {
+    expect(() =>
+      compileWeaponRuntimeDefinitionBatchSource(
+        [definition],
+        [
+          {
+            ...dependency,
+            referencedBuffIds: ['buff_only_created_by_event'],
+          },
+        ],
+        {},
+      ),
+    ).toThrow('BuffData: missing Buff definition "buff_only_created_by_event"');
+  });
   it('attaches language-neutral ItemTable identity without generating a display name', () => {
     const item = {
       ...itemFixture.itemTableEntry,

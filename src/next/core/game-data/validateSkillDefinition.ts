@@ -1493,6 +1493,15 @@ function validateCombatStep(
       if (parameters.asChildBuff !== undefined) {
         requireBoolean(parameters, 'asChildBuff', `${path}.parameters`, out);
       }
+      if (parameters.lifetimeOwner !== undefined) {
+        requireEnum(
+          parameters,
+          'lifetimeOwner',
+          new Set(['currentCastSkill']),
+          `${path}.parameters`,
+          out,
+        );
+      }
       if (parameters.durationSeconds !== undefined) {
         requireFiniteNumber(parameters, 'durationSeconds', `${path}.parameters`, out);
       }

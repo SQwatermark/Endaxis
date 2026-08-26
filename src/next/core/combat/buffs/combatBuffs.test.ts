@@ -315,6 +315,10 @@ describe('CombatBuffContainer', () => {
 
     expect(container.getCountByTags([tag])).toBe(3);
     expect(container.getInstanceCountByTags([tag])).toBe(2);
+    expect(container.getInstanceCountByIds(['enhanced', 'unlimited'])).toBe(2);
+    expect(container.getInstanceCountByIds(['enhanced', 'enhanced'])).toBe(2);
+    container.finishByIds(['unlimited'], 'other');
+    expect(container.getInstanceCountByIds(['enhanced', 'unlimited'])).toBe(1);
   });
 
   it('registers independent modifiers and follows enable-disable-finish lifecycle', () => {

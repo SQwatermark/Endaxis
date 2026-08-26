@@ -49,6 +49,7 @@ export interface BuffOperationTarget {
   apply?(request: BuffApplicationRequest): boolean;
   applyScoped?(request: BuffApplicationRequest): BuffApplicationHandle | null;
   getCountByIds(ids: readonly string[], skillCastId?: number): number;
+  getInstanceCountByIds?(ids: readonly string[]): number;
   findFirstByIds(ids: readonly string[]): BuffQueryResult | undefined;
   finishByIds(ids: readonly string[], reason: BuffFinishReason): number;
   finishCountByIds?(ids: readonly string[], count: number, reason: BuffFinishReason): number;
@@ -268,6 +269,11 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     }
 
     if (step.kind === 'applyBuff') {
+      if (step.parameters.lifetimeOwner === 'currentCastSkill') {
+        throw new Error(
+          'currentCastSkill Buff lifetime requires a native CastSkillContext attachment port',
+        );
+      }
       // 旧手写配置仍由原执行器解释；定义路径只接收原生身份和施加黑板覆盖值。
       if (
         step.parameters.durationSeconds !== undefined ||
@@ -280,8 +286,9 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       const targets = this.#resolveApplicationTargets(step.parameters.target, context);
       const finishByAction = step.parameters.finishByAction === true;
       const asChildBuff = step.parameters.asChildBuff === true;
-      if (asChildBuff && context?.addCurrentBuffChild === undefined) {
-        throw new Error('asChildBuff applyBuff requires a current Buff operation context');
+      const addOwnerChild = context?.addCurrentBuffChild ?? context?.addAbilityChildBuff;
+      if (asChildBuff && addOwnerChild === undefined) {
+        throw new Error('asChildBuff applyBuff requires a Buff or Ability owner context');
       }
       if (
         targets.some(target =>
@@ -340,7 +347,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
             const handle = target.applyScoped!(request);
             if (handle !== null) {
               if (finishByAction) scoped.push(handle);
-              if (asChildBuff) context!.addCurrentBuffChild!(handle);
+              if (asChildBuff) addOwnerChild!(handle);
             }
           } else {
             target.apply!(request);
@@ -436,17 +443,25 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       const count =
         step.parameters.countType === 'instance'
           ? (() => {
+              if (skillCastId !== undefined) {
+                throw new Error(
+                  'readBuffStackCount instance mode does not support sameSourceSkillCast',
+                );
+              }
+              if (step.parameters.query.kind === 'id') {
+                if (target.getInstanceCountByIds === undefined) {
+                  throw new Error(
+                    'readBuffStackCount ID instance mode requires Buff instance counting',
+                  );
+                }
+                return target.getInstanceCountByIds(step.parameters.query.buffIds);
+              }
               if (
                 step.parameters.query.kind !== 'tag' ||
                 target.getInstanceCountByTags === undefined
               ) {
                 throw new Error(
                   'readBuffStackCount instance mode requires a tag query and Buff instance counting',
-                );
-              }
-              if (skillCastId !== undefined) {
-                throw new Error(
-                  'readBuffStackCount instance mode does not support sameSourceSkillCast',
                 );
               }
               return target.getInstanceCountByTags(

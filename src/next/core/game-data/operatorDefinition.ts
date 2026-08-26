@@ -144,7 +144,12 @@ export const COMBAT_TARGETS = ['caster', 'enemy'] as const;
 /** 干员 DSL 中无需多敌人寻址的语义目标。 */
 export type CombatTarget = (typeof COMBAT_TARGETS)[number];
 
-export const TIMED_MARKER_TARGETS = [...COMBAT_TARGETS, 'eventTarget'] as const;
+export const TIMED_MARKER_TARGETS = [
+  ...COMBAT_TARGETS,
+  'eventTarget',
+  'buffOwner',
+  'buffSource',
+] as const;
 /** 定时标记还可明确落到触发当前响应的事件目标。 */
 export type TimedMarkerTarget = (typeof TIMED_MARKER_TARGETS)[number];
 
@@ -810,6 +815,8 @@ export interface CombatStepParameters {
     finishByAction?: boolean;
     /** 原生 asChildBuff：当前动作由 Buff 持有时，父 Buff 结束会同步结束该实例。 */
     asChildBuff?: boolean;
+    /** CreateBuffAttachingSkill：绑定事件当前技能而非动作 owner 的寿命。 */
+    lifetimeOwner?: 'currentCastSkill';
     durationSeconds?: number;
     effectiveness?: number;
   };

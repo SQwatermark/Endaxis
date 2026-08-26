@@ -18,7 +18,11 @@ import {
   CombatSemanticEventRuntime,
   type CombatSemanticEventContext,
 } from './combatSemanticEventRuntime';
-import { normalizeAbilityEventPayload } from './buffLifecycleSequenceRuntime';
+import {
+  normalizeAbilityEventPayload,
+  readEventSkillCastInfo,
+} from './buffLifecycleSequenceRuntime';
+import type { CombatSkillCastInfo } from './skillCastInfo';
 
 export type RegisterEquipmentAbilityEventAction = (
   operatorId: string,
@@ -44,6 +48,8 @@ export type CreateEquipmentEventOperationExecutor = (
 export class EquipmentEventRuntime {
   readonly #registrations: AbilityEventRegistration[] = [];
   readonly #operatorId: string;
+  // 固定配装的被动 Ability 存活到本运行实例释放；不能把子 Buff 挂到触发它的主动技能。
+  readonly #children: { finish(reason: 'other'): boolean }[] = [];
 
   constructor(
     semanticEvents: CombatSemanticEventRuntime,
@@ -77,6 +83,7 @@ export class EquipmentEventRuntime {
                     event,
                   }),
                   event,
+                  readEventSkillCastInfo(payload),
                 );
               },
             ),
@@ -98,7 +105,12 @@ export class EquipmentEventRuntime {
                 event: context.event,
               }),
             handle: (context, getOperations) =>
-              this.#execute(handler, getOperations(), context.event),
+              this.#execute(
+                handler,
+                getOperations(),
+                context.event,
+                readEventSkillCastInfo(context.event),
+              ),
           }),
         );
       }
@@ -107,18 +119,24 @@ export class EquipmentEventRuntime {
 
   dispose(): void {
     for (const registration of this.#registrations.splice(0)) registration.dispose();
+    for (const child of this.#children.splice(0)) child.finish('other');
   }
 
   #execute(
     handler: CompiledEquipmentEventHandler,
     operations: CombatOperationExecutor,
     event: EquipmentEventExecutionContext['event'],
+    eventSkillCastInfo?: CombatSkillCastInfo,
   ): void {
     const blackboard = new ActionBlackboard(handler.blackboard ?? {});
     const operationContext: CombatOperationContext = {
       blackboard,
       event,
       actionOwnerId: this.#operatorId,
+      ...(eventSkillCastInfo === undefined ? {} : { eventSkillCastInfo }),
+      addAbilityChildBuff: child => {
+        this.#children.push(child);
+      },
     };
     new CombatActionSequenceRuntime(operations, operationContext)
       .createSequence(handler.sequence)

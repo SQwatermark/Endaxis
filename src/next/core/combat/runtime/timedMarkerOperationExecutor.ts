@@ -105,6 +105,13 @@ export class TimedMarkerOperationExecutor implements CombatOperationExecutor {
     target: TimedMarkerTarget,
     context: Parameters<CombatOperationExecutor['execute']>[1] | undefined,
   ): TimedMarkerContainer {
+    if (target === 'buffOwner' || target === 'buffSource') {
+      const id = target === 'buffOwner' ? context?.buffOwnerId : context?.buffSourceId;
+      if (id === undefined || this.dependencies.resolveEventTarget === undefined) {
+        throw new Error(`${target} timed marker requires a Buff identity and entity resolver`);
+      }
+      return this.dependencies.resolveEventTarget(id);
+    }
     if (target !== 'eventTarget') return this.dependencies.resolveTarget(target);
     if (context === undefined) {
       throw new Error('eventTarget timed marker requires a combat operation context');

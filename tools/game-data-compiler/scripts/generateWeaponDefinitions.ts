@@ -18,6 +18,7 @@ interface Arguments {
   readonly skillData: string;
   readonly buffData: string;
   readonly output: string;
+  readonly auditOutput?: string;
   readonly check: boolean;
 }
 
@@ -50,9 +51,16 @@ export async function generateWeaponDefinitions(args: Arguments): Promise<{
   };
   assertNoBlockedDiagnostics(batch.diagnostics);
   const files = renderWeaponDefinitionFiles(batch);
-  if (args.check) checkGeneratedFiles(args.output, files);
-  else await writeWeaponDefinitionFiles(args.output, files);
-  return { definitionCount: batch.definitions.length, fileCount: files.length };
+  const definitions = files.filter(file => !file.relativePath.endsWith('.audit.json'));
+  if (args.check) checkGeneratedFiles(args.output, definitions);
+  else {
+    await writeWeaponDefinitionFiles(args.output, definitions);
+    await writeWeaponDefinitionFiles(
+      args.auditOutput ?? path.resolve('tmp/generated-next-weapons'),
+      files.filter(file => file.relativePath.endsWith('.audit.json')),
+    );
+  }
+  return { definitionCount: batch.definitions.length, fileCount: definitions.length };
 }
 
 /**
@@ -65,11 +73,12 @@ export function compileWeaponStaticDefinitionsIndependently(
   skillData: unknown,
   patchTable: unknown,
 ): CompiledWeaponStaticDefinitionBatchSource {
-  const weaponIds = Object.keys(requireRecord(weaponTable, 'WeaponBasicTable')).sort((left, right) =>
-    left.localeCompare(right),
+  const weaponIds = Object.keys(requireRecord(weaponTable, 'WeaponBasicTable')).sort(
+    (left, right) => left.localeCompare(right),
   );
   const definitions: CompiledWeaponStaticDefinitionBatchSource['definitions'][number][] = [];
-  const runtimeDependencies: CompiledWeaponStaticDefinitionBatchSource['runtimeDependencies'][number][] = [];
+  const runtimeDependencies: CompiledWeaponStaticDefinitionBatchSource['runtimeDependencies'][number][] =
+    [];
   const diagnostics: BuildDefinitionDiagnosticSource[] = [];
   for (const weaponId of weaponIds) {
     try {
@@ -94,9 +103,7 @@ export function compileWeaponStaticDefinitionsIndependently(
   return { definitions, runtimeDependencies, diagnostics };
 }
 
-function assertNoBlockedDiagnostics(
-  diagnostics: readonly BuildDefinitionDiagnosticSource[],
-): void {
+function assertNoBlockedDiagnostics(diagnostics: readonly BuildDefinitionDiagnosticSource[]): void {
   const blocked = diagnostics.filter(item => item.status === 'blocked');
   if (blocked.length === 0) return;
   throw new Error(
@@ -128,6 +135,7 @@ export function parseArguments(values: readonly string[]): Arguments {
     skillData: requiredPath(paths, '--skill-data'),
     buffData: requiredPath(paths, '--buff-data'),
     output: path.resolve(paths.get('--output') ?? 'src/next/data/equipment/generated-weapons'),
+    auditOutput: path.resolve(paths.get('--audit-output') ?? 'tmp/generated-next-weapons'),
     check,
   };
 }

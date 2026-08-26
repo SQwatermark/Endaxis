@@ -563,7 +563,7 @@ function isCommutativeCurrentBuffTimeResponse(
   return visit(response.sequence, new Set()) && found;
 }
 
-function readEventSkillCastInfo(payload: unknown): CombatSkillCastInfo | undefined {
+export function readEventSkillCastInfo(payload: unknown): CombatSkillCastInfo | undefined {
   if (typeof payload !== 'object' || payload === null) return undefined;
   const value = (payload as Record<string, unknown>).skillCastInfo;
   const payloadRecord = payload as Record<string, unknown>;

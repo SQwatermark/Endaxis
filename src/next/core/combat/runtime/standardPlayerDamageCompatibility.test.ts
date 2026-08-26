@@ -88,6 +88,30 @@ function compatibilityInput(
 }
 
 describe('standardPlayerDamageCompatibility', () => {
+  it('blocks an unbound current-cast Buff lifetime instead of dropping it', () => {
+    const issues = inspectStandardPlayerDamageCompatibility(
+      compatibilityInput(
+        operator({
+          steps: [
+            {
+              kind: 'applyBuff',
+              parameters: {
+                buffId: 'buff:attached',
+                target: 'caster',
+                lifetimeOwner: 'currentCastSkill',
+              },
+            },
+          ],
+        }),
+      ),
+    );
+    expect(issues).toMatchObject([
+      {
+        code: 'unsupported-step',
+        detail: 'currentCastSkill Buff lifetime requires a native CastSkillContext attachment port',
+      },
+    ]);
+  });
   it('accepts the closed standard damage, Buff, poise, infliction, action value and resource subset', () => {
     const issues = inspectStandardPlayerDamageCompatibility(
       compatibilityInput(

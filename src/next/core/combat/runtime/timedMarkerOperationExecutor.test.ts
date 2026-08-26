@@ -14,6 +14,45 @@ const delegate: CombatOperationExecutor = {
 };
 
 describe('TimedMarkerOperationExecutor', () => {
+  it.each(['buffOwner', 'buffSource'] as const)(
+    'uses the explicit %s identity instead of the event or caster',
+    target => {
+      const clock = new CombatClock();
+      const owner = new TimedMarkerContainer('receiver', clock);
+      const source = new TimedMarkerContainer('sender', clock);
+      const executor = new TimedMarkerOperationExecutor({
+        resolveTarget: () => {
+          throw new Error('must not fall back to caster');
+        },
+        resolveEventTarget: id => (id === 'receiver' ? owner : source),
+        delegate,
+      });
+      const context = {
+        blackboard: new ActionBlackboard(),
+        buffOwnerId: 'receiver',
+        buffSourceId: 'sender',
+      };
+      executor.execute(
+        {
+          kind: 'createTimedMarker',
+          parameters: {
+            target,
+            markerId: 'heal-icd',
+            durationSeconds: { kind: 'constant', value: 1 },
+            autoFinishByAction: false,
+          },
+        },
+        context,
+      );
+      expect(
+        executor.evaluate({ kind: 'timedMarkerPresent', target, markerId: 'heal-icd' }, context),
+      ).toBe(true);
+      expect((target === 'buffOwner' ? source : owner).has('heal-icd')).toBe(false);
+      expect(() =>
+        executor.evaluate({ kind: 'timedMarkerPresent', target, markerId: 'heal-icd' }),
+      ).toThrow('Buff identity');
+    },
+  );
   it('creates, queries, and removes action-scoped markers', () => {
     const clock = new CombatClock();
     const caster = new TimedMarkerContainer('operator', clock);

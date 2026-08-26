@@ -244,39 +244,47 @@ describe('BuffOperationExecutor', () => {
     expect(finished).toEqual(['other']);
   });
 
-  it('attaches scoped Buff handles to the current parent Buff', () => {
-    const child = { finish: vi.fn(() => true) };
-    const addCurrentBuffChild = vi.fn();
-    const target = {
-      ownerId: 'operator',
-      applyScoped: () => child,
-      getCountByIds: () => 0,
-      finishByIds: () => 0,
-      holdByIds: () => ({ release: () => undefined }),
-      getCountByTags: () => 0,
-      matchesEntityTags: () => false,
-      findFirstByIds: () => undefined,
-      findFirstByTags: () => undefined,
-      finishByTags: () => 0,
-    };
-    const executor = new BuffOperationExecutor({
-      sourceId: 'operator',
-      resolveTarget: () => target,
-      delegate,
-    });
+  it.each(['buff', 'ability'] as const)(
+    'attaches scoped Buff handles to the current %s owner',
+    owner => {
+      const child = { finish: vi.fn(() => true) };
+      const addCurrentBuffChild = vi.fn();
+      const target = {
+        ownerId: 'operator',
+        applyScoped: () => child,
+        getCountByIds: () => 0,
+        finishByIds: () => 0,
+        holdByIds: () => ({ release: () => undefined }),
+        getCountByTags: () => 0,
+        matchesEntityTags: () => false,
+        findFirstByIds: () => undefined,
+        findFirstByTags: () => undefined,
+        finishByTags: () => 0,
+      };
+      const executor = new BuffOperationExecutor({
+        sourceId: 'operator',
+        resolveTarget: () => target,
+        delegate,
+      });
 
-    expect(
-      executor.execute(
-        {
-          kind: 'applyBuff',
-          parameters: { buffId: 'child', target: 'caster', asChildBuff: true },
-        },
-        { blackboard: new ActionBlackboard(), addCurrentBuffChild },
-      ),
-    ).toBe(true);
-    expect(addCurrentBuffChild).toHaveBeenCalledWith(child);
-    expect(child.finish).not.toHaveBeenCalled();
-  });
+      expect(
+        executor.execute(
+          {
+            kind: 'applyBuff',
+            parameters: { buffId: 'child', target: 'caster', asChildBuff: true },
+          },
+          {
+            blackboard: new ActionBlackboard(),
+            ...(owner === 'buff'
+              ? { addCurrentBuffChild }
+              : { addAbilityChildBuff: addCurrentBuffChild }),
+          },
+        ),
+      ).toBe(true);
+      expect(addCurrentBuffChild).toHaveBeenCalledWith(child);
+      expect(child.finish).not.toHaveBeenCalled();
+    },
+  );
 
   it('finishes the Buff instance supplied by its lifecycle event context', () => {
     const blackboard = new ActionBlackboard();
@@ -557,45 +565,52 @@ describe('BuffOperationExecutor', () => {
     expect(remaining).toBe(0);
   });
 
-  it('writes matching Buff instance count when the source explicitly requests BuffCount', () => {
-    const blackboard = new ActionBlackboard();
-    const executor = new BuffOperationExecutor({
-      sourceId: 'operator',
-      resolveTarget: () => ({
-        ownerId: 'enemy',
-        getCountByIds: () => 0,
-        finishByIds: () => 0,
-        holdByIds: () => ({ release: () => undefined }),
-        getCountByTags: () => 4,
-        getInstanceCountByTags: () => 2,
-        matchesEntityTags: () => false,
-        findFirstByIds: () => undefined,
-        findFirstByTags: () => undefined,
-        finishByTags: () => 0,
-      }),
-      delegate,
-    });
+  it.each(['tag', 'id'] as const)(
+    'writes %s Buff instance count when the source explicitly requests BuffCount',
+    queryKind => {
+      const blackboard = new ActionBlackboard();
+      const executor = new BuffOperationExecutor({
+        sourceId: 'operator',
+        resolveTarget: () => ({
+          ownerId: 'enemy',
+          getCountByIds: () => 0,
+          finishByIds: () => 0,
+          holdByIds: () => ({ release: () => undefined }),
+          getCountByTags: () => 4,
+          getInstanceCountByTags: () => 2,
+          getInstanceCountByIds: () => 2,
+          matchesEntityTags: () => false,
+          findFirstByIds: () => undefined,
+          findFirstByTags: () => undefined,
+          finishByTags: () => 0,
+        }),
+        delegate,
+      });
 
-    expect(
-      executor.execute(
-        {
-          kind: 'readBuffStackCount',
-          parameters: {
-            target: 'enemy',
-            outputKey: 'buffCnt',
-            countType: 'instance',
-            query: {
-              kind: 'tag',
-              tagQueryType: 'hasAny',
-              buffTagIds: [gameplayTagIdFromPath('buff/status/fracture')],
+      expect(
+        executor.execute(
+          {
+            kind: 'readBuffStackCount',
+            parameters: {
+              target: 'enemy',
+              outputKey: 'buffCnt',
+              countType: 'instance',
+              query:
+                queryKind === 'id'
+                  ? { kind: 'id', buffIds: ['buff:sample'] }
+                  : {
+                      kind: 'tag',
+                      tagQueryType: 'hasAny',
+                      buffTagIds: [gameplayTagIdFromPath('buff/status/fracture')],
+                    },
             },
           },
-        },
-        { blackboard },
-      ),
-    ).toBe(true);
-    expect(blackboard.getNumber('buffCnt')).toBe(2);
-  });
+          { blackboard },
+        ),
+      ).toBe(true);
+      expect(blackboard.getNumber('buffCnt')).toBe(2);
+    },
+  );
 
   it('resolves action-blackboard assignments before applying a index buff', () => {
     const applied: unknown[] = [];

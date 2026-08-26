@@ -942,6 +942,15 @@ export class CombatBuffContainer<Key extends string> {
       .reduce((count, buff) => count + buff.enhanceCount, 0);
   }
 
+  /** SaveBuffStackNumAdvanced 的 Id + BuffCount 按查询 ID 累加实例数，而非增强层数。 */
+  getInstanceCountByIds(ids: readonly string[]): number {
+    return ids.reduce(
+      (total, id) =>
+        total + this.#buffs.filter(buff => !buff.isFinished && buff.definition.id === id).length,
+      0,
+    );
+  }
+
   /** 按容器插入顺序返回首个未结束且 ID 命中任一候选项的 Buff。 */
   findFirstByIds(ids: readonly string[]): CombatBuff<Key> | undefined {
     const accepted = new Set(ids);

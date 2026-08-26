@@ -6,6 +6,42 @@
 当前主线是在 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
+### 2026-08-26 晚：武器候选生产门禁与生成完成度纠偏
+
+- 台式机已拉取白天 Endaxis `c11c1eed`、combat-spec `96c0883`。修复 Next 类型门禁中的
+  `afterSkillApplyCost` 事件联合遗漏和测试非法 `gainKinds=['cost']`；没有改动旧版实现。
+- 77 把候选真实装到兼容干员，分别放置普攻、战技、连携、终结技并模拟 1800 帧。首轮只有
+  **24/77** 成功，说明白天的“可生成 77/77”不能解释成生产模拟完成。新门禁为
+  `src/next/application/generatedWeaponsSimulation.test.ts`；默认武器仓库仍使用旧适配定义，未切换。
+- 生成器原先只把 startup/Toggle 安装作为 Buff 根，漏掉仅从被动事件创建的对象。现在从完整
+  `referencedBuffIds` 建立递归闭包，实际输出 77 把候选、108 个 Buff 定义；规范 TypeScript 为
+  `src/next/data/equipment/generated-weapons` 下 78 个文件，审计另写
+  `tmp/generated-next-weapons/weapon-definitions.audit.json`。`--check` 只核对正式文件，不读取或写入审计。
+- 公共运行链补齐已实现条件的兼容性预检、Id + BuffCount 的实例计数、被动 Ability 子 Buff 句柄
+  和事件来源施法上下文。实例计数依据 combat-spec `SaveBuffStackNumAdvancedAction`；子 Buff
+  依据 `docs/create-buff-action-data.md` 的 `IBuffRoot`，绑定被动自身寿命而非触发事件的主动技能。
+  Buff 定时标记查询/写入新增显式 `buffOwner/buffSource` 身份，不能误读创建者的标记。
+- 又发现 `CreateBuffAttachingSkill.lifetimeOwner` 在来源 IR 后被静默丢弃。现已贯通正式定义与校验，
+  但尚无当前 CastSkillContext 的精确附着端口，因此预检明确阻断四把武器；不得降级为
+  `asChildBuff` 或 `finishByAction`，证据见 combat-spec `docs/create-buff-attaching-skill.md`。
+- 当前门禁为 **65/77 运行成功、12/77 精确已知阻塞**。已知项错误变化、新失败和旧失败消失都会
+  使测试失败，禁止自动扩充清单。通过仅证明这条四技能场景，不代表所有队伍、词条等级和触发分支全覆盖。
+
+| 剩余边界                                    | 武器                                                       |
+| ------------------------------------------- | ---------------------------------------------------------- |
+| 当前事件技能的 Buff 附着/结束端口           | `wpn_lance_0006`、`wpn_sword_0015/0017/0021`               |
+| 来源施法信息缺失及原生空来源语义待逐链核对  | `wpn_lance_0016`、`wpn_pistol_0004/0008`、`wpn_sword_0020` |
+| Stack 是否应读取优先级黑板 `lv`             | `wpn_claym_0016`                                           |
+| 构筑初始化程序的被动 Ability 子 Buff 所有权 | `wpn_funnel_0016`                                          |
+| 装备触发伤害的来源分类                      | `wpn_lance_0010`                                           |
+| Buff 结束链的治疗执行器                     | `wpn_sword_0026`                                           |
+
+- `wpn_claym_0003` 的数值差分通过：保留相同静态配装、只关闭被动事件时，后续伤害确实降低；
+  开启事件可观察到加攻 Buff 的图标与完整寿命，最后一次战技命中刷新后 20 秒结束。
+- 本机回归：Next + 游戏数据 **276 文件、2576 测试通过**（包含上述 12 项精确阻塞断言），两套
+  专用类型检查通过。下一步按上表逐链闭环，再补跨事件黑板持久性、队友目标、不同词条等级与
+  触发/不触发的生产差分；这些门禁满足前不接入默认注册。
+
 ### 2026-08-26：武器运行定义全量审计达到 77/77
 
 - 正式武器运行批处理已不再停留在“安装根 Buff”：被动 AbilityEvent、动作黑板、公共条件/动作序列

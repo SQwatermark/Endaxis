@@ -415,7 +415,7 @@ describe('EventContextConditionExecutor', () => {
         context,
       ),
     ).toBe(true);
-    expect(executor.evaluate({ kind: 'eventSpGainMatch', gainKinds: ['cost'] }, context)).toBe(
+    expect(executor.evaluate({ kind: 'eventSpGainMatch', gainKinds: ['refund'] }, context)).toBe(
       false,
     );
     expect(executor.evaluate({ kind: 'eventSpGainMatch' }, context)).toBe(true);

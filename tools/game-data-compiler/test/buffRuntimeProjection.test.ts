@@ -11,6 +11,40 @@ import {
 } from '../src/index.ts';
 
 describe('公共 Buff 运行时投影', () => {
+  it('保留 CreateBuffAttachingSkill 的技能寿命约束，不能降级为独立 Buff', () => {
+    const source = sourceFixture();
+    const sequence = source.graph.abilityEvents[0]!.actions[0]!;
+    const apply = sequence.actions[1]!;
+    if (apply.body.kind !== 'leaf' || apply.body.value.family !== 'buffApplication') {
+      throw new Error('fixture must contain a Buff application');
+    }
+    const result = compileCombatActionSequenceSource(
+      {
+        ...sequence,
+        actions: [
+          {
+            ...apply,
+            body: {
+              kind: 'leaf',
+              value: {
+                family: 'buffApplication',
+                action: { ...apply.body.value.action, lifetimeOwner: 'currentCastSkill' },
+              },
+            },
+          },
+        ],
+      },
+      {
+        actionOwnerTarget: 'caster',
+        actionSourceTarget: 'caster',
+        actionTargetTarget: 'eventTarget',
+      },
+    );
+    expect(result.steps[0]).toMatchObject({
+      kind: 'applyBuff',
+      parameters: { lifetimeOwner: 'currentCastSkill' },
+    });
+  });
   it('公共动作投影按宿主上下文解析 ActionOwner，而不把武器宿主伪装成 Buff', () => {
     const source = sourceFixture();
     const sequence = source.graph.abilityEvents[0]!.actions[0]!;

@@ -9,3 +9,4 @@ build
 coverage
 package-lock.json
 src/next/data/operators/generated
+src/next/data/equipment/generated-weapons

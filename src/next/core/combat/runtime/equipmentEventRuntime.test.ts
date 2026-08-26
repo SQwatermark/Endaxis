@@ -26,6 +26,32 @@ const contribution: CompiledEquipmentContribution = {
 };
 
 describe('EquipmentEventRuntime', () => {
+  it('keeps passive Ability children until disposal and cleans them in creation order', () => {
+    const events = new CombatSemanticEventRuntime();
+    const finished: number[] = [];
+    let nextChild = 0;
+    const runtime = new EquipmentEventRuntime(events, 'operator:a', [contribution], () => ({
+      execute: (_step, context) => {
+        const id = ++nextChild;
+        context!.addAbilityChildBuff!({
+          finish: () => {
+            finished.push(id);
+            return true;
+          },
+        });
+        return true;
+      },
+      evaluate: () => true,
+    }));
+    for (let count = 0; count < 2; count += 1) {
+      events.emit({ kind: 'damageTagHit', sourceOperatorId: 'operator:a', tags: ['normalSkill'] });
+    }
+    expect(finished).toEqual([]);
+    runtime.dispose();
+    expect(finished).toEqual([1, 2]);
+    runtime.dispose();
+    expect(finished).toEqual([1, 2]);
+  });
   it('executes a matching handler once with explicit equipment source identity', () => {
     const events = new CombatSemanticEventRuntime();
     const executed: string[] = [];
@@ -122,10 +148,11 @@ describe('EquipmentEventRuntime', () => {
   it('通过独立端口注册原生 AbilitySystem 事件并归一化负载', () => {
     const events = new CombatSemanticEventRuntime();
     let registered: ((payload: unknown) => void) | undefined;
+    const execute = vi.fn(() => true);
     const createExecutor = vi.fn(
       () =>
         ({
-          execute: () => true,
+          execute,
           evaluate: () => true,
         }) satisfies CombatOperationExecutor,
     );
@@ -170,6 +197,16 @@ describe('EquipmentEventRuntime', () => {
           kind: 'abilitySkill',
           event: 'beforeCastSkill',
           skillCastId: 7,
+        }),
+      }),
+    );
+    expect(execute).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        eventSkillCastInfo: expect.objectContaining({
+          skillCastId: 7,
+          originSkillId: 'skill:a',
+          originSkillType: 'battleSkill',
         }),
       }),
     );

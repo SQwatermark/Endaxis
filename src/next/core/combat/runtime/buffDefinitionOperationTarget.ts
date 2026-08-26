@@ -252,6 +252,10 @@ export class BuffDefinitionOperationTarget<Key extends string>
     return this.container.getCountByIds(ids);
   }
 
+  getInstanceCountByIds(ids: readonly string[]): number {
+    return this.container.getInstanceCountByIds(ids);
+  }
+
   findFirstByIds(ids: readonly string[]): BuffQueryResult | undefined {
     return this.container.findFirstByIds(ids);
   }
