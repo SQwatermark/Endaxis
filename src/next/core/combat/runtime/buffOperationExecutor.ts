@@ -667,6 +667,14 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     source: NonNullable<Extract<RuntimeOperation, { kind: 'applyBuff' }>['parameters']['source']>,
     context?: Parameters<CombatOperationExecutor['execute']>[1],
   ): BuffOperationTarget {
+    if (source === 'buffSource' || source === 'buffOwner') {
+      const id = source === 'buffSource' ? context?.buffSourceId : context?.buffOwnerId;
+      if (id === undefined)
+        throw new Error(`${source} Buff source requires a Buff lifecycle context`);
+      const resolve = this.dependencies.resolveEventTarget;
+      if (resolve === undefined) throw new Error(`${source} Buff source is not configured`);
+      return resolve(id);
+    }
     if (source === 'eventSource') {
       const resolve = this.dependencies.resolveEventTarget;
       if (resolve === undefined) {

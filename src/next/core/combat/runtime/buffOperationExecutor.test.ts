@@ -12,6 +12,54 @@ const delegate: CombatOperationExecutor = {
 };
 
 describe('BuffOperationExecutor', () => {
+  it.each(['buffSource', 'buffOwner'] as const)(
+    '显式 %s 来源不被当前事件施加者覆盖，缺上下文拒绝执行',
+    sourceKind => {
+      const owner = new CombatBuffContainer('enemy', new CombatAttributeSet());
+      const source = new CombatBuffContainer('weapon-holder', new CombatAttributeSet());
+      const apply = vi.fn(() => true);
+      const receiver = Object.assign(
+        new CombatBuffContainer('receiver', new CombatAttributeSet()),
+        { apply },
+      );
+      const executor = new BuffOperationExecutor({
+        sourceId: 'wrong-default',
+        resolveTarget: () => receiver,
+        resolveEventTarget: id => {
+          if (id === owner.ownerId) return owner;
+          if (id === source.ownerId) return source;
+          throw new Error(`unexpected entity ${id}`);
+        },
+        delegate,
+      });
+      const step = {
+        kind: 'applyBuff' as const,
+        parameters: { buffId: 'child', target: 'caster' as const, source: sourceKind },
+      };
+      const context = {
+        blackboard: new ActionBlackboard(),
+        buffOwnerId: owner.ownerId,
+        buffSourceId: source.ownerId,
+        event: {
+          kind: 'buffApplied' as const,
+          sourceId: 'teammate',
+          targetId: 'enemy',
+          buffId: 'corrosion',
+          buffTagIds: [],
+        },
+      };
+      expect(executor.execute(step, context)).toBe(true);
+      expect(apply).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sourceId: sourceKind === 'buffSource' ? 'weapon-holder' : 'enemy',
+        }),
+      );
+      expect(() =>
+        executor.execute(step, { blackboard: context.blackboard, event: context.event }),
+      ).toThrow('Buff lifecycle context');
+    },
+  );
+
   it.each([false, true])(
     'never drops cast attachment when falling back to legacy application (%s)',
     legacy => {

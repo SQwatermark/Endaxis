@@ -72,6 +72,7 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
     readonly resolveCompoundStatusBlackboard?: ResolveCompoundStatusBlackboard,
     readonly onBeforeOutputBuff?: (event: ElementalBuffAppliedPayload) => void,
     readonly onOutputBuff?: (event: ElementalBuffAppliedPayload) => void,
+    readonly onBeforeAddedBuff?: (event: ElementalBuffAppliedPayload) => void,
   ) {}
 
   getExistingAttachment(): ExistingElementalAttachment | null {
@@ -140,6 +141,7 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
       skillCastInfo: options?.skillCastInfo ?? null,
     };
     this.onBeforeOutputBuff?.(event);
+    this.onBeforeAddedBuff?.(event);
     if (this.target.add(definition, this.sourceId, options) === null) return;
     this.onBuffApplied?.(event);
     this.onOutputBuff?.(event);

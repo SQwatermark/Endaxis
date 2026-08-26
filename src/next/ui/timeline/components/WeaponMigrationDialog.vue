@@ -5,6 +5,7 @@ import type { WeaponMigrationPreview } from '../../../application/weaponMigratio
 import type { WeaponInstanceTraitLevelSelection } from '../../../application/weaponGameDataMigration';
 import type { EndaxisProjectDocument } from '../../../core/project/schema';
 import { getOperatorGameName, getWeaponGameName } from '../../legacy/legacyGameText';
+import { nextGameDataRepository } from '../../../data/gameDataRepository';
 
 const props = defineProps<{
   preview: WeaponMigrationPreview;
@@ -30,7 +31,10 @@ const rows = computed(() =>
       ...instance,
       scenarioName: scenario.name,
       operatorName: slug ? (custom?.name ?? getOperatorGameName(slug, locale.value)) : '未配置干员',
-      weaponName: getWeaponGameName(instance.sourceSlug, locale.value),
+      weaponName: getWeaponGameName(
+        nextGameDataRepository.getWeapon(instance.targetSlug)?.assetSlug ?? instance.sourceSlug,
+        locale.value,
+      ),
     };
   }),
 );

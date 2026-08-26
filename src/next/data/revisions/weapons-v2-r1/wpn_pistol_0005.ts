@@ -1,0 +1,361 @@
+/** Immutable v2-r1 compatibility snapshot from feb049c3. */
+import type { WeaponDefinition } from '../../../core/game-data/equipmentDefinition';
+
+const definition = {
+  slug: 'wpn_pistol_0005',
+  rarity: 6,
+  weaponType: 'handcannon',
+  baseAttackAtLevelNodes: [50, 144, 243, 342, 441, 490],
+  traits: [
+    {
+      key: 'skill1',
+      levelCount: 9,
+      modifiers: [
+        {
+          kind: 'attribute',
+          attribute: 'intellect',
+          operation: 'flat',
+          value: [20, 36, 52, 68, 84, 100, 116, 132, 156],
+        },
+      ],
+      buffDefinitions: {
+        buff_wpn_pistol_0005: {
+          stackingType: 'unique',
+          priority: 0,
+          maxStackCount: 0,
+          triggerIntervalSeconds: 0,
+          waitFirstTriggerInterval: true,
+          maxTriggerCount: 1,
+          applyTagIds: [],
+          extendTagIds: [],
+          blackboard: {
+            crit_up2: 0,
+            dmg_up: 0,
+            duration: 0,
+          },
+          attributeModifiers: [],
+          lifecycleSequences: {
+            enable: {
+              steps: [
+                {
+                  kind: 'applyBuff',
+                  parameters: {
+                    buffId: 'buff_wpn_pistol_0005_inaura',
+                    target: 'enemy',
+                    finishByAction: true,
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      dmg_up: {
+                        kind: 'blackboard',
+                        key: 'dmg_up',
+                      },
+                      duration: {
+                        kind: 'blackboard',
+                        key: 'duration',
+                      },
+                      crit_up2: {
+                        kind: 'blackboard',
+                        key: 'crit_up2',
+                      },
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        },
+        buff_wpn_pistol_0005_inaura: {
+          stackingType: 'unlimited',
+          priority: 0,
+          maxStackCount: 0,
+          triggerIntervalSeconds: 0,
+          waitFirstTriggerInterval: true,
+          maxTriggerCount: 1,
+          applyTagIds: [],
+          extendTagIds: [],
+          blackboard: {
+            crit_up2: 0.1,
+            crit_up2_dynamic: 0,
+            dmg_up: 0,
+            dmg_up_dynamic: 0,
+            duration: 10,
+            multi: 2,
+          },
+          attributeModifiers: [],
+          abilityEventResponses: [
+            {
+              event: 'beforeAddedBuff',
+              priority: 0,
+              sequence: {
+                steps: [
+                  {
+                    kind: 'conditional',
+                    parameters: {
+                      condition: {
+                        kind: 'eventBuffTagsMatch',
+                        match: 'hasAny',
+                        buffTagIds: [1535684437, -421286163],
+                      },
+                    },
+                    whenTrue: {
+                      steps: [
+                        {
+                          kind: 'conditional',
+                          parameters: {
+                            condition: {
+                              kind: 'eventSourceTargetMatch',
+                              operator: 'equal',
+                            },
+                          },
+                          whenTrue: {
+                            steps: [
+                              {
+                                kind: 'calculateActionValue',
+                                parameters: {
+                                  key: 'dmg_up_dynamic',
+                                  operation: 'multiply',
+                                  left: {
+                                    kind: 'blackboard',
+                                    key: 'dmg_up',
+                                  },
+                                  right: {
+                                    kind: 'blackboard',
+                                    key: 'multi',
+                                  },
+                                },
+                              },
+                              {
+                                kind: 'calculateActionValue',
+                                parameters: {
+                                  key: 'crit_up2_dynamic',
+                                  operation: 'multiply',
+                                  left: {
+                                    kind: 'blackboard',
+                                    key: 'crit_up2',
+                                  },
+                                  right: {
+                                    kind: 'blackboard',
+                                    key: 'multi',
+                                  },
+                                },
+                              },
+                              {
+                                kind: 'applyBuff',
+                                parameters: {
+                                  buffId: 'buff_wpn_pistol_0005_valid',
+                                  target: 'eventSource',
+                                  source: 'eventSource',
+                                  inheritSourceSkillCastInfo: true,
+                                  blackboardAssignments: {
+                                    dmg_up: {
+                                      kind: 'blackboard',
+                                      key: 'dmg_up_dynamic',
+                                    },
+                                    crit_up2: {
+                                      kind: 'blackboard',
+                                      key: 'crit_up2_dynamic',
+                                    },
+                                    duration: {
+                                      kind: 'blackboard',
+                                      key: 'duration',
+                                    },
+                                  },
+                                },
+                              },
+                            ],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+            {
+              event: 'beforeAddedBuff',
+              priority: 0,
+              sequence: {
+                steps: [
+                  {
+                    kind: 'conditional',
+                    parameters: {
+                      condition: {
+                        kind: 'eventBuffTagsMatch',
+                        match: 'hasAny',
+                        buffTagIds: [1535684437, -421286163],
+                      },
+                    },
+                    whenTrue: {
+                      steps: [
+                        {
+                          kind: 'conditional',
+                          parameters: {
+                            condition: {
+                              kind: 'not',
+                              condition: {
+                                kind: 'eventSourceTargetMatch',
+                                operator: 'equal',
+                              },
+                            },
+                          },
+                          whenTrue: {
+                            steps: [
+                              {
+                                kind: 'applyBuff',
+                                parameters: {
+                                  buffId: 'buff_wpn_pistol_0005_valid',
+                                  target: 'eventSource',
+                                  source: 'eventSource',
+                                  inheritSourceSkillCastInfo: true,
+                                  blackboardAssignments: {
+                                    dmg_up: {
+                                      kind: 'blackboard',
+                                      key: 'dmg_up',
+                                    },
+                                    crit_up2: {
+                                      kind: 'blackboard',
+                                      key: 'crit_up2',
+                                    },
+                                    duration: {
+                                      kind: 'blackboard',
+                                      key: 'duration',
+                                    },
+                                  },
+                                },
+                              },
+                            ],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+        buff_wpn_pistol_0005_valid: {
+          stackingType: 'highPriority',
+          priority: {
+            blackboardKey: 'dmg_up',
+          },
+          maxStackCount: {
+            blackboardKey: 'max_stack',
+          },
+          durationSeconds: {
+            blackboardKey: 'duration',
+          },
+          triggerIntervalSeconds: 0,
+          waitFirstTriggerInterval: true,
+          maxTriggerCount: 1,
+          presentation: {
+            visible: true,
+            iconId: 'icon_battle_buff_atk_up',
+            iconPath: '/icons/icon_battle_buff_atk_up.webp',
+            showInHeadBarCommon: false,
+            showInHeadBarAttached: false,
+            showInSquadIcon: true,
+            onlyShowForMainCharacter: false,
+            iconStyleInSquad: 'Default',
+            abnormalColorType: 'Physical',
+            orderPriority: {
+              useDirectoryValue: false,
+              value: 0,
+              category: 'CommonCharBuff',
+            },
+          },
+          applyTagIds: [],
+          extendTagIds: [],
+          blackboard: {
+            crit_up2: 0.1,
+            dmg_up: 0,
+            duration: 0,
+          },
+          attributeModifiers: [
+            {
+              attribute: 'natureDamageIncrease',
+              slot: 'baseAddition',
+              value: {
+                blackboardKey: 'dmg_up',
+              },
+            },
+            {
+              attribute: 'cryoDamageIncrease',
+              slot: 'baseAddition',
+              value: {
+                blackboardKey: 'dmg_up',
+              },
+            },
+            {
+              attribute: 'criticalRate',
+              slot: 'baseAddition',
+              value: {
+                blackboardKey: 'crit_up2',
+              },
+            },
+          ],
+        },
+      },
+    },
+    {
+      key: 'skill2',
+      levelCount: 9,
+      modifiers: [
+        {
+          kind: 'damageScale',
+          target: 'cryo',
+          slot: 'baseAddition',
+          value: [
+            0.055555556, 0.1, 0.14444445, 0.18888889, 0.23333333, 0.2777778, 0.32222223, 0.36666667,
+            0.43333334,
+          ],
+        },
+      ],
+    },
+    {
+      key: 'skill3',
+      levelCount: 9,
+      modifiers: [
+        {
+          kind: 'panelStat',
+          stat: 'criticalRate',
+          value: [0.035, 0.042, 0.049, 0.056, 0.063, 0.07, 0.077, 0.084, 0.098],
+        },
+      ],
+      initializationBlackboard: {
+        install_0_crit_up2: [0.02, 0.024, 0.028, 0.032, 0.036, 0.04, 0.044, 0.048, 0.056],
+        install_0_dmg_up: [0.035, 0.042, 0.049, 0.056, 0.063, 0.07, 0.077, 0.084, 0.098],
+        install_0_duration: [15, 15, 15, 15, 15, 15, 15, 15, 15],
+      },
+      initializationSequence: {
+        steps: [
+          {
+            kind: 'applyBuff',
+            parameters: {
+              buffId: 'buff_wpn_pistol_0005',
+              target: 'caster',
+              blackboardAssignments: {
+                crit_up2: {
+                  kind: 'blackboard',
+                  key: 'install_0_crit_up2',
+                },
+                dmg_up: {
+                  kind: 'blackboard',
+                  key: 'install_0_dmg_up',
+                },
+                duration: {
+                  kind: 'blackboard',
+                  key: 'install_0_duration',
+                },
+              },
+            },
+          },
+        ],
+      },
+    },
+  ],
+  assetSlug: 'wpn_handcannon_0005',
+  iconPath: '/weapons/handcannon/wpn_handcannon_0005.webp',
+} as const satisfies WeaponDefinition;
+
+export default definition;

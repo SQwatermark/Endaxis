@@ -24,7 +24,10 @@ import OperatorSelectionDialog from './components/OperatorSelectionDialog.vue';
 import WeaponSelectionDialog from './components/WeaponSelectionDialog.vue';
 import WeaponMigrationDialog from './components/WeaponMigrationDialog.vue';
 import WeaponMigrationBackupsDialog from './components/WeaponMigrationBackupsDialog.vue';
-import { prepareDefaultWeaponMigration } from '../../application/defaultWeaponMigration';
+import {
+  canMigrateWeaponRevision,
+  prepareDefaultWeaponMigration,
+} from '../../application/defaultWeaponMigration';
 import type { WeaponMigrationReview } from '../../application/weaponMigrationReview';
 import type { WeaponInstanceTraitLevelSelection } from '../../application/weaponGameDataMigration';
 import {
@@ -89,7 +92,7 @@ import { createEmptyProject } from '../../core/project/createProject';
 import { serializeProjectDocument } from '../../core/project/serialization';
 import { openProject, type OpenProjectResult } from '../../application/openProject';
 import { downloadProjectJson } from './downloadProjectJson';
-import { nextGameDataRepository, weaponV1MigrationSource } from '../../data/gameDataRepository';
+import { nextGameDataRepository } from '../../data/gameDataRepository';
 import { skillSettings } from '../../data/combat/skillSettings';
 import { diffSkillDefinition } from '../../core/game-data/diffSkillDefinition';
 import { resolveSkillTemplateDefinition } from '../../core/compiler/resolveSkillDefinition';
@@ -373,7 +376,7 @@ async function handleProjectFileChange(event: Event): Promise<void> {
     if (!result.ok) {
       if (
         result.kind === 'game-data-revision-mismatch' &&
-        result.projectRevision === weaponV1MigrationSource.revision
+        canMigrateWeaponRevision(result.projectRevision)
       ) {
         const prepared = prepareDefaultWeaponMigration(result.project);
         if (!prepared.ok) throw new Error(prepared.errors.join('\n'));

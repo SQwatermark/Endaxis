@@ -9,6 +9,38 @@ const terminal = {
 };
 
 describe('EventContextConditionExecutor', () => {
+  it('比较新 Buff 施加者与监听 Buff 来源，不比较接收敌人与施加者', () => {
+    const executor = new EventContextConditionExecutor(terminal);
+    const context = {
+      blackboard: new ActionBlackboard(),
+      buffSourceId: 'holder',
+      buffOwnerId: 'enemy',
+      event: {
+        kind: 'buffApplied' as const,
+        sourceId: 'holder',
+        targetId: 'enemy',
+        buffId: 'freeze',
+        buffTagIds: [],
+      },
+    };
+    expect(executor.evaluate({ kind: 'eventSourceMatchesBuffSource' }, context)).toBe(true);
+    expect(
+      executor.evaluate(
+        { kind: 'eventSourceMatchesBuffSource' },
+        { ...context, event: { ...context.event, sourceId: 'teammate' } },
+      ),
+    ).toBe(false);
+    expect(() =>
+      executor.evaluate(
+        { kind: 'eventSourceMatchesBuffSource' },
+        { ...context, buffSourceId: undefined },
+      ),
+    ).toThrow('Buff source');
+    // 旧的物理事件来源/目标比较语义不被新投影重新解释。
+    expect(executor.evaluate({ kind: 'eventSourceTargetMatch', operator: 'equal' }, context)).toBe(
+      false,
+    );
+  });
   it('matches the event origin, never the listening Buff origin or damage tags', () => {
     const executor = new EventContextConditionExecutor(terminal);
     const context = {

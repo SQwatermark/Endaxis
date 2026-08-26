@@ -123,8 +123,7 @@ const definition = {
                           "kind": "conditional",
                           "parameters": {
                             "condition": {
-                              "kind": "eventSourceTargetMatch",
-                              "operator": "equal"
+                              "kind": "eventSourceMatchesBuffSource"
                             }
                           },
                           "whenTrue": {
@@ -163,8 +162,8 @@ const definition = {
                                 "kind": "applyBuff",
                                 "parameters": {
                                   "buffId": "buff_wpn_pistol_0005_valid",
-                                  "target": "eventSource",
-                                  "source": "eventSource",
+                                  "target": "buffSource",
+                                  "source": "buffSource",
                                   "inheritSourceSkillCastInfo": true,
                                   "blackboardAssignments": {
                                     "dmg_up": {
@@ -216,8 +215,7 @@ const definition = {
                             "condition": {
                               "kind": "not",
                               "condition": {
-                                "kind": "eventSourceTargetMatch",
-                                "operator": "equal"
+                                "kind": "eventSourceMatchesBuffSource"
                               }
                             }
                           },
@@ -227,8 +225,8 @@ const definition = {
                                 "kind": "applyBuff",
                                 "parameters": {
                                   "buffId": "buff_wpn_pistol_0005_valid",
-                                  "target": "eventSource",
-                                  "source": "eventSource",
+                                  "target": "buffSource",
+                                  "source": "buffSource",
                                   "inheritSourceSkillCastInfo": true,
                                   "blackboardAssignments": {
                                     "dmg_up": {

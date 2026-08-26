@@ -184,6 +184,8 @@ export const BUFF_APPLICATION_SOURCES = [
   ...COMBAT_TARGETS,
   'currentAbilityEntity',
   'eventSource',
+  'buffSource',
+  'buffOwner',
 ] as const;
 /** Buff 来源允许保留能力实体 ActionOwner 的稳定身份。 */
 export type BuffApplicationSource = (typeof BUFF_APPLICATION_SOURCES)[number];
@@ -484,7 +486,7 @@ export type CombatCondition =
       finalHealKey?: string;
       realHealKey?: string;
     }
-  /** Buff 宿主的承伤事件来源是否等于创建该 Buff 的实体。 */
+  /** 承伤/加 Buff 事件的物理来源是否等于创建监听 Buff 的实体。 */
   | { kind: 'eventSourceMatchesBuffSource' }
   /** 事件来源是否等于 Buff 来源能力实体的原生 AbilitySystem.source。 */
   | { kind: 'eventSourceMatchesBuffSourceEntitySource' }

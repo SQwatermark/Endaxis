@@ -11,6 +11,94 @@ import {
 } from '../src/index.ts';
 
 describe('公共 Buff 运行时投影', () => {
+  it('目标侧前置事件不沿用未经审计的技能事件条件', () => {
+    const source = sourceFixture();
+    expect(() =>
+      compileBuffRuntimeDefinitionSource({
+        ...source,
+        graph: {
+          ...source.graph,
+          abilityEvents: source.graph.abilityEvents.map(event => ({
+            ...event,
+            event: 'OnBeforeAddedBuff',
+          })),
+        },
+      }),
+    ).toThrow('unaudited receiving Buff event condition skillType');
+  });
+  it.each(['Source', 'Target', 'Owner'] as const)(
+    '目标侧前置 Buff 事件严格区分 %s 的身份',
+    target => {
+      const source = sourceFixture();
+      const sequence = source.graph.abilityEvents[0]!.actions[0]!;
+      const apply = sequence.actions[1]!;
+      if (apply.body.kind !== 'leaf' || apply.body.value.family !== 'buffApplication')
+        throw new Error('fixture');
+      const definition = compileBuffRuntimeDefinitionSource({
+        ...source,
+        graph: {
+          ...source.graph,
+          abilityEvents: [
+            {
+              event: 'OnBeforeAddedBuff',
+              actions: [
+                {
+                  ...sequence,
+                  actions: [
+                    {
+                      ...sequence.actions[0]!,
+                      body: {
+                        kind: 'leaf',
+                        value: {
+                          family: 'condition',
+                          action: {
+                            kind: 'targetIdentity',
+                            sourceType: 'CheckTargetsEqual',
+                            first: { ...fixedTarget('Source'), targetGroupKey: '' },
+                            second: { ...fixedTarget('Target'), targetGroupKey: '' },
+                          },
+                        },
+                      },
+                    },
+                    {
+                      ...apply,
+                      body: {
+                        kind: 'leaf',
+                        value: {
+                          family: 'buffApplication',
+                          action: {
+                            ...apply.body.value.action,
+                            target: fixedTarget(target),
+                            buffSource: 'ActionSource',
+                          },
+                        },
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      });
+      expect(definition.abilityEventResponses?.[0]?.sequence.steps[0]).toMatchObject({
+        kind: 'conditional',
+        parameters: { condition: { kind: 'eventSourceMatchesBuffSource' } },
+        whenTrue: {
+          steps: [
+            {
+              kind: 'applyBuff',
+              parameters: {
+                target: { Source: 'buffSource', Target: 'eventSource', Owner: 'buffOwner' }[target],
+                source: 'buffSource',
+              },
+            },
+          ],
+        },
+      });
+    },
+  );
+
   it('保留 CreateBuffAttachingSkill 的技能寿命约束，不能降级为独立 Buff', () => {
     const source = sourceFixture();
     const sequence = source.graph.abilityEvents[0]!.actions[0]!;

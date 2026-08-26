@@ -874,6 +874,7 @@ export class StandardPlayerDamageEnvironment {
         resolveCompoundStatusBlackboard,
         event => this.#emit(operatorId, 'beforeOutputBuff', event),
         event => this.#emit(operatorId, 'outputBuff', event),
+        event => this.#emit('enemy', 'beforeAddedBuff', event),
       );
       this.#inflictionAdapters.set(operatorId, adapter);
     }

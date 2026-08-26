@@ -104,7 +104,8 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
         throw new Error('eventSourceMatchesBuffSource requires a Buff source identity');
       }
       return context.event.kind === 'abilityDamage' ||
-        context.event.kind === 'abilityPhysicalInfliction'
+        context.event.kind === 'abilityPhysicalInfliction' ||
+        context.event.kind === 'buffApplied'
         ? context.event.sourceId === context.buffSourceId
         : false;
     }

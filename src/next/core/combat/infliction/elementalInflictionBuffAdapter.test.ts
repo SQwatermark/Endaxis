@@ -46,6 +46,45 @@ function createAdapter() {
 }
 
 describe('ElementalInflictionBuffAdapter', () => {
+  it.each([
+    { kind: 'addAttachment', element: 'cryo' },
+    { kind: 'triggerBurst', element: 'heat' },
+    {
+      kind: 'createCompoundStatus',
+      consumedElement: 'electric',
+      incomingElement: 'nature',
+      consumedLayers: 1,
+    },
+  ] as const)('$kind 的两侧前置事件早于创建，添加失败不发布成功事件', operation => {
+    const target = new CombatBuffContainer<Attribute>('enemy', new CombatAttributeSet<Attribute>());
+    const calls: string[] = [];
+    const add = vi.spyOn(target, 'add').mockImplementationOnce(() => {
+      calls.push('create');
+      return null;
+    });
+    const adapter = new ElementalInflictionBuffAdapter(
+      target,
+      'operator',
+      index,
+      undefined,
+      () => calls.push('added'),
+      undefined,
+      () => calls.push('before-output'),
+      () => calls.push('output'),
+      event => {
+        expect(event.sourceId).toBe('operator');
+        expect(event.targetId).toBe('enemy');
+        calls.push('before-added');
+      },
+    );
+    adapter.apply(operation);
+    expect(calls).toEqual(['before-output', 'before-added', 'create']);
+    add.mockRestore();
+    calls.length = 0;
+    adapter.apply(operation);
+    expect(calls).toEqual(['before-output', 'before-added', 'added', 'output']);
+  });
+
   it('copies each incoming cast into burst/status Buffs and preserves event ordering', () => {
     const target = new CombatBuffContainer<Attribute>('enemy', new CombatAttributeSet<Attribute>());
     const calls: string[] = [];
@@ -70,6 +109,7 @@ describe('ElementalInflictionBuffAdapter', () => {
       undefined,
       event => calls.push(`before:${event.buffId}:${event.skillCastInfo?.skillCastId}`),
       event => calls.push(`output:${event.buffId}:${event.skillCastInfo?.skillCastId}`),
+      event => calls.push(`receiving:${event.buffId}:${event.skillCastInfo?.skillCastId}`),
     );
     adapter.apply({ kind: 'addAttachment', element: 'heat' }, { skillCastInfo: first });
     for (const operation of resolveElementalInfliction('heat', adapter.getExistingAttachment())) {
@@ -87,8 +127,9 @@ describe('ElementalInflictionBuffAdapter', () => {
     expect(
       target.findFirst(buff => buff.definition.id === 'status.heat.electric')?.skillCastInfo,
     ).toEqual(first);
-    expect(calls.slice(3, 6)).toEqual([
+    expect(calls.slice(4, 8)).toEqual([
       'before:burst.heat:2',
+      'receiving:burst.heat:2',
       'added:burst.heat:2',
       'output:burst.heat:2',
     ]);

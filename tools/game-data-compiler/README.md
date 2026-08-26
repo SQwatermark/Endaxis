@@ -578,9 +578,16 @@ npm run generate:game-data:operator-runtime -- `
 正式生成命令不会在第一把失败时中断审计：它逐把收集来源错误，再合并运行投影诊断，全部通过后
 才渲染并原子替换目录。正式目录只保存 78 个 TypeScript 文件；机器审计写入被忽略的
 `tmp/generated-next-weapons`，`--check` 不读取也不修改审计文件。生成目录已接入默认仓库，
-版本为 `endaxis-next-definitions-v2-weapons-1.4.4-r1`；新旧武器内容有 revision/哈希发布门禁，
+版本为 `endaxis-next-definitions-v2-weapons-1.4.4-r2`；新旧武器内容有 revision/哈希发布门禁，
 重新生成有差异时必须显式决定迁移边，不能只改哈希掩盖同版本内容变化。旧 v1 武器快照是正式
 兼容数据，不是可丢弃中间产物。浏览器确认/备份流程见 docs/next/weapon-data-migration.md。
+
+r2 修正两把反应光环的接收侧事件身份。`OnBeforeAddedBuff` 在监听 Buff 中的 Source 是监听器
+创建者，Owner 是接收敌人，Target 是当前施加者；依据 combat-spec 的 before-output-buff.md、
+check-targets-equal.md 和 Buff.BindAbilityEventEnvironment，不得混成物理事件 sourceId/targetId。
+公共投影保留 buffSource/buffOwner；当前 205 未审计动作/条件仍阻塞，不能顺手扩大其他事件。
+元素适配器已补同一前置事件，真实反应的正反分支、等级两端与伤害差分见
+docs/research/weapon-reaction-aura-branches.md。r1 原定义与旧哈希保留，不能随新产物覆盖。
 
 ```powershell
 npm run generate:game-data:weapons -- --tables <TableCfg目录> --skill-data <SkillData目录> `

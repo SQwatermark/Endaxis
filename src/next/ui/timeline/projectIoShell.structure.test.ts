@@ -4,7 +4,7 @@ import toolbarSource from './components/TimelineHeaderToolbar.vue?raw';
 
 describe('Next project I/O shell', () => {
   it('routes the exact legacy revision to review and marks a migrated project unsaved', () => {
-    expect(editorSource).toContain('result.projectRevision === weaponV1MigrationSource.revision');
+    expect(editorSource).toContain('canMigrateWeaponRevision(result.projectRevision)');
     expect(editorSource).toContain('prepareDefaultWeaponMigration(result.project)');
     expect(editorSource).toContain('persistBackup:');
     expect(editorSource).toContain('projectDirty.value = migrated');

@@ -21,6 +21,158 @@ const repository = createGameDataRepository({
 });
 
 describe('生成武器的正式模拟门禁', () => {
+  it.each([
+    { trigger: 'owner', tier: 1, damage: 0.07, critical: 0.04 },
+    { trigger: 'owner', tier: 9, damage: 0.196, critical: 0.112 },
+    { trigger: 'teammate', tier: 1, damage: 0.035, critical: 0.02 },
+    { trigger: 'teammate', tier: 9, damage: 0.098, critical: 0.056 },
+  ])(
+    '冻结/腐蚀光环 $trigger/$tier：增益归持有者，精确倍率与寿命进入 hit',
+    async ({ trigger, tier, damage, critical }) => {
+      const weapon = candidates.find(item => item.slug === 'wpn_pistol_0005')!;
+      const owner = repository.getOperator('tangtang')!;
+      const groups =
+        trigger === 'owner'
+          ? ['basicAttack', 'battleSkill', 'basicAttack', 'basicAttack']
+          : ['battleSkill', 'basicAttack', 'basicAttack', 'basicAttack'];
+      const teammate = repository.getOperator(trigger === 'owner' ? 'perlica' : 'arcane')!;
+      const options = {
+        teammateSkillGroup: 'battleSkill',
+        teammateStartFrame: trigger === 'owner' ? 1 : 300,
+        ownerStartFrames: [1, 301, 601, 1001],
+      };
+      const levels = weapon.traits.map(() => tier);
+      const disabled = {
+        ...weapon,
+        traits: weapon.traits.map(({ initializationSequence: _init, ...trait }) => trait),
+      };
+      const result = await simulateWeapon(weapon, owner, groups, levels, [teammate], options);
+      const baseline = await simulateWeapon(disabled, owner, groups, levels, [teammate], options);
+      const activations = result.receiptEntries.filter(
+        entry =>
+          entry.event === 'BuffApplied' && entry.data?.buffId === 'buff_wpn_pistol_0005_valid',
+      );
+      expect(activations).toHaveLength(1);
+      expect(activations[0]).toMatchObject({
+        sourceId: 'track:weapon-owner',
+        targetId: 'track:weapon-owner',
+        data: { visible: true, iconId: 'icon_battle_buff_atk_up' },
+      });
+      const end = result.receiptEntries.find(
+        entry =>
+          entry.event === 'BuffFinished' && entry.data?.buffId === 'buff_wpn_pistol_0005_valid',
+      )!;
+      expect(end.time - activations[0]!.time).toBeCloseTo(15, 1);
+      const hits = result.receiptEntries.filter(
+        entry =>
+          entry.event === 'DamageApplied' &&
+          entry.sourceId === 'track:weapon-owner' &&
+          entry.data?.skillType === 'basicAttack' &&
+          entry.frame >= 601,
+      );
+      expect(hits.some(hit => hit.frame < 1001)).toBe(true);
+      expect(hits.some(hit => hit.frame >= 1001)).toBe(true);
+      for (const hit of hits) {
+        const reference = baseline.receiptEntries.find(
+          entry => entry.event === 'DamageApplied' && entry.data?.hitId === hit.data?.hitId,
+        )!;
+        expect(reference).toBeDefined();
+        const active = hit.frame < 1001;
+        expect(
+          Number(hit.data?.damageScaleMultiplier) - Number(reference.data?.damageScaleMultiplier),
+        ).toBeCloseTo(active ? damage : 0, 6);
+        expect(Number(hit.data?.criticalRate) - Number(reference.data?.criticalRate)).toBeCloseTo(
+          active ? critical : 0,
+          6,
+        );
+        if (active)
+          expect(Number(hit.data?.nonCriticalDamage)).toBeGreaterThan(
+            Number(reference.data?.nonCriticalDamage),
+          );
+        else expect(hit.data?.nonCriticalDamage).toBe(reference.data?.nonCriticalDamage);
+      }
+      // 队友只负责触发，不能错误取得武器增益。
+      const otherHits = result.receiptEntries.filter(
+        entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:teammate:0',
+      );
+      for (const hit of otherHits) {
+        const reference = baseline.receiptEntries.find(
+          entry => entry.event === 'DamageApplied' && entry.data?.hitId === hit.data?.hitId,
+        )!;
+        expect(hit.data?.damageScaleMultiplier).toBe(reference.data?.damageScaleMultiplier);
+        expect(hit.data?.criticalRate).toBe(reference.data?.criticalRate);
+      }
+    },
+  );
+
+  it('仅寒冷附着不冒充冻结，不能触发反应武器光环', async () => {
+    const weapon = candidates.find(item => item.slug === 'wpn_pistol_0005')!;
+    const result = await simulateWeapon(weapon, repository.getOperator('tangtang')!, [
+      'battleSkill',
+      'basicAttack',
+    ]);
+    expect(result.receiptEntries.some(entry => entry.event === 'ElementalInflictionApplied')).toBe(
+      true,
+    );
+    expect(
+      result.receiptEntries.filter(
+        entry =>
+          entry.event === 'BuffApplied' && entry.data?.buffId === 'buff_wpn_pistol_0005_valid',
+      ),
+    ).toHaveLength(0);
+  });
+
+  it.each([
+    { tier: 1, damage: 0.08 },
+    { tier: 9, damage: 0.224 },
+  ])('灼热/腐蚀光环 $tier：队友反应给剑持有者加伤，不给队友加伤', async ({ tier, damage }) => {
+    const weapon = candidates.find(item => item.slug === 'wpn_sword_0010')!;
+    const owner = repository.getOperator('laevatain')!;
+    const teammate = repository.getOperator('arcane')!;
+    const groups = ['basicAttack', 'basicAttack', 'battleSkill'];
+    const levels = weapon.traits.map(() => tier);
+    const options = { teammateSkillGroup: 'battleSkill', teammateStartFrames: [1, 300] };
+    const disabled = {
+      ...weapon,
+      traits: weapon.traits.map(({ initializationSequence: _init, ...trait }) => trait),
+    };
+    const teammates = [repository.getOperator('perlica')!, teammate];
+    const result = await simulateWeapon(weapon, owner, groups, levels, teammates, options);
+    const baseline = await simulateWeapon(disabled, owner, groups, levels, teammates, options);
+    const applied = result.receiptEntries.filter(
+      entry => entry.event === 'BuffApplied' && entry.data?.buffId === 'buff_wpn_sword_0010_valid',
+    );
+    expect(applied).toHaveLength(1);
+    expect(applied[0]).toMatchObject({
+      sourceId: 'track:weapon-owner',
+      targetId: 'track:weapon-owner',
+      data: { visible: true },
+    });
+    const end = result.receiptEntries.find(
+      entry => entry.event === 'BuffFinished' && entry.data?.buffId === 'buff_wpn_sword_0010_valid',
+    )!;
+    expect(end.time - applied[0]!.time).toBeCloseTo(20, 1);
+    const hits = result.receiptEntries.filter(
+      entry =>
+        entry.event === 'DamageApplied' &&
+        entry.sourceId === 'track:weapon-owner' &&
+        entry.frame >= 601 &&
+        entry.data?.damageType === 'heat',
+    );
+    expect(hits.length).toBeGreaterThan(0);
+    for (const hit of hits) {
+      const reference = baseline.receiptEntries.find(
+        entry => entry.event === 'DamageApplied' && entry.data?.hitId === hit.data?.hitId,
+      )!;
+      expect(
+        Number(hit.data?.damageScaleMultiplier) - Number(reference.data?.damageScaleMultiplier),
+      ).toBeCloseTo(damage, 6);
+      expect(Number(hit.data?.nonCriticalDamage)).toBeGreaterThan(
+        Number(reference.data?.nonCriticalDamage),
+      );
+    }
+  });
+
   it('武器物理异常追加伤害使用独立来源，不伪装为触发技能命中', async () => {
     const weapon = candidates.find(item => item.slug === 'wpn_lance_0010')!;
     const operator = repository.getOperator('lifeng')!;
@@ -362,6 +514,12 @@ async function simulateWeapon(
   skillGroups: readonly string[] = ['basicAttack', 'battleSkill', 'comboSkill', 'ultimate'],
   traitLevels?: readonly number[],
   teammates: readonly OperatorDefinition[] = [],
+  options: {
+    teammateSkillGroup?: string;
+    teammateStartFrame?: number;
+    teammateStartFrames?: readonly number[];
+    ownerStartFrames?: readonly number[];
+  } = {},
 ) {
   const teammateTrackIndices = [1, 2, 3] as const;
   if (teammates.length > teammateTrackIndices.length) throw new Error('at most three teammates');
@@ -420,7 +578,7 @@ async function simulateWeapon(
       trackIndex: 0,
       operator,
       skillGroupKey,
-      startFrame: 1 + index * 300,
+      startFrame: options.ownerStartFrames?.[index] ?? 1 + index * 300,
       ids: { allocate: kind => `${kind}:generated-audit:${id++}` },
     }).scenario;
   }
@@ -429,8 +587,8 @@ async function simulateWeapon(
       scenario,
       trackIndex: teammateTrackIndices[index]!,
       operator: teammate,
-      skillGroupKey: 'basicAttack',
-      startFrame: 300,
+      skillGroupKey: options.teammateSkillGroup ?? 'basicAttack',
+      startFrame: options.teammateStartFrames?.[index] ?? options.teammateStartFrame ?? 300,
       ids: { allocate: kind => `${kind}:generated-audit:${id++}` },
     }).scenario;
   }

@@ -124,7 +124,7 @@ const definition = {
                               "kind": "not",
                               "condition": {
                                 "kind": "timedMarkerPresent",
-                                "target": "caster",
+                                "target": "buffSource",
                                 "markerId": "wpn_sword_0010"
                               }
                             }
@@ -135,8 +135,8 @@ const definition = {
                                 "kind": "applyBuff",
                                 "parameters": {
                                   "buffId": "buff_wpn_sword_0010_valid",
-                                  "target": "eventSource",
-                                  "source": "eventSource",
+                                  "target": "buffSource",
+                                  "source": "buffSource",
                                   "inheritSourceSkillCastInfo": true,
                                   "blackboardAssignments": {
                                     "dmg_up": {
@@ -157,7 +157,7 @@ const definition = {
                               {
                                 "kind": "createTimedMarker",
                                 "parameters": {
-                                  "target": "caster",
+                                  "target": "buffSource",
                                   "markerId": "wpn_sword_0010",
                                   "durationSeconds": {
                                     "kind": "constant",
