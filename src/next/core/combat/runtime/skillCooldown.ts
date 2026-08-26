@@ -3,6 +3,7 @@
  * 本层不猜缺失的确认帧；多充能和动态恢复倍率需要独立证据与定义字段后再扩展。
  */
 import { PeriodicTimer } from './periodicTimer';
+import { COMBAT_FRAMES_PER_SECOND } from './combatClock';
 
 const READY_EPSILON = 0.00001;
 
@@ -45,6 +46,20 @@ export class SkillCooldown {
       ready: timer?.isReady ?? true,
       remainingFrames: timer === undefined ? 0 : Math.max(0, timer.remaining),
       progress: timer?.progress ?? 1,
+    };
+  }
+
+  /** 原生 CheckCooldown 门禁所需事实。只覆盖本账本的单充能；缺配置不冒充就绪。 */
+  get comboConditionSnapshot(): {
+    readonly oneReady: boolean;
+    readonly maxPassedTime: number;
+    readonly startCdFrame: number;
+  } | null {
+    if (this.#timer === undefined || this.#commitFrame === undefined) return null;
+    return {
+      oneReady: this.#timer.isReady,
+      maxPassedTime: this.#timer.passed / COMBAT_FRAMES_PER_SECOND,
+      startCdFrame: this.#commitFrame,
     };
   }
 

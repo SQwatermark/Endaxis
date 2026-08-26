@@ -386,6 +386,10 @@ npm run download:game-data:operator-closure -- --vfs-fallback http://desktop:876
 
 已完成：
 
+- Next 编译程序 comboConditionPrograms 已由 assembly 自动安装到标准环境真实事件阶段，
+  复用角色共享板和当前槽单充能冷却。五条真实来源通过实际技能附着回归；正式角色定义/场景
+  生成尚未接入，不能把此称为干员转换完成。先分离未放置槽位的静态冷却账本，再接资格来源及
+  Pending 选择/afterCastStart 覆盖。alive/InSilence 和 Pending 接收仍是必需显式端口。
 - VFS 已解码 Unity 连携 RID 的有界规范化适配，五种已审计叶子仍复用公共 Action/Condition 解析；
   真实 14 条来源核对一致，五条条件可编译。Context 对象类型及 ByTag 首目标增强层数进入 Next。
   DebugPrint/关闭动作不再被残留 Target 假阻塞；真正的 InputTarget、非空子 RID 和 BuffIdCount
@@ -393,9 +397,9 @@ npm run download:game-data:operator-closure -- --vfs-fallback http://desktop:876
 - 公共连携条件来源读取与四类已审计附着事件 Pending 编译，复用公共条件/序列而不另写叶子；
   布尔结果被消费时保留纯尾条件。原始 RID 未展开、immediate、主控/支援过滤、未审计事件仍拒绝；
   InputTarget 尚未投影时禁止把 Target 编成 Buff 的物理 eventTarget。证据见 combat-spec 的
-  combo-condition-environment.md、combo-event-gates-and-pending.md；尚未自动安装角色五条完整条件。
+  combo-condition-environment.md、combo-event-gates-and-pending.md；尚未接正式角色定义到场景生成。
 - AbilitySystemData 两层黑板的公共安装投影：实体字面值与启用/禁用的条件局部板分离，动态声明
-  不当作编译期常量；Next 实体初值可随场景装配进入共享运行板，但五条原生连携条件尚未自动注册。
+  不当作编译期常量；Next 实体初值可随场景装配进入共享运行板，正式角色常驻条件生成尚未切换。
 - CheckSpellInflictionType 的原生数值/命名/零 mask 与 savedKey 写回投影；有写入副作用的尾条件
   保留执行及前置守卫，不能按“没有后继步骤”省略。证据见 combat-spec/docs/check-spell-infliction-type.md。
 - 独立 TypeScript 工具链、类型检查和测试命令；

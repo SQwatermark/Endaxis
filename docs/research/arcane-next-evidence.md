@@ -1,6 +1,33 @@
 # 诀新版配置证据记录
 
-## 2026-08-26 五条真实条件的公共来源/查询执行（最新）
+## 2026-08-26 编译条件程序自动装配（最新）
+
+在既有 combo-condition-environment / combo-event-gates-and-pending / combo-cast-preparation
+规格上接线，不新增原生规则。CombatOperatorProgram.comboConditionPrograms 是角色常驻程序，
+每个 key 一次注册，不按时间轴技能块数安装；依赖 StandardPlayerDamageEnvironment 的真实附着
+事件注册端口和 assembly 既有 reactive 操作链。实体板与技能/Buff 共用，无 Buff runtime 时也共用。
+
+assembly 先校验全批槽位/变体/计时器，再于初始化/被动/入战前注册。资格查询必须显式提供
+alive/InSilence；SkillCooldown 的单充能事实直接读取，costFrame 已在正式定义注明来源为
+CastData.startCdFrame。每次检查从 AbilitySystem 当前槽位取账本，经过配置帧换秒后交既有
+float32 门禁比较。时间膨胀沿用技能冷却时钟；不按现实时间重算，也不假装已支持多充能。
+
+Pending 输出仍是带原始事件、input/trigger 和 direct 快照的必需回调；null/{} 与字符串保持。
+不会用旧连携窗口的数值板/提前覆盖绕过 afterCastStart 时序。目标 ID 只解析已装配角色、
+木桩和活动能力实体，失效/未知引用明确报错。构造中途注册、入战或第 0 帧输入失败时注销本批
+监听；显式清理幂等，不动其他场景的注册。只保证新增注册清理，不声称已有所有事件系统均有卸载协议。
+
+新增 30 项回归：真实五条件 × 四元素 × 构筑守卫 0/1 的两次技能附着，确认帧边界、实际槽位替换、
+冷却时间膨胀、跨技能共享板、null/空板/字符串、异常清理和活动实体身份。全量 **287 文件/2989 项通过**，
+两侧类型检查通过；tmp/combo-condition-assembly.audit.json 不提交，C#/VFS 本批未重跑。
+
+**8 场正式阻塞仍在**。尚无正式 OperatorDefinition 到场景程序的常驻条件生成，也没有自动提供
+alive/InSilence 或接 Pending 选择/施法。新增关键接入前提：当前 assembly 仅为已放置技能建冷却，
+必须先把连携槽位静态冷却配置从技能块分离，覆盖未放置连携和变体，不能用始终 ready 假过门禁。
+本批对此严格拒绝；后续接公共角色源 → 定义/场景 → 常驻条件 → Pending/afterCastStart/SmartTarget，
+再做四元素与连续施法差分撤销错误断言。无需重复研究已闭合的 RID/条件叶子。
+
+## 2026-08-26 五条真实条件的公共来源/查询执行（上一批）
 
 新增 parseUnityComboSkillConditionsSource，输入为 VFS character-template-prefix-v1 中的
 comboSkillConditions 与 conditionReferences。RID 必须为字符串、精确指向 complete 的同程序集

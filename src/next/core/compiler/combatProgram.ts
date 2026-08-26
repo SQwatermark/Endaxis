@@ -384,4 +384,19 @@ export interface CompiledComboSkillRegistration {
   })[];
 }
 
+/** 原生附着事件的常驻条件环境；不与旧语义事件连携规则混用。 */
+export interface CompiledComboSkillConditionProgram {
+  readonly key: string;
+  /** 每次求值读取该槽的当前形态，而不是注册时的技能 ID。 */
+  readonly skillGroupKey: string;
+  readonly event:
+    | 'beforeOutputInfliction'
+    | 'beforeTakeInfliction'
+    | 'afterOutputInfliction'
+    | 'afterTakeInfliction';
+  /** null 为禁用，{} 为启用空板；字符串/空值不降格成数值。 */
+  readonly initialValues: Readonly<Record<string, number | string | null>> | null;
+  readonly sequence: ResolvedActionSequence;
+}
+
 export type { ElementalReaction, StatusModifierDefinition };

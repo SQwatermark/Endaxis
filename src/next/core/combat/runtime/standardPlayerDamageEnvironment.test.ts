@@ -10,6 +10,7 @@ import type {
   CombatOperationExecutorContext,
   EquipmentEventOperationExecutorContext,
 } from './combatRuntimeAssembly';
+import { CombatRuntimeAssembly } from './combatRuntimeAssembly';
 import { StandardPlayerDamageEnvironment } from './standardPlayerDamageEnvironment';
 import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 import { createEnemyCombatVitals } from './combatVitalsFactory';
@@ -335,6 +336,133 @@ function createSkillSettings(): SkillSettingsDocument {
 }
 
 describe('StandardPlayerDamageEnvironment', () => {
+  it.each(['heat', 'electric', 'cryo', 'nature'] as const)(
+    '%s 五条真实条件由 assembly 自动注册，连续技能附着共享实体板且不重复安装',
+    element => {
+      for (const deckGate of [0, 1]) {
+        const context = createContext();
+        const environment = new StandardPlayerDamageEnvironment({
+          criticalSamples: { nextCriticalSample: () => 1 },
+          resolveNonRandomRuntimeSnapshot: () => ({
+            runtimeExtensionMultiplier: 1,
+            appliesIgniteDamageMultiplier: false,
+            appliesPhysicalInflictionDamageMultiplier: false,
+          }),
+          enemyVitals: createEnemyCombatVitals(testEnemy),
+          elementalInflictionDocument: elementalAttachments,
+          spellInflictionSettings: skillSettings,
+        });
+        const fixture = unityComboConditionFixture();
+        const programs = parseUnityComboSkillConditionsSource(
+          fixture.conditions,
+          fixture.references,
+          'fixture.combo',
+        ).conditions.map((source, index) => {
+          const compiled = compilePendingComboConditionSource(source, {
+            actionOwnerTarget: 'caster',
+            actionSourceTarget: 'caster',
+            actionTargetTarget: 'eventTarget',
+          });
+          return {
+            key: `${index}`,
+            skillGroupKey: 'combo',
+            event: compiled.event,
+            initialValues: { consumed_type: 0, consumed_layer: 0 },
+            sequence: compileActionSequence(compiled.sequence as ActionSequenceDefinition, 1),
+          };
+        });
+        const pending: string[] = [];
+        const combo = {
+          ...context.program,
+          operatorId: 'owner',
+          skillGroupKey: 'combo',
+          skillId: 'combo',
+          skillType: 'comboSkill' as const,
+          cooldownFrames: 300,
+          costFrame: 0,
+        };
+        const assembly = new CombatRuntimeAssembly({
+          ...environment.runtimeOptions,
+          enemy: testEnemy,
+          resources: context.resources.snapshot(),
+          operators: [
+            {
+              operatorId: 'owner',
+              panel: context.panel,
+              // 两个技能块共享一条角色级注册，不能安装十条条件。
+              skills: [
+                { ...combo, castId: 'a' },
+                { ...combo, castId: 'b' },
+              ],
+              initialEntityBlackboard: {
+                EntityBB_consumed_type: 0,
+                EntityBB_wisd_greater_will: deckGate,
+              },
+              skillSlotGroups: [
+                { skillGroupKey: 'combo', baseSkillKey: 'combo', replacementSkillKeys: [] },
+              ],
+              comboConditionPrograms: programs,
+            },
+            {
+              operatorId: 'operator',
+              panel: context.panel,
+              skills: [
+                {
+                  ...context.program,
+                  timelineActions: [
+                    {
+                      startFrame: 0,
+                      sequence: {
+                        steps: [
+                          {
+                            kind: 'applyElementalInfliction',
+                            parameters: { element, isExtra: false },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+          comboConditionEligibility: { isAlive: () => true, isSilenced: () => false },
+          onPendingComboCondition: (ownerId, program, value) => {
+            expect(ownerId).toBe('owner');
+            expect(value).toMatchObject({
+              inputTarget: { kind: 'operator', operatorId: 'operator' },
+              triggerTarget: { kind: 'enemy' },
+              assignPairs: { consumed_type: 0, consumed_layer: 0 },
+            });
+            pending.push(program.key);
+          },
+        });
+        expect(assembly.tryStartSkill('operator', 'battleSkill')).toBe(true);
+        expect(pending).toEqual([
+          ...(element === 'nature' ? ['0'] : []),
+          ...(deckGate === 0 ? ['4'] : []),
+        ]);
+        pending.length = 0;
+        assembly.simulation.advanceFrame();
+        expect(assembly.tryStartSkill('operator', 'battleSkill')).toBe(true);
+        expect(pending).toEqual([
+          { nature: '0', heat: '1', electric: '2', cryo: '3' }[element],
+          ...(deckGate === 0 ? ['4'] : []),
+        ]);
+        const entity =
+          environment.runtimeOptions.createOperatorBuffRuntime!('owner')!.entityBlackboard!;
+        expect(entity.getNumber('EntityBB_consumed_type')).toBe(
+          deckGate === 0 ? { heat: 0, electric: 1, cryo: 2, nature: 3 }[element] : 0,
+        );
+        assembly.disposeComboSkillConditions();
+        assembly.disposeComboSkillConditions();
+        pending.length = 0;
+        assembly.simulation.advanceFrame();
+        assembly.tryStartSkill('operator', 'battleSkill');
+        expect(pending).toEqual([]);
+      }
+    },
+  );
   it.each(['heat', 'electric', 'cryo', 'nature'] as const)(
     '%s 真实五条条件经 RID 来源/公共编译，在连续两次附着前查询旧层数',
     element => {

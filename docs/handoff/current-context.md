@@ -6,7 +6,31 @@
 当前主线是在 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
-### 2026-08-26 再续：五条真实连携条件的来源与查询闭合（最新）
+### 2026-08-26 再续：常驻条件自动装配与当前槽冷却（最新）
+
+- CombatOperatorProgram 新增 comboConditionPrograms；assembly 按角色/条件注册一次，
+  标准环境提供真实事件注册端口。复用原有 reactive 执行链、技能/Buff 的同一实体板，
+  在开局初始化、被动和入战前安装；重复技能块不重复安装条件。
+- 门禁读取 AbilitySystem 当前槽位和共享单充能 SkillCooldown；costFrame 的定义来源是
+  CastData.startCdFrame，经过时间从配置帧换算秒，沿用冷却时间膨胀，不另造现实帧计时器。
+  实测确认帧前放行、等于/之后拒绝、就绪放行，切换形态后读新槽、切回读旧账本。
+- alive/InSilence 仍是**必需显式端口**，标准环境尚未自动推导；不回退为 HP 或任意标签。
+  Pending 保留输入/trigger、null/空板/字符串及 direct 副本，经必需回调输出，尚未入候选/施法。
+  缺事件端口、Pending 接收方、槽位/变体/冷却配置严格失败。活动能力实体保持实体身份。
+  中途注册、入战或第 0 帧输入失败会注销本批注册；提供幂等、只移除自身注册的清理入口。
+- 五条真实 RID 切片现走公共编译 → 编译程序 → assembly 自动安装 → 两次实际技能附着，
+  四元素和构筑守卫 0/1 均通过。新增 **30 项**，Next+统一编译器 **287 文件/2989 项通过**，
+  两侧类型检查通过。报告 tmp/combo-condition-assembly.audit.json 不提交。
+- **8 场正式阻塞仍保留**。这是编译程序/装配层接通，不是正式 OperatorDefinition/角色转换已切换。
+  下一步先将连携槽位静态冷却配置与已放置技能程序解耦：当前只有放上轴的技能有账本，
+  本批对缺技能/变体计时器明确拒绝，不能为未放置技能随便假造就绪状态。
+  再接角色来源到正式定义/场景编译、alive/InSilence 的场景来源，以及 Pending 候选与
+  afterCastStart 覆盖/SmartTarget。旧窗口数值板与提前覆盖路径不能直接套用。
+- 旧 Target/Tag/BuffCount 实例数与增强层数差异、InputTarget、BuffIdCount、IFix 边界仍在。
+  本批未改 C# 行为，复刻库仅同步交接，C#/VFS 未重跑；未改旧版/旧 Python/正式生成定义，
+  默认武器库/迁移 UI 不切换。两库本地提交，不推送。
+
+### 2026-08-26 再续：五条真实连携条件的来源与查询闭合（上一批）
 
 - 新增 Unity 已解码 RID 适配，按 assembly/namespace/class 和完整消费状态验证 14 条叶子，
   将字段/枚举包装规范化后交给唯一公共 Action/Condition 读取器；保留 RID 与原始来源记录。

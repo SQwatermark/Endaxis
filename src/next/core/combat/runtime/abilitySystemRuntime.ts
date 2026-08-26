@@ -168,6 +168,15 @@ export class AbilitySystemRuntime implements FrameRuntime {
       : undefined;
   }
 
+  /** 读取当前槽位身份；未知组不回退为基础技能。 */
+  currentSkillKeyForSlot(skillGroupKey: string): string {
+    const group = this.#skillSlotGroups.get(skillGroupKey);
+    if (group === undefined) {
+      throw new Error(`unknown ability skill slot group '${skillGroupKey}'`);
+    }
+    return group.currentSkillKey;
+  }
+
   /** 只改变后续释放的槽位解析；已经进入 casting 的实例保持原引用。 */
   changeSkillSlot(skillGroupKey: string, targetSkillKey: string): string {
     const group = this.#skillSlotGroups.get(skillGroupKey);

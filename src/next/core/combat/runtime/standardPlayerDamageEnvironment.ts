@@ -93,6 +93,7 @@ type EnvironmentOptions = Pick<
   | 'emitAbilityEvent'
   | 'createEquipmentEventOperationExecutor'
   | 'registerEquipmentAbilityEventAction'
+  | 'registerComboSkillCondition'
   | 'resolveVitals'
   | 'resolveOperatorVitals'
   | 'probabilitySamples'
@@ -297,6 +298,8 @@ export class StandardPlayerDamageEnvironment {
         this.eventsFor(operatorId).registerAction(event, priority, context =>
           handle(context.payload),
         ),
+      registerComboSkillCondition: registration =>
+        this.comboConditions.registerPendingCondition(registration),
       resolveVitals: (target, operatorId, buffSourceId) => {
         if (target === 'enemy') return this.enemyVitals;
         if (target === 'caster') return this.#requireOperatorVitals(operatorId);

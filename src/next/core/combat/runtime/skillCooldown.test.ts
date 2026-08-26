@@ -2,6 +2,29 @@ import { describe, expect, it } from 'vitest';
 import { SkillCooldown } from './skillCooldown';
 
 describe('SkillCooldown', () => {
+  it('连携资格快照只接受完整单充能配置，经过时间由配置帧换成秒', () => {
+    expect(new SkillCooldown().comboConditionSnapshot).toBeNull();
+    expect(new SkillCooldown(300).comboConditionSnapshot).toBeNull();
+    const cooldown = new SkillCooldown(300, 30);
+    expect(cooldown.comboConditionSnapshot).toEqual({
+      oneReady: true,
+      maxPassedTime: 0,
+      startCdFrame: 30,
+    });
+    cooldown.tryReserve();
+    cooldown.advance(29.5);
+    expect(cooldown.comboConditionSnapshot).toEqual({
+      oneReady: false,
+      maxPassedTime: 29.5 / 30,
+      startCdFrame: 30,
+    });
+    cooldown.advance(0.5);
+    expect(cooldown.comboConditionSnapshot?.maxPassedTime).toBe(1);
+    cooldown.setProgress(0.5);
+    expect(cooldown.comboConditionSnapshot?.maxPassedTime).toBe(5);
+    cooldown.advance(150);
+    expect(cooldown.comboConditionSnapshot?.oneReady).toBe(true);
+  });
   it('reserves, advances and becomes ready at the configured frame', () => {
     const cooldown = new SkillCooldown(4, 0);
 

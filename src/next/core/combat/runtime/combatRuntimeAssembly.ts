@@ -4,6 +4,7 @@
  */
 import type {
   CompiledComboSkillRegistration,
+  CompiledComboSkillConditionProgram,
   CompiledOperatorInitializationProgram,
   CompiledOperatorPassiveProgram,
   CompiledOperatorUpgradeEventProgram,
@@ -67,6 +68,11 @@ import {
   type EquipmentEventExecutionContext,
 } from './equipmentEventRuntime';
 import { ComboSkillRegistrationRuntime } from './comboSkillRegistrationRuntime';
+import type {
+  ComboConditionRegistration,
+  PendingComboCondition,
+} from './comboSkillConditionRuntime';
+import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
 import { OperatorUpgradeEventRuntime } from './operatorUpgradeEventRuntime';
 import {
   TimeDilationRuntime,
@@ -122,6 +128,8 @@ export interface CombatOperatorProgram {
   readonly upgradeEventPrograms?: readonly CompiledOperatorUpgradeEventProgram[];
   /** 角色进入战斗时注册的首段连携入口；与时间轴上放置了多少技能块无关。 */
   readonly comboSkillRegistrations?: readonly CompiledComboSkillRegistration[];
+  /** 原生附着事件的常驻条件；不按技能块重复注册，不替代旧语义连携规则。 */
+  readonly comboConditionPrograms?: readonly CompiledComboSkillConditionProgram[];
   /** 已按当前构筑等级和装备者主副属性解析的静态装备贡献。 */
   readonly equipmentContributions?: readonly CompiledEquipmentContribution[];
   /** 场景编译入口提供的静态面板；底层运行时单元测试可按需省略。 */
@@ -327,6 +335,21 @@ export interface CombatRuntimeAssemblyOptions {
   readonly registerEquipmentAbilityEventAction?: RegisterEquipmentAbilityEventAction;
   /** 原生立即连携入口；普通窗口连携不依赖此端口。 */
   readonly castComboSkillImmediately?: (operatorId: string, skillKey: string) => void;
+  /** 接入真实 AbilityEvent 的 combo 阶段；标准环境提供，不能用后置 semantic event 替代。 */
+  readonly registerComboSkillCondition?: (
+    registration: ComboConditionRegistration,
+  ) => AbilityEventRegistration;
+  /** 必须来自实体 markDie / InSilence 查询。暂不以 HP 或任意 Tag ID 回退。 */
+  readonly comboConditionEligibility?: {
+    readonly isAlive: (operatorId: string) => boolean;
+    readonly isSilenced: (operatorId: string) => boolean;
+  };
+  /** 当前只交付独立 Pending 快照；候选选择及 afterCastStart 覆盖另行接线。 */
+  readonly onPendingComboCondition?: (
+    operatorId: string,
+    program: CompiledComboSkillConditionProgram,
+    pending: PendingComboCondition,
+  ) => void;
   readonly receipt?: CombatReceiptCollector;
 }
 
@@ -356,6 +379,7 @@ export class CombatRuntimeAssembly {
   readonly abilityEntities: LogicalAbilityEntityRuntime;
   /** 实际运行时干员；Buff 生命周期按宿主切换执行身份时复用其构筑与面板。 */
   readonly #operators = new Map<string, CombatOperatorProgram>();
+  readonly #entityBlackboards = new Map<string, ActionBlackboard>();
   readonly #abilitySystems = new Map<string, AbilitySystemRuntime>();
   readonly #skillPrograms = new Map<string, CompiledSkillProgram>();
   readonly #enemyBuffRuntime: EnemyBuffRuntime;
@@ -379,6 +403,7 @@ export class CombatRuntimeAssembly {
   readonly #equipmentEventRuntimes = new Map<string, EquipmentEventRuntime>();
   readonly #operatorUpgradeEventRuntimes: OperatorUpgradeEventRuntime[] = [];
   readonly #comboSkillRegistrationRuntimes: ComboSkillRegistrationRuntime[] = [];
+  readonly #comboConditionRegistrations: AbilityEventRegistration[] = [];
   /** 保留常驻监听步骤的所有者，便于后续补充场景卸载时的对称注销。 */
   readonly #passiveSequences: ActionSequence[] = [];
   /** 不依赖施法实例的 Buff 生命周期按动作身份回到原解释链。 */
@@ -493,6 +518,7 @@ export class CombatRuntimeAssembly {
       this.#operators.set(operator.operatorId, runtimeOperator);
       const entityBlackboard = buffRuntime?.entityBlackboard ?? new ActionBlackboard();
       entityBlackboard.assign(operator.initialEntityBlackboard);
+      this.#entityBlackboards.set(operator.operatorId, entityBlackboard);
       this.#operatorOrder.push(operator.operatorId);
       if (buffRuntime !== undefined) {
         this.#operatorBuffs.set(operator.operatorId, buffRuntime);
@@ -717,175 +743,188 @@ export class CombatRuntimeAssembly {
     configureBuffLifecycle(this.#enemyBuffRuntime);
     for (const target of this.#operatorBuffs.values()) configureBuffLifecycle(target);
 
-    // 养成直接附着 Buff 与原生被动都必须晚于实体和 Buff 生命周期装配。
-    for (const operator of options.operators) {
-      for (const initialization of operator.initializationPrograms ?? []) {
-        const operations = this.#createReactiveOperationChain(
-          operator,
-          `upgrade-initialization:${initialization.key}`,
-          this.#createReactiveTerminal(
+    // 所有角色/槽位/操作链就绪后、任何开局动作前注册；构造失败不可遗留外部事件监听。
+    try {
+      this.#installComboSkillConditions();
+      // 养成直接附着 Buff 与原生被动都必须晚于实体和 Buff 生命周期装配。
+      for (const operator of options.operators) {
+        for (const initialization of operator.initializationPrograms ?? []) {
+          const operations = this.#createReactiveOperationChain(
             operator,
             `upgrade-initialization:${initialization.key}`,
+            this.#createReactiveTerminal(
+              operator,
+              `upgrade-initialization:${initialization.key}`,
+              options,
+            ),
             options,
-          ),
-          options,
-        );
-        const runtime = new CombatActionSequenceRuntime(
-          operations,
-          {
-            blackboard: new ActionBlackboard(initialization.initialBlackboard),
-            actionOwnerId: operator.operatorId,
-            ...(initialization.equipmentContributionIndex === undefined
-              ? {}
-              : {
-                  actionSourceId: operator.operatorId,
-                  addAbilityChildBuff: (child: BuffApplicationHandle) => {
-                    const ability = this.#equipmentEventRuntimes.get(operator.operatorId);
-                    if (ability === undefined)
-                      throw new Error(
-                        `operator '${operator.operatorId}' has no equipment Ability runtime`,
-                      );
-                    ability.addChildBuff(initialization.equipmentContributionIndex!, child);
-                  },
-                }),
-          },
-          {},
-          this.semanticEvents,
-          operator.operatorId,
-        );
-        const sequence = runtime.createSequence(initialization.sequence);
-        sequence.executeInstant({});
-        this.#passiveSequences.push(sequence);
-        this.receipt.record({
-          frame: this.clock.frame,
-          time: this.clock.time,
-          event: 'OperatorUpgradeInitialized',
-          sourceId: operator.operatorId,
-          data: { key: initialization.key },
-        });
-      }
-      for (const passive of operator.passivePrograms ?? []) {
-        const blackboard = new ActionBlackboard(passive.initialBlackboard);
-        const operations = this.#createReactiveOperationChain(
-          operator,
-          `passive:${passive.key}`,
-          this.#createReactiveTerminal(operator, `passive:${passive.key}`, options),
-          options,
-        );
-        const runtime = new CombatActionSequenceRuntime(
-          operations,
-          { blackboard },
-          {},
-          this.semanticEvents,
-          operator.operatorId,
-        );
-        const sequence = runtime.createSequence(passive.enableSequence);
-        if (!sequence.tryExecute({})) {
-          throw new Error(`passive skill '${passive.key}' enable sequence returned false`);
-        }
-        this.#passiveSequences.push(sequence);
-        this.receipt.record({
-          frame: this.clock.frame,
-          time: this.clock.time,
-          event: 'PassiveSkillEnabled',
-          sourceId: operator.operatorId,
-          data: { passiveKey: passive.key },
-        });
-      }
-    }
-
-    // 原生 OnEnterFight 晚于开局常驻 Buff 的创建与事件注册；本模型一场模拟只入战一次。
-    for (const operator of options.operators) {
-      options.emitOperatorEnterFight?.(operator.operatorId);
-    }
-
-    if (this.timeDilation !== null) this.simulation.add(this.timeDilation);
-    this.simulation.add(new CombatResourceRuntime(this.resources, this.clock, this.receipt));
-    // 能力实体到期先于本帧输入和技能动作；新生成实例从下一帧开始扣减时长。
-    this.simulation.add(this.abilityEntities);
-    this.simulation.add({
-      advanceFrame: () => {
-        for (const [instanceId, runtime] of this.#abilityEntityBuffs) {
-          const target = { kind: 'abilityEntity' as const, instanceId };
-          if (!this.abilityEntities.isActive(target)) continue;
-          const entityId = logicalAbilityEntityRuntimeId(instanceId);
-          runtime.advanceWithDeltas(
-            this.timeDilation === null
-              ? {
-                  defaultDeltaSeconds: COMBAT_FRAME_INTERVAL,
-                  globalScaledDeltaSeconds: COMBAT_FRAME_INTERVAL,
-                  selfScaledDeltaSeconds: COMBAT_FRAME_INTERVAL,
-                  skillCooldownDeltaSeconds: COMBAT_FRAME_INTERVAL,
-                }
-              : this.timeDilation.getAbilityTickDeltas(
-                  entityId,
-                  COMBAT_FRAME_INTERVAL,
-                  options.timeDilation!.timeManagerDeltaMode,
-                ),
           );
+          const runtime = new CombatActionSequenceRuntime(
+            operations,
+            {
+              blackboard: new ActionBlackboard(initialization.initialBlackboard),
+              actionOwnerId: operator.operatorId,
+              ...(initialization.equipmentContributionIndex === undefined
+                ? {}
+                : {
+                    actionSourceId: operator.operatorId,
+                    addAbilityChildBuff: (child: BuffApplicationHandle) => {
+                      const ability = this.#equipmentEventRuntimes.get(operator.operatorId);
+                      if (ability === undefined)
+                        throw new Error(
+                          `operator '${operator.operatorId}' has no equipment Ability runtime`,
+                        );
+                      ability.addChildBuff(initialization.equipmentContributionIndex!, child);
+                    },
+                  }),
+            },
+            {},
+            this.semanticEvents,
+            operator.operatorId,
+          );
+          const sequence = runtime.createSequence(initialization.sequence);
+          sequence.executeInstant({});
+          this.#passiveSequences.push(sequence);
+          this.receipt.record({
+            frame: this.clock.frame,
+            time: this.clock.time,
+            event: 'OperatorUpgradeInitialized',
+            sourceId: operator.operatorId,
+            data: { key: initialization.key },
+          });
         }
-      },
-    });
-    // 敌方 Buff 与干员 AbilitySystem 中的 Buff 一样，在本帧技能动作前推进生命周期。
-    this.simulation.add({
-      advanceFrame: () => {
-        if (this.timeDilation === null || this.#enemyBuffRuntime.advanceWithDeltas === undefined) {
-          this.#enemyBuffRuntime.advanceFrame();
-          return;
+        for (const passive of operator.passivePrograms ?? []) {
+          const blackboard = new ActionBlackboard(passive.initialBlackboard);
+          const operations = this.#createReactiveOperationChain(
+            operator,
+            `passive:${passive.key}`,
+            this.#createReactiveTerminal(operator, `passive:${passive.key}`, options),
+            options,
+          );
+          const runtime = new CombatActionSequenceRuntime(
+            operations,
+            { blackboard },
+            {},
+            this.semanticEvents,
+            operator.operatorId,
+          );
+          const sequence = runtime.createSequence(passive.enableSequence);
+          if (!sequence.tryExecute({})) {
+            throw new Error(`passive skill '${passive.key}' enable sequence returned false`);
+          }
+          this.#passiveSequences.push(sequence);
+          this.receipt.record({
+            frame: this.clock.frame,
+            time: this.clock.time,
+            event: 'PassiveSkillEnabled',
+            sourceId: operator.operatorId,
+            data: { passiveKey: passive.key },
+          });
         }
-        this.#enemyBuffRuntime.advanceWithDeltas(
-          this.timeDilation.getAbilityTickDeltas(
-            'enemy',
-            COMBAT_FRAME_INTERVAL,
-            options.timeDilation!.timeManagerDeltaMode,
-          ),
-        );
-      },
-    });
-    // 失衡恢复计时与状态到期一样，在本帧输入和技能动作前推进。
-    const enemyVitalsRuntime = boundBattleRuntimes.enemyVitalsRuntime ?? options.enemyVitalsRuntime;
-    if (enemyVitalsRuntime !== undefined && enemyVitalsRuntime !== null) {
+      }
+
+      // 原生 OnEnterFight 晚于开局常驻 Buff 的创建与事件注册；本模型一场模拟只入战一次。
+      for (const operator of options.operators) {
+        options.emitOperatorEnterFight?.(operator.operatorId);
+      }
+
+      if (this.timeDilation !== null) this.simulation.add(this.timeDilation);
+      this.simulation.add(new CombatResourceRuntime(this.resources, this.clock, this.receipt));
+      // 能力实体到期先于本帧输入和技能动作；新生成实例从下一帧开始扣减时长。
+      this.simulation.add(this.abilityEntities);
       this.simulation.add({
         advanceFrame: () => {
-          if (this.timeDilation === null || enemyVitalsRuntime.advance === undefined) {
-            enemyVitalsRuntime.advanceFrame();
-            return;
+          for (const [instanceId, runtime] of this.#abilityEntityBuffs) {
+            const target = { kind: 'abilityEntity' as const, instanceId };
+            if (!this.abilityEntities.isActive(target)) continue;
+            const entityId = logicalAbilityEntityRuntimeId(instanceId);
+            runtime.advanceWithDeltas(
+              this.timeDilation === null
+                ? {
+                    defaultDeltaSeconds: COMBAT_FRAME_INTERVAL,
+                    globalScaledDeltaSeconds: COMBAT_FRAME_INTERVAL,
+                    selfScaledDeltaSeconds: COMBAT_FRAME_INTERVAL,
+                    skillCooldownDeltaSeconds: COMBAT_FRAME_INTERVAL,
+                  }
+                : this.timeDilation.getAbilityTickDeltas(
+                    entityId,
+                    COMBAT_FRAME_INTERVAL,
+                    options.timeDilation!.timeManagerDeltaMode,
+                  ),
+            );
           }
-          enemyVitalsRuntime.advance(COMBAT_FRAME_INTERVAL * this.timeDilation.currentGlobalScale);
         },
       });
+      // 敌方 Buff 与干员 AbilitySystem 中的 Buff 一样，在本帧技能动作前推进生命周期。
+      this.simulation.add({
+        advanceFrame: () => {
+          if (
+            this.timeDilation === null ||
+            this.#enemyBuffRuntime.advanceWithDeltas === undefined
+          ) {
+            this.#enemyBuffRuntime.advanceFrame();
+            return;
+          }
+          this.#enemyBuffRuntime.advanceWithDeltas(
+            this.timeDilation.getAbilityTickDeltas(
+              'enemy',
+              COMBAT_FRAME_INTERVAL,
+              options.timeDilation!.timeManagerDeltaMode,
+            ),
+          );
+        },
+      });
+      // 失衡恢复计时与状态到期一样，在本帧输入和技能动作前推进。
+      const enemyVitalsRuntime =
+        boundBattleRuntimes.enemyVitalsRuntime ?? options.enemyVitalsRuntime;
+      if (enemyVitalsRuntime !== undefined && enemyVitalsRuntime !== null) {
+        this.simulation.add({
+          advanceFrame: () => {
+            if (this.timeDilation === null || enemyVitalsRuntime.advance === undefined) {
+              enemyVitalsRuntime.advanceFrame();
+              return;
+            }
+            enemyVitalsRuntime.advance(
+              COMBAT_FRAME_INTERVAL * this.timeDilation.currentGlobalScale,
+            );
+          },
+        });
+      }
+      // 状态到期先于本帧输入和技能动作结算；同一所有者内按状态插入顺序处理。
+      if (this.#enemyStatuses !== undefined) this.simulation.add(this.#enemyStatuses);
+      for (const operator of options.operators) {
+        const statusRuntime = this.#operatorStatuses.get(operator.operatorId);
+        if (statusRuntime !== undefined) this.simulation.add(statusRuntime);
+      }
+      // 先扣减未暂停候选的剩余时间，再处理本帧输入；归零的候选不能被本帧输入消费。
+      this.simulation.add(this.comboWindows);
+      const inputRuntime = new CombatInputRuntime({
+        clock: this.clock,
+        inputs: options.inputs ?? [],
+        receipt: this.receipt,
+        tryStartSkill: (operatorId, skillId, castId) =>
+          this.tryStartSkill(operatorId, skillId, castId),
+      });
+      this.simulation.add(inputRuntime);
+      for (const operator of options.operators) {
+        this.simulation.add(this.#requireAbilitySystem(operator.operatorId));
+      }
+      const externalEvents = new ExternalCombatEventRuntime({
+        clock: this.clock,
+        events: options.externalEvents ?? [],
+        semanticEvents: this.semanticEvents,
+        emitOperatorHitAbilityEvent: options.emitExternalOperatorHit,
+        emitOperatorWeaknessTriggeredOutput: options.emitExternalOperatorWeaknessTriggeredOutput,
+        receipt: this.receipt,
+      });
+      // 外部事实晚于同帧技能动作：第 0 帧启用的临时监听器也能接收第 0 帧标记。
+      this.simulation.add(externalEvents);
+      inputRuntime.applyCurrentFrame();
+      externalEvents.applyCurrentFrame();
+    } catch (error) {
+      this.disposeComboSkillConditions();
+      throw error;
     }
-    // 状态到期先于本帧输入和技能动作结算；同一所有者内按状态插入顺序处理。
-    if (this.#enemyStatuses !== undefined) this.simulation.add(this.#enemyStatuses);
-    for (const operator of options.operators) {
-      const statusRuntime = this.#operatorStatuses.get(operator.operatorId);
-      if (statusRuntime !== undefined) this.simulation.add(statusRuntime);
-    }
-    // 先扣减未暂停候选的剩余时间，再处理本帧输入；归零的候选不能被本帧输入消费。
-    this.simulation.add(this.comboWindows);
-    const inputRuntime = new CombatInputRuntime({
-      clock: this.clock,
-      inputs: options.inputs ?? [],
-      receipt: this.receipt,
-      tryStartSkill: (operatorId, skillId, castId) =>
-        this.tryStartSkill(operatorId, skillId, castId),
-    });
-    this.simulation.add(inputRuntime);
-    for (const operator of options.operators) {
-      this.simulation.add(this.#requireAbilitySystem(operator.operatorId));
-    }
-    const externalEvents = new ExternalCombatEventRuntime({
-      clock: this.clock,
-      events: options.externalEvents ?? [],
-      semanticEvents: this.semanticEvents,
-      emitOperatorHitAbilityEvent: options.emitExternalOperatorHit,
-      emitOperatorWeaknessTriggeredOutput: options.emitExternalOperatorWeaknessTriggeredOutput,
-      receipt: this.receipt,
-    });
-    // 外部事实晚于同帧技能动作：第 0 帧启用的临时监听器也能接收第 0 帧标记。
-    this.simulation.add(externalEvents);
-    inputRuntime.applyCurrentFrame();
-    externalEvents.applyCurrentFrame();
   }
 
   tryStartSkill(operatorId: string, skillId: string, castId?: string): boolean {
@@ -1066,6 +1105,117 @@ export class CombatRuntimeAssembly {
           }),
     });
     return { cooldown, advancesCooldown: true };
+  }
+
+  /** 对称注销本 assembly 的原生常驻条件；不会清除同一事件中心里其他所有者的注册。 */
+  disposeComboSkillConditions(): void {
+    for (const registration of this.#comboConditionRegistrations.splice(0)) registration.dispose();
+  }
+
+  #installComboSkillConditions(): void {
+    const options = this.#options;
+    const pending: {
+      operator: CombatOperatorProgram;
+      program: CompiledComboSkillConditionProgram;
+    }[] = [];
+    // 整批先校验依赖和身份，避免后一个角色出错时前一个角色已开始响应。
+    for (const operator of this.#operators.values()) {
+      const keys = new Set<string>();
+      for (const program of operator.comboConditionPrograms ?? []) {
+        if (program.key.length === 0 || keys.has(program.key)) {
+          throw new Error(
+            `operator '${operator.operatorId}' has invalid or duplicate combo condition '${program.key}'`,
+          );
+        }
+        keys.add(program.key);
+        const group = operator.skillSlotGroups?.find(
+          group => group.skillGroupKey === program.skillGroupKey,
+        );
+        if (group === undefined)
+          throw new Error(
+            `combo condition '${program.key}' requires skill slot '${program.skillGroupKey}'`,
+          );
+        for (const skillKey of [
+          group.baseSkillKey,
+          ...(group.stableInputSkillKeys ?? []),
+          ...group.replacementSkillKeys,
+        ]) {
+          const skills = operator.skills.filter(skill => skill.skillId === skillKey);
+          if (
+            skills.length === 0 ||
+            skills.some(
+              skill =>
+                skill.skillType !== 'comboSkill' || skill.skillGroupKey !== group.skillGroupKey,
+            )
+          ) {
+            throw new Error(
+              `combo condition '${program.key}' requires assembled combo skill '${skillKey}'`,
+            );
+          }
+          if (
+            this.#skillCooldowns.get(`${operator.operatorId}\u0000${skillKey}`)?.cooldown
+              .comboConditionSnapshot == null
+          ) {
+            throw new Error(
+              `combo condition '${program.key}' requires configured cooldown and startCdFrame for '${skillKey}'`,
+            );
+          }
+        }
+        pending.push({ operator, program });
+      }
+    }
+    if (pending.length === 0) return;
+    const register = options.registerComboSkillCondition;
+    const eligibility = options.comboConditionEligibility;
+    const onPending = options.onPendingComboCondition;
+    if (register === undefined || eligibility === undefined || onPending === undefined) {
+      throw new Error(
+        'native combo conditions require event registration, alive/InSilence eligibility and Pending sink',
+      );
+    }
+    for (const { operator, program } of pending) {
+      const operatorId = operator.operatorId;
+      this.#comboConditionRegistrations.push(
+        register({
+          event: program.event,
+          ownerId: operatorId,
+          sourceId: operatorId,
+          entityBlackboard: this.#entityBlackboards.get(operatorId)!,
+          initialValues: program.initialValues,
+          sequence: program.sequence,
+          operations: this.#createReactiveOperationChain(
+            operator,
+            `native-combo-condition:${program.key}`,
+            unsupportedReactiveTerminal,
+            options,
+          ),
+          isOwnerAlive: () => eligibility.isAlive(operatorId),
+          isOwnerSilenced: () => eligibility.isSilenced(operatorId),
+          currentComboCooldown: () => {
+            const skillKey = this.#requireAbilitySystem(operatorId).currentSkillKeyForSlot(
+              program.skillGroupKey,
+            );
+            return (
+              this.#skillCooldowns.get(`${operatorId}\u0000${skillKey}`)?.cooldown
+                .comboConditionSnapshot ?? null
+            );
+          },
+          resolveTarget: entityId => this.#resolveRuntimeTarget(entityId),
+          onPending: value => onPending(operatorId, program, value),
+        }),
+      );
+    }
+  }
+
+  #resolveRuntimeTarget(entityId: string): RuntimeTargetRef {
+    if (entityId === 'enemy') return { kind: 'enemy' };
+    if (this.#operators.has(entityId)) return { kind: 'operator', operatorId: entityId };
+    const match = /^ability-entity:([1-9]\d*)$/.exec(entityId);
+    if (match !== null) {
+      const target = { kind: 'abilityEntity' as const, instanceId: Number(match[1]) };
+      if (this.abilityEntities.isActive(target)) return target;
+    }
+    throw new Error(`combo condition references unknown or inactive entity '${entityId}'`);
   }
 
   #changeSkillSlot(
