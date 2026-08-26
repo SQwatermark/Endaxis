@@ -145,6 +145,246 @@ function setup() {
 }
 
 describe('assembly 原生常驻连携条件', () => {
+  it('未放置任何连携时安装静态账本和条件，不创建可施放的空技能', () => {
+    const f = setup();
+    f.owner.skills = [];
+    const assembly = new CombatRuntimeAssembly({
+      ...f.options,
+      operators: [{ ...f.owner, skillCooldownPrograms: [combo()] }],
+    });
+    f.emit();
+    expect(f.pending).toHaveLength(1);
+    expect(() => assembly.tryStartSkill('owner', 'combo')).toThrow();
+    assembly.simulation.advanceFrames(10);
+    expect(assembly.receipt.entries.some(entry => entry.event === 'SkillStarted')).toBe(false);
+  });
+
+  it('未放置连携的开局冷却修改生效，逐帧恢复仍参与条件门禁', () => {
+    const f = setup();
+    f.owner.skills = [];
+    const assembly = new CombatRuntimeAssembly({
+      ...f.options,
+      operators: [
+        {
+          ...f.owner,
+          skillCooldownPrograms: [combo()],
+          initializationPrograms: [
+            {
+              key: 'cooldown',
+              sequence: {
+                steps: [
+                  {
+                    kind: 'adjustSkillCooldown',
+                    parameters: {
+                      target: 'caster',
+                      skill: { kind: 'type', skillType: 'comboSkill' },
+                      operation: 'set',
+                      basis: 'baseDurationRatio',
+                      value: { kind: 'constant', value: 1 },
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      ],
+    });
+    f.emit();
+    expect(f.pending).toHaveLength(1);
+    assembly.simulation.advanceFrames(6);
+    f.emit();
+    expect(f.pending).toHaveLength(1);
+    assembly.simulation.advanceFrames(294);
+    f.emit();
+    expect(f.pending).toHaveLength(2);
+    const ready = assembly.receipt.entries.filter(entry => entry.event === 'SkillCooldownReady');
+    expect(ready).toHaveLength(1);
+    expect(ready[0]?.data).toEqual({ skillId: 'combo' });
+  });
+
+  it.each(['baseDurationRatio', 'absoluteSeconds'] as const)(
+    '未放置技能按来源 ID 减冷却，支持 %s',
+    basis => {
+      const f = setup();
+      f.owner.skills = [
+        action('reduce', [
+          {
+            kind: 'adjustSkillCooldown',
+            parameters: {
+              target: 'caster',
+              skill: { kind: 'id', skillId: 'native-combo' },
+              operation: 'reduce',
+              basis,
+              value: { kind: 'constant', value: basis === 'baseDurationRatio' ? 0.5 : 5 },
+            },
+          },
+        ]),
+      ];
+      const assembly = new CombatRuntimeAssembly({
+        ...f.options,
+        operators: [
+          {
+            ...f.owner,
+            skillCooldownPrograms: [{ ...combo(), sourceSkillId: 'native-combo' }],
+            initializationPrograms: [
+              {
+                key: 'set',
+                sequence: {
+                  steps: [
+                    {
+                      kind: 'adjustSkillCooldown',
+                      parameters: {
+                        target: 'caster',
+                        skill: { kind: 'type', skillType: 'comboSkill' },
+                        operation: 'set',
+                        basis: 'absoluteSeconds',
+                        value: { kind: 'constant', value: 5 },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+      });
+      f.emit();
+      expect(f.pending).toHaveLength(0);
+      assembly.tryStartSkill('owner', 'reduce');
+      f.emit();
+      expect(f.pending).toHaveLength(1);
+    },
+  );
+
+  it('基础连携和变体都未放置时仍可切换槽位并继承归一化冷却', () => {
+    const f = setup();
+    f.owner.skillSlotGroups[0]!.replacementSkillKeys.push('variant');
+    f.owner.skills = [
+      action('switch', [
+        {
+          kind: 'changeSkillSlot',
+          parameters: {
+            skillGroupKey: 'combo',
+            targetSkillKey: 'variant',
+            inheritOriginSkillCooldownProgress: true,
+          },
+        },
+      ]),
+    ];
+    const assembly = new CombatRuntimeAssembly({
+      ...f.options,
+      operators: [
+        {
+          ...f.owner,
+          skillCooldownPrograms: [combo(), { ...combo('variant'), cooldownFrames: 600 }],
+          initializationPrograms: [
+            {
+              key: 'set',
+              sequence: {
+                steps: [
+                  {
+                    kind: 'adjustSkillCooldown',
+                    parameters: {
+                      target: 'caster',
+                      skill: { kind: 'id', skillId: 'combo' },
+                      operation: 'set',
+                      basis: 'baseDurationRatio',
+                      value: { kind: 'constant', value: 0.5 },
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      ],
+    });
+    assembly.tryStartSkill('owner', 'switch');
+    f.emit();
+    expect(f.pending).toHaveLength(0);
+    assembly.simulation.advanceFrames(299);
+    f.emit();
+    expect(f.pending).toHaveLength(0);
+    assembly.simulation.advanceFrame();
+    f.emit();
+    expect(f.pending).toHaveLength(1);
+  });
+
+  it('静态目录与重复放置共享一次推进，自定义块的实际冷却覆盖模板默认', () => {
+    const f = setup();
+    f.owner.skills = ['a', 'b'].map(castId => ({ ...combo(), castId, cooldownFrames: 600 }));
+    const assembly = new CombatRuntimeAssembly({
+      ...f.options,
+      operators: [{ ...f.owner, skillCooldownPrograms: [combo()] }],
+    });
+    assembly.tryStartSkill('owner', 'combo', 'a');
+    assembly.simulation.advanceFrames(5);
+    f.emit();
+    expect(f.pending).toHaveLength(1);
+    assembly.simulation.advanceFrame();
+    f.emit();
+    expect(f.pending).toHaveLength(1);
+    assembly.simulation.advanceFrames(593);
+    f.emit();
+    expect(f.pending).toHaveLength(1);
+    assembly.simulation.advanceFrame();
+    f.emit();
+    expect(f.pending).toHaveLength(2);
+    expect(
+      assembly.receipt.entries.filter(entry => entry.event === 'SkillCooldownReady'),
+    ).toHaveLength(1);
+  });
+
+  it('不同自定义来源 ID 指向同一共享账本，不会漏掉后一个块的冷却修改', () => {
+    const f = setup();
+    f.owner.skills = ['a', 'b'].map(castId => ({
+      ...combo(),
+      castId,
+      sourceSkillId: `source-${castId}`,
+    }));
+    f.owner.skills.push(
+      action('reset', [
+        {
+          kind: 'adjustSkillCooldown',
+          parameters: {
+            target: 'caster',
+            skill: { kind: 'id', skillId: 'source-b' },
+            operation: 'set',
+            basis: 'absoluteSeconds',
+            value: { kind: 'constant', value: 0 },
+          },
+        },
+      ]),
+    );
+    const assembly = new CombatRuntimeAssembly(f.options);
+    assembly.tryStartSkill('owner', 'combo', 'a');
+    assembly.simulation.advanceFrames(6);
+    f.emit();
+    expect(f.pending).toHaveLength(0);
+    assembly.tryStartSkill('owner', 'reset');
+    f.emit();
+    expect(f.pending).toHaveLength(1);
+  });
+
+  it('静态目录重复或属于别的角色时明确失败', () => {
+    const f = setup();
+    expect(
+      () =>
+        new CombatRuntimeAssembly({
+          ...f.options,
+          operators: [{ ...f.owner, skillCooldownPrograms: [combo(), combo()] }],
+        }),
+    ).toThrow('duplicate static cooldown');
+    expect(
+      () =>
+        new CombatRuntimeAssembly({
+          ...f.options,
+          operators: [{ ...f.owner, skillCooldownPrograms: [{ ...combo(), operatorId: 'other' }] }],
+        }),
+    ).toThrow('belongs to another operator');
+  });
+
   it('门禁沿用真实冷却时钟，不从时间轴现实帧另算一份', () => {
     const f = setup();
     const assembly = new CombatRuntimeAssembly({

@@ -364,6 +364,18 @@ export interface CompiledSkillProgram {
   readonly abilityEntityDefinitions?: Readonly<Record<string, ResolvedAbilityEntityDefinition>>;
 }
 
+/** 与放置实例无关的单等级冷却配置；不携带动作、命中或施放身份。 */
+export type CompiledSkillCooldownProgram = Pick<
+  CompiledSkillProgram,
+  | 'operatorId'
+  | 'skillGroupKey'
+  | 'skillId'
+  | 'sourceSkillId'
+  | 'skillType'
+  | 'cooldownFrames'
+  | 'costFrame'
+>;
+
 /** 一个稳定技能组可在释放之间切换的已编译技能身份。 */
 export interface CompiledSkillSlotGroup {
   readonly skillGroupKey: string;

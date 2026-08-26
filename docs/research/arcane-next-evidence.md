@@ -1,6 +1,31 @@
 # 诀新版配置证据记录
 
-## 2026-08-26 编译条件程序自动装配（最新）
+## 2026-08-27 未放置连携的冷却目录（最新）
+
+正式 compileScenarioRuntimeAssembly 复用一次 compileOperatorDefinitionSkills 的等级/养成结果，
+分别供资源规则和静态 skillCooldownPrograms 使用。后者只带身份、类型、来源 ID、冷却和确认帧，
+不带动作/黑板/castId；完整定义中的基础和替换形态无需先放上轴，连携单形态也编译槽位。
+
+参考本地复刻库 AbilitySystem.TickSkills：每个技能先 UpdateCooldown、再 Tick。
+Next 的显式 skillTickPlan 对每个目录身份只推进一次冷却，再推进对应放置实例；空槽没有动作。
+Buff、延迟施法、Action 的外围顺序不变，冷却增量仍来自既有时间膨胀接线。
+目录沿用定义声明顺序；没有额外证明它等同全客户端技能列表的所有注册顺序。
+
+冷却设置/减少按完整账本匹配类型或 ID，而非只遍历已放置程序。所有者/重复目录严格校验，
+未配置冷却或 startCdFrame 不伪装可用。自定义放置定义可替代模板默认冷却，但同 ID 多次放置
+必须一致；不同自定义来源 ID 汇集到同一账本，避免遗漏后一个块的来源选择器。
+未放置变体可以继承归一化进度，旧场景和底层只传放置程序的入口仍兼容。
+
+新增 14 项：空轴目录无施法、等级/潜能解析、未放置冷却设置和两种减少、变体继承、重复块
+单次推进、自定义覆盖/来源别名，以及逐身份时序和缺漏/重复推进目录拒绝。五条真实条件的实际
+双次附着测试扩展为四元素 × 构筑守卫 0/1 × 零/重复连携块。全量 **287 文件/3003 项通过**，
+两侧类型检查通过，报告 tmp/static-skill-cooldown-assembly.audit.json 不入库，C#/VFS 不重跑。
+
+**8 场正式阻塞仍保留**：本批已移除“必须放置连携才有计时器”的接入前提，但正式条件定义生成、
+alive/InSilence 来源、Pending 候选/afterCastStart/SmartTarget 尚未闭合。下一步沿这条链推进，
+不重复静态冷却拆分或 RID 叶子研究，也不提前修改正式诀数据/默认武器库。
+
+## 2026-08-26 编译条件程序自动装配（上一批）
 
 在既有 combo-condition-environment / combo-event-gates-and-pending / combo-cast-preparation
 规格上接线，不新增原生规则。CombatOperatorProgram.comboConditionPrograms 是角色常驻程序，

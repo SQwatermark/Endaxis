@@ -339,7 +339,12 @@ describe('StandardPlayerDamageEnvironment', () => {
   it.each(['heat', 'electric', 'cryo', 'nature'] as const)(
     '%s 五条真实条件由 assembly 自动注册，连续技能附着共享实体板且不重复安装',
     element => {
-      for (const deckGate of [0, 1]) {
+      for (const [deckGate, placeCombo] of [
+        [0, true],
+        [1, true],
+        [0, false],
+        [1, false],
+      ] as const) {
         const context = createContext();
         const environment = new StandardPlayerDamageEnvironment({
           criticalSamples: { nextCriticalSample: () => 1 },
@@ -389,11 +394,14 @@ describe('StandardPlayerDamageEnvironment', () => {
             {
               operatorId: 'owner',
               panel: context.panel,
-              // 两个技能块共享一条角色级注册，不能安装十条条件。
-              skills: [
-                { ...combo, castId: 'a' },
-                { ...combo, castId: 'b' },
-              ],
+              // 零放置和重复放置拥有同一份常驻配置，均只安装五条条件。
+              skillCooldownPrograms: [combo],
+              skills: placeCombo
+                ? [
+                    { ...combo, castId: 'a' },
+                    { ...combo, castId: 'b' },
+                  ]
+                : [],
               initialEntityBlackboard: {
                 EntityBB_consumed_type: 0,
                 EntityBB_wisd_greater_will: deckGate,

@@ -61,6 +61,11 @@ export interface AbilitySystemRuntimeOptions {
   readonly buffRuntime?: AbilityBuffRuntime;
   /** 保持普通攻击、主动、被动、通用技能的原生构造顺序。 */
   readonly skills: readonly AbilitySkillRuntime[];
+  /** 完整技能目录的推进顺序；每个身份先更新共享冷却，再更新其放置实例。未放置身份只有冷却。 */
+  readonly skillTickPlan?: readonly {
+    readonly skillId: string;
+    readonly advanceCooldown: (deltaSeconds: number) => void;
+  }[];
   /** 同一放置身份下可由战斗动作切换的技能形态。 */
   readonly skillSlotGroups?: readonly {
     readonly skillGroupKey: string;
@@ -81,6 +86,10 @@ export interface AbilitySystemRuntimeOptions {
 export class AbilitySystemRuntime implements FrameRuntime {
   readonly #buffRuntime?: AbilityBuffRuntime;
   readonly #skills: readonly AbilitySkillRuntime[];
+  readonly #skillTickPlan?: readonly {
+    readonly advanceCooldown: (deltaSeconds: number) => void;
+    readonly skills: readonly AbilitySkillRuntime[];
+  }[];
   readonly #skillsById = new Map<string, AbilitySkillRuntime>();
   readonly #skillSlotGroups = new Map<
     string,
@@ -126,6 +135,22 @@ export class AbilitySystemRuntime implements FrameRuntime {
         throw new Error(`duplicate ability skill '${key}'`);
       }
       this.#skillsById.set(key, skill);
+    }
+    if (options.skillTickPlan !== undefined) {
+      const ids = new Set<string>();
+      this.#skillTickPlan = options.skillTickPlan.map(entry => {
+        if (ids.has(entry.skillId))
+          throw new Error(`duplicate skill tick identity '${entry.skillId}'`);
+        ids.add(entry.skillId);
+        return {
+          advanceCooldown: entry.advanceCooldown,
+          skills: this.#skills.filter(skill => skill.skillId === entry.skillId),
+        };
+      });
+      for (const skill of this.#skills) {
+        if (!ids.has(skill.skillId))
+          throw new Error(`skill '${skill.skillId}' is missing from tick plan`);
+      }
     }
     for (const group of options.skillSlotGroups ?? []) {
       if (this.#skillSlotGroups.has(group.skillGroupKey)) {
@@ -260,11 +285,22 @@ export class AbilitySystemRuntime implements FrameRuntime {
     } else {
       this.#buffRuntime?.advanceFrame();
     }
-    for (const skill of this.#skills) {
-      if (skill.advance !== undefined) {
-        skill.advance(deltas.selfScaledDeltaSeconds, deltas.skillCooldownDeltaSeconds);
-      } else {
-        skill.advanceFrame();
+    if (this.#skillTickPlan !== undefined) {
+      for (const entry of this.#skillTickPlan) {
+        entry.advanceCooldown(deltas.skillCooldownDeltaSeconds);
+        for (const skill of entry.skills) {
+          // 此模式下冷却由目录唯一推进，技能实例不能再推进第二次。
+          if (skill.advance !== undefined) skill.advance(deltas.selfScaledDeltaSeconds, 0);
+          else skill.advanceFrame();
+        }
+      }
+    } else {
+      for (const skill of this.#skills) {
+        if (skill.advance !== undefined) {
+          skill.advance(deltas.selfScaledDeltaSeconds, deltas.skillCooldownDeltaSeconds);
+        } else {
+          skill.advanceFrame();
+        }
       }
     }
     if (this.#operableBoundaries !== null) {

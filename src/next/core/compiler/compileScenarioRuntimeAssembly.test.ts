@@ -6,6 +6,7 @@ import {
 } from '../combat/runtime/combatRuntimeAssembly';
 import type { CombatOperationExecutor } from '../combat/runtime/skillRuntime';
 import type { CompiledSkillProgram } from './combatProgram';
+import type { OperatorDefinition, SkillDefinition } from '../game-data/operatorDefinition';
 import { createEmptyScenario } from '../project/createProject';
 import type { ScenarioDocument } from '../project/schema';
 import { perlica } from '../../data/operators/perlica';
@@ -93,6 +94,103 @@ function options(): CompileScenarioRuntimeAssemblyOptions {
 }
 
 describe('compileScenarioRuntimeAssembly', () => {
+  it('空轴也编译静态连携槽位和冷却，但不安装定义动作或虚构施法', () => {
+    const settings = options();
+    const createOperationExecutor = vi.fn(() => operationExecutor());
+    const compiled = compileScenarioRuntimeAssembly(createScenario(), {
+      ...settings,
+      environment: { ...settings.environment, createOperationExecutor },
+    });
+    const operator = compiled.operators[0]!;
+    expect(operator.skills).toEqual([]);
+    expect(compiled.inputs).toEqual([]);
+    expect(operator.skillSlotGroups).toContainEqual({
+      skillGroupKey: 'comboSkill',
+      baseSkillKey: 'comboSkill',
+      replacementSkillKeys: [],
+    });
+    const combo = operator.skillCooldownPrograms!.find(program => program.skillId === 'comboSkill');
+    expect(combo).toMatchObject({
+      operatorId: 'track:0',
+      skillType: 'comboSkill',
+      skillGroupKey: 'comboSkill',
+    });
+    expect(combo?.cooldownFrames).toBeGreaterThan(0);
+    expect(combo).not.toHaveProperty('castId');
+    expect(combo).not.toHaveProperty('timelineActions');
+    expect(combo).not.toHaveProperty('initialBlackboard');
+    const assembly = new CombatRuntimeAssembly(compiled);
+    assembly.simulation.advanceFrames(10);
+    expect(createOperationExecutor).not.toHaveBeenCalled();
+    expect(assembly.receipt.entries.some(entry => entry.event === 'SkillStarted')).toBe(false);
+  });
+
+  it('未放置的基础与替换冷却同样解析技能等级和潜能修正', () => {
+    const settings = options();
+    const scenario = createScenario();
+    scenario.tracks[0]!.operator!.skillLevels.comboSkill = 2;
+    scenario.tracks[0]!.operator!.potential = 1;
+    const operator: OperatorDefinition = {
+      ...perlica,
+      potentials: [
+        {
+          key: 'cooldown',
+          levels: 1,
+          modifiers: [{ kind: 'addSkillCooldownFrames', skillGroupKey: 'comboSkill', frames: -15 }],
+        },
+      ],
+      skillGroups: perlica.skillGroups.map(group => {
+        if (group.key !== 'comboSkill') return group;
+        const base = group.skills as SkillDefinition;
+        return {
+          ...group,
+          skills: { ...base, cooldownFrames: [60, 90] },
+          replacementSkills: [{ ...base, key: 'replacement', cooldownFrames: [120, 180] }],
+        };
+      }),
+    };
+    const compiled = compileScenarioRuntimeAssembly(scenario, {
+      ...settings,
+      index: { ...settings.index, getOperator: () => operator },
+    });
+    expect(compiled.operators[0]!.skills).toEqual([]);
+    expect(
+      compiled.operators[0]!.skillCooldownPrograms!.filter(
+        program => program.skillType === 'comboSkill',
+      ).map(program => [program.skillId, program.cooldownFrames]),
+    ).toEqual([
+      ['comboSkill', 75],
+      ['replacement', 165],
+    ]);
+    expect(compiled.operators[0]!.skillSlotGroups).toContainEqual({
+      skillGroupKey: 'comboSkill',
+      baseSkillKey: 'comboSkill',
+      replacementSkillKeys: ['replacement'],
+    });
+  });
+
+  it('放置块自定义冷却不改模板目录，实际装配使用放置定义而非强制模板值', () => {
+    const scenario = placeSkillGroup({
+      scenario: createScenario(),
+      trackIndex: 0,
+      operator: perlica,
+      skillGroupKey: 'comboSkill',
+      startFrame: 10,
+      ids: { allocate: kind => `${kind}:custom` },
+    }).scenario;
+    const cast = scenario.tracks[0]!.skillCasts[0]!;
+    const base = perlica.skillGroups.find(group => group.key === 'comboSkill')!
+      .skills as SkillDefinition;
+    cast.customDefinition = { ...base, cooldownFrames: 123 };
+    const compiled = compileScenarioRuntimeAssembly(scenario, options());
+    expect(compiled.operators[0]!.skills[0]!.cooldownFrames).toBe(123);
+    expect(
+      compiled.operators[0]!.skillCooldownPrograms!.find(
+        program => program.skillId === 'comboSkill',
+      )!.cooldownFrames,
+    ).not.toBe(123);
+    expect(() => new CombatRuntimeAssembly(compiled)).not.toThrow();
+  });
   it('shares installed template values across real skill starts but not across battles', () => {
     const settings = options();
     const observed: unknown[] = [];

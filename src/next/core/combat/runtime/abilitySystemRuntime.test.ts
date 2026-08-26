@@ -34,6 +34,70 @@ class FixtureRuntime implements AbilitySkillRuntime {
 }
 
 describe('AbilitySystemRuntime', () => {
+  it('目录按每个身份先冷却再动作，空槽只推进冷却，重复放置不重复推进', () => {
+    const events: string[] = [];
+    const ability = new AbilitySystemRuntime({
+      skills: [
+        new FixtureRuntime('second', events),
+        new FixtureRuntime('first', events, 'battleSkill', 'a'),
+        new FixtureRuntime('first', events, 'battleSkill', 'b'),
+      ],
+      buffRuntime: { advanceFrame: () => events.push('buff') },
+      actionRuntime: { advanceFrame: () => events.push('action') },
+      skillTickPlan: ['first', 'unplaced', 'second'].map(skillId => ({
+        skillId,
+        advanceCooldown: delta => {
+          expect(delta).toBe(1 / 30);
+          events.push(`cooldown:${skillId}`);
+        },
+      })),
+    });
+    ability.advanceFrame();
+    expect(events).toEqual([
+      'buff',
+      'cooldown:first',
+      'tick:first',
+      'tick:first',
+      'cooldown:unplaced',
+      'cooldown:second',
+      'tick:second',
+      'action',
+    ]);
+  });
+
+  it('目录冷却消费原始冷却增量，放置实例只消费时间线增量', () => {
+    const skill = new FixtureRuntime('first', []);
+    let received: number[] = [];
+    const ability = new AbilitySystemRuntime({
+      skills: [
+        Object.assign(skill, {
+          advance: (timeline: number, cooldown: number) => {
+            received = [timeline, cooldown];
+          },
+        }),
+      ],
+      skillTickPlan: [{ skillId: 'first', advanceCooldown: delta => expect(delta).toBe(0.2) }],
+      resolveTickDeltas: () => ({
+        defaultDeltaSeconds: 1,
+        globalScaledDeltaSeconds: 0.5,
+        selfScaledDeltaSeconds: 0.1,
+        skillCooldownDeltaSeconds: 0.2,
+      }),
+    });
+    ability.advanceFrame();
+    expect(received).toEqual([0.1, 0]);
+  });
+
+  it('显式推进目录不能重复或漏掉可执行技能', () => {
+    const entry = { skillId: 'first', advanceCooldown: () => {} };
+    expect(() => new AbilitySystemRuntime({ skills: [], skillTickPlan: [entry, entry] })).toThrow(
+      'duplicate skill tick identity',
+    );
+    expect(
+      () =>
+        new AbilitySystemRuntime({ skills: [new FixtureRuntime('first', [])], skillTickPlan: [] }),
+    ).toThrow('missing from tick plan');
+  });
   it('preserves the native buff, skill-list, deferred-cast, action order', () => {
     const events: string[] = [];
     const first = new FixtureRuntime('first', events);

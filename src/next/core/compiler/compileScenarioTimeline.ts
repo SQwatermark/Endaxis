@@ -321,7 +321,7 @@ function compileSkillSlotGroups(operator: OperatorDefinition): readonly Compiled
       ...(group.replacementSkills ?? []),
       ...(group.routedReplacementSkills ?? []).map(replacement => replacement.skill),
     ];
-    if (replacements.length === 0) return [];
+    if (replacements.length === 0 && group.skillType !== 'comboSkill') return [];
     const placedSkills = Array.isArray(group.skills) ? group.skills : [group.skills];
     return [
       {

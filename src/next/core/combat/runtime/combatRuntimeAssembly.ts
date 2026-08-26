@@ -10,6 +10,7 @@ import type {
   CompiledOperatorUpgradeEventProgram,
   CompiledSkillSlotGroup,
   CompiledSkillProgram,
+  CompiledSkillCooldownProgram,
   ResolvedAbilityEntityDefinition,
   ResolvedSkillBuffDefinition,
 } from '../../compiler/combatProgram';
@@ -114,6 +115,8 @@ export interface CombatOperatorProgram {
   /** CharacterTable.charTypeId 的一一映射；仅角色类型筛选实际出现时要求提供。 */
   readonly characterTypeId?: DamageElement;
   readonly skills: readonly CompiledSkillProgram[];
+  /** 完整定义的静态冷却目录，独立于时间轴放置；缺省仅供底层程序兼容。 */
+  readonly skillCooldownPrograms?: readonly CompiledSkillCooldownProgram[];
   /** 与技能等级解耦的干员附属 Buff 蓝图；不含任何单次模拟实例状态。 */
   readonly buffDefinitions?: Readonly<Record<string, ResolvedSkillBuffDefinition>>;
   /** Buff 生命周期直接引用的、同样与技能等级解耦的能力实体闭包。 */
@@ -396,6 +399,8 @@ export class CombatRuntimeAssembly {
     string,
     {
       readonly cooldown: SkillCooldown;
+      readonly program: CompiledSkillCooldownProgram;
+      readonly sourceSkillIds: Set<string>;
       readonly periodFrames?: number;
       readonly commitFrame?: number;
     }
@@ -564,6 +569,24 @@ export class CombatRuntimeAssembly {
           },
         ]);
       }
+      // 放置块自定义定义仍是实际执行体；同 ID 的其他块必须保持冷却一致。
+      // 原目录保留推进顺序，额外自定义身份追加；不执行静态目录中的任何技能动作。
+      const cooldownPrograms = new Map<string, CompiledSkillCooldownProgram>();
+      for (const program of runtimeOperator.skillCooldownPrograms ?? []) {
+        if (program.operatorId !== operator.operatorId)
+          throw new Error(`static cooldown '${program.skillId}' belongs to another operator`);
+        if (cooldownPrograms.has(program.skillId))
+          throw new Error(`duplicate static cooldown '${program.skillId}'`);
+        cooldownPrograms.set(program.skillId, program);
+      }
+      const placedIds = new Set<string>();
+      for (const program of runtimeOperator.skills) {
+        if (placedIds.has(program.skillId)) continue;
+        placedIds.add(program.skillId);
+        cooldownPrograms.set(program.skillId, program);
+      }
+      for (const program of cooldownPrograms.values())
+        this.#resolveSkillCooldown(runtimeOperator, program);
       const skills = runtimeOperator.skills.map(program =>
         this.#createSkillRuntime(
           runtimeOperator,
@@ -582,6 +605,23 @@ export class CombatRuntimeAssembly {
         new AbilitySystemRuntime({
           buffRuntime,
           skills,
+          skillTickPlan: [...cooldownPrograms.keys()].map(skillId => ({
+            skillId,
+            advanceCooldown: deltaSeconds => {
+              const ledger = this.#skillCooldowns.get(`${operator.operatorId}\u0000${skillId}`)!;
+              if (!ledger.cooldown.advance(deltaSeconds * COMBAT_FRAMES_PER_SECOND)) return;
+              const placed = skills.find(skill => skill.skillId === skillId);
+              if (placed !== undefined) placed.record('SkillCooldownReady');
+              else
+                this.receipt.record({
+                  frame: this.clock.frame,
+                  time: this.clock.time,
+                  event: 'SkillCooldownReady',
+                  sourceId: operator.operatorId,
+                  data: { skillId },
+                });
+            },
+          })),
           skillSlotGroups: runtimeOperator.skillSlotGroups,
           actionRuntime: operator.actionRuntime,
           beforePostSkillCastStart: request =>
@@ -1056,9 +1096,13 @@ export class CombatRuntimeAssembly {
 
   #resolveSkillCooldown(
     operator: CombatOperatorProgram,
-    program: CompiledSkillProgram,
+    program: CompiledSkillCooldownProgram,
   ): { readonly cooldown?: SkillCooldown; readonly advancesCooldown?: boolean } {
     const operatorId = operator.operatorId;
+    if (program.operatorId !== operatorId)
+      throw new Error(
+        `skill '${program.skillId}' belongs to '${program.operatorId}', expected '${operatorId}'`,
+      );
     const cooldownMultiplier = (operator.panel?.combatModifiers ?? []).reduce(
       (result, modifier) =>
         modifier.kind === 'skillCooldownMultiplier' &&
@@ -1083,12 +1127,15 @@ export class CombatRuntimeAssembly {
     if (existing !== undefined) {
       if (
         existing.periodFrames !== periodFrames ||
+        existing.program.skillType !== program.skillType ||
+        existing.program.skillGroupKey !== program.skillGroupKey ||
         (periodFrames !== undefined && existing.commitFrame !== program.costFrame)
       ) {
         throw new Error(
           `skill '${program.skillId}' of '${operatorId}' has inconsistent cooldown configuration`,
         );
       }
+      if (program.sourceSkillId !== undefined) existing.sourceSkillIds.add(program.sourceSkillId);
       return { cooldown: existing.cooldown, advancesCooldown: false };
     }
     const cooldown = new SkillCooldown(
@@ -1097,6 +1144,8 @@ export class CombatRuntimeAssembly {
     );
     this.#skillCooldowns.set(key, {
       cooldown,
+      program,
+      sourceSkillIds: new Set(program.sourceSkillId === undefined ? [] : [program.sourceSkillId]),
       ...(periodFrames === undefined
         ? {}
         : {
@@ -1104,7 +1153,7 @@ export class CombatRuntimeAssembly {
             ...(program.costFrame === undefined ? {} : { commitFrame: program.costFrame }),
           }),
     });
-    return { cooldown, advancesCooldown: true };
+    return { cooldown, advancesCooldown: false };
   }
 
   /** 对称注销本 assembly 的原生常驻条件；不会清除同一事件中心里其他所有者的注册。 */
@@ -1140,13 +1189,13 @@ export class CombatRuntimeAssembly {
           ...(group.stableInputSkillKeys ?? []),
           ...group.replacementSkillKeys,
         ]) {
-          const skills = operator.skills.filter(skill => skill.skillId === skillKey);
+          const skill = this.#skillCooldowns.get(
+            `${operator.operatorId}\u0000${skillKey}`,
+          )?.program;
           if (
-            skills.length === 0 ||
-            skills.some(
-              skill =>
-                skill.skillType !== 'comboSkill' || skill.skillGroupKey !== group.skillGroupKey,
-            )
+            skill === undefined ||
+            skill.skillType !== 'comboSkill' ||
+            skill.skillGroupKey !== group.skillGroupKey
           ) {
             throw new Error(
               `combo condition '${program.key}' requires assembled combo skill '${skillKey}'`,
@@ -1268,12 +1317,12 @@ export class CombatRuntimeAssembly {
   ): number {
     const matchedKeys = new Set<string>();
     let changed = 0;
-    for (const program of this.#skillPrograms.values()) {
+    for (const { program, sourceSkillIds } of this.#skillCooldowns.values()) {
       if (
         program.operatorId !== operatorId ||
         (skill.kind === 'type'
           ? program.skillType !== skill.skillType
-          : program.skillId !== skill.skillId && program.sourceSkillId !== skill.skillId)
+          : program.skillId !== skill.skillId && !sourceSkillIds.has(skill.skillId))
       ) {
         continue;
       }
@@ -1294,12 +1343,12 @@ export class CombatRuntimeAssembly {
   ): number {
     const matchedKeys = new Set<string>();
     let changed = 0;
-    for (const program of this.#skillPrograms.values()) {
+    for (const { program, sourceSkillIds } of this.#skillCooldowns.values()) {
       if (
         program.operatorId !== operatorId ||
         (skill.kind === 'type'
           ? program.skillType !== skill.skillType
-          : program.skillId !== skill.skillId && program.sourceSkillId !== skill.skillId)
+          : program.skillId !== skill.skillId && !sourceSkillIds.has(skill.skillId))
       ) {
         continue;
       }
@@ -1319,12 +1368,12 @@ export class CombatRuntimeAssembly {
   ): number {
     const matchedKeys = new Set<string>();
     let changed = 0;
-    for (const program of this.#skillPrograms.values()) {
+    for (const { program, sourceSkillIds } of this.#skillCooldowns.values()) {
       if (
         program.operatorId !== operatorId ||
         (skill.kind === 'type'
           ? program.skillType !== skill.skillType
-          : program.skillId !== skill.skillId && program.sourceSkillId !== skill.skillId)
+          : program.skillId !== skill.skillId && !sourceSkillIds.has(skill.skillId))
       ) {
         continue;
       }

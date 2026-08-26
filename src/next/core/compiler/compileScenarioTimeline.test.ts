@@ -194,6 +194,7 @@ describe('compileScenarioTimeline', () => {
         baseSkillKey: 'battleSkill',
         replacementSkillKeys: ['battleSkillVariant'],
       },
+      { skillGroupKey: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
     ]);
   });
 

@@ -386,9 +386,12 @@ npm run download:game-data:operator-closure -- --vfs-fallback http://desktop:876
 
 已完成：
 
+- 正式场景编译从已解析等级/养成的完整定义提取静态冷却目录，空轴/未放置连携与变体也有账本，
+  但不安装未放置动作。设置/减少与槽位继承操作使用完整目录，重复放置不重复推进。
+  下一步接正式角色常驻条件定义、资格来源与 Pending 施法；缺确认帧/多充能等边界不变。
 - Next 编译程序 comboConditionPrograms 已由 assembly 自动安装到标准环境真实事件阶段，
   复用角色共享板和当前槽单充能冷却。五条真实来源通过实际技能附着回归；正式角色定义/场景
-  生成尚未接入，不能把此称为干员转换完成。先分离未放置槽位的静态冷却账本，再接资格来源及
+  生成尚未接入，不能把此称为干员转换完成。未放置槽位的静态冷却账本已接通，下一步接资格来源及
   Pending 选择/afterCastStart 覆盖。alive/InSilence 和 Pending 接收仍是必需显式端口。
 - VFS 已解码 Unity 连携 RID 的有界规范化适配，五种已审计叶子仍复用公共 Action/Condition 解析；
   真实 14 条来源核对一致，五条条件可编译。Context 对象类型及 ByTag 首目标增强层数进入 Next。

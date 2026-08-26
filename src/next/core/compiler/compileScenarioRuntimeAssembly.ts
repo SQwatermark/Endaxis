@@ -215,6 +215,24 @@ export function compileScenarioRuntimeAssembly(
   const equipment = new Map(
     compileResolvedScenarioEquipment(builds).map(entry => [entry.operatorId, entry.contributions]),
   );
+  // 资源和常驻槽位共用同一次完整定义编译；绝不把这些动作安装成虚构的技能块。
+  const definitionPrograms = new Map(
+    builds.map(build => {
+      const operatorId = build.track.id;
+      const panel = panels.get(operatorId);
+      if (panel === undefined) throw new Error(`operator '${operatorId}' has no resolved panel`);
+      return [
+        operatorId,
+        compileOperatorDefinitionSkills(
+          operatorId,
+          build.operatorInstance,
+          build.operator,
+          options.index.getCommonAbilityEntityDefinitions?.(),
+          panel.attributes,
+        ),
+      ] as const;
+    }),
+  );
   const resources = compileScenarioResources(scenario, {
     ...options.resources,
     // 资源规则与放置无关：maxUltimateEnergy 来自定义全部技能（已应用养成补丁）的费用。
@@ -234,13 +252,7 @@ export function compileScenarioRuntimeAssembly(
         }
         return {
           operatorId: operator.operatorId,
-          skills: compileOperatorDefinitionSkills(
-            operator.operatorId,
-            build.operatorInstance,
-            build.operator,
-            options.index.getCommonAbilityEntityDefinitions?.(),
-            panel.attributes,
-          ),
+          skills: definitionPrograms.get(operator.operatorId)!,
         };
       }),
       [...panels.values()],
@@ -274,6 +286,17 @@ export function compileScenarioRuntimeAssembly(
       );
       return {
         ...operator,
+        skillCooldownPrograms: definitionPrograms.get(operator.operatorId)!.map(program => ({
+          operatorId: program.operatorId,
+          skillGroupKey: program.skillGroupKey,
+          skillId: program.skillId,
+          skillType: program.skillType,
+          ...(program.sourceSkillId === undefined ? {} : { sourceSkillId: program.sourceSkillId }),
+          ...(program.cooldownFrames === undefined
+            ? {}
+            : { cooldownFrames: program.cooldownFrames }),
+          ...(program.costFrame === undefined ? {} : { costFrame: program.costFrame }),
+        })),
         characterTypeId: build.operator.element,
         ...(Object.keys(equipmentBuffDefinitions).length === 0
           ? {}
