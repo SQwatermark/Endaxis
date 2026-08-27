@@ -21,6 +21,7 @@ export type CompiledOperatorActiveSkillRuntimeDefinitionSource = Readonly<
   Pick<SkillDefinition, 'key' | 'timelineBlockFrames' | 'cooldownFrames'> &
     Required<Pick<SkillDefinition, 'sourceSkillId' | 'blackboard' | 'costFrame'>>
 > & {
+  readonly smartTarget?: 'enemy' | 'input' | 'trigger';
   readonly costs?: readonly Readonly<SkillCostDefinition>[];
   readonly scheduledSequences: readonly CompiledActiveSkillTimelineSequenceSource[];
 };
@@ -55,6 +56,7 @@ export function compileOperatorActiveSkillRuntimeDefinitionSource(input: {
       endFrame: item.endFrame,
       sequence: item.sequence,
     })),
+    ...(runtime.smartTarget === undefined ? {} : { smartTarget: runtime.smartTarget }),
   };
   const patch = input.patch;
   if (!patch) return definition;

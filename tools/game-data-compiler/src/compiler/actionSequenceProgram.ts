@@ -149,14 +149,26 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
     if (!first!.body.alwaysNext) {
       throw new Error(`${first!.sourcePath}: stopping IfElse is unsupported`);
     }
-    const branchConditions = first!.body.condition.actions
-      .filter(node => node.metadata.enabled)
-      .map(node => {
-        const child = options.compileCondition(node, state);
-        if (child === null)
-          throw new Error(`${node.sourcePath}: expected a condition-only sequence`);
-        return child;
-      });
+    const conditionNodes = first!.body.condition.actions.filter(node => node.metadata.enabled);
+    const branchConditions: TCondition[] = [];
+    for (let index = 0; index < conditionNodes.length; index += 1) {
+      const child = conditionNodes[index]!;
+      if (child.body.kind === 'negateNextResult') {
+        const next = conditionNodes[index + 1];
+        if (next === undefined)
+          throw new Error(`${child.sourcePath}: dangling NotNextCheckAction in IfElse condition`);
+        const condition = options.compileCondition(next, state);
+        if (condition === null)
+          throw new Error(`${child.sourcePath}: NotNextCheckAction must precede a condition`);
+        branchConditions.push(options.negateCondition(condition));
+        index += 1;
+        continue;
+      }
+      const condition = options.compileCondition(child, state);
+      if (condition === null)
+        throw new Error(`${child.sourcePath}: expected a condition-only sequence`);
+      branchConditions.push(condition);
+    }
     if (branchConditions.length === 0) {
       throw new Error(`${first!.sourcePath}: empty condition sequence`);
     }

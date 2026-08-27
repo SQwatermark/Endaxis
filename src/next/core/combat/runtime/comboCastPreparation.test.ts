@@ -30,9 +30,18 @@ function pending(
 }
 
 describe('木桩连携施法准备', () => {
+  it('普通技能的评分目标直接绑定固定主目标', () => {
+    const context = {
+      blackboard: new ActionBlackboard(),
+      targetContext: new RuntimeTargetContext(),
+    };
+    prepareComboCast({ smartTarget: 'enemy' })(context);
+    expect(context.targetContext.get('smart_target')).toEqual([{ kind: 'enemy' }]);
+  });
+
   it('绑定真实 trigger/smart_target，快照只覆盖 direct，保留字符串/null', () => {
     const source = { local: 4, label: 'saved', empty: null, EntityBB_value: 9 };
-    const callback = prepareComboCast({ comboSmartTarget: 'trigger' }, pending(source));
+    const callback = prepareComboCast({ smartTarget: 'trigger' }, pending(source));
     source.local = 99;
     const entity = new ActionBlackboard({ EntityBB_value: 2 });
     const context = {
@@ -66,7 +75,7 @@ describe('木桩连携施法准备', () => {
       blackboard: new ActionBlackboard({ local: 0 }),
       targetContext: new RuntimeTargetContext(),
     };
-    prepareComboCast({ comboSmartTarget: 'trigger' })(context);
+    prepareComboCast({ smartTarget: 'trigger' })(context);
     expect(context.blackboard.snapshot()).toEqual({ local: 0 });
     expect(context.targetContext.getOptional('trigger')).toBeUndefined();
     expect(context.targetContext.get('smart_target')).toEqual([{ kind: 'enemy' }]);
@@ -78,7 +87,7 @@ describe('木桩连携施法准备', () => {
       targetContext: new RuntimeTargetContext(),
     };
     prepareComboCast(
-      { comboSmartTarget: 'input' },
+      { smartTarget: 'input' },
       {
         ...pending(),
         inputTarget: { kind: 'enemy' },
@@ -92,8 +101,6 @@ describe('木桩连携施法准备', () => {
   });
 
   it('不能把非敌人的智能候选静默改成敌人', () => {
-    expect(() => prepareComboCast({ comboSmartTarget: 'input' }, pending())).toThrow(
-      'non-enemy target',
-    );
+    expect(() => prepareComboCast({ smartTarget: 'input' }, pending())).toThrow('non-enemy target');
   });
 });

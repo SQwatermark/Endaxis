@@ -9,6 +9,7 @@ import { compileActiveSkillRuntimeProjectionSource } from './activeSkillRuntimeP
 export function compileAbilityEntityChildSkillSource(
   value: unknown,
   sourcePath: string,
+  visualOnlyIds: ReadonlySet<string> = new Set(),
 ): AbilityEntityChildSkillDefinition {
   const root = requireRecord(value, sourcePath);
   const cast = requireRecord(root.castData, `${sourcePath}.castData`);
@@ -36,6 +37,7 @@ export function compileAbilityEntityChildSkillSource(
       actionSourceTarget: 'caster',
       actionTargetTarget: 'enemy',
     },
+    visualOnlyIds,
   });
   const definition = {
     skillId: runtime.skillId,

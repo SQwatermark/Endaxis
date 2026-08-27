@@ -37,6 +37,11 @@ import {
   type SkillTriggerScope,
 } from './skills.ts';
 import { type SkillBuffDefinition, type SkillGlobalBuffDefinition } from './buffs.ts';
+import type {
+  AttributeModifierSlot,
+  AttributeModifierTiming,
+  DamageModifierSide,
+} from './modifiers.ts';
 
 /** 一次伤害步骤的完整声明；倍率使用小数，失衡与生命伤害同属该命中。 */
 export interface DealDamageParameters {
@@ -64,6 +69,14 @@ export interface DealDamageParameters {
     target: CombatTarget;
     coefficient: LevelValues;
   };
+  /** 原生 DamageUnit.damageProcessors 中只对当前伤害包生效的属性修正。 */
+  instantAttributeModifiers?: readonly {
+    targetSide: DamageModifierSide;
+    attribute: string;
+    slot: AttributeModifierSlot;
+    value: ActionValueOperand;
+    attributeTiming: AttributeModifierTiming;
+  }[];
 }
 
 /**
@@ -126,6 +139,8 @@ export interface CombatStepParameters {
   findOwnerSpawnedAbilityEntities: {
     saveToContextKey: string;
     abilityEntityIds?: readonly string[];
+    /** 原生查询后处理保留的目标数量；零空间模型会消去距离排序，但不能消去截断。 */
+    maxTargets?: number;
     /** 使用当前技能或 Buff 继承的施法序号执行 SkillCastIdValidator。 */
     sameSourceSkillCast?: boolean;
     /** 可选地把同一查询结果数量写入动作黑板，后续复用 actionValueCompare。 */
@@ -184,6 +199,8 @@ export interface CombatStepParameters {
     /** 省略时沿用技能的固定敌人；Buff Owner 必须按生命周期身份校验，不能无条件视为敌人。 */
     target?: 'enemy' | 'buffOwner';
   };
+  /** Buff 触发周期中的原生 TriggerSpellBurstEventAction。 */
+  triggerSpellBurst: { burstType: 'Fire' | 'Pulse' | 'Cryst' | 'Natural' };
   /**
    * 对固定敌人执行物理异常入口。公共 Buff 蓝图随使用点内联，运行时按目标当前层数
    * 选择首次破防或后续异常链，不把公共 Buff 变成可编辑的项目级钻石依赖。
@@ -327,6 +344,8 @@ export interface CombatStepParameters {
     operation: 'assign' | 'add' | 'multiply';
     value: ActionValueOperand;
   };
+  /** 按当前 Buff 黑板重新解析并替换已注册的属性修正值。 */
+  refreshCurrentBuffAttributeModifiers: Record<string, never>;
   /** 查询匹配 Buff 的累计强化层数或实例数，并写入当前技能实例的动作黑板。 */
   readBuffStackCount: {
     target: BuffSingleTarget;
@@ -394,6 +413,12 @@ export interface CombatStepParameters {
   holdBuffsById: {
     target: 'caster';
     buffIds: readonly string[];
+  };
+  /** 在动作存续期间只允许带指定标签的正向终结技能量回复；多个实例按原生语义取并集。 */
+  restrictUltimateEnergyRecovery: {
+    target: 'caster';
+    allowedRecoveryTagIds: readonly number[];
+    clearUltimateEnergyOnEnd: boolean;
   };
   /** 在目标能力系统上创建定时标记；同 ID 标记不会互相覆盖。 */
   createTimedMarker: {
@@ -579,6 +604,7 @@ export const COMBAT_STEP_KINDS = [
   'startCurrentAbilityEntityChildSkill',
   'spawnAbilityEntity',
   'applyElementalInfliction',
+  'triggerSpellBurst',
   'applyPhysicalInfliction',
   'applyElementalReaction',
   'consumeElementalReaction',
@@ -596,6 +622,7 @@ export const COMBAT_STEP_KINDS = [
   'readEventBuffBlackboard',
   'readCurrentBuffRemainingDuration',
   'setCurrentBuffRemainingDuration',
+  'refreshCurrentBuffAttributeModifiers',
   'readBuffStackCount',
   'finishBuffsByTag',
   'finishBuffsById',
@@ -604,6 +631,7 @@ export const COMBAT_STEP_KINDS = [
   'igniteBuffs',
   'adjustSkillCooldown',
   'holdBuffsById',
+  'restrictUltimateEnergyRecovery',
   'createTimedMarker',
   'createAbilityEntityTimedMarker',
   'startTimeDilation',

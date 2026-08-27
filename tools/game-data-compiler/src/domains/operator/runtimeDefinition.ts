@@ -2,7 +2,7 @@ import { parseOperatorRuntimeTemplateSource } from '../../source/operatorRuntime
 import { parseSkillCastMetadataSource } from '../../source/activeSkill.ts';
 import { compileAbilitySystemBlackboardsSource } from '../../compiler/abilitySystemBlackboards.ts';
 import { compileComboSkillConditionDefinitionSource } from '../../compiler/comboSkillConditions.ts';
-import { compileComboSmartTargetSource } from '../../compiler/comboSmartTarget.ts';
+import { compileSkillSmartTargetSource } from '../../compiler/comboSmartTarget.ts';
 import { requireNonEmptyString } from '../../source/primitives.ts';
 
 /** 迁移期角色常驻环境产物；不重复编译旧主动动作，也不依赖运行时加载原始导出。 */
@@ -30,7 +30,7 @@ export function compileOperatorRuntimeDefinitionSource(
       },
     ),
   );
-  const targeting = compileComboSmartTargetSource(cast.targetSelection);
+  const targeting = compileSkillSmartTargetSource(cast.targetSelection);
   return {
     definition: {
       operatorSlug,

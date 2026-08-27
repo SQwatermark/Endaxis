@@ -556,7 +556,7 @@ function validateCombatCondition(
       }
       break;
     case 'entityTagMatch':
-      requireEnum(record, 'target', COMBAT_TARGETS_SET, path, out);
+      requireEnum(record, 'target', BUFF_SINGLE_TARGETS_SET, path, out);
       requireEnum(record, 'tagQueryType', TAG_QUERY_TYPES_SET, path, out);
       validateNonEmptyIntegerArray(record.tagIds, `${path}.tagIds`, out);
       break;
@@ -869,6 +869,10 @@ export function validateAbilityEntityDefinition(
   if (definition.childSkill !== undefined) {
     validateAbilityEntityChildSkill(definition.childSkill, `${path}.childSkill`, out);
   }
+  if (definition.maxStackingCount !== undefined) {
+    const count = requireNonNegativeInteger(definition, 'maxStackingCount', path, out);
+    if (count === 0) push(out, `${path}.maxStackingCount`, 'expected a positive integer');
+  }
   return out;
 }
 
@@ -934,6 +938,9 @@ function validateCombatStep(
       }
       if (parameters.sameSourceSkillCast !== undefined) {
         requireBoolean(parameters, 'sameSourceSkillCast', `${path}.parameters`, out);
+      }
+      if (parameters.maxTargets !== undefined) {
+        requireNonNegativeInteger(parameters, 'maxTargets', `${path}.parameters`, out);
       }
       if (parameters.circularOrder !== undefined) {
         const orderPath = `${path}.parameters.circularOrder`;
@@ -1033,6 +1040,15 @@ function validateCombatStep(
         push(out, `${path}.parameters.target`, "expected 'enemy' or 'buffOwner'");
       }
       break;
+    case 'triggerSpellBurst':
+      requireEnum(
+        parameters,
+        'burstType',
+        new Set(['Fire', 'Pulse', 'Cryst', 'Natural']),
+        `${path}.parameters`,
+        out,
+      );
+      break;
     case 'applyElementalReaction':
       requireEnum(parameters, 'reaction', ELEMENTAL_REACTIONS_SET, `${path}.parameters`, out);
       requireTarget();
@@ -1085,6 +1101,49 @@ function validateCombatStep(
         typeof parameters.staggerOnlyWhenCasterControlled !== 'boolean'
       ) {
         push(out, `${path}.parameters.staggerOnlyWhenCasterControlled`, 'expected boolean');
+      }
+      if (parameters.instantAttributeModifiers !== undefined) {
+        if (!Array.isArray(parameters.instantAttributeModifiers)) {
+          push(out, `${path}.parameters.instantAttributeModifiers`, 'expected array');
+        } else {
+          parameters.instantAttributeModifiers.forEach((rawModifier, index) => {
+            const modifierPath = `${path}.parameters.instantAttributeModifiers[${index}]`;
+            const modifier = asRecord(rawModifier, modifierPath, out);
+            if (modifier === null) return;
+            requireEnum(
+              modifier,
+              'targetSide',
+              new Set(['attacker', 'defender']),
+              modifierPath,
+              out,
+            );
+            requireString(modifier, 'attribute', modifierPath, out);
+            requireEnum(
+              modifier,
+              'slot',
+              new Set([
+                'addition',
+                'multiplier',
+                'finalAddition',
+                'finalMultiplier',
+                'baseAddition',
+                'baseMultiplier',
+                'baseFinalAddition',
+                'baseFinalMultiplier',
+              ]),
+              modifierPath,
+              out,
+            );
+            validateActionValueOperand(modifier.value, `${modifierPath}.value`, out);
+            requireEnum(
+              modifier,
+              'attributeTiming',
+              new Set(['deck', 'runtime']),
+              modifierPath,
+              out,
+            );
+          });
+        }
       }
       if (parameters.attackScalePerStatusStack !== undefined) {
         const stack = asRecord(
@@ -1799,6 +1858,8 @@ function validateCombatStep(
       );
       validateActionValueOperand(parameters.value, `${path}.parameters.value`, out);
       break;
+    case 'refreshCurrentBuffAttributeModifiers':
+      break;
     case 'readBuffBlackboard':
     case 'readBuffStackCount': {
       // Buff 事件序列可从事件载荷解析 eventTarget；普通技能步骤仍会在运行时缺少
@@ -1928,6 +1989,21 @@ function validateCombatStep(
         push(out, `${path}.parameters.target`, "expected 'caster'");
       }
       validateNonEmptyStringArray(parameters.buffIds, `${path}.parameters.buffIds`, out);
+      break;
+    case 'restrictUltimateEnergyRecovery':
+      if (parameters.target !== 'caster') {
+        push(out, `${path}.parameters.target`, "expected 'caster'");
+      }
+      if (!Array.isArray(parameters.allowedRecoveryTagIds)) {
+        push(out, `${path}.parameters.allowedRecoveryTagIds`, 'expected an array');
+      } else {
+        parameters.allowedRecoveryTagIds.forEach((entry, index) => {
+          if (typeof entry !== 'number' || !Number.isInteger(entry)) {
+            push(out, `${path}.parameters.allowedRecoveryTagIds[${index}]`, 'expected an integer');
+          }
+        });
+      }
+      requireBoolean(parameters, 'clearUltimateEnergyOnEnd', `${path}.parameters`, out);
       break;
     case 'createTimedMarker':
       requireEnum(parameters, 'target', TIMED_MARKER_TARGETS_SET, `${path}.parameters`, out);
@@ -2513,8 +2589,8 @@ export function validateSkillDefinition(
       }
     }
   }
-  if (record.comboSmartTarget !== undefined)
-    requireEnum(record, 'comboSmartTarget', new Set(['input', 'trigger']), path, out);
+  if (record.smartTarget !== undefined)
+    requireEnum(record, 'smartTarget', new Set(['enemy', 'input', 'trigger']), path, out);
 
   if (record.availability !== undefined) {
     validateCombatCondition(record.availability, `${path}.availability`, out);

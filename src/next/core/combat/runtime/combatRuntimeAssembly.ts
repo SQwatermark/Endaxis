@@ -1033,10 +1033,12 @@ export class CombatRuntimeAssembly {
       }
       if (
         (!result.consumed || result.window.nativeCondition === undefined) &&
-        program.comboSmartTarget !== undefined
+        program.smartTarget !== undefined
       )
         ability.prepareAfterSkillCastStart(skillId, castId, prepareComboCast(program));
     }
+    if (program?.skillType !== 'comboSkill' && program?.smartTarget !== undefined)
+      ability.prepareAfterSkillCastStart(skillId, castId, prepareComboCast(program));
     if (program !== undefined) {
       this.#options.emitAbilityEvent?.(operatorId, 'beforeCastSkill', {
         sourceId: operatorId,

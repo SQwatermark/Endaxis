@@ -68,7 +68,12 @@ function projectEnhanceTarget(
   ) {
     throw new Error(`${sourcePath}: unsupported SkillSetting enhance target selector`);
   }
-  if (target.targetSource === 'Owner') return requireActionOwnerProjection(context, sourcePath);
+  if (target.targetSource === 'Owner') {
+    const owner = requireActionOwnerProjection(context, sourcePath);
+    if (owner === 'currentAbilityEntity')
+      throw new Error(`${sourcePath}: AbilityEntity SkillSetting enhance target is unsupported`);
+    return owner;
+  }
   if (target.targetSource === 'Source') return context.actionSourceTarget;
   throw new Error(`${sourcePath}: unsupported SkillSetting enhance target ${target.targetSource}`);
 }

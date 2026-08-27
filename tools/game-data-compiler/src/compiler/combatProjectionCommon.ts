@@ -7,6 +7,7 @@ import type { GameplayTagRegistry } from '../../../../src/shared/gameplayTags.ts
 import type { CompiledAbilityEntityTemplateCatalogSource } from './abilityEntityCatalog.ts';
 import type { GlobalBuffActionSource } from '../source/globalBuffActions.ts';
 import type { SkillSettingReadActionSource } from '../source/skillSettingActions.ts';
+import type { TargetGroupActionSource } from '../source/targetGroup.ts';
 
 /** 公共投影的底层约定：宿主/目标身份、已证明的即时搜索、数值引用和共享枚举映射。
  * 条件、动作及 Buff 装配共用同一份实现；不得反向调用序列编排或具体动作投影。 */
@@ -37,6 +38,8 @@ export interface CombatActionProjectionContextSource {
     readonly catalog: CompiledAbilityEntityTemplateCatalogSource;
     readonly gameplayTagRegistry: GameplayTagRegistry;
   };
+  /** 由整名 Buff 依赖数据流证明，用于归约相对 buffOwner 的选敌/条件；缺失时仍严格失败。 */
+  readonly fixedBuffOwnerTarget?: 'caster' | 'enemy' | 'currentAbilityEntity';
   /** 已由同一主动技能动作图证明会命中唯一木桩的命名目标组。 */
   readonly staticEnemyTargetGroupKeys?: ReadonlySet<string>;
   /** 完整技能内所有读取均为表现的查询；不能在单个序列内自行推断。 */
@@ -76,14 +79,30 @@ export const BUFF_ACTION_CONTEXT: CombatActionProjectionContextSource = {
 export function requireActionOwnerProjection(
   context: CombatActionProjectionContextSource,
   sourcePath: string,
-): 'buffOwner' | 'caster' {
-  if (
-    context.actionOwnerTarget === 'unavailable' ||
-    context.actionOwnerTarget === 'currentAbilityEntity'
-  ) {
+): 'buffOwner' | 'caster' | 'currentAbilityEntity' {
+  if (context.actionOwnerTarget === 'unavailable') {
     throw new Error(`${sourcePath}: action Owner projection is unavailable`);
   }
   return context.actionOwnerTarget;
+}
+
+/**
+ * 固定唯一敌人模型中，已证明只会返回存活敌人的目标组搜索。
+ * HitBox 的形状、中心和方向在零空间下不改变集合；过滤、后处理仍须为空。
+ */
+export function isStaticSingleEnemyTargetGroup(write: TargetGroupActionSource): boolean {
+  return (
+    (write.producerType === 'FindTargetAction' ||
+      write.producerType === 'ContinuousFindTargetAction' ||
+      write.producerType === 'ConvertToTargetContext') &&
+    write.validatorTypes.length === 0 &&
+    write.postProcessorTypes.length === 0 &&
+    (write.finderType === 'MainTargetFinder' ||
+      (write.finderType === 'HitBoxFinder' &&
+        write.finderFactionTarget === 'Anti' &&
+        write.finderTargetObjectType === 'Normal' &&
+        write.finderCheckAlive === true))
+  );
 }
 
 /** 固定小队模型中严格折叠已证明的“全队成员排除动作 owner”即时搜索。 */

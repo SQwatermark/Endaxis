@@ -10,6 +10,8 @@ import { prepareSkillDefinitionInputSource } from './skillDefinitionInput.ts';
 export interface CompiledPassiveSkillSource {
   readonly skill: NativePassiveSkillSource;
   readonly blackboard: ResolvedSkillBlackboardSource;
+  /** 领域层只消费这个公共判定，不直接读取 CardSkill 属性参数结构。 */
+  readonly hasCardAttributeModifiers: boolean;
 }
 
 /**
@@ -22,8 +24,10 @@ export function compilePassiveSkillSource(
   patch: SkillPatchSource | null,
 ): CompiledPassiveSkillSource {
   const prepared = prepareSkillDefinitionInputSource(value, sourcePath, patch);
+  const skill = parseNativePassiveSkillSource(value, sourcePath, prepared.blackboard.values);
   return {
-    skill: parseNativePassiveSkillSource(value, sourcePath, prepared.blackboard.values),
+    skill,
     blackboard: prepared.blackboard,
+    hasCardAttributeModifiers: skill.cardAttributeModifiers.modifiers.length > 0,
   };
 }

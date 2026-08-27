@@ -56,7 +56,7 @@ export function projectFinishOwner(
   sourcePath: string,
 ): CompiledBuffStepSource {
   if (
-    context.actionOwnerTarget !== 'currentAbilityEntity' ||
+    !['currentAbilityEntity', 'buffOwner'].includes(context.actionOwnerTarget) ||
     action.owner.targetSource !== 'Owner' ||
     action.owner.targetGroupKey !== '' ||
     action.owner.finderType !== null ||
@@ -64,8 +64,10 @@ export function projectFinishOwner(
     action.owner.postProcessorTypes.length
   )
     throw new Error(
-      `${sourcePath}: unsupported FinishOwner target; expected current AbilityEntity Owner`,
+      `${sourcePath}: unsupported FinishOwner target; expected an AbilityEntity-backed Owner`,
     );
+  // Buff 蓝图在安装前不知道宿主实体种类；能力实体 Buff 的生命周期运行时会把该宿主
+  // 作为 currentTarget 传入。若同一定义被错误装到普通角色，运行时会保持严格并报错。
   // skipDieDisplay 只控制死亡表现；Next 无渲染后端，不能把死亡替换为同步释放。
   return { kind: 'finishCurrentAbilityEntity', parameters: {} };
 }

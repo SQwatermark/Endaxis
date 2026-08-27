@@ -384,6 +384,7 @@ export const EDITABLE_COMBAT_STEP_KINDS = [
   'dealStagger',
   'heal',
   'applyElementalInfliction',
+  'triggerSpellBurst',
   'applyElementalReaction',
   'consumeElementalReaction',
   'outputAirborne',
@@ -551,6 +552,8 @@ export function createSkillEditorStep(
       };
     case 'applyElementalInfliction':
       return { kind, parameters: { element: 'heat', isExtra: false } };
+    case 'triggerSpellBurst':
+      return { kind, parameters: { burstType: 'Cryst' } };
     case 'applyElementalReaction':
       return {
         kind,

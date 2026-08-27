@@ -37,6 +37,7 @@ import {
   type CombatActionProjectionContextSource,
   type CombatActionProjectionExtensionsSource,
   BUFF_ACTION_CONTEXT,
+  isStaticSingleEnemyTargetGroup,
   isPartyExceptOwnerInstantSearch,
   scalarOperand,
   DAMAGE_TYPES,
@@ -131,6 +132,8 @@ export function compileBuffRuntimeDefinitionSource(
   visualOnlyIds: ReadonlySet<string> = new Set(),
   omittedAbilityEvents: ReadonlySet<string | number> = new Set(),
   extensions: CombatActionProjectionExtensionsSource = {},
+  abilityEntityQueries?: CombatActionProjectionContextSource['abilityEntityQueries'],
+  contextOverrides: Pick<CombatActionProjectionContextSource, 'fixedBuffOwnerTarget'> = {},
 ): CompiledBuffDefinitionSource {
   if (source.unsupportedPayloads.length > 0) {
     throw new Error(
@@ -144,8 +147,33 @@ export function compileBuffRuntimeDefinitionSource(
   }
   const startSequences: CompiledBuffSequenceSource[] = [];
   const enableSequences: CompiledBuffSequenceSource[] = [];
+  const triggerSequences: CompiledBuffSequenceSource[] = [];
   const enhanceChangedSequences: CompiledBuffSequenceSource[] = [];
   const finishSequences: CompiledBuffSequenceSource[] = [];
+  const allSequences = [
+    ...source.graph.timelineActions.map(item => item.sequence),
+    ...source.graph.buffEvents.flatMap(item => item.actions),
+    ...source.graph.abilityEvents.flatMap(item => item.actions),
+    ...source.graph.igniteEvents.flatMap(item => item.actions),
+  ];
+  const staticEnemyTargetGroupKeys = new Set(
+    allSequences
+      .flatMap(sequence => collectNativeActionNodes(sequence))
+      .flatMap(node =>
+        node.metadata.enabled &&
+        node.body.kind === 'leaf' &&
+        node.body.value.family === 'targetGroup' &&
+        isStaticSingleEnemyTargetGroup(node.body.value.action) &&
+        (contextOverrides.fixedBuffOwnerTarget === 'caster' ||
+          contextOverrides.fixedBuffOwnerTarget === 'currentAbilityEntity')
+          ? [node.body.value.action.targetGroupKey]
+          : [],
+      ),
+  );
+  const projectionContextOverrides = {
+    ...contextOverrides,
+    ...(staticEnemyTargetGroupKeys.size === 0 ? {} : { staticEnemyTargetGroupKeys }),
+  };
   let finishesWithSourceSkill = false;
   for (const event of source.graph.buffEvents) {
     const target =
@@ -153,11 +181,13 @@ export function compileBuffRuntimeDefinitionSource(
         ? startSequences
         : event.event === 'DuringBuffEnable'
           ? enableSequences
-          : event.event === 'OnBuffEnhanceChanged'
-            ? enhanceChangedSequences
-            : event.event === 'OnBuffFinish'
-              ? finishSequences
-              : null;
+          : event.event === 'OnBuffTrigger'
+            ? triggerSequences
+            : event.event === 'OnBuffEnhanceChanged'
+              ? enhanceChangedSequences
+              : event.event === 'OnBuffFinish'
+                ? finishSequences
+                : null;
     if (target === null) throw new Error(`unsupported Buff event ${JSON.stringify(event.event)}`);
     for (const sequence of event.actions) {
       const skillAffixBody =
@@ -170,8 +200,8 @@ export function compileBuffRuntimeDefinitionSource(
         skillAffixBody ?? sequence,
         visualOnlyIds,
         event.event === 'OnBuffStart' || event.event === 'DuringBuffEnable'
-          ? BUFF_LIFECYCLE_CONTEXT
-          : BUFF_ACTION_CONTEXT,
+          ? { ...BUFF_LIFECYCLE_CONTEXT, abilityEntityQueries, ...projectionContextOverrides }
+          : { ...BUFF_ACTION_CONTEXT, abilityEntityQueries, ...projectionContextOverrides },
         extensions,
       );
       if (compiled.steps.length > 0) target.push(compiled);
@@ -188,13 +218,26 @@ export function compileBuffRuntimeDefinitionSource(
       mapEvent: projectBuffAbilityEvent,
       compileSequence: (sequence, _sequencePath, abilityEvent) =>
         abilityEvent === 'OnObtainAtb'
-          ? compileSkillSpGainSequence(sequence, visualOnlyIds, BUFF_ACTION_CONTEXT, extensions)
+          ? compileSkillSpGainSequence(
+              sequence,
+              visualOnlyIds,
+              { ...BUFF_ACTION_CONTEXT, ...projectionContextOverrides },
+              extensions,
+            )
           : compileLinearSequence(
               sequence,
               visualOnlyIds,
               abilityEvent === 'OnBeforeAddedBuff'
-                ? BUFF_BEFORE_ADDED_CONTEXT
-                : BUFF_ACTION_CONTEXT,
+                ? {
+                    ...BUFF_BEFORE_ADDED_CONTEXT,
+                    abilityEntityQueries,
+                    ...projectionContextOverrides,
+                  }
+                : {
+                    ...BUFF_ACTION_CONTEXT,
+                    abilityEntityQueries,
+                    ...projectionContextOverrides,
+                  },
               extensions,
             ),
       isEmptySequence: sequence => sequence.steps.length === 0,
@@ -280,6 +323,7 @@ export function compileBuffRuntimeDefinitionSource(
     ...compileBuffShields(source),
     ...(startSequences.length === 0 &&
     enableSequences.length === 0 &&
+    triggerSequences.length === 0 &&
     enhanceChangedSequences.length === 0 &&
     finishSequences.length === 0
       ? {}
@@ -287,6 +331,7 @@ export function compileBuffRuntimeDefinitionSource(
           lifecycleSequences: {
             ...(startSequences.length === 0 ? {} : { start: mergeSequences(startSequences) }),
             ...(enableSequences.length === 0 ? {} : { enable: mergeSequences(enableSequences) }),
+            ...(triggerSequences.length === 0 ? {} : { trigger: mergeSequences(triggerSequences) }),
             ...(enhanceChangedSequences.length === 0
               ? {}
               : { enhanceChanged: mergeSequences(enhanceChangedSequences) }),
@@ -323,23 +368,37 @@ function compileBuffDamageModifiers(source: BuffRuntimeSource): {
       );
     }
     const processors = modifier.processors.map((processor, processorIndex) => {
-      if (processor.kind !== 'damageScale') {
-        throw new Error(
-          `damageModifier[${index}].damageProcessors[${processorIndex}]: unsupported processor ${processor.kind}`,
-        );
+      const processorPath = `damageModifier[${index}].damageProcessors[${processorIndex}]`;
+      if (processor.kind === 'damageScale') {
+        const side = DAMAGE_MODIFIER_SIDES[processor.side];
+        const zone = DAMAGE_SCALE_ZONES[processor.zoneName];
+        if (side === undefined || zone === undefined) {
+          throw new Error(`${processorPath}: unsupported side/zone`);
+        }
+        return {
+          kind: 'damageScale' as const,
+          side,
+          zone,
+          addition: scalarOperand(processor.addition),
+        };
       }
-      const side = DAMAGE_MODIFIER_SIDES[processor.side];
-      const zone = DAMAGE_SCALE_ZONES[processor.zoneName];
-      if (side === undefined || zone === undefined) {
-        throw new Error(
-          `damageModifier[${index}].damageProcessors[${processorIndex}]: unsupported side/zone`,
-        );
+      const targetSide = DAMAGE_MODIFIER_SIDES[processor.targetSide];
+      if (targetSide === undefined || processor.modifyAttributeType !== 'Specific') {
+        throw new Error(`${processorPath}: unsupported instant attribute target`);
       }
+      const compiled = compileResolvedAttributeModifierSource({
+        sourcePath: processorPath,
+        modifyAttributeType: processor.modifyAttributeType,
+        attributeType: processor.attributeType,
+        formulaItem: processor.formulaItem,
+        value: 0,
+      });
       return {
-        kind: 'damageScale' as const,
-        side,
-        zone,
-        addition: scalarOperand(processor.addition),
+        kind: 'instantAttribute' as const,
+        targetSide,
+        attribute: projectCombatRuntimeAttributeKey(processor.attributeType),
+        values: { slot: compiled.slot, value: scalarOperand(processor.parameter) },
+        attributeTiming: 'runtime' as const,
       };
     });
     if (processors.length === 0) {
@@ -866,9 +925,9 @@ function createBuffSequenceProjection(
     },
     compileForEach: (node, partyTargetGroups) => {
       if (
-        context.actionTargetTarget === 'enemy' &&
         node.body.target.targetSource === 'Context' &&
-        context.staticEnemyTargetGroupKeys?.has(node.body.target.targetGroupKey) === true &&
+        (context.staticEnemyTargetGroupKeys?.has(node.body.target.targetGroupKey) === true ||
+          partyTargetGroups.get(node.body.target.targetGroupKey) === 'enemy') &&
         node.body.target.finderType === null &&
         node.body.target.validatorTypes.length === 0 &&
         node.body.target.postProcessorTypes.length === 0 &&
@@ -876,9 +935,13 @@ function createBuffSequenceProjection(
         !node.body.action.onlyExecuteWhenSourceIsGuard
       ) {
         // 固定木桩模型中该静态集合恒为且仅为一个敌人，ForEach 因而精确执行一次。
+        const loopContext: CombatActionProjectionContextSource = {
+          ...context,
+          actionTargetTarget: 'enemy',
+        };
         return {
           steps: compileActionSequenceProgram(node.body.action, {
-            ...createBuffSequenceProjection(visualOnlyIds, context, extensions),
+            ...createBuffSequenceProjection(visualOnlyIds, loopContext, extensions),
             initialState: () => partyTargetGroups,
           }).steps,
           state: partyTargetGroups,
@@ -1167,6 +1230,27 @@ export function collectBuffRuntimePresentationActionPaths(
         node.metadata.enabled &&
         node.body.kind === 'leaf' &&
         node.body.value.family === 'presentation',
+    )
+    .map(node => node.sourcePath);
+}
+
+/** 严格解析但只发布关卡事件/战斗记录、当前木桩运行时无生产消费者的动作路径。 */
+export function collectBuffRuntimeLevelEventActionPaths(
+  source: BuffRuntimeSource,
+): readonly string[] {
+  const sequences = [
+    ...source.graph.timelineActions.map(item => item.sequence),
+    ...source.graph.buffEvents.flatMap(item => item.actions),
+    ...source.graph.abilityEvents.flatMap(item => item.actions),
+    ...source.graph.igniteEvents.flatMap(item => item.actions),
+  ];
+  return sequences
+    .flatMap(sequence => collectNativeActionNodes(sequence))
+    .filter(
+      node =>
+        node.metadata.enabled &&
+        node.body.kind === 'leaf' &&
+        node.body.value.family === 'levelEvent',
     )
     .map(node => node.sourcePath);
 }

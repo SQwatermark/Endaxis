@@ -65,12 +65,91 @@ export interface CameraPresentationActionSource {
     | 'ultimateShow'
     | 'weaponVisibility'
     | 'weaponAnimation'
+    | 'animatorParameter'
+    | 'igniteBuffText'
     | 'weaponMountPoint'
     | 'voiceTrigger'
     | 'overrideCameraFollow'
     | 'temporaryUnlock'
-    | 'lockCameraAim';
+    | 'lockCameraAim'
+    | 'actorVisibility';
   readonly readBlackboardKeys?: readonly string[];
+}
+
+export function parseIgniteBuffTextActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      ...ACTION_META_FIELDS,
+      'targetSettings',
+      'mountPoint',
+      'offset',
+      'energyShardType',
+      'textId',
+      'showOnSquadIcon',
+      'forceMainBody',
+    ]),
+    path,
+  );
+  parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`);
+  requireString(action.mountPoint, `${path}.mountPoint`);
+  const offset = requireRecord(action.offset, `${path}.offset`);
+  requireExactFields(offset, new Set(['x', 'y']), `${path}.offset`);
+  requireNumber(offset.x, `${path}.offset.x`);
+  requireNumber(offset.y, `${path}.offset.y`);
+  requireString(action.energyShardType, `${path}.energyShardType`);
+  requireString(action.textId, `${path}.textId`);
+  requireBoolean(action.showOnSquadIcon, `${path}.showOnSquadIcon`);
+  requireBoolean(action.forceMainBody, `${path}.forceMainBody`);
+  return { kind: 'igniteBuffText' };
+}
+
+export function parseSetAnimatorParameterActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([...ACTION_META_FIELDS, 'paramName', 'paramAction', 'actionOnEnd', 'endAction']),
+    path,
+  );
+  requireString(action.paramName, `${path}.paramName`);
+  parseAnimatorParameterAction(action.paramAction, `${path}.paramAction`);
+  requireBoolean(action.actionOnEnd, `${path}.actionOnEnd`);
+  parseAnimatorParameterAction(action.endAction, `${path}.endAction`);
+  return { kind: 'animatorParameter' };
+}
+
+export function parseShowHideActorActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      ...ACTION_META_FIELDS,
+      'targetSettings',
+      'showHideType',
+      'modelPartEnum',
+      'isShow',
+      'affectInit',
+      'revertOnRelease',
+    ]),
+    path,
+  );
+  parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`);
+  requireString(action.showHideType, `${path}.showHideType`);
+  requireString(action.modelPartEnum, `${path}.modelPartEnum`);
+  requireBoolean(action.isShow, `${path}.isShow`);
+  requireBoolean(action.affectInit, `${path}.affectInit`);
+  requireBoolean(action.revertOnRelease, `${path}.revertOnRelease`);
+  return { kind: 'actorVisibility' };
 }
 
 export function parseModifyWeaponMountPointActionSource(

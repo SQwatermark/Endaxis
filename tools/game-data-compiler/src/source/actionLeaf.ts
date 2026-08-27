@@ -11,8 +11,10 @@ import {
 import {
   parseAdvancedBuffFinishActionSource,
   parseBuffApplicationActionSource,
+  parseBuffInheritanceActionSource,
   parseLegacyBuffFinishActionSource,
   type BuffApplicationActionSource,
+  type BuffInheritanceActionSource,
   type BuffFinishActionSource,
 } from './buffActions.ts';
 import {
@@ -20,6 +22,7 @@ import {
   parseBuffLifeTimeReadActionSource,
   parseBuffDurationMutationActionSource,
   parseBuffStackReadActionSource,
+  parseStoreBuffCountActionSource,
   type BuffBlackboardReadActionSource,
   type BuffLifeTimeReadActionSource,
   type BuffDurationMutationActionSource,
@@ -52,12 +55,24 @@ import {
 } from './environmentActions.ts';
 import {
   parseElementalInflictionActionSource,
+  parseForcedElementalStatusActionSource,
+  parseSpellAbnormalLifecycleEventSource,
+  parseSpellInflictionStartedEventSource,
+  parseTriggerSpellBurstEventSource,
+  parseForceTriggerWeaknessEventSource,
   type ElementalInflictionActionSource,
+  type ForcedElementalStatusActionSource,
+  type SpellAbnormalLifecycleEventSource,
+  type SpellInflictionStartedEventSource,
+  type TriggerSpellBurstEventSource,
+  type ForceTriggerWeaknessEventSource,
 } from './elementalInflictionActions.ts';
 import { parseFinishOwnerActionSource, type FinishOwnerActionSource } from './lifecycleActions.ts';
 import {
   nativeActionName,
+  requireArray,
   requireExactFields,
+  requireInteger,
   requireNonEmptyString,
   requireRecord,
 } from './primitives.ts';
@@ -71,11 +86,14 @@ import {
   parseUltimateShowActionSource,
   parseWeaponVisibilityActionSource,
   parseWeaponAnimationActionSource,
+  parseSetAnimatorParameterActionSource,
+  parseIgniteBuffTextActionSource,
   parseModifyWeaponMountPointActionSource,
   parseVoiceTriggerActionSource,
   parseOverrideCameraFollowActionSource,
   parseTemporaryUnlockActionSource,
   parseEffectActionSource,
+  parseShowHideActorActionSource,
   parsePlayAnimationActionSource,
   parsePlayAnimationWithStepActionSource,
   parsePlaySoundActionSource,
@@ -108,10 +126,12 @@ import {
   parseFinisherSpGainActionSource,
   parseResourceGainActionSource,
   parseTimedMarkerApplicationSource,
+  parseSkillCooldownMutationActionSource,
   type GlobalCooldownApplicationSource,
   type FinisherSpGainActionSource,
   type ResourceGainActionSource,
   type TimedMarkerApplicationSource,
+  type SkillCooldownMutationActionSource,
 } from './resourceActions.ts';
 import type { BlackboardLevelValues } from './scalar.ts';
 import {
@@ -162,6 +182,12 @@ import {
   type SelfRotateActionSource,
   type TeleportActionSource,
 } from './spatialActions.ts';
+import {
+  parseRefrainUltimateEnergyRecoveryActionSource,
+  parseSwitchModeActionSource,
+  type RefrainUltimateEnergyRecoveryActionSource,
+  type SwitchModeActionSource,
+} from './modeAndResourcePolicyActions.ts';
 
 const CONDITION_ACTION_NAMES = new Set([
   'OrConditionAction',
@@ -178,6 +204,7 @@ const CONDITION_ACTION_NAMES = new Set([
   'CheckHp',
   'Probablity',
   'CheckSkillType',
+  'CheckSkillId',
   'CheckOriginSkillType',
   'CheckObtainAtbType',
   'CheckTargetsEqual',
@@ -212,6 +239,7 @@ const REFERENCE_CLOSURE_ACTION_NAMES = new Set([
   'VulnerableAction',
   'CreateBuffAction',
   'CreateBuffAttachingSkill',
+  'InheritBuffAction',
   'CreateGlobalBuffAction',
   'FinishGlobalBuffAction',
   'ReadSkillSettingData',
@@ -221,6 +249,7 @@ const REFERENCE_CLOSURE_ACTION_NAMES = new Set([
   'LaunchProjectile',
   'SpawnAbilityEntity',
   'CastSkill',
+  'ForceSpellStatusAction',
 ]);
 
 export type KnownNativeActionParseScope = 'all' | 'referenceClosure';
@@ -263,7 +292,9 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'selfDefense'; readonly action: SetSuperArmorActionSource }
   | { readonly family: 'timedMarker'; readonly action: TimedMarkerApplicationSource }
   | { readonly family: 'globalCooldown'; readonly action: GlobalCooldownApplicationSource }
+  | { readonly family: 'skillCooldownMutation'; readonly action: SkillCooldownMutationActionSource }
   | { readonly family: 'buffApplication'; readonly action: BuffApplicationActionSource }
+  | { readonly family: 'buffInheritance'; readonly action: BuffInheritanceActionSource }
   | {
       readonly family: 'aura';
       readonly action: GlobalPartyAuraActionSource | AuraReferenceActionSource;
@@ -274,9 +305,22 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'buffBlackboardRead'; readonly action: BuffBlackboardReadActionSource }
   | { readonly family: 'buffLifeTimeRead'; readonly action: BuffLifeTimeReadActionSource }
   | { readonly family: 'buffDurationMutation'; readonly action: BuffDurationMutationActionSource }
+  | {
+      readonly family: 'buffModifierRefresh';
+      readonly action: { readonly kind: 'buffModifierRefresh' };
+    }
   | { readonly family: 'heal'; readonly action: HealActionSource }
   | { readonly family: 'environment'; readonly action: BreakInteractiveActionSource }
   | { readonly family: 'elementalInfliction'; readonly action: ElementalInflictionActionSource }
+  | { readonly family: 'forcedElementalStatus'; readonly action: ForcedElementalStatusActionSource }
+  | { readonly family: 'spellBurstEvent'; readonly action: TriggerSpellBurstEventSource }
+  | {
+      readonly family: 'levelEvent';
+      readonly action:
+        | SpellAbnormalLifecycleEventSource
+        | SpellInflictionStartedEventSource
+        | ForceTriggerWeaknessEventSource;
+    }
   | { readonly family: 'keywordBuff'; readonly action: KeywordBuffActionSource }
   | { readonly family: 'lifecycle'; readonly action: FinishOwnerActionSource }
   | {
@@ -297,7 +341,21 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'stumpControl'; readonly action: StumpControlActionSource }
   | { readonly family: 'projectile'; readonly action: ProjectileLaunchActionSource }
   | { readonly family: 'abilityEntity'; readonly action: AbilityEntitySpawnActionSource }
-  | { readonly family: 'skillCast'; readonly action: SkillCastActionSource };
+  | { readonly family: 'skillCast'; readonly action: SkillCastActionSource }
+  | {
+      readonly family: 'modeAndResourcePolicy';
+      readonly action: SwitchModeActionSource | RefrainUltimateEnergyRecoveryActionSource;
+    }
+  | {
+      readonly family: 'eventListener';
+      readonly action: {
+        readonly kind: 'eventListener';
+        readonly events: readonly {
+          readonly abilityEvent: string | number;
+          readonly actions: readonly NativeSequenceSource<KnownNativeActionLeafSource>[];
+        }[];
+      };
+    };
 
 /**
  * 单一公共分派入口。遇到尚未迁移的原生 Action 必须携带路径失败，不能由领域层各自猜测。
@@ -345,6 +403,11 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'presentation',
         action: parsePlayAnimationActionSource(value, path),
       };
+    case 'ShowHideActorAction':
+      return {
+        family: 'presentation',
+        action: parseShowHideActorActionSource(value, path),
+      };
     case 'BreakInteractiveAction':
       return {
         family: 'environment',
@@ -354,6 +417,31 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'elementalInfliction',
         action: parseElementalInflictionActionSource(value, path),
+      };
+    case 'ForceSpellStatusAction':
+      return {
+        family: 'forcedElementalStatus',
+        action: parseForcedElementalStatusActionSource(value, path, inheritedBlackboard),
+      };
+    case 'TriggerSpellBurstEventAction':
+      return {
+        family: 'spellBurstEvent',
+        action: parseTriggerSpellBurstEventSource(value, path),
+      };
+    case 'OnSpellAbnormalStartFinish':
+      return {
+        family: 'levelEvent',
+        action: parseSpellAbnormalLifecycleEventSource(value, path),
+      };
+    case 'OnSpellInflictionStart':
+      return {
+        family: 'levelEvent',
+        action: parseSpellInflictionStartedEventSource(value, path),
+      };
+    case 'ForceTriggerWeakness':
+      return {
+        family: 'levelEvent',
+        action: parseForceTriggerWeaknessEventSource(value, path),
       };
     case 'PlayAnimationWithStep':
       return {
@@ -429,6 +517,16 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'presentation',
         action: parseWeaponAnimationActionSource(value, path),
+      };
+    case 'SetAnimatorParamAction':
+      return {
+        family: 'presentation',
+        action: parseSetAnimatorParameterActionSource(value, path),
+      };
+    case 'IgniteBuffTextAction':
+      return {
+        family: 'presentation',
+        action: parseIgniteBuffTextActionSource(value, path),
       };
     case 'ModifyWeaponMountPoint':
       return {
@@ -514,6 +612,62 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'resource',
         action: parseResourceGainActionSource(value, path, inheritedBlackboard),
       };
+    case 'SwitchModeAction':
+      return {
+        family: 'modeAndResourcePolicy',
+        action: parseSwitchModeActionSource(value, path),
+      };
+    case 'RefrainObtainUsp':
+      return {
+        family: 'modeAndResourcePolicy',
+        action: parseRefrainUltimateEnergyRecoveryActionSource(value, path),
+      };
+    case 'RefreshBuffAttrModifierValue':
+      requireExactFields(
+        action,
+        new Set(['$type', 'isEnable', 'priorityLevel', 'priorityOffset', 'serverActionIndex']),
+        path,
+      );
+      return { family: 'buffModifierRefresh', action: { kind: 'buffModifierRefresh' } };
+    case 'EventListenerAction': {
+      requireExactFields(
+        action,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'abilityActionMap',
+        ]),
+        path,
+      );
+      const events = requireArray(action.abilityActionMap, `${path}.abilityActionMap`).map(
+        (rawEvent, eventIndex) => {
+          const eventPath = `${path}.abilityActionMap[${eventIndex}]`;
+          const event = requireRecord(rawEvent, eventPath);
+          requireExactFields(event, new Set(['abilityEvent', 'actions']), eventPath);
+          const abilityEvent =
+            typeof event.abilityEvent === 'string'
+              ? requireNonEmptyString(event.abilityEvent, `${eventPath}.abilityEvent`)
+              : requireInteger(event.abilityEvent, `${eventPath}.abilityEvent`);
+          return {
+            abilityEvent,
+            actions: requireArray(event.actions, `${eventPath}.actions`).map(
+              (sequence, sequenceIndex) =>
+                parseNativeSequenceSource(
+                  sequence,
+                  `${eventPath}.actions[${sequenceIndex}]`,
+                  inheritedBlackboard,
+                  (leaf, leafPath) =>
+                    parseKnownNativeActionLeafSource(leaf, leafPath, inheritedBlackboard),
+                ),
+            ),
+          };
+        },
+      );
+      return { family: 'eventListener', action: { kind: 'eventListener', events } };
+    }
     case 'GainBreakingAttackAtb':
       return {
         family: 'finisherSpGain',
@@ -529,6 +683,11 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'globalCooldown',
         action: parseGlobalCooldownApplicationSource(value, path, inheritedBlackboard),
       };
+    case 'SetSkillCdAtOnce':
+      return {
+        family: 'skillCooldownMutation',
+        action: parseSkillCooldownMutationActionSource(value, path, inheritedBlackboard),
+      };
     case 'CreateBuffAction':
       return {
         family: 'buffApplication',
@@ -543,6 +702,11 @@ export function tryParseKnownNativeActionLeafSource(
           inheritedBlackboard,
           'currentCastSkill',
         ),
+      };
+    case 'InheritBuffAction':
+      return {
+        family: 'buffInheritance',
+        action: parseBuffInheritanceActionSource(value, path),
       };
     case 'AuraAction':
       return {
@@ -573,6 +737,11 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'buffQuery',
         action: parseBuffStackReadActionSource(value, path),
+      };
+    case 'StoreBuffCount':
+      return {
+        family: 'buffQuery',
+        action: parseStoreBuffCountActionSource(value, path),
       };
     case 'GetTargetBuffBBAdvanced':
       return {

@@ -222,6 +222,16 @@ function inspectSequence(
           );
         }
         return;
+      case 'triggerSpellBurst':
+        if (!flags.elementalInfliction) {
+          report(
+            collect,
+            'unsupported-step',
+            stepPath,
+            'spell burst requires elemental Buff definitions and SkillSetting data',
+          );
+        }
+        return;
       case 'applyPhysicalInfliction':
         if (source === 'equipment') {
           report(

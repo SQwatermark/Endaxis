@@ -13,7 +13,7 @@ export interface OperatorRuntimeDefinition {
     readonly skillGroupKey: string;
     readonly sourceSkillId: string;
     readonly costFrame: number;
-    readonly comboSmartTarget?: 'input' | 'trigger';
+    readonly smartTarget?: 'enemy' | 'input' | 'trigger';
   }[];
 }
 
@@ -47,17 +47,14 @@ export function applyOperatorRuntimeDefinition(
         throw new Error('combo metadata must bind to a combo skill group');
       if (
         (skill.costFrame !== undefined && skill.costFrame !== metadata.costFrame) ||
-        (skill.comboSmartTarget !== undefined &&
-          skill.comboSmartTarget !== metadata.comboSmartTarget)
+        (skill.smartTarget !== undefined && skill.smartTarget !== metadata.smartTarget)
       )
         throw new Error(`conflicting runtime cast metadata '${metadata.sourceSkillId}'`);
       matched.set(metadata.sourceSkillId, (matched.get(metadata.sourceSkillId) ?? 0) + 1);
       return {
         ...skill,
         costFrame: metadata.costFrame,
-        ...(metadata.comboSmartTarget === undefined
-          ? {}
-          : { comboSmartTarget: metadata.comboSmartTarget }),
+        ...(metadata.smartTarget === undefined ? {} : { smartTarget: metadata.smartTarget }),
       };
     };
     const updateSet = (skills: SkillDefinition | readonly SkillDefinition[]) =>

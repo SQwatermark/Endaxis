@@ -7,11 +7,12 @@ export function compileAbilityEntityDefinitionSource(
   template: NativeAbilityEntityTemplateSource,
   skillId: string,
   loadSkill: (id: string) => unknown,
+  visualOnlyIds: ReadonlySet<string> = new Set(),
 ): AbilityEntityDefinition {
   if (
     template.durationBlackboard.blackboardKey !== null ||
     template.maxStackingCountBlackboard.blackboardKey !== null ||
-    template.maxStackingCount !== -1 ||
+    template.maxStackingCount < -1 ||
     template.maxDurationForServerSeconds !== 0 ||
     template.delayToRecycleSeconds !== 0 ||
     template.delayRecyclePerformSeconds !== 0 ||
@@ -21,7 +22,11 @@ export function compileAbilityEntityDefinitionSource(
   if (template.lifeTypeNativeValue !== 0 && template.lifeTypeNativeValue !== 1)
     throw new Error(`${template.gameId}: unsupported AbilityEntity life type`);
   const childSkill = skillId
-    ? compileAbilityEntityChildSkillSource(loadSkill(skillId), `SkillData.${skillId}`)
+    ? compileAbilityEntityChildSkillSource(
+        loadSkill(skillId),
+        `SkillData.${skillId}`,
+        visualOnlyIds,
+      )
     : undefined;
   if (childSkill && childSkill.skillId !== skillId)
     throw new Error(`${template.gameId}: child skill identity mismatch`);
@@ -30,6 +35,7 @@ export function compileAbilityEntityDefinitionSource(
       template.lifeTypeNativeValue === 0
         ? { kind: 'limited', durationSeconds: template.durationSeconds }
         : { kind: 'infinite' },
+    ...(template.maxStackingCount > 0 ? { maxStackingCount: template.maxStackingCount } : {}),
     ...(childSkill ? { childSkill } : {}),
   };
 }

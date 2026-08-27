@@ -28,7 +28,7 @@ type Step<
 // 下列目标限制分别对应当前已审计的查询、标记和技能事件，不互相替代。
 type BuffQueryTarget =
   'caster' | 'enemy' | 'currentAbilityEntity' | 'eventTarget' | 'buffOwner' | 'buffSource';
-type MarkerTarget = 'caster' | 'eventTarget' | 'buffOwner' | 'buffSource';
+type MarkerTarget = 'caster' | 'eventTarget' | 'buffOwner' | 'buffSource' | 'currentAbilityEntity';
 
 export type CompiledBuffConditionSource =
   | Condition<
@@ -41,9 +41,11 @@ export type CompiledBuffConditionSource =
       | 'actionValueCompare'
       | 'eventOverheal'
       | 'eventSkillCastMatchesBuffSource'
+      | 'eventSkillIdIn'
       | 'eventBuffIdMatch'
       | 'eventSourceTargetMatch'
       | 'eventSourceMatchesBuffSource'
+      | 'buffSourceMatchesOwner'
       | 'eventActionOwnerTargetMatch'
       | 'eventPhysicalInflictionTypeIn'
       | 'eventDamageTypeIn'
@@ -52,9 +54,10 @@ export type CompiledBuffConditionSource =
       | 'contextTargetContains'
       | 'eventBuffTagsMatch'
       | 'eventTargetBuffCountCompare'
+      | 'enemySuperArmorCompare'
       | 'probability'
     >
-  | (Condition<'healthCompare'> & { readonly target: 'controlledOperator' })
+  | (Condition<'healthCompare'> & { readonly target: 'controlledOperator' | 'enemy' })
   | (Condition<'eventDamageTagsMatch'> & {
       readonly match: 'hasAny' | 'hasAll';
       readonly tags: readonly (
@@ -81,6 +84,7 @@ export type CompiledBuffConditionSource =
       readonly target: BuffQueryTarget;
       readonly value: CompiledActionValueOperandSource;
     })
+  | (Condition<'entityTagMatch'> & { readonly target: BuffQueryTarget })
   | (Condition<'poiseCompare'> & { readonly target: 'enemy' })
   | (Pick<Condition<'all' | 'any'>, 'kind'> & {
       readonly conditions: readonly CompiledBuffConditionSource[];
@@ -123,7 +127,7 @@ type BuffApplicationParameters = Omit<
     | 'party'
     | 'partyExceptCaster'
     | 'partyExceptCasterAndSameCharacterType';
-  readonly source?: 'enemy' | 'eventSource' | 'buffSource' | 'buffOwner';
+  readonly source?: 'enemy' | 'eventSource' | 'buffSource' | 'buffOwner' | 'currentAbilityEntity';
 };
 
 type DamageParameters = Pick<
@@ -136,6 +140,7 @@ type DamageParameters = Pick<
   | 'features'
   | 'stagger'
   | 'staggerOnlyWhenCasterControlled'
+  | 'instantAttributeModifiers'
 > & {
   // 这是伤害协议的已支持子集，不是角色元素身份；值集合恰好一致也不能混用概念。
   readonly damageType: Extract<
@@ -170,6 +175,7 @@ type HealParameters = Parameters<'heal'> & {
 };
 
 export type CompiledBuffStepSource =
+  | Step<'triggerSpellBurst'>
   | Step<'startTimeDilation', GlobalTimeDilation | EntityTimeDilation>
   | Step<
       'startUltimateTimeDilation',
@@ -189,7 +195,7 @@ export type CompiledBuffStepSource =
       'findOwnerSpawnedAbilityEntities',
       Pick<
         Parameters<'findOwnerSpawnedAbilityEntities'>,
-        'saveToContextKey' | 'sameSourceSkillCast'
+        'saveToContextKey' | 'sameSourceSkillCast' | 'maxTargets'
       > &
         Required<Pick<Parameters<'findOwnerSpawnedAbilityEntities'>, 'abilityEntityIds'>>
     >
@@ -238,10 +244,11 @@ export type CompiledBuffStepSource =
       Pick<Parameters<'readBuffStackCount'>, 'outputKey'> & {
         readonly target: MarkerTarget;
         readonly countType?: 'instance';
-        readonly query: Extract<Parameters<'readBuffStackCount'>['query'], { kind: 'id' | 'tag' }>;
+        readonly query: Parameters<'readBuffStackCount'>['query'];
       }
     >
   | Step<'readEventBuffBlackboard'>
+  | Step<'readBuffBlackboard'>
   | Step<
       'modifyActionValue',
       Parameters<'modifyActionValue'> & {
@@ -252,12 +259,14 @@ export type CompiledBuffStepSource =
       'storeSourceAttributeValue',
       Parameters<'storeSourceAttributeValue'> & {
         readonly attribute:
-          { readonly kind: 'specific'; readonly key: 'maxHealth' } | { readonly kind: 'secondary' };
+          | Extract<Parameters<'storeSourceAttributeValue'>['attribute'], { kind: 'specific' }>
+          | { readonly kind: 'secondary' };
       }
     >
   | Step<'calculateActionValue'>
   | Step<'readCurrentBuffRemainingDuration'>
   | Step<'setCurrentBuffRemainingDuration'>
+  | Step<'refreshCurrentBuffAttributeModifiers'>
   | Step<
       'changeResourceByActionValue',
       Parameters<'changeResourceByActionValue'> & {
@@ -271,16 +280,19 @@ export type CompiledBuffStepSource =
       }
     >
   | Step<'gainFinisherSp'>
+  | Step<'restrictUltimateEnergyRecovery'>
+  | Step<'adjustSkillCooldown'>
   | CompiledSimpleDamageOperationSource
   | CompiledSimplePoiseOperationSource
   | Step<'heal', HealParameters>
   | Step<
       'finishBuffsById',
       Parameters<'finishBuffsById'> & {
-        readonly target: 'buffOwner' | 'caster' | 'enemy';
+        readonly target: 'buffOwner' | 'caster' | 'enemy' | 'currentAbilityEntity';
         readonly reason: 'early' | 'other';
       }
     >
+  | Step<'finishBuffsByTag'>
   | Step<'createTimedMarker', Parameters<'createTimedMarker'> & { readonly target: MarkerTarget }>
   | Step<'finishCurrentBuff', Parameters<'finishCurrentBuff'> & { readonly reason: 'other' }>;
 

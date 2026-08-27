@@ -33,6 +33,68 @@ describe('AbilityEntityOperationExecutor', () => {
     expect(entities.findOwnerSpawned({ ownerId: 'arclight' })).toHaveLength(1);
   });
 
+  it('keeps native query truncation after zero-space distance ordering is erased', () => {
+    const entities = new LogicalAbilityEntityRuntime({});
+    const first = entities.spawn({
+      abilityEntityId: 'robot',
+      definition: { lifetime: { kind: 'limited', durationSeconds: 10 } },
+      ownerId: 'yvonne',
+      source: { kind: 'operator', operatorId: 'yvonne' },
+    });
+    entities.spawn({
+      abilityEntityId: 'robot',
+      definition: { lifetime: { kind: 'limited', durationSeconds: 10 } },
+      ownerId: 'yvonne',
+      source: { kind: 'operator', operatorId: 'yvonne' },
+    });
+    const executor = new AbilityEntityOperationExecutor('yvonne', entities, {
+      execute: () => false,
+      evaluate: () => false,
+    });
+    const targetContext = new RuntimeTargetContext();
+
+    executor.execute(
+      {
+        kind: 'findOwnerSpawnedAbilityEntities',
+        parameters: {
+          saveToContextKey: 'robots',
+          abilityEntityIds: ['robot'],
+          maxTargets: 1,
+        },
+      },
+      { blackboard: new ActionBlackboard(), targetContext },
+    );
+
+    expect(targetContext.get('robots')).toEqual([first]);
+  });
+
+  it('releases the oldest same-template entity when the native stacking group is full', () => {
+    const finished: string[] = [];
+    const entities = new LogicalAbilityEntityRuntime({
+      hooks: { finished: snapshot => finished.push(snapshot.abilityEntityId) },
+    });
+    const definition = {
+      lifetime: { kind: 'limited' as const, durationSeconds: 10 },
+      maxStackingCount: 1,
+    };
+    const first = entities.spawn({
+      abilityEntityId: 'robot',
+      definition,
+      ownerId: 'yvonne',
+      source: { kind: 'operator', operatorId: 'yvonne' },
+    });
+    const second = entities.spawn({
+      abilityEntityId: 'robot',
+      definition,
+      ownerId: 'yvonne',
+      source: { kind: 'operator', operatorId: 'yvonne' },
+    });
+
+    expect(entities.isActive(first)).toBe(false);
+    expect(entities.isActive(second)).toBe(true);
+    expect(finished).toEqual(['robot']);
+  });
+
   it('spawns from operands and writes the resulting handle to Context', () => {
     const entities = new LogicalAbilityEntityRuntime({});
     const executor = new AbilityEntityOperationExecutor('arcane', entities, {

@@ -299,7 +299,7 @@ export default {
       "skillGroupKey": "comboSkill",
       "sourceSkillId": "chr_0032_lizhiyan_combo_skill",
       "costFrame": 0,
-      "comboSmartTarget": "trigger"
+      "smartTarget": "trigger"
     }
   ]
 } as const satisfies OperatorRuntimeDefinition;

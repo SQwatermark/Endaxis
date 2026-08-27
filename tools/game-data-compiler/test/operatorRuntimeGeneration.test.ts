@@ -62,9 +62,11 @@ describe('角色运行定义生成命令', () => {
     await generateOperatorRuntimeDefinition(f.args);
     const before = fs.readFileSync(f.destination, 'utf8');
     const fixture = operatorRuntimeFixture();
-    fixture.comboSkill.smartTargetSelectStrategy = 4;
+    fixture.comboSkill.smartTargetSelectStrategy = 999;
     fs.writeFileSync(f.args.comboSkill, JSON.stringify(fixture.comboSkill));
-    await expect(generateOperatorRuntimeDefinition(f.args)).rejects.toThrow('not audited');
+    await expect(generateOperatorRuntimeDefinition(f.args)).rejects.toThrow(
+      'unknown native target selection',
+    );
     expect(fs.readFileSync(f.destination, 'utf8')).toBe(before);
   });
   it('拒绝覆盖夹杂的手工文件', async () => {

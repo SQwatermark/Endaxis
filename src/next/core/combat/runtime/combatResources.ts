@@ -101,8 +101,12 @@ export interface UltimateEnergyChangeOptions {
   readonly ignoreGainMultiplier?: boolean;
 }
 
-interface OperatorResources extends Omit<OperatorResourceSnapshot, 'ultimateEnergy'> {
+interface OperatorResources extends Omit<
+  OperatorResourceSnapshot,
+  'ultimateEnergy' | 'allowedUltimateEnergyRecoveryTagIds'
+> {
   ultimateEnergy: number;
+  allowedUltimateEnergyRecoveryTagIds: ReadonlySet<GameplayTagId> | null;
 }
 
 export interface CombatResourceRuntimeResolvers {
@@ -133,6 +137,12 @@ export class CombatResources {
   readonly #ultimateEnergySystemUnlocked: boolean;
   readonly #squad: readonly OperatorResources[];
   readonly #operators = new Map<string, OperatorResources>();
+  readonly #baseUltimateRecoveryRestrictions = new Map<string, ReadonlySet<GameplayTagId> | null>();
+  readonly #ultimateRecoveryRestrictionHandles = new Map<
+    number,
+    { readonly operatorId: string; readonly allowed: ReadonlySet<GameplayTagId> }
+  >();
+  #nextUltimateRecoveryRestrictionHandle = 1;
   readonly #normalSkillUltimateEnergy: NormalSkillUltimateEnergySettings;
   /** 一次战斗唯一的共享 SP 获取效率注册表，供 Buff 与资源动作共同使用。 */
   readonly sharedSpGainModifiers: SharedSpGainModifierSet;
@@ -194,6 +204,12 @@ export class CombatResources {
             : new Set(member.allowedUltimateEnergyRecoveryTagIds),
       };
       this.#operators.set(member.operatorId, runtime);
+      this.#baseUltimateRecoveryRestrictions.set(
+        member.operatorId,
+        member.allowedUltimateEnergyRecoveryTagIds === null
+          ? null
+          : new Set(member.allowedUltimateEnergyRecoveryTagIds),
+      );
       return runtime;
     });
   }
@@ -405,6 +421,45 @@ export class CombatResources {
       const baseValue = coefficient * nonReturnedSpCost * gainPerSp;
       return this.changeUltimateEnergy(member.operatorId, baseValue);
     });
+  }
+
+  requestUltimateEnergyRecoveryRestriction(
+    operatorId: string,
+    allowedRecoveryTagIds: ReadonlySet<GameplayTagId>,
+  ): number {
+    this.#requireOperator(operatorId);
+    const handle = this.#nextUltimateRecoveryRestrictionHandle++;
+    this.#ultimateRecoveryRestrictionHandles.set(handle, {
+      operatorId,
+      allowed: new Set(allowedRecoveryTagIds),
+    });
+    this.#refreshUltimateEnergyRecoveryRestriction(operatorId);
+    return handle;
+  }
+
+  revertUltimateEnergyRecoveryRestriction(handle: number, clearUltimateEnergyOnEnd: boolean): void {
+    const entry = this.#ultimateRecoveryRestrictionHandles.get(handle);
+    if (entry === undefined) return;
+    this.#ultimateRecoveryRestrictionHandles.delete(handle);
+    this.#refreshUltimateEnergyRecoveryRestriction(entry.operatorId);
+    if (clearUltimateEnergyOnEnd) this.#requireOperator(entry.operatorId).ultimateEnergy = 0;
+  }
+
+  #refreshUltimateEnergyRecoveryRestriction(operatorId: string): void {
+    const dynamic = [...this.#ultimateRecoveryRestrictionHandles.values()].filter(
+      entry => entry.operatorId === operatorId,
+    );
+    const operator = this.#requireOperator(operatorId);
+    if (dynamic.length === 0) {
+      const base = this.#baseUltimateRecoveryRestrictions.get(operatorId)!;
+      operator.allowedUltimateEnergyRecoveryTagIds = base === null ? null : new Set(base);
+      return;
+    }
+    const allowed = new Set<GameplayTagId>();
+    const base = this.#baseUltimateRecoveryRestrictions.get(operatorId);
+    if (base !== null && base !== undefined) for (const tag of base) allowed.add(tag);
+    for (const entry of dynamic) for (const tag of entry.allowed) allowed.add(tag);
+    operator.allowedUltimateEnergyRecoveryTagIds = allowed;
   }
 
   #trySetUltimateEnergy(

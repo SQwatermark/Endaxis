@@ -22,6 +22,15 @@ import {
 import type { OperatorActiveSkillTypeSource } from '../src/domains/operator/activeSkills.ts';
 import { writeGeneratedDefinitionFiles } from '../src/compiler/writeGeneratedDefinitionFiles.ts';
 import { compileStandardStumpBuffClosure } from '../src/compiler/standardStumpBuffClosure.ts';
+import { collectCombatInvisibleBuffClosureIds } from '../src/compiler/combatInvisibleBuffClosure.ts';
+import { collectCompiledBuffIds } from '../src/compiler/compiledBuffReferences.ts';
+import { collectSkillActionReferences } from '../src/source/referenceGraph.ts';
+import type { ProjectileLaunchActionSource } from '../src/source/referenceActions.ts';
+import type { NativeConditionSource } from '../src/source/condition.ts';
+import type {
+  CombatActionProjectionContextSource,
+  CombatActionProjectionExtensionsSource,
+} from '../src/compiler/combatProjectionCommon.ts';
 
 export interface OperatorActiveSkillRuntimeArguments {
   readonly sourceRoot: string;
@@ -29,6 +38,8 @@ export interface OperatorActiveSkillRuntimeArguments {
   readonly skillPatchTable: string;
   readonly buffDataRoot: string;
   readonly supplementalBuffIds: readonly string[];
+  /** 整名两阶段规划中，由其他技能生成的能力实体子技能所观察的逻辑 Buff 身份。 */
+  readonly preserveBuffIds?: readonly string[];
   readonly abilityEntityCatalog: string;
   readonly projectileBlackboardCatalog: string;
   readonly gameplayTagCatalog: string;
@@ -55,6 +66,105 @@ export interface PlannedOperatorActiveSkillRuntime {
   readonly output: string;
   readonly skillId: string;
   readonly sequences: number;
+  readonly abilityEntityObservedBuffIds: readonly string[];
+}
+
+/** 技能本体和 Buff 闭包共用的零距离投射物目录；回调 SkillData 仍逐个严格解析。 */
+export function prepareProjectileProjection(
+  args: Pick<
+    OperatorActiveSkillRuntimeArguments,
+    'sourceRoot' | 'skillPatchTable' | 'projectileBlackboardCatalog' | 'timeDilationCatalog'
+  >,
+  launches: readonly ProjectileLaunchActionSource[],
+  visualOnlyIds: ReadonlySet<string>,
+  callbackContext: CombatActionProjectionContextSource,
+): {
+  readonly compileProjectileLaunch: NonNullable<
+    CombatActionProjectionExtensionsSource['compileProjectileLaunch']
+  >;
+  readonly callbackGraphs: ReadonlyMap<string, ReturnType<typeof parseKnownSkillActionGraphSource>>;
+  readonly projectileIds: readonly string[];
+  readonly callbackIds: readonly string[];
+} {
+  const patchTable = readJson(args.skillPatchTable) as Record<string, unknown>;
+  const projectileIds = [...new Set(launches.map(launch => launch.projectileId))].sort();
+  const callbackIds = [
+    ...new Set(
+      launches.flatMap(launch =>
+        launch.callbacks.filter(callback => callback.enabled).map(callback => callback.skillId),
+      ),
+    ),
+  ].sort();
+  const callbackGraphs = new Map(
+    callbackIds.map(id => {
+      const value = readJson(path.resolve(args.sourceRoot, 'skill-data-cdn', `${id}.json`));
+      assertNoUnprojectedSkillRootEffects(value, `SkillData.${id}`);
+      const callbackPatch = id in patchTable ? parseSkillPatchSource(patchTable[id], id) : null;
+      const callbackPrepared = prepareSkillDefinitionInputSource(value, id, callbackPatch);
+      return [
+        id,
+        parseKnownSkillActionGraphSource(value, id, callbackPrepared.blackboard.values),
+      ] as const;
+    }),
+  );
+  const runtimeCatalog = new Map(
+    projectileIds.map(
+      id =>
+        [
+          id,
+          parseProjectileRuntimeSource(
+            readJson(path.resolve(args.sourceRoot, 'ProjectileData', `${id}.json`)),
+            `ProjectileData.${id}`,
+          ),
+        ] as const,
+    ),
+  );
+  const blackboardEvidence = readJson(args.projectileBlackboardCatalog) as {
+    projectiles: readonly {
+      projectileId: string;
+      entityBlackboard: readonly { key: string; value: number; isDynamic: boolean }[];
+    }[];
+  };
+  const templateCatalog = new Map(
+    blackboardEvidence.projectiles
+      .filter(row => projectileIds.includes(row.projectileId))
+      .map(
+        row =>
+          [
+            row.projectileId,
+            {
+              projectileId: row.projectileId,
+              entityBlackboard: parseBlackboardDataPairs(
+                row.entityBlackboard.map(item => ({
+                  key: item.key,
+                  valueDouble: item.value,
+                  valueStr: '',
+                  isDynamic: item.isDynamic,
+                })),
+                `ProjectileTemplateData.${row.projectileId}.entityBlackboard`,
+              ),
+            },
+          ] as const,
+      ),
+  );
+  const priorities = readTimeDilationPriorities(args.timeDilationCatalog);
+  const resolveTimeDilationPriority = (tagId: number, actionPath: string) => {
+    const value = priorities.get(tagId);
+    if (value === undefined)
+      throw new Error(`${actionPath}: unknown time-dilation priority ${tagId}`);
+    return value;
+  };
+  return {
+    compileProjectileLaunch: createZeroDistanceProjectileProjectionExtensionSource({
+      catalog: { runtimes: runtimeCatalog, templates: templateCatalog, callbackGraphs },
+      callbackContext,
+      callbackExtensions: { resolveTimeDilationPriority },
+      visualOnlyIds,
+    }),
+    callbackGraphs,
+    projectileIds,
+    callbackIds,
+  };
 }
 
 /**
@@ -181,6 +291,83 @@ export function planOperatorActiveSkillRuntime(
       throw new Error(`${actionPath}: unknown time-dilation priority ${tagId}`);
     return value;
   };
+  const abilityChildGraphs = new Map<string, ReturnType<typeof parseKnownSkillActionGraphSource>>();
+  const pendingAbilitySkillIds = [graph, ...callbackGraphs.values()].flatMap(skill =>
+    skill.actionGroup.timelineActions.flatMap(timeline =>
+      collectNativeActionNodes(timeline.sequence).flatMap(node =>
+        node.metadata.enabled &&
+        node.body.kind === 'leaf' &&
+        node.body.value.family === 'abilityEntity'
+          ? [node.body.value.action.skillId]
+          : [],
+      ),
+    ),
+  );
+  while (pendingAbilitySkillIds.length > 0) {
+    const id = pendingAbilitySkillIds.shift()!;
+    if (abilityChildGraphs.has(id)) continue;
+    const value = readJson(path.resolve(args.sourceRoot, 'skill-data-cdn', `${id}.json`));
+    const childPatch = id in patchTable ? parseSkillPatchSource(patchTable[id], id) : null;
+    const childPrepared = prepareSkillDefinitionInputSource(value, id, childPatch);
+    const child = parseKnownSkillActionGraphSource(value, id, childPrepared.blackboard.values);
+    abilityChildGraphs.set(id, child);
+    pendingAbilitySkillIds.push(
+      ...child.actionGroup.timelineActions.flatMap(timeline =>
+        collectNativeActionNodes(timeline.sequence).flatMap(node =>
+          node.metadata.enabled &&
+          node.body.kind === 'leaf' &&
+          node.body.value.family === 'abilityEntity'
+            ? [node.body.value.action.skillId]
+            : [],
+        ),
+      ),
+    );
+  }
+  const actionReferences = [graph, ...callbackGraphs.values()].flatMap(skill =>
+    collectSkillActionReferences(skill),
+  );
+  const directlyReferencedBuffIds = actionReferences
+    .filter(
+      reference =>
+        reference.kind === 'buff' &&
+        reference.state === 'active' &&
+        reference.id !== null &&
+        ['apply', 'aura', 'finish', 'finishQuery', 'inherit'].includes(reference.usage),
+    )
+    .map(reference => reference.id!);
+  const identityObservedBuffIds = new Set(
+    [...abilityChildGraphs.values()].flatMap(skill =>
+      skill.actionGroup.timelineActions.flatMap(timeline =>
+        collectNativeActionNodes(timeline.sequence).flatMap(jumpNode => {
+          if (!jumpNode.metadata.enabled || jumpNode.body.kind !== 'timelineJump') return [];
+          const collect = (condition: NativeConditionSource): string[] => {
+            if (condition.kind === 'buffStack') return [...condition.buffIds];
+            if (condition.kind === 'contextBuff' && condition.matcher.kind === 'id')
+              return condition.matcher.buffIds.flatMap(id =>
+                id.kind === 'constant' && id.value.length > 0 ? [id.value] : [],
+              );
+            if (condition.kind === 'any')
+              return condition.groups.flatMap(group => group.conditions.flatMap(collect));
+            return [];
+          };
+          return collectNativeActionNodes(jumpNode.body.condition).flatMap(node =>
+            node.metadata.enabled &&
+            node.body.kind === 'leaf' &&
+            node.body.value.family === 'condition'
+              ? collect(node.body.value.action)
+              : [],
+          );
+        }),
+      ),
+    ),
+  );
+  const visualOnlyIds = new Set(
+    [
+      ...collectCombatInvisibleBuffClosureIds(directlyReferencedBuffIds, id =>
+        readJson(path.resolve(args.buffDataRoot, `${id}.json`)),
+      ),
+    ].filter(id => !identityObservedBuffIds.has(id) && !args.preserveBuffIds?.includes(id)),
+  );
   const projectile = createZeroDistanceProjectileProjectionExtensionSource({
     catalog: { runtimes: runtimeCatalog, templates: templateCatalog, callbackGraphs },
     callbackContext: {
@@ -190,6 +377,7 @@ export function planOperatorActiveSkillRuntime(
       fixedHittableTargetCount: 0,
     },
     callbackExtensions: { resolveTimeDilationPriority },
+    visualOnlyIds,
   });
   const definition = compileOperatorActiveSkillRuntimeDefinitionSource({
     key: args.key,
@@ -205,8 +393,9 @@ export function planOperatorActiveSkillRuntime(
       abilityEntityQueries: { catalog: abilityCatalog, gameplayTagRegistry: registry },
     },
     extensions: { compileProjectileLaunch: projectile, resolveTimeDilationPriority },
+    visualOnlyIds,
   });
-  const runtimeBuffIds = collectRuntimeBuffIds(definition.scheduledSequences);
+  const runtimeBuffIds = new Set(collectCompiledBuffIds(definition.scheduledSequences));
   for (const id of args.supplementalBuffIds)
     if (!runtimeBuffIds.has(id))
       throw new Error(`supplemental Buff '${id}' is not applied by the compiled runtime`);
@@ -253,6 +442,7 @@ export function planOperatorActiveSkillRuntime(
             callbackIds,
             runtimeBuffIds: [...runtimeBuffIds].sort(),
             supplementalBuffIds: [...args.supplementalBuffIds].sort(),
+            omittedVisualOnlyBuffIds: [...visualOnlyIds].sort(),
             source: { file: sourcePath, sha256: sha256(sourceText) },
             scope: 'full-active-skill-action-graph-zero-distance-runtime',
           },
@@ -263,6 +453,7 @@ export function planOperatorActiveSkillRuntime(
     output: destination,
     skillId,
     sequences: definition.scheduledSequences.length,
+    abilityEntityObservedBuffIds: [...identityObservedBuffIds].sort(),
   };
 }
 
@@ -319,30 +510,6 @@ function readJson(file: string): unknown {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
 }
 
-function collectRuntimeBuffIds(value: unknown): Set<string> {
-  const result = new Set<string>();
-  const visit = (item: unknown): void => {
-    if (Array.isArray(item)) {
-      item.forEach(visit);
-      return;
-    }
-    if (item === null || typeof item !== 'object') return;
-    const record = item as Record<string, unknown>;
-    if (record.kind === 'applyBuff') {
-      const parameters = record.parameters;
-      if (parameters === null || typeof parameters !== 'object')
-        throw new Error('compiled applyBuff step is missing parameters');
-      const buffId = (parameters as Record<string, unknown>).buffId;
-      if (typeof buffId !== 'string' || buffId.length === 0)
-        throw new Error('compiled applyBuff step has an invalid buffId');
-      result.add(buffId);
-    }
-    Object.values(record).forEach(visit);
-  };
-  visit(value);
-  return result;
-}
-
 function loadBuffClosureSources(
   rootIds: readonly string[],
   directory: string,
@@ -357,7 +524,7 @@ function loadBuffClosureSources(
   return result;
 }
 
-function readGameplayTagPaths(file: string): string[] {
+export function readGameplayTagPaths(file: string): string[] {
   const text = fs.readFileSync(file, 'utf8');
   const block = /GAMEPLAY_TAG_PATHS = Object\.freeze\(\[([\s\S]*?)\]\s+as const\)/.exec(text)?.[1];
   if (!block) throw new Error(`${file}: GAMEPLAY_TAG_PATHS not found`);
@@ -368,7 +535,7 @@ function readGameplayTagPaths(file: string): string[] {
   return paths;
 }
 
-function readTimeDilationPriorities(file: string): Map<number, number> {
+export function readTimeDilationPriorities(file: string): Map<number, number> {
   const text = fs.readFileSync(file, 'utf8');
   const rows = [...text.matchAll(/^\s*priority\('([^']+)',\s*(-?\d+(?:\.\d+)?)\),?\s*$/gm)];
   if (rows.length === 0) throw new Error(`${file}: time-dilation priorities not found`);

@@ -12,6 +12,7 @@ import {
   type CombatActionProjectionExtensionsSource,
   isControlledOperatorInstantSearch,
   isOwnerSpawnedAbilityEntityInstantSearch,
+  isStaticSingleEnemyTargetGroup,
   actionValueOperand,
 } from './combatProjectionCommon.ts';
 import { compileActionNode } from './combatActionLeafProjection.ts';
@@ -143,11 +144,15 @@ export function compileBuffLeafNode(
   if (node.body.value.family === 'interrupt') {
     const action = node.body.value.action;
     const defenderIsEnemy =
-      action.defender.targetSource === 'Target' ||
+      (action.defender.targetSource === 'Target' &&
+        action.defender.targetGroupKey === '' &&
+        (context.actionTargetTarget === 'enemy' ||
+          (context.actionTargetTarget === 'buffOwner' &&
+            context.fixedBuffOwnerTarget === 'enemy'))) ||
       (action.defender.targetSource === 'Context' &&
-        context.staticEnemyTargetGroupKeys?.has(action.defender.targetGroupKey) === true);
+        (context.staticEnemyTargetGroupKeys?.has(action.defender.targetGroupKey) === true ||
+          partyTargetGroups.get(action.defender.targetGroupKey) === 'enemy'));
     if (
-      context.actionTargetTarget !== 'enemy' ||
       context.actionSourceTarget !== 'caster' ||
       action.attacker.targetSource !== 'Source' ||
       !defenderIsEnemy
@@ -162,7 +167,8 @@ export function compileBuffLeafNode(
       const targetIsEnemy =
         action.target.targetSource === 'Target' ||
         (action.target.targetSource === 'Context' &&
-          context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey) === true);
+          (context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey) === true ||
+            partyTargetGroups.get(action.target.targetGroupKey) === 'enemy'));
       const priority = extensions.resolveTimeDilationPriority?.(
         action.priorityTagId,
         node.sourcePath,
@@ -202,12 +208,16 @@ export function compileBuffLeafNode(
     }
     const targetIsEnemy =
       action.target.targetSource === 'Target' ||
+      (action.target.targetSource === 'Owner' && context.fixedBuffOwnerTarget === 'enemy') ||
       (action.target.targetSource === 'Context' &&
-        context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey) === true);
-    const sourceIsCaster =
+        (context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey) === true ||
+          partyTargetGroups.get(action.target.targetGroupKey) === 'enemy'));
+    const sourceIsKnownStatic =
       (action.source.targetSource === 'Source' && context.actionSourceTarget === 'caster') ||
-      (action.source.targetSource === 'Owner' && context.actionOwnerTarget === 'caster');
-    if (context.actionTargetTarget !== 'enemy' || !sourceIsCaster || !targetIsEnemy)
+      (action.source.targetSource === 'Owner' &&
+        (context.actionOwnerTarget === 'caster' ||
+          context.fixedBuffOwnerTarget === 'currentAbilityEntity'));
+    if (!sourceIsKnownStatic || !targetIsEnemy)
       throw new Error(`${node.sourcePath}: unsupported static-enemy control projection`);
     if (action.kind === 'blowOffEnemy' && action.deadOption !== 'OnlyDead')
       throw new Error(
@@ -274,11 +284,16 @@ export function compileBuffLeafNode(
         target !== undefined &&
         isOwnerSpawnedAbilityEntityInstantSearch(target) &&
         context.actionOwnerTarget === 'caster';
+      // Owner 直接由动作环境解析；部分原始 Buff 会残留仅供 Context 分支使用的 group key。
+      // 该字段不参与 Owner 解析，不能因此把已知 Buff 宿主降成未知目标。
       const targets =
-        action.effectTargets.length === 1 &&
-        target?.targetSource === 'Owner' &&
-        target.targetGroupKey === ''
-          ? (['caster'] as const)
+        action.effectTargets.length === 1 && target?.targetSource === 'Owner'
+          ? context.fixedBuffOwnerTarget === 'enemy'
+            ? (['enemy'] as const)
+            : context.fixedBuffOwnerTarget === undefined ||
+                context.fixedBuffOwnerTarget === 'caster'
+              ? (['caster'] as const)
+              : null
           : action.effectTargets.length === 2 &&
               target?.targetSource === 'Target' &&
               target.targetGroupKey === '' &&
@@ -288,10 +303,12 @@ export function compileBuffLeafNode(
             : ownerSpawnedAbilityEntities
               ? ([] as const)
               : null;
+      const usesNamedCurve =
+        action.useCurveKey && action.curveKey.length > 0 && action.inlineCurveKeys.length === 0;
+      const usesInlineCurve =
+        !action.useCurveKey && action.curveKey.length === 0 && action.inlineCurveKeys.length > 0;
       if (
-        !action.useCurveKey ||
-        action.curveKey.length === 0 ||
-        action.inlineCurveKeys.length !== 0 ||
+        (!usesNamedCurve && !usesInlineCurve) ||
         action.ignoreTargets.length !== 0 ||
         targets === null
       )
@@ -305,7 +322,12 @@ export function compileBuffLeafNode(
               durationSeconds: actionValueOperand(action.duration),
               slot: action.slotTagId,
               priority,
-              curve: { kind: 'named', key: action.curveKey },
+              curve: usesNamedCurve
+                ? { kind: 'named', key: action.curveKey }
+                : {
+                    kind: 'inline',
+                    keys: projectTimeDilationCurveKeys(action.inlineCurveKeys, node.sourcePath),
+                  },
               finishByAction: action.finishByAction,
               targets,
               ...(ownerSpawnedAbilityEntities
@@ -396,9 +418,8 @@ export function compileBuffLeafNode(
     if (queryInputs !== undefined && write.finderType === 'OwnerSpawnedEntityFinder') {
       if (
         write.producerType !== 'FindTargetAction' ||
-        context.actionOwnerTarget !== 'caster' ||
-        context.actionSourceTarget !== 'caster' ||
-        !['enemy', 'currentAbilityEntity'].includes(context.actionTargetTarget)
+        !['caster', 'buffOwner'].includes(context.actionOwnerTarget) ||
+        context.actionSourceTarget !== 'caster'
       )
         throw new Error(`${node.sourcePath}: unsupported AbilityEntity query environment`);
       const query = compileTargetGroupAbilityEntityQuerySource(
@@ -407,13 +428,18 @@ export function compileBuffLeafNode(
         queryInputs.gameplayTagRegistry,
         node.sourcePath,
       );
+      const distancePostProcessors = query.postProcessors.filter(
+        postProcessor => postProcessor.kind === 'distanceFromOwner',
+      );
       if (
         !['actionOwner', 'actionSource'].includes(query.owner.kind) ||
         !['actionOwner', 'actionSource'].includes(query.center.kind) ||
         query.validators.some(validator => validator.kind === 'distance') ||
-        query.postProcessors.length > 0
+        distancePostProcessors.length !== query.postProcessors.length ||
+        distancePostProcessors.length > 1
       )
         throw new Error(`${node.sourcePath}: unsupported AbilityEntity runtime query filter`);
+      const maxTargets = distancePostProcessors[0]?.maxTargets;
       const nextGroups = new Map(partyTargetGroups);
       nextGroups.set(write.targetGroupKey, 'abilityEntity');
       return {
@@ -423,6 +449,7 @@ export function compileBuffLeafNode(
             parameters: {
               saveToContextKey: write.targetGroupKey,
               abilityEntityIds: query.candidateTemplateIds,
+              ...(maxTargets === undefined ? {} : { maxTargets }),
               ...(query.validators.some(validator => validator.kind === 'sameSkillCast')
                 ? { sameSourceSkillCast: true }
                 : {}),
@@ -444,7 +471,6 @@ export function compileBuffLeafNode(
       return { steps: [], state: nextGroups };
     }
     if (
-      ['enemy', 'currentAbilityEntity'].includes(context.actionTargetTarget) &&
       write.producerType === 'FindTargetAction' &&
       write.finderType === 'FixedPointFinder' &&
       write.postProcessorTypes.length === 0
@@ -454,11 +480,10 @@ export function compileBuffLeafNode(
       return { steps: [], state: nextGroups };
     }
     if (
-      context.actionTargetTarget === 'enemy' &&
       write.producerType === 'ConvertToTargetContext' &&
       write.conversionOperation === 'ConvertEntityToPosition' &&
       write.inputTargets.length === 1 &&
-      write.inputTargets[0]?.targetSource === 'Target' &&
+      ['Source', 'Owner', 'Target'].includes(write.inputTargets[0]?.targetSource ?? '') &&
       write.inputTargets[0]?.targetGroupKey === ''
     ) {
       const nextGroups = new Map(partyTargetGroups);
@@ -477,6 +502,16 @@ export function compileBuffLeafNode(
     ) {
       const nextGroups = new Map(partyTargetGroups);
       nextGroups.set(write.targetGroupKey, 'spatialPoint');
+      return { steps: [], state: nextGroups };
+    }
+    if (
+      isStaticSingleEnemyTargetGroup(write) &&
+      (context.actionTargetTarget === 'enemy' ||
+        context.fixedBuffOwnerTarget === 'caster' ||
+        context.fixedBuffOwnerTarget === 'currentAbilityEntity')
+    ) {
+      const nextGroups = new Map(partyTargetGroups);
+      nextGroups.set(write.targetGroupKey, 'enemy');
       return { steps: [], state: nextGroups };
     }
     if (context.actionTargetTarget === 'currentAbilityEntity')

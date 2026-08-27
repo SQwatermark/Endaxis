@@ -104,6 +104,10 @@ export type NativeConditionSource =
   | (ConditionIdentity & { readonly kind: 'probability'; readonly value: ScalarSource })
   | (ConditionIdentity & { readonly kind: 'skillType'; readonly skillTypes: readonly string[] })
   | (ConditionIdentity & {
+      readonly kind: 'skillId';
+      readonly skillIds: readonly StringScalarSource[];
+    })
+  | (ConditionIdentity & {
       /** 当前事件载荷携带的来源技能类型；普通攻击还受原生三位攻击类型掩码约束。 */
       readonly kind: 'originSkillType';
       readonly skillTypes: readonly string[];
@@ -408,6 +412,26 @@ export function parseConditionLeafSource(
         sourceType,
         skillTypes: requireArray(condition.skillTypeList, `${path}.skillTypeList`).map(
           (item, index) => requireString(item, `${path}.skillTypeList[${index}]`),
+        ),
+      };
+    case 'CheckSkillId':
+      requireExactFields(
+        condition,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'skillIdList',
+        ]),
+        path,
+      );
+      return {
+        sourceType,
+        kind: 'skillId',
+        skillIds: requireArray(condition.skillIdList, `${path}.skillIdList`).map((item, index) =>
+          parseStringScalarSource(item, `${path}.skillIdList[${index}]`),
         ),
       };
     case 'CheckOriginSkillType':

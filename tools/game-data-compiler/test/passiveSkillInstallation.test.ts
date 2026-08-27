@@ -183,6 +183,7 @@ function fixtureDefinition(): CompiledPassiveSkillDefinitionSource {
         levels: [2],
         values: { damage_up: [0.3], patch_only: [4] },
       },
+      hasCardAttributeModifiers: false,
       skill: {} as CompiledPassiveSkillDefinitionSource['definition']['skill'],
     },
   };

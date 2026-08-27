@@ -141,7 +141,12 @@ function projectGlobalBuffSource(
   ) {
     throw new Error(`${sourcePath}: unsupported GlobalBuff source selector`);
   }
-  if (source.targetSource === 'Owner') return requireActionOwnerProjection(context, sourcePath);
+  if (source.targetSource === 'Owner') {
+    const owner = requireActionOwnerProjection(context, sourcePath);
+    if (owner === 'currentAbilityEntity')
+      throw new Error(`${sourcePath}: AbilityEntity GlobalBuff source is unsupported`);
+    return owner;
+  }
   if (source.targetSource === 'Source') return context.actionSourceTarget;
   throw new Error(`${sourcePath}: unsupported GlobalBuff source ${source.targetSource}`);
 }

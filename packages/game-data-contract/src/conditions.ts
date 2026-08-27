@@ -117,7 +117,7 @@ export type CombatCondition =
   | {
       /** 查询目标实体当前持有的 GameplayTag；它与 Buff 身份、数量和层数无关。 */
       kind: 'entityTagMatch';
-      target: CombatTarget;
+      target: BuffSingleTarget;
       tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
       tagIds: readonly number[];
     }

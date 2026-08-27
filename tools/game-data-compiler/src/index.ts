@@ -675,7 +675,7 @@ export {
 } from './source/comboSkillConditions.ts';
 export { parseUnityComboSkillConditionsSource } from './source/unityComboSkillConditions.ts';
 export { parseObjectTypeMask } from './source/objectType.ts';
-export { compileComboSmartTargetSource } from './compiler/comboSmartTarget.ts';
+export { compileSkillSmartTargetSource } from './compiler/comboSmartTarget.ts';
 export {
   compileSynchronousProjectileCallbackScopesSource,
   type CompiledActionBlackboardScopeSource,

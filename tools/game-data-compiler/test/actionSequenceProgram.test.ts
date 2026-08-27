@@ -151,6 +151,36 @@ describe('公共 Action 序列控制流投影', () => {
     ]);
   });
 
+  it('IfElse 条件序列中的 NotNextCheckAction 只反转紧随条件', () => {
+    const negate: NativeActionNodeSource<string> = {
+      metadata,
+      sourcePath: 'not',
+      body: { kind: 'negateNextResult' },
+    };
+    const branch: NativeActionNodeSource<string> = {
+      metadata,
+      sourcePath: 'branch',
+      body: {
+        kind: 'ifElse',
+        condition: sequence([leaf('?has-target'), negate, leaf('?already-added')]),
+        whenTrue: sequence([leaf('gain')]),
+        whenFalse: sequence([]),
+        alwaysNext: true,
+      },
+    };
+
+    const projection = options();
+    const result = compileActionSequenceProgram(sequence([branch]), {
+      ...projection,
+      negateCondition: condition => ({ kind: 'not', value: `!${condition.value}` }),
+    });
+    expect(result.steps[0]).toMatchObject({
+      kind: 'conditional',
+      condition: { kind: 'all', value: '?has-target&!?already-added' },
+      whenTrue: [{ kind: 'leaf', value: 'gain[]' }],
+    });
+  });
+
   it('允许领域把已证明等价的 ForEach 折叠为集合步骤并继续编译兄弟节点', () => {
     const loop: NativeActionNodeSource<string> = {
       metadata,

@@ -77,13 +77,13 @@ describe('validateSkillDefinition', () => {
       expect(validateSkillDefinition(skill)).not.toEqual([]);
     },
   );
-  it.each(['input', 'trigger', undefined])('接受有界连携智能目标 %s', comboSmartTarget => {
-    expect(validateSkillDefinition({ ...baseSkill(), comboSmartTarget })).toEqual([]);
+  it.each(['enemy', 'input', 'trigger', undefined])('接受有界智能目标 %s', smartTarget => {
+    expect(validateSkillDefinition({ ...baseSkill(), smartTarget })).toEqual([]);
   });
-  it.each([null, 1, 'enemy', 'nearest', {}])('拒绝未知连携智能目标 %j', comboSmartTarget => {
-    expect(validateSkillDefinition({ ...baseSkill(), comboSmartTarget })).toEqual(
+  it.each([null, 1, 'nearest', {}])('拒绝未知智能目标 %j', smartTarget => {
+    expect(validateSkillDefinition({ ...baseSkill(), smartTarget })).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ path: expect.stringContaining('comboSmartTarget') }),
+        expect.objectContaining({ path: expect.stringContaining('smartTarget') }),
       ]),
     );
   });

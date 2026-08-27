@@ -168,6 +168,29 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
     try {
       this.dependencies.emitPreparationEvent('beforeDamageAction', context);
       this.dependencies.emitPreparationEvent('beforeCalculateDamage', context);
+      const instantAttributeModifiers =
+        step.kind === 'dealDamage' ? (step.parameters.instantAttributeModifiers ?? []) : [];
+      for (const modifier of instantAttributeModifiers) {
+        context.addInstantAttributeModifier(modifier.targetSide, {
+          attribute: modifier.attribute,
+          values: {
+            addition: 0,
+            multiplier: 0,
+            finalAddition: 0,
+            finalMultiplier: 0,
+            baseAddition: 0,
+            baseMultiplier: 0,
+            baseFinalAddition: 0,
+            baseFinalMultiplier: 0,
+            [modifier.slot]: this.#resolveActionValue(
+              modifier.value,
+              operationContext,
+              `instant attribute ${modifier.attribute}`,
+            ),
+          },
+          timing: modifier.attributeTiming,
+        });
+      }
       context.applyModifiers('beforeCalculation');
       context.setCalculationResult(this.#resolveCalculationResult(step, context, operationContext));
       injectDamageScaleAttributes(context.damageScales, {

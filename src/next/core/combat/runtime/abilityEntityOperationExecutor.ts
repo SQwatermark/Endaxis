@@ -99,6 +99,9 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
           }
         }
       }
+      if (step.parameters.maxTargets !== undefined) {
+        targets = targets.slice(0, step.parameters.maxTargets);
+      }
       context.targetContext.set(step.parameters.saveToContextKey, targets);
       if (step.parameters.saveCountToBlackboardKey !== undefined) {
         context.blackboard.assignDynamic(step.parameters.saveCountToBlackboardKey, targets.length);

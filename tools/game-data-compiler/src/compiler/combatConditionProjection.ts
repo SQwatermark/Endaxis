@@ -57,16 +57,41 @@ function compileConditionLeaf(
       'squadInFight',
       'probability',
       'distance',
+      'health',
+      'timedMarker',
+      'superArmor',
+      'entityTag',
     ].includes(condition.kind)
   )
     throw new Error(`${sourcePath}: unaudited single-enemy action condition ${condition.kind}`);
   if (
     context.actionTargetTarget === 'currentAbilityEntity' &&
-    !['floatCompare', 'buffStack', 'distance', 'entityCount', 'any'].includes(condition.kind)
+    !['floatCompare', 'buffStack', 'distance', 'entityCount', 'any', 'entityTag'].includes(
+      condition.kind,
+    )
   )
     throw new Error(`${sourcePath}: unaudited AbilityEntity condition ${condition.kind}`);
   if (condition.kind === 'probability') {
     return { kind: 'probability', probability: actionValueOperand(condition.value) };
+  }
+  if (condition.kind === 'superArmor') {
+    const targetsEnemy =
+      (condition.target.targetSource === 'Target' &&
+        condition.target.targetGroupKey === '' &&
+        (context.actionTargetTarget === 'enemy' ||
+          (context.actionTargetTarget === 'buffOwner' &&
+            context.fixedBuffOwnerTarget === 'enemy'))) ||
+      (condition.target.targetSource === 'Owner' &&
+        condition.target.targetGroupKey === '' &&
+        context.fixedBuffOwnerTarget === 'enemy');
+    const operator = COMPARISON_OPERATORS[condition.comparison];
+    if (!targetsEnemy || operator === undefined)
+      throw new Error(`${sourcePath}: unsupported super-armor target or comparison`);
+    return {
+      kind: 'enemySuperArmorCompare',
+      operator,
+      value: actionValueOperand(condition.value),
+    };
   }
   if (condition.kind === 'distance') {
     const sourceIsSpatialPoint =
@@ -93,12 +118,13 @@ function compileConditionLeaf(
     }
     if (
       context.actionTargetTarget === 'enemy' &&
-      context.actionOwnerTarget === 'caster' &&
       condition.source.targetSource === 'Owner' &&
       condition.target.targetSource === 'Target' &&
       !condition.includeTargetRadius &&
       !condition.containsHittableObject
     ) {
+      // Owner 可以是施术干员、Buff 宿主、投射物或能力实体；这里不借用其身份。
+      // 动作已在具体宿主上执行，项目模型又规定任意实例间距离为零，因此只折叠距离值。
       return {
         kind: 'actionValueCompare',
         left: { kind: 'constant', value: 0 },
@@ -205,16 +231,21 @@ function compileConditionLeaf(
   }
   if (condition.kind === 'health') {
     const operator = COMPARISON_OPERATORS[condition.comparison];
-    if (
-      condition.targetSource !== 'InstantSearch' ||
-      condition.characterTeamSelectionRole !== 'controlledOperator' ||
-      operator === undefined
-    ) {
+    const target =
+      condition.targetSource === 'InstantSearch' &&
+      condition.characterTeamSelectionRole === 'controlledOperator'
+        ? ('controlledOperator' as const)
+        : condition.targetSource === 'Context' &&
+            (targetGroups.get(condition.targetGroupKey) === 'enemy' ||
+              context.staticEnemyTargetGroupKeys?.has(condition.targetGroupKey) === true)
+          ? ('enemy' as const)
+          : null;
+    if (target === null || operator === undefined) {
       throw new Error(`${sourcePath}: unsupported health condition target`);
     }
     return {
       kind: 'healthCompare',
-      target: 'controlledOperator',
+      target,
       valueType: condition.isRatio ? 'ratio' : 'current',
       operator,
       value: actionValueOperand(condition.value),
@@ -243,6 +274,17 @@ function compileConditionLeaf(
         if (mapped === undefined)
           throw new Error(`unsupported native skill type ${JSON.stringify(skillType)}`);
         return mapped;
+      }),
+    };
+  }
+  if (condition.kind === 'skillId') {
+    return {
+      kind: 'eventSkillIdIn',
+      skillIds: condition.skillIds.map((skillId, index) => {
+        if (skillId.blackboardKey !== null) {
+          throw new Error(`${sourcePath}.skillIdList[${index}]: dynamic skill ID is unsupported`);
+        }
+        return skillId.value;
       }),
     };
   }
@@ -476,6 +518,14 @@ function compileConditionLeaf(
   if (condition.kind === 'targetIdentity') {
     const first = condition.first;
     const second = condition.second;
+    const matchesBuffSourceAndOwner =
+      first.targetGroupKey === '' &&
+      second.targetGroupKey === '' &&
+      ((first.targetSource === 'Source' && second.targetSource === 'Owner') ||
+        (first.targetSource === 'Owner' && second.targetSource === 'Source'));
+    if (matchesBuffSourceAndOwner && context.actionOwnerTarget === 'buffOwner') {
+      return { kind: 'buffSourceMatchesOwner' };
+    }
     const matchesEventSourceAndTarget =
       first.targetGroupKey === '' &&
       second.targetGroupKey === '' &&
@@ -578,6 +628,26 @@ function compileConditionLeaf(
       returnValueIfMissing: condition.returnValueIfMissing,
       operator,
       value: actionValueOperand(condition.value),
+    };
+  }
+  if (condition.kind === 'entityTag') {
+    if (condition.targetGroupKey !== '') {
+      throw new Error(`${sourcePath}: unsupported entity tag target group`);
+    }
+    const target =
+      condition.targetSource === 'Owner'
+        ? buffConditionOwner(context, sourcePath)
+        : condition.targetSource === 'Source'
+          ? context.actionSourceTarget
+          : condition.targetSource === 'Target'
+            ? singleBuffConditionTarget(context, sourcePath)
+            : null;
+    if (target === null) throw new Error(`${sourcePath}: unsupported entity tag target`);
+    return {
+      kind: 'entityTagMatch',
+      target,
+      tagQueryType: condition.tagQueryType,
+      tagIds: condition.tagIds,
     };
   }
   if (condition.kind === 'any') {

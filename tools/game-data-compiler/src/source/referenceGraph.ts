@@ -286,6 +286,51 @@ function collectLeafReferences(
       }
       return;
     }
+    case 'forcedElementalStatus': {
+      const ids = {
+        Fire: 'buff_common_fire_fire_burning_triggered',
+        Pulse: 'buff_common_pulse_pulse_conduct_triggered',
+        Cryst: 'buff_common_cryst_cryst_frozen_triggered',
+        Natural: 'buff_common_natural_natural_corrupt_triggered',
+      } as const;
+      output.push(
+        referenceFromIdentity(
+          'buff',
+          'apply',
+          enabled,
+          ids[leaf.action.statusElement],
+          null,
+          `${sourcePath}.spellStatusType`,
+        ),
+      );
+      return;
+    }
+    case 'buffInheritance': {
+      const action = leaf.action;
+      output.push(
+        referenceFromIdentity(
+          'buff',
+          'inherit',
+          enabled,
+          action.targetBuffId,
+          null,
+          `${sourcePath}.targetBuffId`,
+        ),
+      );
+      action.inheritSkillIds.forEach((skillId, index) => {
+        output.push(
+          referenceFromIdentity(
+            'skill',
+            'buffInheritance',
+            enabled,
+            skillId,
+            null,
+            `${sourcePath}.inheritSkillIdList[${index}]`,
+          ),
+        );
+      });
+      return;
+    }
     case 'globalBuff': {
       const action = leaf.action;
       if (action.kind !== 'createGlobalBuff') return;

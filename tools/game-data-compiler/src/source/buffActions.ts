@@ -59,6 +59,48 @@ export interface BuffApplicationActionSource {
   readonly buffIconDuration: BuffIconDurationSource;
 }
 
+/** Existing-Buff lifecycle transfer used by chained skills; it never creates a Buff. */
+export interface BuffInheritanceActionSource {
+  readonly kind: 'buffInheritance';
+  readonly owner: TargetReferenceSource;
+  readonly targetBuffId: string;
+  readonly inheritSkillIds: readonly string[];
+  readonly finishByAction: boolean;
+  readonly finishWithNextSkillIfNotInherited: boolean;
+}
+
+export function parseBuffInheritanceActionSource(
+  value: unknown,
+  path: string,
+): BuffInheritanceActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      ...ACTION_META_FIELDS,
+      'buffOwner',
+      'targetBuffId',
+      'inheritSkillIdList',
+      'finishByAction',
+      'finishWithNextSkillIfNotInherited',
+    ]),
+    path,
+  );
+  return {
+    kind: 'buffInheritance',
+    owner: parseTargetReferenceSource(action.buffOwner, `${path}.buffOwner`),
+    targetBuffId: requireNonEmptyString(action.targetBuffId, `${path}.targetBuffId`),
+    inheritSkillIds: requireArray(action.inheritSkillIdList, `${path}.inheritSkillIdList`).map(
+      (item, index) => requireNonEmptyString(item, `${path}.inheritSkillIdList[${index}]`),
+    ),
+    finishByAction: requireBoolean(action.finishByAction, `${path}.finishByAction`),
+    finishWithNextSkillIfNotInherited: requireBoolean(
+      action.finishWithNextSkillIfNotInherited,
+      `${path}.finishWithNextSkillIfNotInherited`,
+    ),
+  };
+}
+
 export interface BuffFindSettingsSource {
   readonly checkType: string;
   /** 保留原数组中的空占位，是否参与查询由后续原生语义投影决定。 */

@@ -21,6 +21,12 @@ import {
   isPartyInstantSearch,
   actionValueOperand,
 } from './combatProjectionCommon.ts';
+import { gameplayTagIdFromPath } from '../../../../src/shared/gameplayTags.ts';
+import type {
+  BuffApplicationSource,
+  BuffApplicationTarget,
+} from '../../../../packages/game-data-contract/src/primitives.ts';
+import { projectCombatRuntimeAttributeKey } from './attributeModifier.ts';
 
 /** 不改变命名目标组状态的普通动作叶子投影。
  * 保留各动作的来源/目标和场景约束；不递归调用序列编排器。 */
@@ -66,6 +72,9 @@ export function compileActionNode(
     ![
       'damage',
       'buffApplication',
+      'buffInheritance',
+      'buffBlackboardRead',
+      'buffQuery',
       'buffFinish',
       'blackboardMutation',
       'blackboardCalculation',
@@ -80,8 +89,14 @@ export function compileActionNode(
       'inputControl',
       'castingControl',
       'timeDilation',
+      'timedMarker',
+      'modeAndResourcePolicy',
+      'eventListener',
       'environment',
       'elementalInfliction',
+      'forcedElementalStatus',
+      'spellBurstEvent',
+      'levelEvent',
     ].includes(node.body.value.family)
   )
     throw new Error(`${node.sourcePath}: unaudited single-enemy action ${node.body.value.family}`);
@@ -93,6 +108,7 @@ export function compileActionNode(
       'blackboardMutation',
       'presentation',
       'timedMarker',
+      'modeAndResourcePolicy',
     ].includes(node.body.value.family)
   )
     throw new Error(
@@ -106,6 +122,93 @@ export function compileActionNode(
       partyTargetGroups,
       context,
     );
+  }
+  if (node.body.value.family === 'levelEvent') {
+    // combat-spec：该动作只发布 GameLevelEvent/BattleRecorder 事实；Next 木桩没有其消费者，
+    // 状态本身由承载 Buff 生命周期表示，故不重复建立另一套状态。
+    return [];
+  }
+  if (node.body.value.family === 'spellBurstEvent') {
+    return [
+      {
+        kind: 'triggerSpellBurst',
+        parameters: { burstType: node.body.value.action.element },
+      },
+    ];
+  }
+  if (node.body.value.family === 'buffInheritance') {
+    const action = node.body.value.action;
+    if (visualOnlyIds.has(action.targetBuffId)) return [];
+    throw new Error(
+      `${node.sourcePath}: combat-visible inherited Buff ${JSON.stringify(action.targetBuffId)} ` +
+        'requires the skill-transition runtime contract',
+    );
+  }
+  if (node.body.value.family === 'modeAndResourcePolicy') {
+    const action = node.body.value.action;
+    if (action.kind === 'switchMode') {
+      if (
+        !action.resetOnEnd ||
+        action.interruptCurrentSkillWhenStart ||
+        action.interruptCurrentSkillWhenEnd
+      ) {
+        throw new Error(`${node.sourcePath}: unsupported SwitchMode lifecycle options`);
+      }
+      // Endaxis 时间轴输入已经绑定玩家实际选择的具体形态；模式只负责原生输入槽路由。
+      return [];
+    }
+    if (
+      action.target.targetSource !== 'Source' ||
+      action.target.targetGroupKey !== '' ||
+      context.actionSourceTarget !== 'caster'
+    ) {
+      throw new Error(`${node.sourcePath}: unsupported ultimate-energy restriction target`);
+    }
+    return [
+      {
+        kind: 'restrictUltimateEnergyRecovery',
+        parameters: {
+          target: 'caster',
+          allowedRecoveryTagIds: action.allowedRecoveryTagIds,
+          clearUltimateEnergyOnEnd: action.clearUltimateEnergyOnEnd,
+        },
+      },
+    ];
+  }
+  if (node.body.value.family === 'skillCooldownMutation') {
+    const action = node.body.value.action;
+    if (
+      action.target.targetSource !== 'Owner' ||
+      action.target.targetGroupKey !== '' ||
+      !['caster', 'buffOwner'].includes(requireActionOwnerProjection(context, node.sourcePath))
+    ) {
+      throw new Error(`${node.sourcePath}: unsupported skill cooldown target`);
+    }
+    if (action.operation === 'reduce' && action.basis === 'absoluteSeconds') {
+      throw new Error(`${node.sourcePath}: absolute cooldown reduction is not representable`);
+    }
+    return [
+      {
+        kind: 'adjustSkillCooldown',
+        parameters: {
+          target: 'caster',
+          skill: action.skill,
+          operation: action.operation,
+          basis: action.basis,
+          value: actionValueOperand(action.value),
+        },
+      },
+    ];
+  }
+  if (node.body.value.family === 'buffModifierRefresh') {
+    return [{ kind: 'refreshCurrentBuffAttributeModifiers', parameters: {} }];
+  }
+  if (node.body.value.family === 'eventListener') {
+    if (node.body.value.action.events.every(event => event.abilityEvent === 'OnAfterKillEntity')) {
+      // 固定木桩死亡后不再继续累计有效伤害；击杀后的延迟资源返还不进入模拟可见结果。
+      return [];
+    }
+    throw new Error(`${node.sourcePath}: unsupported combat-visible EventListenerAction`);
   }
   if (node.body.value.family === 'aura') {
     const aura = node.body.value.action;
@@ -153,6 +256,36 @@ export function compileActionNode(
     ) {
       throw new Error(`${node.sourcePath}: unsupported Buff finish target/source`);
     }
+    const target =
+      action.owner.targetSource === 'Owner'
+        ? requireActionOwnerProjection(context, node.sourcePath)
+        : action.owner.targetSource === 'Source'
+          ? 'caster'
+          : context.actionTargetTarget === 'enemy'
+            ? 'enemy'
+            : (() => {
+                throw new Error(`${node.sourcePath}: Buff finish Target projection is unavailable`);
+              })();
+    if (
+      action.kind === 'buffFinishByQuery' &&
+      action.settings.checkType === 'Tag' &&
+      action.settings.buffIds.length === 0 &&
+      action.settings.tagQuery.tagIds.length > 0 &&
+      !action.isAbsorbed
+    ) {
+      return [
+        {
+          kind: 'finishBuffsByTag',
+          parameters: {
+            target,
+            tagQueryType: action.settings.tagQuery.queryType,
+            buffTagIds: action.settings.tagQuery.tagIds,
+            reason: action.isFinishedEarly ? 'early' : 'other',
+            ...(action.finishAll ? {} : { count: actionValueOperand(action.finishLayerCount) }),
+          },
+        },
+      ];
+    }
     const buffIds =
       action.kind === 'buffFinishById'
         ? action.buffIds
@@ -171,18 +304,7 @@ export function compileActionNode(
         parameters: {
           // combat-spec 的公共 TargetSettings 语义：Buff 环境 Owner 是 Buff 接收者，
           // Source 是 Buff 来源。这里保持二者身份，不因多数样本使用 Owner 而合并。
-          target:
-            action.owner.targetSource === 'Owner'
-              ? requireActionOwnerProjection(context, node.sourcePath)
-              : action.owner.targetSource === 'Source'
-                ? 'caster'
-                : context.actionTargetTarget === 'enemy'
-                  ? 'enemy'
-                  : (() => {
-                      throw new Error(
-                        `${node.sourcePath}: Buff finish Target projection is unavailable`,
-                      );
-                    })(),
+          target,
           buffIds,
           reason: action.isFinishedEarly ? 'early' : 'other',
           ...(action.finishAll ? {} : { count: actionValueOperand(action.finishLayerCount) }),
@@ -219,6 +341,85 @@ export function compileActionNode(
   }
   if (node.body.value.family === 'elementalInfliction') {
     return [projectElementalInflictionAction(node.body.value.action, node.sourcePath, context)];
+  }
+  if (node.body.value.family === 'forcedElementalStatus') {
+    const action = node.body.value.action;
+    if (
+      action.source.targetSource !== 'Source' ||
+      action.source.targetGroupKey !== '' ||
+      context.actionSourceTarget !== 'caster' ||
+      action.target.targetSource !== 'Target' ||
+      action.target.targetGroupKey !== '' ||
+      context.actionTargetTarget !== 'enemy'
+    ) {
+      throw new Error(`${node.sourcePath}: unsupported forced elemental status targets`);
+    }
+    if (
+      action.consumedElement.blackboardKey !== null ||
+      action.consumedElement.levelValues !== null ||
+      !Number.isInteger(action.consumedElement.value)
+    ) {
+      throw new Error(`${node.sourcePath}.consumedType: dynamic element is unsupported`);
+    }
+    const elements = ['Fire', 'Pulse', 'Cryst', 'Natural'] as const;
+    const consumedElement = elements[action.consumedElement.value];
+    if (consumedElement === undefined) {
+      throw new Error(`${node.sourcePath}.consumedType: unknown element index`);
+    }
+    const tags = {
+      Fire: 'Skill/Character/Common/SpellInflict/FireInflict',
+      Pulse: 'Skill/Character/Common/SpellInflict/PulseInflict',
+      Cryst: 'Skill/Character/Common/SpellInflict/CrystInflict',
+      Natural: 'Skill/Character/Common/SpellInflict/NaturalInflict',
+    } as const;
+    const forcedBuffIds = {
+      Fire: 'buff_common_fire_fire_burning_triggered',
+      Pulse: 'buff_common_pulse_pulse_conduct_triggered',
+      Cryst: 'buff_common_cryst_cryst_frozen_triggered',
+      Natural: 'buff_common_natural_natural_corrupt_triggered',
+    } as const;
+    const consumedLayers = actionValueOperand(action.consumedLayers);
+    const body: CompiledBuffStepSource[] = [
+      {
+        kind: 'finishBuffsByTag',
+        parameters: {
+          target: 'enemy',
+          tagQueryType: 'hasAny',
+          buffTagIds: [gameplayTagIdFromPath(tags[consumedElement])],
+          reason: 'early',
+          count: consumedLayers,
+        },
+      },
+      {
+        kind: 'applyBuff',
+        parameters: {
+          buffId: forcedBuffIds[action.statusElement],
+          target: 'enemy',
+          inheritSourceSkillCastInfo: true,
+          blackboardAssignments: {
+            consumed_type: { kind: 'constant', value: action.consumedElement.value },
+            consumed_layer: consumedLayers,
+            count: actionValueOperand(action.statusCount),
+          },
+        },
+      },
+    ];
+    return [
+      {
+        kind: 'conditional',
+        parameters: {
+          condition: {
+            kind: 'buffStackCompare',
+            target: 'enemy',
+            tagQueryType: 'hasAny',
+            buffTagIds: [gameplayTagIdFromPath(tags[consumedElement])],
+            operator: 'greaterOrEqual',
+            value: consumedLayers,
+          },
+        },
+        whenTrue: { steps: body },
+      },
+    ];
   }
   if (node.body.value.family === 'keywordBuff') {
     return [projectKeywordBuffAction(node.body.value.action, node.sourcePath, context)];
@@ -288,26 +489,32 @@ export function compileActionNode(
       throw new Error(`${node.sourcePath}: unsupported Buff stack read`);
     }
     const query =
-      action.checkType === 'Id' && action.buffIds.length > 0 && action.buffTagIds.length === 0
-        ? { kind: 'id' as const, buffIds: action.buffIds }
-        : action.checkType === 'Tag' && action.buffIds.length === 0
-          ? {
-              kind: 'tag' as const,
-              tagQueryType: action.tagQueryType,
-              buffTagIds: action.buffTagIds,
-            }
-          : null;
+      action.checkType === 'Environment' &&
+      action.buffIds.length === 0 &&
+      action.buffTagIds.length === 0
+        ? { kind: 'environment' as const }
+        : action.checkType === 'Id' && action.buffIds.length > 0 && action.buffTagIds.length === 0
+          ? { kind: 'id' as const, buffIds: action.buffIds }
+          : action.checkType === 'Tag' && action.buffIds.length === 0
+            ? {
+                kind: 'tag' as const,
+                tagQueryType: action.tagQueryType,
+                buffTagIds: action.buffTagIds,
+              }
+            : null;
     if (query === null) throw new Error(`${node.sourcePath}: unsupported BuffCount query`);
     return [
       {
         kind: 'readBuffStackCount',
         parameters: {
           target:
-            action.target.targetSource === 'Owner'
-              ? requireActionOwnerProjection(context, node.sourcePath)
-              : action.target.targetSource === 'Source'
-                ? context.actionSourceTarget
-                : 'eventTarget',
+            query.kind === 'environment'
+              ? 'caster'
+              : action.target.targetSource === 'Owner'
+                ? requireActionOwnerProjection(context, node.sourcePath)
+                : action.target.targetSource === 'Source'
+                  ? context.actionSourceTarget
+                  : 'eventTarget',
           outputKey: action.outputKey,
           query,
         },
@@ -316,6 +523,29 @@ export function compileActionNode(
   }
   if (node.body.value.family === 'buffBlackboardRead') {
     const action = node.body.value.action;
+    if (
+      (action.target.targetSource === 'Owner' || action.target.targetSource === 'Source') &&
+      action.target.targetGroupKey === '' &&
+      action.settings.checkType === 'Id' &&
+      action.settings.buffIds.length > 0 &&
+      action.settings.buffIds.every(id => id.length > 0) &&
+      action.settings.tagQuery.tagIds.length === 0
+    ) {
+      return [
+        {
+          kind: 'readBuffBlackboard',
+          parameters: {
+            target:
+              action.target.targetSource === 'Owner'
+                ? requireActionOwnerProjection(context, node.sourcePath)
+                : context.actionSourceTarget,
+            query: { kind: 'id', buffIds: action.settings.buffIds },
+            desiredKey: action.desiredKey,
+            outputKey: action.outputKey,
+          },
+        },
+      ];
+    }
     if (
       action.target.targetSource !== 'Target' ||
       action.target.targetGroupKey !== '' ||
@@ -413,6 +643,13 @@ export function compileActionNode(
   }
   if (node.body.value.family === 'attributeSnapshot') {
     const action = node.body.value.action;
+    const supportedSpecificAttributes = new Set([
+      'MaxHp',
+      'FireAbnormalDamageIncrease',
+      'PulseAbnormalDamageIncrease',
+      'CrystAbnormalDamageIncrease',
+      'NaturalAbnormalDamageIncrease',
+    ]);
     const target =
       action.target.targetSource === 'Owner'
         ? requireActionOwnerProjection(context, node.sourcePath)
@@ -422,7 +659,8 @@ export function compileActionNode(
     if (
       target !== 'caster' ||
       (action.primaryAttributeType !== 'Sub' &&
-        (action.primaryAttributeType !== 'Specific' || action.attributeType !== 'MaxHp'))
+        (action.primaryAttributeType !== 'Specific' ||
+          !supportedSpecificAttributes.has(action.attributeType)))
     ) {
       throw new Error(`${node.sourcePath}: unsupported attribute snapshot target or selector`);
     }
@@ -435,7 +673,13 @@ export function compileActionNode(
           attribute:
             action.primaryAttributeType === 'Sub'
               ? { kind: 'secondary' }
-              : { kind: 'specific', key: 'maxHealth' },
+              : {
+                  kind: 'specific',
+                  key:
+                    action.attributeType === 'MaxHp'
+                      ? 'maxHealth'
+                      : projectCombatRuntimeAttributeKey(action.attributeType),
+                },
           stage:
             action.storeAttributeType === 'BaseNonConverted'
               ? 'armedNonConverted'
@@ -639,6 +883,10 @@ function compileBuffApplication(
   partyTargetGroups: ReadonlyMap<string, ProjectedTargetGroup> = new Map(),
   context: CombatActionProjectionContextSource = BUFF_ACTION_CONTEXT,
 ): CompiledBuffStepSource[] {
+  const contextTargetGroupKey = action.target.targetGroupKey ?? '';
+  const targetsAbilityEntityGroup =
+    action.target.targetSource === 'Context' &&
+    partyTargetGroups.get(contextTargetGroupKey) === 'abilityEntity';
   for (const entry of action.buffs) {
     if (entry.readIdFromBlackboard ? entry.buffIdKey.length === 0 : entry.buffId.length === 0)
       throw new Error(`${sourcePath}: Buff identity or blackboard key is empty`);
@@ -687,7 +935,7 @@ function compileBuffApplication(
   }
   // combat-spec/create-buff-action-data.md：inheritSourceSkillCastId 不被原生 ExecuteInternal 读取；
   // 实际施放信息继承只由 inheritSourceSkillCastInfo 控制。
-  const target =
+  const target: BuffApplicationTarget | null =
     action.target.targetSource === 'Owner'
       ? requireActionOwnerProjection(context, sourcePath)
       : action.target.targetSource === 'Source'
@@ -703,10 +951,12 @@ function compileBuffApplication(
           : action.target.targetSource === 'Context' &&
               partyTargetGroups.has(action.target.targetGroupKey ?? '') &&
               partyTargetGroups.get(action.target.targetGroupKey ?? '') !== 'spatialPoint'
-            ? (partyTargetGroups.get(action.target.targetGroupKey ?? '')! as Exclude<
-                ProjectedTargetGroup,
-                'spatialPoint'
-              >)
+            ? targetsAbilityEntityGroup
+              ? ('currentAbilityEntity' as const)
+              : (partyTargetGroups.get(action.target.targetGroupKey ?? '')! as Exclude<
+                  ProjectedTargetGroup,
+                  'spatialPoint' | 'abilityEntity'
+                >)
             : action.target.targetSource === 'Context' &&
                 context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey ?? '') === true
               ? ('enemy' as const)
@@ -717,14 +967,16 @@ function compileBuffApplication(
                   : isPartyInstantSearch(action.target)
                     ? ('party' as const)
                     : null;
-  const source =
+  const source: BuffApplicationSource | undefined | null =
     action.buffSource === 'ActionOwner'
-      ? context.actionOwnerTarget === 'unavailable' ||
-        context.actionOwnerTarget === 'currentAbilityEntity'
+      ? context.actionOwnerTarget === 'unavailable'
         ? null
-        : context.actionSourceTarget === 'buffSource' || context.actionTargetTarget === 'buffOwner'
-          ? 'buffOwner'
-          : undefined
+        : context.actionOwnerTarget === 'currentAbilityEntity'
+          ? 'currentAbilityEntity'
+          : context.actionSourceTarget === 'buffSource' ||
+              context.actionTargetTarget === 'buffOwner'
+            ? 'buffOwner'
+            : undefined
       : action.buffSource === 'ActionSource'
         ? context.actionSourceTarget === 'buffSource'
           ? 'buffSource'
@@ -740,9 +992,9 @@ function compileBuffApplication(
           : action.buffSource === 'InputTarget' && context.actionTargetTarget === 'enemy'
             ? 'enemy'
             : null;
-  if (target === null || target === 'abilityEntity' || source === null)
+  if (target === null || source === null)
     throw new Error(`${sourcePath}: unsupported Buff target/source`);
-  return action.buffs.flatMap((entry, index) => {
+  const steps = action.buffs.flatMap((entry, index) => {
     if (!entry.readIdFromBlackboard && visualOnlyIds.has(entry.buffId)) return [];
     const assignments = entry.assignBlackboard
       ? projectBuffAssignments(entry.assignments, `${sourcePath}.buffs[${index}]`)
@@ -768,6 +1020,14 @@ function compileBuffApplication(
       },
     ];
   });
+  if (!targetsAbilityEntityGroup) return steps;
+  return [
+    {
+      kind: 'forEachContextTarget',
+      parameters: { contextKey: contextTargetGroupKey },
+      body: { steps },
+    },
+  ];
 }
 
 const ACTION_VALUE_OPERATIONS: Readonly<Record<string, 'assign' | 'add' | 'multiply' | 'divide'>> =

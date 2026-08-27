@@ -14,12 +14,13 @@ import type { FrameRuntime } from './combatSimulation';
 import { TimedMarkerContainer } from './timedMarkers';
 
 export type LogicalAbilityEntityFinishReason =
-  'durationExpired' | 'explicit' | 'ownerFinished' | 'sourceDied';
+  'durationExpired' | 'explicit' | 'ownerFinished' | 'sourceDied' | 'stackingLimit';
 
 /** 编译后生成步骤携带的自包含蓝图；运行时只依赖子技能身份。 */
 export interface LogicalAbilityEntityDefinition {
   readonly lifetime:
     { readonly kind: 'limited'; readonly durationSeconds: number } | { readonly kind: 'infinite' };
+  readonly maxStackingCount?: number;
   readonly childSkill?: { readonly skillId: string };
 }
 
@@ -131,7 +132,25 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     if (request.definition.lifetime.kind === 'limited') {
       requireDuration(request.definition.lifetime.durationSeconds, 'AbilityEntity duration');
     }
+    const maxStackingCount = request.definition.maxStackingCount;
+    if (
+      maxStackingCount !== undefined &&
+      (!Number.isInteger(maxStackingCount) || maxStackingCount <= 0)
+    ) {
+      throw new RangeError('AbilityEntity max stacking count must be a positive integer');
+    }
     if (request.ownerId.length === 0) throw new Error('AbilityEntity owner id must not be empty');
+    if (maxStackingCount !== undefined) {
+      const matching = [...this.#instances.values()].filter(
+        instance => instance.abilityEntityId === request.abilityEntityId,
+      );
+      while (matching.length >= maxStackingCount) {
+        this.finish(
+          { kind: 'abilityEntity', instanceId: matching.shift()!.instanceId },
+          'stackingLimit',
+        );
+      }
+    }
     const remainingDurationSeconds =
       request.overrideDurationSeconds === undefined
         ? request.definition.lifetime.kind === 'limited'

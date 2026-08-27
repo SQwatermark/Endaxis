@@ -234,7 +234,7 @@ it('契约派生仍保留条件种类、目标和递归子树的支持边界', (
   }>().not.toExtend<CompiledBuffConditionSource>();
   expectTypeOf<
     Extract<CompiledBuffConditionSource, { kind: 'healthCompare' }>['target']
-  >().toEqualTypeOf<'controlledOperator'>();
+  >().toEqualTypeOf<'controlledOperator' | 'enemy'>();
   expectTypeOf<
     Extract<
       keyof Extract<CompiledBuffConditionSource, { kind: 'buffStackCompare' }>,
@@ -265,7 +265,7 @@ it('Buff 根定义保留必需字段与生命周期范围，不自动接入整�
   expectTypeOf<{}>().not.toExtend<Pick<CompiledBuffDefinitionSource, 'maxStackCount'>>();
   expectTypeOf<
     keyof NonNullable<CompiledBuffDefinitionSource['lifecycleSequences']>
-  >().toEqualTypeOf<'start' | 'enable' | 'enhanceChanged' | 'finish'>();
+  >().toEqualTypeOf<'start' | 'enable' | 'trigger' | 'enhanceChanged' | 'finish'>();
   expectTypeOf<
     Extract<keyof CompiledBuffDefinitionSource, 'scheduledSequences' | 'igniteEventResponses'>
   >().toBeNever();

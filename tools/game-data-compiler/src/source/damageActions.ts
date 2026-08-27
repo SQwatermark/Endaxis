@@ -10,6 +10,12 @@ import {
   requireRecord,
   requireString,
 } from './primitives.ts';
+import {
+  parseGameplayAttributeModifierEntrySource,
+  type AttributeTypeSource,
+  type ModifierTypeSource,
+  type ModifyAttributeTypeSource,
+} from './attributeModifiers.ts';
 import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 
@@ -63,9 +69,9 @@ export type DamageProcessorSource =
   | {
       readonly kind: 'instantAttributeModifier';
       readonly targetSide: string;
-      readonly modifyAttributeType: string;
-      readonly attributeType: string;
-      readonly formulaItem: string;
+      readonly modifyAttributeType: ModifyAttributeTypeSource;
+      readonly attributeType: AttributeTypeSource;
+      readonly formulaItem: ModifierTypeSource;
       readonly parameter: ScalarSource;
     }
   | {
@@ -290,29 +296,21 @@ export function parseDamageProcessors(
         new Set(['modifyAttributeType', 'attributeType', 'formulaItem', 'param']),
         `${processorPath}.modifier`,
       );
+      const parsedModifier = parseGameplayAttributeModifierEntrySource(
+        modifier,
+        `${processorPath}.modifier`,
+        inheritedBlackboard,
+      );
       return {
         kind: 'instantAttributeModifier',
         targetSide: requireNonEmptyString(
           processor.modifyTargetSide,
           `${processorPath}.modifyTargetSide`,
         ),
-        modifyAttributeType: requireNonEmptyString(
-          modifier.modifyAttributeType,
-          `${processorPath}.modifier.modifyAttributeType`,
-        ),
-        attributeType: requireNonEmptyString(
-          modifier.attributeType,
-          `${processorPath}.modifier.attributeType`,
-        ),
-        formulaItem: requireNonEmptyString(
-          modifier.formulaItem,
-          `${processorPath}.modifier.formulaItem`,
-        ),
-        parameter: parseScalarSource(
-          modifier.param,
-          `${processorPath}.modifier.param`,
-          inheritedBlackboard,
-        ),
+        modifyAttributeType: parsedModifier.modifyAttributeType,
+        attributeType: parsedModifier.attributeType,
+        formulaItem: parsedModifier.formulaItem,
+        parameter: parsedModifier.parameter,
       };
     }
     if (sourceType === 'DamageScaleProcessor') {

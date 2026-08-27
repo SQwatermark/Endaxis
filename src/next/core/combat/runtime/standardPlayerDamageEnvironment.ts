@@ -622,6 +622,7 @@ export class StandardPlayerDamageEnvironment {
           sourceOperatorId: context.program.operatorId,
           elements: [element],
         }),
+      triggerSpellBurst: payload => this.#onSpellBurstTriggered(payload),
       emitSourceEvent: (event, payload) =>
         this.#emitInfliction(context.program.operatorId, event, payload),
       emitTargetEvent: (event, payload) => this.#emitInfliction('enemy', event, payload),
@@ -650,10 +651,7 @@ export class StandardPlayerDamageEnvironment {
     this.#enemyIdentity = context.enemy;
     if (byAssembly) this.#boundByAssembly = true;
     if (!this.#enemyAttributes.has('FireResistance')) {
-      initializeEnemyCombatAttributes(
-        this.#enemyAttributes,
-        context.enemy.defenderAttributes,
-      );
+      initializeEnemyCombatAttributes(this.#enemyAttributes, context.enemy.defenderAttributes);
     }
     if (this.#enemyVitalsRuntime !== null) return;
     // 生命账本在场景装配层创建；这里只按本场时钟与回执把它的逐帧推进器接入运行时。

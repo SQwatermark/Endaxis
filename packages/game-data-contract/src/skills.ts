@@ -30,6 +30,8 @@ export interface AbilityEntityChildSkillDefinition {
 export interface AbilityEntityDefinition {
   readonly lifetime:
     { readonly kind: 'limited'; readonly durationSeconds: number } | { readonly kind: 'infinite' };
+  /** 正数时，同模板新实例会按原生 Group.Add 语义同步释放最早实例。 */
+  readonly maxStackingCount?: number;
   readonly childSkill?: AbilityEntityChildSkillDefinition;
 }
 
@@ -91,8 +93,8 @@ export interface SkillDefinition {
   sourceSkillId?: string;
   /** 技能实例创建时按当前技能等级解析、每次释放前恢复的原生动作黑板。 */
   blackboard?: Readonly<Record<string, LevelValues>>;
-  /** 零距离木桩下 SelectSmartObject 的两条连携策略；省略表示不执行 StoreSmartTarget。 */
-  comboSmartTarget?: 'input' | 'trigger';
+  /** 零距离木桩下 StoreSmartTarget 的归约结果；省略表示原技能不执行智能目标存储。 */
+  smartTarget?: 'enemy' | 'input' | 'trigger';
   /** 时间轴技能块的显示宽度；由可操作边界推导，不对应原生 `durationFrame`。 */
   timelineBlockFrames: number;
   /**

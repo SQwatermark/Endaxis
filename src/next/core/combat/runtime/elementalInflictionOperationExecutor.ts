@@ -54,6 +54,11 @@ export interface ElementalInflictionOperationDependencies {
   readonly emitSemanticAttachmentConsumed?: (attachment: ExistingElementalAttachment) => void;
   /** 附着状态已经写入目标后，向统一语义事件层报告实际施加的元素。 */
   readonly emitSemanticInfliction?: (element: InflictionStep['parameters']['element']) => void;
+  readonly triggerSpellBurst?: (payload: {
+    readonly burstType: 'Fire' | 'Pulse' | 'Cryst' | 'Natural';
+    readonly sourceId: string;
+    readonly skillCastInfo?: CombatSkillCastInfo;
+  }) => void;
   readonly emitSourceEvent: (
     event: ElementalInflictionEvent,
     payload: ElementalInflictionEventPayload,
@@ -73,6 +78,16 @@ export class ElementalInflictionOperationExecutor implements CombatOperationExec
     step: RuntimeOperation,
     context?: Parameters<CombatOperationExecutor['execute']>[1],
   ): boolean {
+    if (step.kind === 'triggerSpellBurst') {
+      if (this.dependencies.triggerSpellBurst === undefined)
+        throw new Error(`spell burst '${step.parameters.burstType}' has no runtime port`);
+      this.dependencies.triggerSpellBurst({
+        burstType: step.parameters.burstType,
+        sourceId: context?.buffSourceId ?? this.dependencies.sourceOperatorId,
+        ...(context?.skillCastInfo === undefined ? {} : { skillCastInfo: context.skillCastInfo }),
+      });
+      return true;
+    }
     if (step.kind !== 'applyElementalInfliction') {
       return context === undefined
         ? this.dependencies.delegate.execute(step)

@@ -21,7 +21,7 @@ describe('正式角色常驻运行定义安装', () => {
       .skills as SkillDefinition;
     expect(combo.scheduledSequences).toBe(original.scheduledSequences);
     expect(combo.costFrame).toBe(0);
-    expect(combo.comboSmartTarget).toBe('trigger');
+    expect(combo.smartTarget).toBe('trigger');
     expect(original.costFrame).toBeUndefined();
     expect(base.entityBlackboard).toBeUndefined();
   });

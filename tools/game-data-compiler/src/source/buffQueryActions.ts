@@ -6,6 +6,7 @@ import {
   requireBoolean,
   requireNonEmptyString,
   requireRecord,
+  requireString,
 } from './primitives.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 import type { TagQueryType } from './tagQuery.ts';
@@ -14,7 +15,7 @@ import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from
 /** SaveBuffStackNumAdvanced 的完整查询事实；运行投影只开放已证明的目标和计数类型。 */
 export interface BuffStackReadActionSource {
   readonly kind: 'buffStackRead';
-  readonly sourceType: 'SaveBuffStackNumAdvanced';
+  readonly sourceType: 'SaveBuffStackNumAdvanced' | 'StoreBuffCount';
   readonly target: TargetReferenceSource;
   readonly checkType: string;
   readonly buffIds: readonly string[];
@@ -23,6 +24,45 @@ export interface BuffStackReadActionSource {
   readonly countType: string;
   readonly limitSkillCastId: boolean;
   readonly outputKey: string;
+}
+
+/** combat-spec StoreBuffCount：当前 Buff 或目标上指定 ID 的累计 enhanceCnt。 */
+export function parseStoreBuffCountActionSource(
+  value: unknown,
+  path: string,
+): BuffStackReadActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'useCurrentBuff',
+      'buffOwners',
+      'buffId',
+      'blackboardKey',
+    ]),
+    path,
+  );
+  const useCurrentBuff = requireBoolean(action.useCurrentBuff, `${path}.useCurrentBuff`);
+  const buffId = requireString(action.buffId, `${path}.buffId`);
+  if (useCurrentBuff ? buffId !== '' : buffId === '')
+    throw new Error(`${path}.buffId: does not match useCurrentBuff`);
+  return {
+    kind: 'buffStackRead',
+    sourceType: 'StoreBuffCount',
+    target: parseTargetReferenceSource(action.buffOwners, `${path}.buffOwners`),
+    checkType: useCurrentBuff ? 'Environment' : 'Id',
+    buffIds: useCurrentBuff ? [] : [buffId],
+    tagQueryType: 'hasAny',
+    buffTagIds: [],
+    countType: 'BuffCount',
+    limitSkillCastId: false,
+    outputKey: requireNonEmptyString(action.blackboardKey, `${path}.blackboardKey`),
+  };
 }
 
 export interface BuffBlackboardReadActionSource {

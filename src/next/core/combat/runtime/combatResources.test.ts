@@ -397,4 +397,44 @@ describe('CombatResources', () => {
     });
     expect(resources.getUltimateEnergy('source')).toBe(80);
   });
+
+  it('unions active ultimate-energy recovery restrictions and restores the base policy', () => {
+    const firstTag = gameplayTagId(11);
+    const secondTag = gameplayTagId(12);
+    const resources = new CombatResources({
+      sp: 0,
+      maxSp: 300,
+      returnedSp: 0,
+      sharedSpGain: { baseGainEfficiency: 1 },
+      spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+      ultimateEnergySystemUnlocked: true,
+      normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+      squad: [
+        {
+          operatorId: 'source',
+          ultimateEnergy: 20,
+          maxUltimateEnergy: 100,
+          ultimateEnergyGainMultiplier: 1,
+          allowedUltimateEnergyRecoveryTagIds: null,
+        },
+      ],
+    });
+    const first = resources.requestUltimateEnergyRecoveryRestriction('source', new Set([firstTag]));
+    const second = resources.requestUltimateEnergyRecoveryRestriction(
+      'source',
+      new Set([secondTag]),
+    );
+
+    expect(resources.changeUltimateEnergy('source', 5).applied).toBe(false);
+    expect(resources.changeUltimateEnergy('source', 5, { recoveryTagId: secondTag }).applied).toBe(
+      true,
+    );
+    resources.revertUltimateEnergyRecoveryRestriction(first, false);
+    expect(resources.changeUltimateEnergy('source', 5, { recoveryTagId: firstTag }).applied).toBe(
+      false,
+    );
+    resources.revertUltimateEnergyRecoveryRestriction(second, true);
+    expect(resources.getUltimateEnergy('source')).toBe(0);
+    expect(resources.changeUltimateEnergy('source', 5).applied).toBe(true);
+  });
 });

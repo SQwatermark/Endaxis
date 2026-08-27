@@ -34,12 +34,21 @@ export interface SkillResourceOperationDependencies {
 
 /** 处理已还原的技能资源操作，并将其他操作继续委托。 */
 export class SkillResourceOperationExecutor implements CombatOperationExecutor {
+  readonly #ultimateRecoveryRestrictionHandles = new WeakMap<RuntimeOperation, number>();
   constructor(readonly dependencies: SkillResourceOperationDependencies) {}
 
   execute(
     step: RuntimeOperation,
     context?: Parameters<CombatOperationExecutor['execute']>[1],
   ): boolean {
+    if (step.kind === 'restrictUltimateEnergyRecovery') {
+      const handle = this.dependencies.resources.requestUltimateEnergyRecoveryRestriction(
+        this.dependencies.sourceOperatorId,
+        new Set(step.parameters.allowedRecoveryTagIds),
+      );
+      this.#ultimateRecoveryRestrictionHandles.set(step, handle);
+      return true;
+    }
     if (step.kind === 'changeResourceByActionValue') {
       if (context === undefined) {
         throw new Error('changeResourceByActionValue requires a combat operation context');
@@ -125,6 +134,17 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
     step: Parameters<NonNullable<CombatOperationExecutor['end']>>[0],
     context?: Parameters<NonNullable<CombatOperationExecutor['end']>>[1],
   ): void {
+    if (step.kind === 'restrictUltimateEnergyRecovery') {
+      const handle = this.#ultimateRecoveryRestrictionHandles.get(step);
+      if (handle !== undefined) {
+        this.dependencies.resources.revertUltimateEnergyRecoveryRestriction(
+          handle,
+          step.parameters.clearUltimateEnergyOnEnd,
+        );
+        this.#ultimateRecoveryRestrictionHandles.delete(step);
+      }
+      return;
+    }
     this.dependencies.delegate.end?.(step, context);
   }
 

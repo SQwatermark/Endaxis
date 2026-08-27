@@ -269,13 +269,13 @@ export function attachBuffLifecycleSequences<Key extends string>(
       getCurrentBuffEnhanceCount: () => buff.enhanceCount,
       getCurrentBuffRemainingDuration: () => buff.remainingDuration,
       setCurrentBuffRemainingDuration: duration => buff.rawSetRemainingDuration(duration),
+      refreshCurrentBuffAttributeModifiers: () => buff.refreshAttributeModifierValues(),
       addCurrentBuffChild: child => {
         const children = childBuffs.get(buff);
         if (children === undefined) childBuffs.set(buff, [child]);
         else children.push(child);
       },
       setCurrentBuffTimePaused: paused => buff.setTimePaused(paused),
-      refreshCurrentBuffAttributeModifiers: () => buff.refreshAttributeModifierValues(),
     };
     runtime = new CombatActionSequenceRuntime(resolveOperations(buff), context);
     runtimes.set(buff, runtime);

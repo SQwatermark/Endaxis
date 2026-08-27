@@ -3437,3 +3437,24 @@ Gain)`，且数值为目标派生浮点值乘 `factor`；目标派生字段/枚�
   秋栗生产场景。完整 game-data 为 **92 文件 / 684 项通过**，Next 为 **237 文件 / 3235 项通过**；
   `type-check:game-data`、contract、production、`type-check:next`、秋栗完整生成 `--check` 和
   `git diff --check` 均通过。`tmp/` 只作来源和审计工作区，不得提交。
+
+### 2026-08-28：伊冯完整定义与跨技能能力实体闭包
+
+- 伊冯已由统一入口生成 **16 个主动技能、2 项天赋、5 项潜能、4 个能力实体、21 个私有 Buff、
+  9 个公共 Buff**，产品入口改为消费正式生成定义。艾维文娜也用同一生成器重新生成；生成文件继续
+  引用 `definitionHelpers`，没有退回独立手写常量或旧式扁平排版。
+- 生成器现按整个干员做两遍规划：第一遍收集能力实体子时间线实际按 ID 读取的逻辑标记 Buff，第二遍
+  在所有技能间保留这些身份依赖。这样既不会把艾维文娜长枪召回标记误判为表现 Buff，也不会因保留
+  标记而把伊冯的语音、镜头和 VFX 子 Buff 一并带入无渲染模拟。
+- 固定木桩目标归约从连携专用扩展为 `smartTarget`：普通技能中严格证明为唯一敌人的选择器也可折叠；
+  `input` 与 `trigger` 身份仍分别保留。Buff owner/target 身份、静态 Context 组和 ForEach 迭代目标现
+  贯穿公共 Buff 闭包，敌方 owner 的反应 Buff 不再因基准施法目标是自己而错编译。
+- 能力实体补齐 `maxStackingCount` 与 FIFO 淘汰，查询支持 `maxTargets`，实体子技能引用 Buff 会进入
+  依赖闭包。combat-spec 的反编译证据确认投射物命中目标后递增 hit count，并在达到 `maxHitCount`
+  时结束；对应证据与继承 Buff、强制元素状态动作已提交为 `a3bca44`。
+- 元素事件桥接新增严格来源解析和运行步骤：`TriggerSpellBurstEventAction` 按原始 Buff 来源及
+  `skillCastInfo` 触发现有爆发链；`OnSpellInflictionStart` 的原生动作只发布事件/记录器，而当前固定
+  运行时没有注册消费者，因此仅在完整识别载荷后审计省略。未知爆发类型、未知载荷仍失败关闭。
+- 当前门禁：所有已注册技能真实放轴/模拟 **302/302**；game-data **93 文件 / 687 项通过**；Next
+  **237 文件 / 3241 项通过**；`type-check:game-data-production`、`type-check:next` 与
+  `git diff --check` 均通过。下一位干员继续使用完整干员两遍规划，不在技能级局部硬编码身份依赖。

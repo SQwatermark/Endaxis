@@ -15,9 +15,15 @@ import {
 } from '../src/source/primitives.ts';
 import {
   planOperatorActiveSkillRuntime,
+  prepareProjectileProjection,
+  readTimeDilationPriorities,
+  readGameplayTagPaths,
   type OperatorActiveSkillRuntimeArguments,
 } from './generateOperatorActiveSkillRuntime.ts';
 import { writeGeneratedDefinitionFiles } from '../src/compiler/writeGeneratedDefinitionFiles.ts';
+import { compilePassiveSkillRequestBatch } from '../src/compiler/passiveSkillBatch.ts';
+import { GameplayTagRegistry } from '../../../src/shared/gameplayTags.ts';
+import { collectNativeActionNodes } from '../src/source/controlFlow.ts';
 
 /**
  * 整名候选规划：只读原始资源，不写正式目录、不载入旧生成 Operator。
@@ -60,7 +66,7 @@ export function planOperatorDefinition(
     potentialTalentEffectTable: read(path.join(args.tableRoot, 'PotentialTalentEffectTable.json')),
     skillConditionTable: read(path.join(args.tableRoot, 'SkillConditionTable.json')),
   });
-  const activeSkills = entries.map(entry =>
+  const preliminaryActiveSkills = entries.map(entry =>
     planOperatorActiveSkillRuntime({
       ...args,
       key: entry.key,
@@ -68,6 +74,33 @@ export function planOperatorDefinition(
       sourceFile: entry.sourceFile,
       supplementalBuffIds: [],
     }),
+  );
+  const crossSkillObservedBuffIds = [
+    ...new Set(preliminaryActiveSkills.flatMap(skill => skill.abilityEntityObservedBuffIds)),
+  ];
+  const activeSkills = entries.map(entry =>
+    planOperatorActiveSkillRuntime({
+      ...args,
+      key: entry.key,
+      skillType: entry.skillType,
+      sourceFile: entry.sourceFile,
+      supplementalBuffIds: [],
+      preserveBuffIds: crossSkillObservedBuffIds,
+    }),
+  );
+  const passiveRequests = [
+    ...foundation.progression.talentPassiveSkillRequests,
+    ...foundation.progression.potentialPassiveSkillRequests,
+  ];
+  const passiveSkills = compilePassiveSkillRequestBatch(
+    passiveRequests,
+    Object.fromEntries(
+      [...new Set(passiveRequests.map(request => request.skillId))].map(id => [
+        id,
+        read(path.join(args.sourceRoot, 'skill-data-cdn', `${id}.json`)),
+      ]),
+    ),
+    read(args.skillPatchTable),
   );
   const spawned = [
     ...new Set(
@@ -79,10 +112,12 @@ export function planOperatorDefinition(
       spawned.map(id => [id, read(path.join(args.sourceRoot, 'AbilityEntityData', `${id}.json`))]),
     ),
   );
+  const timeDilationPriorities = readTimeDilationPriorities(args.timeDilationCatalog);
   const candidate = assembleOperatorDefinition({
     foundation,
     activeSkills,
     entityCatalog,
+    gameplayTagRegistry: new GameplayTagRegistry(readGameplayTagPaths(args.gameplayTagCatalog)),
     talentBindings: requireArray(row.talents, 'talents').map(value => {
       const binding = requireRecord(value, 'talent');
       return {
@@ -99,6 +134,42 @@ export function planOperatorDefinition(
     loadBuff: id => read(path.join(args.buffDataRoot, `${id}.json`)),
     globalBuffCatalog: read(args.globalBuffCatalog),
     skillSettingCatalog: read(args.skillSettingCatalog),
+    passiveSkills,
+    createBuffProjectionExtensions: (sources, visualOnlyIds) => {
+      const resolveTimeDilationPriority = (tagId: number, sourcePath: string) => {
+        const value = timeDilationPriorities.get(tagId);
+        if (value === undefined)
+          throw new Error(`${sourcePath}: unknown time-dilation priority ${tagId}`);
+        return value;
+      };
+      const launches = [...sources.values()].flatMap(source =>
+        [
+          ...source.graph.timelineActions.map(item => item.sequence),
+          ...source.graph.buffEvents.flatMap(item => item.actions),
+          ...source.graph.abilityEvents.flatMap(item => item.actions),
+          ...source.graph.igniteEvents.flatMap(item => item.actions),
+        ].flatMap(sequence =>
+          collectNativeActionNodes(sequence).flatMap(node =>
+            node.metadata.enabled &&
+            node.body.kind === 'leaf' &&
+            node.body.value.family === 'projectile'
+              ? [node.body.value.action]
+              : [],
+          ),
+        ),
+      );
+      if (launches.length === 0) return { resolveTimeDilationPriority };
+      const prepared = prepareProjectileProjection(args, launches, visualOnlyIds, {
+        actionOwnerTarget: 'unavailable',
+        actionSourceTarget: 'caster',
+        actionTargetTarget: 'enemy',
+        fixedHittableTargetCount: 0,
+      });
+      return {
+        compileProjectileLaunch: prepared.compileProjectileLaunch,
+        resolveTimeDilationPriority,
+      };
+    },
   });
   return { ...candidate, activeSkills };
 }

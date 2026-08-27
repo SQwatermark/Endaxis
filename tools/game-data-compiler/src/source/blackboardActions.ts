@@ -6,6 +6,7 @@ import {
 } from './primitives.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
+import { ATTRIBUTE_TYPES, type AttributeTypeSource } from './attributeModifiers.ts';
 
 const ACTION_META_FIELDS = [
   '$type',
@@ -52,7 +53,7 @@ export interface AttributeSnapshotActionSource {
   readonly kind: 'attributeSnapshot';
   readonly target: TargetReferenceSource;
   readonly primaryAttributeType: 'Specific' | 'Sub';
-  readonly attributeType: 'Atk' | 'Str' | 'MaxHp' | 'Wisd' | 'Level' | 'Will' | 'Agi';
+  readonly attributeType: AttributeTypeSource;
   readonly storeAttributeType: 'BaseNonConverted' | 'FinalNonConverted';
   readonly useFloor: boolean;
   readonly divisor: ScalarSource;
@@ -113,15 +114,11 @@ export function parseAttributeSnapshotActionSource(
       `${path}.primaryAttributeType`,
       ['Specific', 'Sub'],
     ),
-    attributeType: requireKnownString(action.attributeType, `${path}.attributeType`, [
-      'Atk',
-      'Str',
-      'MaxHp',
-      'Wisd',
-      'Level',
-      'Will',
-      'Agi',
-    ]),
+    attributeType: requireKnownString(
+      action.attributeType,
+      `${path}.attributeType`,
+      ATTRIBUTE_TYPES,
+    ),
     storeAttributeType: requireKnownString(
       action.storeAttributeType,
       `${path}.storeAttributeType`,

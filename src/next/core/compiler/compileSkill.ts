@@ -365,6 +365,15 @@ function resolveStep(
               }),
         },
       };
+    case 'restrictUltimateEnergyRecovery':
+      return {
+        ...keyed,
+        kind: step.kind,
+        parameters: {
+          ...step.parameters,
+          allowedRecoveryTagIds: step.parameters.allowedRecoveryTagIds.map(gameplayTagId),
+        },
+      };
     case 'applyStatus':
       return {
         ...keyed,
@@ -481,6 +490,8 @@ function resolveStep(
     case 'readCurrentBuffRemainingDuration':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'setCurrentBuffRemainingDuration':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'refreshCurrentBuffAttributeModifiers':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'readBuffStackCount':
       return {
@@ -636,6 +647,7 @@ function resolveStep(
       };
     }
     case 'applyElementalInfliction':
+    case 'triggerSpellBurst':
     case 'applyElementalReaction':
     case 'consumeElementalReaction':
     case 'outputAirborne':
@@ -828,6 +840,9 @@ function compileAbilityEntityDefinition(
 ): ResolvedAbilityEntityDefinition {
   return {
     lifetime: definition.lifetime,
+    ...(definition.maxStackingCount === undefined
+      ? {}
+      : { maxStackingCount: definition.maxStackingCount }),
     ...(definition.childSkill === undefined
       ? {}
       : {
@@ -919,11 +934,12 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
     ]),
   );
   if (
-    input.skill.comboSmartTarget !== undefined &&
-    input.skill.comboSmartTarget !== 'input' &&
-    input.skill.comboSmartTarget !== 'trigger'
+    input.skill.smartTarget !== undefined &&
+    input.skill.smartTarget !== 'enemy' &&
+    input.skill.smartTarget !== 'input' &&
+    input.skill.smartTarget !== 'trigger'
   )
-    throw new Error(`skill '${input.skill.key}' has unsupported comboSmartTarget`);
+    throw new Error(`skill '${input.skill.key}' has unsupported smartTarget`);
   const cooldownFrames =
     input.skill.cooldownFrames === undefined
       ? undefined
@@ -966,9 +982,7 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
     skillType: input.skillType,
     skillLevel: input.skillLevel,
     initialBlackboard,
-    ...(input.skill.comboSmartTarget === undefined
-      ? {}
-      : { comboSmartTarget: input.skill.comboSmartTarget }),
+    ...(input.skill.smartTarget === undefined ? {} : { smartTarget: input.skill.smartTarget }),
     timelineBlockFrames: input.skill.timelineBlockFrames,
     ...(cooldownFrames === undefined ? {} : { cooldownFrames }),
     ...(input.skill.costFrame === undefined ? {} : { costFrame: input.skill.costFrame }),

@@ -9,6 +9,7 @@ import type {
   CombatActionProjectionContextSource,
   CombatActionProjectionExtensionsSource,
 } from './combatProjectionCommon.ts';
+import { isStaticSingleEnemyTargetGroup } from './combatProjectionCommon.ts';
 import type { CompiledBuffSequenceSource } from './combatActionProjectionTypes.ts';
 import {
   prepareSkillDefinitionInputSource,
@@ -18,6 +19,8 @@ import {
   collectPresentationOnlyTargetGroups,
   isPresentationOnlyActionSequence,
 } from './skillPresentationTargets.ts';
+import { parseSkillTargetSelectionHeaderSource } from '../source/skillTargetSelection.ts';
+import { compileSkillSmartTargetSource } from './comboSmartTarget.ts';
 
 /** 正式调度输出子集；原生时间轴结束帧必填，动作仍限于已支持的公共投影。 */
 export type CompiledActiveSkillTimelineSequenceSource = Readonly<
@@ -36,6 +39,7 @@ export interface CompiledActiveSkillRuntimeProjectionSource {
   readonly timelineBlockFrames: number;
   readonly blackboard: NonNullable<SkillDefinition['blackboard']>;
   readonly scheduledSequences: readonly CompiledActiveSkillTimelineSequenceSource[];
+  readonly smartTarget?: 'enemy' | 'input' | 'trigger';
 }
 
 /**
@@ -51,6 +55,9 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
   readonly extensions?: CombatActionProjectionExtensionsSource;
 }): CompiledActiveSkillRuntimeProjectionSource {
   const prepared = prepareSkillDefinitionInputSource(input.value, input.sourcePath, input.patch);
+  const targeting = compileSkillSmartTargetSource(
+    parseSkillTargetSelectionHeaderSource(input.value, input.sourcePath),
+  );
   assertNoUnprojectedSkillRootEffects(input.value, input.sourcePath);
   const graph = parseKnownSkillActionGraphSource(
     input.value,
@@ -70,16 +77,7 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
           node =>
             node.body.kind === 'leaf' &&
             node.body.value.family === 'targetGroup' &&
-            (node.body.value.action.producerType === 'FindTargetAction' ||
-              node.body.value.action.producerType === 'ContinuousFindTargetAction' ||
-              node.body.value.action.producerType === 'ConvertToTargetContext') &&
-            node.body.value.action.validatorTypes.length === 0 &&
-            node.body.value.action.postProcessorTypes.length === 0 &&
-            (node.body.value.action.finderType === 'MainTargetFinder' ||
-              (node.body.value.action.finderType === 'HitBoxFinder' &&
-                node.body.value.action.finderFactionTarget === 'Anti' &&
-                node.body.value.action.finderTargetObjectType === 'Normal' &&
-                node.body.value.action.finderCheckAlive === true)),
+            isStaticSingleEnemyTargetGroup(node.body.value.action),
         )
         .map(node =>
           node.body.kind === 'leaf' && node.body.value.family === 'targetGroup'
@@ -116,6 +114,7 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
       ...numericDeclaredBlackboard(graph.declaredBlackboard, true),
       ...prepared.blackboard.values,
     },
+    ...targeting.definition,
     scheduledSequences: graph.actionGroup.timelineActions
       .filter(timeline => !isPresentationOnlyActionSequence(timeline.sequence))
       .map(timeline => ({

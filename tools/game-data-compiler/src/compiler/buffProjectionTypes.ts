@@ -62,7 +62,7 @@ export interface CompiledBuffDamageModifierSource extends Pick<
       });
   readonly processors: readonly Extract<
     CombatBuffDefinitionDamageProcessor,
-    { readonly kind: 'damageScale' }
+    { readonly kind: 'damageScale' | 'instantAttribute' }
   >[];
 }
 
@@ -123,7 +123,7 @@ export type CompiledBuffDefinitionSource = Pick<
         Record<
           Extract<
             keyof SkillBuffLifecycleSequences,
-            'start' | 'enable' | 'enhanceChanged' | 'finish'
+            'start' | 'enable' | 'trigger' | 'enhanceChanged' | 'finish'
           >,
           CompiledBuffSequenceSource
         >

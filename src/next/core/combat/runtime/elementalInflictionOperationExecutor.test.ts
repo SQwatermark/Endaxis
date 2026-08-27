@@ -15,6 +15,45 @@ const STEP: Extract<ResolvedCombatStep, { kind: 'applyElementalInfliction' }> = 
 };
 
 describe('ElementalInflictionOperationExecutor', () => {
+  it('把 Buff 触发的法术爆发保留来源与施放身份交给统一爆发运行时', () => {
+    const triggerSpellBurst = vi.fn();
+    const skillCastInfo = {
+      skillCastId: 9,
+      originSkillId: 'ultimate',
+      originSkillType: 'ultimate' as const,
+      nonReturnedSpCost: 0,
+    };
+    const executor = new ElementalInflictionOperationExecutor({
+      sourceOperatorId: 'operator',
+      targetId: 'enemy',
+      skillId: 'skill',
+      clock: new CombatClock(),
+      receipt: { record: vi.fn() },
+      getExistingAttachment: () => null,
+      applyOperation: vi.fn(),
+      emitSourceEvent: vi.fn(),
+      emitTargetEvent: vi.fn(),
+      triggerSpellBurst,
+      delegate: { execute: vi.fn(() => true), evaluate: vi.fn(() => false) },
+    });
+
+    expect(
+      executor.execute(
+        { kind: 'triggerSpellBurst', parameters: { burstType: 'Cryst' } },
+        {
+          blackboard: new ActionBlackboard(),
+          buffSourceId: 'operator:buff-source',
+          skillCastInfo,
+        },
+      ),
+    ).toBe(true);
+    expect(triggerSpellBurst).toHaveBeenCalledWith({
+      burstType: 'Cryst',
+      sourceId: 'operator:buff-source',
+      skillCastInfo,
+    });
+  });
+
   it.each([undefined, 'operator', 'ability:1', 'enemy'])(
     'Buff 宿主 %s 必须匹配绑定敌人且在事件前校验',
     ownerId => {

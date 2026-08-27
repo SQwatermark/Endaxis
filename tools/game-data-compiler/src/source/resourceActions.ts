@@ -57,6 +57,20 @@ export interface GlobalCooldownApplicationSource {
   readonly duration: ScalarSource;
 }
 
+export interface SkillCooldownMutationActionSource {
+  readonly kind: 'skillCooldownMutation';
+  readonly target: TargetReferenceSource;
+  readonly skill:
+    | {
+        readonly kind: 'type';
+        readonly skillType: 'basicAttack' | 'battleSkill' | 'comboSkill' | 'ultimate' | 'finisher';
+      }
+    | { readonly kind: 'id'; readonly skillId: string };
+  readonly operation: 'set' | 'reduce';
+  readonly basis: 'baseDurationRatio' | 'absoluteSeconds';
+  readonly value: ScalarSource;
+}
+
 const ACTION_META_FIELDS = [
   '$type',
   'isEnable',
@@ -205,5 +219,63 @@ export function parseGlobalCooldownApplicationSource(
     target: parseTargetReferenceSource(action.target, `${path}.target`),
     buffId: requireNonEmptyString(action.buffId, `${path}.buffId`),
     duration: parseScalarSource(action.cdTime, `${path}.cdTime`, inheritedBlackboard),
+  };
+}
+
+export function parseSkillCooldownMutationActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): SkillCooldownMutationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      ...ACTION_META_FIELDS,
+      'target',
+      'useSkillType',
+      'skillTypeMask',
+      'skillId',
+      'functionType',
+      'isPercentage',
+      'value',
+    ]),
+    path,
+  );
+  const useSkillType = requireBoolean(action.useSkillType, `${path}.useSkillType`);
+  const skillType = {
+    NormalAttack: 'basicAttack',
+    NormalSkill: 'battleSkill',
+    ComboSkill: 'comboSkill',
+    UltimateSkill: 'ultimate',
+    BreakingAttack: 'finisher',
+  }[String(action.skillTypeMask)] as
+    'basicAttack' | 'battleSkill' | 'comboSkill' | 'ultimate' | 'finisher' | undefined;
+  const functionType = String(action.functionType);
+  if (functionType !== 'Set' && functionType !== 'Reduce') {
+    throw new Error(
+      `${path}.functionType: unsupported value ${JSON.stringify(action.functionType)}`,
+    );
+  }
+  return {
+    kind: 'skillCooldownMutation',
+    target: parseTargetReferenceSource(action.target, `${path}.target`),
+    skill: useSkillType
+      ? {
+          kind: 'type',
+          skillType:
+            skillType ??
+            (() => {
+              throw new Error(
+                `${path}.skillTypeMask: unsupported value ${JSON.stringify(action.skillTypeMask)}`,
+              );
+            })(),
+        }
+      : { kind: 'id', skillId: requireNonEmptyString(action.skillId, `${path}.skillId`) },
+    operation: functionType === 'Set' ? 'set' : 'reduce',
+    basis: requireBoolean(action.isPercentage, `${path}.isPercentage`)
+      ? 'baseDurationRatio'
+      : 'absoluteSeconds',
+    value: parseScalarSource(action.value, `${path}.value`, inheritedBlackboard),
   };
 }

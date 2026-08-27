@@ -469,6 +469,14 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       return true;
     }
 
+    if (step.kind === 'refreshCurrentBuffAttributeModifiers') {
+      if (context?.refreshCurrentBuffAttributeModifiers === undefined) {
+        throw new Error('refreshCurrentBuffAttributeModifiers requires a Buff operation context');
+      }
+      context.refreshCurrentBuffAttributeModifiers();
+      return true;
+    }
+
     if (step.kind === 'readBuffStackCount') {
       if (context === undefined) {
         throw new Error('readBuffStackCount requires a combat operation context');
@@ -809,9 +817,10 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       );
     }
     if (condition.kind === 'entityTagMatch') {
-      return this.dependencies
-        .resolveTarget(condition.target)
-        .matchesEntityTags(condition.tagIds.map(gameplayTagId), condition.tagQueryType);
+      return this.#resolveSingleTarget(condition.target, context).matchesEntityTags(
+        condition.tagIds.map(gameplayTagId),
+        condition.tagQueryType,
+      );
     }
     if (condition.kind === 'buffIdStackCompare') {
       const count = this.#resolveSingleTarget(condition.target, context).getCountByIds(

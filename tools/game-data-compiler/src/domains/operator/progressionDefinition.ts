@@ -18,6 +18,10 @@ export interface OperatorProgressionDefinitionContext {
   readonly skills: readonly OperatorSkillIdentitySource[];
   readonly skillGroups: readonly OperatorSkillGroupSource[];
   readonly costResources: ReadonlyMap<string, CombatResource>;
+  /** 已由公共被动编译器完整装配的 AddPassiveSkill 来源；未列出的条目仍严格失败。 */
+  readonly installedPassiveSkillSourcePaths?: ReadonlySet<string>;
+  /** 当前整名候选已安装的被动技能身份，供潜能黑板修正绑定。 */
+  readonly passiveSkillKeys?: ReadonlySet<string>;
 }
 
 type Progression = Pick<
@@ -151,6 +155,20 @@ function compileModifier(
     throw new Error(`${entry.sourcePath}: ${reason}`);
   };
   if (entry.kind === 'skillBlackboardModifier') {
+    if (context.passiveSkillKeys?.has(entry.skillId)) {
+      if (entry.stringValue !== '') fail('string passive blackboard modifier is not supported');
+      if (entry.activeCondition !== null)
+        fail('passive blackboard modifier has an unrepresentable build condition');
+      return [
+        {
+          kind: 'patchPassiveBlackboard',
+          passiveSkillKey: entry.skillId,
+          blackboardKey: entry.blackboardKey,
+          operation: entry.operation === 'overwrite' ? 'assign' : entry.operation,
+          value: entry.numberValue,
+        },
+      ];
+    }
     if (entry.stringValue !== '') fail('string skill blackboard modifier is not supported');
     const target = resolveSkill(entry.skillId, context, entry.sourcePath);
     const condition = projectSingleBuildConditionSource(entry.activeCondition, entry.sourcePath);
@@ -165,6 +183,12 @@ function compileModifier(
         ...(condition === null ? {} : { condition }),
       },
     ];
+  }
+  if (entry.kind === 'passiveSkill') {
+    if (context.installedPassiveSkillSourcePaths?.has(entry.sourcePath)) return [];
+    return fail(
+      `AddPassiveSkill '${entry.skillId}' must be assembled through the shared passive compiler`,
+    );
   }
   // 这些正式修正器还没有条件字段，不能把条件效果变成无条件效果。
   if (entry.activeCondition !== null) fail(`${entry.kind} has an unrepresentable build condition`);
@@ -194,6 +218,25 @@ function compileModifier(
       if (attribute)
         return [{ kind: 'addBuildAttribute', attributes: [attribute], value: modifier.value }];
     }
+    if (modifier.kind === 'panelStat') {
+      const mapped = (() => {
+        switch (modifier.stat) {
+          case 'baseDefense':
+            return { stat: 'defense', operation: 'flat' } as const;
+          case 'healthFlat':
+            return { stat: 'health', operation: 'flat' } as const;
+          case 'healthPercent':
+            return { stat: 'health', operation: 'percent' } as const;
+          case 'criticalRate':
+            return { stat: 'criticalRate', operation: 'flat' } as const;
+          case 'artsIntensity':
+            return { stat: 'artsIntensity', operation: 'flat' } as const;
+          default:
+            return undefined;
+        }
+      })();
+      if (mapped) return [{ kind: 'modifyBasePanelStat', ...mapped, value: modifier.value }];
+    }
     if (modifier.kind === 'damageScale' && modifier.slot === 'baseAddition') {
       const target = UPGRADE_STATIC_DAMAGE_INCREASE_TARGETS.find(
         value => value === modifier.target,
@@ -202,9 +245,7 @@ function compileModifier(
     }
     return fail(`projected ${modifier.kind} is not yet representable as an upgrade modifier`);
   }
-  return fail(
-    `AddPassiveSkill '${entry.skillId}' must be assembled through the shared passive compiler`,
-  );
+  return fail('unsupported progression effect');
 }
 
 function resolveSkill(
@@ -222,8 +263,9 @@ function resolveSkill(
   );
   if (groups.length !== 1) throw new Error(`${path}: expected one group binding for '${skillId}'`);
   const group = groups[0]!;
-  // 正式 patchSkillBlackboard 暂时不能指定组变体；显式拒绝，避免误改其他形态。
-  if (group.variants.length)
-    throw new Error(`${path}: variant group upgrade targeting is not supported`);
-  return { skill, group, singleSkill: group.skillKeys.length === 1 };
+  return {
+    skill,
+    group,
+    singleSkill: group.skillKeys.length === 1 && group.variants.length === 0,
+  };
 }

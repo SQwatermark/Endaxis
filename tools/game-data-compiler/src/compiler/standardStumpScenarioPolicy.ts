@@ -4,6 +4,8 @@
  */
 const OMITTED_BUFF_ABILITY_EVENT_REASONS: Readonly<Record<string, string>> = {
   OnTakeDamage: 'player damage taken cannot occur without enemy active behavior',
+  OnOwnerHpZero:
+    'operator HP cannot reach zero without player damage in the fixed passive-enemy scenario',
   OnTrulyExitFight: 'fixed timeline does not leave combat before the simulation ends',
 };
 

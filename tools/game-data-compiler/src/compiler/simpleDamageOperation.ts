@@ -82,7 +82,6 @@ export function compileEventTargetSimpleDamageOperationSource(
     unit.takeAttackSnapshot ||
     unit.serializedPoiseCalculationPresent ||
     unit.poiseCalculation !== null ||
-    unit.processors.length > 0 ||
     unit.onlyEnableForMainOperator ||
     unit.ignoreDamageImmuneLevel !== 'None' ||
     unit.ignorePoiseImmune ||
@@ -114,6 +113,38 @@ export function compileEventTargetSimpleDamageOperationSource(
   if (attackScale === null) {
     throw new Error(`${sourcePath}: unsupported event attack calculation`);
   }
+  const attributeNames: Readonly<Record<string, string>> = {
+    Atk: 'attack',
+    CriticalRate: 'criticalRate',
+    CriticalDamageIncrease: 'criticalDamageIncrease',
+  };
+  const slots = {
+    BaseAddition: 'baseAddition',
+    BaseMultiplier: 'baseMultiplier',
+  } as const;
+  const instantAttributeModifiers = unit.processors.map((processor, index) => {
+    if (
+      processor.kind !== 'instantAttributeModifier' ||
+      processor.targetSide !== 'Attacker' ||
+      processor.modifyAttributeType !== 'Specific'
+    ) {
+      throw new Error(`${sourcePath}.units[0].processors[${index}]: unsupported processor`);
+    }
+    const attribute = attributeNames[processor.attributeType];
+    const slot = slots[processor.formulaItem as keyof typeof slots];
+    if (attribute === undefined || slot === undefined) {
+      throw new Error(
+        `${sourcePath}.units[0].processors[${index}]: unsupported instant attribute mapping`,
+      );
+    }
+    return {
+      targetSide: 'attacker' as const,
+      attribute,
+      slot,
+      value: scalarOperand(processor.parameter),
+      attributeTiming: 'runtime' as const,
+    };
+  });
   // DamageEnums.g.cs：分类位彼此独立。hitEnvironment 只增加环境命中旁路，不改变同一
   // DamageUnit 对目标的结算；Endaxis 没有可破坏环境，只投影目标伤害。
   // 用安全整数和减法验剩余位，避免 JS 位运算把高位截断后误当作已覆盖。
@@ -168,6 +199,7 @@ export function compileEventTargetSimpleDamageOperationSource(
         ...(comboSkill ? (['comboSkill'] as const) : []),
       ],
       ...(canBreakWeakness ? { features: ['canBreakWeakness'] as const } : {}),
+      ...(instantAttributeModifiers.length === 0 ? {} : { instantAttributeModifiers }),
       ...(stagger === undefined ? {} : { stagger }),
       ...(poiseUnit?.onlyEnableForMainOperator ? { staggerOnlyWhenCasterControlled: true } : {}),
     },

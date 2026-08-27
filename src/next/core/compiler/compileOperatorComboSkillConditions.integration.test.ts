@@ -7,7 +7,7 @@ import { compileComboSkillConditionDefinitionSource } from '../../../../tools/ga
 import { perlica } from '../../data/operators/perlica';
 import { arcane } from '../../data/operators/arcane';
 import { parseSkillTargetSelectionHeaderSource } from '../../../../tools/game-data-compiler/src/source/skillTargetSelection.ts';
-import { compileComboSmartTargetSource } from '../../../../tools/game-data-compiler/src/compiler/comboSmartTarget.ts';
+import { compileSkillSmartTargetSource } from '../../../../tools/game-data-compiler/src/compiler/comboSmartTarget.ts';
 import { createGameDataRepository } from '../../data/gameDataRepository';
 import { elementalAttachments } from '../../data/buffs/elementalAttachments';
 import { skillSettings } from '../../data/combat/skillSettings';
@@ -106,7 +106,7 @@ function template(
                 // 诀真实 CastData.startCdFrame=0；补旧产物遗漏的静态元数据，不改它的动作。
                 costFrame: 0,
                 ...(actualCombo
-                  ? compileComboSmartTargetSource(
+                  ? compileSkillSmartTargetSource(
                       parseSkillTargetSelectionHeaderSource(
                         {
                           selectStrategy: 4,

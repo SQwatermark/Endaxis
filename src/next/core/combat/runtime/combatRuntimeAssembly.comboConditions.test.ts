@@ -155,7 +155,7 @@ describe('assembly 原生常驻连携条件', () => {
     f.owner.skills = [
       {
         ...combo(),
-        comboSmartTarget: 'trigger',
+        smartTarget: 'trigger',
         initialBlackboard: { local: 0 },
         timelineActions: [{ startFrame: 0, sequence: { steps: [probe] } }],
       },

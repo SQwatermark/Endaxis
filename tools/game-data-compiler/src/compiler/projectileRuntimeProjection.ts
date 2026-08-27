@@ -3,6 +3,7 @@ import type { ProjectileLaunchActionSource } from '../source/referenceActions.ts
 import type { ProjectileRuntimeSource } from '../source/projectileRuntime.ts';
 import type { KnownNativeActionLeafSource } from '../source/actionLeaf.ts';
 import type { SkillActionGraphSource } from '../source/skillActionGraph.ts';
+import { collectNativeActionNodes } from '../source/controlFlow.ts';
 import { compileCombatActionSequenceSource } from './buffRuntimeProjection.ts';
 import type {
   CombatActionProjectionContextSource,
@@ -14,6 +15,7 @@ import {
   type CompiledActionBlackboardScopeSource,
   type ProjectileCallbackInvocationSource,
 } from './projectileCallbackScopes.ts';
+import { isStaticSingleEnemyTargetGroup } from './combatProjectionCommon.ts';
 
 export interface ZeroDistanceProjectileCallbackSource {
   readonly skillId: string;
@@ -150,6 +152,7 @@ export function compileZeroDistanceFirstTickHitProjectileSource(input: {
     maxHitCounts: new Set([1]),
     requireCollider: !runtime.hitOnReach,
     allowHitOnReach: true,
+    allowFinishByFirstHitCount: true,
   });
   const hit = compileImmediateProjectileCallbackSkillSource({
     graph: input.hitGraph,
@@ -214,13 +217,38 @@ export function compileImmediateProjectileCallbackSkillSource(input: {
   const { graph, context, visualOnlyIds = new Set(), extensions = {} } = input;
   if (graph.actionGroup.passiveEvents.length > 0)
     throw new Error(`${graph.skillId}: projectile callback passive events are unsupported`);
+  const discoveredEnemyGroups = graph.actionGroup.timelineActions.flatMap(timeline =>
+    collectNativeActionNodes(timeline.sequence)
+      .filter(
+        node =>
+          node.body.kind === 'leaf' &&
+          node.body.value.family === 'targetGroup' &&
+          isStaticSingleEnemyTargetGroup(node.body.value.action),
+      )
+      .map(node =>
+        node.body.kind === 'leaf' && node.body.value.family === 'targetGroup'
+          ? node.body.value.action.targetGroupKey
+          : '',
+      ),
+  );
+  const callbackContext: CombatActionProjectionContextSource = {
+    ...context,
+    staticEnemyTargetGroupKeys: new Set([
+      ...(context.staticEnemyTargetGroupKeys ?? []),
+      ...discoveredEnemyGroups,
+    ]),
+  };
   const steps = graph.actionGroup.timelineActions.flatMap((timeline, index) => {
     if (timeline.startFrame !== 0)
       throw new Error(
         `${graph.skillId}.timelineActions[${index}]: delayed projectile callback is unsupported`,
       );
-    return compileCombatActionSequenceSource(timeline.sequence, context, visualOnlyIds, extensions)
-      .steps;
+    return compileCombatActionSequenceSource(
+      timeline.sequence,
+      callbackContext,
+      visualOnlyIds,
+      extensions,
+    ).steps;
   });
   return {
     skillId: graph.skillId,
@@ -303,19 +331,26 @@ function assertSupportedFirstTickShape(
     readonly maxHitCounts?: ReadonlySet<number>;
     readonly requireCollider?: boolean;
     readonly allowHitOnReach?: boolean;
+    readonly allowFinishByFirstHitCount?: boolean;
   } = {},
 ): void {
   const segment = runtime.moveSegments[0];
   const maxHitCounts = options.maxHitCounts ?? new Set([-1]);
+  // ProjectileComponent.HitTarget increments m_hitCount, resolves maxHitCount, and calls
+  // FinishProjectile(HitCount) as soon as the positive limit is reached. For a hit-only
+  // route with maxHitCount=1, finishOnReach/keepMoveOnReach therefore cannot affect any
+  // later combat-visible callback in the zero-distance single-target model.
+  const finishesOnFirstHit =
+    options.allowFinishByFirstHitCount === true && runtime.maxHitCount === 1;
   if (
-    !runtime.finishOnReach ||
+    (!runtime.finishOnReach && !finishesOnFirstHit) ||
     (runtime.hitOnReach && options.allowHitOnReach !== true) ||
     runtime.allowHitSameTarget ||
     !maxHitCounts.has(runtime.maxHitCount) ||
     runtime.collisionDetectTiming !== 0 ||
     runtime.hitAndBlockDetectDelayTime !== 0 ||
     runtime.hitAndBlockDetectDelayDistance !== 0 ||
-    runtime.keepMoveOnReach ||
+    (runtime.keepMoveOnReach && !finishesOnFirstHit) ||
     runtime.canTraceTargetAfterReach ||
     !runtime.targetFilter.checkAlive ||
     !runtime.targetFilter.autoSetTargetFaction ||
