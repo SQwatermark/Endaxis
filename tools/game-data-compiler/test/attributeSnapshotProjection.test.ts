@@ -33,27 +33,29 @@ function snapshotAction(overrides: Record<string, unknown> = {}) {
   };
 }
 
-function project(
-  overrides: Record<string, unknown> = {},
-  context = ACTIVE_CONTEXT,
-) {
+function project(overrides: Record<string, unknown> = {}, context = ACTIVE_CONTEXT) {
   const skill = activeSkillFixture();
   skill.blackboard = [{ key: 'sub_ratio', valueDouble: 0.02, valueStr: '', isDynamic: false }];
   skill.actionGroupData = {
-    timelineActions: [{
-      _startFrame: 5,
-      _endFrame: 8,
-      _sequenceActionData: {
-        actionData: [snapshotAction(overrides)],
-        onlyExecuteWhenSourceIsMainChar: false,
-        onlyExecuteWhenSourceIsGuard: false,
+    timelineActions: [
+      {
+        _startFrame: 5,
+        _endFrame: 8,
+        _sequenceActionData: {
+          actionData: [snapshotAction(overrides)],
+          onlyExecuteWhenSourceIsMainChar: false,
+          onlyExecuteWhenSourceIsGuard: false,
+        },
+        forceSyncAnimData: { forceSync: false, montageName: '', targetFrame: 0, playbackSpeed: 1 },
       },
-      forceSyncAnimData: { forceSync: false, montageName: '', targetFrame: 0, playbackSpeed: 1 },
-    }],
+    ],
     passiveEventActions: [],
   };
   return compileActiveSkillRuntimeProjectionSource({
-    value: skill, sourcePath: 'snapshot', patch: null, context,
+    value: skill,
+    sourcePath: 'snapshot',
+    patch: null,
+    context,
   }).scheduledSequences[0]!.sequence.steps[0];
 }
 
@@ -74,43 +76,68 @@ describe('公共属性快照投影', () => {
   });
 
   it('保留取整、除数和装备非转换属性阶段', () => {
-    expect(project({
-      storeAttributeType: 'BaseNonConverted', useFloor: true, divisorValue: scalarFixture(4),
-    })).toMatchObject({ parameters: {
-      attribute: { kind: 'secondary' }, stage: 'armedNonConverted', useFloor: true,
-      divisor: { kind: 'constant', value: 4 },
-    } });
+    expect(
+      project({
+        storeAttributeType: 'BaseNonConverted',
+        useFloor: true,
+        divisorValue: scalarFixture(4),
+      }),
+    ).toMatchObject({
+      parameters: {
+        attribute: { kind: 'secondary' },
+        stage: 'armedNonConverted',
+        useFloor: true,
+        divisor: { kind: 'constant', value: 4 },
+      },
+    });
   });
 
   it('Buff 宿主的 Source 复用相同投影，但不把 Buff Owner 当成来源', () => {
-    expect(project({ targetSettings: targetFixture('Source') }, BUFF_ACTION_CONTEXT))
-      .toMatchObject({ parameters: { attribute: { kind: 'secondary' } } });
+    expect(project({ targetSettings: targetFixture('Source') }, BUFF_ACTION_CONTEXT)).toMatchObject(
+      { parameters: { attribute: { kind: 'secondary' } } },
+    );
     expect(() => project({}, BUFF_ACTION_CONTEXT)).toThrow('unsupported attribute snapshot target');
   });
 
   it('保留原有 Specific/MaxHp 支持', () => {
-    expect(project({ primaryAttributeType: 'Specific', attributeType: 'MaxHp' }))
-      .toMatchObject({ parameters: { attribute: { kind: 'specific', key: 'maxHealth' } } });
+    expect(project({ primaryAttributeType: 'Specific', attributeType: 'MaxHp' })).toMatchObject({
+      parameters: { attribute: { kind: 'specific', key: 'maxHealth' } },
+    });
+  });
+
+  it('Specific 四维属性通过公共属性映射读取，不固化当前面板', () => {
+    expect(project({ primaryAttributeType: 'Specific', attributeType: 'Wisd' })).toMatchObject({
+      parameters: { attribute: { kind: 'specific', key: 'intellect' } },
+    });
   });
 
   it('Specific/Level 不能误走 Sub 的忽略字段路径', () => {
-    expect(() => project({ primaryAttributeType: 'Specific' }))
-      .toThrow('unsupported attribute snapshot target or selector');
+    expect(() => project({ primaryAttributeType: 'Specific' })).toThrow(
+      'unsupported attribute snapshot target or selector',
+    );
   });
 
   it.each(['Target', 'Group'])('仍拒绝未支持的属性目标 %s', target => {
-    expect(() => project({ targetSettings: targetFixture(target) }))
-      .toThrow('unsupported attribute snapshot target or selector');
+    expect(() => project({ targetSettings: targetFixture(target) })).toThrow(
+      'unsupported attribute snapshot target or selector',
+    );
   });
 
   it('Owner 身份不可用时不能借用 Source', () => {
-    expect(() => project({}, { ...ACTIVE_CONTEXT, actionOwnerTarget: 'unavailable' }))
-      .toThrow('action Owner projection is unavailable');
+    expect(() => project({}, { ...ACTIVE_CONTEXT, actionOwnerTarget: 'unavailable' })).toThrow(
+      'action Owner projection is unavailable',
+    );
   });
 
   it('接收侧 Buff 的 buffSource 尚未投影时仍阻断', () => {
-    expect(() => project({ targetSettings: targetFixture('Source') }, {
-      ...BUFF_ACTION_CONTEXT, actionSourceTarget: 'buffSource',
-    })).toThrow('unsupported attribute snapshot target or selector');
+    expect(() =>
+      project(
+        { targetSettings: targetFixture('Source') },
+        {
+          ...BUFF_ACTION_CONTEXT,
+          actionSourceTarget: 'buffSource',
+        },
+      ),
+    ).toThrow('unsupported attribute snapshot target or selector');
   });
 });

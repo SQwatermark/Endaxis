@@ -521,11 +521,31 @@ describe('registered generated operators', () => {
   });
 
   it('applies Xaihi ultimate Crystal enhancement to a later basic attack', () => {
+    const enhancementSteps =
+      xaihi.buffDefinitions?.['buff_chr_0011_seraph_atk_buff']?.lifecycleSequences?.start?.steps;
+    expect(enhancementSteps?.slice(-2)).toMatchObject([
+      {
+        kind: 'applyBuff',
+        parameters: {
+          buffId: 'buff_common_affixes_enhance_crystal',
+          stringBlackboardAssignments: {
+            child_buff_id: 'buff_chr_0011_seraph_ultimate_effect',
+          },
+        },
+      },
+      {
+        kind: 'applyBuff',
+        parameters: {
+          buffId: 'buff_common_affixes_enhance_natural',
+          stringBlackboardAssignments: {
+            child_buff_id: 'buff_chr_0011_seraph_ultimate_effect_2',
+          },
+        },
+      },
+    ]);
     expect(
-      xaihi.buffDefinitions?.['buff_chr_0011_seraph_atk_buff']?.childPresentations?.map(
-        child => child.buffId,
-      ),
-    ).toEqual(['buff_chr_0011_seraph_ultimate_effect', 'buff_chr_0011_seraph_ultimate_effect_2']);
+      xaihi.buffDefinitions?.['buff_chr_0011_seraph_ultimate_effect']?.presentation?.visible,
+    ).toBe(true);
     const run = (withUltimate: boolean) => {
       const scenario = createEmptyScenario(`scenario:xaihi:${withUltimate}`, '熙海终结技增幅回归');
       scenario.battle.durationFrames = 180;

@@ -6,7 +6,7 @@ import type { GlobalBuffTemplateCatalogSource } from '../source/globalBuffTempla
 
 /**
  * 定义依赖收集，不改写动作和运行时黑板。
- * 只开放原生关键词的无覆盖默认 child 契约；一般动态字符串的数据流仍保持显式阻塞。
+ * 只开放原生关键词的声明默认 child 或创建动作字面覆盖契约；一般动态字符串数据流仍显式阻塞。
  */
 export function collectBuffRuntimeClosure(
   rootIds: readonly string[],
@@ -51,8 +51,8 @@ export function collectBuffRuntimeClosure(
     for (const [id, refs] of references) {
       for (const ref of refs) {
         if (ref.state !== 'dynamic' && ref.id !== null) continue;
-        const candidate = resolveKeywordDefaultChild(id, ref, rootIds, result, references);
-        if (!result.has(candidate)) queue.push(candidate);
+        const candidates = resolveKeywordChildCandidates(id, ref, rootIds, result, references);
+        for (const candidate of candidates) if (!result.has(candidate)) queue.push(candidate);
       }
     }
   } while (queue.length > 0);
@@ -68,13 +68,13 @@ function nodes(source: BuffRuntimeSource) {
   ].flatMap(sequence => collectNativeActionNodes(sequence));
 }
 
-function resolveKeywordDefaultChild(
+function resolveKeywordChildCandidates(
   id: string,
   ref: DefinitionReferenceSource,
   roots: readonly string[],
   sources: ReadonlyMap<string, BuffRuntimeSource>,
   references: ReadonlyMap<string, readonly DefinitionReferenceSource[]>,
-): string {
+): readonly string[] {
   const fail = (): never => {
     throw new Error(
       `${ref.sourcePath}: dynamic Buff references cannot form a static Buff closure without a proven keyword default-child contract`,
@@ -117,15 +117,17 @@ function resolveKeywordDefaultChild(
         node.body.value.family === 'keywordBuff' &&
         node.body.value.action.carrierBuffId === id,
     );
-  if (
-    !creators.length ||
-    creators.some(
-      node =>
-        node.body.kind !== 'leaf' ||
-        node.body.value.family !== 'keywordBuff' ||
-        node.body.value.action.overrideChildBuffId,
-    )
-  )
-    return fail();
-  return declared.value;
+  if (!creators.length) return fail();
+  const candidates = new Set<string>();
+  for (const node of creators) {
+    if (node.body.kind !== 'leaf' || node.body.value.family !== 'keywordBuff') return fail();
+    const action = node.body.value.action;
+    if (!action.overrideChildBuffId) {
+      candidates.add(declared.value);
+      continue;
+    }
+    if (action.childBuffId.blackboardKey !== null || !action.childBuffId.value) return fail();
+    candidates.add(action.childBuffId.value);
+  }
+  return [...candidates];
 }

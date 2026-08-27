@@ -186,7 +186,8 @@ function compileConditionLeaf(
       };
     }
     const projectsCaster =
-      (condition.targetSource === 'Owner' && context.actionOwnerTarget === 'caster') ||
+      (condition.targetSource === 'Owner' &&
+        (context.actionOwnerTarget === 'caster' || context.fixedBuffOwnerTarget === 'caster')) ||
       (condition.targetSource === 'Source' && context.actionSourceTarget === 'caster');
     // 固定 Owner/Source 不读取 targetGroupKey；部分原始技能保留了上一个 Context 目标组名。
     if (!projectsCaster) {
@@ -235,11 +236,15 @@ function compileConditionLeaf(
       condition.targetSource === 'InstantSearch' &&
       condition.characterTeamSelectionRole === 'controlledOperator'
         ? ('controlledOperator' as const)
-        : condition.targetSource === 'Context' &&
-            (targetGroups.get(condition.targetGroupKey) === 'enemy' ||
-              context.staticEnemyTargetGroupKeys?.has(condition.targetGroupKey) === true)
-          ? ('enemy' as const)
-          : null;
+        : condition.targetSource === 'Owner' &&
+            condition.targetGroupKey === '' &&
+            context.fixedBuffOwnerTarget === 'caster'
+          ? ('caster' as const)
+          : condition.targetSource === 'Context' &&
+              (targetGroups.get(condition.targetGroupKey) === 'enemy' ||
+                context.staticEnemyTargetGroupKeys?.has(condition.targetGroupKey) === true)
+            ? ('enemy' as const)
+            : null;
     if (target === null || operator === undefined) {
       throw new Error(`${sourcePath}: unsupported health condition target`);
     }

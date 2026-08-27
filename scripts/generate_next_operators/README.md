@@ -2,6 +2,11 @@
 
 该工具从解包 `SkillData`、`BuffData` 和 `TableCfg` 生成 Endaxis Next 干员定义。它不读取现有干员 TS；无法确认语义的战斗行为会阻止正式 DSL 生成，而不是被静默丢弃。
 
+> 统一 TypeScript 生成链的 2026-08-28 检查点：Xaihi 已完整输出 10 个技能、2 个天赋、5 档潜能、
+> 1 个能力实体、12 个私有及 9 个公共 Buff，并通过全技能上轴、实际增伤与重建 `--check`。来源链
+> 显式区分 Buff Owner、Buff Source 与 Context owner；只有已证明的单干员 Context 才能作为
+> owner-spawned 能力实体查询锚点。下一目标为 Yvonne 终结技剩余的能力实体 spawn 形状。
+
 ## 输入
 
 - `skill-data-cdn`：技能时间线、动作顺序、伤害、失衡、资源变化和投射物命中子技能。

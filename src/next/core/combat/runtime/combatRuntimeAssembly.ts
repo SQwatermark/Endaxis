@@ -1554,7 +1554,11 @@ export class CombatRuntimeAssembly {
       delegate: cooldownDelegate,
     });
     let rootOperations: CombatOperationExecutor | undefined;
-    const targetContextOperations = new TargetContextOperationExecutor(operatorId, baseDelegate);
+    const targetContextOperations = new TargetContextOperationExecutor(
+      operatorId,
+      baseDelegate,
+      id => this.#resolveAbilitySystemSourceId(id),
+    );
     const abilityEntityOperations = new AbilityEntityOperationExecutor(
       operatorId,
       this.abilityEntities,
@@ -1760,7 +1764,11 @@ export class CombatRuntimeAssembly {
       delegate: cooldownOperations,
     });
     let reactiveOperations: CombatOperationExecutor | undefined;
-    const targetContextOperations = new TargetContextOperationExecutor(operatorId, slotOperations);
+    const targetContextOperations = new TargetContextOperationExecutor(
+      operatorId,
+      slotOperations,
+      id => this.#resolveAbilitySystemSourceId(id),
+    );
     const abilityEntityOperations = new AbilityEntityOperationExecutor(
       operatorId,
       this.abilityEntities,

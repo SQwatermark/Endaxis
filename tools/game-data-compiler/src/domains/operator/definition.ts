@@ -11,6 +11,7 @@ import {
 } from './progressionDefinition.ts';
 import type { CompiledOperatorActiveSkillRuntimeDefinitionSource } from './activeSkillRuntimeDefinition.ts';
 import type { CompiledAbilityEntityTemplateCatalogSource } from '../../compiler/abilityEntityCatalog.ts';
+import { compileAbilityEntityTemplateCatalogSource } from '../../compiler/abilityEntityCatalog.ts';
 import { compileAbilityEntityDefinitionSource } from '../../compiler/abilityEntityDefinition.ts';
 import { compileStandardStumpBuffClosure } from '../../compiler/standardStumpBuffClosure.ts';
 import type { CompiledBuffDefinitionSource } from '../../compiler/buffProjectionTypes.ts';
@@ -26,6 +27,9 @@ import {
   collectCompiledBuffIdentityReadIds,
 } from '../../compiler/compiledBuffReferences.ts';
 import { collectCombatInvisibleBuffClosureIds } from '../../compiler/combatInvisibleBuffClosure.ts';
+import { collectBuffRuntimeClosure } from '../../compiler/buffReferenceClosure.ts';
+import { collectNativeActionNodes } from '../../source/controlFlow.ts';
+import { parseGlobalBuffTemplateCatalogSource } from '../../source/globalBuffTemplate.ts';
 
 export interface OperatorDefinitionAssemblyInput {
   readonly foundation: ReturnType<typeof compileOperatorFoundationSource>;
@@ -41,6 +45,8 @@ export interface OperatorDefinitionAssemblyInput {
   readonly talentBindings: readonly { readonly index: number; readonly key: string }[];
   readonly potentialBindings: readonly { readonly level: number; readonly key: string }[];
   readonly entityCatalog: CompiledAbilityEntityTemplateCatalogSource;
+  /** Buff 动作可能在主动技能规划之后才暴露实体；按发现的精确 ID 读取，不预载无关模板。 */
+  readonly loadAbilityEntity?: (id: string) => unknown;
   readonly gameplayTagRegistry: GameplayTagRegistry;
   readonly loadSkill: (id: string) => unknown;
   readonly loadBuff: (id: string) => unknown;
@@ -172,21 +178,82 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     } satisfies SkillGroupDefinition;
   });
   const bindings = new Map<string, string>();
-  for (const spawn of input.activeSkills.flatMap(item => item.abilityEntitySpawns)) {
+  const addEntityBinding = (spawn: {
+    readonly abilityEntityId: string;
+    readonly skillId: string;
+    readonly sourcePath: string;
+  }) => {
     if (
       bindings.has(spawn.abilityEntityId) &&
       bindings.get(spawn.abilityEntityId) !== spawn.skillId
     )
       throw new Error(`${spawn.sourcePath}: one template is spawned with different child skills`);
+    const added = !bindings.has(spawn.abilityEntityId);
     bindings.set(spawn.abilityEntityId, spawn.skillId);
+    return added;
+  };
+  for (const spawn of input.activeSkills.flatMap(item => item.abilityEntitySpawns)) {
+    addEntityBinding(spawn);
   }
-  const preliminaryAbilityEntityDefinitions = Object.fromEntries(
-    [...bindings].map(([id, skillId]) => {
-      const template = input.entityCatalog.byId.get(id);
-      if (!template) throw new Error(`missing AbilityEntity ${id}`);
-      return [id, compileAbilityEntityDefinitionSource(template, skillId, input.loadSkill)];
-    }),
-  );
+  const baseRoots = [
+    ...new Set([
+      ...input.activeSkills.flatMap(item => item.runtimeBuffIds),
+      ...progression.compiledEffectBundles.flatMap(bundle =>
+        bundle.entries.flatMap(entry => (entry.kind === 'buff' ? [entry.buffId] : [])),
+      ),
+      ...talentPassivePlans.flatMap(plan => plan.buffIds),
+      ...potentialPassivePlans.flatMap(plan => plan.buffIds),
+    ]),
+  ];
+  const globalBuffCatalog = parseGlobalBuffTemplateCatalogSource(input.globalBuffCatalog);
+  let preliminaryAbilityEntityDefinitions: Readonly<
+    Record<string, ReturnType<typeof compileAbilityEntityDefinitionSource>>
+  > = {};
+  let entityCatalog = input.entityCatalog;
+  let roots = baseRoots;
+  let changed = true;
+  while (changed) {
+    if (input.loadAbilityEntity !== undefined) {
+      entityCatalog = compileAbilityEntityTemplateCatalogSource(
+        Object.fromEntries([...bindings.keys()].map(id => [id, input.loadAbilityEntity!(id)])),
+      );
+    }
+    preliminaryAbilityEntityDefinitions = Object.fromEntries(
+      [...bindings].map(([id, skillId]) => {
+        const template = entityCatalog.byId.get(id);
+        if (!template) throw new Error(`missing AbilityEntity ${id}`);
+        return [id, compileAbilityEntityDefinitionSource(template, skillId, input.loadSkill)];
+      }),
+    );
+    roots = [
+      ...new Set([...baseRoots, ...collectCompiledBuffIds(preliminaryAbilityEntityDefinitions)]),
+    ];
+    const sources = collectBuffRuntimeClosure(roots, input.loadBuff, globalBuffCatalog);
+    changed = false;
+    for (const source of sources.values()) {
+      const sequences = [
+        ...source.graph.timelineActions.map(item => item.sequence),
+        ...source.graph.buffEvents.flatMap(item => item.actions),
+        ...source.graph.abilityEvents.flatMap(item => item.actions),
+        ...source.graph.igniteEvents.flatMap(item => item.actions),
+      ];
+      for (const node of sequences.flatMap(sequence => collectNativeActionNodes(sequence))) {
+        if (
+          !node.metadata.enabled ||
+          node.body.kind !== 'leaf' ||
+          node.body.value.family !== 'abilityEntity' ||
+          node.body.value.action.kind !== 'abilityEntitySpawn'
+        )
+          continue;
+        changed =
+          addEntityBinding({
+            abilityEntityId: node.body.value.action.abilityEntityId,
+            skillId: node.body.value.action.skillId,
+            sourcePath: node.sourcePath,
+          }) || changed;
+      }
+    }
+  }
   const preliminaryEntityBuffIds = collectCompiledBuffIds(preliminaryAbilityEntityDefinitions);
   const entityBuffIdentityReads = collectCompiledBuffIdentityReadIds(
     preliminaryAbilityEntityDefinitions,
@@ -198,7 +265,7 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
   );
   const abilityEntityDefinitions = Object.fromEntries(
     [...bindings].map(([id, skillId]) => {
-      const template = input.entityCatalog.byId.get(id);
+      const template = entityCatalog.byId.get(id);
       if (!template) throw new Error(`missing AbilityEntity ${id}`);
       return [
         id,
@@ -211,30 +278,31 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
       ];
     }),
   );
-  const roots = [
-    ...new Set([
-      ...input.activeSkills.flatMap(item => item.runtimeBuffIds),
-      ...collectCompiledBuffIds(abilityEntityDefinitions),
-      ...progression.compiledEffectBundles.flatMap(bundle =>
-        bundle.entries.flatMap(entry => (entry.kind === 'buff' ? [entry.buffId] : [])),
-      ),
-      ...talentPassivePlans.flatMap(plan => plan.buffIds),
-      ...potentialPassivePlans.flatMap(plan => plan.buffIds),
-    ]),
-  ];
+  roots = [...new Set([...baseRoots, ...collectCompiledBuffIds(abilityEntityDefinitions)])];
   const rootBuffOwnerTargets = new Map<string, 'caster' | 'enemy' | 'currentAbilityEntity'>();
   const rootBuffOwnerTargetConflicts = new Set<string>();
   for (const application of collectCompiledBuffApplications([
     ...input.activeSkills.map(item => item.definition),
     abilityEntityDefinitions,
   ])) {
-    if (
-      application.target !== 'caster' &&
-      application.target !== 'enemy' &&
-      application.target !== 'currentAbilityEntity'
-    )
-      continue;
-    const target = application.target;
+    // 编译后的 `caster` 在 Buff 生命周期中绑定实际 Buff 宿主。所有干员集合目标都会
+    // 为每个命中的干员各建一份实例，因此其固定宿主种类同样是 operator/caster；
+    // 这不表示原施法者独占该 Buff，也不会丢掉运行时逐实例 owner 身份。
+    const target =
+      application.target === 'enemy'
+        ? ('enemy' as const)
+        : application.target === 'currentAbilityEntity'
+          ? ('currentAbilityEntity' as const)
+          : application.target === 'caster' ||
+              application.target === 'controlledOperator' ||
+              application.target === 'party' ||
+              application.target === 'partyExceptCaster' ||
+              application.target === 'partyExceptCasterAndSameCharacterType' ||
+              application.target === 'casterAndControlledOperator' ||
+              application.target === 'casterAndLowestHealthRatioOperatorExceptCaster'
+            ? ('caster' as const)
+            : null;
+    if (target === null) continue;
     const previous = rootBuffOwnerTargets.get(application.buffId);
     if (previous === undefined && !rootBuffOwnerTargetConflicts.has(application.buffId))
       rootBuffOwnerTargets.set(application.buffId, target);
@@ -249,7 +317,7 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     input.globalBuffCatalog,
     input.skillSettingCatalog,
     {
-      catalog: input.entityCatalog,
+      catalog: entityCatalog,
       gameplayTagRegistry: input.gameplayTagRegistry,
     },
     input.createBuffProjectionExtensions,

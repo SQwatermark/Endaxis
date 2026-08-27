@@ -2,15 +2,14 @@
 
 本文只给出架构级状态。逐功能的定义、编译、执行和 UI 门槛以[功能迁移矩阵](../architecture/endaxis-next-feature-matrix.md)为准。
 
-> 2026-08-28 当前：统一 TS 主动矩阵为 **165/309**，主动技能全可编译干员 **4 名**，完整定义
-> **3 名**。Xaihi 终结技的 `DispelAction` 已先在 combat-spec 依据 1.4.4 恢复为严格数据适配、
-> `canBeDispelled` / 等级 / Buff `applyTags` 筛选及 `OnBuffDispelled -> Finish(Dispelled)` 生命周期。
-> 该终结技只对全队清除敌方寒冷附着与冻结；固定木桩不会产生这两个敌人主动状态，因此 Endaxis 仅对
-> 两个版本化标签、严格全队目标和完整原生形状做审计省略，其他驱散继续失败关闭。无过滤非空间
-> `CharacterTeamFinder` 的公共投影同时让 Ember 与 Antal 终结技进入 compiled。Xaihi 已达
-> **10/10**，但 `formalSkillCount=0`，尚不是完整正式定义。下一步闭合其 Buff、天赋、潜能和能力实体，
-> 再完成正式生成、默认仓库注册及真实时间轴生产回归。game-data 93 文件 / 695 项和四套相关类型检查
-> 通过；combat-spec 全量 1439 项通过，仍只有本机导出物缺失造成的既有 17 项失败。具体证据和继续入口见
+> 2026-08-28 当前：Xaihi 已由统一 TS 入口完成整名生成和产品切换，包括 10 个技能、完整天赋/潜能、
+> 1 个能力实体、12 个私有及 9 个公共 Buff；统一 TS 完整定义增至 **4 名**。Buff SourceFinder、
+> 按 Context owner 查询能力实体、字符串黑板 child Buff、关键词增强和普通技能终结技能量均以公共
+> 协议闭合。生产回归证明开大后的结晶普攻真实增伤，全技能上轴门禁通过。当前严格主动审计为
+> **164/309**；Xaihi、Avywenna、Akekuri 主动全可编译，Yvonne **15/16**，唯一剩余项是终结技的
+> 能力实体生成形状。下一步优先闭合该 spawn 语义并从同一固定来源重建 Yvonne，不扩张与输出无关的
+> 表现或敌人主动行为。game-data 93 文件 / 701 项、Next 237 文件 / 3245 项、四套类型检查和 Xaihi
+> `--check` 通过；combat-spec 1439 项通过，既有 17 项仅因本机缺少未入库 artifacts。具体边界见
 > [当前交接](../handoff/current-context.md)。
 
 > 2026-08-27 当前：统一 TS 主动矩阵提升到 **88/309**，完整主动技能干员 **2 名**；秋栗

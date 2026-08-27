@@ -7,7 +7,21 @@
 装备的特有入口从公共编译流程中剥离。旧 Python 生成器在迁移完成前仅作为可执行对照，
 不能继续承载新功能。
 
-## 当前纵向迁移（2026-08-27）
+## 当前纵向迁移（2026-08-28）
+
+Xaihi 已从固定 1.4.4 来源完整生成：10 个技能、2 个天赋、5 档潜能、1 个能力实体、12 个私有
+Buff 与 9 个公共 Buff，并切入产品稳定导出；统一 TS 整名定义现为 4 名。其 Buff 来源链使用显式
+`buffSource` Context，owner-spawned 实体查询可通过 `ownerContextKey` 锁定已证明的单一干员实例，
+不会把 party holder、Buff Owner 与原始来源混为一谈。`TriggerComboSkillAction` 只在复刻库证明的
+Pending 形状及当前固定木桩无自动连携输入模型下窄省略；非空 assignItems、其他 owner/target 或
+needTrigger 形状继续阻塞。
+
+最新严格主动审计为 164/309；Xaihi、Avywenna、Akekuri 主动全可编译，Yvonne 为 15/16，唯一
+阻塞是终结技 `timelineActions[8]` 的能力实体 spawn 投影。下一阶段先恢复该真实形状并重建 Yvonne，
+继续以“会改变标准模拟输出”为优先级，不为表现或敌人主动行为扩张本体。game-data 701 项、Next
+3245 项及四套类型检查通过；Xaihi 完整生成 `--check` 通过。
+
+### 前一架构检查点（2026-08-27）
 
 架构及类型归属检查点已提交 `9d9fb195`；后续以第二名完整干员检验公共链路，不继续扩建中间层。
 主动矩阵现为 86/309，完整生成仍为艾维文娜 1 名。秋栗 7/9、埃特拉 6/9 主动可编译，

@@ -915,7 +915,10 @@ function validateCombatStep(
             requireString(sourceRecord, 'contextKey', sourcePath, out);
           } else if (sourceKind === 'target') {
             const target = requireString(sourceRecord, 'target', sourcePath, out);
-            if (target !== null && !['caster', 'enemy', 'eventTarget'].includes(target)) {
+            if (
+              target !== null &&
+              !['caster', 'enemy', 'eventTarget', 'buffSource'].includes(target)
+            ) {
               push(out, `${sourcePath}.target`, 'unknown target source');
             }
           } else if (sourceKind !== null) {
@@ -926,6 +929,9 @@ function validateCombatStep(
       break;
     case 'findOwnerSpawnedAbilityEntities': {
       requireString(parameters, 'saveToContextKey', `${path}.parameters`, out);
+      if (parameters.ownerContextKey !== undefined) {
+        requireString(parameters, 'ownerContextKey', `${path}.parameters`, out);
+      }
       if (parameters.saveCountToBlackboardKey !== undefined) {
         requireString(parameters, 'saveCountToBlackboardKey', `${path}.parameters`, out);
       }
@@ -1025,6 +1031,27 @@ function validateCombatStep(
               `${path}.parameters.blackboardAssignments.${key}`,
               out,
             );
+          }
+        }
+      }
+      if (parameters.stringBlackboardAssignments !== undefined) {
+        const assignments = asRecord(
+          parameters.stringBlackboardAssignments,
+          `${path}.parameters.stringBlackboardAssignments`,
+          out,
+        );
+        if (assignments !== null) {
+          for (const [key, value] of Object.entries(assignments)) {
+            if (key.trim().length === 0) {
+              push(out, `${path}.parameters.stringBlackboardAssignments`, 'contains an empty key');
+            }
+            if (typeof value !== 'string' || value.trim().length === 0) {
+              push(
+                out,
+                `${path}.parameters.stringBlackboardAssignments.${key}`,
+                'expected a non-empty string',
+              );
+            }
           }
         }
       }

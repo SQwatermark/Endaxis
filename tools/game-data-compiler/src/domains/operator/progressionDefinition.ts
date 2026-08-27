@@ -243,6 +243,15 @@ function compileModifier(
       );
       if (target) return [{ kind: 'addStaticDamageIncrease', target, value: modifier.value }];
     }
+    if (modifier.kind === 'staticHealingIncrease') {
+      return [
+        {
+          kind: 'addStaticHealingIncrease',
+          target: modifier.target,
+          value: modifier.value,
+        },
+      ];
+    }
     return fail(`projected ${modifier.kind} is not yet representable as an upgrade modifier`);
   }
   return fail('unsupported progression effect');

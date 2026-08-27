@@ -10,10 +10,13 @@ export function projectKeywordBuffAction(
   context: CombatActionProjectionContextSource,
 ): CompiledBuffStepSource {
   // combat-spec keyword-actions.md：这里只开放已有 Buff 环境的原始默认载体路径。
-  if (action.enhancements.length || action.overrideChildBuffId)
-    throw new Error(
-      `${path}: keyword enhancements or child overrides require additional projection`,
-    );
+  if (action.enhancements.length)
+    throw new Error(`${path}: keyword enhancements require additional projection`);
+  if (
+    action.overrideChildBuffId &&
+    (action.childBuffId.blackboardKey !== null || action.childBuffId.value.trim().length === 0)
+  )
+    throw new Error(`${path}: dynamic or empty keyword child override is not supported`);
   if (
     context.actionOwnerTarget !== 'buffOwner' ||
     context.actionTargetTarget !== 'buffOwner' ||
@@ -35,6 +38,9 @@ export function projectKeywordBuffAction(
       ...(action.asChildBuff ? { asChildBuff: true } : {}),
       ...(action.autoFinishByAction ? { finishByAction: true } : {}),
       blackboardAssignments: { duration: operand(action.duration), rate: operand(action.rate) },
+      ...(action.overrideChildBuffId
+        ? { stringBlackboardAssignments: { child_buff_id: action.childBuffId.value } }
+        : {}),
     },
   };
 }

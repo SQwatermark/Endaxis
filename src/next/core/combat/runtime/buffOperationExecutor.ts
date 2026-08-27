@@ -323,7 +323,11 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           : this.dependencies.delegate.execute(step, context);
       }
       const assignments = step.parameters.blackboardAssignments ?? {};
-      if (Object.keys(assignments).length > 0 && context === undefined) {
+      const stringAssignments = step.parameters.stringBlackboardAssignments ?? {};
+      if (
+        (Object.keys(assignments).length > 0 || Object.keys(stringAssignments).length > 0) &&
+        context === undefined
+      ) {
         throw new Error('applyBuff runtime values require a combat operation context');
       }
       if (step.parameters.count !== undefined && context === undefined) {
@@ -362,12 +366,13 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           ...(this.dependencies.sourceActionId === undefined
             ? {}
             : { sourceActionId: this.dependencies.sourceActionId }),
-          blackboardValues: Object.fromEntries(
-            Object.entries(assignments).map(([key, operand]) => [
-              key,
-              resolveActionValueOperand(operand, context!.blackboard),
-            ]),
-          ),
+          blackboardValues: Object.fromEntries([
+            ...Object.entries(assignments).map(
+              ([key, operand]) =>
+                [key, resolveActionValueOperand(operand, context!.blackboard)] as const,
+            ),
+            ...Object.entries(stringAssignments),
+          ]),
           ...(step.parameters.inheritSourceSkillCastInfo && inheritedSkillCastInfo !== undefined
             ? { skillCastInfo: inheritedSkillCastInfo }
             : {}),

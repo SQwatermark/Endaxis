@@ -14,6 +14,7 @@ import {
   isControlledOperatorInstantSearch,
   isOwnerSpawnedAbilityEntityInstantSearch,
   isStaticSingleEnemyTargetGroup,
+  requireActionOwnerProjection,
   actionValueOperand,
 } from './combatProjectionCommon.ts';
 import { compileActionNode } from './combatActionLeafProjection.ts';
@@ -103,14 +104,17 @@ export function compileBuffLeafNode(
       action.bornAt.validatorTypes.length === 0 &&
       action.bornAt.postProcessorTypes.length === 0;
     const bornAtControlledOperator =
-      action.bornAt.targetSource === 'Source' &&
+      action.bornAt.targetSource === 'InstantSearch' &&
       action.bornAt.finderType === 'CharacterTeamFinder' &&
       action.bornAt.validatorTypes.length === 1 &&
       action.bornAt.validatorTypes[0] === 'MainCharacterValidator' &&
       action.bornAt.postProcessorTypes.length === 0;
     const sourceIsCaster =
       action.sourceType === 'ActionSource' ||
-      (action.sourceType === 'ActionOwner' && context.actionOwnerTarget === 'caster');
+      (action.sourceType === 'ActionOwner' &&
+        (requireActionOwnerProjection(context, node.sourcePath) === 'caster' ||
+          (context.actionOwnerTarget === 'buffOwner' &&
+            context.fixedBuffOwnerTarget === 'caster')));
     if (
       !action.setSource ||
       !sourceIsCaster ||
@@ -449,8 +453,14 @@ export function compileBuffLeafNode(
       const distancePostProcessors = query.postProcessors.filter(
         postProcessor => postProcessor.kind === 'distanceFromOwner',
       );
+      const ownerContextKey =
+        query.owner.kind === 'contextTarget' &&
+        partyTargetGroups.get(query.owner.key) === 'buffSource'
+          ? query.owner.key
+          : undefined;
       if (
-        !['actionOwner', 'actionSource'].includes(query.owner.kind) ||
+        (!['actionOwner', 'actionSource'].includes(query.owner.kind) &&
+          ownerContextKey === undefined) ||
         query.validators.some(validator => validator.kind === 'distance') ||
         distancePostProcessors.length !== query.postProcessors.length ||
         distancePostProcessors.length > 1
@@ -466,10 +476,41 @@ export function compileBuffLeafNode(
             parameters: {
               saveToContextKey: write.targetGroupKey,
               abilityEntityIds: query.candidateTemplateIds,
+              ...(ownerContextKey === undefined ? {} : { ownerContextKey }),
               ...(maxTargets === undefined ? {} : { maxTargets }),
               ...(query.validators.some(validator => validator.kind === 'sameSkillCast')
                 ? { sameSourceSkillCast: true }
                 : {}),
+            },
+          },
+        ],
+        state: nextGroups,
+      };
+    }
+    if (
+      write.producerType === 'FindTargetAction' &&
+      write.finderType === 'SourceFinder' &&
+      write.validatorTypes.length === 0 &&
+      write.postProcessorTypes.length === 0 &&
+      write.priorityFilters.length === 0 &&
+      write.shuffleTargets.length === 0 &&
+      write.distanceValidators.length === 0 &&
+      write.finderSpawnedObjectType === null &&
+      write.validatorTagQueries.length === 0 &&
+      write.centerContextKey === '' &&
+      write.selectorOwnerContextKey === '' &&
+      (write.selectorOwner === 'ActionSource' || write.selectorOwner === 'ActionOwner') &&
+      context.actionSourceTarget === 'caster'
+    ) {
+      const nextGroups = new Map(partyTargetGroups);
+      nextGroups.set(write.targetGroupKey, 'buffSource');
+      return {
+        steps: [
+          {
+            kind: 'mergeContextTargets',
+            parameters: {
+              saveToContextKey: write.targetGroupKey,
+              sources: [{ kind: 'target', target: 'buffSource' }],
             },
           },
         ],

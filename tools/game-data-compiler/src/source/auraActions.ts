@@ -87,7 +87,7 @@ export function parseGlobalPartyAuraActionSource(
     throw new Error(
       `${path}.targetObjectType: unsupported value ${JSON.stringify(targetObjectType)}`,
     );
-  parseGlobalShape(action.shapeData, `${path}.shapeData`, target);
+  parseGlobalShape(action.shapeData, `${path}.shapeData`);
   requireExpected(action.excludeColliderOptions, 0, `${path}.excludeColliderOptions`);
   parseGlobalFilter(
     action.targetFilter,
@@ -118,7 +118,7 @@ export function parseGlobalPartyAuraActionSource(
   const buffs = parseAuraBuffInputs(action.buffInput, `${path}.buffInput`);
   return {
     kind: 'globalPartyAura',
-    debugName: requireNonEmptyString(action.auraDebugName, `${path}.auraDebugName`),
+    debugName: requireString(action.auraDebugName, `${path}.auraDebugName`),
     target,
     buffSource,
     inheritSourceSkillCastInfo,
@@ -207,7 +207,7 @@ function parseGlobalFilter(value: unknown, path: string, expectedFaction: string
   if (query.tagIds.length > 0) throw new Error(`${path}.tagQuery: expected an empty query`);
 }
 
-function parseGlobalShape(value: unknown, path: string, target: 'party' | 'enemy'): void {
+function parseGlobalShape(value: unknown, path: string): void {
   const shape = requireRecord(value, path);
   requireExactFields(
     shape,
@@ -231,7 +231,10 @@ function parseGlobalShape(value: unknown, path: string, target: 'party' | 'enemy
     ]),
     path,
   );
-  requireExpected(shape._shape, target === 'party' ? 'Box' : 'Sphere', `${path}._shape`);
+  const shapeType = requireString(shape._shape, `${path}._shape`);
+  if (shapeType !== 'Box' && shapeType !== 'Sphere') {
+    throw new Error(`${path}._shape: unsupported value ${JSON.stringify(shapeType)}`);
+  }
   parseZeroVector(shape._rotationOffset, `${path}._rotationOffset`);
   requireExpected(shape._useExtentKey, false, `${path}._useExtentKey`);
   parseZeroVector(shape._extent, `${path}._extent`);
@@ -242,7 +245,10 @@ function parseGlobalShape(value: unknown, path: string, target: 'party' | 'enemy
   for (const key of ['_centerXKey', '_centerYKey', '_centerZKey', '_heightKey', '_radiusKey'])
     requireExpected(shape[key], '', `${path}.${key}`);
   requireExpected(shape._height, 0, `${path}._height`);
-  requireExpected(shape._radius, target === 'party' ? 0 : 40, `${path}._radius`);
+  const radius = requireNumber(shape._radius, `${path}._radius`);
+  if ((shapeType === 'Box' && radius !== 0) || (shapeType === 'Sphere' && radius <= 0)) {
+    throw new Error(`${path}._radius: invalid ${shapeType} radius ${radius}`);
+  }
 }
 
 function parseZeroVector(value: unknown, path: string): void {

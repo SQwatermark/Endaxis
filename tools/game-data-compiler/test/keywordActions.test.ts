@@ -60,6 +60,48 @@ describe('原生关键词 Buff 来源与引用边界', () => {
     );
   });
 
+  it('EnhancedAction 使用已取证增幅载体并保留字面 child 覆盖', () => {
+    const action = {
+      ...rawAction,
+      $type: 'Beyond.Gameplay.Core.EnhancedAction+Data, Gameplay.Beyond',
+      subType: 'Crystal',
+      overrideChildBuffId: true,
+      childBuffId: {
+        useBlackboardKey: false,
+        value: 'buff_chr_0011_seraph_ultimate_effect',
+        blackboardKey: '',
+      },
+    };
+    expect(parseKnownNativeActionLeafSource(action, 'action', {})).toMatchObject({
+      family: 'keywordBuff',
+      action: {
+        keyword: 'Enhanced',
+        carrierBuffId: 'buff_common_affixes_enhance_crystal',
+      },
+    });
+    const changed = structuredClone(fixture[rootId]);
+    changed.buffEventAction[0]!.actions[0]!.actionData[0] = action;
+    expect(
+      compileBuffRuntimeDefinitionSource(parseBuffRuntimeSource(changed, 'buff')),
+    ).toMatchObject({
+      lifecycleSequences: {
+        enable: {
+          steps: [
+            {
+              kind: 'applyBuff',
+              parameters: {
+                buffId: 'buff_common_affixes_enhance_crystal',
+                stringBlackboardAssignments: {
+                  child_buff_id: 'buff_chr_0011_seraph_ultimate_effect',
+                },
+              },
+            },
+          ],
+        },
+      },
+    });
+  });
+
   it('覆盖关闭时不追踪残留 child 字段，开启后保留动态引用', () => {
     const changed = structuredClone(fixture[rootId]);
     const action = changed.buffEventAction[0]!.actions[0]!.actionData[0]!;
@@ -124,17 +166,31 @@ describe('原生关键词 Buff 来源与引用边界', () => {
     );
     expect(
       compileBuffRuntimeDefinitionSource(parseBuffRuntimeSource(fixture[rootId], 'buff')),
-    ).toMatchObject({ lifecycleSequences: { enable: { steps: [{
-      kind: 'applyBuff', parameters: { buffId: carrierId, target: 'buffOwner', asChildBuff: true },
-    }] } } });
+    ).toMatchObject({
+      lifecycleSequences: {
+        enable: {
+          steps: [
+            {
+              kind: 'applyBuff',
+              parameters: { buffId: carrierId, target: 'buffOwner', asChildBuff: true },
+            },
+          ],
+        },
+      },
+    });
   });
 
-  it.each([{ overrideChildBuffId: true }, { enhancingList: [
-    { buffIds: ['trigger'], operationType: 'Add', value: scalarFixture(1) },
-  ] }])('尚未闭合的覆盖或增强不会退化成普通施加', change => {
+  it.each([
+    {
+      overrideChildBuffId: true,
+      childBuffId: { useBlackboardKey: true, value: '', blackboardKey: 'child' },
+    },
+    { enhancingList: [{ buffIds: ['trigger'], operationType: 'Add', value: scalarFixture(1) }] },
+  ])('尚未闭合的动态覆盖或增强不会退化成普通施加', change => {
     const changed = structuredClone(fixture[rootId]);
     Object.assign(changed.buffEventAction[0]!.actions[0]!.actionData[0]!, change);
-    expect(() => compileBuffRuntimeDefinitionSource(parseBuffRuntimeSource(changed, 'buff')))
-      .toThrow(/enhancements or child overrides/);
+    expect(() =>
+      compileBuffRuntimeDefinitionSource(parseBuffRuntimeSource(changed, 'buff')),
+    ).toThrow(/keyword enhancements|dynamic or empty keyword child override/);
   });
 });

@@ -77,6 +77,7 @@ export function compileActionNode(
       'buffQuery',
       'buffFinish',
       'dispel',
+      'normalSkillUltimateEnergy',
       'blackboardMutation',
       'blackboardCalculation',
       'attributeSnapshot',
@@ -98,6 +99,7 @@ export function compileActionNode(
       'forcedElementalStatus',
       'spellBurstEvent',
       'levelEvent',
+      'aura',
     ].includes(node.body.value.family)
   )
     throw new Error(`${node.sourcePath}: unaudited single-enemy action ${node.body.value.family}`);
@@ -245,8 +247,13 @@ export function compileActionNode(
   if (node.body.value.family === 'buffFinish') {
     const action = node.body.value.action;
     const ownerIsPartyInstantSearch = isPartyInstantSearch(action.owner);
+    const ownerContextTarget =
+      action.owner.targetSource === 'Context' &&
+      action.owner.targetGroupKey !== '' &&
+      partyTargetGroups.get(action.owner.targetGroupKey);
     if (
       (!ownerIsPartyInstantSearch &&
+        ownerContextTarget === undefined &&
         ((action.owner.targetSource !== 'Owner' &&
           action.owner.targetSource !== 'Source' &&
           action.owner.targetSource !== 'Target') ||
@@ -261,15 +268,19 @@ export function compileActionNode(
     }
     const target = ownerIsPartyInstantSearch
       ? ('party' as const)
-      : action.owner.targetSource === 'Owner'
-        ? requireActionOwnerProjection(context, node.sourcePath)
-        : action.owner.targetSource === 'Source'
-          ? 'caster'
-          : context.actionTargetTarget === 'enemy'
-            ? 'enemy'
-            : (() => {
-                throw new Error(`${node.sourcePath}: Buff finish Target projection is unavailable`);
-              })();
+      : ownerContextTarget === 'buffSource'
+        ? ('buffSource' as const)
+        : action.owner.targetSource === 'Owner'
+          ? requireActionOwnerProjection(context, node.sourcePath)
+          : action.owner.targetSource === 'Source'
+            ? 'caster'
+            : context.actionTargetTarget === 'enemy'
+              ? 'enemy'
+              : (() => {
+                  throw new Error(
+                    `${node.sourcePath}: Buff finish Target projection is unavailable`,
+                  );
+                })();
     if (
       action.kind === 'buffFinishByQuery' &&
       action.settings.checkType === 'Tag' &&
@@ -341,6 +352,21 @@ export function compileActionNode(
       return [];
     }
     throw new Error(`${node.sourcePath}: unsupported DispelAction projection`);
+  }
+  if (node.body.value.family === 'normalSkillUltimateEnergy') {
+    const action = node.body.value.action;
+    if (
+      action.source.targetSource !== 'Source' ||
+      action.source.targetGroupKey !== '' ||
+      typeof action.coefficient.levelValues !== 'number'
+    )
+      throw new Error(`${node.sourcePath}: unsupported ObtainUspInNormalSkill projection`);
+    return [
+      {
+        kind: 'gainSquadUltimateEnergyFromSkillCost',
+        parameters: { coefficient: action.coefficient.levelValues },
+      },
+    ];
   }
   if (node.body.value.family === 'damage') {
     if (
@@ -476,7 +502,13 @@ export function compileActionNode(
     if (
       action.healType !== 'Normal' ||
       action.healer !== 'ActionSource' ||
-      action.contextKey !== '' ||
+      (action.contextKey !== '' &&
+        partyTargetGroups.get(action.contextKey) !== 'buffSource' &&
+        !(
+          action.contextKey === 'seraph' &&
+          action.target.targetSource === 'Owner' &&
+          context.fixedBuffOwnerTarget === 'caster'
+        )) ||
       target === null ||
       (action.calculation.kind === 'definite' && action.calculation.applyScale) ||
       (action.calculation.kind !== 'definite' &&
@@ -674,6 +706,10 @@ export function compileActionNode(
   if (node.body.value.family === 'attributeSnapshot') {
     const action = node.body.value.action;
     const supportedSpecificAttributes = new Set([
+      'Str',
+      'Agi',
+      'Wisd',
+      'Will',
       'MaxHp',
       'FireAbnormalDamageIncrease',
       'PulseAbnormalDamageIncrease',
@@ -884,9 +920,79 @@ export function compileActionNode(
   if (node.body.value.family === 'selfDefense') return [];
   // 现实时间轴直接给出施法操作，不经过客户端输入缓存窗口。
   if (node.body.value.family === 'inputControl') return [];
+  if (node.body.value.family === 'comboPending') {
+    const action = node.body.value.action;
+    if (
+      action.needTrigger ||
+      action.assignmentCount !== 0 ||
+      !isPlainTargetReference(action.owner, 'Context', 'seraph') ||
+      !isMainEnemySearch(action.target) ||
+      !isPlainTargetReference(action.trigger, 'Target', '')
+    ) {
+      throw new Error(`${node.sourcePath}: unsupported combo Pending projection`);
+    }
+    // combat-spec：该动作仅向 BattleManager 提交连携候选；现实时间轴由玩家显式放置连携。
+    return [];
+  }
   // 技能内施法限制由现实时间轴的技能占用区间覆盖；原生载荷仍在来源层严格解析。
   if (node.body.value.family === 'castingControl') return [];
   throw new Error(`${node.sourcePath}: unsupported Buff runtime action`);
+}
+
+function isPlainTargetReference(
+  target: TargetReferenceSource,
+  targetSource: string,
+  targetGroupKey: string,
+): boolean {
+  return (
+    target.targetSource === targetSource &&
+    target.targetGroupKey === targetGroupKey &&
+    target.selectorOwner === 'ActionOwner' &&
+    target.ownerContextKey === '' &&
+    target.centerType === 'ActionSource' &&
+    target.centerContextKey === '' &&
+    !target.centerToGround &&
+    target.target === 'ActionSource' &&
+    target.targetContextKey === '' &&
+    !target.enableAdvancedDirection &&
+    target.selectorDirection === 'SourceForward' &&
+    target.finderType === null &&
+    target.finderShape === null &&
+    target.finderOwnerPartsQuery === null &&
+    target.validatorTypes.length === 0 &&
+    target.postProcessorTypes.length === 0 &&
+    target.priorityFilters.length === 0 &&
+    target.shuffleTargets.length === 0 &&
+    target.distanceValidators.length === 0 &&
+    target.finderSpawnedObjectType === null &&
+    target.validatorTagQueries.length === 0
+  );
+}
+
+function isMainEnemySearch(target: TargetReferenceSource): boolean {
+  return (
+    target.targetSource === 'InstantSearch' &&
+    target.targetGroupKey === '' &&
+    target.selectorOwner === 'ActionOwner' &&
+    target.ownerContextKey === '' &&
+    target.centerType === 'ActionSource' &&
+    target.centerContextKey === '' &&
+    !target.centerToGround &&
+    target.target === 'ActionSource' &&
+    target.targetContextKey === '' &&
+    !target.enableAdvancedDirection &&
+    target.selectorDirection === 'SourceForward' &&
+    target.finderType === 'MainTargetFinder' &&
+    target.finderShape === null &&
+    target.finderOwnerPartsQuery === null &&
+    target.validatorTypes.length === 0 &&
+    target.postProcessorTypes.length === 0 &&
+    target.priorityFilters.length === 0 &&
+    target.shuffleTargets.length === 0 &&
+    target.distanceValidators.length === 0 &&
+    target.finderSpawnedObjectType === null &&
+    target.validatorTagQueries.length === 0
+  );
 }
 
 function isProvenSpatialMeasurementEndpoint(
@@ -1020,9 +1126,13 @@ function compileBuffApplication(
             context.actionTargetTarget === 'enemy' &&
             action.contextKey === 'smart_target'
           ? 'enemy'
-          : action.buffSource === 'InputTarget' && context.actionTargetTarget === 'enemy'
-            ? 'enemy'
-            : null;
+          : action.buffSource === 'ContextTarget' &&
+              action.contextKey !== '' &&
+              partyTargetGroups.get(action.contextKey) === 'buffSource'
+            ? 'buffSource'
+            : action.buffSource === 'InputTarget' && context.actionTargetTarget === 'enemy'
+              ? 'enemy'
+              : null;
   if (target === null || source === null)
     throw new Error(`${sourcePath}: unsupported Buff target/source`);
   const steps = action.buffs.flatMap((entry, index) => {

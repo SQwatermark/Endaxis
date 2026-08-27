@@ -26,10 +26,22 @@ const VULNERABLE_CARRIERS = {
   Pulse: 'buff_common_affixes_vulnerable_pulse',
 } as const;
 
+const ENHANCED_CARRIERS = {
+  All: 'buff_common_affixes_enhance_all',
+  Spell: 'buff_common_affixes_enhance_spell',
+  Physical: 'buff_common_affixes_enhance_physical',
+  Natural: 'buff_common_affixes_enhance_natural',
+  Fire: 'buff_common_affixes_enhance_fire',
+  Crystal: 'buff_common_affixes_enhance_crystal',
+  Pulse: 'buff_common_affixes_enhance_pulse',
+} as const;
+
+type KeywordSubType = keyof typeof VULNERABLE_CARRIERS;
+
 export interface KeywordBuffActionSource {
   readonly kind: 'keywordBuff';
-  readonly keyword: 'Vulnerable';
-  readonly subType: keyof typeof VULNERABLE_CARRIERS;
+  readonly keyword: 'Vulnerable' | 'Enhanced';
+  readonly subType: KeywordSubType;
   readonly carrierBuffId: string;
   readonly source: TargetReferenceSource;
   readonly target: TargetReferenceSource;
@@ -51,6 +63,36 @@ export function parseVulnerableActionSource(
   value: unknown,
   path: string,
   inheritedBlackboard: BlackboardLevelValues,
+): KeywordBuffActionSource {
+  return parseKeywordBuffActionSource(
+    value,
+    path,
+    inheritedBlackboard,
+    'Vulnerable',
+    VULNERABLE_CARRIERS,
+  );
+}
+
+export function parseEnhancedActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): KeywordBuffActionSource {
+  return parseKeywordBuffActionSource(
+    value,
+    path,
+    inheritedBlackboard,
+    'Enhanced',
+    ENHANCED_CARRIERS,
+  );
+}
+
+function parseKeywordBuffActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+  keyword: KeywordBuffActionSource['keyword'],
+  carriers: Readonly<Record<KeywordSubType, string>>,
 ): KeywordBuffActionSource {
   const action = requireRecord(value, path);
   requireExactFields(
@@ -77,12 +119,12 @@ export function parseVulnerableActionSource(
   const subType = requireNonEmptyString(action.subType, `${path}.subType`);
   if (!Object.hasOwn(VULNERABLE_CARRIERS, subType))
     throw new Error(`${path}.subType: unsupported keyword subtype ${JSON.stringify(subType)}`);
-  const typedSubType = subType as KeywordBuffActionSource['subType'];
+  const typedSubType = subType as KeywordSubType;
   return {
     kind: 'keywordBuff',
-    keyword: 'Vulnerable',
+    keyword,
     subType: typedSubType,
-    carrierBuffId: VULNERABLE_CARRIERS[typedSubType],
+    carrierBuffId: carriers[typedSubType],
     source: parseTargetReferenceSource(action.source, `${path}.source`),
     target: parseTargetReferenceSource(action.target, `${path}.target`),
     duration: parseScalarSource(action.duration, `${path}.duration`, inheritedBlackboard),

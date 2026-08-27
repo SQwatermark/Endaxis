@@ -240,6 +240,40 @@ describe('公共 Action 叶子分派', () => {
     ).toThrow('fixture.unknown.$type: unsupported native action "UnknownCombatAction"');
   });
 
+  it('TriggerComboSkillAction 严格保留 Pending 目标并拒绝会传给连携施法的黑板', () => {
+    const action = {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.TriggerComboSkillAction+Data, Gameplay.Beyond',
+      owner: targetFixture('Context', undefined, 'seraph'),
+      target: targetFixture('InstantSearch', {
+        finderData: { $type: 'Example.Selector+MainTargetFinder+Data, Example' },
+        validatorData: [],
+        postProcessorData: [],
+      }),
+      needTrigger: false,
+      trigger: targetFixture('Target'),
+      assignItems: [],
+    };
+    expect(parseKnownNativeActionLeafSource(action, 'fixture.comboPending', {})).toMatchObject({
+      family: 'comboPending',
+      action: {
+        kind: 'comboPending',
+        needTrigger: false,
+        assignmentCount: 0,
+        owner: { targetSource: 'Context', targetGroupKey: 'seraph' },
+        target: { targetSource: 'InstantSearch', finderType: 'MainTargetFinder' },
+        trigger: { targetSource: 'Target' },
+      },
+    });
+    expect(() =>
+      parseKnownNativeActionLeafSource(
+        { ...action, assignItems: [{}] },
+        'fixture.comboPending',
+        {},
+      ),
+    ).toThrow('combo Pending blackboard assignments are unsupported');
+  });
+
   it('CustomRootMotionAction 严格保留目标、动画与移动区间载荷', () => {
     const source = {
       ...META,

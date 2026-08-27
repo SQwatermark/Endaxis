@@ -204,6 +204,18 @@ function propagateBuffOwnerTargets(
             : [],
         ),
       );
+      const abilityEntityTargetGroupKeys = new Set(
+        nodes.flatMap(node =>
+          node.metadata.enabled &&
+          node.body.kind === 'leaf' &&
+          node.body.value.family === 'targetGroup' &&
+          node.body.value.action.producerType === 'FindTargetAction' &&
+          node.body.value.action.finderType === 'OwnerSpawnedEntityFinder' &&
+          node.body.value.action.finderSpawnedObjectType === 'AbilityEntity'
+            ? [node.body.value.action.targetGroupKey]
+            : [],
+        ),
+      );
       for (const node of nodes) {
         if (
           node.metadata.enabled &&
@@ -241,7 +253,10 @@ function propagateBuffOwnerTargets(
                     action.target.targetSource === 'Target') &&
                   staticEnemyTargetGroupKeys.has(action.target.targetGroupKey)
                 ? 'enemy'
-                : undefined;
+                : action.target.targetSource === 'Context' &&
+                    abilityEntityTargetGroupKeys.has(action.target.targetGroupKey)
+                  ? 'currentAbilityEntity'
+                  : undefined;
         if (childOwner === undefined) continue;
         for (const entry of action.buffs) {
           if (entry.readIdFromBlackboard || entry.buffId === '') continue;

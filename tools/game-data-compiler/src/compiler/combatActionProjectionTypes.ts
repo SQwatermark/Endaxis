@@ -57,7 +57,9 @@ export type CompiledBuffConditionSource =
       | 'enemySuperArmorCompare'
       | 'probability'
     >
-  | (Condition<'healthCompare'> & { readonly target: 'controlledOperator' | 'enemy' })
+  | (Condition<'healthCompare'> & {
+      readonly target: 'caster' | 'controlledOperator' | 'enemy';
+    })
   | (Condition<'eventDamageTagsMatch'> & {
       readonly match: 'hasAny' | 'hasAll';
       readonly tags: readonly (
@@ -222,7 +224,9 @@ export type CompiledBuffStepSource =
       Pick<Parameters<'mergeContextTargets'>, 'saveToContextKey'> & {
         readonly sources: readonly (
           | Extract<ContextTargetSource, { kind: 'context' }>
-          | (Extract<ContextTargetSource, { kind: 'target' }> & { readonly target: 'eventTarget' })
+          | (Extract<ContextTargetSource, { kind: 'target' }> & {
+              readonly target: 'eventTarget' | 'buffSource';
+            })
         )[];
       }
     >
@@ -289,7 +293,8 @@ export type CompiledBuffStepSource =
   | Step<
       'finishBuffsById',
       Parameters<'finishBuffsById'> & {
-        readonly target: 'buffOwner' | 'caster' | 'enemy' | 'currentAbilityEntity' | 'party';
+        readonly target:
+          'buffOwner' | 'buffSource' | 'caster' | 'enemy' | 'currentAbilityEntity' | 'party';
         readonly reason: 'early' | 'other';
       }
     >

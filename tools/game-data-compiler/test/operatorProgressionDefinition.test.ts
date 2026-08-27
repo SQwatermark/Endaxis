@@ -135,6 +135,43 @@ describe('干员养成正式定义组装', () => {
     });
   });
 
+  it('将原生治疗输出基础加算投影为构筑期治疗修正', () => {
+    const source = progression();
+    const effectId = source.potential.unlocks[0]!.effectId;
+    const modified = {
+      ...source,
+      compiledEffectBundles: source.compiledEffectBundles.map(bundle =>
+        bundle.effectId === effectId
+          ? {
+              ...bundle,
+              entries: [
+                {
+                  kind: 'attributeModifier' as const,
+                  sourcePath: `${bundle.sourcePath}.dataList[0]`,
+                  activeCondition: null,
+                  modifier: {
+                    sourcePath: `${bundle.sourcePath}.dataList[0].attrModifier`,
+                    target: 'specific' as const,
+                    declaredAttributeType: 'HealOutputIncrease' as const,
+                    slot: 'baseAddition' as const,
+                    value: 0.1,
+                  },
+                },
+              ],
+            }
+          : bundle,
+      ),
+    };
+
+    expect(
+      compileOperatorPotentialDefinition(modified, { key: 'potential1', level: 1 }, context),
+    ).toEqual({
+      key: 'potential1',
+      levels: 1,
+      modifiers: [{ kind: 'addStaticHealingIncrease', target: 'output', value: 0.1 }],
+    });
+  });
+
   it.each([0, 1, 2])('天赋等级 %s 经正式构筑只产生零个或一个初始化程序', level => {
     const definition = compileOperatorTalentDefinition(
       progression(),

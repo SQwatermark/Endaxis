@@ -105,7 +105,15 @@ import {
 } from './presentationActions.ts';
 import { parseInterruptActionSource, type InterruptActionSource } from './interruptAction.ts';
 import { parseDispelActionSource, type DispelActionSource } from './dispelActions.ts';
-import { parseVulnerableActionSource, type KeywordBuffActionSource } from './keywordActions.ts';
+import {
+  parseNormalSkillUltimateEnergyActionSource,
+  type NormalSkillUltimateEnergyActionSource,
+} from './normalSkillUltimateEnergy.ts';
+import {
+  parseEnhancedActionSource,
+  parseVulnerableActionSource,
+  type KeywordBuffActionSource,
+} from './keywordActions.ts';
 import {
   parseEnemyHurtAnimationActionSource,
   parseBlowOffEnemyActionSource,
@@ -154,6 +162,10 @@ import {
   type AllowNextSkillActionSource,
   type ComboCacheActionSource,
 } from './inputControlActions.ts';
+import {
+  parseComboPendingActionSource,
+  type ComboPendingActionSource,
+} from './comboPendingActions.ts';
 import {
   parseSetSuperArmorActionSource,
   type SetSuperArmorActionSource,
@@ -238,6 +250,8 @@ const CONDITION_ACTION_NAMES = new Set([
 /** 引用闭包需要严格读取的动作身份；集合与分派实现同属公共来源层，调用方不再复制 switch。 */
 const REFERENCE_CLOSURE_ACTION_NAMES = new Set([
   'VulnerableAction',
+  'EnhancedAction',
+  'ObtainUspInNormalSkill',
   'CreateBuffAction',
   'CreateBuffAttachingSkill',
   'InheritBuffAction',
@@ -287,6 +301,7 @@ export type KnownNativeActionLeafSource =
       readonly family: 'inputControl';
       readonly action: ComboCacheActionSource | AllowNextSkillActionSource;
     }
+  | { readonly family: 'comboPending'; readonly action: ComboPendingActionSource }
   | { readonly family: 'castingControl'; readonly action: ChannelingCastingActionSource }
   | { readonly family: 'globalBuff'; readonly action: GlobalBuffActionSource }
   | { readonly family: 'skillSetting'; readonly action: SkillSettingReadActionSource }
@@ -303,6 +318,10 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'skillAffix'; readonly action: { readonly kind: 'skillAffix' } }
   | { readonly family: 'buffFinish'; readonly action: BuffFinishActionSource }
   | { readonly family: 'dispel'; readonly action: DispelActionSource }
+  | {
+      readonly family: 'normalSkillUltimateEnergy';
+      readonly action: NormalSkillUltimateEnergyActionSource;
+    }
   | { readonly family: 'buffQuery'; readonly action: BuffStackReadActionSource }
   | { readonly family: 'buffBlackboardRead'; readonly action: BuffBlackboardReadActionSource }
   | { readonly family: 'buffLifeTimeRead'; readonly action: BuffLifeTimeReadActionSource }
@@ -395,10 +414,20 @@ export function tryParseKnownNativeActionLeafSource(
     };
   }
   switch (name) {
+    case 'TriggerComboSkillAction':
+      return {
+        family: 'comboPending',
+        action: parseComboPendingActionSource(value, path),
+      };
     case 'VulnerableAction':
       return {
         family: 'keywordBuff',
         action: parseVulnerableActionSource(value, path, inheritedBlackboard),
+      };
+    case 'EnhancedAction':
+      return {
+        family: 'keywordBuff',
+        action: parseEnhancedActionSource(value, path, inheritedBlackboard),
       };
     case 'PlayAnimationAction':
       return {
@@ -737,6 +766,11 @@ export function tryParseKnownNativeActionLeafSource(
       };
     case 'DispelAction':
       return { family: 'dispel', action: parseDispelActionSource(value, path) };
+    case 'ObtainUspInNormalSkill':
+      return {
+        family: 'normalSkillUltimateEnergy',
+        action: parseNormalSkillUltimateEnergyActionSource(value, path, inheritedBlackboard),
+      };
     case 'SaveBuffStackNumAdvanced':
       return {
         family: 'buffQuery',

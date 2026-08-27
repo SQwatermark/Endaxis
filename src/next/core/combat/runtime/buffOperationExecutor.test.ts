@@ -792,6 +792,9 @@ describe('BuffOperationExecutor', () => {
               duration: { kind: 'constant', value: 25 },
               comboRate: { kind: 'blackboard', key: 'rate' },
             },
+            stringBlackboardAssignments: {
+              child_buff_id: 'buff:icon',
+            },
           },
         },
         { blackboard },
@@ -801,7 +804,7 @@ describe('BuffOperationExecutor', () => {
       {
         buffId: 'ultimate-base',
         sourceId: 'operator',
-        blackboardValues: { duration: 25, comboRate: 4 },
+        blackboardValues: { duration: 25, comboRate: 4, child_buff_id: 'buff:icon' },
       },
     ]);
 

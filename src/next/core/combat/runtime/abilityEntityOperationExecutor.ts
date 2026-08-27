@@ -49,8 +49,15 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       if (context?.targetContext === undefined) {
         throw new Error('AbilityEntity query requires a combat target context');
       }
+      const ownerId =
+        step.parameters.ownerContextKey === undefined
+          ? this.#operatorId
+          : this.#requireSingleOperatorTarget(
+              context.targetContext.get(step.parameters.ownerContextKey),
+              step.parameters.ownerContextKey,
+            );
       let targets = this.#entities.findOwnerSpawned({
-        ownerId: this.#operatorId,
+        ownerId,
         ...(step.parameters.abilityEntityIds === undefined
           ? {}
           : { abilityEntityIds: step.parameters.abilityEntityIds }),
@@ -242,6 +249,15 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       context.targetContext.setSingle(parameters.saveToContextKey, entity);
     }
     return true;
+  }
+
+  #requireSingleOperatorTarget(targets: readonly RuntimeTargetRef[], contextKey: string): string {
+    if (targets.length !== 1 || targets[0]?.kind !== 'operator') {
+      throw new Error(
+        `AbilityEntity query owner Context '${contextKey}' requires exactly one operator`,
+      );
+    }
+    return targets[0].operatorId;
   }
 
   end(step: RuntimeOperation, context?: CombatOperationContext): void {

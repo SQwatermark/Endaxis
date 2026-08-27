@@ -234,7 +234,7 @@ it('契约派生仍保留条件种类、目标和递归子树的支持边界', (
   }>().not.toExtend<CompiledBuffConditionSource>();
   expectTypeOf<
     Extract<CompiledBuffConditionSource, { kind: 'healthCompare' }>['target']
-  >().toEqualTypeOf<'controlledOperator' | 'enemy'>();
+  >().toEqualTypeOf<'caster' | 'controlledOperator' | 'enemy'>();
   expectTypeOf<
     Extract<
       keyof Extract<CompiledBuffConditionSource, { kind: 'buffStackCompare' }>,

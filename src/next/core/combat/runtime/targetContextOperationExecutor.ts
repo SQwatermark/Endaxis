@@ -7,6 +7,7 @@ export class TargetContextOperationExecutor implements CombatOperationExecutor {
   constructor(
     readonly operatorId: string,
     readonly delegate: CombatOperationExecutor,
+    readonly resolveAbilitySystemSourceId: (id: string) => string = id => id,
   ) {}
 
   execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean {
@@ -66,11 +67,18 @@ export class TargetContextOperationExecutor implements CombatOperationExecutor {
   }
 
   #resolveTarget(
-    target: 'caster' | 'enemy' | 'eventTarget',
+    target: 'caster' | 'enemy' | 'eventTarget' | 'buffSource',
     context: CombatOperationContext,
   ): RuntimeTargetRef {
     if (target === 'caster') return { kind: 'operator', operatorId: this.operatorId };
     if (target === 'enemy') return { kind: 'enemy' };
+    if (target === 'buffSource') {
+      if (context.buffSourceId === undefined) {
+        throw new Error('buffSource requires a Buff lifecycle context');
+      }
+      const sourceId = this.resolveAbilitySystemSourceId(context.buffSourceId);
+      return sourceId === 'enemy' ? { kind: 'enemy' } : { kind: 'operator', operatorId: sourceId };
+    }
     const targetId = eventTargetId(context);
     return targetId === 'enemy' ? { kind: 'enemy' } : { kind: 'operator', operatorId: targetId };
   }

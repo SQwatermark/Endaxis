@@ -63,6 +63,36 @@ function blowOff(deadOption: string) {
 }
 
 describe('施法输入限制与木桩物理控制投影', () => {
+  it('普通战技公共 Buff 按已解析 ratio 恢复全队终结技回能', () => {
+    const action = parseKnownNativeActionLeafSource(
+      {
+        ...META,
+        $type: 'Beyond.Gameplay.Core.ObtainUspInNormalSkill+Data, Gameplay.Beyond',
+        source: targetFixture('Source'),
+        coefficient: { useBlackboardKey: true, value: 1, blackboardKey: 'ratio' },
+      },
+      'fixture.action',
+      { ratio: 1 },
+    );
+    expect(compileBuffLeafNode(node(action), new Set(), new Map(), ACTIVE_SKILL_CONTEXT)).toEqual({
+      steps: [{ kind: 'gainSquadUltimateEnergyFromSkillCost', parameters: { coefficient: 1 } }],
+      state: new Map(),
+    });
+    const unresolved = parseKnownNativeActionLeafSource(
+      {
+        ...META,
+        $type: 'Beyond.Gameplay.Core.ObtainUspInNormalSkill+Data, Gameplay.Beyond',
+        source: targetFixture('Source'),
+        coefficient: { useBlackboardKey: true, value: 1, blackboardKey: 'runtime_ratio' },
+      },
+      'fixture.unresolved',
+      {},
+    );
+    expect(() =>
+      compileBuffLeafNode(node(unresolved), new Set(), new Map(), ACTIVE_SKILL_CONTEXT),
+    ).toThrow('unsupported ObtainUspInNormalSkill projection');
+  });
+
   it('全队寒冷附着/冻结驱散在无敌方主动行为模型中省略', () => {
     const raw = {
       ...META,

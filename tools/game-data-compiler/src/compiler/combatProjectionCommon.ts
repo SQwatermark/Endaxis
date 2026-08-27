@@ -16,6 +16,7 @@ export type ProjectedTargetGroup =
   | 'party'
   | 'partyExceptCaster'
   | 'abilityEntity'
+  | 'buffSource'
   | 'controlledOperator'
   | 'enemy'
   | 'empty'

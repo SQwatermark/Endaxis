@@ -7,7 +7,36 @@
 `refactor/operator-completion` 的完整干员成果。唯一新转换入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
-### 2026-08-28：Xaihi 主动技能 10/10 与驱散证据闭环（当前检查点）
+### 2026-08-28：Xaihi 统一 TS 整名定义完成（最新检查点）
+
+- Xaihi 已由统一 TypeScript 入口完整生成并切入稳定导出：10 个技能、2 个天赋、5 档潜能、
+  1 个能力实体、12 个私有 Buff 和 9 个公共 Buff；`--complete --check` 可从固定 1.4.4 来源逐字重建。
+  默认仓库的全技能上轴门禁通过，终结技后结晶普攻伤害高于未开大基线，证明关键词增强进入实际
+  伤害链而不只是定义可加载。统一 TS 整名产物现为 **4 名**。
+- 为闭合真实 Buff/实体来源链，正式协议新增两个窄能力：`buffSource` 可作为 Context 目标来源；
+  `findOwnerSpawnedAbilityEntities.ownerContextKey` 可从已证明只含一个干员的 Context 解析查询 owner。
+  运行时沿 AbilitySystem source 链回溯 Buff 来源，能力实体查询仍只遍历该 owner 的实例，不能退化为
+  全队或模板目录查询。operator 根 Buff 的静态 owner 证明与运行时每个队员的真实实例 owner 分开保存。
+- `SourceFinder` 只在无 validator/post-processor、空 Context 键、ActionSource/ActionOwner selector
+  owner 且当前 Buff 来源已证明为施术者时投影为 `buffSource`。Xaihi 治疗 Buff 的 `seraph` 来源沿
+  `SourceFinder -> CreateBuff(ContextTarget source) -> Heal(ActionSource)` 保留；治疗目标仍是实际 Buff
+  Owner，没有把来源误当目标。
+- combat-spec 已严格接入 `EnhancedAction` 的公共关键词载体映射；Xaihi 的结晶/自然增强分别写入
+  独立增幅区。`TriggerComboSkillAction` 也已从 1.4.4 方法体闭环：它最终调用
+  `BattleManager.PendingComboSkill`，不直接伤害、不改 Buff 层数、不换当前连携槽，也不直接施法。
+  Endaxis 仅对 Xaihi 的 SourceFinder owner、MainTarget、`needTrigger=false`、空 assignItems 完整形状
+  做固定木桩下的审计省略；其他形状继续失败关闭。证据见
+  `combat-spec/docs/trigger-combo-skill-action.md`。
+- 当前主动迁移审计为 **164/309**，主动 10/10 的干员为 Xaihi、Avywenna、Akekuri；Yvonne 为
+  **15/16**，唯一阻塞是终结技 `timelineActions[8]` 的能力实体生成投影。这一矩阵只统计统一 TS
+  主动入口，不能与旧 Python 已正式化的产品干员数混用。下一阶段优先闭合 Yvonne 终结技的真实
+  spawn 形状并重建整名定义，而不是继续扩张与输出无关的动作。
+- 验证：game-data **93 文件 / 701 项**，Next **237 文件 / 3245 项**，四套 TypeScript 类型检查及
+  Xaihi 完整生成 `--check` 全部通过。combat-spec 新增关键词定向 **6/6**；全量 **1439 项通过**，
+  另有本机缺少未入库 `artifacts/skill-data-cdn` 等工件造成的既有 **17 项**失败。`tmp/` 审计产物
+  未进入 Git。
+
+### 2026-08-28：Xaihi 主动技能 10/10 与驱散证据闭环（前序检查点）
 
 - 1.4.4 的 `DispelAction.Data` 字段布局以及 `AbilitySystem.DispelBuff` /
   `BuffContainer.DispelBuff` 方法体已经在 combat-spec 闭环。容器按 Buff 插入顺序跳过已结束项，检查

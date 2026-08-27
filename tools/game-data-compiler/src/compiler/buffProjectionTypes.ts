@@ -139,6 +139,7 @@ export type CompiledBuffDefinitionSource = Pick<
         | 'beforeAddedBuff'
         | 'beforeOutputPhysicalInfliction'
         | 'afterOutputPhysicalInfliction'
+        | 'outputDamage'
         | 'beforeOutputInfliction'
         | 'beforeOutputSpellBurst'
         | 'outputCriticalDamage'

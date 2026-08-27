@@ -68,6 +68,42 @@ describe('AbilityEntityOperationExecutor', () => {
     expect(targetContext.get('robots')).toEqual([first]);
   });
 
+  it('uses a proven Context operator as the owner of an entity query', () => {
+    const entities = new LogicalAbilityEntityRuntime({});
+    const xaihiBall = entities.spawn({
+      abilityEntityId: 'healing-ball',
+      definition: { lifetime: { kind: 'limited', durationSeconds: 10 } },
+      ownerId: 'xaihi',
+      source: { kind: 'operator', operatorId: 'xaihi' },
+    });
+    entities.spawn({
+      abilityEntityId: 'healing-ball',
+      definition: { lifetime: { kind: 'limited', durationSeconds: 10 } },
+      ownerId: 'party-member',
+      source: { kind: 'operator', operatorId: 'party-member' },
+    });
+    const executor = new AbilityEntityOperationExecutor('party-member', entities, {
+      execute: () => false,
+      evaluate: () => false,
+    });
+    const targetContext = new RuntimeTargetContext();
+    targetContext.setSingle('seraph', { kind: 'operator', operatorId: 'xaihi' });
+
+    executor.execute(
+      {
+        kind: 'findOwnerSpawnedAbilityEntities',
+        parameters: {
+          saveToContextKey: 'ball',
+          ownerContextKey: 'seraph',
+          abilityEntityIds: ['healing-ball'],
+        },
+      },
+      { blackboard: new ActionBlackboard(), targetContext },
+    );
+
+    expect(targetContext.get('ball')).toEqual([xaihiBall]);
+  });
+
   it('releases the oldest same-template entity when the native stacking group is full', () => {
     const finished: string[] = [];
     const entities = new LogicalAbilityEntityRuntime({

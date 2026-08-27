@@ -131,7 +131,10 @@ export interface CombatStepParameters {
   mergeContextTargets: {
     saveToContextKey: string;
     sources: readonly (
-      | { readonly kind: 'target'; readonly target: 'caster' | 'enemy' | 'eventTarget' }
+      | {
+          readonly kind: 'target';
+          readonly target: 'caster' | 'enemy' | 'eventTarget' | 'buffSource';
+        }
       | { readonly kind: 'context'; readonly contextKey: string }
     )[];
   };
@@ -139,6 +142,8 @@ export interface CombatStepParameters {
   findOwnerSpawnedAbilityEntities: {
     saveToContextKey: string;
     abilityEntityIds?: readonly string[];
+    /** 省略时使用当前动作施法者；存在时从已写入 Context 的单个干员解析 owner。 */
+    ownerContextKey?: string;
     /** 原生查询后处理保留的目标数量；零空间模型会消去距离排序，但不能消去截断。 */
     maxTargets?: number;
     /** 使用当前技能或 Buff 继承的施法序号执行 SkillCastIdValidator。 */
@@ -280,6 +285,8 @@ export interface CombatStepParameters {
     source?: BuffApplicationSource;
     /** 在施加时从当前技能动作黑板求值，并覆盖 Buff 定义黑板的同名默认值。 */
     blackboardAssignments?: Readonly<Record<string, ActionValueOperand>>;
+    /** 原生字符串输入的字面覆盖；与数值赋值分开，避免把字符串伪装成计算操作数。 */
+    stringBlackboardAssignments?: Readonly<Record<string, string>>;
     /** 原生动作要求把当前施法身份复制到新 Buff 时为 true。 */
     inheritSourceSkillCastInfo?: boolean;
     /** 原生区域/动作生命周期结束时，只结束本步骤实际创建的 Buff 实例。 */

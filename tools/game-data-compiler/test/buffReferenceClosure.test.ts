@@ -49,4 +49,15 @@ describe('有证据的关键词默认 child 依赖闭包', () => {
     override[root].buffEventAction[0]!.actions[0]!.actionData[0]!.overrideChildBuffId = true;
     expect(() => collectBuffRuntimeClosure([root], override)).toThrow(/dynamic Buff references/);
   });
+
+  it('字面 child 覆盖形成显式依赖，动态覆盖仍失败关闭', () => {
+    const override = structuredClone(input);
+    const action = override[root].buffEventAction[0]!.actions[0]!.actionData[0]!;
+    action.overrideChildBuffId = true;
+    action.childBuffId = { useBlackboardKey: false, value: child, blackboardKey: '' };
+    expect([...collectBuffRuntimeClosure([root], override).keys()]).toContain(child);
+
+    action.childBuffId = { useBlackboardKey: true, value: child, blackboardKey: 'child' };
+    expect(() => collectBuffRuntimeClosure([root], override)).toThrow(/dynamic Buff references/);
+  });
 });

@@ -9,6 +9,30 @@ const terminal = {
 };
 
 describe('TargetContextOperationExecutor', () => {
+  it('resolves a Buff SourceFinder group through the AbilitySystem source chain', () => {
+    const executor = new TargetContextOperationExecutor('operator:holder', terminal, id =>
+      id === 'ability-entity:7' ? 'operator:xaihi' : id,
+    );
+    const targetContext = new RuntimeTargetContext();
+    executor.execute(
+      {
+        kind: 'mergeContextTargets',
+        parameters: {
+          saveToContextKey: 'seraph',
+          sources: [{ kind: 'target', target: 'buffSource' }],
+        },
+      },
+      {
+        blackboard: new ActionBlackboard(),
+        targetContext,
+        buffSourceId: 'ability-entity:7',
+      },
+    );
+    expect(targetContext.get('seraph')).toEqual([
+      { kind: 'operator', operatorId: 'operator:xaihi' },
+    ]);
+  });
+
   it('initializes, merges and deduplicates event targets by stable identity', () => {
     const executor = new TargetContextOperationExecutor('operator', terminal);
     const targetContext = new RuntimeTargetContext();

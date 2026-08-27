@@ -95,6 +95,7 @@ const BUFF_ABILITY_EVENTS: Readonly<Record<string, CompiledBuffAbilityEvent>> = 
   OnBeforeAddedBuff: 'beforeAddedBuff',
   OnBeforeOutputPhysicalInfliction: 'beforeOutputPhysicalInfliction',
   OnAfterOutputPhysicalInfliction: 'afterOutputPhysicalInfliction',
+  OnOutputDamage: 'outputDamage',
   OnCharBeforeOutputSpellInfliction: 'beforeOutputInfliction',
   OnCharBeforeOutputSpellBurst: 'beforeOutputSpellBurst',
   OnOutputCriticalDamage: 'outputCriticalDamage',

@@ -1102,4 +1102,47 @@ describe('validateSkillDefinition', () => {
       ]),
     );
   });
+
+  it('validates Buff-source context targets and contextual ability-entity owners', () => {
+    const skill = baseSkill();
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'mergeContextTargets',
+              parameters: {
+                saveToContextKey: 'source',
+                sources: [{ kind: 'target', target: 'buffSource' }],
+              },
+            },
+            {
+              kind: 'findOwnerSpawnedAbilityEntities',
+              parameters: {
+                saveToContextKey: 'entities',
+                ownerContextKey: 'source',
+              },
+            },
+          ],
+        },
+      },
+    ];
+
+    expect(validateSkillDefinition(skill)).toEqual([]);
+
+    const steps = (
+      skill.scheduledSequences as Array<{
+        sequence: { steps: Array<{ parameters: Record<string, unknown> }> };
+      }>
+    )[0]!.sequence.steps;
+    steps[1]!.parameters.ownerContextKey = '';
+    expect(validateSkillDefinition(skill)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: '$.scheduledSequences[0].sequence.steps[1].parameters.ownerContextKey',
+        }),
+      ]),
+    );
+  });
 });

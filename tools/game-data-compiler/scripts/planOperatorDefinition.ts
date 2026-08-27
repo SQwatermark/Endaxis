@@ -132,6 +132,7 @@ export function planOperatorDefinition(
     foundation,
     activeSkills,
     entityCatalog,
+    loadAbilityEntity: id => read(path.join(args.sourceRoot, 'AbilityEntityData', `${id}.json`)),
     gameplayTagRegistry: new GameplayTagRegistry(readGameplayTagPaths(args.gameplayTagCatalog)),
     talentBindings: requireArray(row.talents, 'talents').map(value => {
       const binding = requireRecord(value, 'talent');
