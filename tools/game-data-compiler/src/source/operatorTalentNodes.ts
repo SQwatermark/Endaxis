@@ -48,12 +48,7 @@ const ATTRIBUTE_MODIFIER_FIELDS = new Set([
 ]);
 
 export type TalentNodeTypeSource =
-  | 'none'
-  | 'characterBreak'
-  | 'equipmentBreak'
-  | 'attribute'
-  | 'passiveSkill'
-  | 'factorySkill';
+  'none' | 'characterBreak' | 'equipmentBreak' | 'attribute' | 'passiveSkill' | 'factorySkill';
 
 export interface TalentAttributeModifierSource {
   readonly attributeType: AttributeTypeSource;
@@ -69,6 +64,12 @@ export interface OperatorTalentNodeSource {
   readonly breakStage: number;
   readonly attributeModifiers: readonly TalentAttributeModifierSource[];
   readonly talentEffectId: string;
+  /** 原生被动节点的分组、等级和突破门槛；不能用 nodeId 的拼写反推。 */
+  readonly passiveSkill: {
+    readonly index: number;
+    readonly level: number;
+    readonly breakStage: number;
+  };
 }
 
 /** 严格读取 combat-spec 已确认的 CharGrowthTable.talentNodeMap 来源事实。 */
@@ -114,10 +115,13 @@ export function parseOperatorTalentNodeSources(
     const passiveInfoPath = `${nodePath}.passiveSkillNodeInfo`;
     const passiveInfo = requireRecord(node.passiveSkillNodeInfo, passiveInfoPath);
     requireExactFields(passiveInfo, PASSIVE_SKILL_NODE_INFO_FIELDS, passiveInfoPath);
-    requireNonNegativeInteger(passiveInfo.breakStage, `${passiveInfoPath}.breakStage`);
+    const passiveBreakStage = requireNonNegativeInteger(
+      passiveInfo.breakStage,
+      `${passiveInfoPath}.breakStage`,
+    );
     requireString(passiveInfo.iconId, `${passiveInfoPath}.iconId`);
-    requireNonNegativeInteger(passiveInfo.index, `${passiveInfoPath}.index`);
-    requireNonNegativeInteger(passiveInfo.level, `${passiveInfoPath}.level`);
+    const passiveIndex = requireNonNegativeInteger(passiveInfo.index, `${passiveInfoPath}.index`);
+    const passiveLevel = requireNonNegativeInteger(passiveInfo.level, `${passiveInfoPath}.level`);
     requireRecord(passiveInfo.name, `${passiveInfoPath}.name`);
 
     return {
@@ -133,6 +137,7 @@ export function parseOperatorTalentNodeSources(
         passiveInfo.talentEffectId,
         `${passiveInfoPath}.talentEffectId`,
       ),
+      passiveSkill: { index: passiveIndex, level: passiveLevel, breakStage: passiveBreakStage },
     };
   });
 }

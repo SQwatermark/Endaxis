@@ -209,6 +209,88 @@ describe('公共 Action 叶子分派', () => {
     ).toThrow('fixture.rootMotion: unexpected fields');
   });
 
+  it('DisableRootMotionAction 只接受无额外载荷的原生形状', () => {
+    const source = {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.DisableRootMotionAction+Data, Gameplay.Beyond',
+    };
+    expect(parseKnownNativeActionLeafSource(source, 'fixture.disableRootMotion', {})).toEqual({
+      family: 'spatial',
+      action: { kind: 'disableRootMotion' },
+    });
+    expect(() =>
+      parseKnownNativeActionLeafSource(
+        { ...source, guessedDuration: 1 },
+        'fixture.disableRootMotion',
+        {},
+      ),
+    ).toThrow('fixture.disableRootMotion: unexpected fields');
+  });
+
+  it('SpellInfliction 严格保留来源、目标、元素与额外附着标记', () => {
+    const source = {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.SpellInfliction+Data, Gameplay.Beyond',
+      source: targetFixture('Source'),
+      target: targetFixture('Context', undefined, 'tar'),
+      inflictionType: 'Fire',
+      isExtra: false,
+    };
+    expect(parseKnownNativeActionLeafSource(source, 'fixture.infliction', {})).toMatchObject({
+      family: 'elementalInfliction',
+      action: {
+        kind: 'elementalInfliction',
+        source: { targetSource: 'Source', targetGroupKey: '' },
+        target: { targetSource: 'Context', targetGroupKey: 'tar' },
+        element: 'Fire',
+        isExtra: false,
+      },
+    });
+    expect(() =>
+      parseKnownNativeActionLeafSource(
+        { ...source, inflictionType: 'Imaginary' },
+        'fixture.infliction',
+        {},
+      ),
+    ).toThrow('fixture.infliction.inflictionType: unsupported elemental infliction');
+  });
+
+  it('TeleportPosSelectAction 完整保留选点策略和上下文写入', () => {
+    const source = {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.TeleportPosSelectAction+Data, Gameplay.Beyond',
+      targetSettings: targetFixture('Target'),
+      teleportType: 'FixedDistance',
+      fixDistanceData: {
+        excludeCurrentPos: false,
+        distance: scalarFixture(3),
+        useAddScoreToPrevSide: false,
+      },
+      rangedData: { forwardDistance: scalarFixture(0) },
+      contextKey: 'smartpos',
+    };
+    expect(parseKnownNativeActionLeafSource(source, 'fixture.teleportPosition', {})).toMatchObject({
+      family: 'spatial',
+      action: {
+        kind: 'teleportPositionSelection',
+        target: { targetSource: 'Target' },
+        teleportType: 'FixedDistance',
+        excludeCurrentPosition: false,
+        distance: { value: 3, blackboardKey: null },
+        useAddScoreToPreviousSide: false,
+        forwardDistance: { value: 0, blackboardKey: null },
+        outputContextKey: 'smartpos',
+      },
+    });
+    expect(() =>
+      parseKnownNativeActionLeafSource(
+        { ...source, teleportType: 'UnknownMode' },
+        'fixture.teleportPosition',
+        {},
+      ),
+    ).toThrow('fixture.teleportPosition.teleportType: unsupported teleport position selection');
+  });
+
   it('SaveTargetDistanceAction 保留真实端点和黑板输出键', () => {
     const source = {
       ...META,

@@ -11,6 +11,60 @@ import {
 } from '../src/index.ts';
 
 describe('公共 Buff 运行时投影', () => {
+  it.each(['OnBuffStart', 'DuringBuffEnable'] as const)(
+    '%s 的来源、持有者和默认目标不借用能力事件',
+    event => {
+      const source = sourceFixture();
+      const sequence = source.graph.abilityEvents[0]!.actions[0]!;
+      const apply = sequence.actions[1]!;
+      if (apply.body.kind !== 'leaf' || apply.body.value.family !== 'buffApplication')
+        throw new Error('fixture');
+      const action = apply.body.value.action;
+      for (const targetSource of ['Source', 'Owner', 'Target']) {
+        for (const buffSource of ['ActionSource', 'ActionOwner'] as const) {
+          const definition = compileBuffRuntimeDefinitionSource({
+            ...source,
+            graph: {
+              ...source.graph,
+              abilityEvents: [],
+              buffEvents: [
+                {
+                  event,
+                  actions: [
+                    {
+                      ...sequence,
+                      actions: [
+                        {
+                          ...apply,
+                          body: {
+                            kind: 'leaf',
+                            value: {
+                              family: 'buffApplication',
+                              action: { ...action, target: fixedTarget(targetSource), buffSource },
+                            },
+                          },
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          });
+          const key = event === 'OnBuffStart' ? 'start' : 'enable';
+          const step = definition.lifecycleSequences?.[key]?.steps[0];
+          expect(step).toMatchObject({
+            kind: 'applyBuff',
+            parameters: { target: targetSource === 'Source' ? 'caster' : 'buffOwner' },
+          });
+          expect(step?.kind === 'applyBuff' && step.parameters.source).toBe(
+            buffSource === 'ActionOwner' ? 'buffOwner' : undefined,
+          );
+        }
+      }
+    },
+  );
+
   it.each(['Target', 'Source'] as const)(
     '主动动作的 %s Buff 目标不需要伪造事件上下文',
     targetSource => {

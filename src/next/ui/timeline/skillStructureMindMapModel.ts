@@ -384,7 +384,7 @@ function stepNode(
   const conditionText =
     step.kind === 'conditional' ? describeCondition(parameters.condition) : undefined;
   const reference =
-    step.kind === 'applyBuff'
+    step.kind === 'applyBuff' && typeof parameters.buffId === 'string'
       ? { kind: 'buff' as const, id: String(parameters.buffId ?? '') }
       : step.kind === 'spawnAbilityEntity'
         ? { kind: 'entity' as const, id: String(parameters.abilityEntityId ?? '') }

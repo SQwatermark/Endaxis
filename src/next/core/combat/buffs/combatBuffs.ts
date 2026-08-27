@@ -900,6 +900,7 @@ export class CombatBuffContainer<Key extends string> {
     definition: CombatBuffDefinition<Key>,
     sourceId: string,
     options?: CombatBuffAddOptions,
+    afterPublished?: (buff: CombatBuff<Key>) => void,
   ): CombatBuff<Key> | null {
     const stackingKey = definition.stackingKey ?? definition.id;
     let group = this.#stackingGroups.get(stackingKey);
@@ -907,7 +908,19 @@ export class CombatBuffContainer<Key extends string> {
       group = new BuffStackingGroup(this, stackingKey, definition.stackingType);
       this.#stackingGroups.set(stackingKey, group);
     }
-    return group.stack(definition, sourceId, options);
+    const buff = group.stack(definition, sourceId, options);
+    // 原生 BuffContainer.CreateBuff 在 StackBuff（含 Start/Enable）返回后才登记实例。
+    // 因此启动动作查询容器时尚看不到自身；返回旧实例的刷新路径不能重复登记。
+    if (buff !== null && !this.#buffs.includes(buff)) {
+      this.#buffs.push(buff);
+    }
+    if (buff === null) return null;
+    // combat-spec/before-output-buff.md：成功事件先于已有关键词增强；刷新旧实例也走成功尾部。
+    afterPublished?.(buff);
+    for (const active of this.#buffs) {
+      if (!active.isFinished) active.applyKeywordEnhancements(definition.id);
+    }
+    return buff;
   }
 
   allocateBuff(
@@ -915,12 +928,7 @@ export class CombatBuffContainer<Key extends string> {
     sourceId: string,
     options?: CombatBuffAddOptions,
   ): CombatBuff<Key> {
-    const buff = new CombatBuff(definition, this, sourceId, this.#nextInstanceId++, options);
-    this.#buffs.push(buff);
-    for (const active of this.#buffs) {
-      if (!active.isFinished) active.applyKeywordEnhancements(definition.id);
-    }
-    return buff;
+    return new CombatBuff(definition, this, sourceId, this.#nextInstanceId++, options);
   }
 
   getCountById(id: string): number {
@@ -1416,8 +1424,8 @@ class BuffStackingGroup<Key extends string> {
   ): CombatBuff<Key> {
     const buff = this.owner.allocateBuff(definition, sourceId, options);
     buff.attachStackingGroup(this);
-    this.#buffs.push(buff);
     buff.enable();
+    this.#buffs.push(buff);
     return buff;
   }
 

@@ -3,6 +3,7 @@ import { extname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { describe, expect, it } from 'vitest';
+import ts from 'typescript';
 
 const sourceRoot = fileURLToPath(new URL('../src', import.meta.url));
 const strictSourceRoot = join(sourceRoot, 'source');
@@ -11,6 +12,29 @@ const commonRoots = [join(sourceRoot, 'source'), join(sourceRoot, 'compiler')];
 const domainsRoot = join(sourceRoot, 'domains');
 
 describe('游戏数据编译器架构边界', () => {
+  it('工具自身仍只允许 Node 可直接擦除的语法，正式类型的间接依赖不扩大执行边界', () => {
+    // 正式 Operator 类型间接引用运行引擎的类。共享类型时 tsc 会检查这些文件，
+    // 但它们不在 Node 工具执行路径中；不能为避开这种类型依赖再复制一套正式协议。
+    const configPath = join(sourceRoot, '..', 'tsconfig.json');
+    const config = ts.readConfigFile(configPath, ts.sys.readFile);
+    const parsed = ts.parseJsonConfigFileContent(config.config, ts.sys, join(sourceRoot, '..'));
+    const program = ts.createProgram(parsed.fileNames, {
+      ...parsed.options,
+      erasableSyntaxOnly: true,
+    });
+    const violations = program
+      .getSemanticDiagnostics()
+      .filter(
+        diagnostic =>
+          diagnostic.code === 1294 &&
+          diagnostic.file &&
+          !relative(join(sourceRoot, '..'), diagnostic.file.fileName).startsWith('..'),
+      );
+    expect(
+      violations.map(diagnostic => `${diagnostic.file!.fileName}: ${diagnostic.messageText}`),
+    ).toEqual([]);
+  }, 20_000);
+
   it('禁止公共层反向依赖领域适配器', () => {
     const violations = commonRoots.flatMap(root =>
       sourceFiles(root).flatMap(path => {

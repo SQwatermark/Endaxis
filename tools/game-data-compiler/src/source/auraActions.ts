@@ -31,6 +31,12 @@ export interface GlobalPartyAuraActionSource {
   readonly buffs: readonly GlobalPartyAuraBuffInputSource[];
 }
 
+/** 引用闭包只消费 Aura 安装的 Buff；范围和目标行为仍由正式投影严格判定。 */
+export interface AuraReferenceActionSource {
+  readonly kind: 'auraReference';
+  readonly buffs: readonly GlobalPartyAuraBuffInputSource[];
+}
+
 const ACTION_FIELDS = new Set([
   '$type',
   'isEnable',
@@ -109,8 +115,41 @@ export function parseGlobalPartyAuraActionSource(
   parseEmptySequence(action.actionInAura, `${path}.actionInAura`);
   parseEmptySequence(action.actionWhenExitAura, `${path}.actionWhenExitAura`);
 
-  const buffs = requireArray(action.buffInput, `${path}.buffInput`).map((raw, index) => {
-    const inputPath = `${path}.buffInput[${index}]`;
+  const buffs = parseAuraBuffInputs(action.buffInput, `${path}.buffInput`);
+  return {
+    kind: 'globalPartyAura',
+    debugName: requireNonEmptyString(action.auraDebugName, `${path}.auraDebugName`),
+    target,
+    buffSource,
+    inheritSourceSkillCastInfo,
+    buffs,
+  };
+}
+
+/**
+ * 定义闭包不解释 Aura 的空间执行语义，只严格读取会形成定义边的 buffInput。
+ * 因此 RangedAura 可以参与资源下载，但进入 Endaxis 运行投影时仍会被严格阻断。
+ */
+export function parseAuraReferenceActionSource(
+  value: unknown,
+  path: string,
+): AuraReferenceActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(action, ACTION_FIELDS, path);
+  requireNonEmptyString(action.auraType, `${path}.auraType`);
+  return {
+    kind: 'auraReference',
+    buffs: parseAuraBuffInputs(action.buffInput, `${path}.buffInput`, false),
+  };
+}
+
+function parseAuraBuffInputs(
+  value: unknown,
+  path: string,
+  requireNonEmpty = true,
+): GlobalPartyAuraBuffInputSource[] {
+  const buffs = requireArray(value, path).map((raw, index) => {
+    const inputPath = `${path}[${index}]`;
     const input = requireRecord(raw, inputPath);
     requireExactFields(input, new Set(['buffId', 'assignBlackboard', 'assignItems']), inputPath);
     const assignBlackboard = requireBoolean(
@@ -133,15 +172,8 @@ export function parseGlobalPartyAuraActionSource(
       assignments,
     };
   });
-  if (buffs.length === 0) throw new Error(`${path}.buffInput: expected at least one Buff`);
-  return {
-    kind: 'globalPartyAura',
-    debugName: requireNonEmptyString(action.auraDebugName, `${path}.auraDebugName`),
-    target,
-    buffSource,
-    inheritSourceSkillCastInfo,
-    buffs,
-  };
+  if (requireNonEmpty && buffs.length === 0) throw new Error(`${path}: expected at least one Buff`);
+  return buffs;
 }
 
 function parseGlobalFilter(value: unknown, path: string, expectedFaction: string): void {

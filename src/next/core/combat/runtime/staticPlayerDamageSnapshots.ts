@@ -31,8 +31,8 @@ const ENEMY_RESISTANCE_ATTRIBUTES = {
   ether: 'EtherResistance',
 } as const;
 
-/** 把场景敌人的静态抗性安装为可被原生 Buff 八槽修改的运行时属性。 */
-export function initializeEnemyResistanceAttributes(
+/** 安装敌人的抗性及伤害区间属性，Buff 修改与命中快照必须读取同一属性集。 */
+export function initializeEnemyCombatAttributes(
   attributes: CombatAttributeSet<string>,
   defender: PlayerDamageDefenderSnapshot,
 ): void {
@@ -44,6 +44,8 @@ export function initializeEnemyResistanceAttributes(
     // 因而不在 Endaxis 额外猜造上下限。
     attributes.define(attribute, defender.resistances[damageType].percent, {});
   }
+  // 与干员共用既有区间属性键及零基数；不额外猜造易伤属性的上下限。
+  for (const attribute of DAMAGE_SCALE_ATTRIBUTE_KEYS) attributes.define(attribute, 0, {});
 }
 
 const DAMAGE_INCREASE_ATTRIBUTE: Partial<Record<DamageType, DamageScaleAttributeKey>> = {
@@ -112,7 +114,7 @@ export function resolveStaticPlayerDamageSnapshots(
   context: CombatDamageExecutorContext,
   step: DamageStep,
   operatorAttributes: CombatAttributeSet<string>,
-  enemyResistanceAttributes?: CombatAttributeSet<string>,
+  enemyAttributes?: CombatAttributeSet<string>,
 ): PlayerDamageAttributeSnapshots {
   const panel = context.panel;
   if (panel === undefined) {
@@ -159,9 +161,12 @@ export function resolveStaticPlayerDamageSnapshots(
     defender: {
       ...emptyDamageScaleSnapshot(),
       ...context.enemy.defenderAttributes,
-      ...(enemyResistanceAttributes === undefined
+      ...(enemyAttributes === undefined
         ? {}
         : {
+            ...Object.fromEntries(
+              DAMAGE_SCALE_ATTRIBUTE_KEYS.map(key => [key, enemyAttributes.get(key)]),
+            ),
             resistances: Object.fromEntries(
               Object.entries(ENEMY_RESISTANCE_ATTRIBUTES).map(([damageType, attribute]) => [
                 damageType,
@@ -169,7 +174,7 @@ export function resolveStaticPlayerDamageSnapshots(
                   ...context.enemy.defenderAttributes.resistances[
                     damageType as keyof typeof ENEMY_RESISTANCE_ATTRIBUTES
                   ],
-                  percent: enemyResistanceAttributes.get(attribute),
+                  percent: enemyAttributes.get(attribute),
                 },
               ]),
             ) as PlayerDamageAttributeSnapshots['defender']['resistances'],

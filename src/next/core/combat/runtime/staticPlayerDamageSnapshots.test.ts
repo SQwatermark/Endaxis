@@ -13,7 +13,7 @@ import { CombatVitals } from './combatVitals';
 import { PlayerDamageOperationExecutor } from './playerDamageOperationExecutor';
 import type { CombatOperationExecutor } from './skillRuntime';
 import {
-  initializeEnemyResistanceAttributes,
+  initializeEnemyCombatAttributes,
   resolveStaticPlayerDamageSnapshots,
 } from './staticPlayerDamageSnapshots';
 import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
@@ -160,7 +160,7 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
 
   it('从敌方运行时八槽冻结被 Buff 修改后的元素抗性', () => {
     const enemyAttributes = new CombatAttributeSet<string>();
-    initializeEnemyResistanceAttributes(enemyAttributes, enemy.defenderAttributes);
+    initializeEnemyCombatAttributes(enemyAttributes, enemy.defenderAttributes);
     enemyAttributes.addModifier(
       new CombatAttributeModifier(
         'PulseResistance',
@@ -181,6 +181,39 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
       percent: 5,
       damageTakenMultiplier: 1,
     });
+  });
+
+  it.each([
+    'physicalVulnerabilityIncrease',
+    'heatVulnerabilityIncrease',
+    'electricVulnerabilityIncrease',
+    'cryoVulnerabilityIncrease',
+    'natureVulnerabilityIncrease',
+    'etherVulnerabilityIncrease',
+  ] as const)('敌人 %s 从运行时冻结，撤销修正不改变既有命中快照', attribute => {
+    const enemyAttributes = new CombatAttributeSet<string>();
+    initializeEnemyCombatAttributes(enemyAttributes, enemy.defenderAttributes);
+    const modifier = new CombatAttributeModifier(
+      attribute,
+      attributeModifierValues('baseAddition', 0.3),
+      ATTRIBUTE_MODIFIER_SOURCES.instant,
+      'runtime',
+    );
+    const snapshot = () =>
+      resolveStaticPlayerDamageSnapshots(
+        createContext(),
+        electricDamage,
+        createOperatorAttackAttributes(panel),
+        enemyAttributes,
+      );
+    expect(snapshot().defender[attribute]).toBe(0);
+    enemyAttributes.addModifier(modifier);
+    const active = snapshot();
+    expect(active.defender[attribute]).toBeCloseTo(0.3);
+    expect(active.attacker[attribute]).toBe(0);
+    enemyAttributes.removeModifier(modifier);
+    expect(snapshot().defender[attribute]).toBe(0);
+    expect(active.defender[attribute]).toBeCloseTo(0.3);
   });
 
   it('只把当前技能程序的暴击率修正加入该技能伤害快照', () => {

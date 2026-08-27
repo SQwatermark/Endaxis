@@ -8,6 +8,7 @@ const ACTIVE_CONTEXT = {
   actionOwnerTarget: 'caster',
   actionSourceTarget: 'caster',
   actionTargetTarget: 'enemy',
+  fixedHittableTargetCount: 0,
 } as const;
 
 function activeWithLaunch() {
@@ -70,6 +71,60 @@ const meta = (type: string, rest: Record<string, unknown>): Record<string, unkno
 });
 
 describe('主动技能正式时间轴投影', () => {
+  it.each([
+    ['Fire', 'heat'], ['Pulse', 'electric'], ['Cryst', 'cryo'], ['Natural', 'nature'],
+  ])('元素附着 %s 必须使用正式 DSL 元素 %s', (native, element) => {
+    const result = compileActiveSkillRuntimeProjectionSource({
+      value: activeWithActions([meta('SpellInfliction', {
+        source: targetFixture('Source'), target: targetFixture('Target'),
+        inflictionType: native, isExtra: false,
+      })]),
+      sourcePath: 'active', patch: null, context: ACTIVE_CONTEXT,
+    });
+    expect(result.scheduledSequences[0]!.sequence.steps[0]).toEqual({
+      kind: 'applyElementalInfliction', parameters: { element, isExtra: false },
+    });
+  });
+
+  it('按固定木桩显式提供的零 IHittableObject 计算直接目标数量', () => {
+    const result = compileActiveSkillRuntimeProjectionSource({
+      value: activeWithActions([
+        {
+          $type: 'Beyond.Gameplay.Core.Conditions.CheckEntityNum+Data, Gameplay.Beyond',
+          isEnable: true,
+          priorityLevel: 'Default',
+          priorityOffset: 0,
+          serverActionIndex: 3,
+          checkTarget: targetFixture('Target'),
+          minNum: 1,
+          containsHittableTarget: true,
+          compareType: 'GE',
+          excludeDeadEntity: false,
+          storeKey: '',
+        },
+        meta('GainBreakingAttackAtb', {
+          source: targetFixture('Source'),
+          target: targetFixture('Target'),
+          factor: scalarFixture(1),
+        }),
+      ]),
+      sourcePath: 'active',
+      patch: null,
+      context: ACTIVE_CONTEXT,
+    });
+    expect(result.scheduledSequences[0]!.sequence.steps[0]).toMatchObject({
+      kind: 'conditional',
+      parameters: {
+        condition: {
+          kind: 'actionValueCompare',
+          left: { kind: 'constant', value: 1 },
+          operator: 'greaterOrEqual',
+          right: { kind: 'constant', value: 1 },
+        },
+      },
+    });
+  });
+
   it('由 SkillData 帧位置消费公共投射物扩展，并保留独立实体/回调黑板作用域', () => {
     const result = compileActiveSkillRuntimeProjectionSource({
       value: activeWithLaunch(),

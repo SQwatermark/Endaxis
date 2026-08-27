@@ -1016,6 +1016,12 @@ function validateCombatStep(
     case 'applyElementalInfliction':
       requireEnum(parameters, 'element', INFLICTION_ELEMENTS_SET, `${path}.parameters`, out);
       requireBoolean(parameters, 'isExtra', `${path}.parameters`, out);
+      if (
+        parameters.target !== undefined &&
+        !['enemy', 'buffOwner'].includes(parameters.target as string)
+      ) {
+        push(out, `${path}.parameters.target`, "expected 'enemy' or 'buffOwner'");
+      }
       break;
     case 'applyElementalReaction':
       requireEnum(parameters, 'reaction', ELEMENTAL_REACTIONS_SET, `${path}.parameters`, out);
@@ -1165,7 +1171,28 @@ function validateCombatStep(
       }
       break;
     case 'applyBuff': {
-      const buffId = requireString(parameters, 'buffId', `${path}.parameters`, out);
+      const dynamicId = typeof parameters.buffId === 'object' && parameters.buffId !== null;
+      const buffId = dynamicId
+        ? null
+        : requireString(parameters, 'buffId', `${path}.parameters`, out);
+      if (dynamicId) {
+        const idPath = `${path}.parameters.buffId`;
+        const reference = asRecord(parameters.buffId, idPath, out);
+        if (reference !== null) {
+          requireString(reference, 'blackboardKey', idPath, out);
+          for (const key of Object.keys(reference)) {
+            if (key !== 'blackboardKey') push(out, `${idPath}.${key}`, 'unexpected field');
+          }
+        }
+        for (const field of ['definition', 'durationSeconds', 'effectiveness']) {
+          if (parameters[field] !== undefined)
+            push(
+              out,
+              `${path}.parameters.${field}`,
+              '动态 Buff ID 只能通过定义目录查表，不能使用内联或旧式覆盖',
+            );
+        }
+      }
       if (parameters.definition !== undefined && buffId !== null) {
         const definition = asRecord(parameters.definition, `${path}.parameters.definition`, out);
         if (definition !== null) {

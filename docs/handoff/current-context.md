@@ -6,7 +6,185 @@
 当前主线是在 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
-### 2026-08-27：艾维文娜连携技进入完整主动技能生成闭环（最新）
+### 2026-08-27：提交检查点与调试工作区隔离
+
+- 本次将下述未提交研发记录汇总为检查点提交；不要再把历史小节的“尚未提交”当成当前 Git 状态。
+- 对应 combat-spec 检查点为 `f8cedcd`（原生关键词 Buff、天赋首次安装及相关证据）。
+- 用户保留 `C:\Users\sqwat\Projects\zmd\Endaxis-game-data-refactor`（`refactor/common-game-data`）自行调试。
+  后续开发迁至 `C:\Users\sqwat\Projects\zmd\Endaxis-operator-completion`，新分支 `refactor/operator-completion`。
+  combat-spec 对应后续工作树为 `C:\Users\sqwat\Projects\zmd\combat-spec-operator-completion`，同名新分支；
+  原 `vfs-index-browser/combat-spec` 保留提交检查点。迁移后不再向用户调试工作树写代码或生成文件。
+- 新工作树复制 `tmp/game-data-sources` 与现有审计缓存，不移动原文件、不提交 tmp、不共享可写 node_modules。
+  新工作树的开发服务不得抢占用户现有调试服务端口；本次不启动新服务。
+- 武器调试：`generateWeaponDefinitions` 已有完整中文参数注释、终端/IDE 示例。`--check` 忽略 CRLF/LF，
+  仍检查实际内容及文件集合；8 项回归通过。本机 78 个正式文件中仅 `arts-unit/wpn_funnel_0016.generated.ts`
+  有真实差异：旧产物含 `source: eventSource`，当前 Buff 生命周期投影不再输出该字段。未替用户重生成。
+- 提交前验证：Endaxis 联合 316 文件 / 3769 项通过；combat-spec 的 KeywordBuff、TalentAttachedBuff、
+  BuffLifecycle 定向 66 项通过。C# 既有全量基线仍是 1417 通过 / 14 失败，不宣称其全量已清零。
+- 下一步仍为两个能力实体子技能及完整 Operator 装配。上次“继续”仅完成只读调查，尚未新增子技能实现。
+
+### 2026-08-27：易伤默认子链进入生产模拟，干员 Buff 4/4（检查点内研发记录）
+
+- 公共 `buffReferenceClosure.ts` 从原生无覆盖关键词契约收集默认 child，保留运行时动态 ID。
+  只接受非外部根、非动态字符串默认声明、纯 Enable 创建/表现载体及唯一合法创建来路；每轮
+  新子图加入后重新校验。普通创建来路、child 覆盖或无法证明的动态引用仍阻塞。
+  资源读取允许按 ID 回调，主动技能 CLI 删除独立静态扫描并复用此闭包。
+- 空增强名单且不覆盖 child 的 Vulnerable 走公共 applyBuff，参数、Source/Owner、父子及动作寿命
+  按 combat-spec `keyword-actions.md` 保留。非空增强名单和显式 child 覆盖没有假装支持。
+  普通 Buff 共享添加尾部按 `before-output-buff.md` 修为 Added → Output → 已有关键词增强；
+  Refresh 也走成功尾部，Unique 拒绝只发布前置事件。
+- 原始四 Buff JSON → 自动闭包 → 正式定义编译 → ScenarioSimulationService 已跑通。探针技能
+  只安排观测时点，四链行为和默认 rate=0.3、十秒寿命取原始数据；验证电伤 1.3 倍、到期恢复、
+  三个运行实例的来源与清理，纯 VFX 通过公共策略省略。不把探针宣称为完整原始终结技模拟。
+- 生产回归揭出并修复公共接线缺口：敌人只注册了抗性，伤害快照把全部区间属性写零。现在敌人
+  注册既有伤害区间属性并在每次命中冻结实时值；六种易伤的增减与历史快照不变均有回归。
+  没有新增伤害公式、猜造上下限或添加干员 ID 特例。
+- 本机真实资源四个干员根 Buff（talent_0、lance_becalled、lance_pulse_check、ultimate_skill_debuff）
+  共闭合七来源、六定义、零 blocked。真实终结技规划入口携带 debuff 可生成包含动态默认子链的
+  内存候选，未写正式文件。**干员 Buff 从 3/4 升至 4/4；完整 Operator 仍为 0。**
+  全主动矩阵仍为 30 名 / 309 项 / 85 可编译；艾维文娜主动 10/10。
+- 下一步只处理 `chr_0012_avywen_combo_skill_lance`、`chr_0012_avywen_ultimate_skill_lance`
+  两个能力实体子技能：公共动作编译保留实体 Owner、召回 Buff 守卫、跳转与结束行为；随后组装
+  主动技能、养成、私有/公共 Buff 与实体定义并作生产模拟。公共 Buff 不能因当前由干员测试消费
+  就归入可编辑干员私有资产。完整对象级结果通过前不扩展其它干员/装备，不新增长片段 CLI。
+- 编译器与 Next 类型检查通过；联合全量 315 文件 / 3761 项通过，两仓 `git diff --check` 通过。
+  未改旧版/Python，未覆盖正式
+  生成数据，未提交。combat-spec 仅同步 Endaxis 接入状态，没有新增原生规则。
+
+### 2026-08-27：动态 Buff ID 进入公共编译与执行管线（上一批，尚未提交）
+
+- 正式 `applyBuff.buffId` 支持字符串或 `{ blackboardKey }`，动态身份没有残留字面回退值。
+  每次实际施加才重新读取 ID、查定义和求覆盖参数，复用现有 BuffOperationExecutor/目标端口；
+  缺键、非字符串、空值、目录缺失、未装配施加端口均报错，不能回退旧执行器或内联定义。
+  多目标施加保持原生目标外循环/次数内循环，前一次启动的写入能影响后续读取。
+- 公共 Buff 投影已输出动态 ID；表现过滤只作用于静态引用，不能因动态动作残留 ID 是表现 Buff
+  而删动作。按 combat-spec `create-buff-action-data.md` 去掉对未被原生读取的
+  `inheritSourceSkillCastId` 的假阻塞，真实继承仍由 `inheritSourceSkillCastInfo` 控制。
+- 原始 Pulse 载体、默认 child 和 VFX 夹具经 TS 编译、正式 Buff 定义编译和运行端口验证：
+  动态查表、来源/施放信息、易伤属性、父结束、动作禁用和到期清理均成立；VFX 经公共策略省略。
+  同时补齐六种原生易伤属性到既有 Next 伤害属性键的公共映射，没有新增伤害公式。
+  **该测试显式装入目录，不代表自动依赖闭包或整个终结技已完成。**
+- Buff 编辑器支持选择字面 ID / 黑板键并编辑；动态 ID 不提供虚假的静态定义跳转或命中预览，
+  不允许内联定义和旧式 duration/effectiveness 覆盖。动态命中以实际模拟结果为准。
+- **主线计数不变：30 名 / 309 主动技能，85 可编译；艾维文娜主动 10/10、Buff 3/4，完整干员 0。**
+  剩余阻塞是自动收集动态 child 的默认/覆盖依赖，以及关键词操作和增强登记顺序，不再是运行时
+  不能查动态 ID。`collectBuffRuntimeClosure` 仍拒绝无法闭合的动态引用，不能把声明默认值当成唯一值。
+  下一步做保留运行时读取的候选依赖分析；无法证明覆盖来源完整时继续阻塞，不做跨 Buff 常量替换。
+  关键词接入还须修正 Next 中已有增强在成功事件之前执行、只对新实例执行的顺序差异。
+  随后才是两个实体子技能与整名原子装配，不扩展其它干员/装备。
+- 编译器与 Next 类型检查通过；联合全量 314 文件 / 3746 项通过。未改旧版/Python、未写正式
+  生成产物、未提交。combat-spec 代码沿用上轮，补充其文档中的 Endaxis 接入状态。
+
+### 2026-08-27：易伤原始四 Buff 链及公共添加事件闭环（上一批，尚未提交）
+
+- combat-spec 已确认关键词载体经过 `_AddBuffInternal → AddBuffFinal → BuffContainer.CreateBuff`。
+  普通、数据驱动、Aura、关键词动作改为复用同一添加事件管线：BeforeOutput → BeforeAdded →
+  Stack/Start/Enable → 入容器 → Added → Output → 已有关键词增强 → 返回后登记新关键词。
+  Refresh 返回旧实例也触发成功尾部；Unique 拒绝只有前置事件。修正了旧文中容器方法地址误标。
+- BuffDataAdapter 接入原始 VulnerableAction；新的原始四文件夹具覆盖艾维文娜终结技 Buff、
+  Pulse 载体、默认 child、VFX，全链验证事件、属性、来源、施放信息及清理，不再借用空 child。
+  敌人部件目标仍未完整复刻，明确拒绝。关键 RVA/哈希在 combat-spec `docs/keyword-actions.md`。
+- TS 修正 **Start/Enable** 生命周期上下文：Target/Owner 是持有者，Source 是 Buff 创建者，
+  CreateBuff 的 ActionOwner 来源明确输出 buffOwner，不再借不存在的 eventSource/eventTarget。
+  能力事件沿用各自身份；Finish/EnhanceChanged 可能有外部触发者，本次未套用启动身份，需单独审计。
+- **完成数仍为干员 Buff 3/4、完整 Operator 0、艾维文娜主动 10/10**。当前未闭环的是 Endaxis
+  公共运行时的动态 Buff ID 查表（`child_buff_id`）及关键词载体操作，不再是原生添加事件证据。
+  下一步先补公共定义查表/执行，保留默认/显式 child 覆盖、嵌套来源与父子/动作寿命，
+  再让原始四链经 TS 编译进入生产模拟；随后处理 2 个实体子技能和整名原子装配。
+  不常量化动态 ID，不内联专用干员补丁，不扩大装备/其它干员任务。
+- 验证：编译器 77 文件 / 521 项；两套类型检查通过；combat-spec 1417 通过 / 14 项既有失败
+  （9 缺资产、4 样本计数漂移、1 Channeling 目标变化）。本轮未改正式 Next 运行代码、旧版或
+  旧 Python，未提交。正式生成产物没有用不完整链覆盖。
+
+### 2026-08-27：易伤载体证据与公共关键词来源接入（上一批，尚未提交）
+
+- 已从 runtime-1 原生方法和匹配的 global-metadata 字符串表确认 Vulnerable 的七种载体 ID，
+  不是按命名规律猜测。Pulse 实际载体为 `buff_common_affixes_vulnerable_pulse`，属性来自
+  该 BuffData 的 `PulseVulnerableDmgIncrease`；原生叠层是 Unlimited，不是 HighPriority。
+- combat-spec 新增数据驱动 `ApplyKeywordBuff` 与公共 `KeywordBuffAction` 载体/寿命切片，
+  旧 Enhanced 动作复用同一创建、增强和 End 管线。原始载体回归验证默认/空/显式 child 覆盖、
+  Source/Target、施放信息、属性、父结束和动作结束的独立清理，以及添加拒绝不登记监听。
+  **尚未绑定完整原生动作适配器**，测试 child 是探针替身；不要把载体测试当完整资产闭包。
+- TS 增加公共 `source/keywordActions.ts`，完整保留参数，并在统一引用扫描中跟踪载体、
+  child 覆盖和增强匹配 ID。修复动态引用带非空字面残留时被当成静态 ID 的通用闭包错误。
+  艾维文娜原始终结技 Buff 和公共载体已入测试夹具；运行时投影仍明确拒绝，不输出假完成产物。
+- **当前计数不变：干员 Buff 3/4，整名完整迁移 0，主动技能艾维文娜 10/10。**
+  剩余工作已缩小到：核对关键词动作与 `_AddBuffInternal` 的事件/部件转移协议；处理公共载体
+  黑板 `child_buff_id` 的动态引用及默认子链；明确 Buff 生命周期 Target 与能力事件 Target 的
+  不同绑定。随后完成最后一个 Buff、2 个实体子技能、整名统一装配；不扩展其它干员/装备。
+- 详细 RVA、token、哈希和下一步边界在 combat-spec `docs/keyword-actions.md`。
+  本机 `binaries/global-metadata.dat` 才与这些 token 匹配，不能误用 `metadata-1.4.4` 子目录版本。
+- 验证：编译器 77 文件 / 519 项通过；两套类型检查通过；combat-spec 1412 通过 / 14 项
+  既有失败（9 缺资产、4 计数漂移、1 Channeling 目标变化）。本轮未修改 Next 正式运行代码、
+  旧版或旧 Python，未提交。
+
+### 2026-08-27：电磁附着 Buff 保留原始守卫并进入生产模拟（上一批，尚未提交）
+
+- 艾维文娜 `lance_pulse_check` 已由原始 BuffData 经公共编译器生成，4 个干员 Buff 的可编译数
+  从 2 增至 3；保留 OnBuffStart 自身层数 `<= 0` 守卫，不沿用旧 Python 的删守卫结果。
+- 发现并修正两仓共有的运行时顺序错误：原生 CreateBuff 先调用 StackBuff（含 Start/Enable），
+  返回后才把新实例放入容器可查询列表。此前分配时就登记，导致启动守卫错误地读到自身 1 层。
+  普通分配分支也按证据改为启用后入组；证据及 RVA 见 combat-spec `docs/buff-lifecycle.md`。
+- 元素附着投影从大文件移到公共 `elementalInflictionProjection.ts`；正式步骤增加可选
+  `target: buffOwner`。木桩执行器在发事件和写状态前校验真实宿主 ID，非敌人/缺宿主显式失败。
+  没有把 Owner 全局改为 enemy，也没有增添干员 ID 特例。
+- 原始夹具 → 公共编译 → 生产 ScenarioSimulationService 验证同帧/存续期重复施加只附着一次，
+  0.3 秒寿命结束后可重施并触发同类爆发；C# 对应回归保留守卫、来源、宿主及施放信息。
+  同时修正上一批天赋测试的装配：现在实际注入新编译 Buff，而不只是比较它与旧 Buff 相等。
+- `VulnerableAction` 仍未转换，但已从本机 runtime-1 找到完整
+  `KeywordActionWithSubType.ExecuteInternal` 入口 `0x03E23430`，不是只有 IFix 跳板。
+  下一步分析该方法、载体创建与 child/autoFinish，再完成最后一个 Buff 和 2 个实体子技能，
+  最后整体生成。**正式完整 Operator 仍为 0；尚未替换正式 Buff/养成产物。**
+- 验证：编译器 76 文件 / 502 项通过；Next 235 文件 / 3211 项全量通过；
+  两套类型检查通过。combat-spec 1405 通过 / 14 项既有失败，分类仍为 9 缺资产、4 计数漂移、
+  1 Channeling 目标变化。未修改旧版或旧 Python，未提交。
+
+### 2026-08-27：第一天赋直接附加 Buff 的证据与生产验证闭环（上一批，尚未提交）
+
+- combat-spec 从 1.4.4 原生方法体恢复 `CharMiscFeature.Start → RefreshTalentBuff`：按已激活
+  PassiveSkill 节点收集 AddBuff、检查条件，再由角色以自身为来源和目标附加 Buff，不创建隐藏
+  被动技能、不填入技能施放信息。新增首次安装切片及 2 项测试；证据、哈希和 RVA 见该仓
+  `docs/talent-attached-buffs.md`。完整刷新/卸载和潜能 Buff 收集仍不在已实现范围内。
+- 修正该仓反汇编工具的布局选择：运行时 snapshot 是 `virtual-rva`，必须按 RVA 直接读取，
+  不能按 PE 文件偏移读取后把其他代码误标成目标方法。新增显式 `--layout virtual-rva`，默认 PE 不变。
+- Endaxis 第一天赋现输出正式 `initializationSequence`，保留全部原有黑板修正，不再因 AddBuff
+  拒绝整项，也不仿造旧版隐藏被动技能。潜能 AddBuff、带条件/跨等级变化的初始化继续拒绝。
+- 原始天赋 BuffData 经公共编译器构建，在测试候选中替换两个天赋和五档潜能，走生产模拟服务
+  验证：天赋等级 0 不安装；1/2 级仅第 0 帧给自身安装一次，持续 60 帧不重复，无需施放技能。
+  **候选尚未写入正式干员；完整迁移仍为 0，主动矩阵仍为 85/309、艾维文娜 10/10。**
+- 下一步的具体阻塞：4 个干员 Buff 中 talent_0、lance_becalled 已能编译；lance_pulse_check
+  的元素附着使用 Buff 宿主，当前目标投影不支持；ultimate_skill_debuff 的 `VulnerableAction`
+  尚未解析。先按 combat-spec 处理这两项，不能把所有宿主当敌人、也不能省略易伤；随后闭合
+  2 个能力实体子技能，统一装配完整干员并替换旧对象依赖，不再加片段 CLI。
+- 验证：游戏数据 75 文件 / 499 项通过，类型检查通过；combat-spec 1404 通过 / 14 项既有
+  失败（9 项本地装备 Buff 缺失、4 项动作样本计数漂移、1 项 Channeling 目标变化）。本轮未提交。
+
+### 2026-08-27：收敛完整 Operator 迁移，补齐养成组装缺口（上一批，尚未提交）
+
+- 当前只推进艾维文娜完整定义，不扩展秋栗或装备动作。主动迁移矩阵为 30 名 / 309 个声明技能，
+  85 个可编译；只有艾维文娜达到主动 10/10，正式 TS 主动产物也是这 10 个。
+  **整名完全脱离旧 Python 对象的干员数仍为 0**，不能把主动技能完成数当成完整干员数。
+- 上一轮已把单技能计划与写盘分离，新增整干员主动技能批量入口；所有技能成功后才替换其专属
+  目录，任何技能失败均不写正式产物。独立迁移审计继续逐技能收集阻塞，报告只落 tmp。
+- 本轮新增 `domains/operator/progressionDefinition.ts`：保留天赋原生 index/level/breakStage，
+  按元数据聚合等级，按潜能解锁级别生成独立项；复用公共构筑属性投影并直接使用正式养成协议。
+  艾维文娜 5 档潜能和第二天赋的 2 个等级，原始表 → 正式对象与旧产物差分一致。节点乱序、
+  缺级/重级、跨等级结构变化、多技能组目标和不能表达的条件均有失败关闭回归。
+- **该批次第一天赋未完成，现已由上节补齐**：`PotentialTalentEffectTable.chr_0012_avywen_talent_1_1.dataList[3]`
+  的 `AddBuff buff_chr_0012_avywen_talent_0` 缺挂载生命周期/来源证据。现有 combat-spec 只解析
+  载荷，不能把旧生成器“被动 Enable 时给 caster 加 Buff”当作证明。当前组装拒绝整个第一天赋，
+  不静默丢弃这一项；combat-spec 已保留节点元数据并在 TableCfg 适配文档记录该证据待办。
+- 修正公共元素附着投影：原生 `Fire/Pulse/Cryst/Natural` 必须通过现有公共映射输出
+  `heat/electric/cryo/nature`，不能把原生枚举写入 Next DSL；四种元素都有回归。
+- 本轮未新增零碎生成 CLI，也未改正式干员或旧版代码。养成函数目前由真实表回归和 Node
+  实际调用验证，尚未接入整名产物装配。下一步补第一天赋附加 Buff 证据，然后闭合 4 个干员
+  Buff、2 个能力实体及子技能，最后一次装配头部/技能组/养成/主动技能并替换旧 Operator 对象。
+- 验证：游戏数据 75 文件 / 492 项全通过，类型检查通过，艾维文娜整目录主动生成 `--check`
+  10/10 通过；combat-spec TableCfg 定向 8 项通过，全量复查 1402 通过 / 14 项既有失败，
+  包含 9 项本地装备 Buff 缺失、4 项动作样本计数漂移和 1 项 Channeling 样本目标变化，
+  不能笼统记成全是缺本机资源。
+
+### 2026-08-27：艾维文娜连携技进入完整主动技能生成闭环（上一批）
 
 - `chr_0012_avywen_combo_skill` 已由统一入口生成并安装到正式干员定义，不再使用旧展平连携技能。
   连携命中保留电磁伤害、连携技分类、击破弱点、失衡、天赋回能，以及三把枪的 block 回调生成；

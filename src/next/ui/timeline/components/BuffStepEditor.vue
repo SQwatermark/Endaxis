@@ -97,7 +97,22 @@ function update(parameters: BuffStep['parameters']): void {
 }
 
 function setBuffId(event: Event): void {
-  update({ ...props.step.parameters, buffId: (event.target as HTMLInputElement).value });
+  const value = (event.target as HTMLInputElement).value;
+  update({
+    ...props.step.parameters,
+    buffId: typeof props.step.parameters.buffId === 'string' ? value : { blackboardKey: value },
+  });
+}
+
+function setBuffIdKind(event: Event): void {
+  const parameters = { ...props.step.parameters };
+  if ((event.target as HTMLSelectElement).value === 'blackboard') {
+    parameters.buffId = { blackboardKey: '' };
+    delete parameters.definition;
+    delete parameters.durationSeconds;
+    delete parameters.effectiveness;
+  } else parameters.buffId = '';
+  update(parameters);
 }
 
 function setDefinition(definition: SkillBuffDefinition | undefined): void {
@@ -291,7 +306,27 @@ function removeAssignment(key: string): void {
         :label="t('nextTimeline.skillEditing.buffId')"
         :help="t('nextTimeline.skillEditing.fieldHelp.buffId')"
       />
-      <input type="text" :value="step.parameters.buffId" @input="setBuffId" />
+      <select
+        :value="typeof step.parameters.buffId === 'string' ? 'constant' : 'blackboard'"
+        @change="setBuffIdKind"
+      >
+        <option value="constant">{{ operandLabels().constant }}</option>
+        <option value="blackboard">{{ operandLabels().blackboard }}</option>
+      </select>
+      <input
+        type="text"
+        :aria-label="
+          typeof step.parameters.buffId === 'string'
+            ? t('nextTimeline.skillEditing.buffId')
+            : operandLabels().blackboardKey
+        "
+        :value="
+          typeof step.parameters.buffId === 'string'
+            ? step.parameters.buffId
+            : step.parameters.buffId.blackboardKey
+        "
+        @input="setBuffId"
+      />
     </label>
     <label>
       <EditorFieldLabel
@@ -345,6 +380,7 @@ function removeAssignment(key: string): void {
         ><input
           type="checkbox"
           :checked="step.parameters.durationSeconds !== undefined"
+          :disabled="typeof step.parameters.buffId !== 'string'"
           @change="toggleOptional('durationSeconds', $event)"
       /></span>
       <EditorFieldLabel
@@ -364,6 +400,7 @@ function removeAssignment(key: string): void {
         ><input
           type="checkbox"
           :checked="step.parameters.effectiveness !== undefined"
+          :disabled="typeof step.parameters.buffId !== 'string'"
           @change="toggleOptional('effectiveness', $event)"
       /></span>
       <EditorFieldLabel
@@ -404,6 +441,7 @@ function removeAssignment(key: string): void {
         <input
           type="checkbox"
           :checked="step.parameters.definition !== undefined"
+          :disabled="typeof step.parameters.buffId !== 'string'"
           @change="toggleDefinition"
         />
         <EditorFieldLabel
@@ -459,7 +497,12 @@ function removeAssignment(key: string): void {
             <img
               v-if="previewIconPath"
               :src="previewIconPath"
-              :alt="presentation?.iconId ?? step.parameters.buffId"
+              :alt="
+                presentation?.iconId ??
+                (typeof step.parameters.buffId === 'string'
+                  ? step.parameters.buffId
+                  : step.parameters.buffId.blackboardKey)
+              "
               @error="failedIconPath = previewIconPath"
             />
             <span v-else class="buff-icon-preview__fallback">BUFF</span>

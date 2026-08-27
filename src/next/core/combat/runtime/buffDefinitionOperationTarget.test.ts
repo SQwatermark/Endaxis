@@ -8,6 +8,30 @@ import { gameplayTagId } from '../tags/gameplayTags';
 type Attribute = 'cost';
 
 describe('BuffDefinitionOperationTarget', () => {
+  it.each(['unique', 'refresh'] as const)('成功事件早于已有关键词增强，%s 重施按实际结果执行', stackingType => {
+    const container = new CombatBuffContainer<string>('enemy', new CombatAttributeSet<string>());
+    const keyword = container.add({ id: 'keyword', stackingType: 'unlimited', blackboard: { rate: 0.1 },
+      keywordEnhancements: [{ triggerBuffIds: ['trigger'], operation: 'add', targetKey: 'rate', initialValue: 0.1, value: 0.05 }],
+    }, 'source')!;
+    const events: string[] = [];
+    const rates: number[] = [];
+    const target = new BuffDefinitionOperationTarget(container,
+      { get: id => ({ id, stackingType }) }, undefined, undefined,
+      () => events.push('added'), () => events.push('before-output'),
+      () => { events.push('output'); rates.push(keyword.blackboard.getNumber('rate')!); },
+      () => events.push('before-added'),
+    );
+    const request = { buffId: 'trigger', sourceId: 'source', blackboardValues: {} };
+    expect(target.apply(request)).toBe(true);
+    expect(events).toEqual(['before-output', 'before-added', 'added', 'output']);
+    expect(rates).toEqual([0.1]);
+    expect(keyword.blackboard.getNumber('rate')).toBeCloseTo(0.15);
+    events.length = 0;
+    expect(target.apply(request)).toBe(stackingType === 'refresh');
+    expect(events).toEqual(stackingType === 'refresh'
+      ? ['before-output', 'before-added', 'added', 'output'] : ['before-output', 'before-added']);
+    expect(keyword.blackboard.getNumber('rate')).toBeCloseTo(stackingType === 'refresh' ? 0.2 : 0.15);
+  });
   it('returns the same scoped handle when refreshing the same Buff instance', () => {
     const container = new CombatBuffContainer('operator', new CombatAttributeSet<string>());
     const target = new BuffDefinitionOperationTarget(container, {

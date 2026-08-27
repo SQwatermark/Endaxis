@@ -155,6 +155,8 @@ function collectDamageSteps(
   }
   if (step.kind === 'applyBuff') {
     const buffId = step.parameters.buffId;
+    // 静态命中预览没有运行时黑板，不能猜测动态 ID 对应的伤害；实际命中由模拟结果提供。
+    if (typeof buffId !== 'string') return;
     const definition = step.parameters.definition ?? buffDefinitions?.[buffId];
     if (definition !== undefined && !visitedBuffIds.has(buffId)) {
       visitedBuffIds.add(buffId);

@@ -37,6 +37,10 @@ import {
   parseBreakInteractiveActionSource,
   type BreakInteractiveActionSource,
 } from './environmentActions.ts';
+import {
+  parseElementalInflictionActionSource,
+  type ElementalInflictionActionSource,
+} from './elementalInflictionActions.ts';
 import { parseFinishOwnerActionSource, type FinishOwnerActionSource } from './lifecycleActions.ts';
 import {
   nativeActionName,
@@ -67,6 +71,7 @@ import {
   type PlaySoundActionSource,
 } from './presentationActions.ts';
 import { parseInterruptActionSource, type InterruptActionSource } from './interruptAction.ts';
+import { parseVulnerableActionSource, type KeywordBuffActionSource } from './keywordActions.ts';
 import {
   parseEnemyHurtAnimationActionSource,
   parsePullActionSource,
@@ -94,7 +99,9 @@ import {
 } from './resourceActions.ts';
 import type { BlackboardLevelValues } from './scalar.ts';
 import {
+  parseAuraReferenceActionSource,
   parseGlobalPartyAuraActionSource,
+  type AuraReferenceActionSource,
   type GlobalPartyAuraActionSource,
 } from './auraActions.ts';
 import {
@@ -122,13 +129,17 @@ import {
 import {
   parseSelfRotateActionSource,
   parseTeleportActionSource,
+  parseDisableRootMotionActionSource,
+  parseTeleportPositionSelectionActionSource,
   parseReceiveMoveInputActionSource,
   parseMoveToActionSource,
   parseCustomRootMotionActionSource,
   parseSnapToTargetWithRangeActionSource,
   parseSaveTargetDistanceActionSource,
   type CustomRootMotionActionSource,
+  type DisableRootMotionActionSource,
   type SnapToTargetWithRangeActionSource,
+  type TeleportPositionSelectionActionSource,
   type SaveTargetDistanceActionSource,
   type MoveToActionSource,
   type ReceiveMoveInputActionSource,
@@ -182,6 +193,7 @@ const CONDITION_ACTION_NAMES = new Set([
 
 /** 引用闭包需要严格读取的动作身份；集合与分派实现同属公共来源层，调用方不再复制 switch。 */
 const REFERENCE_CLOSURE_ACTION_NAMES = new Set([
+  'VulnerableAction',
   'CreateBuffAction',
   'CreateBuffAttachingSkill',
   'AuraAction',
@@ -214,6 +226,8 @@ export type KnownNativeActionLeafSource =
         | TeleportActionSource
         | ReceiveMoveInputActionSource
         | MoveToActionSource
+        | DisableRootMotionActionSource
+        | TeleportPositionSelectionActionSource
         | CustomRootMotionActionSource
         | SnapToTargetWithRangeActionSource;
     }
@@ -228,7 +242,10 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'timedMarker'; readonly action: TimedMarkerApplicationSource }
   | { readonly family: 'globalCooldown'; readonly action: GlobalCooldownApplicationSource }
   | { readonly family: 'buffApplication'; readonly action: BuffApplicationActionSource }
-  | { readonly family: 'aura'; readonly action: GlobalPartyAuraActionSource }
+  | {
+      readonly family: 'aura';
+      readonly action: GlobalPartyAuraActionSource | AuraReferenceActionSource;
+    }
   | { readonly family: 'skillAffix'; readonly action: { readonly kind: 'skillAffix' } }
   | { readonly family: 'buffFinish'; readonly action: BuffFinishActionSource }
   | { readonly family: 'buffQuery'; readonly action: BuffStackReadActionSource }
@@ -237,6 +254,8 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'buffDurationMutation'; readonly action: BuffDurationMutationActionSource }
   | { readonly family: 'heal'; readonly action: HealActionSource }
   | { readonly family: 'environment'; readonly action: BreakInteractiveActionSource }
+  | { readonly family: 'elementalInfliction'; readonly action: ElementalInflictionActionSource }
+  | { readonly family: 'keywordBuff'; readonly action: KeywordBuffActionSource }
   | { readonly family: 'lifecycle'; readonly action: FinishOwnerActionSource }
   | {
       readonly family: 'timeDilation';
@@ -294,6 +313,11 @@ export function tryParseKnownNativeActionLeafSource(
     };
   }
   switch (name) {
+    case 'VulnerableAction':
+      return {
+        family: 'keywordBuff',
+        action: parseVulnerableActionSource(value, path, inheritedBlackboard),
+      };
     case 'PlayAnimationAction':
       return {
         family: 'presentation',
@@ -303,6 +327,11 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'environment',
         action: parseBreakInteractiveActionSource(value, path, inheritedBlackboard),
+      };
+    case 'SpellInfliction':
+      return {
+        family: 'elementalInfliction',
+        action: parseElementalInflictionActionSource(value, path),
       };
     case 'PlayAnimationWithStep':
       return {
@@ -318,6 +347,16 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'spatial',
         action: parseTeleportActionSource(value, path, inheritedBlackboard),
+      };
+    case 'DisableRootMotionAction':
+      return {
+        family: 'spatial',
+        action: parseDisableRootMotionActionSource(value, path),
+      };
+    case 'TeleportPosSelectAction':
+      return {
+        family: 'spatial',
+        action: parseTeleportPositionSelectionActionSource(value, path, inheritedBlackboard),
       };
     case 'ReceiveMoveInputAction':
       return {
@@ -475,7 +514,10 @@ export function tryParseKnownNativeActionLeafSource(
     case 'AuraAction':
       return {
         family: 'aura',
-        action: parseGlobalPartyAuraActionSource(value, path),
+        action:
+          scope === 'referenceClosure'
+            ? parseAuraReferenceActionSource(value, path)
+            : parseGlobalPartyAuraActionSource(value, path),
       };
     case 'SkillAffixAction':
       requireExactFields(

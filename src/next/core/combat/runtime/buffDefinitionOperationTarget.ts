@@ -95,17 +95,21 @@ export class BuffDefinitionOperationTarget<Key extends string>
     this.onBeforeBuffApplied?.(event);
     // 原生 OnBeforeAddedBuff 随后在接收目标 AbilitySystem 上同步发布，仍早于实例创建。
     this.onBeforeBuffAdded?.(event);
-    const applied = this.container.add(definition, request.sourceId, {
-      blackboardValues: request.blackboardValues,
-      sourceActionId: request.sourceActionId ?? request.buffId,
-      ...(request.skillCastInfo === undefined ? {} : { skillCastInfo: request.skillCastInfo }),
-    });
-    if (applied !== null) {
-      this.onOutputBuff?.(event);
-      this.onBuffApplied?.(event);
-      this.#buffAppliedObserver?.(event);
-    }
-    return applied;
+    return this.container.add(
+      definition,
+      request.sourceId,
+      {
+        blackboardValues: request.blackboardValues,
+        sourceActionId: request.sourceActionId ?? request.buffId,
+        ...(request.skillCastInfo === undefined ? {} : { skillCastInfo: request.skillCastInfo }),
+      },
+      () => {
+        // 接收侧 Added → 来源侧 Output → 容器执行已有关键词增强。
+        this.onBuffApplied?.(event);
+        this.#buffAppliedObserver?.(event);
+        this.onOutputBuff?.(event);
+      },
+    );
   }
 
   configureBuffAppliedObserver(observer: (event: BuffAppliedEvent) => void): void {

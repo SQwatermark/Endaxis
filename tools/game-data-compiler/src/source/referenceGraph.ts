@@ -197,6 +197,50 @@ function collectLeafReferences(
 ): void {
   if (leaf.family === 'untracked') return;
   switch (leaf.family) {
+    case 'keywordBuff': {
+      const action = leaf.action;
+      output.push(
+        referenceFromIdentity(
+          'buff',
+          'keywordCarrier',
+          enabled,
+          action.carrierBuffId,
+          null,
+          sourcePath,
+        ),
+      );
+      // 未覆盖时由载体自己的黑板提供默认 child；不能把空白的动作字段当成实际依赖。
+      if (
+        action.overrideChildBuffId &&
+        (action.childBuffId.blackboardKey !== null || action.childBuffId.value !== '')
+      ) {
+        output.push(
+          referenceFromIdentity(
+            'buff',
+            'keywordChildOverride',
+            enabled,
+            action.childBuffId.value,
+            action.childBuffId.blackboardKey,
+            `${sourcePath}.childBuffId`,
+          ),
+        );
+      }
+      action.enhancements.forEach((enhancement, index) => {
+        enhancement.buffIds.forEach((id, idIndex) => {
+          output.push(
+            referenceFromIdentity(
+              'buff',
+              'keywordEnhancementMatch',
+              enabled,
+              id,
+              null,
+              `${sourcePath}.enhancingList[${index}].buffIds[${idIndex}]`,
+            ),
+          );
+        });
+      });
+      return;
+    }
     case 'aura': {
       for (let index = 0; index < leaf.action.buffs.length; index += 1) {
         output.push(

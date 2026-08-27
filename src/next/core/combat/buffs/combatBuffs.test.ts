@@ -510,14 +510,36 @@ describe('CombatBuffContainer', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     const container = new CombatBuffContainer('operator', attributes);
     expect(() => container.add(createDefinition(), 'operator')).toThrow('explicit native bounds');
-    expect(container.buffs).toHaveLength(1);
-    expect(container.buffs[0]!.isEnabled).toBe(false);
+    // 启用未成功返回，实例尚未进入容器；修正器仍必须全部回滚。
+    expect(container.buffs).toHaveLength(0);
 
     attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
     const context = createDamageContext(attributes, container);
     context.applyModifiers('beforeCalculation');
     context.setCalculationResult(100);
     expect(context.value).toBe(100);
+  });
+
+  it('启动和启用先于容器登记，嵌套创建的子实例先发布，刷新不重复登记', () => {
+    const container = new CombatBuffContainer('owner', new CombatAttributeSet<Attribute>());
+    const observations: number[] = [];
+    const child: CombatBuffDefinition<Attribute> = { id: 'child', stackingType: 'unique' };
+    const parent: CombatBuffDefinition<Attribute> = {
+      id: 'parent', stackingType: 'refresh', durationSeconds: 2,
+      actions: {
+        start: () => {
+          observations.push(container.getCountById('parent'));
+          container.add(child, 'source');
+        },
+        enable: () => observations.push(container.getCountById('parent')),
+      },
+    };
+    const first = container.add(parent, 'source');
+    expect(observations).toEqual([0, 0]);
+    expect(container.buffs.map(buff => buff.definition.id)).toEqual(['child', 'parent']);
+    expect(container.add(parent, 'source')).toBe(first);
+    expect(container.getCountById('parent')).toBe(1);
+    expect(observations).toEqual([0, 0]);
   });
 
   it('rejects a repeated unique buff until the existing instance finishes', () => {

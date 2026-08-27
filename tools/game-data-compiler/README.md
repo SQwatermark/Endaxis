@@ -7,6 +7,69 @@
 装备的特有入口从公共编译流程中剥离。旧 Python 生成器在迁移完成前仅作为可执行对照，
 不能继续承载新功能。
 
+## 0. 当前唯一交付目标
+
+在新版能够对象级生成并运行验证旧版已支持的完整干员前，唯一优先目标是恢复完整 Operator
+纵向链路。以下规则是机械门禁，不是建议：
+
+1. 以整名干员为提交单位：主动技能、Buff、能力实体、投射物、天赋、潜能、技能组和正式注册必须
+   同时闭环；只增加一种 Action 支持不算完成进度；
+2. 每轮先运行全干员主动技能迁移矩阵，选择“距离完整闭环最近且阻塞具有公共价值”的干员；不能
+   因当前手上恰好打开了某个文件便继续追逐其下一个未知动作；
+3. Operator 对象级等价和生产模拟门禁完成前，冻结武器、装备及非必要下载/审计功能扩张；只允许
+   修复会直接阻塞当前完整干员的公共来源或编译能力；
+4. 旧 Python 产物是迁移覆盖与结果差分 oracle，规则语义仍只来自 combat-spec 和原生数据；
+5. 新增公共代码必须同时删除替代掉的旧入口或证明不存在重复实现。若代码量增加但完整干员计数
+   不增加，必须在迁移矩阵中明确显示阻塞减少，否则停止扩张并调整设计；
+6. `buffRuntimeProjection.ts` 等公共核心不得继续吸收无边界逻辑。新增行为应进入对应来源模块和
+   独立语义投影；公共控制流文件只负责编排，不承载具体领域规则。
+
+迁移矩阵由 `audit:game-data:operator-active-skills` 生成到 `tmp/`，正式生成仍使用整干员原子入口
+`generate:game-data:operator-active-skills`。矩阵只负责选择工作，不得用“可解析技能数”冒充完整干员。
+
+### 当前纵向切片：艾维文娜
+
+- 10/10 主动技能已由 TS 生成，整目录 `--check` 通过；**完整 Operator 仍为 0**。
+- `domains/operator/progressionDefinition.ts` 直接组装正式 `OperatorUpgradeDefinition`，不再复制
+  一套近似的养成协议。按 `passiveSkillNodeInfo.index/level` 聚合天赋；潜能按原生解锁级别生成
+  独立项，由正式构筑层累计启用。数值属性解释复用 `projectBuildAttributeModifier`。
+- 艾维文娜 5 档潜能、第二天赋的两个等级已从原生表切片编译并与旧产物对象级比较一致。
+  回归夹具 `test/fixtures/avywenna-progression.json` 保存原表版本及 SHA-256；旧产物只作差分基准。
+- 第一天赋的直接附加 Buff 已补齐首次挂载证据：`CharMiscFeature.Start → RefreshTalentBuff`
+  以角色自身同时作为来源和目标调用 AddBuff；不是隐藏被动技能。输出正式 `initializationSequence`，
+  不继承技能施放信息。证据见 combat-spec `docs/talent-attached-buffs.md`。两个天赋及五档潜能
+  均可组装；真实 BuffData 经公共编译器进入生产模拟，验证天赋 0 级不安装、1/2 级只在第 0 帧安装一次。
+- 潜能 AddBuff 的收集、带条件的直接 Buff、跨等级变化的初始化仍明确拒绝；没有用该首次安装
+  切片冒充原生完整刷新/卸载流程。
+- 尚未把养成切片装入正式干员，也未新增片段 CLI。4 个干员 Buff 现均可通过公共编译器。
+  lance_pulse_check 保留原始自身层数守卫和 `target: buffOwner`，
+  生产模拟覆盖首次附着、Unique 防重及到期重施；按 combat-spec `docs/buff-lifecycle.md` 修正了
+  “先启动、后登记容器”的顺序，不能仿照旧生成器删守卫。
+- ultimate_skill_debuff 的 `VulnerableAction` 已有公共严格来源切片；载体 ID 由原生
+  GetKeywordBuffName 的跳转表和匹配元数据字符串证明，不按名称推断。引用扫描保留载体、
+  child 覆盖及增强匹配；动态 ID 即使携带非空字面残留也不能当静态依赖。
+  combat-spec 已接入原始四 Buff 链和共享添加事件协议，确定成功事件先于已有关键词增强，
+  新关键词在返回后登记；敌人部件仍未复刻，不声称覆盖所有目标。TS 的 Start/Enable 已分离
+  生命周期身份，不借能力事件；Finish/EnhanceChanged 的外部触发者需另审计。
+  `applyBuff` 已在正式协议与公共执行器支持动态 `{ blackboardKey }` 身份，每次实际施加重新查表，
+  不携带默认回退 ID。公共 `buffReferenceClosure.ts` 现支持有证明的无覆盖关键词默认 child：
+  载体不能是外部根，声明非动态、来路仅为无 child 覆盖的关键词，载体只含 Enable 创建/表现动作；
+  新发现子图后重新检查来路。不改写动态动作，不进行跨 Buff 常量传播，未知覆盖继续阻塞。
+  CLI 资源读取复用同一闭包按需回调，不再另写静态遍历。
+  空增强名单关键词复用通用 applyBuff，非空增强或 child 覆盖尚不开放。公共容器已改为
+  Added → Output → 已有关键词增强，Refresh 同样执行成功尾部，Unique 拒绝不执行。
+  原始四链经自动闭包和生产 ScenarioSimulationService 验证：电伤乘 1.3、默认十秒到期恢复，
+  子 Buff 来源与父子清理一致。敌方区间属性现从同一运行时集合冻结，不再硬填零；VFX 显式省略。
+  本机四根 Buff 读取七个来源、生成六个定义、零 blocked；正式产物尚未替换。
+  下一步闭合 `chr_0012_avywen_combo_skill_lance` 和 `chr_0012_avywen_ultimate_skill_lance`
+  两个实体子技能，然后统一装配。当前干员 Buff 4/4、整名完整迁移仍为 0；
+  不得用“来源可解析”替代“完整可模拟”，也不得把 Buff 宿主无条件视为敌人或忽略易伤。
+
+共享正式类型会让 TypeScript 同时检查运行引擎的间接类型依赖，所以本工具的 tsconfig 不再把
+`erasableSyntaxOnly` 施加到整个产品依赖图。`architectureBoundaries.test.ts` 仍将该规则严格施加
+到工具自身全部 TS 文件；Node 直接执行验证另行覆盖新入口。不得借此引入需要转译的脚本语法，
+也不得为了避开类型检查复制一套正式协议。
+
 ## 1. 不可越过的证据边界
 
 ### 1.1 事实来源

@@ -22,7 +22,51 @@ interface Arguments {
   readonly check: boolean;
 }
 
-/** 从同一版本 TableCfg、SkillData 与 BuffData 原子生成全部正式武器定义。 */
+/**
+ * 从已下载的 TableCfg、SkillData、BuffData 编译全部武器；本入口不下载资源，也不支持单把筛选。
+ * 输入应来自匹配的游戏版本，调用方需核对来源记录，脚本不会自动证明三个目录版本一致。
+ *
+ * CLI 参数采用 `--参数名 <目录>`，不是 `--参数名=<目录>`；`--check` 是不带值的开关。
+ * 目录可用绝对路径或相对当前工作目录的路径，含空格时加引号。下例在 Endaxis 工作树根目录执行。
+ *
+ * @param args.tables 对应必填 `--tables <目录>`，读取 WeaponBasicTable.json、
+ * WeaponUpgradeTemplateTable.json、SkillPatchTable.json、ItemTable.json，分别用于武器条目、
+ * 攻击成长、被动技能逐等级补丁及产品资源身份。
+ * 示例：`--tables tmp/game-data-sources/TableCfg-1.4.4-9433094-12`。
+ *
+ * @param args.skillData 对应必填 `--skill-data <目录>`，读取武器词条使用的 SkillData。
+ * 只扫描目录直属的 .json，每份必须有唯一 skillId；不是表目录，也不是单个 JSON 文件。
+ * 示例：`--skill-data tmp/game-data-sources/skill-data-cdn`。
+ *
+ * @param args.buffData 对应必填 `--buff-data <目录>`，读取词条依赖的 Buff 定义及行为闭包。
+ * 只扫描目录直属的 .json，每份必须有唯一 id；缺失或未支持的依赖会阻断正式生成。
+ * 示例：`--buff-data tmp/game-data-sources/BuffData`。
+ *
+ * @param args.output 对应可选 `--output <目录>`；CLI 默认 src/next/data/equipment/generated-weapons。
+ * 按武器类型子目录输出 .generated.ts，并生成 index.generated.ts。写入时替换整个目标目录，
+ * 不要指向含手工文件的目录或仓库根目录。直接调用本函数时必须传入 output。
+ * 示例：`--output src/next/data/equipment/generated-weapons`。
+ *
+ * @param args.auditOutput 对应可选 `--audit-output <目录>`；默认 tmp/generated-next-weapons。
+ * 成功生成时写入 weapon-definitions.audit.json，与正式目录分别替换，不是跨目录事务。
+ * 两个输出目录应互相独立；审计属于可重建临时数据，不提交 Git。
+ * 示例：`--audit-output tmp/generated-next-weapons`。
+ *
+ * @param args.check 对应可选开关 `--check`，CLI 默认 false。为 true 时仍执行完整编译，
+ * 但只比较正式目录的文件集合和内容，不写正式文件，也不写审计。比较忽略 CRLF/LF 差异，
+ * 文件缺失、多出或内容变化仍以 stale 错误退出；stale 不等于编译失败。
+ * 不传该开关才实际生成；任一来源/行为诊断 blocked 时，两种模式都在写入前失败。
+ *
+ * @returns definitionCount 是武器数量；fileCount 是正式 TS 文件数量，包含索引、不含审计。
+ *
+ * @example 终端只读检查（删除末尾 --check 即实际生成）
+ * npm run generate:game-data:weapons -- --tables tmp/game-data-sources/TableCfg-1.4.4-9433094-12 --skill-data tmp/game-data-sources/skill-data-cdn --buff-data tmp/game-data-sources/BuffData --output src/next/data/equipment/generated-weapons --audit-output tmp/generated-next-weapons --check
+ *
+ * @example IDE 的 npm 调试配置
+ * package.json 选择当前工作树，命令选 run，脚本选 generate:game-data:weapons。
+ * “实参”填写以下一行（保留开头的 --，用于 npm 参数转发）：
+ * -- --tables tmp/game-data-sources/TableCfg-1.4.4-9433094-12 --skill-data tmp/game-data-sources/skill-data-cdn --buff-data tmp/game-data-sources/BuffData --output src/next/data/equipment/generated-weapons --audit-output tmp/generated-next-weapons --check
+ */
 export async function generateWeaponDefinitions(args: Arguments): Promise<{
   readonly definitionCount: number;
   readonly fileCount: number;
@@ -166,12 +210,12 @@ function readDefinitionDirectory(
   return result;
 }
 
-function checkGeneratedFiles(
+export function checkGeneratedFiles(
   outputDirectory: string,
   files: readonly RenderedWeaponDefinitionFileSource[],
 ): void {
   const expected = new Map(
-    files.map(file => [file.relativePath.replaceAll('\\', '/'), file.content]),
+    files.map(file => [file.relativePath.replaceAll('\\', '/'), file.content.replaceAll('\r\n', '\n')]),
   );
   const actualPaths = listFiles(outputDirectory).map(file =>
     path.relative(outputDirectory, file).replaceAll('\\', '/'),
@@ -182,7 +226,8 @@ function checkGeneratedFiles(
   }
   for (const relativePath of expectedPaths) {
     const actual = fs.readFileSync(path.join(outputDirectory, relativePath), 'utf8');
-    if (actual !== expected.get(relativePath)) {
+    // Git 在 Windows 检出时可能写入 CRLF；只消除换行编码差异，不忽略空白或实际内容变化。
+    if (actual.replaceAll('\r\n', '\n') !== expected.get(relativePath)) {
       throw new Error(`generated weapon file is stale: ${relativePath}`);
     }
   }

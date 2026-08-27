@@ -104,7 +104,7 @@ const PLAYER_DAMAGE_TAKEN_ATTRIBUTES = new Set([
 ]);
 
 /**
- * 把武器、装备中的原生静态属性程序投影为 Next 构筑语义。
+ * 把干员养成、武器、装备共用的原生静态属性程序投影为 Next 构筑语义。
  * 每个分支同时校验原生目标和公式槽；同名属性若换槽，必须重新取证。
  */
 export function projectBuildAttributeModifier(

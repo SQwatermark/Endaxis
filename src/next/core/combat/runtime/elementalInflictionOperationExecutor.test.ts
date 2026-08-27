@@ -15,6 +15,51 @@ const STEP: Extract<ResolvedCombatStep, { kind: 'applyElementalInfliction' }> = 
 };
 
 describe('ElementalInflictionOperationExecutor', () => {
+  it.each([undefined, 'operator', 'ability:1', 'enemy'])(
+    'Buff 宿主 %s 必须匹配绑定敌人且在事件前校验',
+    ownerId => {
+      const applyOperation = vi.fn();
+      const emitSourceEvent = vi.fn();
+      const emitTargetEvent = vi.fn();
+      const record = vi.fn();
+      const executor = new ElementalInflictionOperationExecutor({
+        sourceOperatorId: 'operator',
+        targetId: 'enemy',
+        skillId: 'skill',
+        clock: new CombatClock(),
+        receipt: { record },
+        getExistingAttachment: () => null,
+        applyOperation,
+        emitSourceEvent,
+        emitTargetEvent,
+        delegate: { execute: () => true, evaluate: () => false },
+      });
+      const execute = () =>
+        executor.execute(
+          { ...STEP, parameters: { ...STEP.parameters, target: 'buffOwner' } },
+          {
+            blackboard: new ActionBlackboard(),
+            ...(ownerId === undefined ? {} : { buffOwnerId: ownerId }),
+          },
+        );
+      if (ownerId === 'enemy') {
+        expect(execute()).toBe(true);
+        expect(applyOperation).toHaveBeenCalledOnce();
+        expect(record).toHaveBeenCalledWith(
+          expect.objectContaining({ targetId: 'enemy', sourceId: 'operator' }),
+        );
+      } else {
+        expect(execute).toThrow(
+          ownerId === undefined ? 'requires a Buff lifecycle owner' : 'not the bound enemy',
+        );
+        expect(applyOperation).not.toHaveBeenCalled();
+        expect(emitSourceEvent).not.toHaveBeenCalled();
+        expect(emitTargetEvent).not.toHaveBeenCalled();
+        expect(record).not.toHaveBeenCalled();
+      }
+    },
+  );
+
   it('queries attachment after before-events and applies operations before after-events', () => {
     const order: string[] = [];
     let attachment: ExistingElementalAttachment | null = null;

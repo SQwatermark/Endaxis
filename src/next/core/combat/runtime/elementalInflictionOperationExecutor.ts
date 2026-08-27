@@ -78,6 +78,16 @@ export class ElementalInflictionOperationExecutor implements CombatOperationExec
         ? this.dependencies.delegate.execute(step)
         : this.dependencies.delegate.execute(step, context);
     }
+    // 当前附着适配器只绑定一个敌方容器。保留 Owner 身份并在产生任何事件前校验，
+    // 避免把挂在干员或能力实体上的动作悄悄转成对木桩施加附着。
+    if (step.parameters.target === 'buffOwner') {
+      if (context?.buffOwnerId === undefined)
+        throw new Error("elemental infliction target 'buffOwner' requires a Buff lifecycle owner");
+      if (context.buffOwnerId !== this.dependencies.targetId)
+        throw new Error(
+          `elemental infliction target '${context.buffOwnerId}' is not the bound enemy`,
+        );
+    }
     const payload: ElementalInflictionEventPayload = {
       sourceId: this.dependencies.sourceOperatorId,
       targetId: this.dependencies.targetId,

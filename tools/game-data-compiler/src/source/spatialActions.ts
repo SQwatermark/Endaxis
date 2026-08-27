@@ -26,6 +26,21 @@ export interface TeleportActionSource {
   readonly radius: ScalarSource;
 }
 
+export interface DisableRootMotionActionSource {
+  readonly kind: 'disableRootMotion';
+}
+
+export interface TeleportPositionSelectionActionSource {
+  readonly kind: 'teleportPositionSelection';
+  readonly target: TargetReferenceSource;
+  readonly teleportType: 'FixedDistance' | 'Ranged';
+  readonly excludeCurrentPosition: boolean;
+  readonly distance: ScalarSource;
+  readonly useAddScoreToPreviousSide: boolean;
+  readonly forwardDistance: ScalarSource;
+  readonly outputContextKey: string;
+}
+
 export interface ReceiveMoveInputActionSource {
   readonly kind: 'receiveMoveInput';
   readonly duration: ScalarSource;
@@ -157,6 +172,88 @@ export function parseTeleportActionSource(
     kind: 'teleport',
     target: parseTargetReferenceSource(action.teleportTo, `${path}.teleportTo`),
     radius: parseScalarSource(action.radius, `${path}.radius`, inheritedBlackboard),
+  };
+}
+
+/**
+ * 原生动作仅在执行期添加禁止根运动的标签，并在 OnEnd 释放句柄。Data 没有额外载荷；
+ * 来源层仍严格校验公共动作字段，避免把未来新增字段的变体静默当成相同动作。
+ */
+export function parseDisableRootMotionActionSource(
+  value: unknown,
+  path: string,
+): DisableRootMotionActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set(['$type', 'isEnable', 'priorityLevel', 'priorityOffset', 'serverActionIndex']),
+    path,
+  );
+  return { kind: 'disableRootMotion' };
+}
+
+/**
+ * 原生动作根据目标和选点策略计算 NavMesh 位置，并把位置写入 contextKey。这里完整保留两种
+ * 策略的输入；固定木桩投影只能在该上下文后续仅供空间动作消费时省略，不能伪造选点结果。
+ */
+export function parseTeleportPositionSelectionActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): TeleportPositionSelectionActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'targetSettings',
+      'teleportType',
+      'fixDistanceData',
+      'rangedData',
+      'contextKey',
+    ]),
+    path,
+  );
+  const fixDistance = requireRecord(action.fixDistanceData, `${path}.fixDistanceData`);
+  requireExactFields(
+    fixDistance,
+    new Set(['excludeCurrentPos', 'distance', 'useAddScoreToPrevSide']),
+    `${path}.fixDistanceData`,
+  );
+  const ranged = requireRecord(action.rangedData, `${path}.rangedData`);
+  requireExactFields(ranged, new Set(['forwardDistance']), `${path}.rangedData`);
+  const teleportType = requireNonEmptyString(action.teleportType, `${path}.teleportType`);
+  if (teleportType !== 'FixedDistance' && teleportType !== 'Ranged')
+    throw new Error(
+      `${path}.teleportType: unsupported teleport position selection ${JSON.stringify(teleportType)}`,
+    );
+  return {
+    kind: 'teleportPositionSelection',
+    target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
+    teleportType,
+    excludeCurrentPosition: requireBoolean(
+      fixDistance.excludeCurrentPos,
+      `${path}.fixDistanceData.excludeCurrentPos`,
+    ),
+    distance: parseScalarSource(
+      fixDistance.distance,
+      `${path}.fixDistanceData.distance`,
+      inheritedBlackboard,
+    ),
+    useAddScoreToPreviousSide: requireBoolean(
+      fixDistance.useAddScoreToPrevSide,
+      `${path}.fixDistanceData.useAddScoreToPrevSide`,
+    ),
+    forwardDistance: parseScalarSource(
+      ranged.forwardDistance,
+      `${path}.rangedData.forwardDistance`,
+      inheritedBlackboard,
+    ),
+    outputContextKey: requireNonEmptyString(action.contextKey, `${path}.contextKey`),
   };
 }
 

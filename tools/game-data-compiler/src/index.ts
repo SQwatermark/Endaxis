@@ -343,6 +343,11 @@ export {
   type CompiledOperatorProgressionEntrySource,
 } from './domains/operator/progressionEffects.ts';
 export {
+  compileOperatorTalentDefinition,
+  compileOperatorPotentialDefinition,
+  type OperatorProgressionDefinitionContext,
+} from './domains/operator/progressionDefinition.ts';
+export {
   parseNativeOperatorSkillGroupSources,
   parseOperatorSkillGroupSources,
   validateOperatorSkillGroups,

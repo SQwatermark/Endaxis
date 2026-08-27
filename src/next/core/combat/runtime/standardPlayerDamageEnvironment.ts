@@ -70,7 +70,7 @@ import { PlayerDamageOperationExecutor } from './playerDamageOperationExecutor';
 import type { CombatOperationExecutor } from './skillRuntime';
 import type { FrameRuntime } from './combatSimulation';
 import {
-  initializeEnemyResistanceAttributes,
+  initializeEnemyCombatAttributes,
   resolveStaticPlayerDamageSnapshots,
 } from './staticPlayerDamageSnapshots';
 import { gameplayTagId, type GameplayTagRegistry } from '../tags/gameplayTags';
@@ -185,7 +185,7 @@ const strictTerminal: CombatOperationExecutor = {
 export class StandardPlayerDamageEnvironment {
   readonly runtimeOptions: EnvironmentOptions;
   readonly #events = new Map<string, AbilityEventDispatcher<StandardPlayerDamageEvent, unknown>>();
-  readonly #enemyResistanceAttributes: CombatAttributeSet<string>;
+  readonly #enemyAttributes: CombatAttributeSet<string>;
   readonly #enemyBuffs: CombatBuffContainer<string>;
   readonly #enemyBuffRuntime: BuffDefinitionOperationTarget<string>;
   readonly #operatorBuffRuntimes = new Map<string, BuffDefinitionOperationTarget<string>>();
@@ -205,7 +205,7 @@ export class StandardPlayerDamageEnvironment {
 
   constructor(readonly options: StandardPlayerDamageEnvironmentOptions) {
     const enemyAttributes = new CombatAttributeSet<string>();
-    this.#enemyResistanceAttributes = enemyAttributes;
+    this.#enemyAttributes = enemyAttributes;
     this.#enemyBuffs = new CombatBuffContainer(
       'enemy',
       enemyAttributes,
@@ -380,7 +380,7 @@ export class StandardPlayerDamageEnvironment {
           context,
           step,
           operatorBuffs.attributes,
-          this.#enemyResistanceAttributes,
+          this.#enemyAttributes,
         ),
       criticalSamples: this.options.criticalSamples,
       isCriticalForced: step =>
@@ -649,9 +649,9 @@ export class StandardPlayerDamageEnvironment {
     this.#resources = context.resources;
     this.#enemyIdentity = context.enemy;
     if (byAssembly) this.#boundByAssembly = true;
-    if (!this.#enemyResistanceAttributes.has('FireResistance')) {
-      initializeEnemyResistanceAttributes(
-        this.#enemyResistanceAttributes,
+    if (!this.#enemyAttributes.has('FireResistance')) {
+      initializeEnemyCombatAttributes(
+        this.#enemyAttributes,
         context.enemy.defenderAttributes,
       );
     }

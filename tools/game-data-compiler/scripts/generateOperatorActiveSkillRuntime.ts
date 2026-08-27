@@ -5,8 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { GameplayTagRegistry, gameplayTagIdFromPath } from '../../../src/shared/gameplayTags.ts';
 import { compileAbilityEntityTemplateCatalogSource } from '../src/compiler/abilityEntityCatalog.ts';
 import { collectNativeActionNodes } from '../src/source/controlFlow.ts';
-import { collectBuffActionReferences } from '../src/source/buffActionGraph.ts';
-import { parseBuffRuntimeSource } from '../src/source/buffRuntime.ts';
+import { collectBuffRuntimeClosure } from '../src/compiler/buffReferenceClosure.ts';
 import { parseBlackboardDataPairs } from '../src/source/blackboard.ts';
 import { parseProjectileRuntimeSource } from '../src/source/projectileRuntime.ts';
 import { parseSkillPatchSource } from '../src/source/skillPatch.ts';
@@ -21,7 +20,7 @@ import type { OperatorActiveSkillTypeSource } from '../src/domains/operator/acti
 import { writeGeneratedDefinitionFiles } from '../src/compiler/writeGeneratedDefinitionFiles.ts';
 import { compileStandardStumpBuffClosure } from '../src/compiler/standardStumpBuffClosure.ts';
 
-interface Arguments {
+export interface OperatorActiveSkillRuntimeArguments {
   readonly sourceRoot: string;
   readonly sourceFile: string;
   readonly skillPatchTable: string;
@@ -39,17 +38,21 @@ interface Arguments {
   readonly check: boolean;
 }
 
-export async function generateOperatorActiveSkillRuntime(args: Arguments) {
-  requireExactOwnedDirectory(
-    args.output,
-    path.resolve('src/next/data/operators/generated-active-skills'),
-    args.slug,
-  );
-  requireExactOwnedDirectory(
-    args.auditOutput,
-    path.resolve('tmp/game-data-audit/operator-active-skills'),
-    args.slug,
-  );
+export interface PlannedOperatorActiveSkillRuntime {
+  readonly file: { readonly relativePath: string; readonly content: string };
+  readonly auditFile: { readonly relativePath: string; readonly content: string };
+  readonly output: string;
+  readonly skillId: string;
+  readonly sequences: number;
+}
+
+/**
+ * 只计算一个主动技能的正式文件和审计文件，不接触文件系统输出目录。
+ * 整名干员生成器会先把所有技能计划完成，再用一次目录事务提交，避免留下半名干员。
+ */
+export function planOperatorActiveSkillRuntime(
+  args: Omit<OperatorActiveSkillRuntimeArguments, 'check'>,
+): PlannedOperatorActiveSkillRuntime {
   const sourcePath = path.resolve(args.sourceRoot, 'skill-data-cdn', args.sourceFile);
   const sourceText = fs.readFileSync(sourcePath, 'utf8');
   const source = JSON.parse(sourceText);
@@ -172,6 +175,7 @@ export async function generateOperatorActiveSkillRuntime(args: Arguments) {
       actionOwnerTarget: 'unavailable',
       actionSourceTarget: 'caster',
       actionTargetTarget: 'enemy',
+      fixedHittableTargetCount: 0,
     },
     callbackExtensions: { resolveTimeDilationPriority },
   });
@@ -185,6 +189,7 @@ export async function generateOperatorActiveSkillRuntime(args: Arguments) {
       actionOwnerTarget: 'caster',
       actionSourceTarget: 'caster',
       actionTargetTarget: 'enemy',
+      fixedHittableTargetCount: 0,
       abilityEntityQueries: { catalog: abilityCatalog, gameplayTagRegistry: registry },
     },
     extensions: { compileProjectileLaunch: projectile, resolveTimeDilationPriority },
@@ -204,42 +209,65 @@ export async function generateOperatorActiveSkillRuntime(args: Arguments) {
     supplementalBuffDefinitions: buffClosure.definitions,
   });
   requireOwnedDirectory(args.output, args.slug, rendered.relativePath);
-  requireOwnedDirectory(args.auditOutput, args.slug, `${args.slug}.${args.key}.runtime.audit.json`);
+  const auditName = `${args.slug}.${args.key}.runtime.audit.json`;
+  requireOwnedDirectory(args.auditOutput, args.slug, auditName);
   const destination = path.resolve(args.output, rendered.relativePath);
+  return {
+    file: rendered,
+    auditFile: {
+      relativePath: auditName,
+      content:
+        JSON.stringify(
+          {
+            skillId,
+            projectileIds,
+            callbackIds,
+            runtimeBuffIds: [...runtimeBuffIds].sort(),
+            supplementalBuffIds: [...args.supplementalBuffIds].sort(),
+            source: { file: sourcePath, sha256: sha256(sourceText) },
+            scope: 'full-active-skill-action-graph-zero-distance-runtime',
+          },
+          null,
+          2,
+        ) + '\n',
+    },
+    output: destination,
+    skillId,
+    sequences: definition.scheduledSequences.length,
+  };
+}
+
+export async function generateOperatorActiveSkillRuntime(
+  args: OperatorActiveSkillRuntimeArguments,
+) {
+  requireExactOwnedDirectory(
+    args.output,
+    path.resolve('src/next/data/operators/generated-active-skills'),
+    args.slug,
+  );
+  requireExactOwnedDirectory(
+    args.auditOutput,
+    path.resolve('tmp/game-data-audit/operator-active-skills'),
+    args.slug,
+  );
+  const planned = planOperatorActiveSkillRuntime(args);
   if (args.check) {
     if (
-      !fs.existsSync(destination) ||
-      normalize(fs.readFileSync(destination, 'utf8')) !== rendered.content
+      !fs.existsSync(planned.output) ||
+      normalize(fs.readFileSync(planned.output, 'utf8')) !== planned.file.content
     )
-      throw new Error(`operator active skill runtime is stale: ${destination}`);
+      throw new Error(`operator active skill runtime is stale: ${planned.output}`);
   } else {
     await writeGeneratedDefinitionFiles(args.output, [
-      ...readOwnedSiblingFiles(args.output, rendered.relativePath),
-      rendered,
+      ...readOwnedSiblingFiles(args.output, planned.file.relativePath),
+      planned.file,
     ]);
-    const auditName = `${args.slug}.${args.key}.runtime.audit.json`;
     await writeGeneratedDefinitionFiles(args.auditOutput, [
-      ...readOwnedSiblingFiles(args.auditOutput, auditName),
-      {
-        relativePath: auditName,
-        content:
-          JSON.stringify(
-            {
-              skillId,
-              projectileIds,
-              callbackIds,
-              runtimeBuffIds: [...runtimeBuffIds].sort(),
-              supplementalBuffIds: [...args.supplementalBuffIds].sort(),
-              source: { file: sourcePath, sha256: sha256(sourceText) },
-              scope: 'full-active-skill-action-graph-zero-distance-runtime',
-            },
-            null,
-            2,
-          ) + '\n',
-      },
+      ...readOwnedSiblingFiles(args.auditOutput, planned.auditFile.relativePath),
+      planned.auditFile,
     ]);
   }
-  return { output: destination, skillId, sequences: definition.scheduledSequences.length };
+  return { output: planned.output, skillId: planned.skillId, sequences: planned.sequences };
 }
 
 function readOwnedSiblingFiles(
@@ -289,18 +317,12 @@ function loadBuffClosureSources(
   directory: string,
 ): Record<string, unknown> {
   const result: Record<string, unknown> = {};
-  const queue = [...rootIds];
-  while (queue.length > 0) {
-    const id = queue.shift()!;
-    if (Object.hasOwn(result, id)) continue;
+  // 读取由公共闭包要求的资源，CLI 不另维护一套只认识静态引用的遍历规则。
+  collectBuffRuntimeClosure(rootIds, id => {
     const value = readJson(path.resolve(directory, `${id}.json`));
     result[id] = value;
-    const source = parseBuffRuntimeSource(value, `BuffData.${id}`);
-    for (const reference of collectBuffActionReferences(source.graph)) {
-      if (reference.kind === 'buff' && reference.state === 'active' && reference.id !== null)
-        queue.push(reference.id);
-    }
-  }
+    return value;
+  });
   return result;
 }
 

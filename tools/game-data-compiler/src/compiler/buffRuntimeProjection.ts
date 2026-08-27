@@ -7,7 +7,7 @@ import {
   type CompiledActionValueOperandSource,
   type CompiledSimpleDamageOperationSource,
 } from './simpleDamageOperation.ts';
-import { collectBuffActionReferences } from '../source/buffActionGraph.ts';
+export { collectBuffRuntimeClosure } from './buffReferenceClosure.ts';
 import type { BuffApplicationActionSource } from '../source/buffActions.ts';
 import {
   collectNativeActionNodes,
@@ -15,7 +15,6 @@ import {
   type NativeSequenceSource,
 } from '../source/controlFlow.ts';
 import {
-  parseBuffRuntimeSource,
   type BuffPresentationSource,
   type BuffRuntimeSource,
   type BuffStackingTypeSource,
@@ -25,6 +24,9 @@ import type { ProjectileLaunchActionSource } from '../source/referenceActions.ts
 import type { ScalarSource } from '../source/scalar.ts';
 import type { TargetReferenceSource } from '../source/target.ts';
 import { parseObjectTypeMask } from '../source/objectType.ts';
+import type { CombatStepParameters } from '../../../../src/next/core/game-data/operatorDefinition.ts';
+import { projectElementalInflictionAction } from './elementalInflictionProjection.ts';
+import { projectKeywordBuffAction } from './keywordBuffProjection.ts';
 import { compileAbilityEventPrograms } from './abilityEventProgram.ts';
 import {
   compileActionSequenceProgram,
@@ -49,6 +51,7 @@ export interface CombatActionProjectionContextSource {
   /** 主动命中可显式绑定 enemy；不伪造 Buff 事件。接收侧 Target 是事件施加者。 */
   readonly actionTargetTarget:
     | 'enemy'
+    | 'buffOwner'
     | 'currentAbilityEntity'
     | 'eventTarget'
     | 'eventSource'
@@ -64,6 +67,8 @@ export interface CombatActionProjectionContextSource {
   };
   /** 已由同一主动技能动作图证明会命中唯一木桩的命名目标组。 */
   readonly staticEnemyTargetGroupKeys?: ReadonlySet<string>;
+  /** 当前场景额外提供的 IHittableObject 数量；未声明时不得假定为零。 */
+  readonly fixedHittableTargetCount?: number;
 }
 
 /** 领域宿主可显式补入公共动作叶子的已审计投影；未提供时仍严格失败。 */
@@ -80,6 +85,14 @@ const BUFF_ACTION_CONTEXT: CombatActionProjectionContextSource = {
   actionOwnerTarget: 'buffOwner',
   actionSourceTarget: 'caster',
   actionTargetTarget: 'eventTarget',
+};
+
+// buff-lifecycle.md：Start/Enable 没有外部能力事件，Source 是创建者，Target/InputTarget 是持有者。
+// 生命周期执行器以 Buff 来源绑定 caster；不能从不存在的 event 中读取来源或目标。
+const BUFF_LIFECYCLE_CONTEXT: CombatActionProjectionContextSource = {
+  actionOwnerTarget: 'buffOwner',
+  actionSourceTarget: 'caster',
+  actionTargetTarget: 'buffOwner',
 };
 
 // before-output-buff.md / Buff.BindAbilityEventEnvironment：205 的输入是新 Buff 施加者，
@@ -533,7 +546,7 @@ export type CompiledBuffStepSource =
   | {
       readonly kind: 'applyBuff';
       readonly parameters: {
-        readonly buffId: string;
+        readonly buffId: CombatStepParameters['applyBuff']['buffId'];
         readonly target:
           | 'caster'
           | 'enemy'
@@ -560,6 +573,10 @@ export type CompiledBuffStepSource =
           >
         >;
       };
+    }
+  | {
+      readonly kind: 'applyElementalInfliction';
+      readonly parameters: CombatStepParameters['applyElementalInfliction'];
     }
   | {
       readonly kind: 'conditional';
@@ -803,34 +820,6 @@ export function buffRuntimeReadsBlackboardKey(source: BuffRuntimeSource, key: st
   return visit(source);
 }
 
-export function collectBuffRuntimeClosure(
-  rootIds: readonly string[],
-  buffData: Record<string, unknown>,
-): Map<string, BuffRuntimeSource> {
-  const result = new Map<string, BuffRuntimeSource>();
-  const queue = [...rootIds];
-  while (queue.length > 0) {
-    const buffId = queue.shift()!;
-    if (result.has(buffId)) continue;
-    const raw = buffData[buffId];
-    if (raw === undefined)
-      throw new Error(`BuffData: missing Buff definition ${JSON.stringify(buffId)}`);
-    const source = parseBuffRuntimeSource(raw, `BuffData.${buffId}`);
-    if (source.graph.buffId !== buffId) throw new Error(`BuffData.${buffId}.id: identity mismatch`);
-    result.set(buffId, source);
-    for (const reference of collectBuffActionReferences(source.graph)) {
-      if (reference.kind !== 'buff' || reference.state === 'inactive') continue;
-      if (reference.id === null) {
-        throw new Error(
-          `${reference.sourcePath}: dynamic Buff references cannot form a static Buff closure`,
-        );
-      }
-      queue.push(reference.id);
-    }
-  }
-  return result;
-}
-
 export function compileBuffRuntimeDefinitionSource(
   source: BuffRuntimeSource,
   visualOnlyIds: ReadonlySet<string> = new Set(),
@@ -868,7 +857,14 @@ export function compileBuffRuntimeDefinitionSource(
         finishesWithSourceSkill = true;
         continue;
       }
-      const compiled = compileLinearSequence(sequence, visualOnlyIds);
+      // Finish/EnhanceChanged 可由其它实体触发，来源绑定需另行恢复，不能沿用启动身份。
+      const compiled = compileLinearSequence(
+        sequence,
+        visualOnlyIds,
+        event.event === 'OnBuffStart' || event.event === 'DuringBuffEnable'
+          ? BUFF_LIFECYCLE_CONTEXT
+          : BUFF_ACTION_CONTEXT,
+      );
       if (compiled.steps.length > 0) target.push(compiled);
     }
   }
@@ -1444,6 +1440,7 @@ function compileLinearSequence(
   extensions: CombatActionProjectionExtensionsSource = {},
 ): CompiledBuffSequenceSource {
   assertPresentationCalculationIsolation(source);
+  assertSpatialContextWriteIsolation(source);
   if (
     (source.onlyExecuteWhenSourceIsMainCharacter || source.onlyExecuteWhenSourceIsGuard) &&
     collectNativeActionNodes(source)
@@ -1462,6 +1459,33 @@ function compileLinearSequence(
     source,
     createBuffSequenceProjection(visualOnlyIds, context, extensions),
   );
+}
+
+/** 选点动作写出的 Context 只能进入空间动作；一旦被战斗动作读取就必须恢复真实几何。 */
+function assertSpatialContextWriteIsolation(
+  source: NativeSequenceSource<KnownNativeActionLeafSource>,
+): void {
+  const leaves = collectNativeActionNodes(source).filter(
+    node => node.body.kind === 'leaf',
+  ) as NativeActionNodeSource<KnownNativeActionLeafSource>[];
+  for (const node of leaves) {
+    if (
+      node.body.kind !== 'leaf' ||
+      node.body.value.family !== 'spatial' ||
+      node.body.value.action.kind !== 'teleportPositionSelection'
+    )
+      continue;
+    const key = node.body.value.action.outputContextKey;
+    for (const consumer of leaves) {
+      if (consumer === node || consumer.body.kind !== 'leaf') continue;
+      if (!JSON.stringify(consumer.body.value.action).includes(JSON.stringify(key))) continue;
+      if (consumer.body.value.family !== 'spatial') {
+        throw new Error(
+          `${node.sourcePath}: spatial output ${key} reaches combat action ${consumer.sourcePath}`,
+        );
+      }
+    }
+  }
 }
 
 /** 只有全部消费者仍属于无渲染支链时，角度/曲线中间值才可连同相机动作一起省略。 */
@@ -1627,6 +1651,7 @@ function isCombatInvisibleIfElse(
   const safeConditions = new Set([
     'mainOperator',
     'twoDirectionAngle',
+    'distance',
     'entityCount',
     'floatCompare',
     'comboCameraAlphaSetting',
@@ -2412,9 +2437,9 @@ function compileConditionLeaf(
     if (
       condition.targetSource === 'Target' &&
       condition.targetGroupKey === '' &&
-      !condition.containsHittableTarget &&
       !condition.excludeDeadEntity &&
       condition.storeKey === '' &&
+      (!condition.containsHittableTarget || context.fixedHittableTargetCount !== undefined) &&
       operator !== undefined &&
       ['enemy', 'currentAbilityEntity', 'eventTarget', 'eventSource'].includes(
         context.actionTargetTarget,
@@ -2424,7 +2449,10 @@ function compileConditionLeaf(
       // 不把一般 Context 集合查询错误简化为唯一木桩。
       return {
         kind: 'actionValueCompare',
-        left: { kind: 'constant', value: 1 },
+        left: {
+          kind: 'constant',
+          value: 1 + (condition.containsHittableTarget ? context.fixedHittableTargetCount! : 0),
+        },
         operator,
         right: { kind: 'constant', value: condition.minimumCount },
       };
@@ -2737,9 +2765,10 @@ function compileConditionLeaf(
 function singleBuffConditionTarget(
   context: CombatActionProjectionContextSource,
   sourcePath: string,
-): 'enemy' | 'currentAbilityEntity' | 'eventTarget' {
+): 'enemy' | 'buffOwner' | 'currentAbilityEntity' | 'eventTarget' {
   if (
     context.actionTargetTarget === 'enemy' ||
+    context.actionTargetTarget === 'buffOwner' ||
     context.actionTargetTarget === 'eventTarget' ||
     context.actionTargetTarget === 'currentAbilityEntity'
   ) {
@@ -2791,6 +2820,7 @@ function compileActionNode(
       'inputControl',
       'timeDilation',
       'environment',
+      'elementalInfliction',
     ].includes(node.body.value.family)
   )
     throw new Error(`${node.sourcePath}: unaudited single-enemy action ${node.body.value.family}`);
@@ -2818,6 +2848,9 @@ function compileActionNode(
   }
   if (node.body.value.family === 'aura') {
     const aura = node.body.value.action;
+    if (aura.kind !== 'globalPartyAura') {
+      throw new Error(`${node.sourcePath}: Aura reference slice cannot enter runtime projection`);
+    }
     return aura.buffs.flatMap((entry, index) => {
       if (visualOnlyIds.has(entry.buffId)) return [];
       const assignments = entry.assignBlackboard
@@ -2908,6 +2941,12 @@ function compileActionNode(
         actionSourceTarget: context.actionSourceTarget,
       }),
     ];
+  }
+  if (node.body.value.family === 'elementalInfliction') {
+    return [projectElementalInflictionAction(node.body.value.action, node.sourcePath, context)];
+  }
+  if (node.body.value.family === 'keywordBuff') {
+    return [projectKeywordBuffAction(node.body.value.action, node.sourcePath, context)];
   }
   if (node.body.value.family === 'heal') {
     const action = node.body.value.action;
@@ -3339,13 +3378,15 @@ function compileBuffApplication(
   context: CombatActionProjectionContextSource = BUFF_ACTION_CONTEXT,
 ): CompiledBuffStepSource[] {
   for (const entry of action.buffs) {
-    if (entry.readIdFromBlackboard || entry.buffId.length === 0)
-      throw new Error(`${sourcePath}: dynamic Buff identity is unsupported`);
+    if (entry.readIdFromBlackboard ? entry.buffIdKey.length === 0 : entry.buffId.length === 0)
+      throw new Error(`${sourcePath}: Buff identity or blackboard key is empty`);
   }
   // 纯表现子 Buff 的动作生命周期只持有并清理表现资源；来源已完整解析后可从无渲染后端省略。
-  if (action.buffs.every(entry => visualOnlyIds.has(entry.buffId))) return [];
+  if (action.buffs.every(entry => !entry.readIdFromBlackboard && visualOnlyIds.has(entry.buffId)))
+    return [];
   if (
     action.buffs.length === 1 &&
+    !action.buffs[0]!.readIdFromBlackboard &&
     action.buffs[0]!.buffId === 'buff_common_obtain_ultimate_sp' &&
     !action.buffs[0]!.assignBlackboard &&
     action.buffs[0]!.assignments.length === 0 &&
@@ -3376,13 +3417,14 @@ function compileBuffApplication(
     throw new Error(`${sourcePath}: unaudited receiving Buff event target`);
   if (
     action.inheritSkillIds.length > 0 ||
-    action.inheritSourceSkillCastId ||
     action.isExtra ||
     action.passTargetGroupsToBuff ||
     action.overrideBuffIconDuration
   ) {
     throw new Error(`${sourcePath}: unsupported CreateBuff lifecycle options`);
   }
+  // combat-spec/create-buff-action-data.md：inheritSourceSkillCastId 不被原生 ExecuteInternal 读取；
+  // 实际施放信息继承只由 inheritSourceSkillCastInfo 控制。
   const target =
     action.target.targetSource === 'Owner'
       ? requireActionOwnerProjection(context, sourcePath)
@@ -3390,6 +3432,7 @@ function compileBuffApplication(
         ? context.actionSourceTarget === 'buffSource'
           ? 'buffSource'
           : context.actionTargetTarget === 'enemy' ||
+              context.actionTargetTarget === 'buffOwner' ||
               context.actionTargetTarget === 'currentAbilityEntity'
             ? 'caster'
             : 'eventSource'
@@ -3416,13 +3459,14 @@ function compileBuffApplication(
     action.buffSource === 'ActionOwner'
       ? context.actionOwnerTarget === 'unavailable'
         ? null
-        : context.actionSourceTarget === 'buffSource'
+        : context.actionSourceTarget === 'buffSource' || context.actionTargetTarget === 'buffOwner'
           ? 'buffOwner'
           : undefined
       : action.buffSource === 'ActionSource'
         ? context.actionSourceTarget === 'buffSource'
           ? 'buffSource'
           : context.actionTargetTarget === 'enemy' ||
+              context.actionTargetTarget === 'buffOwner' ||
               context.actionTargetTarget === 'currentAbilityEntity'
             ? undefined
             : 'eventSource'
@@ -3430,7 +3474,7 @@ function compileBuffApplication(
   if (target === null || target === 'abilityEntity' || source === null)
     throw new Error(`${sourcePath}: unsupported Buff target/source`);
   return action.buffs.flatMap(entry => {
-    if (visualOnlyIds.has(entry.buffId)) return [];
+    if (!entry.readIdFromBlackboard && visualOnlyIds.has(entry.buffId)) return [];
     const assignments = entry.assignBlackboard
       ? Object.fromEntries(
           entry.assignments.map(item => [
@@ -3448,7 +3492,7 @@ function compileBuffApplication(
       {
         kind: 'applyBuff' as const,
         parameters: {
-          buffId: entry.buffId,
+          buffId: entry.readIdFromBlackboard ? { blackboardKey: entry.buffIdKey } : entry.buffId,
           target,
           ...(source === undefined ? {} : { source }),
           ...(action.count.blackboardKey === null && action.count.value === 1

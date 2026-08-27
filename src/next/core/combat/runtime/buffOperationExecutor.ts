@@ -271,6 +271,15 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     }
 
     if (step.kind === 'applyBuff') {
+      const identity = step.parameters.buffId;
+      const dynamicId = typeof identity !== 'string';
+      if (
+        dynamicId &&
+        (step.parameters.definition !== undefined ||
+          step.parameters.durationSeconds !== undefined ||
+          step.parameters.effectiveness !== undefined)
+      )
+        throw new Error('动态 Buff ID 不能使用内联定义或旧式覆盖');
       const attachToSkill = step.parameters.lifetimeOwner === 'currentCastSkill';
       const attachBuff =
         context?.event?.kind === 'abilitySkill'
@@ -304,6 +313,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
             : target.apply === undefined,
         )
       ) {
+        if (dynamicId) throw new Error('动态 Buff ID 需要支持定义施加的 Buff 目标端口');
         if (attachToSkill) {
           throw new Error('currentCastSkill Buff lifetime requires a scoped Buff application port');
         }
@@ -323,36 +333,49 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           ? 1
           : resolveActionValueOperand(step.parameters.count, context!.blackboard);
       if (!Number.isFinite(count)) throw new RangeError('applyBuff count must be finite');
-      const definition =
-        step.parameters.definition ??
-        this.dependencies.resolveBuffDefinition?.(step.parameters.buffId);
-      const request: BuffApplicationRequest = {
-        buffId: step.parameters.buffId,
-        ...(definition === undefined ? {} : { definition }),
-        sourceId:
-          step.parameters.source === undefined
-            ? this.dependencies.sourceId
-            : this.#resolveApplicationSource(step.parameters.source, context).ownerId,
-        ...(this.dependencies.sourceActionId === undefined
-          ? {}
-          : { sourceActionId: this.dependencies.sourceActionId }),
-        blackboardValues: Object.fromEntries(
-          Object.entries(assignments).map(([key, operand]) => [
-            key,
-            resolveActionValueOperand(operand, context!.blackboard),
-          ]),
-        ),
-        ...(step.parameters.inheritSourceSkillCastInfo && context?.skillCastInfo !== undefined
-          ? { skillCastInfo: context.skillCastInfo }
-          : {}),
+      // CreateBuffAction 每次实际施加都读 ID 和参数；前一个子 Buff 启动后可以改变后续读取值。
+      const createRequest = (): BuffApplicationRequest => {
+        const buffId =
+          typeof identity === 'string'
+            ? identity
+            : context?.blackboard.getString(identity.blackboardKey);
+        if (buffId === undefined || buffId.trim().length === 0)
+          throw new Error(
+            `Buff ID '${typeof identity === 'string' ? identity : identity.blackboardKey}' 缺失、为空或不是字符串`,
+          );
+        const definition =
+          step.parameters.definition ?? this.dependencies.resolveBuffDefinition?.(buffId);
+        if (dynamicId && definition === undefined)
+          throw new Error(`动态 Buff ID '${buffId}' 在定义目录中不存在`);
+        return {
+          buffId,
+          ...(definition === undefined ? {} : { definition }),
+          sourceId:
+            step.parameters.source === undefined
+              ? this.dependencies.sourceId
+              : this.#resolveApplicationSource(step.parameters.source, context).ownerId,
+          ...(this.dependencies.sourceActionId === undefined
+            ? {}
+            : { sourceActionId: this.dependencies.sourceActionId }),
+          blackboardValues: Object.fromEntries(
+            Object.entries(assignments).map(([key, operand]) => [
+              key,
+              resolveActionValueOperand(operand, context!.blackboard),
+            ]),
+          ),
+          ...(step.parameters.inheritSourceSkillCastInfo && context?.skillCastInfo !== undefined
+            ? { skillCastInfo: context.skillCastInfo }
+            : {}),
+        };
       };
       if (finishByAction && this.#actionDurationBuffs.has(step)) {
         throw new Error('action-duration applyBuff step is already active');
       }
       const scoped: BuffApplicationHandle[] = [];
       // 原生用从 0 开始的整数计数器与 float 次数比较，正小数因此会多执行一次。
-      for (let repetition = 0; repetition < count; repetition += 1) {
-        for (const target of targets) {
+      for (const target of targets) {
+        for (let repetition = 0; repetition < count; repetition += 1) {
+          const request = createRequest();
           if (finishByAction || asChildBuff || attachToSkill) {
             const handle = target.applyScoped!(request);
             if (handle !== null) {

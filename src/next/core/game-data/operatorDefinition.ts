@@ -755,7 +755,12 @@ export interface CombatStepParameters {
     dieWhenSourceDies: boolean;
     blackboardAssignments?: Readonly<Record<string, ActionValueOperand>>;
   };
-  applyElementalInfliction: { element: InflictionElement; isExtra: boolean };
+  applyElementalInfliction: {
+    element: InflictionElement;
+    isExtra: boolean;
+    /** 省略时沿用技能的固定敌人；Buff Owner 必须按生命周期身份校验，不能无条件视为敌人。 */
+    target?: 'enemy' | 'buffOwner';
+  };
   /**
    * 对固定敌人执行物理异常入口。公共 Buff 蓝图随使用点内联，运行时按目标当前层数
    * 选择首次破防或后续异常链，不把公共 Buff 变成可编辑的项目级钻石依赖。
@@ -821,7 +826,8 @@ export interface CombatStepParameters {
       }
   );
   applyBuff: {
-    buffId: string;
+    /** 动态身份在执行时从字符串黑板读取；不携带可被误用的字面回退 ID。 */
+    buffId: string | { readonly blackboardKey: string };
     /** 本步骤施加的完整 Buff 蓝图；运行时实例创建后不再被后续同 key 步骤改写。 */
     definition?: SkillBuffDefinition;
     target: BuffApplicationTarget;
