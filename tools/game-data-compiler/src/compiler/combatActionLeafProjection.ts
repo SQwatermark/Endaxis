@@ -950,12 +950,13 @@ function compileBuffApplication(
           ? context.actionTargetTarget
           : action.target.targetSource === 'Context' &&
               partyTargetGroups.has(action.target.targetGroupKey ?? '') &&
-              partyTargetGroups.get(action.target.targetGroupKey ?? '') !== 'spatialPoint'
+              partyTargetGroups.get(action.target.targetGroupKey ?? '') !== 'spatialPoint' &&
+              partyTargetGroups.get(action.target.targetGroupKey ?? '') !== 'empty'
             ? targetsAbilityEntityGroup
               ? ('currentAbilityEntity' as const)
               : (partyTargetGroups.get(action.target.targetGroupKey ?? '')! as Exclude<
                   ProjectedTargetGroup,
-                  'spatialPoint' | 'abilityEntity'
+                  'spatialPoint' | 'abilityEntity' | 'empty'
                 >)
             : action.target.targetSource === 'Context' &&
                 context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey ?? '') === true

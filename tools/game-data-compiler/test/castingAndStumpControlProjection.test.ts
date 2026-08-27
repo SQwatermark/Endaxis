@@ -63,6 +63,26 @@ function blowOff(deadOption: string) {
 }
 
 describe('施法输入限制与木桩物理控制投影', () => {
+  it('InterruptAction 的 Target 来源不读取残留 targetGroupKey', () => {
+    const action = parseKnownNativeActionLeafSource(
+      {
+        ...META,
+        $type: 'Beyond.Gameplay.Core.InterruptAction+Data, Gameplay.Beyond',
+        attacker: targetFixture('Source'),
+        defender: targetFixture('Target', undefined, 'residual-enemy-key'),
+        overrideSuperArmorLimit: -1,
+        immobilizedTime: 1,
+      },
+      'fixture.action',
+      {},
+    );
+
+    expect(compileBuffLeafNode(node(action), new Set(), new Map(), ACTIVE_SKILL_CONTEXT)).toEqual({
+      steps: [],
+      state: new Map(),
+    });
+  });
+
   it('OnlyDead 吹飞在死亡终止模型中省略，活目标吹飞仍阻断', () => {
     expect(
       compileBuffLeafNode(node(blowOff('OnlyDead')), new Set(), new Map(), ACTIVE_SKILL_CONTEXT),

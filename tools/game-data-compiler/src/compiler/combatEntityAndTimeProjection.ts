@@ -10,6 +10,7 @@ import {
   type ProjectedTargetGroup,
   type CombatActionProjectionContextSource,
   type CombatActionProjectionExtensionsSource,
+  isEmptyStaticEnemyExclusionTargetGroup,
   isControlledOperatorInstantSearch,
   isOwnerSpawnedAbilityEntityInstantSearch,
   isStaticSingleEnemyTargetGroup,
@@ -57,6 +58,14 @@ export function compileBuffLeafNode(
     };
   }
   if (node.body.value.family === 'projectile') {
+    const target = node.body.value.action.target;
+    if (
+      target.targetSource === 'Context' &&
+      target.targetGroupKey !== '' &&
+      partyTargetGroups.get(target.targetGroupKey) === 'empty'
+    ) {
+      return { steps: [], state: partyTargetGroups };
+    }
     const compile = extensions.compileProjectileLaunch;
     if (compile === undefined)
       throw new Error(`${node.sourcePath}: projectile launch projection is unavailable`);
@@ -145,7 +154,6 @@ export function compileBuffLeafNode(
     const action = node.body.value.action;
     const defenderIsEnemy =
       (action.defender.targetSource === 'Target' &&
-        action.defender.targetGroupKey === '' &&
         (context.actionTargetTarget === 'enemy' ||
           (context.actionTargetTarget === 'buffOwner' &&
             context.fixedBuffOwnerTarget === 'enemy'))) ||
@@ -433,7 +441,6 @@ export function compileBuffLeafNode(
       );
       if (
         !['actionOwner', 'actionSource'].includes(query.owner.kind) ||
-        !['actionOwner', 'actionSource'].includes(query.center.kind) ||
         query.validators.some(validator => validator.kind === 'distance') ||
         distancePostProcessors.length !== query.postProcessors.length ||
         distancePostProcessors.length > 1
@@ -513,6 +520,19 @@ export function compileBuffLeafNode(
       const nextGroups = new Map(partyTargetGroups);
       nextGroups.set(write.targetGroupKey, 'enemy');
       return { steps: [], state: nextGroups };
+    }
+    if (context.actionTargetTarget === 'enemy' && isEmptyStaticEnemyExclusionTargetGroup(write)) {
+      const nextGroups = new Map(partyTargetGroups);
+      nextGroups.set(write.targetGroupKey, 'empty');
+      return {
+        steps: [
+          {
+            kind: 'mergeContextTargets',
+            parameters: { saveToContextKey: write.targetGroupKey, sources: [] },
+          },
+        ],
+        state: nextGroups,
+      };
     }
     if (context.actionTargetTarget === 'currentAbilityEntity')
       throw new Error(`${node.sourcePath}: unaudited AbilityEntity target group`);

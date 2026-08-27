@@ -97,6 +97,110 @@ describe('原生查询 → Context → 逐能力实体动作的公共投影', ()
     expect(result.steps[0]).toHaveProperty('parameters.abilityEntityIds', []);
   });
 
+  it('OwnerSpawnedEntityFinder 没有空间过滤时不读取序列化的 Context center', () => {
+    const source = nodes();
+    const first = source.actions[0]!;
+    if (first.body.kind !== 'leaf' || first.body.value.family !== 'targetGroup') throw new Error();
+    const query = {
+      ...first.body.value.action,
+      center: 'ContextTarget',
+      centerContextKey: 'unbound-spatial-center',
+    };
+    const result = compileCombatActionSequenceSource(
+      {
+        ...source,
+        actions: [
+          { ...first, body: { kind: 'leaf', value: { family: 'targetGroup', action: query } } },
+          ...source.actions.slice(1),
+        ],
+      },
+      returnTargetContext,
+    );
+
+    expect(result.steps[0]).toEqual({
+      kind: 'findOwnerSpawnedAbilityEntities',
+      parameters: {
+        saveToContextKey: 'ComboLances',
+        abilityEntityIds: ['abilityentity_chr_0012_avywen_combo_skill_lance'],
+      },
+    });
+  });
+
+  it('唯一敌人排除当前 Target 后建立显式空目标组', () => {
+    const source = nodes();
+    const first = source.actions[0]!;
+    if (first.body.kind !== 'leaf' || first.body.value.family !== 'targetGroup') throw new Error();
+    const query = {
+      ...first.body.value.action,
+      finderType: 'HitBoxFinder',
+      finderFactionTarget: 'Anti',
+      finderTargetObjectType: 'Normal',
+      finderCheckAlive: true,
+      finderShape: {} as never,
+      finderSpawnedObjectType: null,
+      validatorTypes: [],
+      validatorTagQueries: [],
+      postProcessorTypes: ['ExcludeTarget', 'PriorityFilter'],
+      excludesCurrentTarget: true,
+      excludesOwner: false,
+      priorityFilters: [
+        {
+          filterType: 'DistanceFromCenterAsc',
+          onlyReserveMaxPriorityTargets: false,
+          limitMaxNum: true,
+          maxNum: 1,
+          buffFilter: {
+            checkType: 'Id',
+            buffIds: [],
+            tagQuery: { queryType: 'hasAny' as const, tagIds: [] },
+            stackCountType: 'BuffCount',
+          },
+        },
+      ],
+      distanceValidators: [],
+      shuffleTargets: [],
+      center: 'ActionSource',
+      centerContextKey: '',
+      selectorOwner: 'ActionOwner',
+      selectorOwnerContextKey: '',
+    };
+    const result = compileCombatActionSequenceSource(
+      {
+        ...source,
+        actions: [
+          { ...first, body: { kind: 'leaf', value: { family: 'targetGroup', action: query } } },
+          {
+            ...first,
+            sourcePath: 'fixture.empty-projectile',
+            body: {
+              kind: 'leaf',
+              value: {
+                family: 'projectile',
+                action: {
+                  target: { targetSource: 'Context', targetGroupKey: 'ComboLances' },
+                } as never,
+              },
+            },
+          },
+        ],
+      },
+      returnTargetContext,
+      new Set(),
+      {
+        compileProjectileLaunch: () => {
+          throw new Error('empty target group must not launch a projectile');
+        },
+      },
+    );
+
+    expect(result.steps).toEqual([
+      {
+        kind: 'mergeContextTargets',
+        parameters: { saveToContextKey: 'ComboLances', sources: [] },
+      },
+    ]);
+  });
+
   it.each([
     'ContinuousFindTargetAction',
     'contextOwner',

@@ -13,7 +13,13 @@ import type { TargetGroupActionSource } from '../source/targetGroup.ts';
  * 条件、动作及 Buff 装配共用同一份实现；不得反向调用序列编排或具体动作投影。 */
 
 export type ProjectedTargetGroup =
-  'party' | 'partyExceptCaster' | 'abilityEntity' | 'controlledOperator' | 'enemy' | 'spatialPoint';
+  | 'party'
+  | 'partyExceptCaster'
+  | 'abilityEntity'
+  | 'controlledOperator'
+  | 'enemy'
+  | 'empty'
+  | 'spatialPoint';
 
 /** 原生动作身份由宿主及事件方向共同投影，不能把物理事件来源一律当作 ActionSource。 */
 export interface CombatActionProjectionContextSource {
@@ -102,6 +108,46 @@ export function isStaticSingleEnemyTargetGroup(write: TargetGroupActionSource): 
         write.finderFactionTarget === 'Anti' &&
         write.finderTargetObjectType === 'Normal' &&
         write.finderCheckAlive === true))
+  );
+}
+
+/**
+ * 唯一敌人已作为当前 Target 进入动作时，命中盒“搜索敌人 → 排除当前 Target”必定为空。
+ * 只接受萤石反弹分支观测到的完整后处理形状；未知排序或 Buff 过滤不在这里被吞掉。
+ */
+export function isEmptyStaticEnemyExclusionTargetGroup(write: TargetGroupActionSource): boolean {
+  const priority = write.priorityFilters[0];
+  return (
+    write.producerType === 'FindTargetAction' &&
+    write.finderType === 'HitBoxFinder' &&
+    write.finderFactionTarget === 'Anti' &&
+    write.finderTargetObjectType === 'Normal' &&
+    write.finderCheckAlive === true &&
+    write.finderOwnerPartsQuery === null &&
+    write.finderSpawnedObjectType === null &&
+    write.validatorTypes.length === 0 &&
+    write.validatorTagQueries.length === 0 &&
+    write.distanceValidators.length === 0 &&
+    write.shuffleTargets.length === 0 &&
+    write.selectorOwner === 'ActionOwner' &&
+    write.selectorOwnerContextKey === '' &&
+    write.center === 'ActionSource' &&
+    write.centerContextKey === '' &&
+    !write.excludesOwner &&
+    write.excludesCurrentTarget &&
+    write.postProcessorTypes.length === 2 &&
+    write.postProcessorTypes[0] === 'ExcludeTarget' &&
+    write.postProcessorTypes[1] === 'PriorityFilter' &&
+    write.priorityFilters.length === 1 &&
+    priority?.filterType === 'DistanceFromCenterAsc' &&
+    priority.onlyReserveMaxPriorityTargets === false &&
+    priority.limitMaxNum === true &&
+    priority.maxNum === 1 &&
+    priority.buffFilter.checkType === 'Id' &&
+    priority.buffFilter.buffIds.length === 0 &&
+    priority.buffFilter.tagQuery.queryType === 'hasAny' &&
+    priority.buffFilter.tagQuery.tagIds.length === 0 &&
+    priority.buffFilter.stackCountType === 'BuffCount'
   );
 }
 

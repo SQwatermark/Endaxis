@@ -15,7 +15,11 @@
   `_OnCollide` 把当前时间写回同一字典。因此该字段约束的是整枚投射物生命周期，而不是仅同帧去重。
 - Endaxis 只据此放宽 hit-only、首 tick、唯一木桩的严格形状：`maxHitCount=-1` 与 `1` 都仍要求
   `allowHitSameTarget=false`，其他碰撞体、回调槽和运动条件不变。汤汤普攻三现由 blocked 变为
-  compiled；当前统一主动矩阵为 **157/309**，主动技能全可编译干员 **3 名**，完整定义 **3 名**。
+  compiled。随后按矩阵处理萤石连携时，复用复刻库已证明的 `OwnerSpawnedEntityFinder` 非空间行为：
+  finder 只遍历 owner.children，本身不读取 center/direction；唯一敌人被
+  `ExcludeTarget(Target)` 排除后则建立显式空目标组，后续投射物不伪造。Target 来源的
+  `InterruptAction` 同样不读取残留 targetGroupKey。当前统一主动矩阵为 **161/309**，其中佩丽卡
+  新增 1 项、莱万汀新增 3 项 compiled；主动技能全可编译干员仍为 **3 名**，完整定义 **3 名**。
 - 原生空字面时间膨胀曲线现在只作为来源事实保存，复刻库的曲线执行器仍拒绝把空数组猜成 0 或 1。
   旧 Python oracle 仅允许在 Buff Owner 已严格绑定为静态敌人、Entity 层、无冷却影响且随动作结束的
   窄形状下审计省略。汤汤终结技减速 Buff 的图标与 4 秒寿命已可解析，但其实际施加仍位于尚未编译的
@@ -23,12 +27,13 @@
 - 汤汤终结技的剩余控制流是能力实体监听 `OnOutputBuff`，检查指定 Buff 后从循环段跳到 128 帧收尾；
   现有静态 JumpTo 编译只覆盖启动时可判定的分支，不能把运行中事件跳转摊成无条件调度。后续若选择
   汤汤纵向切片，必须先恢复这类事件驱动时间线跳转，不能只把 Debuff 定义塞入产物。
-- 最新矩阵下一候选为萤石 **8/10**：连携阻塞于 AbilityEntity 查询过滤器，终结技阻塞于
-  `DispelAction`。按纵向门禁应先评估这两项及完整 Buff/养成闭包，再决定是否作为下一名完整干员；
-  不因当前刚处理过汤汤便追逐其 6 个剩余主动阻塞。
-- 验证：game-data **93 文件 / 689 项**、旧 Python oracle **484 项**、四套 TypeScript 类型检查、
+- 最新矩阵下一候选仍为萤石 **8/10**。连携已越过实体查询、唯一敌人排除和 Interrupt 三层阻塞，
+  现在准确停在能力实体目标组跨调度序列未传入 CreateBuff 编译上下文；终结技仍阻塞于
+  `DispelAction`。应修复公共调度状态所有权并核对 Dispel 对木桩伤害的可见性，再检查完整 Buff/养成
+  闭包；不能在 CreateBuff 上按 `ball` 键名加特判。
+- 验证：game-data **93 文件 / 692 项**、旧 Python oracle **484 项**、四套 TypeScript 类型检查、
   汤汤旧产物 `--check` 和 `git diff --check` 通过。combat-spec **1434 项通过**；另有 **17 项**因本机
-  未配置仓库内 `artifacts/skill-data-cdn` 等真实资产而失败，与本次逻辑无关。
+  未配置仓库内 `artifacts/skill-data-cdn` 等真实资产而失败，与本次逻辑无关；新增 finder 定向 4 项通过。
 
 ### 2026-08-27：秋栗主动技能 9/9 与潜能 AddBuff 首次安装闭环（当前检查点）
 
