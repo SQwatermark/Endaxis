@@ -65,6 +65,21 @@ export function planOperatorDefinition(
     characterPotentialTable: read(path.join(args.tableRoot, 'CharacterPotentialTable.json')),
     potentialTalentEffectTable: read(path.join(args.tableRoot, 'PotentialTalentEffectTable.json')),
     skillConditionTable: read(path.join(args.tableRoot, 'SkillConditionTable.json')),
+    skillGroupValidationOptions: {
+      routingOnlyNativeSkillIds: optionalStrings(
+        row.routingOnlyNativeSkillIds,
+        `${args.slug}.routingOnlyNativeSkillIds`,
+      ),
+      simulationEquivalentNativeSkillIds: optionalStrings(
+        row.simulationEquivalentNativeSkillIds,
+        `${args.slug}.simulationEquivalentNativeSkillIds`,
+      ),
+      basePassiveSkillIds: optionalStrings(
+        row.basePassiveSkillIds,
+        `${args.slug}.basePassiveSkillIds`,
+      ),
+      routedSkillKeys: optionalStrings(row.routedSkillKeys, `${args.slug}.routedSkillKeys`),
+    },
   });
   const preliminaryActiveSkills = entries.map(entry =>
     planOperatorActiveSkillRuntime({
@@ -172,6 +187,13 @@ export function planOperatorDefinition(
     },
   });
   return { ...candidate, activeSkills };
+}
+
+function optionalStrings(value: unknown, sourcePath: string): string[] | undefined {
+  if (value === undefined) return undefined;
+  return requireArray(value, sourcePath).map((item, index) =>
+    requireNonEmptyString(item, `${sourcePath}[${index}]`),
+  );
 }
 
 function read(file: string): unknown {

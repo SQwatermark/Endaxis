@@ -141,8 +141,9 @@ export function withActionBlackboardScope(
 /** 在调度区间内按宿主技能的每次 Tick 重复执行同一个同步序列。 */
 export function repeatEachTick(
   body: ActionSequenceDefinition,
+  parameters: Extract<CombatStepDefinition, { kind: 'repeatEachTick' }>['parameters'] = {},
 ): Extract<CombatStepDefinition, { kind: 'repeatEachTick' }> {
-  return { kind: 'repeatEachTick', parameters: {}, body };
+  return { kind: 'repeatEachTick', parameters, body };
 }
 
 /** 对施法上下文中的稳定目标句柄逐一同步执行。 */

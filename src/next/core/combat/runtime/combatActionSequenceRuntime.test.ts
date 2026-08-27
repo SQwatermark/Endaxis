@@ -472,6 +472,34 @@ describe('CombatActionSequenceRuntime', () => {
     expect(fixture.executed).toEqual(['frame', 'frame', 'frame']);
   });
 
+  it('按原生单精度扫描门槛驱动固定单目标 Channeling', () => {
+    const fixture = createFixture();
+    const action = fixture.runtime.createSequence(
+      sequence({
+        kind: 'repeatEachTick',
+        parameters: {
+          nativeChanneling: {
+            executeEachFrame: false,
+            triggerIntervalSeconds: 0.06,
+            maxCountPerTarget: 3,
+            targetTriggerIntervalSeconds: -1,
+          },
+        },
+        body: sequence(operation('channel')),
+      }),
+    );
+
+    action.execute({});
+    action.tick(0, {});
+    action.tick(1 / 30, {});
+    action.tick(1 / 30, {});
+    action.tick(1 / 30, {});
+    action.tick(1 / 30, {});
+    action.tick(1 / 30, {});
+
+    expect(fixture.executed).toEqual(['channel', 'channel', 'channel']);
+  });
+
   it('对 Context 快照中的每个稳定目标同步执行 body', () => {
     const targetContext = new RuntimeTargetContext();
     targetContext.set('lances', [

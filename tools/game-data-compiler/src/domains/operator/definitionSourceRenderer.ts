@@ -184,7 +184,11 @@ function renderHelper(value: RecordValue, context: RenderContext): string | null
   )
     return callHelper('once', [parameters.scopeKey, value.body], context);
   if (value.kind === 'repeatEachTick' && keys.length === 3 && hasOwn(value, 'body'))
-    return callHelper('repeatEachTick', [value.body], context);
+    return callHelper(
+      'repeatEachTick',
+      Object.keys(parameters).length === 0 ? [value.body] : [value.body, parameters],
+      context,
+    );
   if (
     value.kind === 'forEachContextTarget' &&
     sameKeys(Object.keys(parameters), ['contextKey']) &&

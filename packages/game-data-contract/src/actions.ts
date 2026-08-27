@@ -565,8 +565,15 @@ export interface CombatStepParameters {
     /** 投射物等独立逻辑宿主在模板中声明的实体黑板；省略时继续共享父宿主实体层。 */
     entityInitialValues?: Readonly<Record<string, LevelValues>>;
   };
-  /** 在承载调度区间开始时以及之后每次宿主 Tick 中同步执行一次 body。 */
-  repeatEachTick: Record<string, never>;
+  /** 在承载调度区间内逐 Tick 驱动 body；可保留原生 Channeling 的扫描与单目标门槛。 */
+  repeatEachTick: {
+    nativeChanneling?: {
+      executeEachFrame: boolean;
+      triggerIntervalSeconds: number;
+      maxCountPerTarget: number;
+      targetTriggerIntervalSeconds: number;
+    };
+  };
   setContextFlag: {
     flag: string;
     value: boolean | number | string;

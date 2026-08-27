@@ -24,6 +24,7 @@ export const STEP_TYPE_GROUPS: readonly StepTypeGroup[] = [
       'dealStagger',
       'heal',
       'applyElementalInfliction',
+      'triggerSpellBurst',
       'applyElementalReaction',
       'consumeElementalReaction',
     ],

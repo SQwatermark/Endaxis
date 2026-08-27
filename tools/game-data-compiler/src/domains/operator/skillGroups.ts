@@ -244,6 +244,7 @@ export function validateOperatorSkillGroups(
   const routedKeys = optionIds(options.routedSkillKeys, 'routedSkillKeys');
   requireKnown(routingOnly, actualIds, 'routingOnlyNativeSkillIds');
   requireKnown(equivalent, actualIds, 'simulationEquivalentNativeSkillIds');
+  requireKnown(passive, actualIds, 'basePassiveSkillIds');
   requireKnown(routedKeys, new Set(skillByKey.keys()), 'routedSkillKeys');
   const generatedIds = new Set(skills.map(skill => skill.skillId));
   const missingNativeSkillIds = [...generatedIds].filter(id => !actualIds.has(id)).sort();

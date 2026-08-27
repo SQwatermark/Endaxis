@@ -216,6 +216,7 @@ export type CompiledBuffStepSource =
       }
     >
   | (Step<'forEachContextTarget'> & { readonly body: CompiledBuffSequenceSource })
+  | (Step<'repeatEachTick'> & { readonly body: CompiledBuffSequenceSource })
   | Step<
       'mergeContextTargets',
       Pick<Parameters<'mergeContextTargets'>, 'saveToContextKey'> & {

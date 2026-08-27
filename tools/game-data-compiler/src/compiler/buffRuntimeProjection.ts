@@ -1019,20 +1019,27 @@ function createBuffSequenceProjection(
         target.finderType === null &&
         target.validatorTypes.length === 0 &&
         target.postProcessorTypes.length === 0;
-      if (
-        !isSingleEnemy ||
-        !node.body.executeEachFrame ||
-        node.body.maxCountPerTarget !== 1 ||
-        !(node.body.triggerIntervalSeconds > 0) ||
-        !(node.body.targetTriggerIntervalSeconds > 0)
-      )
-        return null;
-      // 唯一木桩 + 每目标最多一次，使逐帧 Channeling 精确退化为首次 Tick 执行一次。
+      if (!isSingleEnemy) return null;
+      if (!node.body.executeEachFrame && !(node.body.triggerIntervalSeconds > 0)) return null;
+      const body = compileActionSequenceProgram(node.body.actionOnTick, {
+        ...createBuffSequenceProjection(visualOnlyIds, context, extensions),
+        initialState: () => partyTargetGroups,
+      });
       return {
-        steps: compileActionSequenceProgram(node.body.actionOnTick, {
-          ...createBuffSequenceProjection(visualOnlyIds, context, extensions),
-          initialState: () => partyTargetGroups,
-        }).steps,
+        steps: [
+          {
+            kind: 'repeatEachTick',
+            parameters: {
+              nativeChanneling: {
+                executeEachFrame: node.body.executeEachFrame,
+                triggerIntervalSeconds: node.body.triggerIntervalSeconds,
+                maxCountPerTarget: node.body.maxCountPerTarget,
+                targetTriggerIntervalSeconds: node.body.targetTriggerIntervalSeconds,
+              },
+            },
+            body,
+          },
+        ],
         state: partyTargetGroups,
       };
     },

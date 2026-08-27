@@ -3458,3 +3458,18 @@ Gain)`，且数值为目标派生浮点值乘 `factor`；目标派生字段/枚�
 - 当前门禁：所有已注册技能真实放轴/模拟 **302/302**；game-data **93 文件 / 687 项通过**；Next
   **237 文件 / 3241 项通过**；`type-check:game-data-production`、`type-check:next` 与
   `git diff --check` 均通过。下一位干员继续使用完整干员两遍规划，不在技能级局部硬编码身份依赖。
+
+### 2026-08-28：Tangtang 新生成链首轮横向缺口
+
+- 新整名规划器现把 manifest 的 `routingOnlyNativeSkillIds`、`simulationEquivalentNativeSkillIds`、
+  `basePassiveSkillIds` 与 `routedSkillKeys` 正式传入技能组校验。Tangtang 原生战技等级组中混入的
+  `chr_0027_tangtang_passive_0` 因而只在被明确声明为基础被动后排除；未知或误拼的被动 ID 仍失败。
+- 固定唯一敌人的 `ChannelingAction` 不再仅支持“逐帧且最多一次”的窄形状。正式步骤现在保存
+  `executeEachFrame`、全局扫描间隔、每目标次数上限和逐目标间隔，运行时使用原生单精度累计与严格
+  大于比较，并保持区间开始立即扫描。Tangtang 普攻三的 0.06 秒周期伤害已越过该阻塞。
+- 当前下一阻塞是同技能的 hit-only 投射物 `projectile_chr_0027_tangtang_attack3`：其
+  `maxHitCount=-1`、`allowHitSameTarget=false`。现有 combat-spec 证据只足以同步投影
+  `maxHitCount=1` 的首击回收，不足以证明原生重复目标缓存与后续碰撞时序，因此暂不把它猜成一次
+  命中。应先在 combat-spec 恢复重复命中过滤，再继续 Tangtang 直至终结技可见 Debuff 闭环。
+  本阶段门禁为 game-data **93 文件 / 688 项通过**、Next **237 文件 / 3242 项通过**，两套专用
+  类型检查与 `git diff --check` 通过。

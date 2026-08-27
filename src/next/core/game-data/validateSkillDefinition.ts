@@ -2281,8 +2281,39 @@ function validateCombatStep(
       }
       break;
     }
-    case 'repeatEachTick':
+    case 'repeatEachTick': {
+      if (parameters.nativeChanneling !== undefined) {
+        const channelingPath = `${path}.parameters.nativeChanneling`;
+        const channeling = asRecord(parameters.nativeChanneling, channelingPath, out);
+        if (channeling !== null) {
+          const executeEachFrame = requireBoolean(
+            channeling,
+            'executeEachFrame',
+            channelingPath,
+            out,
+          );
+          const interval = requireFiniteNumber(
+            channeling,
+            'triggerIntervalSeconds',
+            channelingPath,
+            out,
+          );
+          if (executeEachFrame === false && interval !== null && interval <= 0) {
+            push(out, `${channelingPath}.triggerIntervalSeconds`, 'expected a positive number');
+          }
+          const maxCount = requireInteger(channeling, 'maxCountPerTarget', channelingPath, out);
+          if (maxCount !== null && maxCount < -1) {
+            push(
+              out,
+              `${channelingPath}.maxCountPerTarget`,
+              'expected -1 or a non-negative integer',
+            );
+          }
+          requireFiniteNumber(channeling, 'targetTriggerIntervalSeconds', channelingPath, out);
+        }
+      }
       break;
+    }
     case 'setContextFlag':
       requireString(parameters, 'flag', `${path}.parameters`, out);
       validateScalar(parameters.value, `${path}.parameters.value`, out);

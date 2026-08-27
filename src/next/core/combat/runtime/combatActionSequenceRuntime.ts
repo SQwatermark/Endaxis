@@ -126,6 +126,10 @@ class ActionBlackboardScopeStep extends CombatStep {
 
 class RepeatEachTickStep extends CombatStep {
   #skipInitialTick = false;
+  #timerSeconds = 0;
+  #scanCount = 0;
+  #targetTriggerCount = 0;
+  #lastTargetTriggerSeconds = 0;
 
   constructor(
     readonly step: Extract<ResolvedCombatStep, { kind: 'repeatEachTick' }>,
@@ -137,19 +141,63 @@ class RepeatEachTickStep extends CombatStep {
 
   execute(context: CombatExecutionContext): void {
     this.#skipInitialTick = true;
-    this.#executeBody(context);
+    this.#timerSeconds = 0;
+    this.#scanCount = 0;
+    this.#targetTriggerCount = 0;
+    this.#lastTargetTriggerSeconds = 0;
+    this.#scan(context);
   }
 
-  override tick(_deltaTime: number, context: CombatExecutionContext): void {
+  override tick(deltaTime: number, context: CombatExecutionContext): void {
     if (this.#skipInitialTick) {
       this.#skipInitialTick = false;
       return;
     }
-    this.#executeBody(context);
+    const channeling = this.step.parameters.nativeChanneling;
+    if (channeling === undefined) {
+      this.#executeBody(context);
+      return;
+    }
+    this.#timerSeconds = Math.fround(this.#timerSeconds + Math.fround(deltaTime));
+    if (
+      channeling.executeEachFrame ||
+      this.#timerSeconds >= Math.fround(this.#scanCount * channeling.triggerIntervalSeconds)
+    ) {
+      this.#scan(context);
+    }
   }
 
   override reset(): void {
     this.#skipInitialTick = false;
+    this.#timerSeconds = 0;
+    this.#scanCount = 0;
+    this.#targetTriggerCount = 0;
+    this.#lastTargetTriggerSeconds = 0;
+  }
+
+  #scan(context: CombatExecutionContext): void {
+    const channeling = this.step.parameters.nativeChanneling;
+    if (channeling === undefined) {
+      this.#executeBody(context);
+      return;
+    }
+    this.#scanCount += 1;
+    if (
+      channeling.maxCountPerTarget >= 0 &&
+      this.#targetTriggerCount >= channeling.maxCountPerTarget
+    )
+      return;
+    if (
+      this.#targetTriggerCount > 0 &&
+      !(
+        Math.fround(this.#timerSeconds - this.#lastTargetTriggerSeconds) >
+        channeling.targetTriggerIntervalSeconds
+      )
+    )
+      return;
+    this.#executeBody(context);
+    this.#targetTriggerCount += 1;
+    this.#lastTargetTriggerSeconds = this.#timerSeconds;
   }
 
   #executeBody(context: CombatExecutionContext): void {

@@ -134,6 +134,27 @@ describe('干员技能等级组', () => {
       ),
     ).toThrow('does not match generated skill sources');
   });
+
+  it('只在 manifest 明确声明后从可放置技能组排除基础被动', () => {
+    const groups = parseOperatorSkillGroupSources(operatorGroups(), 'fixture.skillGroups');
+    const nativeGroups = parseNativeOperatorSkillGroupSources(growthTable(), 'chr_test').map(
+      group =>
+        group.nativeGroupType === 1
+          ? { ...group, skillIds: [...group.skillIds, 'passive_0'] }
+          : group,
+    );
+
+    expect(() =>
+      validateOperatorSkillGroups(groups, SKILLS, nativeGroups, {
+        basePassiveSkillIds: ['passive_0'],
+      }),
+    ).not.toThrow();
+    expect(() =>
+      validateOperatorSkillGroups(groups, SKILLS, nativeGroups, {
+        basePassiveSkillIds: ['missing_passive'],
+      }),
+    ).toThrow('basePassiveSkillIds: unknown IDs');
+  });
 });
 
 function operatorGroups(): Array<Record<string, unknown> & { skillKeys: string[] }> {
