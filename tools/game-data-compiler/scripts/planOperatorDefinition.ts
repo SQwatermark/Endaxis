@@ -1,9 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { format, resolveConfig } from 'prettier';
 import { compileOperatorFoundationSource } from '../src/domains/operator/sourceClosure.ts';
 import { parseOperatorProductIdentitySource } from '../src/domains/operator/productIdentity.ts';
 import { parseOperatorActiveSkillEntries } from '../src/domains/operator/activeSkills.ts';
 import { assembleOperatorDefinition } from '../src/domains/operator/definition.ts';
+import { renderOperatorDefinitionSource } from '../src/domains/operator/definitionSourceRenderer.ts';
 import { compileAbilityEntityTemplateCatalogSource } from '../src/compiler/abilityEntityCatalog.ts';
 import {
   requireArray,
@@ -118,9 +120,20 @@ export async function generateOperatorDefinition(
       throw new Error(`complete operator output must be ${parent}/${args.slug}`);
   }
   const plan = planOperatorDefinition(args);
+  const prettierConfig = (await resolveConfig(path.resolve('.prettierrc.json'))) ?? {};
+  const content = await format(
+    renderOperatorDefinitionSource({
+      commonBuffDefinitions: plan.commonBuffDefinitions,
+      operator: {
+        ...plan.operator,
+        conversionSupport: { completeness: 'complete', missingCapabilities: [] },
+      },
+    }),
+    { ...prettierConfig, parser: 'typescript' },
+  );
   const file = {
     relativePath: `${args.slug}.operator.generated.ts`,
-    content: `/** 由 tools/game-data-compiler 整名生成；不要手工编辑。 */\nimport type { OperatorDefinition, OperatorBuffDefinitions } from '../../../../core/game-data/operatorDefinition';\n\n// prettier-ignore\nexport const commonBuffDefinitions = ${JSON.stringify(plan.commonBuffDefinitions, null, 2)} as const satisfies OperatorBuffDefinitions;\n\n// prettier-ignore\nexport default ${JSON.stringify({ ...plan.operator, conversionSupport: { completeness: 'complete', missingCapabilities: [] } }, null, 2)} as const satisfies OperatorDefinition;\n`,
+    content,
   };
   if (
     fs.existsSync(args.output) &&

@@ -9,6 +9,7 @@ import {
   scaleDamageByStatusStacks,
   statusActive,
   statusStacksExactly,
+  withActionBlackboardScope,
   withSkillBlackboard,
 } from './definitionHelpers';
 
@@ -169,5 +170,24 @@ describe('operator definition helpers', () => {
     });
 
     expect(sequence(sequence(first), second)).toEqual({ steps: [first, second] });
+  });
+
+  it('preserves generated action-blackboard lifetime and callback flow options', () => {
+    expect(
+      withActionBlackboardScope('projectile:child', { scale: 1 }, true, sequence(), undefined, {
+        lifetime: 'execution',
+        alwaysNext: true,
+      }),
+    ).toEqual({
+      kind: 'withActionBlackboardScope',
+      parameters: {
+        scopeKey: 'projectile:child',
+        initialValues: { scale: 1 },
+        inheritParent: true,
+        lifetime: 'execution',
+        alwaysNext: true,
+      },
+      body: { steps: [] },
+    });
   });
 });

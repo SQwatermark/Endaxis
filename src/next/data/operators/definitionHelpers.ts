@@ -117,6 +117,10 @@ export function withActionBlackboardScope(
   inheritParent: boolean,
   body: ActionSequenceDefinition,
   entityInitialValues?: Readonly<Record<string, LevelValues>>,
+  options?: {
+    readonly lifetime?: 'parent' | 'execution';
+    readonly alwaysNext?: boolean;
+  },
 ): Extract<CombatStepDefinition, { kind: 'withActionBlackboardScope' }> {
   return {
     kind: 'withActionBlackboardScope',
@@ -127,6 +131,8 @@ export function withActionBlackboardScope(
       ...(entityInitialValues === undefined || Object.keys(entityInitialValues).length === 0
         ? {}
         : { entityInitialValues }),
+      ...(options?.lifetime === undefined ? {} : { lifetime: options.lifetime }),
+      ...(options?.alwaysNext === true ? { alwaysNext: true } : {}),
     },
     body,
   };
