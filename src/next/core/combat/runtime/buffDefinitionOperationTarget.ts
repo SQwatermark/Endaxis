@@ -102,6 +102,9 @@ export class BuffDefinitionOperationTarget<Key extends string>
         blackboardValues: request.blackboardValues,
         sourceActionId: request.sourceActionId ?? request.buffId,
         ...(request.skillCastInfo === undefined ? {} : { skillCastInfo: request.skillCastInfo }),
+        ...(request.finishParentGlobalBuff === undefined
+          ? {}
+          : { finishParentGlobalBuff: request.finishParentGlobalBuff }),
       },
       () => {
         // 接收侧 Added → 来源侧 Output → 容器执行已有关键词增强。

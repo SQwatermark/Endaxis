@@ -21,6 +21,8 @@ interface Arguments {
   readonly projectileBlackboardCatalog: string;
   readonly gameplayTagCatalog: string;
   readonly timeDilationCatalog: string;
+  readonly globalBuffCatalog?: string;
+  readonly skillSettingCatalog?: string;
   readonly slug: string;
   readonly supplementalBuffs: ReadonlyMap<string, readonly string[]>;
   readonly output: string;
@@ -35,9 +37,16 @@ interface Arguments {
 export async function generateOperatorActiveSkillRuntimeBatch(args: Arguments) {
   if (args.complete) {
     if (!args.tableRoot) throw new Error('--complete requires --table-root');
+    if (!args.globalBuffCatalog) throw new Error('--complete requires --global-buff-catalog');
+    if (!args.skillSettingCatalog) throw new Error('--complete requires --skill-setting-catalog');
     if (args.supplementalBuffs.size)
       throw new Error('complete mode discovers Buff dependencies automatically');
-    return generateOperatorDefinition({ ...args, tableRoot: args.tableRoot });
+    return generateOperatorDefinition({
+      ...args,
+      tableRoot: args.tableRoot,
+      globalBuffCatalog: args.globalBuffCatalog,
+      skillSettingCatalog: args.skillSettingCatalog,
+    });
   }
   requireOwnedOperatorDirectory(
     args.output,
@@ -196,6 +205,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     '--projectile-blackboard-catalog',
     '--gameplay-tag-catalog',
     '--time-dilation-catalog',
+    '--global-buff-catalog',
+    '--skill-setting-catalog',
     '--slug',
     '--supplemental-buff',
     '--output',
@@ -240,6 +251,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     projectileBlackboardCatalog: required('--projectile-blackboard-catalog'),
     gameplayTagCatalog: required('--gameplay-tag-catalog'),
     timeDilationCatalog: required('--time-dilation-catalog'),
+    ...(complete ? { globalBuffCatalog: required('--global-buff-catalog') } : {}),
+    ...(complete ? { skillSettingCatalog: required('--skill-setting-catalog') } : {}),
     slug: required('--slug'),
     supplementalBuffs: supplements,
     output: required('--output'),

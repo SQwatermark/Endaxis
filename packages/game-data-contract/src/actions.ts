@@ -36,7 +36,7 @@ import {
   type AbilityEntityTargetQuery,
   type SkillTriggerScope,
 } from './skills.ts';
-import { type SkillBuffDefinition } from './buffs.ts';
+import { type SkillBuffDefinition, type SkillGlobalBuffDefinition } from './buffs.ts';
 
 /** 一次伤害步骤的完整声明；倍率使用小数，失衡与生命伤害同属该命中。 */
 export interface DealDamageParameters {
@@ -273,6 +273,34 @@ export interface CombatStepParameters {
     lifetimeOwner?: 'currentCastSkill';
     durationSeconds?: number;
     effectiveness?: number;
+  };
+  /** 创建一个独立的战斗级 GlobalBuff 实例，并把其子 Buff 投影到当前固定队伍。 */
+  createGlobalBuff: {
+    globalBuffId: string;
+    definition: SkillGlobalBuffDefinition;
+    count?: ActionValueOperand;
+    source?: BuffApplicationSource;
+    blackboardAssignments?: Readonly<Record<string, ActionValueOperand>>;
+    /** 所在动作结束时只清理本步骤创建的 GlobalBuff 实例。 */
+    finishByAction?: boolean;
+  };
+  /** 只结束当前子 Buff 精确关联的那个父 GlobalBuff 实例。 */
+  finishParentGlobalBuff: {
+    reason: 'early' | 'other';
+  };
+  /** 从版本化 SkillSetting 的四列值按运行时列号读取，并写入当前动作黑板。 */
+  readSkillSettingData: {
+    items: readonly {
+      values: readonly number[];
+      column: ActionValueOperand;
+      storeKey: string;
+      enhance?: {
+        target: 'caster' | 'buffOwner' | 'buffSource';
+        formula:
+          | { readonly kind: 'linear'; readonly paramA: number }
+          | { readonly kind: 'saturating'; readonly paramA: number; readonly paramB: number };
+      };
+    }[];
   };
   /** 按原生 ID 或标签查询目标的首个有效 Buff，并把其数值黑板写入当前动作黑板。 */
   readBuffBlackboard: {
@@ -561,6 +589,9 @@ export const COMBAT_STEP_KINDS = [
   'dealStagger',
   'heal',
   'applyBuff',
+  'createGlobalBuff',
+  'finishParentGlobalBuff',
+  'readSkillSettingData',
   'readBuffBlackboard',
   'readEventBuffBlackboard',
   'readCurrentBuffRemainingDuration',

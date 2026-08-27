@@ -35,6 +35,15 @@ import {
   parseChannelingCastingActionSource,
   type ChannelingCastingActionSource,
 } from './castingControlActions.ts';
+import {
+  parseCreateGlobalBuffActionSource,
+  parseFinishGlobalBuffActionSource,
+  type GlobalBuffActionSource,
+} from './globalBuffActions.ts';
+import {
+  parseSkillSettingReadActionSource,
+  type SkillSettingReadActionSource,
+} from './skillSettingActions.ts';
 import { parseDamageActionSource, type DamageActionSource } from './damageActions.ts';
 import { parseHealActionSource, type HealActionSource } from './healActions.ts';
 import {
@@ -201,6 +210,9 @@ const REFERENCE_CLOSURE_ACTION_NAMES = new Set([
   'VulnerableAction',
   'CreateBuffAction',
   'CreateBuffAttachingSkill',
+  'CreateGlobalBuffAction',
+  'FinishGlobalBuffAction',
+  'ReadSkillSettingData',
   'AuraAction',
   'FinishBuffAction',
   'FinishBuffAdvanced',
@@ -244,6 +256,8 @@ export type KnownNativeActionLeafSource =
       readonly action: ComboCacheActionSource | AllowNextSkillActionSource;
     }
   | { readonly family: 'castingControl'; readonly action: ChannelingCastingActionSource }
+  | { readonly family: 'globalBuff'; readonly action: GlobalBuffActionSource }
+  | { readonly family: 'skillSetting'; readonly action: SkillSettingReadActionSource }
   | { readonly family: 'selfDefense'; readonly action: SetSuperArmorActionSource }
   | { readonly family: 'timedMarker'; readonly action: TimedMarkerApplicationSource }
   | { readonly family: 'globalCooldown'; readonly action: GlobalCooldownApplicationSource }
@@ -611,6 +625,21 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'castingControl',
         action: parseChannelingCastingActionSource(value, path, inheritedBlackboard),
+      };
+    case 'CreateGlobalBuffAction':
+      return {
+        family: 'globalBuff',
+        action: parseCreateGlobalBuffActionSource(value, path, inheritedBlackboard),
+      };
+    case 'FinishGlobalBuffAction':
+      return {
+        family: 'globalBuff',
+        action: parseFinishGlobalBuffActionSource(value, path, inheritedBlackboard),
+      };
+    case 'ReadSkillSettingData':
+      return {
+        family: 'skillSetting',
+        action: parseSkillSettingReadActionSource(value, path, inheritedBlackboard),
       };
     case 'AddCameraControlStateAction':
       return {

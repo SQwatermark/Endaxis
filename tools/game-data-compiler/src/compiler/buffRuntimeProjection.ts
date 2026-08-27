@@ -43,7 +43,6 @@ import {
   COMPARISON_OPERATORS,
 } from './combatProjectionCommon.ts';
 import { compileBuffLeafNode } from './combatEntityAndTimeProjection.ts';
-import { compileActionNode } from './combatActionLeafProjection.ts';
 import { compileEventCondition, conditionWritesBlackboard } from './combatConditionProjection.ts';
 
 export { collectBuffRuntimeClosure } from './buffReferenceClosure.ts';
@@ -88,6 +87,7 @@ type CompiledBuffAbilityEvent = NonNullable<
 
 const BUFF_ABILITY_EVENTS: Readonly<Record<string, CompiledBuffAbilityEvent>> = {
   OnBeforeCastSkill: 'beforeCastSkill',
+  OnBeforeCalculateDamage: 'beforeCalculateDamage',
   OnEnterFight: 'enterFight',
   OnOutputBuff: 'outputBuff',
   OnBeforeOutputBuff: 'beforeOutputBuff',
@@ -130,6 +130,7 @@ export function compileBuffRuntimeDefinitionSource(
   source: BuffRuntimeSource,
   visualOnlyIds: ReadonlySet<string> = new Set(),
   omittedAbilityEvents: ReadonlySet<string | number> = new Set(),
+  extensions: CombatActionProjectionExtensionsSource = {},
 ): CompiledBuffDefinitionSource {
   if (source.unsupportedPayloads.length > 0) {
     throw new Error(
@@ -159,17 +160,19 @@ export function compileBuffRuntimeDefinitionSource(
               : null;
     if (target === null) throw new Error(`unsupported Buff event ${JSON.stringify(event.event)}`);
     for (const sequence of event.actions) {
-      if (event.event === 'DuringBuffEnable' && isDirectSkillAffixSequence(sequence)) {
+      const skillAffixBody =
+        event.event === 'DuringBuffEnable' ? splitDirectSkillAffixSequence(sequence) : null;
+      if (skillAffixBody !== null) {
         finishesWithSourceSkill = true;
-        continue;
       }
       // Finish/EnhanceChanged 可由其它实体触发，来源绑定需另行恢复，不能沿用启动身份。
       const compiled = compileLinearSequence(
-        sequence,
+        skillAffixBody ?? sequence,
         visualOnlyIds,
         event.event === 'OnBuffStart' || event.event === 'DuringBuffEnable'
           ? BUFF_LIFECYCLE_CONTEXT
           : BUFF_ACTION_CONTEXT,
+        extensions,
       );
       if (compiled.steps.length > 0) target.push(compiled);
     }
@@ -185,13 +188,14 @@ export function compileBuffRuntimeDefinitionSource(
       mapEvent: projectBuffAbilityEvent,
       compileSequence: (sequence, _sequencePath, abilityEvent) =>
         abilityEvent === 'OnObtainAtb'
-          ? compileSkillSpGainSequence(sequence, visualOnlyIds)
+          ? compileSkillSpGainSequence(sequence, visualOnlyIds, BUFF_ACTION_CONTEXT, extensions)
           : compileLinearSequence(
               sequence,
               visualOnlyIds,
               abilityEvent === 'OnBeforeAddedBuff'
                 ? BUFF_BEFORE_ADDED_CONTEXT
                 : BUFF_ACTION_CONTEXT,
+              extensions,
             ),
       isEmptySequence: sequence => sequence.steps.length === 0,
     },
@@ -293,18 +297,18 @@ export function compileBuffRuntimeDefinitionSource(
   };
 }
 
-function isDirectSkillAffixSequence(
+function splitDirectSkillAffixSequence(
   source: NativeSequenceSource<KnownNativeActionLeafSource>,
-): boolean {
+): NativeSequenceSource<KnownNativeActionLeafSource> | null {
   if (source.onlyExecuteWhenSourceIsMainCharacter || source.onlyExecuteWhenSourceIsGuard) {
-    return false;
+    return null;
   }
   const nodes = source.actions.filter(node => node.metadata.enabled);
-  return (
-    nodes.length === 1 &&
-    nodes[0]!.body.kind === 'leaf' &&
-    nodes[0]!.body.value.family === 'skillAffix'
+  const affixes = nodes.filter(
+    node => node.body.kind === 'leaf' && node.body.value.family === 'skillAffix',
   );
+  if (affixes.length !== 1 || affixes[0] !== nodes.at(-1)) return null;
+  return { ...source, actions: source.actions.filter(node => node !== affixes[0]) };
 }
 
 function compileBuffDamageModifiers(source: BuffRuntimeSource): {
@@ -683,6 +687,7 @@ function compileSkillSpGainSequence(
   source: NativeSequenceSource<KnownNativeActionLeafSource>,
   visualOnlyIds: ReadonlySet<string>,
   context: CombatActionProjectionContextSource = BUFF_ACTION_CONTEXT,
+  extensions: CombatActionProjectionExtensionsSource = {},
 ): CompiledBuffSequenceSource {
   if (source.onlyExecuteWhenSourceIsMainCharacter || source.onlyExecuteWhenSourceIsGuard) {
     throw new Error('OnObtainAtb sequence owner/guard root filters are unsupported');
@@ -705,7 +710,7 @@ function compileSkillSpGainSequence(
   ) {
     throw new Error(`${filter.sourcePath}: unsupported CheckObtainAtbType filter`);
   }
-  return compileLinearSequence(source, visualOnlyIds, context);
+  return compileLinearSequence(source, visualOnlyIds, context, extensions);
 }
 
 /** 主动命中切片、被动技能、Buff、武器与装备共享的 Action/Condition 序列投影入口。 */
@@ -844,7 +849,13 @@ function createBuffSequenceProjection(
         return condition !== null && !conditionWritesBlackboard(condition) ? condition : null;
       });
       return jump === null
-        ? compileDifferentCharacterTypePartyLoop(nodes, visualOnlyIds, partyTargetGroups, context)
+        ? compileDifferentCharacterTypePartyLoop(
+            nodes,
+            visualOnlyIds,
+            partyTargetGroups,
+            context,
+            extensions,
+          )
         : { steps: [jump], state: partyTargetGroups, consumedNodeCount: 1 };
     },
     compileForEach: (node, partyTargetGroups) => {
@@ -920,8 +931,10 @@ function createBuffSequenceProjection(
         actionTargetTarget: 'partyExceptCaster',
       };
       return {
-        steps: bodyNodes.flatMap(child =>
-          compileActionNode(child, visualOnlyIds, partyTargetGroups, loopContext),
+        steps: bodyNodes.flatMap(
+          child =>
+            compileBuffLeafNode(child, visualOnlyIds, partyTargetGroups, loopContext, extensions)
+              .steps,
         ),
         state: partyTargetGroups,
       };
@@ -997,6 +1010,7 @@ function compileDifferentCharacterTypePartyLoop(
   visualOnlyIds: ReadonlySet<string>,
   partyTargetGroups: ReadonlyMap<string, ProjectedTargetGroup>,
   context: CombatActionProjectionContextSource,
+  extensions: CombatActionProjectionExtensionsSource,
 ): {
   readonly consumedNodeCount: number;
   readonly steps: readonly CompiledBuffStepSource[];
@@ -1066,8 +1080,9 @@ function compileDifferentCharacterTypePartyLoop(
   };
   return {
     consumedNodeCount: 2,
-    steps: applications.flatMap(child =>
-      compileActionNode(child, visualOnlyIds, partyTargetGroups, loopContext),
+    steps: applications.flatMap(
+      child =>
+        compileBuffLeafNode(child, visualOnlyIds, partyTargetGroups, loopContext, extensions).steps,
     ),
     state: partyTargetGroups,
   };

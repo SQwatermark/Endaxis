@@ -169,6 +169,8 @@ export interface CombatOperationContext {
   readonly actionSourceId?: string;
   /** 仅由 Buff 生命周期与事件响应提供；Environment 查询精确指向当前实例。 */
   readonly finishCurrentBuff?: (reason: BuffFinishReason) => boolean;
+  /** 只由 GlobalBuff 投影出的子 Buff 提供；不得按 ID 猜测父层。 */
+  readonly finishParentGlobalBuff?: (reason: 'early' | 'other') => boolean;
   /** Environment BuffCount 查询读取正在执行的当前 Buff 增强层数。 */
   readonly getCurrentBuffEnhanceCount?: () => number;
   /** Environment SaveBuffLifeTime 读取当前实例的剩余秒数；无限时长返回 null。 */

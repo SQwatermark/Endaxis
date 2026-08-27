@@ -26,7 +26,12 @@ export function planOperatorDefinition(
   args: Omit<
     OperatorActiveSkillRuntimeArguments,
     'key' | 'skillType' | 'sourceFile' | 'supplementalBuffIds' | 'check'
-  > & { readonly manifest: string; readonly tableRoot: string },
+  > & {
+    readonly manifest: string;
+    readonly tableRoot: string;
+    readonly globalBuffCatalog: string;
+    readonly skillSettingCatalog: string;
+  },
 ) {
   const manifest = requireRecord(read(args.manifest), args.manifest);
   const matches = requireArray(manifest.operators, 'manifest.operators')
@@ -90,6 +95,8 @@ export function planOperatorDefinition(
     })),
     loadSkill: id => read(path.join(args.sourceRoot, 'skill-data-cdn', `${id}.json`)),
     loadBuff: id => read(path.join(args.buffDataRoot, `${id}.json`)),
+    globalBuffCatalog: read(args.globalBuffCatalog),
+    skillSettingCatalog: read(args.skillSettingCatalog),
   });
   return { ...candidate, activeSkills };
 }

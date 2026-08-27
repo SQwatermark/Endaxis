@@ -5,6 +5,8 @@ import type { CompiledBuffNumberSource } from './buffProjectionTypes.ts';
 import type { CompiledBuffStepSource } from './combatActionProjectionTypes.ts';
 import type { GameplayTagRegistry } from '../../../../src/shared/gameplayTags.ts';
 import type { CompiledAbilityEntityTemplateCatalogSource } from './abilityEntityCatalog.ts';
+import type { GlobalBuffActionSource } from '../source/globalBuffActions.ts';
+import type { SkillSettingReadActionSource } from '../source/skillSettingActions.ts';
 
 /** 公共投影的底层约定：宿主/目标身份、已证明的即时搜索、数值引用和共享枚举映射。
  * 条件、动作及 Buff 装配共用同一份实现；不得反向调用序列编排或具体动作投影。 */
@@ -53,6 +55,16 @@ export interface CombatActionProjectionExtensionsSource {
     context: CombatActionProjectionContextSource,
   ) => readonly CompiledBuffStepSource[];
   readonly resolveTimeDilationPriority?: (tagId: number, sourcePath: string) => number;
+  readonly compileGlobalBuffAction?: (
+    action: GlobalBuffActionSource,
+    sourcePath: string,
+    context: CombatActionProjectionContextSource,
+  ) => readonly CompiledBuffStepSource[];
+  readonly compileSkillSettingRead?: (
+    action: SkillSettingReadActionSource,
+    sourcePath: string,
+    context: CombatActionProjectionContextSource,
+  ) => readonly CompiledBuffStepSource[];
 }
 
 export const BUFF_ACTION_CONTEXT: CombatActionProjectionContextSource = {

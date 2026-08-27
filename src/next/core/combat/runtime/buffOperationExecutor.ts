@@ -130,6 +130,7 @@ export interface BuffApplicationRequest {
   readonly sourceActionId?: string;
   readonly blackboardValues: Readonly<Record<string, number>>;
   readonly skillCastInfo?: CombatSkillCastInfo;
+  readonly finishParentGlobalBuff?: (reason: 'early' | 'other') => boolean;
 }
 
 export interface BuffOperationDependencies {
@@ -332,6 +333,10 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         step.parameters.count === undefined
           ? 1
           : resolveActionValueOperand(step.parameters.count, context!.blackboard);
+      const inheritedSkillCastInfo =
+        context?.eventSkillCastInfo === undefined
+          ? context?.skillCastInfo
+          : (context.eventSkillCastInfo ?? undefined);
       if (!Number.isFinite(count)) throw new RangeError('applyBuff count must be finite');
       // CreateBuffAction 每次实际施加都读 ID 和参数；前一个子 Buff 启动后可以改变后续读取值。
       const createRequest = (): BuffApplicationRequest => {
@@ -363,8 +368,8 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
               resolveActionValueOperand(operand, context!.blackboard),
             ]),
           ),
-          ...(step.parameters.inheritSourceSkillCastInfo && context?.skillCastInfo !== undefined
-            ? { skillCastInfo: context.skillCastInfo }
+          ...(step.parameters.inheritSourceSkillCastInfo && inheritedSkillCastInfo !== undefined
+            ? { skillCastInfo: inheritedSkillCastInfo }
             : {}),
         };
       };

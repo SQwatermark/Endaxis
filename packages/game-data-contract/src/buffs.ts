@@ -15,6 +15,7 @@ import {
   type HealModifierDefinition,
   type PoiseModifierDefinition,
 } from './modifiers.ts';
+import { type ActionValueOperand } from './conditions.ts';
 
 /**
  * `applyBuff` 步骤内联的 Buff 蓝图，不重复保存步骤已经携带的 `buffId`。
@@ -123,6 +124,27 @@ export type SkillBuffDefinition = BuffDefinitionProperties & {
 
 /** 干员拥有的 Buff 蓝图表；技能步骤只引用稳定 ID，并在施加时提供实例黑板覆盖值。 */
 export type OperatorBuffDefinitions = Readonly<Record<string, SkillBuffDefinition>>;
+
+/**
+ * 一项 GlobalBuff 在固定队伍中的子 Buff 投影。赋值从已经完成创建参数覆盖的
+ * GlobalBuff 实例黑板读取，不能直接回读创建动作的黑板。
+ */
+export interface SkillGlobalBuffChildDefinition {
+  readonly buffId: string;
+  readonly blackboardAssignments: Readonly<Record<string, ActionValueOperand>>;
+}
+
+/**
+ * 战斗级 GlobalBuff 蓝图。它拥有独立实例、寿命和叠加组；子 Buff 只是该实例
+ * 投影到每名队员身上的端口，不能把父层拍平成普通 Buff 叠层。
+ */
+export interface SkillGlobalBuffDefinition {
+  readonly stackingType: 'unlimited' | 'stack';
+  readonly maxStackCount?: number;
+  readonly durationSeconds?: BuffDuration;
+  readonly blackboard: Readonly<Record<string, ActionBlackboardValue>>;
+  readonly children: readonly SkillGlobalBuffChildDefinition[];
+}
 
 export const BUFF_STACKING_TYPES = [
   'unlimited',

@@ -202,6 +202,8 @@ export interface CombatBuffAddOptions {
   readonly sourceActionId?: string;
   /** 创建时复制的来源施法信息；缺少表示该 Buff 不继承施法身份。 */
   readonly skillCastInfo?: CombatSkillCastInfo;
+  /** GlobalBuff 子投影专用：精确结束创建当前子 Buff 的父实例。 */
+  readonly finishParentGlobalBuff?: (reason: 'early' | 'other') => boolean;
 }
 
 /** 一个实体上某项 Buff 的独立运行时实例。 */
@@ -214,6 +216,7 @@ export class CombatBuff<Key extends string> {
   readonly sourceActionId: string;
   /** 来源施法在创建瞬间的快照，不随后续技能扣费变化。 */
   readonly skillCastInfo: CombatSkillCastInfo | null;
+  readonly finishParentGlobalBuff: ((reason: 'early' | 'other') => boolean) | null;
   #attributeModifiers: readonly CombatAttributeModifier<Key>[];
   readonly #sharedSpGainModifiers: readonly SharedSpGainModifier[];
   #passedTime = 0;
@@ -260,6 +263,7 @@ export class CombatBuff<Key extends string> {
     }
     this.sourceActionId = options?.sourceActionId ?? definition.id;
     this.skillCastInfo = options?.skillCastInfo === undefined ? null : { ...options.skillCastInfo };
+    this.finishParentGlobalBuff = options?.finishParentGlobalBuff ?? null;
     this.priority = resolveBuffPriority(definition, this.blackboard);
     this.#remainingDuration = resolveBuffDuration(definition, this.blackboard);
     this.#remainingTriggerCount = resolveBuffTriggerCount(definition, this.blackboard);

@@ -384,6 +384,39 @@ describe('CombatActionSequenceRuntime', () => {
     expect(fixture.operations.evaluate).toHaveBeenCalledTimes(1);
   });
 
+  it('条件分支中的有状态动作保持到外层动作结束', () => {
+    const lifecycle: string[] = [];
+    const runtime = new CombatActionSequenceRuntime(
+      {
+        execute: step => {
+          if (step.kind !== 'setContextFlag') throw new Error('unexpected test operation');
+          lifecycle.push(`execute:${step.parameters.flag}`);
+          return true;
+        },
+        end: step => {
+          if (step.kind !== 'setContextFlag') throw new Error('unexpected test operation');
+          lifecycle.push(`end:${step.parameters.flag}`);
+        },
+        evaluate: () => true,
+      },
+      { blackboard: new ActionBlackboard() },
+    );
+    const action = runtime.createSequence(
+      sequence({
+        kind: 'conditional',
+        parameters: { condition: { kind: 'combatActive' } },
+        whenTrue: sequence(operation('held')),
+      }),
+    );
+
+    expect(action.tryExecute({})).toBe(true);
+    expect(lifecycle).toEqual(['execute:held']);
+    action.tick(1 / 30, {});
+    expect(lifecycle).toEqual(['execute:held']);
+    action.end({});
+    expect(lifecycle).toEqual(['execute:held', 'end:held']);
+  });
+
   it('alwaysNext 条件失败时仍允许外层序列继续', () => {
     const fixture = createFixture(false);
     const conditional: ResolvedCombatStep = {

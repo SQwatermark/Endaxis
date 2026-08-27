@@ -263,6 +263,9 @@ export function attachBuffLifecycleSequences<Key extends string>(
       buffSourceId: buff.sourceId,
       buffOwnerId: buff.owner.ownerId,
       finishCurrentBuff: reason => buff.finish(reason),
+      ...(buff.finishParentGlobalBuff === null
+        ? {}
+        : { finishParentGlobalBuff: buff.finishParentGlobalBuff }),
       getCurrentBuffEnhanceCount: () => buff.enhanceCount,
       getCurrentBuffRemainingDuration: () => buff.remainingDuration,
       setCurrentBuffRemainingDuration: duration => buff.rawSetRemainingDuration(duration),

@@ -133,6 +133,7 @@ export type CompiledBuffDefinitionSource = Pick<
       readonly event: Extract<
         SkillBuffAbilityEventResponse['event'],
         | 'beforeCastSkill'
+        | 'beforeCalculateDamage'
         | 'outputBuff'
         | 'beforeOutputBuff'
         | 'beforeAddedBuff'

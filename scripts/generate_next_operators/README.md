@@ -434,7 +434,11 @@ key 与二段第 0 帧还原帧。Next 用 `replacementSkills` 保存不可直�
 - 技能黑板默认值除原始条件树外，还会从最终生成 DSL 的 `key`/`blackboardKey` 引用中收集；只在该键同时存在于来源声明、为数值，且 provenance 证明没有补丁/本地计算/变异/Buff 读取/外部输入生产者时注入。这样可以覆盖经解析投影后才显现的纯默认读取，同时不会拿动态键的序列化零值冒充运行时来源。
 - `ShowComboRingQte` 只有在生成器能唯一关联提示时长、有效时长、成功时 plain Owner 黑板写入，以及持续时间读取同一有效时长键的 Owner 计时 Buff 时才可编译。有效计时 Buff 存在期间，用户实际放置的 `comboSkill` 通过 `beforeCastSkill` 在根序列前执行原生成功写入；提示出现本身不会自动成功，后续技能也不会由生成器自动替换或摆放。洛茜二段连携是首个生产样本。
 - `PauseBuffTime` 只接受 Ability 事件中的“唯一直接身份守卫 + 当前 Buff 暂停赋值”形状，以及弭弗真实语料中紧随其后的纯 `DebugPrintAction` 后缀。`OnBeforeCastSkill` 保留原始技能 ID，`OnFinishedBuff` 保留结束 Buff ID；暂停冻结当前实例的持续时间、周期触发和挂载时间轴。用于恢复的根时间轴 `CreateBuffAction(autoFinishByAction=true)` 必须保留承载调度项的结束帧并通过实例句柄结束，不能拿定义持续时间近似；能力实体子技能或事件序列没有同一动作的结束帧证明时不得投影该布尔值。洛茜 QTE 监听与 `combo_usetimer` 是首个共享同优先级、但已证明仅对各自实例赋值且技能守卫互斥的样本。
-- Akekuri 第二天赋使用 `akekuriComboImbue` 严格编译模式。原生 GlobalBuff 在固定队伍模型中按层镜像到全队，任意成员的战技/终结技通过 `eventTarget` 获得 SkillAffix，派生攻击 Buff 再通过 `buffOwner` 保持在该成员身上；消费时全队同步结束一层。终结技原始载体 Buff 必须列入 `projectedBuffIds`，不能同时列入忽略、无效果或未建模分类。四列 `SkillSetting[连击增伤]` 与潜能 5 的 5 秒延长均有版本目录和严格来源校验；详见 `docs/research/akekuri-combo-imbue.md`。
+- `CreateGlobalBuffAction`、`FinishGlobalBuffAction(finishParent=true)` 与 `ReadSkillSettingData` 已进入
+  通用来源 IR 和运行时。GlobalBuff 保留战斗级父实例、固定队伍 child 镜像、Stack 首个未结束层淘汰、
+  独立寿命及动作域清理；SkillSetting 只从版本化四列目录读取并按原生 midpoint-to-even 列选择和
+  已恢复增强公式求值。Akekuri 是首个完整消费者，但不再使用角色专用编译模式或展平控制器；详见
+  `docs/research/akekuri-combo-imbue.md`。
 - `SwitchAction` 的 `choice` 与每个 option 的 `value` 都按原生 `BlackboardDouble` 动态求值，并以首个浮点近似相等项胜出；option 不是数组下标，也不要求字面整数。莱万汀能量 Buff 的 `max_stack` 动态 option 是当前代表语料。
 - 空 `damageProcessors` 的 `DamageModifier` 仍会被严格读取其结构，但不会修改任何伤害包，因此不生成运行时修正器；莱万汀第五层能量图标 Buff 是当前代表语料。
 - Buff 的 plain `Source` 不等于宿主：在实例生命周期和 Ability 事件中，治疗与生命条件编译为动态 `buffSource`，运行时只用该实例保存的精确创建来源 ID 解析干员生命账本，缺失身份时失败关闭。`HealAction.alwaysNext` 原样进入 DSL；当前标准环境的治疗应用总是成功，不能用满血时 `actualHealing=0` 模拟动作失败。`OnTakeCriticalDamage` 只由真实暴击伤害派发。洛茜 `normal_bleed` 是首个同时覆盖 `CheckDamageType` 承伤修正、`Dot | TalentDamage` 位、暴击追加伤害、来源自疗和治疗后生命检查的完整递归样本。

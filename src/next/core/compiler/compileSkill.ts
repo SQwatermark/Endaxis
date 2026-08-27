@@ -588,6 +588,12 @@ function resolveStep(
         },
       };
     }
+    case 'createGlobalBuff':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'finishParentGlobalBuff':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'readSkillSettingData':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'applyPhysicalInfliction': {
       const { noGuardDefinition, ...parameters } = step.parameters;
       const resolvedNoGuard = resolveSkillBuffDefinition(

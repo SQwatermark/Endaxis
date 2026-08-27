@@ -45,6 +45,8 @@ beforeAll(() => {
       'src/next/data/projectiles/projectile-entity-blackboards-1.4.4.json',
     gameplayTagCatalog: 'src/next/data/combat/gameplayTagCatalog.generated.ts',
     timeDilationCatalog: 'src/next/data/combat/timeDilationCatalog.ts',
+    globalBuffCatalog: 'src/next/data/global-buffs/global-buff-templates-1.4.4.json',
+    skillSettingCatalog: 'src/next/data/combat/skill-setting.combat-1.4.4.json',
     slug: 'avywenna',
     output: 'src/next/data/operators/generated-definitions/avywenna',
     auditOutput: 'tmp/game-data-audit/operator-definitions/avywenna',

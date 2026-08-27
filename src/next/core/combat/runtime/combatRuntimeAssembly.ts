@@ -18,6 +18,7 @@ import type { CompiledEquipmentContribution } from '../../compiler/compileEquipm
 import type { ResolvedOperatorPanel } from '../../compiler/resolveOperatorPanel';
 import type {
   BuffApplicationTarget,
+  BuffApplicationSource,
   CombatStepParameters,
   CombatTarget,
   DamageElement,
@@ -45,6 +46,7 @@ import { SkillResourceOperationExecutor } from './skillResourceOperationExecutor
 import {
   SkillRuntime,
   type CombatAbilitySkillEvent,
+  type CombatOperationContext,
   type CombatOperationExecutor,
 } from './skillRuntime';
 import { SkillCastIdAllocator } from './skillCastInfo';
@@ -102,6 +104,7 @@ import {
   type ScheduledExternalCombatEventInput,
 } from './externalCombatEventRuntime';
 import type { ProbabilitySampleSource } from '../random/probabilitySampleSource';
+import { GlobalBuffOperationExecutor, GlobalBuffRuntime } from './globalBuffRuntime';
 
 /** 同一干员在一场战斗中唯一的 Buff 状态与实体黑板所有者。 */
 export type OperatorBuffRuntime = FrameRuntime &
@@ -309,6 +312,7 @@ export interface CombatRuntimeAssemblyOptions {
           readonly skillType: SkillType;
           readonly skillId: string;
           readonly skillCastId: number;
+          readonly skillCastInfo?: import('./skillCastInfo').CombatSkillCastInfo;
           readonly attachBuffToCurrentSkill?: CombatAbilitySkillEvent['attachBuffToCurrentSkill'];
         }
       | {
@@ -381,6 +385,8 @@ export class CombatRuntimeAssembly {
   readonly simulation = new CombatSimulation(this.clock);
   /** 全场唯一的零空间能力实体实例目录。 */
   readonly abilityEntities: LogicalAbilityEntityRuntime;
+  /** 战斗级父实例与队员子 Buff 镜像的唯一目录。 */
+  readonly globalBuffs: GlobalBuffRuntime;
   /** 实际运行时干员；Buff 生命周期按宿主切换执行身份时复用其构筑与面板。 */
   readonly #operators = new Map<string, CombatOperatorProgram>();
   readonly #entityBlackboards = new Map<string, ActionBlackboard>();
@@ -429,6 +435,11 @@ export class CombatRuntimeAssembly {
       ultimateEnergyGainMultiplier: options.resolveUltimateEnergyGainMultiplier,
     });
     this.receipt = options.receipt ?? new CombatReceiptCollector();
+    this.globalBuffs = new GlobalBuffRuntime(
+      () => this.#requirePartyBuffTargets(),
+      (sourceOperatorId, buffId) =>
+        this.#operators.get(sourceOperatorId)?.buffDefinitions?.[buffId],
+    );
     const boundBattleRuntimes =
       options.bindBattleRuntime?.({
         enemy: options.enemy,
@@ -871,6 +882,8 @@ export class CombatRuntimeAssembly {
 
       if (this.timeDilation !== null) this.simulation.add(this.timeDilation);
       this.simulation.add(new CombatResourceRuntime(this.resources, this.clock, this.receipt));
+      // GlobalBuff 父寿命先推进；父层到期会在本帧普通 Buff 推进前同步结束全部镜像。
+      this.simulation.add(this.globalBuffs);
       // 能力实体到期先于本帧输入和技能动作；新生成实例从下一帧开始扣减时长。
       this.simulation.add(this.abilityEntities);
       this.simulation.add({
@@ -1031,6 +1044,13 @@ export class CombatRuntimeAssembly {
         skillType: program.skillType,
         skillId: program.sourceSkillId ?? program.skillId,
         skillCastId,
+        skillCastInfo: {
+          skillCastId,
+          originSkillId: program.skillId,
+          originSkillType: program.skillType,
+          ...(program.castId === undefined ? {} : { originCastId: program.castId }),
+          nonReturnedSpCost: 0,
+        },
         attachBuffToCurrentSkill: (buff: BuffApplicationHandle) =>
           ability.attachBuffToSkillCast(skillId, castId, skillCastId, buff),
       });
@@ -1578,6 +1598,14 @@ export class CombatRuntimeAssembly {
         this.#options.emitAbilityEvent?.(operatorId, 'beforeOutputPhysicalInfliction', payload),
       delegate: timeDilationOperations,
     });
+    const globalBuffOperations = new GlobalBuffOperationExecutor({
+      sourceId: operatorId,
+      sourceActionId: program.castId ?? program.skillId,
+      runtime: this.globalBuffs,
+      resolveSource: (source, context) =>
+        this.#resolveGlobalBuffSource(source, operatorId, context),
+      delegate: buffOperations,
+    });
     const statusOperations = new StatusOperationExecutor({
       sourceId: operatorId,
       sourceActionId: program.skillId,
@@ -1592,7 +1620,7 @@ export class CombatRuntimeAssembly {
         }
         return targetRuntime;
       },
-      delegate: buffOperations,
+      delegate: globalBuffOperations,
     });
     const timedMarkerOperations = new TimedMarkerOperationExecutor({
       resolveTarget: target =>
@@ -1774,6 +1802,14 @@ export class CombatRuntimeAssembly {
         options.emitAbilityEvent?.(operatorId, 'beforeOutputPhysicalInfliction', payload),
       delegate: timeDilationOperations,
     });
+    const globalBuffOperations = new GlobalBuffOperationExecutor({
+      sourceId: operatorId,
+      sourceActionId,
+      runtime: this.globalBuffs,
+      resolveSource: (source, context) =>
+        this.#resolveGlobalBuffSource(source, operatorId, context),
+      delegate: buffOperations,
+    });
     const statusRuntime = this.#operatorStatuses.get(operatorId);
     const statusOperations = new StatusOperationExecutor({
       sourceId: operatorId,
@@ -1787,7 +1823,7 @@ export class CombatRuntimeAssembly {
         }
         return runtime;
       },
-      delegate: buffOperations,
+      delegate: globalBuffOperations,
     });
     const markerOperations = new TimedMarkerOperationExecutor({
       resolveTarget: target =>
@@ -2019,6 +2055,47 @@ export class CombatRuntimeAssembly {
       throw new Error(`combat entity '${targetId}' has no Buff operation target`);
     }
     return target;
+  }
+
+  #resolveGlobalBuffSource(
+    source: BuffApplicationSource,
+    operatorId: string,
+    context?: CombatOperationContext,
+  ): string {
+    if (source === 'caster') return operatorId;
+    if (source === 'enemy') return 'enemy';
+    if (source === 'buffOwner') {
+      if (context?.buffOwnerId === undefined)
+        throw new Error('buffOwner GlobalBuff source requires a Buff lifecycle context');
+      return context.buffOwnerId;
+    }
+    if (source === 'buffSource') {
+      if (context?.buffSourceId === undefined)
+        throw new Error('buffSource GlobalBuff source requires a Buff lifecycle context');
+      return context.buffSourceId;
+    }
+    if (source === 'eventSource') {
+      if (context?.event === undefined)
+        throw new Error('eventSource GlobalBuff source requires an event context');
+      if ('sourceId' in context.event && typeof context.event.sourceId === 'string') {
+        return context.event.sourceId;
+      }
+      if (
+        'sourceOperatorId' in context.event &&
+        typeof context.event.sourceOperatorId === 'string'
+      ) {
+        return context.event.sourceOperatorId;
+      }
+      throw new Error('active event does not expose a GlobalBuff source identity');
+    }
+    if (source === 'currentAbilityEntity') {
+      const target = context?.currentTarget;
+      if (target?.kind !== 'abilityEntity') {
+        throw new Error('currentAbilityEntity GlobalBuff source requires an active entity target');
+      }
+      return logicalAbilityEntityRuntimeId(target.instanceId);
+    }
+    throw new Error(`unsupported GlobalBuff source '${source}'`);
   }
 
   #resolveAbilitySystemSourceId(entityId: string): string {

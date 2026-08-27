@@ -16,8 +16,9 @@ import {
   estellaGeneratedOperator,
 } from '../data/operators/generated/estella.operator.generated';
 import { mifuGeneratedOperator } from '../data/operators/generated/mifu.operator.generated';
-import { akekuriGeneratedOperator } from '../data/operators/generated/akekuri.operator.generated';
+import { akekuri } from '../data/operators/akekuri';
 import { generatedCommonBuffDefinitions } from '../data/operators/generated/commonBuffDefinitions.generated';
+import { commonBuffDefinitions } from '../data/buffs/commonDefinitions';
 import { elementalAttachments } from '../data/buffs/elementalAttachments';
 import { scheduled, sequence, step } from '../data/operators/definitionHelpers';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
@@ -190,14 +191,14 @@ function createGeneratedAkekuriComboImbueScenario(
     operatorSlug,
     level: 90,
     promoted: true,
-    potential: operatorSlug === akekuriGeneratedOperator.slug ? potential : 0,
+    potential: operatorSlug === akekuri.slug ? potential : 0,
     trustLevel: 4,
     skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
     talentStates,
   });
   scenario.tracks[0] = {
     id: 'track:akekuri',
-    operator: build(akekuriGeneratedOperator.slug, talentEnabled ? { 1: 1 } : {}),
+    operator: build(akekuri.slug, talentEnabled ? { 1: 1 } : {}),
     weapon: null,
     gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
     initialState: { ultimateEnergy: 80 },
@@ -216,7 +217,7 @@ function createGeneratedAkekuriComboImbueScenario(
   const withUltimate = placeSkillGroup({
     scenario,
     trackIndex: 0,
-    operator: akekuriGeneratedOperator,
+    operator: akekuri,
     skillGroupKey: 'ultimate',
     startFrame: 1,
     ids,
@@ -1964,11 +1965,9 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         options: {
           ...standardOptions(),
           index: {
-            getCommonBuffDefinitions: () => generatedCommonBuffDefinitions,
+            getCommonBuffDefinitions: () => commonBuffDefinitions,
             getOperator: slug =>
-              [akekuriGeneratedOperator, perlicaGeneratedOperator].find(
-                operator => operator.slug === slug,
-              ) ?? null,
+              [akekuri, perlicaGeneratedOperator].find(operator => operator.slug === slug) ?? null,
             getWeapon: () => null,
             getGear: () => null,
             getGearSet: () => null,
@@ -1992,10 +1991,11 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       ),
     ).toHaveLength(2);
 
-    expect(perlicaBattleDamage(simulate(true, 0, 360))).toBeCloseTo(perlicaBattleDamage(baseline));
-    expect(perlicaBattleDamage(simulate(true, 5, 360))).toBeCloseTo(
+    expect(perlicaBattleDamage(simulate(true, 0, 240))).toBeCloseTo(perlicaBattleDamage(baseline));
+    expect(perlicaBattleDamage(simulate(true, 5, 240))).toBeCloseTo(
       perlicaBattleDamage(baseline) * 1.3,
     );
+    expect(perlicaBattleDamage(simulate(true, 5, 360))).toBeCloseTo(perlicaBattleDamage(baseline));
   });
 
   it('runs generated operators through team events, combo windows and shared resources', () => {

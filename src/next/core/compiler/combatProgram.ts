@@ -23,6 +23,7 @@ import type {
   SkillBuffLifecycleSequences,
   SkillBuffAbilityEventResponse,
   SkillBuffIgniteEventResponse,
+  SkillGlobalBuffDefinition,
   SpGainKind,
   SpGainSource,
   SkillType,
@@ -171,6 +172,11 @@ export interface ResolvedCombatStepParameters {
   applyBuff: Omit<CombatStepParameters['applyBuff'], 'definition'> & {
     readonly definition?: ResolvedSkillBuffDefinition;
   };
+  createGlobalBuff: Omit<CombatStepParameters['createGlobalBuff'], 'definition'> & {
+    readonly definition: SkillGlobalBuffDefinition;
+  };
+  finishParentGlobalBuff: CombatStepParameters['finishParentGlobalBuff'];
+  readSkillSettingData: CombatStepParameters['readSkillSettingData'];
   readBuffBlackboard: CombatStepParameters['readBuffBlackboard'];
   readEventBuffBlackboard: CombatStepParameters['readEventBuffBlackboard'];
   readCurrentBuffRemainingDuration: CombatStepParameters['readCurrentBuffRemainingDuration'];

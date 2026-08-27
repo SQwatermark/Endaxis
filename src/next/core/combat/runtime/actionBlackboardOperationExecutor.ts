@@ -116,6 +116,49 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
       context.refreshCurrentBuffAttributeModifiers?.();
       return true;
     }
+    if (step.kind === 'readSkillSettingData') {
+      if (context === undefined) {
+        throw new Error('readSkillSettingData requires a combat operation context');
+      }
+      for (const item of step.parameters.items) {
+        const column = roundToEven(resolveActionValueOperand(item.column, context.blackboard)) - 1;
+        if (column < 0 || column >= item.values.length) continue;
+        let value = item.values[column]!;
+        if (item.enhance !== undefined) {
+          if (this.sourceAttributes === undefined) {
+            throw new Error('enhanced readSkillSettingData requires a source attribute reader');
+          }
+          const sourceId =
+            item.enhance.target === 'caster'
+              ? this.sourceAttributes.sourceId
+              : item.enhance.target === 'buffOwner'
+                ? context.buffOwnerId
+                : context.buffSourceId;
+          if (sourceId === undefined) {
+            throw new Error(
+              `readSkillSettingData target '${item.enhance.target}' requires a Buff context`,
+            );
+          }
+          const enhance = this.sourceAttributes.read(sourceId, {
+            attribute: { kind: 'specific', key: 'PhysicalAndSpellInflictionEnhance' },
+            stage: 'finalNonConverted',
+            useFloor: false,
+            divisor: { kind: 'constant', value: 1 },
+            multiplier: { kind: 'constant', value: 1 },
+            base: { kind: 'constant', value: 0 },
+            targetKey: item.storeKey,
+          });
+          const formula = item.enhance.formula;
+          value *=
+            formula.kind === 'linear'
+              ? 1 + formula.paramA * enhance
+              : 1 + (formula.paramA * enhance) / (formula.paramB + enhance);
+        }
+        context.blackboard.assignDynamic(item.storeKey, value);
+        context.refreshCurrentBuffAttributeModifiers?.();
+      }
+      return true;
+    }
     return context === undefined
       ? this.delegate.execute(step)
       : this.delegate.execute(step, context);

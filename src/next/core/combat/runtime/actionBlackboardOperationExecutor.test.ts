@@ -316,6 +316,86 @@ describe('ActionBlackboardOperationExecutor', () => {
       ),
     ).toThrow("action blackboard value 'missing' is missing");
   });
+
+  it('reads SkillSetting columns with midpoint-to-even rounding and skips invalid columns', () => {
+    const blackboard = new ActionBlackboard({ evenColumn: 2.5, oddColumn: 3.5, invalid: 0 });
+    const refresh = vi.fn();
+    const executor = new ActionBlackboardOperationExecutor(delegate);
+
+    executor.execute(
+      {
+        kind: 'readSkillSettingData',
+        parameters: {
+          items: [
+            {
+              values: [10, 20, 30, 40],
+              column: { kind: 'blackboard', key: 'evenColumn' },
+              storeKey: 'evenResult',
+            },
+            {
+              values: [10, 20, 30, 40],
+              column: { kind: 'blackboard', key: 'oddColumn' },
+              storeKey: 'oddResult',
+            },
+            {
+              values: [10, 20, 30, 40],
+              column: { kind: 'blackboard', key: 'invalid' },
+              storeKey: 'untouched',
+            },
+          ],
+        },
+      },
+      { blackboard, refreshCurrentBuffAttributeModifiers: refresh },
+    );
+
+    expect(blackboard.getNumber('evenResult')).toBe(20);
+    expect(blackboard.getNumber('oddResult')).toBe(40);
+    expect(blackboard.getNumber('untouched')).toBeUndefined();
+    expect(refresh).toHaveBeenCalledTimes(2);
+  });
+
+  it('applies the recovered linear and saturating SkillSetting enhance formulas', () => {
+    const reads: string[] = [];
+    const blackboard = new ActionBlackboard();
+    const executor = new ActionBlackboardOperationExecutor(delegate, undefined, {
+      sourceId: 'akekuri',
+      read: sourceId => {
+        reads.push(sourceId);
+        return sourceId === 'akekuri' ? 2 : 3;
+      },
+    });
+
+    executor.execute(
+      {
+        kind: 'readSkillSettingData',
+        parameters: {
+          items: [
+            {
+              values: [10],
+              column: { kind: 'constant', value: 1 },
+              storeKey: 'linear',
+              enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.25 } },
+            },
+            {
+              values: [10],
+              column: { kind: 'constant', value: 1 },
+              storeKey: 'saturating',
+              enhance: {
+                target: 'buffOwner',
+                formula: { kind: 'saturating', paramA: 2, paramB: 3 },
+              },
+            },
+          ],
+        },
+      },
+      { blackboard, buffOwnerId: 'party-member' },
+    );
+
+    expect(blackboard.getNumber('linear')).toBeCloseTo(15);
+    expect(blackboard.getNumber('saturating')).toBeCloseTo(20);
+    expect(reads).toEqual(['akekuri', 'party-member']);
+  });
+
   it('compares dynamic action values with native float tolerance', () => {
     const executor = new ActionBlackboardOperationExecutor(delegate);
     const context = { blackboard: new ActionBlackboard({ swordCount: 3 }) };

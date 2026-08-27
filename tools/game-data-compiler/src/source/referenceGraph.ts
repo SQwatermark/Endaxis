@@ -15,7 +15,8 @@ import {
   type KnownNativeActionLeafSource,
 } from './actionLeaf.ts';
 
-export type DefinitionReferenceKind = 'buff' | 'skill' | 'abilityEntity' | 'projectile';
+export type DefinitionReferenceKind =
+  'buff' | 'skill' | 'abilityEntity' | 'projectile' | 'globalBuff';
 export type DefinitionReferenceState = 'active' | 'inactive' | 'dynamic' | 'empty';
 
 export interface DefinitionReferenceSource {
@@ -283,6 +284,23 @@ function collectLeafReferences(
           ),
         );
       }
+      return;
+    }
+    case 'globalBuff': {
+      const action = leaf.action;
+      if (action.kind !== 'createGlobalBuff') return;
+      action.globalBuffs.forEach((entry, index) => {
+        output.push(
+          referenceFromIdentity(
+            'globalBuff',
+            'create',
+            enabled,
+            entry.globalBuffId,
+            null,
+            `${sourcePath}.globalBuffs[${index}].globalBuffId`,
+          ),
+        );
+      });
       return;
     }
     case 'buffFinish': {

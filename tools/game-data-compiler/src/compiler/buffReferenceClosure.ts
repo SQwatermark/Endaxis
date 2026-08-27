@@ -2,6 +2,7 @@ import { collectBuffActionReferences } from '../source/buffActionGraph.ts';
 import { parseBuffRuntimeSource, type BuffRuntimeSource } from '../source/buffRuntime.ts';
 import { collectNativeActionNodes } from '../source/controlFlow.ts';
 import type { DefinitionReferenceSource } from '../source/referenceGraph.ts';
+import type { GlobalBuffTemplateCatalogSource } from '../source/globalBuffTemplate.ts';
 
 /**
  * 定义依赖收集，不改写动作和运行时黑板。
@@ -10,6 +11,7 @@ import type { DefinitionReferenceSource } from '../source/referenceGraph.ts';
 export function collectBuffRuntimeClosure(
   rootIds: readonly string[],
   buffData: Record<string, unknown> | ((id: string) => unknown),
+  globalBuffCatalog?: GlobalBuffTemplateCatalogSource,
 ): Map<string, BuffRuntimeSource> {
   const result = new Map<string, BuffRuntimeSource>();
   const references = new Map<string, readonly DefinitionReferenceSource[]>();
@@ -24,9 +26,22 @@ export function collectBuffRuntimeClosure(
       const source = parseBuffRuntimeSource(value, `BuffData.${id}`);
       if (source.graph.buffId !== id) throw new Error(`BuffData.${id}.id: identity mismatch`);
       result.set(id, source);
-      const refs = collectBuffActionReferences(source.graph).filter(
-        ref => ref.kind === 'buff' && ref.state !== 'inactive',
+      const allRefs = collectBuffActionReferences(source.graph).filter(
+        ref => ref.state !== 'inactive',
       );
+      for (const ref of allRefs.filter(ref => ref.kind === 'globalBuff')) {
+        if (ref.state === 'dynamic' || ref.id === null) {
+          throw new Error(`${ref.sourcePath}: dynamic GlobalBuff references are unsupported`);
+        }
+        const template = globalBuffCatalog?.byId.get(ref.id);
+        if (template === undefined) {
+          throw new Error(
+            `${ref.sourcePath}: missing GlobalBuff template ${JSON.stringify(ref.id)}`,
+          );
+        }
+        for (const child of template.children) queue.push(child.buffId);
+      }
+      const refs = allRefs.filter(ref => ref.kind === 'buff');
       references.set(id, refs);
       for (const ref of refs) {
         if (ref.state !== 'dynamic' && ref.id !== null) queue.push(ref.id);

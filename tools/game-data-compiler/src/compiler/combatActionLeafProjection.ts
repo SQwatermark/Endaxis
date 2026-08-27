@@ -23,7 +23,7 @@ import {
  * 保留各动作的来源/目标和场景约束；不递归调用序列编排器。 */
 
 /** 动作赋值当前只输出契约支持的数值操作数；字符串保留在来源层，不冒充数值常量。 */
-function projectBuffAssignments(
+export function projectBuffAssignments(
   assignments: readonly BlackboardAssignmentSource[],
   sourcePath: string,
 ): Readonly<Record<string, CompiledActionValueOperandSource>> {

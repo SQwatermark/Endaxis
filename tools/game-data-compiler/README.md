@@ -90,12 +90,12 @@ Toggle 组和动作图。旧 `CompiledWeaponTraitLevelRuntimeDependencySource` �
 `resolveSkillBlackboardSource` 只做默认值与原生 Patch 列的覆盖合并。技能、Buff、主动与被动入口
 共用这个数值模型，不在各领域入口补回重复数组。
 
-| 数据字段 | 形式与边界 |
-| --- | --- |
-| `DeclaredBlackboardValueSource.value` | 原始单个声明的数值/字符串，保留动态标记。 |
-| `SkillPatchSource.blackboard` | 原生补丁等级列，与 `levels` 的真实等级 ID 一一对应；相等值的列也不在这里折叠。 |
-| `ResolvedSkillBlackboardSource.values` | 默认值为单值，补丁值保留原列引用；动态声明默认不纳入，Patch 可以另行提供同名值。 |
-| `ScalarSource.levelValues` | `LevelValues \| null`：上层已知数值或未知输入。保留原字段名，但不再只表示数组；只是解析上下文，不是常量传播。 |
+| 数据字段                               | 形式与边界                                                                                                    |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `DeclaredBlackboardValueSource.value`  | 原始单个声明的数值/字符串，保留动态标记。                                                                     |
+| `SkillPatchSource.blackboard`          | 原生补丁等级列，与 `levels` 的真实等级 ID 一一对应；相等值的列也不在这里折叠。                                |
+| `ResolvedSkillBlackboardSource.values` | 默认值为单值，补丁值保留原列引用；动态声明默认不纳入，Patch 可以另行提供同名值。                              |
+| `ScalarSource.levelValues`             | `LevelValues \| null`：上层已知数值或未知输入。保留原字段名，但不再只表示数组；只是解析上下文，不是常量传播。 |
 
 `selectSkillBlackboardLevel` 仅在请求等级精确命中时按列下标取值，单值直接沿用；null/缺档仍只回到
 声明默认值，不泄漏 Patch-only 键。额外输入黑板的覆盖仍在此后。Buff 局部声明可以覆盖继承上下文，
@@ -131,11 +131,11 @@ Toggle 组和动作图。旧 `CompiledWeaponTraitLevelRuntimeDependencySource` �
 
 ### 公共输出类型的固定归属（2026-08-27）
 
-| 模块 | 责任与依赖 |
-| --- | --- |
-| `combatActionProjectionTypes.ts` | 条件、动作值、步骤、序列与简单伤害输出的已支持子集，只依赖独立契约。 |
-| `buffProjectionTypes.ts` | Buff 根字段、显示与修正器输出，依赖契约及上述动作类型。 |
-| `buffRuntimeProjection.ts` / `simpleDamageOperation.ts` | 原生语义投影；旧类型入口仅转导出，不再声明副本。 |
+| 模块                                                    | 责任与依赖                                                           |
+| ------------------------------------------------------- | -------------------------------------------------------------------- |
+| `combatActionProjectionTypes.ts`                        | 条件、动作值、步骤、序列与简单伤害输出的已支持子集，只依赖独立契约。 |
+| `buffProjectionTypes.ts`                                | Buff 根字段、显示与修正器输出，依赖契约及上述动作类型。              |
+| `buffRuntimeProjection.ts` / `simpleDamageOperation.ts` | 原生语义投影；旧类型入口仅转导出，不再声明副本。                     |
 
 窄子集不代表新协议：公共字段由 Pick/Extract 等派生，只保留现有目标、枚举、必需字段和递归子树
 限制。例如事件技能类型不含处决，实体时间膨胀只接受命名曲线，Buff 查询尚未输出同施法过滤位；
@@ -164,17 +164,17 @@ Toggle 组和动作图。旧 `CompiledWeaponTraitLevelRuntimeDependencySource` �
 新增中间类型必须说明生产者、消费者、额外信息、不变量以及退出阶段；仅仅重命名、转交字段
 不构成创建第二套 schema 的理由。编译工具类型不必进入契约，原生类型也不得因外形相同合并。
 
-| 当前类型/模块 | 类别与处理 |
-| --- | --- |
-| `weaponType.ts` / `ProjectedWeaponTypeSource` | 正式身份直接使用 `OperatorWeaponType`，旧名只转导出；原生到正式的映射保留 |
-| `CompiledWeaponStaticDefinitionSource` / `CompiledWeaponTraitStaticDefinitionSource` | 正式阶段输出，从 Weapon/词条契约派生，修正器仍取已支持子集 |
-| `CompiledWeaponRuntimeDefinitionSource` | 静态候选补齐行为后的正式输出，资源字段及初始化黑板来自契约；不是优化 IR |
-| `CompiledWeaponEventHandlerSource` | 公共事件协议的已支持子集，priority/blackboard 必填；两种触发入口互斥 |
-| `CompiledWeaponTraitRuntimeDependencySource` | 静态编译→运行装配的依赖计划，保留原生请求、动作图、等级身份与资源引用；不输出 |
-| `CompiledWeaponToggleConditionSource` / Toggle 组 | 安装判定中间态，原生比较名及未解析值保留到场景装配；不能冒充正式条件 |
-| `CompiledGearDefinitionSource` / 词条 | 正式输出子集，槽位与字段来自契约，assetSlug 和 modifiers 保持必填 |
-| `ProjectedModifierLevels` | 装配用的修正结果及原生 origin，保留索引和来源；进入正式装备后不再携带 origin |
-| 各种 Batch / Diagnostic / Request | 编译工具数据，不是正式游戏 schema，也不是为优化新增的 IR |
+| 当前类型/模块                                                                        | 类别与处理                                                                    |
+| ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------- |
+| `weaponType.ts` / `ProjectedWeaponTypeSource`                                        | 正式身份直接使用 `OperatorWeaponType`，旧名只转导出；原生到正式的映射保留     |
+| `CompiledWeaponStaticDefinitionSource` / `CompiledWeaponTraitStaticDefinitionSource` | 正式阶段输出，从 Weapon/词条契约派生，修正器仍取已支持子集                    |
+| `CompiledWeaponRuntimeDefinitionSource`                                              | 静态候选补齐行为后的正式输出，资源字段及初始化黑板来自契约；不是优化 IR       |
+| `CompiledWeaponEventHandlerSource`                                                   | 公共事件协议的已支持子集，priority/blackboard 必填；两种触发入口互斥          |
+| `CompiledWeaponTraitRuntimeDependencySource`                                         | 静态编译→运行装配的依赖计划，保留原生请求、动作图、等级身份与资源引用；不输出 |
+| `CompiledWeaponToggleConditionSource` / Toggle 组                                    | 安装判定中间态，原生比较名及未解析值保留到场景装配；不能冒充正式条件          |
+| `CompiledGearDefinitionSource` / 词条                                                | 正式输出子集，槽位与字段来自契约，assetSlug 和 modifiers 保持必填             |
+| `ProjectedModifierLevels`                                                            | 装配用的修正结果及原生 origin，保留索引和来源；进入正式装备后不再携带 origin  |
+| 各种 Batch / Diagnostic / Request                                                    | 编译工具数据，不是正式游戏 schema，也不是为优化新增的 IR                      |
 
 本轮已收敛武器星级、武器类型、Ability 事件和装备槽位四组身份；语义战斗事件仍保留当前三类
 及物理异常四项/装备者范围。契约拥有更多形状不代表转换器自动支持，映射之外的原生值仍阻断。
@@ -187,18 +187,18 @@ Toggle 组和动作图。旧 `CompiledWeaponTraitLevelRuntimeDependencySource` �
 
 后续切片已收敛干员角色/星级、头部/成长/信赖、套装及主动技能调度输出：
 
-| 类型/模块 | 本轮归属与约束 |
-| --- | --- |
-| `OperatorCharacterTableSource` | 原生记录与投影身份的关联中间态；原生 profession/rarity 保留，角色和星级直接使用契约 |
-| `CompiledOperatorDefinitionHeaderSource` | 正式字段由 Operator 契约派生；sourceCharacterId 供编译追踪，装配时删除 |
-| `CompiledOperatorAttributeGrowthSource` | 直接取只读 AttributeGrowthDefinition；关键帧选择与截断算法不变 |
-| `OperatorPanelMilestoneSource` | 精确 level/breakStage 查询输入，不是正式成长表 |
-| `CompiledTrustAttributeBonusSource` | values 来自契约；attributes 仍限具体四维，默认数值复用契约常量 |
-| 套装静态输出/运行依赖 | 静态身份来自 GearSetDefinition；运行入口用 Pick/Partial 消费已有计划，不复制安装字段 |
-| `CompiledActiveSkillTimelineSequenceSource` | ScheduledSequence 子集，endFrame 必填，步骤限公共已支持投影 |
-| `CompiledOperatorActiveSkillRuntimeDefinitionSource` | 字段与费用派生契约，sourceSkillId/blackboard/costFrame 必填，复用公共调度项 |
-| `CompiledActiveSkillRuntimeProjectionSource` | 保留原生时长与等级黑板的装配中间态，供主动技能和实体子技能分别消费 |
-| 实体蓝图及子技能 | 已直接使用契约，不新增同形类型；删除子技能返回断言，直接检查输出 |
+| 类型/模块                                            | 本轮归属与约束                                                                       |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `OperatorCharacterTableSource`                       | 原生记录与投影身份的关联中间态；原生 profession/rarity 保留，角色和星级直接使用契约  |
+| `CompiledOperatorDefinitionHeaderSource`             | 正式字段由 Operator 契约派生；sourceCharacterId 供编译追踪，装配时删除               |
+| `CompiledOperatorAttributeGrowthSource`              | 直接取只读 AttributeGrowthDefinition；关键帧选择与截断算法不变                       |
+| `OperatorPanelMilestoneSource`                       | 精确 level/breakStage 查询输入，不是正式成长表                                       |
+| `CompiledTrustAttributeBonusSource`                  | values 来自契约；attributes 仍限具体四维，默认数值复用契约常量                       |
+| 套装静态输出/运行依赖                                | 静态身份来自 GearSetDefinition；运行入口用 Pick/Partial 消费已有计划，不复制安装字段 |
+| `CompiledActiveSkillTimelineSequenceSource`          | ScheduledSequence 子集，endFrame 必填，步骤限公共已支持投影                          |
+| `CompiledOperatorActiveSkillRuntimeDefinitionSource` | 字段与费用派生契约，sourceSkillId/blackboard/costFrame 必填，复用公共调度项          |
+| `CompiledActiveSkillRuntimeProjectionSource`         | 保留原生时长与等级黑板的装配中间态，供主动技能和实体子技能分别消费                   |
+| 实体蓝图及子技能                                     | 已直接使用契约，不新增同形类型；删除子技能返回断言，直接检查输出                     |
 
 前序切片将枚举门禁扩至六组、阶段字段门禁扩至十二类，实体输出入口禁止类型断言。
 不为已有契约直出的实体再建 IR，不把来源、等级选择和未解析安装计划误并入正式定义。
@@ -313,6 +313,8 @@ npm run generate:game-data:operator-active-skills -- --complete `
   --projectile-blackboard-catalog src/next/data/projectiles/projectile-entity-blackboards-1.4.4.json `
   --gameplay-tag-catalog src/next/data/combat/gameplayTagCatalog.generated.ts `
   --time-dilation-catalog src/next/data/combat/timeDilationCatalog.ts `
+  --global-buff-catalog src/next/data/global-buffs/global-buff-templates-1.4.4.json `
+  --skill-setting-catalog src/next/data/combat/skill-setting.combat-1.4.4.json `
   --slug avywenna `
   --output src/next/data/operators/generated-definitions/avywenna `
   --audit-output tmp/game-data-audit/operator-definitions/avywenna `

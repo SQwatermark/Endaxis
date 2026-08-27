@@ -109,6 +109,7 @@ export {
   type SkillBuffIgniteEventResponse,
   type SkillBuffSlotReplacement,
   type SkillBuffDefinition,
+  type SkillGlobalBuffDefinition,
   type OperatorBuffDefinitions,
 } from '../../../../packages/game-data-contract/src/buffs.ts';
 export {

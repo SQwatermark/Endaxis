@@ -217,6 +217,9 @@ export type CompiledBuffStepSource =
       }
     >
   | Step<'applyBuff', BuffApplicationParameters>
+  | Step<'createGlobalBuff'>
+  | Step<'finishParentGlobalBuff'>
+  | Step<'readSkillSettingData'>
   | Step<'applyElementalInfliction'>
   | (Step<
       'conditional',
@@ -246,8 +249,7 @@ export type CompiledBuffStepSource =
       'storeSourceAttributeValue',
       Parameters<'storeSourceAttributeValue'> & {
         readonly attribute:
-          | { readonly kind: 'specific'; readonly key: 'maxHealth' }
-          | { readonly kind: 'secondary' };
+          { readonly kind: 'specific'; readonly key: 'maxHealth' } | { readonly kind: 'secondary' };
       }
     >
   | Step<'calculateActionValue'>

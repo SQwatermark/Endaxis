@@ -64,6 +64,24 @@ export function compileBuffLeafNode(
       state: partyTargetGroups,
     };
   }
+  if (node.body.value.family === 'globalBuff') {
+    const compile = extensions.compileGlobalBuffAction;
+    if (compile === undefined)
+      throw new Error(`${node.sourcePath}: GlobalBuff projection is unavailable`);
+    return {
+      steps: compile(node.body.value.action, node.sourcePath, context),
+      state: partyTargetGroups,
+    };
+  }
+  if (node.body.value.family === 'skillSetting') {
+    const compile = extensions.compileSkillSettingRead;
+    if (compile === undefined)
+      throw new Error(`${node.sourcePath}: SkillSetting projection is unavailable`);
+    return {
+      steps: compile(node.body.value.action, node.sourcePath, context),
+      state: partyTargetGroups,
+    };
+  }
   if (node.body.value.family === 'abilityEntity') {
     const action = node.body.value.action;
     const bornAtBlockPoint =

@@ -1579,6 +1579,164 @@ function validateCombatStep(
       }
       break;
     }
+    case 'createGlobalBuff': {
+      requireString(parameters, 'globalBuffId', `${path}.parameters`, out);
+      if (parameters.count !== undefined) {
+        validateActionValueOperand(parameters.count, `${path}.parameters.count`, out);
+      }
+      if (parameters.source !== undefined) {
+        requireEnum(parameters, 'source', BUFF_APPLICATION_SOURCES_SET, `${path}.parameters`, out);
+      }
+      if (parameters.finishByAction !== undefined) {
+        requireBoolean(parameters, 'finishByAction', `${path}.parameters`, out);
+      }
+      if (parameters.blackboardAssignments !== undefined) {
+        const assignments = asRecord(
+          parameters.blackboardAssignments,
+          `${path}.parameters.blackboardAssignments`,
+          out,
+        );
+        if (assignments !== null) {
+          for (const [key, value] of Object.entries(assignments)) {
+            validateActionValueOperand(
+              value,
+              `${path}.parameters.blackboardAssignments.${key}`,
+              out,
+            );
+          }
+        }
+      }
+      const definition = asRecord(parameters.definition, `${path}.parameters.definition`, out);
+      if (definition !== null) {
+        requireEnum(
+          definition,
+          'stackingType',
+          new Set(['unlimited', 'stack']),
+          `${path}.parameters.definition`,
+          out,
+        );
+        if (definition.maxStackCount !== undefined) {
+          const maximum = requireNonNegativeInteger(
+            definition,
+            'maxStackCount',
+            `${path}.parameters.definition`,
+            out,
+          );
+          if (maximum === 0)
+            push(out, `${path}.parameters.definition.maxStackCount`, 'expected positive integer');
+        }
+        if (definition.durationSeconds !== undefined) {
+          if (typeof definition.durationSeconds === 'number') {
+            requireFiniteNumber(
+              definition,
+              'durationSeconds',
+              `${path}.parameters.definition`,
+              out,
+            );
+          } else {
+            const duration = asRecord(
+              definition.durationSeconds,
+              `${path}.parameters.definition.durationSeconds`,
+              out,
+            );
+            if (duration !== null)
+              requireString(
+                duration,
+                'blackboardKey',
+                `${path}.parameters.definition.durationSeconds`,
+                out,
+              );
+          }
+        }
+        const blackboard = asRecord(
+          definition.blackboard,
+          `${path}.parameters.definition.blackboard`,
+          out,
+        );
+        if (blackboard !== null) {
+          for (const [key, value] of Object.entries(blackboard)) {
+            if (typeof value !== 'number' && typeof value !== 'string' && value !== null) {
+              push(out, `${path}.parameters.definition.blackboard.${key}`, 'invalid value');
+            }
+          }
+        }
+        if (!Array.isArray(definition.children) || definition.children.length === 0) {
+          push(out, `${path}.parameters.definition.children`, 'expected a non-empty array');
+        } else {
+          definition.children.forEach((value, index) => {
+            const childPath = `${path}.parameters.definition.children[${index}]`;
+            const child = asRecord(value, childPath, out);
+            if (child === null) return;
+            requireString(child, 'buffId', childPath, out);
+            const assignments = asRecord(
+              child.blackboardAssignments,
+              `${childPath}.blackboardAssignments`,
+              out,
+            );
+            if (assignments !== null) {
+              for (const [key, operand] of Object.entries(assignments)) {
+                validateActionValueOperand(
+                  operand,
+                  `${childPath}.blackboardAssignments.${key}`,
+                  out,
+                );
+              }
+            }
+          });
+        }
+      }
+      break;
+    }
+    case 'finishParentGlobalBuff':
+      requireEnum(parameters, 'reason', new Set(['early', 'other']), `${path}.parameters`, out);
+      break;
+    case 'readSkillSettingData':
+      if (!Array.isArray(parameters.items)) {
+        push(out, `${path}.parameters.items`, 'expected an array');
+      } else {
+        parameters.items.forEach((value, index) => {
+          const itemPath = `${path}.parameters.items[${index}]`;
+          const item = asRecord(value, itemPath, out);
+          if (item === null) return;
+          if (!Array.isArray(item.values) || item.values.length !== 4) {
+            push(out, `${itemPath}.values`, 'expected four columns');
+          } else {
+            item.values.forEach((entry, column) => {
+              if (typeof entry !== 'number' || !Number.isFinite(entry)) {
+                push(out, `${itemPath}.values[${column}]`, 'expected finite number');
+              }
+            });
+          }
+          validateActionValueOperand(item.column, `${itemPath}.column`, out);
+          requireString(item, 'storeKey', itemPath, out);
+          if (item.enhance !== undefined) {
+            const enhance = asRecord(item.enhance, `${itemPath}.enhance`, out);
+            if (enhance !== null) {
+              requireEnum(
+                enhance,
+                'target',
+                new Set(['caster', 'buffOwner', 'buffSource']),
+                `${itemPath}.enhance`,
+                out,
+              );
+              const formula = asRecord(enhance.formula, `${itemPath}.enhance.formula`, out);
+              if (formula !== null) {
+                requireEnum(
+                  formula,
+                  'kind',
+                  new Set(['linear', 'saturating']),
+                  `${itemPath}.enhance.formula`,
+                  out,
+                );
+                requireFiniteNumber(formula, 'paramA', `${itemPath}.enhance.formula`, out);
+                if (formula.kind === 'saturating')
+                  requireFiniteNumber(formula, 'paramB', `${itemPath}.enhance.formula`, out);
+              }
+            }
+          }
+        });
+      }
+      break;
     case 'applyPhysicalInfliction': {
       if (parameters.type !== 'fracture' && parameters.type !== 'crush') {
         push(out, `${path}.parameters.type`, "expected 'fracture' or 'crush'");

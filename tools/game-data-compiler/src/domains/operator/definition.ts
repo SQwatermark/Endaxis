@@ -32,6 +32,8 @@ export interface OperatorDefinitionAssemblyInput {
   readonly entityCatalog: CompiledAbilityEntityTemplateCatalogSource;
   readonly loadSkill: (id: string) => unknown;
   readonly loadBuff: (id: string) => unknown;
+  readonly globalBuffCatalog: unknown;
+  readonly skillSettingCatalog: unknown;
 }
 
 /**
@@ -136,7 +138,12 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
       ),
     ]),
   ];
-  const buffClosure = compileStandardStumpBuffClosure(roots, input.loadBuff);
+  const buffClosure = compileStandardStumpBuffClosure(
+    roots,
+    input.loadBuff,
+    input.globalBuffCatalog,
+    input.skillSettingCatalog,
+  );
   const blocked = buffClosure.diagnostics.filter(item => item.status === 'blocked');
   if (blocked.length) throw new Error(`operator Buff closure blocked: ${JSON.stringify(blocked)}`);
   const privateBuffs: Record<string, CompiledBuffDefinitionSource> = {},

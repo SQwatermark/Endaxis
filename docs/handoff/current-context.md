@@ -2623,9 +2623,13 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 ### 2026-08-22：Akekuri GlobalBuff / SkillAffix 固定队伍投影
 
 - `combat-spec` 先行补齐并提交了 GlobalBuff 生命周期、Stack 上限淘汰、队伍子 Buff 同步，以及直接技能 SkillAffix 的施法结束清理；Endaxis 只在固定队伍边界做极简投影，没有复制战中换队系统。
-- Akekuri 第二天赋现把每个 `global_buff_combo_trigger` 层镜像为全队普通 Buff。任意队员下一次战技或终结技通过 `eventTarget` 获得 SkillAffix，派生伤害 Buff 通过新增的 `buffOwner` 寻址保持在实际施法者；全队镜像层同步消费。伤害计算前按 1–4 层读取 `SkillSetting[连击增伤] = [0.2, 0.15, 0.1333, 0.125]`，战技再乘 1.5。
-- 潜能 5 的 `potential_5_duration=5` 已严格验证并延长投影期限；终结技两个原生载体 Buff 使用新的 `projectedBuffIds` 审计分类，免伤 Buff 单独标为对敌伤害模拟无效果。Buff 图标展示字段仍由公共定义生成链保留，没有因行为投影被丢弃。
-- 生产回归使用 Akekuri + 佩丽卡双人场景，锁定跨队员 30% 战技增伤、全队一层同步消费、10 秒失效和潜能 5 的 15 秒期限。完整证据与边界见 `docs/research/akekuri-combo-imbue.md`。
+- 当时的首版实现把每个 `global_buff_combo_trigger` 层展平为全队普通 Buff 镜像；该角色专用方案已被
+  2026-08-27 的通用 GlobalBuff 父实例运行时取代。`eventTarget` / `buffOwner` 身份链与四列
+  `SkillSetting[连击增伤] = [0.2, 0.15, 0.1333, 0.125]` 结论仍有效。
+- `potential_5_duration=5` 的来源值有效，但当时把它解释成“在 10 秒 GlobalBuff 期限上再加 5 秒”
+  是错误的。后续完整 Buff 生命周期证明它是在约 5 秒技能动作结束后续接 5 秒，且仍受 GlobalBuff
+  自创建起 10 秒的独立寿命约束。正确生产断言为潜能 5 在约 8 秒仍有效、12 秒已失效；完整纠正见
+  本文 2026-08-27 小节与 `docs/research/akekuri-combo-imbue.md`。
 - 全量 22 名正式干员与梨诺审计产物已在隔离目录完整生成并同步，所有已解析 Buff 的图标身份和显示位进入 audit/正式定义；生成器 447/447、定向 Next 48/48、`type-check:next` 通过。养成审计提升为天赋 27/44、潜能 109/110，剩余潜能只剩管理员潜能 4。完整 Vitest 为 1882/1890，通过项覆盖全部 Next 回归；8 个失败均位于旧版结构/数据测试，本轮未修改对应旧版代码。
 - 下一项优先闭环管理员潜能 4；之后回到剩余天赋横向覆盖。若机制不影响对敌伤害且无法证明会改变当前模拟结果，继续只记录证据，不抢占伤害链任务。
 
@@ -3407,3 +3411,29 @@ Gain)`，且数值为目标派生浮点值乘 `factor`；目标派生字段/枚�
 - 交接后的直接主线是用统一入口选择下一位干员，逐项生成其所有时间轴可放置技能并跑真实放轴门禁；
   每遇到新载荷，仍先在 combat-spec 依据解包/反编译证据闭环，再接 Endaxis。对唯一木桩伤害没有
   可见影响的镜头、空间和环境行为，只允许在严格识别完整载荷后审计省略，不扩建无用运行后端。
+
+### 2026-08-27：秋栗整名定义接入通用 GlobalBuff / SkillSetting 运行链
+
+- `CreateGlobalBuffAction`、`FinishGlobalBuffAction(finishParent=true)` 与 `ReadSkillSettingData` 已从
+  角色专用投影提升为公共 contract、严格来源 IR、编译步骤和运行时。GlobalBuff 保留精确父实例、
+  固定队伍 child Buff 镜像、Stack 达上限时淘汰首个未结束实例、独立有限寿命及动作域清理；任意
+  child 只能结束自己的父实例，不按 ID 扩大到同组其他层。
+- GlobalBuff 模板由版本化目录
+  `src/next/data/global-buffs/global-buff-templates-1.4.4.json` 提供；SkillSetting 继续由版本化四列目录
+  提供。完整生成模式缺少任一目录都会失败关闭。读取列号采用原生 midpoint-to-even 后减一，越界
+  跳过；`PhysicalAndSpellInflictionEnhance` 的线性/饱和公式在运行时读取实际来源属性。
+- Buff enable 条件分支不再即时创建又即时结束有状态动作，而是保持实际分支到外层 Buff 结束；
+  `beforeCastSkill` 同步携带当前施法的完整 cast identity，事件响应创建的 SkillAffix 不再误继承监听
+  Buff 的旧施法身份。秋栗跨队员战技 30% 增伤和同一 GlobalBuff 层的全队镜像消费均由正式双人场景
+  验证。
+- 原始 `PotentialTalentEffectTable` 只给终结技写入 `potential_5_duration=5`；天赋载体在约 5 秒
+  技能动作结束时创建 5 秒桥接 Buff，桥接结束再清理组合 Buff。GlobalBuff 本身仍从创建时开始按
+  `duration=10` 计时，因此潜能 5 把实际窗口从约 5 秒延续到约 10 秒，而不是旧研究记录的 15 秒。
+  生产回归现锁定：8 秒时仅潜能 5 仍增伤，12 秒时两者均已失效。
+- 秋栗完整生成物包含 9 个主动技能、2 项天赋、5 项潜能、7 个私有 Buff 与 6 个公共 Buff，产品入口
+  已切换到完整生成定义，公共 Buff 目录合并该闭包。全仓引用清点确认旧角色专用生成文件只剩自身
+  导出后已删除，避免展平特例重新进入产品或测试。
+- 门禁已覆盖 GlobalBuff 父子精确清理、Stack 淘汰、SkillSetting 舍入/公式、条件分支动作寿命和
+  秋栗生产场景。完整 game-data 为 **92 文件 / 684 项通过**，Next 为 **237 文件 / 3235 项通过**；
+  `type-check:game-data`、contract、production、`type-check:next`、秋栗完整生成 `--check` 和
+  `git diff --check` 均通过。`tmp/` 只作来源和审计工作区，不得提交。

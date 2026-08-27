@@ -9,6 +9,13 @@ import {
 } from './buffRuntimeProjection.ts';
 import type { CompiledBuffDefinitionSource } from './buffProjectionTypes.ts';
 import { standardStumpBuffAbilityEventOmissionReason } from './standardStumpScenarioPolicy.ts';
+import {
+  parseGlobalBuffTemplateCatalogSource,
+  type GlobalBuffTemplateCatalogSource,
+} from '../source/globalBuffTemplate.ts';
+import { createGlobalBuffProjectionExtensions } from './globalBuffProjection.ts';
+import { parseSkillSettingCatalogSource } from '../source/skillSettingCatalog.ts';
+import { createSkillSettingProjectionExtensions } from './skillSettingProjection.ts';
 
 export interface StandardStumpBuffClosureDiagnostic {
   readonly status: 'blocked' | 'scenario-omitted';
@@ -27,12 +34,30 @@ export interface CompiledStandardStumpBuffClosure {
 export function compileStandardStumpBuffClosure(
   rootBuffIds: readonly string[],
   buffDataValue: unknown,
+  globalBuffCatalogValue?: unknown,
+  skillSettingCatalogValue?: unknown,
 ): CompiledStandardStumpBuffClosure {
   const buffData =
     typeof buffDataValue === 'function'
       ? (buffDataValue as (id: string) => unknown)
       : requireRecord(buffDataValue, 'BuffData');
-  const sources = collectBuffRuntimeClosure(rootBuffIds, buffData);
+  const globalBuffCatalog: GlobalBuffTemplateCatalogSource | undefined =
+    globalBuffCatalogValue === undefined
+      ? undefined
+      : parseGlobalBuffTemplateCatalogSource(globalBuffCatalogValue);
+  const sources = collectBuffRuntimeClosure(rootBuffIds, buffData, globalBuffCatalog);
+  const skillSettingCatalog =
+    skillSettingCatalogValue === undefined
+      ? undefined
+      : parseSkillSettingCatalogSource(skillSettingCatalogValue);
+  const extensions = {
+    ...(globalBuffCatalog === undefined
+      ? {}
+      : createGlobalBuffProjectionExtensions(globalBuffCatalog)),
+    ...(skillSettingCatalog === undefined
+      ? {}
+      : createSkillSettingProjectionExtensions(skillSettingCatalog)),
+  };
   const omittedBuffIds = new Set<string>();
   const diagnostics: StandardStumpBuffClosureDiagnostic[] = [];
   for (const [buffId, source] of sources) {
@@ -79,6 +104,7 @@ export function compileStandardStumpBuffClosure(
         source,
         omittedBuffIds,
         omittedEvents,
+        extensions,
       );
     } catch (error) {
       diagnostics.push({

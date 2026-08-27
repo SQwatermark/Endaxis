@@ -193,6 +193,7 @@ class ForEachContextTargetStep extends CombatStep {
 }
 
 class ConditionalStep extends CombatStep {
+  #activeBranch?: ActionSequence;
   constructor(
     readonly step: Extract<ResolvedCombatStep, { kind: 'conditional' }>,
     readonly runtime: CombatActionSequenceRuntime,
@@ -210,11 +211,24 @@ class ConditionalStep extends CombatStep {
     const passed = this.runtime.operations.evaluate(condition, this.operationContext);
     this.runtime.hooks.conditionEvaluated?.(condition, passed);
     const branch = passed ? this.step.whenTrue : this.step.whenFalse;
+    this.#activeBranch =
+      branch === undefined ? undefined : this.runtime.createSequence(branch, this.operationContext);
     const result =
-      branch === undefined
-        ? passed
-        : this.runtime.createSequence(branch, this.operationContext).executeInstant(context);
+      this.#activeBranch === undefined ? passed : this.#activeBranch.tryExecute(context);
     return this.step.parameters.alwaysNext === true || result;
+  }
+
+  override tick(deltaTime: number, context: CombatExecutionContext): void {
+    this.#activeBranch?.tick(deltaTime, context);
+  }
+
+  override end(context: CombatExecutionContext): void {
+    this.#activeBranch?.end(context);
+  }
+
+  override reset(context: CombatExecutionContext): void {
+    this.#activeBranch?.reset(context);
+    this.#activeBranch = undefined;
   }
 }
 
