@@ -104,6 +104,7 @@ import {
   type PlaySoundActionSource,
 } from './presentationActions.ts';
 import { parseInterruptActionSource, type InterruptActionSource } from './interruptAction.ts';
+import { parseDispelActionSource, type DispelActionSource } from './dispelActions.ts';
 import { parseVulnerableActionSource, type KeywordBuffActionSource } from './keywordActions.ts';
 import {
   parseEnemyHurtAnimationActionSource,
@@ -301,6 +302,7 @@ export type KnownNativeActionLeafSource =
     }
   | { readonly family: 'skillAffix'; readonly action: { readonly kind: 'skillAffix' } }
   | { readonly family: 'buffFinish'; readonly action: BuffFinishActionSource }
+  | { readonly family: 'dispel'; readonly action: DispelActionSource }
   | { readonly family: 'buffQuery'; readonly action: BuffStackReadActionSource }
   | { readonly family: 'buffBlackboardRead'; readonly action: BuffBlackboardReadActionSource }
   | { readonly family: 'buffLifeTimeRead'; readonly action: BuffLifeTimeReadActionSource }
@@ -733,6 +735,8 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'buffFinish',
         action: parseAdvancedBuffFinishActionSource(value, path, inheritedBlackboard),
       };
+    case 'DispelAction':
+      return { family: 'dispel', action: parseDispelActionSource(value, path) };
     case 'SaveBuffStackNumAdvanced':
       return {
         family: 'buffQuery',

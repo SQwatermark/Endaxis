@@ -76,6 +76,7 @@ export function compileActionNode(
       'buffBlackboardRead',
       'buffQuery',
       'buffFinish',
+      'dispel',
       'blackboardMutation',
       'blackboardCalculation',
       'attributeSnapshot',
@@ -316,6 +317,30 @@ export function compileActionNode(
         },
       },
     ];
+  }
+  if (node.body.value.family === 'dispel') {
+    const action = node.body.value.action;
+    const expectedTags = [
+      gameplayTagIdFromPath('Skill/Enemy/Common/SpellInflictOnChar/CrystInflictOnChar'),
+      gameplayTagIdFromPath('Skill/Enemy/Common/SpellStatusOnChar/FrozenOnChar'),
+    ].sort((left, right) => left - right);
+    const actualTags = [...action.tagQuery.tagIds].sort((left, right) => left - right);
+    if (
+      action.dispelSource.targetSource === 'Source' &&
+      action.dispelSource.targetGroupKey === '' &&
+      action.dispelTargets.targetSource === 'Context' &&
+      action.dispelTargets.targetGroupKey !== '' &&
+      partyTargetGroups.get(action.dispelTargets.targetGroupKey) === 'party' &&
+      action.dispelLevel === 'Default' &&
+      action.checkTag &&
+      action.tagQuery.queryType === 'hasAny' &&
+      actualTags.length === expectedTags.length &&
+      actualTags.every((tag, index) => tag === expectedTags[index])
+    ) {
+      // 萤石天赋 2 只清除全队由敌方主动行为施加的寒冷附着/冻结；固定木桩模型不产生二者。
+      return [];
+    }
+    throw new Error(`${node.sourcePath}: unsupported DispelAction projection`);
   }
   if (node.body.value.family === 'damage') {
     if (

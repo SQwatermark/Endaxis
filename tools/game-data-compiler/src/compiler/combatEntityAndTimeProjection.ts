@@ -544,6 +544,33 @@ export function compileBuffLeafNode(
         state: nextGroups,
       };
     }
+    const partyKind =
+      write.postProcessorTypes.length === 0 && !write.excludesOwner
+        ? ('party' as const)
+        : write.postProcessorTypes.length === 1 &&
+            write.postProcessorTypes[0] === 'ExcludeTarget' &&
+            write.excludesOwner
+          ? ('partyExceptCaster' as const)
+          : null;
+    const centerMatchesCaster =
+      write.center === 'ActionOwner' ||
+      (write.center === 'ActionSource' &&
+        context.actionSourceTarget === 'caster' &&
+        context.actionOwnerTarget === 'caster');
+    if (
+      write.producerType === 'FindTargetAction' &&
+      write.finderType === 'CharacterTeamFinder' &&
+      write.validatorTypes.length === 0 &&
+      partyKind !== null &&
+      centerMatchesCaster &&
+      write.centerContextKey === '' &&
+      write.selectorOwner === 'ActionOwner' &&
+      write.selectorOwnerContextKey === ''
+    ) {
+      const nextGroups = new Map(partyTargetGroups);
+      nextGroups.set(write.targetGroupKey, partyKind);
+      return { steps: [], state: nextGroups };
+    }
     if (context.actionTargetTarget === 'currentAbilityEntity')
       throw new Error(`${node.sourcePath}: unaudited AbilityEntity target group`);
     if (context.actionTargetTarget === 'enemy')
@@ -573,34 +600,7 @@ export function compileBuffLeafNode(
         state: partyTargetGroups,
       };
     }
-    const partyKind =
-      action.postProcessorTypes.length === 0 && !action.excludesOwner
-        ? ('party' as const)
-        : action.postProcessorTypes.length === 1 &&
-            action.postProcessorTypes[0] === 'ExcludeTarget' &&
-            action.excludesOwner
-          ? ('partyExceptCaster' as const)
-          : null;
-    const centerMatchesCaster =
-      action.center === 'ActionOwner' ||
-      (action.center === 'ActionSource' &&
-        context.actionSourceTarget === 'caster' &&
-        context.actionOwnerTarget === 'caster');
-    if (
-      action.producerType !== 'FindTargetAction' ||
-      action.finderType !== 'CharacterTeamFinder' ||
-      action.validatorTypes.length !== 0 ||
-      partyKind === null ||
-      !centerMatchesCaster ||
-      action.centerContextKey !== '' ||
-      action.selectorOwner !== 'ActionOwner' ||
-      action.selectorOwnerContextKey !== ''
-    ) {
-      throw new Error(`${node.sourcePath}: unsupported Buff target group query`);
-    }
-    const nextGroups = new Map(partyTargetGroups);
-    nextGroups.set(action.targetGroupKey, partyKind);
-    return { steps: [], state: nextGroups };
+    throw new Error(`${node.sourcePath}: unsupported Buff target group query`);
   }
   return {
     steps: compileActionNode(node, visualOnlyIds, partyTargetGroups, context),

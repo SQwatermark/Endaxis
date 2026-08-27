@@ -63,6 +63,45 @@ function blowOff(deadOption: string) {
 }
 
 describe('施法输入限制与木桩物理控制投影', () => {
+  it('全队寒冷附着/冻结驱散在无敌方主动行为模型中省略', () => {
+    const raw = {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.DispelAction+Data, Gameplay.Beyond',
+      dispelSource: targetFixture('Source'),
+      dispelTargets: targetFixture('Context', undefined, 'tar'),
+      dispelLevel: 'Default',
+      checkTag: true,
+      tagQuery: {
+        queryType: 'HasAny',
+        tags: [{ tagId: 82629473 }, { tagId: 548732882 }],
+      },
+    };
+    const action = parseKnownNativeActionLeafSource(raw, 'fixture.action', {});
+
+    expect(
+      compileBuffLeafNode(
+        node(action),
+        new Set(),
+        new Map([['tar', 'party']]),
+        ACTIVE_SKILL_CONTEXT,
+      ),
+    ).toEqual({ steps: [], state: new Map([['tar', 'party']]) });
+
+    const unknown = parseKnownNativeActionLeafSource(
+      { ...raw, tagQuery: { queryType: 'HasAny', tags: [{ tagId: 82629473 }] } },
+      'fixture.unknown',
+      {},
+    );
+    expect(() =>
+      compileBuffLeafNode(
+        node(unknown),
+        new Set(),
+        new Map([['tar', 'party']]),
+        ACTIVE_SKILL_CONTEXT,
+      ),
+    ).toThrow('unsupported DispelAction projection');
+  });
+
   it('InterruptAction 的 Target 来源不读取残留 targetGroupKey', () => {
     const action = parseKnownNativeActionLeafSource(
       {

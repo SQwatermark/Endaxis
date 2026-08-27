@@ -7,6 +7,29 @@
 `refactor/operator-completion` 的完整干员成果。唯一新转换入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
+### 2026-08-28：Xaihi 主动技能 10/10 与驱散证据闭环（当前检查点）
+
+- 1.4.4 的 `DispelAction.Data` 字段布局以及 `AbilitySystem.DispelBuff` /
+  `BuffContainer.DispelBuff` 方法体已经在 combat-spec 闭环。容器按 Buff 插入顺序跳过已结束项，检查
+  `canBeDispelled`、驱散等级和可选的 `applyTags` 查询，先同步执行 `OnBuffDispelled`，再以
+  `FinishReason.Dispelled` 进入统一结束流程；正常路径的返回值固定为 `true`，不代表至少命中一项。
+  复刻库已增加严格原始数据适配器、运行时动作和生命周期回归，详见 `combat-spec/docs/dispel-buff.md`。
+- Xaihi 终结技第 58–61 帧的真实动作只在天赋 2 启用时，对全队驱散两个敌方状态标签：
+  `Skill/Enemy/Common/SpellInflictOnChar/CrystInflictOnChar` 与
+  `Skill/Enemy/Common/SpellStatusOnChar/FrozenOnChar`。固定木桩模型不产生敌人主动附着或冻结，因此
+  Endaxis 只对“Source 来源、严格全队 Context、Default 等级、HasAny 且恰为这两个版本化标签”的
+  完整形状做审计省略；标签减少、目标变化或其他驱散形状仍失败关闭。不是把驱散一般化为无效果。
+- 公共 `CharacterTeamFinder` 投影同时修正：无过滤、非空间的友方全队查询可在主动技能根序列中
+  建立 `party` 目标组，而不再局限于旧的目标上下文分支。由此 Xaihi 终结技、Ember 终结技和 Antal
+  终结技共同进入 compiled，没有干员 ID 特判。
+- 最新主动矩阵为 **165/309**，主动技能全可编译干员 **4 名**；Xaihi 为 **10/10** 并进入
+  `active-skills-compiled`。完整定义仍为 **3 名**，Xaihi 的 `formalSkillCount=0`，不能把主动技能通过
+  冒充为整名生成完成。下一阶段应从 Xaihi 的完整 Buff、天赋、潜能和能力实体闭包开始正式生成，
+  再进入默认仓库和真实时间轴生产回归。
+- 验证：game-data **93 文件 / 695 项**、game-data contract、production、compiler 与 Next 类型检查
+  均通过。combat-spec 全量 **1439 项通过**；另有本机缺失 `artifacts/skill-data-cdn` 等导出物导致的
+  既有 **17 项**失败，与本阶段逻辑无关。`tmp/` 只保存审计中间产物，不得提交。
+
 ### 2026-08-28：投射物过滤与萤石连携进入统一编译器（当前检查点）
 
 - combat-spec 已从 1.4.4 运行时快照恢复投射物逐目标命中历史：

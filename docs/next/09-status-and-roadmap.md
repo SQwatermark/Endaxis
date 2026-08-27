@@ -2,17 +2,16 @@
 
 本文只给出架构级状态。逐功能的定义、编译、执行和 UI 门槛以[功能迁移矩阵](../architecture/endaxis-next-feature-matrix.md)为准。
 
-> 2026-08-28 当前：统一 TS 主动矩阵为 **162/309**，主动技能全可编译干员 **3 名**，完整定义
-> **3 名**。投射物实例级重复目标缓存已有 1.4.4 机器码证据，唯一木桩下
-> `allowHitSameTarget=false + maxHitCount=-1` 的严格 hit-only 首 tick 形状可归约为一次回调，汤汤
-> 普攻三据此进入 compiled。空字面时间膨胀曲线只保留来源事实，不赋予猜测的执行语义；汤汤终结技
-> 仍因能力实体内 `OnOutputBuff` 事件驱动 JumpTo 而保持 partial，减速 Buff 不能越过该控制流单独
-> 冒充已施加。下一纵向候选按矩阵仍为萤石 9/10；实体 finder 的非空间 center、唯一敌人排除当前
-> Target 的空集合，以及 Interrupt 残留组键已闭环，并额外带动佩丽卡 1 项、莱万汀 3 项进入 compiled。
-> 萤石连携同序列父级目标组现正确继承进嵌套分支，全队 Buff 结束与 0.4 秒技能冷却缩放窗口也已按
-> 公共协议保留；连携现 compiled。当前应研究其终结技唯一剩余的 `DispelAction`，只转换木桩模型下
-> 可见的语义，再闭合整名定义。game-data 93 文件 / 694 项、旧 oracle 484 项、四套类型检查通过；combat-spec 1434 项通过，
-> 17 项仅因本机真实资产目录未配置而失败。具体证据和继续入口见[当前交接](../handoff/current-context.md)。
+> 2026-08-28 当前：统一 TS 主动矩阵为 **165/309**，主动技能全可编译干员 **4 名**，完整定义
+> **3 名**。Xaihi 终结技的 `DispelAction` 已先在 combat-spec 依据 1.4.4 恢复为严格数据适配、
+> `canBeDispelled` / 等级 / Buff `applyTags` 筛选及 `OnBuffDispelled -> Finish(Dispelled)` 生命周期。
+> 该终结技只对全队清除敌方寒冷附着与冻结；固定木桩不会产生这两个敌人主动状态，因此 Endaxis 仅对
+> 两个版本化标签、严格全队目标和完整原生形状做审计省略，其他驱散继续失败关闭。无过滤非空间
+> `CharacterTeamFinder` 的公共投影同时让 Ember 与 Antal 终结技进入 compiled。Xaihi 已达
+> **10/10**，但 `formalSkillCount=0`，尚不是完整正式定义。下一步闭合其 Buff、天赋、潜能和能力实体，
+> 再完成正式生成、默认仓库注册及真实时间轴生产回归。game-data 93 文件 / 695 项和四套相关类型检查
+> 通过；combat-spec 全量 1439 项通过，仍只有本机导出物缺失造成的既有 17 项失败。具体证据和继续入口见
+> [当前交接](../handoff/current-context.md)。
 
 > 2026-08-27 当前：统一 TS 主动矩阵提升到 **88/309**，完整主动技能干员 **2 名**；秋栗
 > **9/9**。OnlyDead 吹飞、纯镜头条件树、ChannelingCasting 输入限制及 Poise 顶层残留倍率均已按
