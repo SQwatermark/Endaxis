@@ -6,9 +6,10 @@
 > 1 个能力实体、12 个私有及 9 个公共 Buff；统一 TS 完整定义增至 **4 名**。Buff SourceFinder、
 > 按 Context owner 查询能力实体、字符串黑板 child Buff、关键词增强和普通技能终结技能量均以公共
 > 协议闭合。生产回归证明开大后的结晶普攻真实增伤，全技能上轴门禁通过。当前严格主动审计为
-> **164/309**；Xaihi、Avywenna、Akekuri 主动全可编译，Yvonne **15/16**，唯一剩余项是终结技的
-> 能力实体生成形状。下一步优先闭合该 spawn 语义并从同一固定来源重建 Yvonne，不扩张与输出无关的
-> 表现或敌人主动行为。game-data 93 文件 / 701 项、Next 237 文件 / 3245 项、四套类型检查和 Xaihi
+> **165/309**；Xaihi、Yvonne、Avywenna、Akekuri 主动全可编译。Yvonne 终结技的
+> `bornAt=Source` 已按非 InstantSearch 直接来源语义闭合，残留主控 selector 不执行，整名产物已重建。
+> 下一步处理 Wulfgard 7/9：先判定 `MarkCanInterrupt` 在固定木桩下的边界，再处理会影响释放频率的
+> cooldown mutation。game-data 93 文件 / 702 项、Next 237 文件 / 3245 项、四套类型检查和 Xaihi
 > `--check` 通过；combat-spec 1439 项通过，既有 17 项仅因本机缺少未入库 artifacts。具体边界见
 > [当前交接](../handoff/current-context.md)。
 

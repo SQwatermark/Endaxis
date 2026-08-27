@@ -27,11 +27,13 @@
   Endaxis 仅对 Xaihi 的 SourceFinder owner、MainTarget、`needTrigger=false`、空 assignItems 完整形状
   做固定木桩下的审计省略；其他形状继续失败关闭。证据见
   `combat-spec/docs/trigger-combo-skill-action.md`。
-- 当前主动迁移审计为 **164/309**，主动 10/10 的干员为 Xaihi、Avywenna、Akekuri；Yvonne 为
-  **15/16**，唯一阻塞是终结技 `timelineActions[8]` 的能力实体生成投影。这一矩阵只统计统一 TS
-  主动入口，不能与旧 Python 已正式化的产品干员数混用。下一阶段优先闭合 Yvonne 终结技的真实
-  spawn 形状并重建整名定义，而不是继续扩张与输出无关的动作。
-- 验证：game-data **93 文件 / 701 项**，Next **237 文件 / 3245 项**，四套 TypeScript 类型检查及
+- 当前主动迁移审计为 **165/309**，主动全可编译干员为 Xaihi、Yvonne、Avywenna、Akekuri。
+  Yvonne 原先 15/16 的终结技能力实体生成已闭合：`bornAt=Source` 是非 InstantSearch 直接来源，
+  序列化的 CharacterTeamFinder/MainCharacterValidator 不执行；只在动作来源已证明为施术者时把它
+  作为零空间出生锚点。整名产物已由生成器重建。该矩阵只统计统一 TS 主动入口，不能与旧 Python
+  已正式化的产品干员数混用。下一候选为 Wulfgard 7/9：先核对战技 `MarkCanInterrupt` 是否只有
+  敌方主动交互语义，再处理终结技会影响技能频率的 cooldown mutation。
+- 验证：game-data **93 文件 / 702 项**，Next **237 文件 / 3245 项**，四套 TypeScript 类型检查及
   Xaihi 完整生成 `--check` 全部通过。combat-spec 新增关键词定向 **6/6**；全量 **1439 项通过**，
   另有本机缺少未入库 `artifacts/skill-data-cdn` 等工件造成的既有 **17 项**失败。`tmp/` 审计产物
   未进入 Git。

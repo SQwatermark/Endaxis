@@ -5,7 +5,8 @@
 > 统一 TypeScript 生成链的 2026-08-28 检查点：Xaihi 已完整输出 10 个技能、2 个天赋、5 档潜能、
 > 1 个能力实体、12 个私有及 9 个公共 Buff，并通过全技能上轴、实际增伤与重建 `--check`。来源链
 > 显式区分 Buff Owner、Buff Source 与 Context owner；只有已证明的单干员 Context 才能作为
-> owner-spawned 能力实体查询锚点。下一目标为 Yvonne 终结技剩余的能力实体 spawn 形状。
+> owner-spawned 能力实体查询锚点。Yvonne 终结技的直接 Source 出生锚点随后闭合并完成整名重建；
+> 下一目标为 Wulfgard 的两个剩余主动缺口。
 
 ## 输入
 

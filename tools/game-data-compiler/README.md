@@ -16,9 +16,10 @@ Buff 与 9 个公共 Buff，并切入产品稳定导出；统一 TS 整名定义
 Pending 形状及当前固定木桩无自动连携输入模型下窄省略；非空 assignItems、其他 owner/target 或
 needTrigger 形状继续阻塞。
 
-最新严格主动审计为 164/309；Xaihi、Avywenna、Akekuri 主动全可编译，Yvonne 为 15/16，唯一
-阻塞是终结技 `timelineActions[8]` 的能力实体 spawn 投影。下一阶段先恢复该真实形状并重建 Yvonne，
-继续以“会改变标准模拟输出”为优先级，不为表现或敌人主动行为扩张本体。game-data 701 项、Next
+最新严格主动审计为 165/309；Xaihi、Yvonne、Avywenna、Akekuri 主动全可编译。Yvonne 终结技
+`bornAt=Source` 已按非 InstantSearch 的直接来源语义投影，残留 selector 不执行；该整名产物已重建。
+下一阶段处理 Wulfgard 的 `MarkCanInterrupt` 与 cooldown mutation，继续以“会改变标准模拟输出”为
+优先级，不为表现或敌人主动行为扩张本体。game-data 702 项、Next
 3245 项及四套类型检查通过；Xaihi 完整生成 `--check` 通过。
 
 ### 前一架构检查点（2026-08-27）

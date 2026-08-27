@@ -95,14 +95,21 @@ export function compileBuffLeafNode(
   }
   if (node.body.value.family === 'abilityEntity') {
     const action = node.body.value.action;
+    // 非 InstantSearch 的 Source 直接取动作来源；其中序列化的 selectorData 不执行。
+    // 仅当来源已证明为施术者时，把它作为零空间出生锚点。
+    const bornAtCasterSource =
+      action.bornAt.targetSource === 'Source' &&
+      action.bornAt.targetGroupKey === '' &&
+      context.actionSourceTarget === 'caster';
     const bornAtSpatialPoint =
-      ((action.bornAt.targetSource === 'Target' && action.bornAt.targetGroupKey === '') ||
+      bornAtCasterSource ||
+      (((action.bornAt.targetSource === 'Target' && action.bornAt.targetGroupKey === '') ||
         (action.bornAt.targetSource === 'Context' &&
           action.bornAt.targetGroupKey !== '' &&
           partyTargetGroups.get(action.bornAt.targetGroupKey) === 'spatialPoint')) &&
-      action.bornAt.finderType === null &&
-      action.bornAt.validatorTypes.length === 0 &&
-      action.bornAt.postProcessorTypes.length === 0;
+        action.bornAt.finderType === null &&
+        action.bornAt.validatorTypes.length === 0 &&
+        action.bornAt.postProcessorTypes.length === 0);
     const bornAtControlledOperator =
       action.bornAt.targetSource === 'InstantSearch' &&
       action.bornAt.finderType === 'CharacterTeamFinder' &&

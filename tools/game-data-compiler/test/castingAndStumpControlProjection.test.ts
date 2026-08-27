@@ -152,6 +152,90 @@ describe('施法输入限制与木桩物理控制投影', () => {
     });
   });
 
+  it('能力实体出生于直接 Source 时不执行残留主控选择器', () => {
+    const action = parseKnownNativeActionLeafSource(
+      {
+        ...META,
+        $type: 'Beyond.Gameplay.Core.SpawnAbilityEntity+Data, Gameplay.Beyond',
+        abilityEntityId: 'abilityentity_fixture',
+        setAbilityEntitySource: true,
+        abilityEntitySource: 'ActionOwner',
+        abilityEntitySourceContextKey: '',
+        setAbilityEntityTarget: false,
+        abilityEntityTarget: targetFixture('Target'),
+        bornAt: {
+          ...targetFixture('Source'),
+          selectorData: {
+            finderData: {
+              $type: 'Beyond.Gameplay.Core.Selector+CharacterTeamFinder+Data, Gameplay.Beyond',
+            },
+            validatorData: [
+              {
+                $type: 'Beyond.Gameplay.Core.Selector+MainCharacterValidator+Data, Gameplay.Beyond',
+              },
+            ],
+            postProcessorData: [],
+          },
+        },
+        bornMountPoint: 'None',
+        bornPosOffset: { x: -1, y: 0.5, z: 0 },
+        checkNavmeshAreaName: false,
+        forbiddenAreaNames: [],
+        attachToClosestMeshPoint: false,
+        yRotateFromBoneToCurPos: false,
+        bornRotation: 'SourceForward',
+        bornRotationContextTarget: '',
+        useAdvancedDirectionSetting: false,
+        advancedDirectionSetting: {
+          directionType: 'SourceForward',
+          sourceMountPoint: 'None',
+          targetMountPoint: 'None',
+          customSourceAndTarget: false,
+          clampToXZ: true,
+          invertDirection: false,
+        },
+        clampToXZPlane: false,
+        applyBornRotationOffset: false,
+        bornRotationOffset: { x: 0, y: 0, z: 0, w: 1 },
+        assignEntityBlackboard: false,
+        assignPairs: [],
+        assignBlackboard: true,
+        abilityEntitySkillId: 'fixture_skill',
+        overrideDuration: false,
+        duration: scalarFixture(0),
+        saveToContext: false,
+        contextKey: '',
+        pauseEffectOnEnd: false,
+        inheritSourceSkillCastId: true,
+        dieWhenSourceDie: false,
+        forceSyncInit: false,
+        dieOnEnd: false,
+      },
+      'fixture.action',
+      {},
+    );
+
+    expect(compileBuffLeafNode(node(action), new Set(), new Map(), ACTIVE_SKILL_CONTEXT)).toEqual({
+      steps: [
+        {
+          kind: 'spawnAbilityEntity',
+          parameters: {
+            abilityEntityId: 'abilityentity_fixture',
+            inheritActionBlackboard: true,
+            dieWhenSourceDies: false,
+          },
+        },
+      ],
+      state: new Map(),
+    });
+    expect(() =>
+      compileBuffLeafNode(node(action), new Set(), new Map(), {
+        ...ACTIVE_SKILL_CONTEXT,
+        actionSourceTarget: 'buffSource',
+      }),
+    ).toThrow('unsupported AbilityEntity spawn projection');
+  });
+
   it('OnlyDead 吹飞在死亡终止模型中省略，活目标吹飞仍阻断', () => {
     expect(
       compileBuffLeafNode(node(blowOff('OnlyDead')), new Set(), new Map(), ACTIVE_SKILL_CONTEXT),

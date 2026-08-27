@@ -7,6 +7,7 @@ import type {
 import {
   branch,
   forEachContextTarget,
+  repeatEachTick,
   scheduled,
   sequence,
   step,
@@ -540,45 +541,57 @@ export const yvonneBasicAttack5: SkillDefinition = withSkillBlackboard(
             undefined,
             { alwaysNext: true },
           ),
-          step(
-            'dealDamage',
-            {
-              damageType: 'cryo',
-              attackScale: { kind: 'blackboard', key: 'atk_scale' },
-              tags: ['normalAttack', 'normalAttackLastCombo'],
-            },
-            'chr_0017_yvonne_attack5:/scheduledSequences/0/sequence/steps/1',
-          ),
-          branch(
-            { kind: 'casterControlled' },
+          repeatEachTick(
             sequence(
-              step('dealStagger', { value: { kind: 'blackboard', key: 'poise' } }),
-              branch(
+              step(
+                'dealDamage',
                 {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'cnt' },
-                  operator: 'less',
-                  right: { kind: 'constant', value: 1 },
+                  damageType: 'cryo',
+                  attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                  tags: ['normalAttack', 'normalAttackLastCombo'],
                 },
+                'chr_0017_yvonne_attack5:/scheduledSequences/0/sequence/steps/1/body/steps/0',
+              ),
+              branch(
+                { kind: 'casterControlled' },
                 sequence(
-                  step('changeResourceByActionValue', {
-                    resource: 'sp',
-                    amount: { kind: 'blackboard', key: 'atb' },
-                    coefficient: { kind: 'constant', value: 1 },
-                    recipient: 'team',
-                    spGainKind: 'gain',
-                    spGainSource: 'normalAttack',
-                  }),
-                  step('modifyActionValue', {
-                    key: 'cnt',
-                    operation: 'add',
-                    value: { kind: 'constant', value: 1 },
-                  }),
+                  step('dealStagger', { value: { kind: 'blackboard', key: 'poise' } }),
+                  branch(
+                    {
+                      kind: 'actionValueCompare',
+                      left: { kind: 'blackboard', key: 'cnt' },
+                      operator: 'less',
+                      right: { kind: 'constant', value: 1 },
+                    },
+                    sequence(
+                      step('changeResourceByActionValue', {
+                        resource: 'sp',
+                        amount: { kind: 'blackboard', key: 'atb' },
+                        coefficient: { kind: 'constant', value: 1 },
+                        recipient: 'team',
+                        spGainKind: 'gain',
+                        spGainSource: 'normalAttack',
+                      }),
+                      step('modifyActionValue', {
+                        key: 'cnt',
+                        operation: 'add',
+                        value: { kind: 'constant', value: 1 },
+                      }),
+                    ),
+                  ),
                 ),
+                undefined,
+                { alwaysNext: true },
               ),
             ),
-            undefined,
-            { alwaysNext: true },
+            {
+              nativeChanneling: {
+                executeEachFrame: true,
+                triggerIntervalSeconds: 0.033,
+                maxCountPerTarget: 1,
+                targetTriggerIntervalSeconds: 0.1,
+              },
+            },
           ),
         ),
         23,
