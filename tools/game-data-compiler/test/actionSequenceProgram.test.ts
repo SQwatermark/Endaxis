@@ -123,7 +123,7 @@ describe('公共 Action 序列控制流投影', () => {
     });
   });
 
-  it('兄弟叶子共享编译期状态，IfElse 分支使用独立局部状态并继续执行后续兄弟', () => {
+  it('IfElse 分支继承入口状态，分支写入彼此隔离且不污染后续兄弟', () => {
     const branch: NativeActionNodeSource<string> = {
       metadata,
       sourcePath: 'branch',
@@ -143,8 +143,8 @@ describe('公共 Action 序列控制流投影', () => {
       {
         kind: 'conditional',
         condition: { kind: 'condition', value: '?branch' },
-        whenTrue: [{ kind: 'leaf', value: 'inside[true]' }],
-        whenFalse: [{ kind: 'leaf', value: 'outside[]' }],
+        whenTrue: [{ kind: 'leaf', value: 'inside[outer,true]' }],
+        whenFalse: [{ kind: 'leaf', value: 'outside[outer]' }],
         alwaysNext: true,
       },
       { kind: 'leaf', value: 'after[outer]' },

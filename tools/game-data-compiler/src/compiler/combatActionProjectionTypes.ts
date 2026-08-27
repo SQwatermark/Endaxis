@@ -289,7 +289,7 @@ export type CompiledBuffStepSource =
   | Step<
       'finishBuffsById',
       Parameters<'finishBuffsById'> & {
-        readonly target: 'buffOwner' | 'caster' | 'enemy' | 'currentAbilityEntity';
+        readonly target: 'buffOwner' | 'caster' | 'enemy' | 'currentAbilityEntity' | 'party';
         readonly reason: 'early' | 'other';
       }
     >

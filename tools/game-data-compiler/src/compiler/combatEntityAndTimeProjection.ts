@@ -276,15 +276,11 @@ export function compileBuffLeafNode(
       action.priorityTagId,
       node.sourcePath,
     );
-    if (
-      action.useTimeScaleForSkillCooldownTick ||
-      action.influenceSkillCooldownTime.blackboardKey !== null ||
-      action.influenceSkillCooldownTime.value !== 0 ||
-      priority === undefined ||
-      !Number.isFinite(priority)
-    )
+    if (priority === undefined || !Number.isFinite(priority))
       throw new Error(`${node.sourcePath}: unsupported time-dilation cooldown/priority projection`);
     if (action.layer === 'Entity') {
+      if (action.useTimeScaleForSkillCooldownTick)
+        throw new Error(`${node.sourcePath}: entity time dilation cannot influence skill cooldown`);
       const target = action.effectTargets[0];
       const source = action.effectTargets[1];
       const ownerSpawnedAbilityEntities =
@@ -373,6 +369,13 @@ export function compileBuffLeafNode(
               finishByAction: action.finishByAction,
               ignoredTargets: ['caster'],
               ignoredAbilityEntityTargets: [{ kind: 'ownerSpawned' }],
+              ...(action.useTimeScaleForSkillCooldownTick
+                ? {
+                    influenceSkillCooldownSeconds: actionValueOperand(
+                      action.influenceSkillCooldownTime,
+                    ),
+                  }
+                : {}),
             },
           },
         ],
@@ -407,6 +410,13 @@ export function compileBuffLeafNode(
             },
             finishByAction: action.finishByAction,
             ignoredTargets: ['controlled'],
+            ...(action.useTimeScaleForSkillCooldownTick
+              ? {
+                  influenceSkillCooldownSeconds: actionValueOperand(
+                    action.influenceSkillCooldownTime,
+                  ),
+                }
+              : {}),
           },
         },
       ],

@@ -72,17 +72,27 @@ const meta = (type: string, rest: Record<string, unknown>): Record<string, unkno
 
 describe('主动技能正式时间轴投影', () => {
   it.each([
-    ['Fire', 'heat'], ['Pulse', 'electric'], ['Cryst', 'cryo'], ['Natural', 'nature'],
+    ['Fire', 'heat'],
+    ['Pulse', 'electric'],
+    ['Cryst', 'cryo'],
+    ['Natural', 'nature'],
   ])('元素附着 %s 必须使用正式 DSL 元素 %s', (native, element) => {
     const result = compileActiveSkillRuntimeProjectionSource({
-      value: activeWithActions([meta('SpellInfliction', {
-        source: targetFixture('Source'), target: targetFixture('Target'),
-        inflictionType: native, isExtra: false,
-      })]),
-      sourcePath: 'active', patch: null, context: ACTIVE_CONTEXT,
+      value: activeWithActions([
+        meta('SpellInfliction', {
+          source: targetFixture('Source'),
+          target: targetFixture('Target'),
+          inflictionType: native,
+          isExtra: false,
+        }),
+      ]),
+      sourcePath: 'active',
+      patch: null,
+      context: ACTIVE_CONTEXT,
     });
     expect(result.scheduledSequences[0]!.sequence.steps[0]).toEqual({
-      kind: 'applyElementalInfliction', parameters: { element, isExtra: false },
+      kind: 'applyElementalInfliction',
+      parameters: { element, isExtra: false },
     });
   });
 
@@ -217,6 +227,59 @@ describe('主动技能正式时间轴投影', () => {
           curve: { kind: 'named', key: 'char_hard_stop' },
           finishByAction: false,
           targets: ['enemy', 'caster'],
+        },
+      },
+    ]);
+  });
+
+  it('全局时间膨胀按启用位保留技能冷却受缩放时长', () => {
+    const ownerSpawnedAbilityEntities = {
+      ...targetFixture('InstantSearch'),
+      selectorData: {
+        finderData: {
+          $type: 'Beyond.Gameplay.Core.Selector+OwnerSpawnedEntityFinder+Data, Gameplay.Beyond',
+          spawnedObjectType: 'AbilityEntity',
+        },
+        validatorData: [],
+        postProcessorData: [],
+      },
+    };
+    const result = compileActiveSkillRuntimeProjectionSource({
+      value: activeWithActions([
+        meta('TimeDilationAction', {
+          layer: 'Global',
+          slot: { tagId: 0 },
+          timeDilationPriority: { tagId: -593023102 },
+          duration: scalarFixture(0.9),
+          useCurveKey: true,
+          curveKey: 'ComboSkill',
+          timeScaleCurve: [],
+          finishByAction: false,
+          ignoreTargets: [targetFixture('Owner'), ownerSpawnedAbilityEntities],
+          effectTargets: [],
+          useTimeScaleForSkillCdTick: true,
+          influenceSkillCdTime: scalarFixture(0.4),
+        }),
+      ]),
+      sourcePath: 'active',
+      patch: null,
+      context: ACTIVE_CONTEXT,
+      extensions: { resolveTimeDilationPriority: () => 20 },
+    });
+
+    expect(result.scheduledSequences[0]!.sequence.steps).toEqual([
+      {
+        kind: 'startTimeDilation',
+        parameters: {
+          scope: 'global',
+          durationSeconds: { kind: 'constant', value: 0.9 },
+          slot: 0,
+          priority: 20,
+          curve: { kind: 'named', key: 'ComboSkill' },
+          finishByAction: false,
+          ignoredTargets: ['caster'],
+          ignoredAbilityEntityTargets: [{ kind: 'ownerSpawned' }],
+          influenceSkillCooldownSeconds: { kind: 'constant', value: 0.4 },
         },
       },
     ]);

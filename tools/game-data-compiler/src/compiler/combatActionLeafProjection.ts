@@ -243,11 +243,13 @@ export function compileActionNode(
   }
   if (node.body.value.family === 'buffFinish') {
     const action = node.body.value.action;
+    const ownerIsPartyInstantSearch = isPartyInstantSearch(action.owner);
     if (
-      (action.owner.targetSource !== 'Owner' &&
-        action.owner.targetSource !== 'Source' &&
-        action.owner.targetSource !== 'Target') ||
-      action.owner.targetGroupKey !== '' ||
+      (!ownerIsPartyInstantSearch &&
+        ((action.owner.targetSource !== 'Owner' &&
+          action.owner.targetSource !== 'Source' &&
+          action.owner.targetSource !== 'Target') ||
+          action.owner.targetGroupKey !== '')) ||
       action.limitSource ||
       action.buffSource.targetSource !== 'Source' ||
       action.buffSource.targetGroupKey !== '' ||
@@ -256,8 +258,9 @@ export function compileActionNode(
     ) {
       throw new Error(`${node.sourcePath}: unsupported Buff finish target/source`);
     }
-    const target =
-      action.owner.targetSource === 'Owner'
+    const target = ownerIsPartyInstantSearch
+      ? ('party' as const)
+      : action.owner.targetSource === 'Owner'
         ? requireActionOwnerProjection(context, node.sourcePath)
         : action.owner.targetSource === 'Source'
           ? 'caster'
@@ -273,6 +276,8 @@ export function compileActionNode(
       action.settings.tagQuery.tagIds.length > 0 &&
       !action.isAbsorbed
     ) {
+      if (target === 'party')
+        throw new Error(`${node.sourcePath}: Buff finish-by-tag party target is unsupported`);
       return [
         {
           kind: 'finishBuffsByTag',

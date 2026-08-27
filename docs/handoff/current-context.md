@@ -7,7 +7,7 @@
 `refactor/operator-completion` 的完整干员成果。唯一新转换入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
-### 2026-08-28：投射物重复目标过滤闭环，汤汤普攻三进入统一编译器（当前检查点）
+### 2026-08-28：投射物过滤与萤石连携进入统一编译器（当前检查点）
 
 - combat-spec 已从 1.4.4 运行时快照恢复投射物逐目标命中历史：
   `ProjectileMovementSubComponent._FilterAbilitySystem` 先查询实例级 `m_lastHitTimeDict`；目标已有记录且
@@ -18,8 +18,16 @@
   compiled。随后按矩阵处理萤石连携时，复用复刻库已证明的 `OwnerSpawnedEntityFinder` 非空间行为：
   finder 只遍历 owner.children，本身不读取 center/direction；唯一敌人被
   `ExcludeTarget(Target)` 排除后则建立显式空目标组，后续投射物不伪造。Target 来源的
-  `InterruptAction` 同样不读取残留 targetGroupKey。当前统一主动矩阵为 **161/309**，其中佩丽卡
-  新增 1 项、莱万汀新增 3 项 compiled；主动技能全可编译干员仍为 **3 名**，完整定义 **3 名**。
+  `InterruptAction` 同样不读取残留 targetGroupKey。其中佩丽卡新增 1 项、莱万汀新增 3 项
+  compiled。
+- 萤石连携随后暴露的是公共控制流作用域问题，而不是跨调度序列问题：`ball` 查询和消费同在
+  24–25 帧序列，父序列建立的能力实体目标组此前没有继承进嵌套 `IfElse`。公共序列编译器现让
+  分支继承入口事实，同时保持分支写入彼此隔离且不污染后续兄弟。该分支中的全队
+  `CharacterTeamFinder` 也严格投影为 `finishBuffsById(party)`，没有按 `ball` 或 Buff ID 特判。
+- 萤石连携的全局时间膨胀明确启用 `useTimeScaleForSkillCdTick`，并给出 0.4 秒影响窗口；该字段会
+  改变技能冷却推进，不能作为表现数据丢弃。TS 主路径现复用既有运行时协议生成
+  `influenceSkillCooldownSeconds`，关闭启用位时则不读取序列化残留值。萤石连携现 compiled，统一
+  主动矩阵为 **162/309**；主动技能全可编译干员仍为 **3 名**，完整定义 **3 名**。
 - 原生空字面时间膨胀曲线现在只作为来源事实保存，复刻库的曲线执行器仍拒绝把空数组猜成 0 或 1。
   旧 Python oracle 仅允许在 Buff Owner 已严格绑定为静态敌人、Entity 层、无冷却影响且随动作结束的
   窄形状下审计省略。汤汤终结技减速 Buff 的图标与 4 秒寿命已可解析，但其实际施加仍位于尚未编译的
@@ -27,11 +35,10 @@
 - 汤汤终结技的剩余控制流是能力实体监听 `OnOutputBuff`，检查指定 Buff 后从循环段跳到 128 帧收尾；
   现有静态 JumpTo 编译只覆盖启动时可判定的分支，不能把运行中事件跳转摊成无条件调度。后续若选择
   汤汤纵向切片，必须先恢复这类事件驱动时间线跳转，不能只把 Debuff 定义塞入产物。
-- 最新矩阵下一候选仍为萤石 **8/10**。连携已越过实体查询、唯一敌人排除和 Interrupt 三层阻塞，
-  现在准确停在能力实体目标组跨调度序列未传入 CreateBuff 编译上下文；终结技仍阻塞于
-  `DispelAction`。应修复公共调度状态所有权并核对 Dispel 对木桩伤害的可见性，再检查完整 Buff/养成
-  闭包；不能在 CreateBuff 上按 `ball` 键名加特判。
-- 验证：game-data **93 文件 / 692 项**、旧 Python oracle **484 项**、四套 TypeScript 类型检查、
+- 最新矩阵下一候选仍为萤石 **9/10**，唯一剩余主动阻塞是终结技的原生 `DispelAction`。下一步应先
+  依据复刻库核对其筛选、驱散顺序和是否会改变木桩伤害结果；只有可见语义才进入 Endaxis，再检查
+  整名 Buff/养成闭包。
+- 验证：game-data **93 文件 / 694 项**、旧 Python oracle **484 项**、四套 TypeScript 类型检查、
   汤汤旧产物 `--check` 和 `git diff --check` 通过。combat-spec **1434 项通过**；另有 **17 项**因本机
   未配置仓库内 `artifacts/skill-data-cdn` 等真实资产而失败，与本次逻辑无关；新增 finder 定向 4 项通过。
 

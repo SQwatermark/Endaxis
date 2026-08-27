@@ -424,6 +424,61 @@ describe('公共 Buff 运行时投影', () => {
     });
   });
 
+  it('FinishBuffAction 的严格 CharacterTeamFinder 投影为全队目标', () => {
+    const source = sourceFixture();
+    const baseSequence = source.graph.abilityEvents[0]!.actions[0]!;
+    const metadata = baseSequence.actions[0]!.metadata;
+    const partyOwner = {
+      ...fixedTarget('InstantSearch'),
+      finderType: 'CharacterTeamFinder',
+    } as const;
+
+    expect(
+      compileCombatActionSequenceSource(
+        {
+          ...baseSequence,
+          actions: [
+            {
+              sourcePath: 'SkillData.fixture.finishPartyBuff',
+              metadata,
+              body: {
+                kind: 'leaf',
+                value: {
+                  family: 'buffFinish',
+                  action: {
+                    kind: 'buffFinishById',
+                    owner: partyOwner,
+                    buffIds: ['buff.fixture'],
+                    finishAll: true,
+                    finishLayerCount: { value: 1, blackboardKey: null, levelValues: null },
+                    limitSource: false,
+                    buffSource: fixedTarget('Source'),
+                    isFinishedEarly: false,
+                    finishSource: fixedTarget('Source'),
+                  },
+                },
+              },
+            },
+          ],
+        },
+        {
+          actionOwnerTarget: 'caster',
+          actionSourceTarget: 'caster',
+          actionTargetTarget: 'enemy',
+        },
+      ).steps,
+    ).toEqual([
+      {
+        kind: 'finishBuffsById',
+        parameters: {
+          target: 'party',
+          buffIds: ['buff.fixture'],
+          reason: 'other',
+        },
+      },
+    ]);
+  });
+
   it('把治疗 Tag 条件和即时治疗属性修正投影到公共治疗修正', () => {
     const source = sourceFixture();
     const conditionNode = source.graph.abilityEvents[0]!.actions[0]!.actions[0]!;

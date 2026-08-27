@@ -78,6 +78,15 @@ export function compileActionSequenceProgram<TLeaf, TCondition, TStep, TState>(
   source: NativeSequenceSource<TLeaf>,
   options: CompileActionSequenceProgramOptions<TLeaf, TCondition, TStep, TState>,
 ): CompiledActionSequenceProgram<TStep> {
+  return compileActionSequenceProgramFromState(source, options, options.initialState());
+}
+
+/** 嵌套控制流继承父序列在分支入口已经建立的编译期事实，但分支写入仍不反向污染父级。 */
+function compileActionSequenceProgramFromState<TLeaf, TCondition, TStep, TState>(
+  source: NativeSequenceSource<TLeaf>,
+  options: CompileActionSequenceProgramOptions<TLeaf, TCondition, TStep, TState>,
+  state: TState,
+): CompiledActionSequenceProgram<TStep> {
   if (source.onlyExecuteWhenSourceIsMainCharacter || source.onlyExecuteWhenSourceIsGuard) {
     throw new Error(options.rootFilterError);
   }
@@ -85,7 +94,7 @@ export function compileActionSequenceProgram<TLeaf, TCondition, TStep, TState>(
     steps: compileActionNodePrograms(
       source.actions.filter(node => node.metadata.enabled),
       options,
-      options.initialState(),
+      state,
     ),
   };
 }
@@ -172,8 +181,8 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
     if (branchConditions.length === 0) {
       throw new Error(`${first!.sourcePath}: empty condition sequence`);
     }
-    const whenTrue = compileActionSequenceProgram(first!.body.whenTrue, options);
-    const whenFalse = compileActionSequenceProgram(first!.body.whenFalse, options);
+    const whenTrue = compileActionSequenceProgramFromState(first!.body.whenTrue, options, state);
+    const whenFalse = compileActionSequenceProgramFromState(first!.body.whenFalse, options, state);
     return [
       options.createConditionalStep({
         condition: options.combineConditions(branchConditions),
