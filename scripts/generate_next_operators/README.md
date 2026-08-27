@@ -2,11 +2,10 @@
 
 该工具从解包 `SkillData`、`BuffData` 和 `TableCfg` 生成 Endaxis Next 干员定义。它不读取现有干员 TS；无法确认语义的战斗行为会阻止正式 DSL 生成，而不是被静默丢弃。
 
-> 统一 TypeScript 生成链的 2026-08-28 检查点：Xaihi 已完整输出 10 个技能、2 个天赋、5 档潜能、
-> 1 个能力实体、12 个私有及 9 个公共 Buff，并通过全技能上轴、实际增伤与重建 `--check`。来源链
-> 显式区分 Buff Owner、Buff Source 与 Context owner；只有已证明的单干员 Context 才能作为
-> owner-spawned 能力实体查询锚点。Yvonne 终结技的直接 Source 出生锚点随后闭合并完成整名重建；
-> 下一目标为 Wulfgard 的两个剩余主动缺口。
+> 统一 TypeScript 生成链的 2026-08-28 检查点：严格主动审计为 167/309，Wulfgard 已达 9/9，
+> 主动全可编译干员共 5 名，完整定义仍为 4 名。Wulfgard 的两级天赋附着 Buff 输入已按等级保留，
+> 能力实体子技能伤害来源也已闭合；整名候选当前严格阻塞于公共燃烧 Buff 的攻击快照生命周期。
+> 后续必须先实现 `takeAtkSnapshot`，不能把动作 Reset 时的冻结值近似成每跳实时攻击面板。
 
 ## 输入
 

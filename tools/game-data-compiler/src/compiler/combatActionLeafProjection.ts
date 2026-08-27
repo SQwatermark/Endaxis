@@ -93,6 +93,7 @@ export function compileActionNode(
       'timeDilation',
       'timedMarker',
       'modeAndResourcePolicy',
+      'skillCooldownMutation',
       'eventListener',
       'environment',
       'elementalInfliction',
@@ -371,13 +372,20 @@ export function compileActionNode(
   if (node.body.value.family === 'damage') {
     if (
       context.actionSourceTarget !== 'caster' ||
-      context.actionOwnerTarget === 'currentAbilityEntity' ||
+      (context.actionOwnerTarget === 'currentAbilityEntity' &&
+        node.body.value.action.attacker === 'ActionOwner') ||
       !['enemy', 'eventTarget'].includes(context.actionTargetTarget)
     )
       throw new Error(`${node.sourcePath}: unsupported Buff damage source`);
     const damageContext = {
       ...context,
-      actionOwnerTarget: context.actionOwnerTarget,
+      // AbilityEntity child skills can attribute damage to their proven caster through
+      // ActionSource. Their entity Owner remains unavailable as an attacker; effectSource
+      // is presentation-only and is validated independently by the simple damage compiler.
+      actionOwnerTarget:
+        context.actionOwnerTarget === 'currentAbilityEntity'
+          ? ('unavailable' as const)
+          : context.actionOwnerTarget,
       actionSourceTarget: context.actionSourceTarget,
     } as const;
     return [

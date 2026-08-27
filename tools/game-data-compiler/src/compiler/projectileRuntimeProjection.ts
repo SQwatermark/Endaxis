@@ -50,6 +50,8 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
     if (!runtime) throw new Error(`${sourcePath}: missing ProjectileData ${launch.projectileId}`);
     const template = input.catalog.templates.get(launch.projectileId) ?? null;
     const enabled = launch.callbacks.filter(callback => callback.enabled);
+    // 没有任何启用回调的投射物只承载空间与表现；关闭槽位中的 skillId 是序列化残留。
+    if (enabled.length === 0) return [];
     const callback = (event: 'block' | 'hit' | 'reach') => {
       const routes = enabled.filter(item => item.event === event);
       if (routes.length !== 1 || !routes[0]!.skillId)

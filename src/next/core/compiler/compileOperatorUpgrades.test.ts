@@ -118,6 +118,33 @@ describe('operator upgrade compilation', () => {
     ]);
   });
 
+  it('resolves attached Buff blackboard inputs at the selected upgrade level', () => {
+    const definition = {
+      key: 'leveled-attached-buff',
+      levels: 2,
+      initializationSequence: {
+        steps: [
+          {
+            kind: 'applyBuff' as const,
+            parameters: {
+              buffId: 'buff.talent',
+              target: 'caster' as const,
+              blackboardAssignments: { add: [0.2, 0.3] },
+            },
+          },
+        ],
+      },
+    };
+    const programs = compileOperatorInitializationPrograms([
+      { source: 'talent', level: 2, definition },
+    ]);
+
+    expect(programs[0]?.sequence.steps[0]).toMatchObject({
+      kind: 'applyBuff',
+      parameters: { blackboardAssignments: { add: { kind: 'constant', value: 0.3 } } },
+    });
+  });
+
   it('compiles Endministrator potentials 1 through 3 as ordered attached-Buff initialization', () => {
     const active = resolveActiveOperatorUpgrades(
       build({ operatorSlug: endministratorGeneratedOperator.slug, potential: 3 }),

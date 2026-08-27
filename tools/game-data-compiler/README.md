@@ -9,18 +9,13 @@
 
 ## 当前纵向迁移（2026-08-28）
 
-Xaihi 已从固定 1.4.4 来源完整生成：10 个技能、2 个天赋、5 档潜能、1 个能力实体、12 个私有
-Buff 与 9 个公共 Buff，并切入产品稳定导出；统一 TS 整名定义现为 4 名。其 Buff 来源链使用显式
-`buffSource` Context，owner-spawned 实体查询可通过 `ownerContextKey` 锁定已证明的单一干员实例，
-不会把 party holder、Buff Owner 与原始来源混为一谈。`TriggerComboSkillAction` 只在复刻库证明的
-Pending 形状及当前固定木桩无自动连携输入模型下窄省略；非空 assignItems、其他 owner/target 或
-needTrigger 形状继续阻塞。
-
-最新严格主动审计为 165/309；Xaihi、Yvonne、Avywenna、Akekuri 主动全可编译。Yvonne 终结技
-`bornAt=Source` 已按非 InstantSearch 的直接来源语义投影，残留 selector 不执行；该整名产物已重建。
-下一阶段处理 Wulfgard 的 `MarkCanInterrupt` 与 cooldown mutation，继续以“会改变标准模拟输出”为
-优先级，不为表现或敌人主动行为扩张本体。game-data 702 项、Next
-3245 项及四套类型检查通过；Xaihi 完整生成 `--check` 通过。
+Xaihi 已从固定 1.4.4 来源完整生成并切入产品稳定导出；统一 TS 整名定义现为 4 名。最新严格主动
+审计为 **167/309**，Xaihi、Yvonne、Avywenna、Akekuri、Wulfgard 共 5 名主动全可编译。
+Wulfgard 的中断门禁、冷却清零、Tag Buff 结束、智能目标组和能力实体子技能已进入公共投影；两级
+天赋附着 Buff 的黑板输入按养成等级解析，不能只保留首级。整名生成现精确阻塞于公共燃烧 Buff 的
+`takeAtkSnapshot=true`：该值在原生动作 Reset 时冻结攻击计算，Next 必须补动作实例快照生命周期后
+才能继续，不能按表现残留省略或退化为每跳实时面板。当前回归为 game-data 93 文件 / 709 项、
+Next 237 文件 / 3246 项，四套类型检查通过。
 
 ### 前一架构检查点（2026-08-27）
 

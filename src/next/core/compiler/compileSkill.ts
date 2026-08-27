@@ -580,12 +580,31 @@ function resolveStep(
         },
       };
     case 'applyBuff': {
-      const { definition, ...parameters } = step.parameters;
+      const { definition, blackboardAssignments, ...parameters } = step.parameters;
       return {
         ...keyed,
         kind: step.kind,
         parameters: {
           ...parameters,
+          ...(blackboardAssignments === undefined
+            ? {}
+            : {
+                blackboardAssignments: Object.fromEntries(
+                  Object.entries(blackboardAssignments).map(([key, value]) => [
+                    key,
+                    typeof value === 'object' && 'kind' in value
+                      ? value
+                      : {
+                          kind: 'constant' as const,
+                          value: resolveLevelValue(
+                            value as LevelValues,
+                            skillLevel,
+                            `${path}.parameters.blackboardAssignments.${key}`,
+                          ),
+                        },
+                  ]),
+                ),
+              }),
           ...(definition === undefined
             ? {}
             : {

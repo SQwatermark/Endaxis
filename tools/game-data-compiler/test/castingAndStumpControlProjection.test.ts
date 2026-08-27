@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { compileBuffLeafNode } from '../src/compiler/combatEntityAndTimeProjection.ts';
+import { compileEventCondition } from '../src/compiler/combatConditionProjection.ts';
 import type { CombatActionProjectionContextSource } from '../src/compiler/combatProjectionCommon.ts';
 import { parseKnownNativeActionLeafSource } from '../src/source/actionLeaf.ts';
 import { scalarFixture, targetFixture } from './sourceFixtures.ts';
@@ -63,6 +64,151 @@ function blowOff(deadOption: string) {
 }
 
 describe('施法输入限制与木桩物理控制投影', () => {
+  it('当前技能可中断标记只属于客户端施法互斥门禁', () => {
+    const action = parseKnownNativeActionLeafSource(
+      {
+        ...META,
+        $type: 'Beyond.Gameplay.Core.MarkCanInterrupt+Data, Gameplay.Beyond',
+      },
+      'fixture.action',
+      {},
+    );
+    expect(action).toEqual({ family: 'inputControl', action: { kind: 'markCanInterrupt' } });
+    expect(compileBuffLeafNode(node(action), new Set(), new Map(), ACTIVE_SKILL_CONTEXT)).toEqual({
+      steps: [],
+      state: new Map(),
+    });
+  });
+
+  it('根技能敌人上下文不遮蔽动作自身的施术者冷却目标', () => {
+    const action = parseKnownNativeActionLeafSource(
+      {
+        ...META,
+        $type: 'Beyond.Gameplay.Core.SetSkillCdAtOnce+Data, Gameplay.Beyond',
+        target: targetFixture('Owner'),
+        useSkillType: true,
+        skillTypeMask: 'ComboSkill',
+        skillId: '',
+        functionType: 'Set',
+        isPercentage: false,
+        value: scalarFixture(0),
+      },
+      'fixture.action',
+      {},
+    );
+    expect(compileBuffLeafNode(node(action), new Set(), new Map(), ACTIVE_SKILL_CONTEXT)).toEqual({
+      steps: [
+        {
+          kind: 'adjustSkillCooldown',
+          parameters: {
+            target: 'caster',
+            skill: { kind: 'type', skillType: 'comboSkill' },
+            operation: 'set',
+            basis: 'absoluteSeconds',
+            value: { kind: 'constant', value: 0 },
+          },
+        },
+      ],
+      state: new Map(),
+    });
+  });
+
+  it('已证明为施术者的 ActionSource 可作为全队选择器所有者', () => {
+    const action = {
+      family: 'targetGroup' as const,
+      action: {
+        producerType: 'FindTargetAction' as const,
+        targetGroupKey: 'party',
+        finderType: 'CharacterTeamFinder' as const,
+        finderFactionTarget: null,
+        finderTargetObjectType: null,
+        finderCheckAlive: null,
+        finderShape: null,
+        finderOwnerPartsQuery: null,
+        validatorTypes: [],
+        postProcessorTypes: [],
+        inputTargets: [],
+        intervalSeconds: null,
+        finderSpawnedObjectType: null,
+        validatorTagQueries: [],
+        finderFixedPointSnapToNavmesh: null,
+        center: 'ActionSource',
+        centerContextKey: '',
+        selectorOwner: 'ActionSource',
+        selectorOwnerContextKey: '',
+        directionTarget: 'ActionSource',
+        directionContextKey: '',
+        characterTeamSelectionRole: null,
+        excludesCurrentTarget: false,
+        excludesOwner: false,
+        smartTargetFallsBackToMainTarget: false,
+        distanceValidatorsPassAtZero: true,
+        priorityFilterMaxTargets: null,
+        priorityFilters: [],
+        shuffleTargets: [],
+        distanceValidators: [],
+        circularOrderIndexKey: null,
+        circularOrderDesiredCount: null,
+        circularOrderReverseFlag: null,
+        circularOrderHeightOffset: null,
+        circularOrderRangeThreshold: null,
+        circularOrderRangeCheckTarget: null,
+        pickIndexValue: null,
+        pickIndexBlackboardKey: null,
+      },
+    } as ReturnType<typeof parseKnownNativeActionLeafSource>;
+
+    expect(compileBuffLeafNode(node(action), new Set(), new Map(), ACTIVE_SKILL_CONTEXT)).toEqual({
+      steps: [],
+      state: new Map([['party', 'party']]),
+    });
+  });
+
+  it('实体标签条件识别已经证明为唯一敌人的上下文目标组', () => {
+    const action = parseKnownNativeActionLeafSource(
+      {
+        ...META,
+        $type: 'Beyond.Gameplay.Core.Conditions.CheckTagMatch+Data, Gameplay.Beyond',
+        checkTarget: targetFixture('Context', undefined, 'smart_target'),
+        query: { queryType: 'HasAny', tags: [{ tagId: 123 }] },
+      },
+      'fixture.action',
+      {},
+    );
+
+    expect(
+      compileEventCondition(
+        node(action),
+        ACTIVE_SKILL_CONTEXT,
+        new Map([['smart_target', 'enemy']]),
+      ),
+    ).toEqual({
+      kind: 'entityTagMatch',
+      target: 'enemy',
+      tagQueryType: 'hasAny',
+      tagIds: [123],
+    });
+  });
+
+  it('能力实体子技能的 Owner 受击表现不产生木桩模拟步骤', () => {
+    const action = {
+      family: 'stumpControl' as const,
+      action: {
+        kind: 'enemyHurtAnimation' as const,
+        source: { targetSource: 'Owner', targetGroupKey: '' },
+        target: { targetSource: 'Context', targetGroupKey: 'tar' },
+      },
+    } as ReturnType<typeof parseKnownNativeActionLeafSource>;
+    const context = {
+      ...ACTIVE_SKILL_CONTEXT,
+      actionOwnerTarget: 'currentAbilityEntity' as const,
+    };
+
+    expect(
+      compileBuffLeafNode(node(action), new Set(), new Map([['tar', 'enemy']]), context),
+    ).toEqual({ steps: [], state: new Map([['tar', 'enemy']]) });
+  });
+
   it('普通战技公共 Buff 按已解析 ratio 恢复全队终结技回能', () => {
     const action = parseKnownNativeActionLeafSource(
       {

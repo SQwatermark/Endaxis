@@ -172,8 +172,9 @@ export interface ResolvedCombatStepParameters {
         addition?: never;
       }
   );
-  applyBuff: Omit<CombatStepParameters['applyBuff'], 'definition'> & {
+  applyBuff: Omit<CombatStepParameters['applyBuff'], 'definition' | 'blackboardAssignments'> & {
     readonly definition?: ResolvedSkillBuffDefinition;
+    readonly blackboardAssignments?: Readonly<Record<string, ActionValueOperand>>;
   };
   createGlobalBuff: Omit<CombatStepParameters['createGlobalBuff'], 'definition'> & {
     readonly definition: SkillGlobalBuffDefinition;

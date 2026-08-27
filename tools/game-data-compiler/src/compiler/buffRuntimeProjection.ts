@@ -666,7 +666,7 @@ function compileDamageModifierCondition(
         };
       }
       if (condition.kind === 'entityTag') {
-        if (condition.targetSource !== 'Target' || condition.targetGroupKey !== '') {
+        if (condition.targetSource !== 'Target') {
           throw new Error(`${node.sourcePath}: unsupported damage modifier entity tag target`);
         }
         return {

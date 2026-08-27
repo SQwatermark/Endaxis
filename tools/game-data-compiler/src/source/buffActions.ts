@@ -263,6 +263,40 @@ export function parseLegacyBuffFinishActionSource(
   };
 }
 
+/** 旧式独立 FinishBuffByTag 载荷；归一为与 FinishBuffAdvanced 共用的 Tag 查询 IR。 */
+export function parseTaggedBuffFinishActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): BuffFinishActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      ...ACTION_META_FIELDS,
+      'buffOwner',
+      'tagQuery',
+      'finishAll',
+      'finishLayerCnt',
+      'limitSource',
+      'buffSource',
+      'isFinishedEarly',
+      'finishSource',
+    ]),
+    path,
+  );
+  return {
+    kind: 'buffFinishByQuery',
+    ...parseBuffFinishCommon(action, path, inheritedBlackboard),
+    settings: {
+      checkType: 'Tag',
+      buffIds: [],
+      tagQuery: parseTagQuerySource(action.tagQuery, `${path}.tagQuery`),
+    },
+    isAbsorbed: false,
+  };
+}
+
 export function parseBuffFindSettingsSource(value: unknown, path: string): BuffFindSettingsSource {
   const settings = requireRecord(value, path);
   requireExactFields(settings, new Set(['checkType', 'buffIdList', 'tagQuery']), path);

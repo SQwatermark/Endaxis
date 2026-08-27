@@ -892,7 +892,7 @@ describe('公共 Buff 运行时投影', () => {
         modifier({
           kind: 'entityTag',
           targetSource: 'Target',
-          targetGroupKey: '',
+          targetGroupKey: 'inactive-residual-group',
           tagQueryType: 'hasAny',
           tagIds: [1570888476],
         }),

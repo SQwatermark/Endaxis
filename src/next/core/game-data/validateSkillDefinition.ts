@@ -1631,11 +1631,10 @@ function validateCombatStep(
         );
         if (assignments !== null) {
           for (const [key, operand] of Object.entries(assignments)) {
-            validateActionValueOperand(
-              operand,
-              `${path}.parameters.blackboardAssignments.${key}`,
-              out,
-            );
+            const assignmentPath = `${path}.parameters.blackboardAssignments.${key}`;
+            if (typeof operand === 'number' || Array.isArray(operand))
+              validateLevelValues(operand, assignmentPath, out);
+            else validateActionValueOperand(operand, assignmentPath, out);
           }
         }
       }

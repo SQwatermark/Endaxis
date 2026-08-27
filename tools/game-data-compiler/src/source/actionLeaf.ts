@@ -13,6 +13,7 @@ import {
   parseBuffApplicationActionSource,
   parseBuffInheritanceActionSource,
   parseLegacyBuffFinishActionSource,
+  parseTaggedBuffFinishActionSource,
   type BuffApplicationActionSource,
   type BuffInheritanceActionSource,
   type BuffFinishActionSource,
@@ -159,8 +160,10 @@ import { parseTargetGroupActionSource, type TargetGroupActionSource } from './ta
 import {
   parseAllowNextSkillActionSource,
   parseComboCacheActionSource,
+  parseMarkCanInterruptActionSource,
   type AllowNextSkillActionSource,
   type ComboCacheActionSource,
+  type MarkCanInterruptActionSource,
 } from './inputControlActions.ts';
 import {
   parseComboPendingActionSource,
@@ -299,7 +302,8 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'finisherSpGain'; readonly action: FinisherSpGainActionSource }
   | {
       readonly family: 'inputControl';
-      readonly action: ComboCacheActionSource | AllowNextSkillActionSource;
+      readonly action:
+        ComboCacheActionSource | AllowNextSkillActionSource | MarkCanInterruptActionSource;
     }
   | { readonly family: 'comboPending'; readonly action: ComboPendingActionSource }
   | { readonly family: 'castingControl'; readonly action: ChannelingCastingActionSource }
@@ -539,6 +543,11 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'inputControl',
         action: parseAllowNextSkillActionSource(value, path),
       };
+    case 'MarkCanInterrupt':
+      return {
+        family: 'inputControl',
+        action: parseMarkCanInterruptActionSource(value, path),
+      };
     case 'CharWeaponVisibleAction':
       return {
         family: 'presentation',
@@ -763,6 +772,11 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'buffFinish',
         action: parseAdvancedBuffFinishActionSource(value, path, inheritedBlackboard),
+      };
+    case 'FinishBuffByTag':
+      return {
+        family: 'buffFinish',
+        action: parseTaggedBuffFinishActionSource(value, path, inheritedBlackboard),
       };
     case 'DispelAction':
       return { family: 'dispel', action: parseDispelActionSource(value, path) };

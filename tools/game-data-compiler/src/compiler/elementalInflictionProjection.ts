@@ -13,9 +13,7 @@ export function projectElementalInflictionAction(
   readonly parameters: CombatStepParameters['applyElementalInfliction'];
 } {
   const targetsFixedEnemy =
-    (action.target.targetSource === 'Target' &&
-      action.target.targetGroupKey === '' &&
-      context.actionTargetTarget === 'enemy') ||
+    (action.target.targetSource === 'Target' && context.actionTargetTarget === 'enemy') ||
     (action.target.targetSource === 'Context' &&
       context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey) === true);
   const targetsBuffOwner =

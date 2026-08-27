@@ -96,6 +96,45 @@ describe('公共回调伤害投影', () => {
     ).toThrow('unsupported simple event damage target');
   });
 
+  it('能力实体子技能可由已证明的角色 ActionSource 归属伤害', () => {
+    const source = damageSource();
+    expect(
+      compileEventTargetSimpleDamageOperationSource(source, 'damage', {
+        actionOwnerTarget: 'unavailable',
+        actionSourceTarget: 'caster',
+      }),
+    ).toEqual(compileEventTargetSimpleDamageOperationSource(source, 'baseline'));
+    expect(() =>
+      compileEventTargetSimpleDamageOperationSource(
+        { ...source, attacker: 'ActionOwner' },
+        'damage',
+        { actionOwnerTarget: 'unavailable', actionSourceTarget: 'caster' },
+      ),
+    ).toThrow('Owner projection is unavailable');
+  });
+
+  it('敌人持有的周期 Buff 可直接伤害自身 Owner', () => {
+    const source = damageSource();
+    const ownerTarget = {
+      ...source,
+      target: { ...source.target, targetSource: 'Owner', targetGroupKey: '' },
+    };
+    expect(
+      compileEventTargetSimpleDamageOperationSource(ownerTarget, 'damage', {
+        actionOwnerTarget: 'buffOwner',
+        actionSourceTarget: 'caster',
+        fixedBuffOwnerTarget: 'enemy',
+      }),
+    ).toEqual(compileEventTargetSimpleDamageOperationSource(source, 'baseline'));
+    expect(() =>
+      compileEventTargetSimpleDamageOperationSource(ownerTarget, 'damage', {
+        actionOwnerTarget: 'buffOwner',
+        actionSourceTarget: 'caster',
+        fixedBuffOwnerTarget: 'caster',
+      }),
+    ).toThrow('unsupported simple event damage target');
+  });
+
   it('非搜索路径仍通过来源解析器拒绝未知残留选择器', () => {
     const raw = rawDamage();
     expect(() =>

@@ -7,7 +7,32 @@
 `refactor/operator-completion` 的完整干员成果。唯一新转换入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
-### 2026-08-28：Xaihi 统一 TS 整名定义完成（最新检查点）
+### 2026-08-28：Wulfgard 主动技能 9/9 与整名闭包推进（最新检查点）
+
+- 严格主动迁移审计提升为 **167/309**，主动全可编译干员增至 **5 名**：Xaihi、Yvonne、
+  Avywenna、Akekuri、Wulfgard。Wulfgard 从 7/9 到 9/9：`MarkCanInterrupt` 依据
+  combat-spec 只修改当前施法的客户端中断门禁，在 Endaxis 现实时间排轴模型中不产生战斗步骤；
+  潜能 5 对连携技的 `SetSkillCdAtOnce(Set, 0)` 则完整保留，不能因位于敌人根目标上下文而省略。
+- 战技同时闭合了 `FinishBuffByTag`、无启用回调的纯表现投射物，以及非 InstantSearch 直接
+  Target 上的残留 targetGroupKey。`SelectByTag` 已严格归约为唯一木桩时，原生隐式
+  `smart_target` Context 也被登记为敌人组；实体标签条件不会再把该目标误判为未知实体。
+  `ActionSource` 与 `ActionOwner` 均已证明为同一施术者时，可作为无过滤 CharacterTeamFinder 的
+  selector owner；没有把任意 Context 或任意队伍查询放宽。
+- Wulfgard 整名生成已继续穿过两级天赋附着 Buff 的等级输入：同构初始化序列现在允许
+  `blackboardAssignments` 使用等级值，正式构筑按选中的天赋等级解析为常量；Wulfgard 的 `add`
+  因而精确保留 `[0.2, 0.3]`。能力实体子技能中 `ActionSource=caster` 的伤害可以归属原施术者，
+  entity Owner 仍不能冒充攻击者；受击动画等木桩无结果控制动作被严格省略。敌人持有 Buff 的
+  `DamageAction(Target=Owner)` 也只在静态 owner 已证明为敌人时投影。
+- 当前整名唯一剩余阻塞已推进到公共 `buff_common_burning_status` 的
+  `DamageUnit.takeAtkSnapshot=true`。复刻库证明该字段在动作 Reset 时冻结攻击计算，之后每跳复用；
+  Endaxis 尚无对应的动作实例攻击快照容器。它可能在攻击 Buff 于燃烧期间变化时改变伤害，不能按
+  残留字段忽略，也不能偷用每跳实时面板。下一阶段先补公共运行时快照及生命周期测试，再完成
+  Wulfgard 整名生成、正式注册、全技能上轴和数值回归。
+- 验证：game-data **93 文件 / 709 项**、Next **237 文件 / 3246 项**，game-data contract、
+  production、compiler 与 Next 四套类型检查全部通过。本阶段中间审计及失败候选均只写入 `tmp/`，
+  未进入 Git。
+
+### 2026-08-28：Xaihi 统一 TS 整名定义完成（前序检查点）
 
 - Xaihi 已由统一 TypeScript 入口完整生成并切入稳定导出：10 个技能、2 个天赋、5 档潜能、
   1 个能力实体、12 个私有 Buff 和 9 个公共 Buff；`--complete --check` 可从固定 1.4.4 来源逐字重建。

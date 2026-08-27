@@ -21,6 +21,10 @@ export interface AllowNextSkillActionSource {
   readonly skillIds: readonly string[];
 }
 
+export interface MarkCanInterruptActionSource {
+  readonly kind: 'markCanInterrupt';
+}
+
 /** 时间轴直接指定现实施法时刻，不模拟客户端输入缓存；仍保留原生技能路由和窗口证据。 */
 export function parseComboCacheActionSource(
   value: unknown,
@@ -92,4 +96,18 @@ export function parseAllowNextSkillActionSource(
       (id, index) => requireNonEmptyString(id, `${path}.allowedSkillIdList[${index}]`),
     ),
   };
+}
+
+/** 标记当前原生技能可被后续输入中断；Endaxis 时间轴不执行客户端施法互斥门禁。 */
+export function parseMarkCanInterruptActionSource(
+  value: unknown,
+  path: string,
+): MarkCanInterruptActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set(['$type', 'isEnable', 'priorityLevel', 'priorityOffset', 'serverActionIndex']),
+    path,
+  );
+  return { kind: 'markCanInterrupt' };
 }

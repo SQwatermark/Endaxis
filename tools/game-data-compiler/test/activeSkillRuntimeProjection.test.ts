@@ -81,7 +81,7 @@ describe('主动技能正式时间轴投影', () => {
       value: activeWithActions([
         meta('SpellInfliction', {
           source: targetFixture('Source'),
-          target: targetFixture('Target'),
+          target: targetFixture('Target', undefined, 'inactive-residual-group'),
           inflictionType: native,
           isExtra: false,
         }),

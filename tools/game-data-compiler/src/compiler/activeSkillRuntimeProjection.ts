@@ -86,6 +86,9 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
         ),
     ),
   );
+  // StoreSmartTarget writes the selected enemy to this implicit native context group.
+  // Only register it after the header projection has strictly proven fixed-dummy enemy targeting.
+  if (targeting.definition.smartTarget === 'enemy') staticEnemyTargetGroupKeys.add('smart_target');
   const exclusiveFrame = Number(prepared.root.exclusiveFrame);
   if (!Number.isInteger(exclusiveFrame) || exclusiveFrame < 0)
     throw new Error(`${input.sourcePath}.exclusiveFrame: expected non-negative integer`);

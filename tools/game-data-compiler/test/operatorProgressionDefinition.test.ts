@@ -216,38 +216,49 @@ describe('干员养成正式定义组装', () => {
     expect(compileOperatorInitializationPrograms(resolved)).toHaveLength(level === 0 ? 0 : 1);
   });
 
-  it('未支持的附加 Buff 条件和跨等级输入差异不能静默丢失', () => {
+  it('附加 Buff 输入按养成等级保留，未支持的条件仍不能静默丢失', () => {
     const source = progression();
     const modified = (withCondition: boolean) => ({
       ...source,
       compiledEffectBundles: source.compiledEffectBundles.map(bundle => ({
         ...bundle,
         entries: bundle.entries.map(entry =>
-          entry.kind === 'buff' && bundle.effectId.endsWith('_1_2')
+          entry.kind === 'buff' &&
+          (bundle.effectId.endsWith('_1_1') || bundle.effectId.endsWith('_1_2'))
             ? {
                 ...entry,
-                inputBlackboard: { amount: 7 },
-                activeCondition: withCondition
-                  ? {
-                      kind: 'all' as const,
-                      conditions: [
-                        {
-                          kind: 'deckAttributeCompare' as const,
-                          left: 'will' as const,
-                          operator: 'greater' as const,
-                          right: 'strength' as const,
-                        },
-                      ],
-                    }
-                  : null,
+                inputBlackboard: { amount: bundle.effectId.endsWith('_1_1') ? 5 : 7 },
+                activeCondition:
+                  withCondition && bundle.effectId.endsWith('_1_2')
+                    ? {
+                        kind: 'all' as const,
+                        conditions: [
+                          {
+                            kind: 'deckAttributeCompare' as const,
+                            left: 'will' as const,
+                            operator: 'greater' as const,
+                            right: 'strength' as const,
+                          },
+                        ],
+                      }
+                    : null,
               }
             : entry,
         ),
       })),
     });
-    expect(() =>
+    expect(
       compileOperatorTalentDefinition(modified(false), { key: 'talent1', index: 0 }, context),
-    ).toThrow('level-dependent attached Buff');
+    ).toMatchObject({
+      initializationSequence: {
+        steps: [
+          {
+            kind: 'applyBuff',
+            parameters: { blackboardAssignments: { amount: [5, 7] } },
+          },
+        ],
+      },
+    });
     expect(() =>
       compileOperatorTalentDefinition(modified(true), { key: 'talent1', index: 0 }, context),
     ).toThrow('unrepresentable build condition');

@@ -283,8 +283,11 @@ export interface CombatStepParameters {
      * 该字段与接收 Buff 的 `target` 相互独立，只应在原生动作显式改写来源时配置。
      */
     source?: BuffApplicationSource;
-    /** 在施加时从当前技能动作黑板求值，并覆盖 Buff 定义黑板的同名默认值。 */
-    blackboardAssignments?: Readonly<Record<string, ActionValueOperand>>;
+    /**
+     * 在施加时覆盖 Buff 定义黑板的同名默认值。动作操作数从当前动作黑板求值；
+     * 等级值在技能或养成初始化程序编译时解析。
+     */
+    blackboardAssignments?: Readonly<Record<string, LevelValues | ActionValueOperand>>;
     /** 原生字符串输入的字面覆盖；与数值赋值分开，避免把字符串伪装成计算操作数。 */
     stringBlackboardAssignments?: Readonly<Record<string, string>>;
     /** 原生动作要求把当前施法身份复制到新 Buff 时为 true。 */

@@ -26,6 +26,7 @@ export function compileEventTargetSimpleDamageOperationSource(
   context: {
     readonly actionOwnerTarget: 'buffOwner' | 'caster' | 'unavailable';
     readonly actionSourceTarget: 'caster';
+    readonly fixedBuffOwnerTarget?: 'caster' | 'enemy' | 'currentAbilityEntity';
     readonly staticEnemyTargetGroupKeys?: ReadonlySet<string>;
   } = { actionOwnerTarget: 'caster', actionSourceTarget: 'caster' },
 ): CompiledSimpleDamageOperationSource {
@@ -49,6 +50,8 @@ export function compileEventTargetSimpleDamageOperationSource(
       !context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey)
     )
       throw new Error(`${sourcePath}.target: unsupported simple event damage target`);
+  } else if (action.target.targetSource === 'Owner' && context.fixedBuffOwnerTarget === 'enemy') {
+    requireFixedTarget(action.target, 'Owner', `${sourcePath}.target`);
   } else {
     requireFixedTarget(action.target, 'Target', `${sourcePath}.target`);
   }
@@ -213,6 +216,7 @@ export function compileEventTargetSimplePoiseOperationSource(
   context: {
     readonly actionOwnerTarget: 'buffOwner' | 'caster' | 'unavailable';
     readonly actionSourceTarget: 'caster';
+    readonly fixedBuffOwnerTarget?: 'caster' | 'enemy' | 'currentAbilityEntity';
     readonly staticEnemyTargetGroupKeys?: ReadonlySet<string>;
   } = { actionOwnerTarget: 'caster', actionSourceTarget: 'caster' },
 ): CompiledSimplePoiseOperationSource {
@@ -230,6 +234,8 @@ export function compileEventTargetSimplePoiseOperationSource(
       !context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey)
     )
       throw new Error(`${sourcePath}.target: unsupported poise damage target`);
+  } else if (action.target.targetSource === 'Owner' && context.fixedBuffOwnerTarget === 'enemy') {
+    requireFixedTarget(action.target, 'Owner', `${sourcePath}.target`);
   } else {
     requireFixedTarget(action.target, 'Target', `${sourcePath}.target`);
   }

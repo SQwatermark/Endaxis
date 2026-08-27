@@ -235,6 +235,7 @@ export function compileBuffLeafNode(
       (action.source.targetSource === 'Source' && context.actionSourceTarget === 'caster') ||
       (action.source.targetSource === 'Owner' &&
         (context.actionOwnerTarget === 'caster' ||
+          context.actionOwnerTarget === 'currentAbilityEntity' ||
           context.fixedBuffOwnerTarget === 'currentAbilityEntity'));
     if (!sourceIsKnownStatic || !targetIsEnemy)
       throw new Error(`${node.sourcePath}: unsupported static-enemy control projection`);
@@ -605,6 +606,9 @@ export function compileBuffLeafNode(
       (write.center === 'ActionSource' &&
         context.actionSourceTarget === 'caster' &&
         context.actionOwnerTarget === 'caster');
+    const selectorOwnerMatchesCaster =
+      write.selectorOwner === 'ActionOwner' ||
+      (write.selectorOwner === 'ActionSource' && context.actionSourceTarget === 'caster');
     if (
       write.producerType === 'FindTargetAction' &&
       write.finderType === 'CharacterTeamFinder' &&
@@ -612,7 +616,7 @@ export function compileBuffLeafNode(
       partyKind !== null &&
       centerMatchesCaster &&
       write.centerContextKey === '' &&
-      write.selectorOwner === 'ActionOwner' &&
+      selectorOwnerMatchesCaster &&
       write.selectorOwnerContextKey === ''
     ) {
       const nextGroups = new Map(partyTargetGroups);

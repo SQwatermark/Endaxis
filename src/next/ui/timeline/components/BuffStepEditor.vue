@@ -15,6 +15,7 @@ import {
   type BuffApplicationTarget,
   type CombatStepDefinition,
   type CombatTarget,
+  type LevelValues,
   type SkillBuffDefinition,
   type SkillBuffLifecycleSequences,
 } from '../../../core/game-data/operatorDefinition';
@@ -70,7 +71,9 @@ watch(
 );
 
 const assignments = computed(() =>
-  Object.entries(props.step.parameters.blackboardAssignments ?? {}),
+  Object.entries(props.step.parameters.blackboardAssignments ?? {}).map(
+    ([key, value]) => [key, toEditableOperand(value)] as const,
+  ),
 );
 const presentation = computed(() => props.step.parameters.definition?.presentation);
 const failedIconPath = ref('');
@@ -276,17 +279,33 @@ function renameAssignment(oldKey: string, event: Event): void {
   if (newKey === oldKey || newKey.length === 0) return;
   const current = props.step.parameters.blackboardAssignments ?? {};
   if (newKey in current) return;
-  const renamed: Record<string, ActionValueOperand> = {};
+  const renamed: Record<string, LevelValues | ActionValueOperand> = {};
   for (const [key, value] of Object.entries(current))
     renamed[key === oldKey ? newKey : key] = value;
   update({ ...props.step.parameters, blackboardAssignments: renamed });
 }
 
 function setAssignment(key: string, value: ActionValueOperand): void {
+  const previous = props.step.parameters.blackboardAssignments?.[key];
+  let next: LevelValues | ActionValueOperand = value;
+  if (value.kind === 'constant' && typeof previous === 'number') next = value.value;
+  else if (value.kind === 'constant' && Array.isArray(previous)) {
+    const values = [...previous];
+    values[Math.max(0, props.skillLevel - 1)] = value.value;
+    next = values;
+  }
   update({
     ...props.step.parameters,
-    blackboardAssignments: { ...props.step.parameters.blackboardAssignments, [key]: value },
+    blackboardAssignments: { ...props.step.parameters.blackboardAssignments, [key]: next },
   });
+}
+
+function toEditableOperand(value: LevelValues | ActionValueOperand): ActionValueOperand {
+  if (typeof value === 'object' && 'kind' in value) return value;
+  const resolved = Array.isArray(value)
+    ? (value[Math.max(0, props.skillLevel - 1)] ?? value[0] ?? 0)
+    : value;
+  return { kind: 'constant', value: resolved };
 }
 
 function removeAssignment(key: string): void {

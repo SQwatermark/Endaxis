@@ -114,9 +114,7 @@ function assembleUpgrade(
         }),
       }) satisfies ActionSequenceDefinition,
   );
-  const initializationSequence = initializations[0]!;
-  if (initializations.some(value => !isDeepStrictEqual(value, initializationSequence)))
-    throw new Error(`${key}: level-dependent attached Buff initialization is not yet supported`);
+  const initializationSequence = mergeInitializationSequences(key, initializations);
   const first = modifiersByLevel[0]!;
   if (modifiersByLevel.some(modifiers => modifiers.length !== first.length))
     throw new Error(`${key}: level-dependent effect structure is not representable`);
@@ -143,6 +141,69 @@ function assembleUpgrade(
     levels: levels.length,
     ...(modifiers.length ? { modifiers } : {}),
     ...(initializationSequence.steps.length ? { initializationSequence } : {}),
+  };
+}
+
+/** 同一养成项的各级直接附着 Buff 必须同构；仅数值黑板输入可按等级变化。 */
+function mergeInitializationSequences(
+  key: string,
+  sequences: readonly ActionSequenceDefinition[],
+): ActionSequenceDefinition {
+  const first = sequences[0]!;
+  if (sequences.every(sequence => isDeepStrictEqual(sequence, first))) return first;
+  if (sequences.some(sequence => sequence.steps.length !== first.steps.length))
+    throw new Error(`${key}: level-dependent attached Buff initialization structure`);
+  return {
+    steps: first.steps.map((step, stepIndex) => {
+      const variants = sequences.map(sequence => sequence.steps[stepIndex]!);
+      if (step.kind !== 'applyBuff' || variants.some(variant => variant.kind !== 'applyBuff'))
+        throw new Error(`${key}: level-dependent attached Buff initialization structure`);
+      const { blackboardAssignments: firstAssignments = {}, ...firstParameters } = step.parameters;
+      const assignments = variants.map(variant =>
+        variant.kind === 'applyBuff' ? (variant.parameters.blackboardAssignments ?? {}) : {},
+      );
+      if (
+        variants.some(variant => {
+          if (variant.kind !== 'applyBuff') return true;
+          const { blackboardAssignments: _assignments, ...parameters } = variant.parameters;
+          return !isDeepStrictEqual(parameters, firstParameters);
+        }) ||
+        assignments.some(
+          value => !isDeepStrictEqual(Object.keys(value), Object.keys(firstAssignments)),
+        )
+      )
+        throw new Error(`${key}: level-dependent attached Buff initialization structure`);
+      const mergedAssignments = Object.fromEntries(
+        Object.keys(firstAssignments).map(blackboardKey => {
+          const values = assignments.map(value => {
+            const operand = value[blackboardKey];
+            if (
+              operand === undefined ||
+              typeof operand !== 'object' ||
+              !('kind' in operand) ||
+              operand.kind !== 'constant'
+            )
+              throw new Error(`${key}: level-dependent attached Buff initialization operand`);
+            return operand.value;
+          });
+          return [
+            blackboardKey,
+            values.every(value => value === values[0])
+              ? { kind: 'constant' as const, value: values[0]! }
+              : values,
+          ];
+        }),
+      );
+      return {
+        ...step,
+        parameters: {
+          ...firstParameters,
+          ...(Object.keys(mergedAssignments).length
+            ? { blackboardAssignments: mergedAssignments }
+            : {}),
+        },
+      };
+    }),
   };
 }
 

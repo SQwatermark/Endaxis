@@ -636,9 +636,6 @@ function compileConditionLeaf(
     };
   }
   if (condition.kind === 'entityTag') {
-    if (condition.targetGroupKey !== '') {
-      throw new Error(`${sourcePath}: unsupported entity tag target group`);
-    }
     const target =
       condition.targetSource === 'Owner'
         ? buffConditionOwner(context, sourcePath)
@@ -646,7 +643,11 @@ function compileConditionLeaf(
           ? context.actionSourceTarget
           : condition.targetSource === 'Target'
             ? singleBuffConditionTarget(context, sourcePath)
-            : null;
+            : condition.targetSource === 'Context' &&
+                (targetGroups.get(condition.targetGroupKey) === 'enemy' ||
+                  context.staticEnemyTargetGroupKeys?.has(condition.targetGroupKey) === true)
+              ? ('enemy' as const)
+              : null;
     if (target === null) throw new Error(`${sourcePath}: unsupported entity tag target`);
     return {
       kind: 'entityTagMatch',
