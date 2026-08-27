@@ -309,8 +309,8 @@ class TimedTimeDilationSource:
     namedCurve: str | None
     inlineCurve: tuple[TimeScaleCurveKeySource, ...]
     finishByAction: bool
-    ignoredTargets: tuple[Literal["caster", "enemy", "controlled"], ...]
-    targets: tuple[Literal["caster", "enemy"], ...]
+    ignoredTargets: tuple[Literal["caster", "enemy", "controlled", "owner"], ...]
+    targets: tuple[Literal["caster", "enemy", "owner"], ...]
     omittedAbilityEntityTargets: int
     ignoredAbilityEntityTargets: tuple[AbilityEntityTimeDilationTargetSource, ...]
     influenceSkillCooldown: ScalarSource | None

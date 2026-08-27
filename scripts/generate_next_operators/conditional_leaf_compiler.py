@@ -454,7 +454,11 @@ def compile_conditional_branch_action(
             target_group_writes=target_group_writes,
         )
     if getattr(action, "timeDilation", None) is not None:
-        return compile_time_dilation(action.timeDilation, path)
+        return compile_time_dilation(
+            action.timeDilation,
+            path,
+            buff_owner_target=buff_owner_target,
+        )
     if getattr(action, "buffBlackboardRead", None) is not None:
         buff_read = action.buffBlackboardRead
         context_target_is_enemy = False

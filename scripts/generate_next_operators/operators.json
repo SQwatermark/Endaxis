@@ -3478,8 +3478,7 @@
             "costResource": "ultimateEnergy",
             "usePatchCooldown": true,
             "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"],
-            "unmodeledBuffIds": ["buff_chr_0027_tangtang_ultskill_debuff"],
-            "skipBuffDefinitionResolutionIds": ["buff_chr_0027_tangtang_ultskill_debuff"]
+            "unmodeledBuffIds": ["buff_chr_0027_tangtang_ultskill_debuff"]
           }
         }
       ]

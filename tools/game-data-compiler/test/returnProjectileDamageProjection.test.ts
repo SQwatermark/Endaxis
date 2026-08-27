@@ -5,8 +5,12 @@ import runtimeFixtures from './fixtures/avywenna-return-projectile-runtime.json'
 import { parseDamageActionSource } from '../src/source/damageActions.ts';
 import { compileEventTargetSimpleDamageOperationSource } from '../src/compiler/simpleDamageOperation.ts';
 import { compileCombatActionSequenceSource } from '../src/compiler/buffRuntimeProjection.ts';
-import { compileImmediateProjectileCallbackSkillSource } from '../src/compiler/projectileRuntimeProjection.ts';
+import {
+  compileImmediateProjectileCallbackSkillSource,
+  compileZeroDistanceFirstTickHitProjectileSource,
+} from '../src/compiler/projectileRuntimeProjection.ts';
 import { parseProjectileLaunchActionSource } from '../src/source/referenceActions.ts';
+import { parseProjectileRuntimeSource } from '../src/source/projectileRuntime.ts';
 import {
   makeReturnProjection,
   parseReturnSequence,
@@ -279,6 +283,38 @@ describe('公共回调伤害投影', () => {
     expect(() => makeReturnProjection(0, true, runtime)).toThrow(
       'outside the proven zero-distance first-tick shape',
     );
+  });
+
+  it('唯一木桩下允许 allowHitSameTarget=false 且 maxHitCount=-1 的 hit-only 投射物', () => {
+    const raw = scopeFixtures[0]!;
+    const launch = parseProjectileLaunchActionSource(raw.launch, 'launch');
+    const runtime = parseProjectileRuntimeSource(runtimeFixtures[0], 'projectile');
+    const compile = (allowHitSameTarget: boolean) =>
+      compileZeroDistanceFirstTickHitProjectileSource({
+        sourcePath: 'hit-only',
+        launch,
+        runtime: {
+          ...runtime,
+          maxHitCount: -1,
+          allowHitSameTarget,
+          colliderShape: { shapeType: 1, radius: 0.45 },
+          // 测试的是汤汤式“到达即结束” hit-only 形状，不沿用
+          // 艾维文娜回收枪的 keepMoveOnReach=true。
+          keepMoveOnReach: false,
+        },
+        template: null,
+        hitGraph: {
+          skillId: raw.hit.skillId,
+          level: 1,
+          durationFrame: 0,
+          declaredBlackboard: [],
+          actionGroup: { timelineActions: [], passiveEvents: [] },
+        },
+        callbackContext: returnProjectionContext,
+      });
+
+    expect(compile(false).body.steps).toHaveLength(1);
+    expect(() => compile(true)).toThrow('outside the proven zero-distance first-tick shape');
   });
 
   it('未投影的投射物 Owner 不能作为伤害攻击者借用施法者身份', () => {

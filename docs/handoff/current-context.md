@@ -1,11 +1,34 @@
 # 当前任务快照
 
-> 更新时间：2026-08-27（Asia/Shanghai）
+> 更新时间：2026-08-28（Asia/Shanghai）
 > 本文是变化最快、优先级最高的交接入口。完全不了解背景时，先读 [交接文档首页](./README.md)，再读本文和 [Next 文档入口](../next/README.md)。
 
 当前工作树为 `Endaxis-game-data-refactor` / `refactor/common-game-data`，已按用户要求合回
 `refactor/operator-completion` 的完整干员成果。唯一新转换入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
+
+### 2026-08-28：投射物重复目标过滤闭环，汤汤普攻三进入统一编译器（当前检查点）
+
+- combat-spec 已从 1.4.4 运行时快照恢复投射物逐目标命中历史：
+  `ProjectileMovementSubComponent._FilterAbilitySystem` 先查询实例级 `m_lastHitTimeDict`；目标已有记录且
+  `allowHitSameTarget=false` 时直接拒绝，允许重复时才读取 `hitIntervalPerTarget`。碰撞成功后
+  `_OnCollide` 把当前时间写回同一字典。因此该字段约束的是整枚投射物生命周期，而不是仅同帧去重。
+- Endaxis 只据此放宽 hit-only、首 tick、唯一木桩的严格形状：`maxHitCount=-1` 与 `1` 都仍要求
+  `allowHitSameTarget=false`，其他碰撞体、回调槽和运动条件不变。汤汤普攻三现由 blocked 变为
+  compiled；当前统一主动矩阵为 **157/309**，主动技能全可编译干员 **3 名**，完整定义 **3 名**。
+- 原生空字面时间膨胀曲线现在只作为来源事实保存，复刻库的曲线执行器仍拒绝把空数组猜成 0 或 1。
+  旧 Python oracle 仅允许在 Buff Owner 已严格绑定为静态敌人、Entity 层、无冷却影响且随动作结束的
+  窄形状下审计省略。汤汤终结技减速 Buff 的图标与 4 秒寿命已可解析，但其实际施加仍位于尚未编译的
+  能力实体事件跳转之后，因此继续保留 `skillBehavior/ultimate` 缺口，不冒称整名 complete。
+- 汤汤终结技的剩余控制流是能力实体监听 `OnOutputBuff`，检查指定 Buff 后从循环段跳到 128 帧收尾；
+  现有静态 JumpTo 编译只覆盖启动时可判定的分支，不能把运行中事件跳转摊成无条件调度。后续若选择
+  汤汤纵向切片，必须先恢复这类事件驱动时间线跳转，不能只把 Debuff 定义塞入产物。
+- 最新矩阵下一候选为萤石 **8/10**：连携阻塞于 AbilityEntity 查询过滤器，终结技阻塞于
+  `DispelAction`。按纵向门禁应先评估这两项及完整 Buff/养成闭包，再决定是否作为下一名完整干员；
+  不因当前刚处理过汤汤便追逐其 6 个剩余主动阻塞。
+- 验证：game-data **93 文件 / 689 项**、旧 Python oracle **484 项**、四套 TypeScript 类型检查、
+  汤汤旧产物 `--check` 和 `git diff --check` 通过。combat-spec **1434 项通过**；另有 **17 项**因本机
+  未配置仓库内 `artifacts/skill-data-cdn` 等真实资产而失败，与本次逻辑无关。
 
 ### 2026-08-27：秋栗主动技能 9/9 与潜能 AddBuff 首次安装闭环（当前检查点）
 

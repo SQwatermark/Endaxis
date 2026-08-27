@@ -3961,6 +3961,7 @@ def compile_time_dilation(
     *,
     effect_ability_entity_targets_proven: bool = False,
     ability_entity_templates: dict[str, dict[str, Any]] | None = None,
+    buff_owner_target: Literal["caster", "enemy", "currentAbilityEntity"] | None = None,
 ) -> str:
     """把已归一化的原生时间动作编译为 SkillDefinition 步骤。"""
     priority = TIME_DILATION_PRIORITY_BY_TAG_ID.get(action.priority)
@@ -3998,11 +3999,34 @@ def compile_time_dilation(
         )
     if action.duration is None or action.scope is None or action.slot is None:
         raise ValueError(f"{path}: normal time dilation is incomplete")
+    def resolve_owner_target(target: str) -> str:
+        if target != "owner":
+            return target
+        if buff_owner_target == "currentAbilityEntity":
+            raise ValueError(f"{path}: current AbilityEntity owner time dilation is unsupported")
+        return buff_owner_target or "caster"
+
+    resolved_ignored_targets = tuple(
+        resolve_owner_target(target) for target in action.ignoredTargets
+    )
+    resolved_targets = tuple(resolve_owner_target(target) for target in action.targets)
     if action.namedCurve is not None:
         curve = f"{{ kind: 'named', key: {ts_inline_literal(action.namedCurve)} }}"
     else:
         if not action.inlineCurve:
-            raise ValueError(f"{path}: normal time dilation has no curve")
+            if (
+                action.scope == "entity"
+                and resolved_targets == ("enemy",)
+                and not resolved_ignored_targets
+                and not action.effectAbilityEntityTargets
+                and not action.ignoredAbilityEntityTargets
+                and action.influenceSkillCooldown is None
+                and action.finishByAction
+            ):
+                # Endaxis 没有敌人主动行为。空曲线的原生求值仍未闭环，
+                # 因此只对严格绑定的静态木桩审计省略，不把它猜成 0 或 1。
+                return "sequence()"
+            raise ValueError(f"{path}: normal time dilation has no executable curve")
         curve = ts_inline_literal(
             {
                 "kind": "inline",
@@ -4018,7 +4042,7 @@ def compile_time_dilation(
         f"finishByAction: {ts_inline_literal(action.finishByAction)}",
     ]
     if action.scope == "global":
-        fields.append(f"ignoredTargets: {ts_inline_literal(action.ignoredTargets)}")
+        fields.append(f"ignoredTargets: {ts_inline_literal(resolved_ignored_targets)}")
         if action.ignoredAbilityEntityTargets:
             queries = ", ".join(
                 compile_ability_entity_time_dilation_query(
@@ -4033,7 +4057,7 @@ def compile_time_dilation(
                 f"{compile_condition_operand(action.influenceSkillCooldown, f'{path}.influenceSkillCooldown')}"
             )
     else:
-        fields.append(f"targets: {ts_inline_literal(action.targets)}")
+        fields.append(f"targets: {ts_inline_literal(resolved_targets)}")
         if action.effectAbilityEntityTargets:
             queries = ", ".join(
                 compile_ability_entity_time_dilation_query(

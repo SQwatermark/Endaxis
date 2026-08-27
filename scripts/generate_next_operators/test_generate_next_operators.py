@@ -1216,6 +1216,55 @@ class GenerateNextOperatorsTests(unittest.TestCase):
         self.assertEqual(parsed.namedCurve, "interrupt_weakness")
         self.assertEqual(parsed.inlineCurve, ())
 
+    def test_empty_literal_curve_is_only_omitted_for_static_enemy_buff_owner(self) -> None:
+        action = {
+            "$type": "Example.TimeDilationAction+Data, Example",
+            "isEnable": True,
+            "priorityLevel": "Default",
+            "priorityOffset": 0,
+            "serverActionIndex": 2,
+            "layer": "Entity",
+            "slot": {"tagId": -1767339671},
+            "timeDilationPriority": {"tagId": -1742631616},
+            "duration": {
+                "useBlackboardKey": True,
+                "value": 0,
+                "blackboardKey": "timedilation_duration",
+            },
+            "useCurveKey": False,
+            "curveKey": "",
+            "timeScaleCurve": [],
+            "finishByAction": True,
+            "ignoreTargets": [],
+            "effectTargets": [target_settings_fixture("Owner")],
+            "useTimeScaleForSkillCdTick": False,
+            "influenceSkillCdTime": {
+                "useBlackboardKey": False,
+                "value": 0,
+                "blackboardKey": "",
+            },
+        }
+        parsed = parse_time_dilation_action(
+            action,
+            "fixture.timeDilation",
+            {"timedilation_duration": (-1,)},
+            start_frame=0,
+            end_frame=1,
+        )
+
+        self.assertEqual(parsed.targets, ("owner",))
+        self.assertEqual(parsed.inlineCurve, ())
+        self.assertEqual(
+            compile_time_dilation(
+                parsed,
+                "fixture.timeDilation",
+                buff_owner_target="enemy",
+            ),
+            "sequence()",
+        )
+        with self.assertRaisesRegex(ValueError, "no executable curve"):
+            compile_time_dilation(parsed, "fixture.timeDilation")
+
     def test_ability_entity_tag_queries_match_registered_descendant_tags(self) -> None:
         lance_tag = -549424863
         combo_lance_tag = 1447025331

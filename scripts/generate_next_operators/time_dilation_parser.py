@@ -28,12 +28,14 @@ from target_parser import (
 def parse_time_dilation_target(
     value: Any,
     path: str,
-) -> Literal["caster", "enemy", "controlled", "abilityEntity"]:
+) -> Literal["caster", "enemy", "controlled", "abilityEntity", "owner"]:
     """把时间膨胀目标收窄到 Endaxis 当前实际模拟的实体身份。"""
     target = require_dict(value, path)
     source = target.get("targetSource")
-    if source in {"Source", "Owner"}:
+    if source == "Source":
         return "caster"
+    if source == "Owner":
+        return "owner"
     if source == "Target":
         return "enemy"
     if source == "InstantSearch":
@@ -199,7 +201,7 @@ def parse_time_dilation_action(
     )
     omitted = sum(target == "abilityEntity" for target in ignored)
     fixed_ignored = tuple(
-        cast(Literal["caster", "enemy", "controlled"], target)
+        cast(Literal["caster", "enemy", "controlled", "owner"], target)
         for target in ignored
         if target != "abilityEntity"
     )
@@ -285,8 +287,8 @@ def parse_time_dilation_action(
             raise ValueError(f"{path}.curveKey: named curve key must not be empty")
         inline_curve: tuple[TimeScaleCurveKeySource, ...] = ()
     else:
-        if not parsed_inline_curve:
-            raise ValueError(f"{path}.timeScaleCurve: inline curve must not be empty")
+        # 空数组是汤汤终结技 Debuff 的真实字面来源形状。这里只保留
+        # 事实；编译器只能在严格证明为静态敌人无效果时省略，否则继续失败。
         inline_curve = parsed_inline_curve
     influence = None
     if require_bool(
@@ -319,7 +321,7 @@ def parse_time_dilation_action(
         ),
         ignoredTargets=fixed_ignored,
         targets=tuple(
-            cast(Literal["caster", "enemy"], target)
+            cast(Literal["caster", "enemy", "owner"], target)
             for target in effect_targets
             if target != "abilityEntity"
         ),

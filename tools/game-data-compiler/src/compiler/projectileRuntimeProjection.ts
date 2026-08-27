@@ -149,7 +149,10 @@ export function compileZeroDistanceFirstTickHitProjectileSource(input: {
   if (runtime.projectileId !== launch.projectileId)
     throw new Error(`${sourcePath}: ProjectileData identity mismatch`);
   assertSupportedFirstTickShape(runtime, sourcePath, {
-    maxHitCounts: new Set([1]),
+    // combat-spec 已证明 allowHitSameTarget=false 使同一目标在整枚投射物
+    // 生命周期内最多成功命中一次。因此唯一木桩下，-1 与首击回收的 1
+    // 对 hit-only 路由都只产生一次战斗可见回调。
+    maxHitCounts: new Set([-1, 1]),
     requireCollider: !runtime.hitOnReach,
     allowHitOnReach: true,
     allowFinishByFirstHitCount: true,
@@ -339,7 +342,8 @@ function assertSupportedFirstTickShape(
   // ProjectileComponent.HitTarget increments m_hitCount, resolves maxHitCount, and calls
   // FinishProjectile(HitCount) as soon as the positive limit is reached. For a hit-only
   // route with maxHitCount=1, finishOnReach/keepMoveOnReach therefore cannot affect any
-  // later combat-visible callback in the zero-distance single-target model.
+  // later combat-visible callback in the zero-distance single-target model. maxHitCount=-1
+  // is only admitted by callers that also retain allowHitSameTarget=false below.
   const finishesOnFirstHit =
     options.allowFinishByFirstHitCount === true && runtime.maxHitCount === 1;
   if (

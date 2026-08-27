@@ -172,7 +172,7 @@ describe('公共 Action 序列控制流投影', () => {
     const projection = options();
     const result = compileActionSequenceProgram(sequence([branch]), {
       ...projection,
-      negateCondition: condition => ({ kind: 'not', value: `!${condition.value}` }),
+      negateCondition: condition => ({ kind: 'not' as const, value: `!${condition.value}` }),
     });
     expect(result.steps[0]).toMatchObject({
       kind: 'conditional',
