@@ -16,7 +16,7 @@ import type { ProbabilitySampleSource } from '../core/combat/random/probabilityS
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
 import type { StandardPlayerDamageScenarioResult } from './runStandardPlayerDamageScenarioSimulation';
 import type { CompileScenarioResourcesOptions } from '../core/compiler/compileScenarioResources';
-import type { ScenarioBuildIndex } from '../core/compiler/resolveScenarioBuilds';
+import type { CompileScenarioRuntimeAssemblyOptions } from '../core/compiler/compileScenarioRuntimeAssembly';
 import type { ScenarioDocument } from '../core/project/schema';
 import { elementalAttachments } from '../data/buffs/elementalAttachments';
 import { compoundStatusFactories } from '../data/buffs/compoundStatusFactories';
@@ -60,7 +60,7 @@ export function createDefaultProbabilitySampleSource(): ProbabilitySampleSource 
 }
 
 export interface ScenarioSimulationServiceOptions {
-  readonly index: ScenarioBuildIndex;
+  readonly index: CompileScenarioRuntimeAssemblyOptions['index'];
   readonly resources: Omit<CompileScenarioResourcesOptions, 'operators'>;
   /** 缓存键的一部分：游戏数据变了要改这个值，不然会拿到旧数据算出来的结果。 */
   readonly repositoryRevision?: string;

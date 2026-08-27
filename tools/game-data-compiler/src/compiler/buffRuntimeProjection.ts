@@ -27,6 +27,7 @@ import { parseObjectTypeMask } from '../source/objectType.ts';
 import type { CombatStepParameters } from '../../../../src/next/core/game-data/operatorDefinition.ts';
 import { projectElementalInflictionAction } from './elementalInflictionProjection.ts';
 import { projectKeywordBuffAction } from './keywordBuffProjection.ts';
+import { projectTimelineJump, projectFinishOwner } from './timelineControlProjection.ts';
 import { compileAbilityEventPrograms } from './abilityEventProgram.ts';
 import {
   compileActionSequenceProgram,
@@ -45,7 +46,7 @@ export type CompiledBuffNumberSource = number | { readonly blackboardKey: string
 /** 原生动作身份由宿主及事件方向共同投影，不能把物理事件来源一律当作 ActionSource。 */
 export interface CombatActionProjectionContextSource {
   /** 回调宿主未投影时显式 unavailable；读取 Owner 必须失败，不能借用发射者。 */
-  readonly actionOwnerTarget: 'buffOwner' | 'caster' | 'unavailable';
+  readonly actionOwnerTarget: 'buffOwner' | 'caster' | 'currentAbilityEntity' | 'unavailable';
   /** 接收侧 Buff 事件保留监听器创建者；其他路径沿用已审计的宿主投影。 */
   readonly actionSourceTarget: 'caster' | 'buffSource';
   /** 主动命中可显式绑定 enemy；不伪造 Buff 事件。接收侧 Target 是事件施加者。 */
@@ -67,6 +68,10 @@ export interface CombatActionProjectionContextSource {
   };
   /** 已由同一主动技能动作图证明会命中唯一木桩的命名目标组。 */
   readonly staticEnemyTargetGroupKeys?: ReadonlySet<string>;
+  /** 完整技能内所有读取均为表现的查询；不能在单个序列内自行推断。 */
+  readonly presentationOnlyTargetGroupKeys?: ReadonlySet<string>;
+  /** 仅技能时间轴宿主提供；Buff 生命周期和即时回调不具有可跳转时间轴。 */
+  readonly timelineRange?: { readonly startFrame: number; readonly endFrame: number };
   /** 当前场景额外提供的 IHittableObject 数量；未声明时不得假定为零。 */
   readonly fixedHittableTargetCount?: number;
 }
@@ -526,6 +531,14 @@ export type CompiledBuffStepSource =
         readonly abilityEntityId: string;
         readonly inheritActionBlackboard: boolean;
         readonly dieWhenSourceDies: boolean;
+      };
+    }
+  | { readonly kind: 'finishCurrentAbilityEntity'; readonly parameters: Record<string, never> }
+  | {
+      readonly kind: 'jumpTimeline';
+      readonly parameters: {
+        readonly destinationFrame: number;
+        readonly condition?: CompiledBuffConditionSource;
       };
     }
   | {
@@ -1532,8 +1545,15 @@ function createBuffSequenceProjection(
     negateCondition: condition => ({ kind: 'not', condition }),
     compileLeaf: (node, partyTargetGroups) =>
       compileBuffLeafNode(node, visualOnlyIds, partyTargetGroups, context, extensions),
-    compileNodePrefix: (nodes, partyTargetGroups) =>
-      compileDifferentCharacterTypePartyLoop(nodes, visualOnlyIds, partyTargetGroups, context),
+    compileNodePrefix: (nodes, partyTargetGroups) => {
+      const jump = projectTimelineJump(nodes[0]!, context, node => {
+        const condition = compileEventCondition(node, context, partyTargetGroups);
+        return condition !== null && !conditionWritesBlackboard(condition) ? condition : null;
+      });
+      return jump === null
+        ? compileDifferentCharacterTypePartyLoop(nodes, visualOnlyIds, partyTargetGroups, context)
+        : { steps: [jump], state: partyTargetGroups, consumedNodeCount: 1 };
+    },
     compileForEach: (node, partyTargetGroups) => {
       if (
         context.actionTargetTarget === 'enemy' &&
@@ -1772,6 +1792,12 @@ function compileBuffLeafNode(
 } {
   if (node.body.kind !== 'leaf') {
     throw new Error(`${node.sourcePath}: expected an action leaf`);
+  }
+  if (node.body.value.family === 'lifecycle') {
+    return {
+      steps: [projectFinishOwner(node.body.value.action, context, node.sourcePath)],
+      state: partyTargetGroups,
+    };
   }
   if (node.body.value.family === 'projectile') {
     const compile = extensions.compileProjectileLaunch;
@@ -2055,6 +2081,8 @@ function compileBuffLeafNode(
   if (node.body.value.family === 'targetGroup') {
     const queryInputs = context.abilityEntityQueries;
     const write = node.body.value.action;
+    if (context.presentationOnlyTargetGroupKeys?.has(write.targetGroupKey))
+      return { steps: [], state: partyTargetGroups };
     if (context.staticEnemyTargetGroupKeys?.has(write.targetGroupKey)) {
       const nextGroups = new Map(partyTargetGroups);
       nextGroups.set(write.targetGroupKey, 'enemy');
@@ -2665,7 +2693,7 @@ function compileConditionLeaf(
         kind: 'buffStackCompare',
         target:
           condition.targetSource === 'Owner'
-            ? requireActionOwnerProjection(context, sourcePath)
+            ? buffConditionOwner(context, sourcePath)
             : condition.targetSource === 'Source'
               ? context.actionSourceTarget
               : singleBuffConditionTarget(context, sourcePath),
@@ -2680,7 +2708,7 @@ function compileConditionLeaf(
         kind: 'buffIdStackCompare',
         target:
           condition.targetSource === 'Owner'
-            ? requireActionOwnerProjection(context, sourcePath)
+            ? buffConditionOwner(context, sourcePath)
             : condition.targetSource === 'Source'
               ? context.actionSourceTarget
               : singleBuffConditionTarget(context, sourcePath),
@@ -2781,10 +2809,19 @@ function requireActionOwnerProjection(
   context: CombatActionProjectionContextSource,
   sourcePath: string,
 ): 'buffOwner' | 'caster' {
-  if (context.actionOwnerTarget === 'unavailable') {
+  if (
+    context.actionOwnerTarget === 'unavailable' ||
+    context.actionOwnerTarget === 'currentAbilityEntity'
+  ) {
     throw new Error(`${sourcePath}: action Owner projection is unavailable`);
   }
   return context.actionOwnerTarget;
+}
+
+function buffConditionOwner(context: CombatActionProjectionContextSource, sourcePath: string) {
+  return context.actionOwnerTarget === 'currentAbilityEntity'
+    ? ('currentAbilityEntity' as const)
+    : requireActionOwnerProjection(context, sourcePath);
 }
 
 function compileActionNode(
@@ -2932,12 +2969,14 @@ function compileActionNode(
   if (node.body.value.family === 'damage') {
     if (
       context.actionSourceTarget !== 'caster' ||
+      context.actionOwnerTarget === 'currentAbilityEntity' ||
       !['enemy', 'eventTarget'].includes(context.actionTargetTarget)
     )
       throw new Error(`${node.sourcePath}: unsupported Buff damage source`);
     return [
       compileEventTargetSimpleDamageOperationSource(node.body.value.action, node.sourcePath, {
         ...context,
+        actionOwnerTarget: context.actionOwnerTarget,
         actionSourceTarget: context.actionSourceTarget,
       }),
     ];
@@ -3201,7 +3240,8 @@ function compileActionNode(
     const usesOwner =
       action.source.targetSource === 'Owner' &&
       action.target.targetSource === 'Owner' &&
-      context.actionOwnerTarget !== 'unavailable';
+      context.actionOwnerTarget !== 'unavailable' &&
+      context.actionOwnerTarget !== 'currentAbilityEntity';
     if (
       (!usesOwner && !usesCasterSource) ||
       action.source.targetGroupKey !== '' ||
@@ -3457,7 +3497,8 @@ function compileBuffApplication(
                     : null;
   const source =
     action.buffSource === 'ActionOwner'
-      ? context.actionOwnerTarget === 'unavailable'
+      ? context.actionOwnerTarget === 'unavailable' ||
+        context.actionOwnerTarget === 'currentAbilityEntity'
         ? null
         : context.actionSourceTarget === 'buffSource' || context.actionTargetTarget === 'buffOwner'
           ? 'buffOwner'

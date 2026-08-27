@@ -95,6 +95,14 @@ export async function auditOperatorActiveSkillMigration(args: Arguments) {
       declaredSkillCount: skillEntries.length,
       compiledSkillCount,
       formalSkillCount,
+      // 这里只计新版完整产物是否存在；注册、对象校验和实际模拟由整名回归门禁证明。
+      completeDefinitionPresent: fs.existsSync(
+        path.resolve(
+          'src/next/data/operators/generated-definitions',
+          slug,
+          `${slug}.operator.generated.ts`,
+        ),
+      ),
       skills: skillEntries,
     };
   });
@@ -108,6 +116,7 @@ export async function auditOperatorActiveSkillMigration(args: Arguments) {
     declaredSkillCount: entries.reduce((sum, entry) => sum + entry.declaredSkillCount, 0),
     compiledSkillCount: entries.reduce((sum, entry) => sum + entry.compiledSkillCount, 0),
     formalSkillCount: entries.reduce((sum, entry) => sum + entry.formalSkillCount, 0),
+    completeDefinitionCount: entries.filter(entry => entry.completeDefinitionPresent).length,
     entries,
   };
   await writeGeneratedDefinitionFiles(args.auditOutput, [
@@ -123,6 +132,7 @@ export async function auditOperatorActiveSkillMigration(args: Arguments) {
     declaredSkillCount: report.declaredSkillCount,
     compiledSkillCount: report.compiledSkillCount,
     formalSkillCount: report.formalSkillCount,
+    completeDefinitionCount: report.completeDefinitionCount,
   };
 }
 

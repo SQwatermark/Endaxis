@@ -7,8 +7,12 @@ import {
   type CombatActionProjectionExtensionsSource,
   type CompiledBuffSequenceSource,
 } from './buffRuntimeProjection.ts';
-import { prepareSkillDefinitionInputSource } from './skillDefinitionInput.ts';
+import {
+  prepareSkillDefinitionInputSource,
+  assertNoUnprojectedSkillRootEffects,
+} from './skillDefinitionInput.ts';
 import type { ResolvedSkillBlackboardSource } from './skillBlackboard.ts';
+import { collectPresentationOnlyTargetGroups } from './skillPresentationTargets.ts';
 
 export interface CompiledActiveSkillTimelineSequenceSource {
   readonly startFrame: number;
@@ -38,6 +42,7 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
   readonly extensions?: CombatActionProjectionExtensionsSource;
 }): CompiledActiveSkillRuntimeProjectionSource {
   const prepared = prepareSkillDefinitionInputSource(input.value, input.sourcePath, input.patch);
+  assertNoUnprojectedSkillRootEffects(input.value, input.sourcePath);
   const graph = parseKnownSkillActionGraphSource(
     input.value,
     input.sourcePath,
@@ -86,7 +91,11 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
       ),
     )
     .map(timeline => timeline.startFrame);
-  const context = { ...input.context, staticEnemyTargetGroupKeys };
+  const context = {
+    ...input.context,
+    staticEnemyTargetGroupKeys,
+    presentationOnlyTargetGroupKeys: collectPresentationOnlyTargetGroups(graph),
+  };
   return {
     skillId: graph.skillId,
     durationFrame: graph.durationFrame,
@@ -98,7 +107,10 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
         endFrame: timeline.endFrame,
         sequence: compileCombatActionSequenceSource(
           timeline.sequence,
-          context,
+          {
+            ...context,
+            timelineRange: { startFrame: timeline.startFrame, endFrame: timeline.endFrame },
+          },
           visualOnlyIds,
           extensions,
         ),

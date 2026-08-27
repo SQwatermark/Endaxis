@@ -99,12 +99,28 @@ export function compileOperatorSourceClosure(
 }
 
 /**
- * 构造完整来源闭包并保留缺失定义，供批量资源计划审计使用。正式编译必须调用上面的严格入口，
- * 不能把此函数返回的缺失边当成可执行结果。
+ * 来源下载闭包与最终定义装配共享的角色基础：只包含已严格校验的面板、技能库与养成。
+ * 它自身不声明动作依赖已闭合；调用方必须继续完成来源闭包或最终运行定义闭包。
  */
-export function resolveOperatorSourceClosure(
-  input: OperatorSourceClosureInput,
-): OperatorSourceClosure {
+export function compileOperatorFoundationSource(
+  input: Pick<
+    OperatorSourceClosureInput,
+    | 'identity'
+    | 'characterTable'
+    | 'manifestSkills'
+    | 'manifestSkillGroups'
+    | 'skillDataBySourceFile'
+    | 'skillPatchTable'
+    | 'charGrowthTable'
+    | 'characterPotentialTable'
+    | 'potentialTalentEffectTable'
+    | 'skillConditionTable'
+    | 'skillGroupValidationOptions'
+  >,
+): Pick<
+  OperatorSourceClosure,
+  'identity' | 'character' | 'attributeGrowth' | 'skillLibrary' | 'progression'
+> {
   const character = parseOperatorCharacterTableSource(
     input.characterTable,
     input.identity.characterId,
@@ -126,6 +142,24 @@ export function resolveOperatorSourceClosure(
     input.potentialTalentEffectTable,
     input.skillConditionTable,
   );
+  return {
+    identity: input.identity,
+    character,
+    skillLibrary,
+    progression,
+    attributeGrowth: compileOperatorAttributeGrowthSource(
+      character,
+      STANDARD_OPERATOR_PANEL_MILESTONES,
+    ),
+  };
+}
+
+/** 来源下载闭包与正式对象装配共享上面的头部/技能库/养成编译，不能各自重新解释原始表。 */
+export function resolveOperatorSourceClosure(
+  input: OperatorSourceClosureInput,
+): OperatorSourceClosure {
+  const foundation = compileOperatorFoundationSource(input);
+  const { skillLibrary, progression } = foundation;
   const passiveSkills = compilePassiveSkillRequestBatch(
     [...progression.talentPassiveSkillRequests, ...progression.potentialPassiveSkillRequests],
     input.skillDataById,
@@ -188,14 +222,7 @@ export function resolveOperatorSourceClosure(
         .filter(entry => entry.queries.length > 0)
     : [];
   return {
-    identity: input.identity,
-    character,
-    attributeGrowth: compileOperatorAttributeGrowthSource(
-      character,
-      STANDARD_OPERATOR_PANEL_MILESTONES,
-    ),
-    skillLibrary,
-    progression,
+    ...foundation,
     passiveSkills,
     definitionClosure,
     activeSkillAbilityEntityQueries,

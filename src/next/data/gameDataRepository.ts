@@ -57,7 +57,7 @@ import {
   sharedGearSetDefinitions,
 } from './equipment';
 import { legacyEnemyDefinitions } from './adapters/legacyEnemyDefinitionAdapter';
-import { generatedCommonBuffDefinitions } from './operators/generated/commonBuffDefinitions.generated';
+import { commonBuffDefinitions } from './buffs/commonDefinitions';
 import { generatedCommonAbilityEntityDefinitions } from './operators/generated/commonAbilityEntityDefinitions.generated';
 import { nextWeaponDefinitions } from './equipment/nextWeaponDefinitions';
 import { legacyWeaponDefinitions, LEGACY_WEAPON_REVISION } from './revisions/weapons-v1';
@@ -165,7 +165,7 @@ export function createGameDataRepository(
 /** 当前正式进入 Next 的默认数据仓库；其他数据迁移完成后必须在这里显式注册。 */
 export const nextGameDataRepository = createGameDataRepository({
   revision: NEXT_GAME_DATA_REVISION,
-  commonBuffDefinitions: generatedCommonBuffDefinitions,
+  commonBuffDefinitions,
   commonAbilityEntityDefinitions: generatedCommonAbilityEntityDefinitions,
   operators: [
     perlica,

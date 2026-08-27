@@ -4,12 +4,15 @@ import { fileURLToPath } from 'node:url';
 import { writeGeneratedDefinitionFiles } from '../src/compiler/writeGeneratedDefinitionFiles.ts';
 import { parseOperatorActiveSkillEntries } from '../src/domains/operator/activeSkills.ts';
 import { requireArray, requireRecord } from '../src/source/primitives.ts';
+import { generateOperatorDefinition } from './planOperatorDefinition.ts';
 import {
   planOperatorActiveSkillRuntime,
   type PlannedOperatorActiveSkillRuntime,
 } from './generateOperatorActiveSkillRuntime.ts';
 
 interface Arguments {
+  readonly complete?: boolean;
+  readonly tableRoot?: string;
   readonly manifest: string;
   readonly sourceRoot: string;
   readonly skillPatchTable: string;
@@ -30,6 +33,12 @@ interface Arguments {
  * 任意技能失败时不会写入任何正式文件；全部成功后才一次性替换该干员的专属目录。
  */
 export async function generateOperatorActiveSkillRuntimeBatch(args: Arguments) {
+  if (args.complete) {
+    if (!args.tableRoot) throw new Error('--complete requires --table-root');
+    if (args.supplementalBuffs.size)
+      throw new Error('complete mode discovers Buff dependencies automatically');
+    return generateOperatorDefinition({ ...args, tableRoot: args.tableRoot });
+  }
   requireOwnedOperatorDirectory(
     args.output,
     path.resolve('src/next/data/operators/generated-active-skills'),
@@ -176,7 +185,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const values = new Map<string, string>();
   const supplements = new Map<string, string[]>();
   let check = false;
+  let complete = false;
   const allowed = new Set([
+    '--table-root',
     '--manifest',
     '--source-root',
     '--skill-patch-table',
@@ -192,6 +203,10 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   ]);
   for (let index = 2; index < process.argv.length; index++) {
     const flag = process.argv[index]!;
+    if (flag === '--complete') {
+      complete = true;
+      continue;
+    }
     if (flag === '--check') {
       check = true;
       continue;
@@ -215,6 +230,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     return value;
   };
   const runtimeArgs: Arguments = {
+    complete,
+    ...(complete ? { tableRoot: required('--table-root') } : {}),
     manifest: required('--manifest'),
     sourceRoot: required('--source-root'),
     skillPatchTable: required('--skill-patch-table'),

@@ -28,7 +28,10 @@ export function compileStandardStumpBuffClosure(
   rootBuffIds: readonly string[],
   buffDataValue: unknown,
 ): CompiledStandardStumpBuffClosure {
-  const buffData = requireRecord(buffDataValue, 'BuffData');
+  const buffData =
+    typeof buffDataValue === 'function'
+      ? (buffDataValue as (id: string) => unknown)
+      : requireRecord(buffDataValue, 'BuffData');
   const sources = collectBuffRuntimeClosure(rootBuffIds, buffData);
   const omittedBuffIds = new Set<string>();
   const diagnostics: StandardStumpBuffClosureDiagnostic[] = [];

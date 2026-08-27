@@ -190,9 +190,11 @@ describe('目标组单动作解析', () => {
       producerType: 'MergeTargetAction',
       targetGroupKey: 'combined',
     });
-    expect(withoutTargetGroupSourcePaths(parseTargetGroupWriteAction(action, 'fixture.action', schedule))).toEqual(
-      runPythonOracle({ operation: 'parseTargetGroupWrite', payload }),
-    );
+    expect(
+      withoutTargetGroupSourcePaths(
+        parseTargetGroupWriteAction(action, 'fixture.action', schedule),
+      ),
+    ).toEqual(runPythonOracle({ operation: 'parseTargetGroupWrite', payload }));
   });
 
   it('PickTargetAction 保留直接索引或黑板索引', () => {
@@ -208,9 +210,11 @@ describe('目标组单动作解析', () => {
     };
     const root = timelineRoot(action, schedule.startFrame, schedule.endFrame);
     const payload = { root, sourceName: 'fixture.json' };
-    expect(withoutTargetGroupSourcePaths(parseTargetGroupWriteAction(action, 'fixture.action', schedule))).toEqual(
-      runPythonOracle({ operation: 'parseTargetGroupWrite', payload }),
-    );
+    expect(
+      withoutTargetGroupSourcePaths(
+        parseTargetGroupWriteAction(action, 'fixture.action', schedule),
+      ),
+    ).toEqual(runPythonOracle({ operation: 'parseTargetGroupWrite', payload }));
   });
 
   it('非目标组动作和禁用动作不产生写入事实', () => {
@@ -270,9 +274,11 @@ describe('目标组单动作解析', () => {
     if (interval !== undefined) action.findInterval = interval;
     const root = timelineRoot(action, schedule.startFrame, schedule.endFrame);
     const payload = { root, sourceName: 'fixture.json' };
-    expect(withoutTargetGroupSourcePaths(parseTargetGroupWriteAction(action, 'fixture.action', schedule))).toEqual(
-      runPythonOracle({ operation: 'parseTargetGroupWrite', payload }),
-    );
+    expect(
+      withoutTargetGroupSourcePaths(
+        parseTargetGroupWriteAction(action, 'fixture.action', schedule),
+      ),
+    ).toEqual(runPythonOracle({ operation: 'parseTargetGroupWrite', payload }));
   });
 
   it('HitBox、零距离验证和 PriorityFilter 事实与 Python 一致', () => {
@@ -384,7 +390,13 @@ describe('目标组单动作解析', () => {
 function withoutTargetGroupSourcePaths(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(withoutTargetGroupSourcePaths);
   if (typeof value !== 'object' || value === null) return value;
-  const { sourcePath: _sourcePath, ...rest } = value as Record<string, unknown>;
+  // Python oracle 不保留方向目标；新增字段由 skillPresentationTargets.test.ts 的原始数据单独验证。
+  const {
+    sourcePath: _sourcePath,
+    directionTarget: _directionTarget,
+    directionContextKey: _directionContextKey,
+    ...rest
+  } = value as Record<string, unknown>;
   return rest;
 }
 

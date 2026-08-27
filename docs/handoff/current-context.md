@@ -3,8 +3,73 @@
 > 更新时间：2026-08-27（Asia/Shanghai）
 > 本文是变化最快、优先级最高的交接入口。完全不了解背景时，先读 [交接文档首页](./README.md)，再读本文和 [Next 文档入口](../next/README.md)。
 
-当前主线是在 `refactor/common-game-data` 分支重写统一 TypeScript 游戏数据编译器。唯一新入口为
+当前主线是在 `refactor/operator-completion` 分支恢复统一 TypeScript 编译器的完整干员链路。唯一新入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
+
+### 2026-08-27：首名完整 Operator 已生成、注册并通过实际排轴（当前未提交）
+
+- 艾维文娜不再叠加旧 Operator 与主动技能补丁；正式入口直接加载统一 TS 编译器生成的
+  `generated-definitions/avywenna/avywenna.operator.generated.ts`。整名迁移从 **0 到 1**：
+  10 个主动技能、6 个技能组、2 个天赋、5 档潜能、2 个能力实体（含子技能）、5 个私有 Buff。
+  自动闭包读取 11 个 Buff 来源，另生成 5 个公共 Buff、明确省略 1 个纯表现 Buff。
+- 复用已有 `sourceClosure` 的来源基础、养成编译、公共 SkillData/投射物/实体子技能和 Buff 闭包；
+  `domains/operator/definition.ts` 只装配干员特有结构。实体子技能 ID 来自原始生成动作，不从名称猜测。
+  私有 Buff 按角色 ID 归属，公共 Buff 独立导出，经全局只读 `data/buffs/commonDefinitions.ts` 注册；
+  其余未迁移公共定义仍保留旧基线。旧艾维文娜整名和主动片段文件只保留作迁移 oracle，不参与正式装配。
+- 原 CLI 新增 `--complete --table-root ...` 模式，不增加片段入口。输入包括 manifest、原始表、
+  SkillData、BuffData、AbilityEntityData、投射物及既有目录；同一原子资源包保存 Operator 与公共 Buff。
+  输出固定为 `src/next/data/operators/generated-definitions/<slug>`，审计为
+  `tmp/game-data-audit/operator-definitions/<slug>`；完整模式不接受 `--supplemental-buff`。
+  完整可复现命令见编译器 README 的“整名生成与检查”。
+- 整名装配为伤害步骤按技能身份和最终结构路径补稳定唯一 key；回调复用也不会重复。不读旧产物兜底，
+  不将源文件绝对路径写进正式定义。Node 原生 CLI 不加载浏览器端运行依赖；正式协议校验复用产品
+  validator，在集成测试门禁执行，避免工具复制一套 validator。
+- 40 份版本化原始输入进入回归夹具（原表按角色裁剪、附原文件 SHA-256）。脱离本机 tmp 可重建同一产物。
+  实际 ScenarioSimulationService 在潜能 0..5 分别验证连携→战技、终结技→战技的生成/回收/伤害，
+  并验证普攻链、处决与下落攻击。此前独立子技能 900/1500 帧潜能与召回探针继续保留。
+- 最新主动矩阵：30 名 / 309 项 / **83 可编译**，1 名主动齐全、10 个旧主动片段文件、1 个整名产物。
+  原 85 中卡缪 `normal_skill_2`、梨诺 `normal_skill_end` 含尚未接入的技能根 Buff；新增严格门禁后
+  如实记为阻塞。`completeDefinitionCount` 仅统计整名文件，正式注册和可模拟性另由上述集成测试证明。
+- 验证：联合全量 **321 文件 / 3806 项通过**；原生 Node 完整模式 `--check`、编译器与 Next 类型检查
+  通过。仍只覆盖固定木桩、敌人无主动行为的既定场景，不宣称任意原生实体、空间或技能变体支持。
+  隐藏被动 SkillData、变体、未知根 Buff/面板修饰、未支持实体寿命/Owner 操作继续拒绝。
+- 下一步从新矩阵选择第二名纵向切片：秋栗、埃特拉当前均为主动 6/9；先比较剩余技能与养成/实体闭包。
+  秋栗已暴露 BlowOffEnemy、attributeSnapshot、ChannelingCasting；埃特拉缺投射物输入并有
+  ShowHideActor/Airborne。补源与公共投影仍以 combat-spec 为准，不能直接因名称像表现动作就删除。
+  不转去扩张装备；不改用户调试工作树，不提交 tmp。本轮尚未提交。
+
+### 2026-08-27：两个枪实体子技能通过公共编译及生产探针（前序进展，下述计数为当时状态）
+
+- 后续工作树为 `Endaxis-operator-completion` / `combat-spec-operator-completion`，均为
+  `refactor/operator-completion`。Endaxis 起点 `28c6be72`，combat-spec 起点 `f8cedcd`。
+  没有修改用户的 `Endaxis-game-data-refactor` 调试工作树，未启动/重启其服务。
+- `compiler/abilityEntityChildSkill.ts` 复用公共 SkillData 时间轴编译，输出正式
+  `AbilityEntityChildSkillDefinition`；没有另建实体 Action 编译器或片段 CLI。
+  校验使用实体局部上下文；Owner 是当前枪，Source 才是来源干员。未证明的实体 Owner 伤害、
+  资源和 Buff 来源投影继续拒绝，不能默认映射成 caster。
+- `timelineControlProjection.ts` 把 JumpTo 编译为运行时持续检查的 jumpTimeline，不能转成一次性
+  conditional；当前仅允许目标在整个活动区间前方/终点的向前跳转及纯条件。FinishOwner 复用
+  既有死亡后下一次 advance 释放，不同步删除。非零费用/冷却、多充能、子技能附加 Buff 和
+  面板修饰仍阻塞；未扩展原生证据边界。
+- 原始两个子技能分别保留四个实际调度项：`0..1500` 的召回条件跳转、两个独立的
+  `1500..1501` 结束，以及 `900..901` 的 **potential_2 < 1 才结束**。旧产物遗漏了这个守卫，
+  不以旧产物的无条件结束作为等价目标；combat-spec 同步原始条件、版本和 SHA-256。
+- 纯表现查询在完整 SkillData 范围检查消费者：只开放无过滤 SourceFinder/FixedPointFinder；
+  战斗/循环消费者、同名不安全写入者、带后续战斗动作的混合序列都会阻止删除。source 层补存
+  方向目标及 contextKey，避免漏掉跨组读取。这里不是通用黑板死代码消除。
+- 真实子技能 JSON → 公共编译 → 正式 ScenarioSimulationService 的六项探针通过：两种枪分别
+  验证默认 900 帧结束、继承 potential_2=1 快照后 1500 帧结束、局部第 30 帧召回并跳转结束。
+  探针只安排生成/召回时点，使用既有模板寿命和召回标记定义；**不是完整原始干员已安装**。
+- 本轮全主动矩阵仍为 30 名 / 309 项 / 85 可编译、1 名主动齐全、正式主动文件 10 个。
+  艾维文娜主动 10/10、干员根 Buff 4/4、实体子技能从 0/2 到 2/2，完整 Operator 仍为 0。
+- 验证：联合全量 319 文件 / 3788 项通过，编译器与 Next 类型检查通过；combat-spec 的跳转/延迟
+  释放定向 5 项通过。主动整目录 `--check` 通过（10 技能 / 26 序列）；复现时 source-root 是
+  `tmp/game-data-sources` 而非其 `skill-data-cdn` 子目录，并保留原生成参数
+  `--supplemental-buff battleSkill=buff_chr_0012_avywen_lance_becalled_ready`。
+  未修改旧版/Python、未覆盖正式生成数据，tmp 仍不提交。
+- 下一步直接做整名候选装配：从同一闭包获取主动、两个天赋、五档潜能、私有/公共 Buff、实体
+  模板及这两个子技能；保留 ID 引用、公共定义归属和运行时黑板。完成对象级差分与实际连携→战技、
+  终结技→回收模拟，再统一生成/注册；不能把子技能测试通过计入完整干员或转去扩展装备。
 
 ### 2026-08-27：提交检查点与调试工作区隔离
 

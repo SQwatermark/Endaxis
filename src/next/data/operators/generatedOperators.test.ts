@@ -145,7 +145,15 @@ describe('新增的完整技能转换干员', () => {
     expect(avywenna.buffDefinitions?.buff_chr_0012_avywen_lance_pulse_check).toBeDefined();
     expect(JSON.stringify(avywenna)).toContain('buff_chr_0012_avywen_lance_pulse_check');
     expect(avywenna.talents[0]?.modifiers).toHaveLength(3);
-    expect(avywenna.talents[0]?.passiveSkills?.[0]?.key).toBe('buff_chr_0012_avywen_talent_0');
+    expect(avywenna.talents[0]?.initializationSequence?.steps[0]).toMatchObject({
+      kind: 'applyBuff',
+      parameters: {
+        buffId: 'buff_chr_0012_avywen_talent_0',
+        target: 'caster',
+        inheritSourceSkillCastInfo: false,
+      },
+    });
+    expect(avywenna.talents[0]?.passiveSkills).toBeUndefined();
   });
 
   it('Avywenna 处决保留三段破防倍率，并在首段伤害后读取敌人处决技力', () => {

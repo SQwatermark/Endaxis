@@ -29,7 +29,9 @@
 
 ### 当前纵向切片：艾维文娜
 
-- 10/10 主动技能已由 TS 生成，整目录 `--check` 通过；**完整 Operator 仍为 0**。
+- 首名整名迁移已完成并正式注册：**完整 Operator 为 1**。原始表、主动技能、养成、Buff 与实体
+  由同一入口生成，正式定义不再叠加旧 Operator。10 技能、6 技能组、2 天赋、5 潜能、2 实体及子技能、
+  5 私有 Buff、5 公共 Buff；整名 `--check` 与实际排轴回归通过。
 - `domains/operator/progressionDefinition.ts` 直接组装正式 `OperatorUpgradeDefinition`，不再复制
   一套近似的养成协议。按 `passiveSkillNodeInfo.index/level` 聚合天赋；潜能按原生解锁级别生成
   独立项，由正式构筑层累计启用。数值属性解释复用 `projectBuildAttributeModifier`。
@@ -41,7 +43,8 @@
   均可组装；真实 BuffData 经公共编译器进入生产模拟，验证天赋 0 级不安装、1/2 级只在第 0 帧安装一次。
 - 潜能 AddBuff 的收集、带条件的直接 Buff、跨等级变化的初始化仍明确拒绝；没有用该首次安装
   切片冒充原生完整刷新/卸载流程。
-- 尚未把养成切片装入正式干员，也未新增片段 CLI。4 个干员 Buff 现均可通过公共编译器。
+- 养成已装入正式干员，没有新增片段 CLI。原先 4 个干员根 Buff 均通过公共编译器，完整动作闭包
+  另纳入 lance_becalled_ready。因此最终私有定义为 5 个，而不是只复制此前探针的 4 个根。
   lance_pulse_check 保留原始自身层数守卫和 `target: buffOwner`，
   生产模拟覆盖首次附着、Unique 防重及到期重施；按 combat-spec `docs/buff-lifecycle.md` 修正了
   “先启动、后登记容器”的顺序，不能仿照旧生成器删守卫。
@@ -60,10 +63,51 @@
   Added → Output → 已有关键词增强，Refresh 同样执行成功尾部，Unique 拒绝不执行。
   原始四链经自动闭包和生产 ScenarioSimulationService 验证：电伤乘 1.3、默认十秒到期恢复，
   子 Buff 来源与父子清理一致。敌方区间属性现从同一运行时集合冻结，不再硬填零；VFX 显式省略。
-  本机四根 Buff 读取七个来源、生成六个定义、零 blocked；正式产物尚未替换。
-  下一步闭合 `chr_0012_avywen_combo_skill_lance` 和 `chr_0012_avywen_ultimate_skill_lance`
-  两个实体子技能，然后统一装配。当前干员 Buff 4/4、整名完整迁移仍为 0；
+  前序四根探针读取七个来源、生成六个定义、零 blocked；现整名闭包读取 11 来源、生成 10 定义，
+  另按公共策略省略一个纯表现来源。公共定义经全局只读目录注册，不进入可编辑干员私有定义。
+  `chr_0012_avywen_combo_skill_lance` 和 `chr_0012_avywen_ultimate_skill_lance` 两个实体子技能
+  已复用公共 SkillData 编译并通过生产生命周期/召回探针。保留原始 `potential_2 < 1` 的 900 帧
+  结束守卫（旧产物遗漏）、1500 帧结束、持续召回检查和死亡后下一次 advance 释放。
+  整名候选已正式注册，回归从 40 份版本化原始输入独立重建，并在潜能 0..5 验证实际连携→战技、
+  终结技→战技，以及普攻链/处决/下落攻击。联合 321 文件 / 3806 项通过。
+  最新主动矩阵为 83/309；两个含未支持根 Buff 的技能不再误计入。下一步选择第二名整名切片，
   不得用“来源可解析”替代“完整可模拟”，也不得把 Buff 宿主无条件视为敌人或忽略易伤。
+
+### 整名生成与检查
+
+仍使用既有批量入口；`--complete` 才会生成包括养成和附属定义的 Operator。以下命令为只读校验，
+移除最后的 `--check` 才写入。`source-root` 是资源总目录，不是它的 `skill-data-cdn` 子目录。
+
+```powershell
+npm run generate:game-data:operator-active-skills -- --complete `
+  --manifest scripts/generate_next_operators/operators.json `
+  --source-root tmp/game-data-sources `
+  --table-root tmp/game-data-sources/TableCfg-1.4.4-9433094-12 `
+  --skill-patch-table tmp/game-data-sources/TableCfg-1.4.4-9433094-12/SkillPatchTable.json `
+  --buff-data-root tmp/game-data-sources/BuffData `
+  --ability-entity-catalog src/next/data/ability-entities/ability-entity-templates-1.4.4.json `
+  --projectile-blackboard-catalog src/next/data/projectiles/projectile-entity-blackboards-1.4.4.json `
+  --gameplay-tag-catalog src/next/data/combat/gameplayTagCatalog.generated.ts `
+  --time-dilation-catalog src/next/data/combat/timeDilationCatalog.ts `
+  --slug avywenna `
+  --output src/next/data/operators/generated-definitions/avywenna `
+  --audit-output tmp/game-data-audit/operator-definitions/avywenna `
+  --check
+```
+
+- `planOperatorDefinition.ts` 负责编排 IO；来源基础复用 `compileOperatorFoundationSource`，
+  `domains/operator/definition.ts` 装配技能组、养成和附属引用。公共 Action/Buff 不在领域内重写。
+- 主动规划直接提供结构化定义、实际 Buff 依赖和生成实体的原始子技能 ID，不解析已渲染的 TS，
+  不从实体名称猜子技能。同一模板不同子技能身份目前拒绝；实体缺源、未支持寿命或 Owner 操作报错。
+- 完整模式从动作及养成请求自动建立 Buff 闭包，不接受 `--supplemental-buff`。隐藏被动 SkillData、
+  技能变体、未投影技能根 Buff/面板修饰等必须阻塞，不能只因时间轴成功就标记整名完成。
+- 一次原子写入一个 `<slug>.operator.generated.ts`，其中公共 Buff 为独立导出，不属于 Operator 的
+  私有 `buffDefinitions`。全局只读目录采用已迁移公共定义，未迁移部分暂保留旧基线；不能按宿主
+  再造独立的公共 Buff 实现。注册由明确的产品 import 完成，生成命令不改产品接线。
+- 输出目录严格限定为上述父目录下的 slug 子目录；未知文件拒绝覆盖。审计写入 tmp，正式数据不带
+  本机路径。`--check` 忽略 CRLF/LF，仍严格核对内容；文件存在数与注册/可模拟计数不能混用。
+- 伤害 key 按技能身份与最终结构路径确定，展开后的独立回调步骤各有唯一 key；不随机、不取绝对路径。
+  结构校验与模拟必须使用正式产品 validator/ScenarioSimulationService，不复制近似协议。
 
 共享正式类型会让 TypeScript 同时检查运行引擎的间接类型依赖，所以本工具的 tsconfig 不再把
 `erasableSyntaxOnly` 施加到整个产品依赖图。`architectureBoundaries.test.ts` 仍将该规则严格施加
@@ -150,6 +194,18 @@ IR 必须能够追溯到原生证据，至少保留：
 不得在读取阶段直接生成 TypeScript DSL 字符串。先形成结构化 IR，再做编译、优化和渲染。
 
 ### 2.3 公共编译器
+
+实体子技能入口 `compiler/abilityEntityChildSkill.ts` 只绑定宿主上下文、校验接入条件并装配正式
+子技能协议；动作/条件/时间轴必须复用公共入口。不得复制一份实体专用的动作分发器。
+`timelineControlProjection.ts` 负责已取证的 JumpTo/FinishOwner；跳转保留 Execute/Tick 重试，
+只开放整个活动区间向前的目标和无副作用条件。实体 Owner 不得借用 caster 的资源或 Buff 来源。
+现阶段有费用/冷却、多充能、根 Buff 安装或面板修饰的子技能必须报阻塞。
+公共来源编译入口须可由原生 Node 执行，不得为了调用 validator 引入浏览器运行模块链；正式协议
+校验在集成门禁调用产品实现，编译器保持纯来源约束和类型化输出，不另写一份运行时 validator。
+
+`skillPresentationTargets.ts` 只处理整张 SkillData 中可证明仅服务于表现的无过滤来源/固定点查询。
+所有消费者及重复写入者都安全才可省略；混合序列还要保留查询失败的短路影响。依赖来源层保留的
+目标引用（包括方向 contextKey），不能绕过 IR 偷读原 JSON，也不能扩大为通用黑板死代码消除。
 
 公共编译器负责原生行为，与内容属于干员、武器还是装备无关，包括但不限于：
 

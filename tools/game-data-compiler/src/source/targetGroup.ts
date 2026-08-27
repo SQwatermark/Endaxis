@@ -76,6 +76,9 @@ export interface TargetGroupWriteSource {
   readonly centerContextKey: string;
   readonly selectorOwner: string | null;
   readonly selectorOwnerContextKey: string;
+  /** 方向计算的目标引用也属于读取依赖，不能因零空间投影而在来源层丢失。 */
+  readonly directionTarget: string | null;
+  readonly directionContextKey: string;
   readonly characterTeamSelectionRole: string | null;
   readonly excludesCurrentTarget: boolean;
   readonly excludesOwner: boolean;
@@ -272,6 +275,8 @@ function parseFindTargetAction(
       action.selectorOwnerContextKey,
       `${path}.selectorOwnerContextKey`,
     ),
+    directionTarget: requireString(action.target, `${path}.target`),
+    directionContextKey: requireString(action.contextKey, `${path}.contextKey`),
     characterTeamSelectionRole: parseCharacterTeamSelectionRole(selector, selectorPath),
     excludesCurrentTarget: selectorExcludesPlainCurrentTarget(selector, selectorPath),
     excludesOwner: selectorExcludesPlainOwner(selector, selectorPath),
@@ -409,6 +414,8 @@ function createBaseAction(
     circularOrderHeightOffset: null,
     circularOrderRangeThreshold: null,
     circularOrderRangeCheckTarget: null,
+    directionTarget: null,
+    directionContextKey: '',
     pickIndexValue: null,
     pickIndexBlackboardKey: null,
   };

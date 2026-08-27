@@ -10,7 +10,10 @@ import { parseBlackboardDataPairs } from '../src/source/blackboard.ts';
 import { parseProjectileRuntimeSource } from '../src/source/projectileRuntime.ts';
 import { parseSkillPatchSource } from '../src/source/skillPatch.ts';
 import { parseKnownSkillActionGraphSource } from '../src/source/skillActionGraph.ts';
-import { prepareSkillDefinitionInputSource } from '../src/compiler/skillDefinitionInput.ts';
+import {
+  prepareSkillDefinitionInputSource,
+  assertNoUnprojectedSkillRootEffects,
+} from '../src/compiler/skillDefinitionInput.ts';
 import { createZeroDistanceProjectileProjectionExtensionSource } from '../src/compiler/projectileRuntimeProjection.ts';
 import {
   compileOperatorActiveSkillRuntimeDefinitionSource,
@@ -39,6 +42,14 @@ export interface OperatorActiveSkillRuntimeArguments {
 }
 
 export interface PlannedOperatorActiveSkillRuntime {
+  /** 整名装配直接消费结构化结果，不解析生成的 TS 字符串，也不加载旧定义补空。 */
+  readonly definition: ReturnType<typeof compileOperatorActiveSkillRuntimeDefinitionSource>;
+  readonly runtimeBuffIds: readonly string[];
+  readonly abilityEntitySpawns: readonly {
+    readonly abilityEntityId: string;
+    readonly skillId: string;
+    readonly sourcePath: string;
+  }[];
   readonly file: { readonly relativePath: string; readonly content: string };
   readonly auditFile: { readonly relativePath: string; readonly content: string };
   readonly output: string;
@@ -89,6 +100,7 @@ export function planOperatorActiveSkillRuntime(
   const callbackGraphs = new Map(
     callbackIds.map(id => {
       const value = readJson(path.resolve(args.sourceRoot, 'skill-data-cdn', `${id}.json`));
+      assertNoUnprojectedSkillRootEffects(value, `SkillData.${id}`);
       const callbackPatch = id in patchTable ? parseSkillPatchSource(patchTable[id], id) : null;
       const callbackPrepared = prepareSkillDefinitionInputSource(value, id, callbackPatch);
       return [
@@ -208,11 +220,28 @@ export function planOperatorActiveSkillRuntime(
     definition,
     supplementalBuffDefinitions: buffClosure.definitions,
   });
-  requireOwnedDirectory(args.output, args.slug, rendered.relativePath);
   const auditName = `${args.slug}.${args.key}.runtime.audit.json`;
-  requireOwnedDirectory(args.auditOutput, args.slug, auditName);
   const destination = path.resolve(args.output, rendered.relativePath);
   return {
+    definition,
+    runtimeBuffIds: [...runtimeBuffIds].sort(),
+    abilityEntitySpawns: [graph, ...callbackGraphs.values()].flatMap(source =>
+      source.actionGroup.timelineActions
+        .flatMap(timeline => collectNativeActionNodes(timeline.sequence))
+        .flatMap(node =>
+          node.metadata.enabled &&
+          node.body.kind === 'leaf' &&
+          node.body.value.family === 'abilityEntity'
+            ? [
+                {
+                  abilityEntityId: node.body.value.action.abilityEntityId,
+                  skillId: node.body.value.action.skillId,
+                  sourcePath: node.sourcePath,
+                },
+              ]
+            : [],
+        ),
+    ),
     file: rendered,
     auditFile: {
       relativePath: auditName,
@@ -251,6 +280,8 @@ export async function generateOperatorActiveSkillRuntime(
     args.slug,
   );
   const planned = planOperatorActiveSkillRuntime(args);
+  requireOwnedDirectory(args.output, args.slug, planned.file.relativePath);
+  requireOwnedDirectory(args.auditOutput, args.slug, planned.auditFile.relativePath);
   if (args.check) {
     if (
       !fs.existsSync(planned.output) ||

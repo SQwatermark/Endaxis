@@ -15,7 +15,7 @@
 7. [操作与恢复手册](./07-operations-playbook.md)：仓库路径、命令、服务、验证方式、远程环境和恢复任务时的检查清单。
 8. [当前任务快照](./current-context.md)：变化最快的短期状态，只用于快速恢复当前会话。
 
-若当前分支为 `refactor/common-game-data`，还必须阅读
+若当前分支为 `refactor/common-game-data` 或 `refactor/operator-completion`，还必须阅读
 [`tools/game-data-compiler/README.md`](../../tools/game-data-compiler/README.md)。它是统一 TypeScript
 游戏数据编译器的实现契约，优先于后文保留的旧 Python 生成器历史描述。
 

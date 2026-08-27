@@ -30,7 +30,10 @@ export interface CompiledOperatorDefinitionHeaderSource {
 
 /** 从同一个严格 Operator 来源闭包组装正式定义头部，不重新读取原始表。 */
 export function compileOperatorDefinitionHeaderSource(
-  closure: OperatorSourceClosure,
+  closure: Pick<
+    OperatorSourceClosure,
+    'identity' | 'character' | 'attributeGrowth' | 'progression'
+  >,
 ): CompiledOperatorDefinitionHeaderSource {
   const { character } = closure;
   return {
