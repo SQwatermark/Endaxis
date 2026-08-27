@@ -5,6 +5,16 @@ import { validateAbilityEntityChildSkillDefinition } from '../../../src/next/cor
 import { compileActiveSkillRuntimeProjectionSource } from '../src/compiler/activeSkillRuntimeProjection.ts';
 
 describe('原始能力实体子技能共用时间轴编译', () => {
+  it('实体子技能也保留独立动态初值，不借用父技能黑板', () => {
+    const sample = fixture.sources[0]!;
+    const value = { ...sample.value, blackboard: [
+      ...sample.value.blackboard,
+      { key: 'test_dynamic_initial', valueDouble: 7, valueStr: '', isDynamic: true },
+    ] };
+    expect(compileAbilityEntityChildSkillSource(value, sample.file).blackboard)
+      .toMatchObject({ test_dynamic_initial: 7 });
+  });
+
   it.each(fixture.sources)('$file 保留枪自身守卫、Tick 跳转与潜能寿命条件', sample => {
     const result = compileAbilityEntityChildSkillSource(sample.value, sample.file);
     expect(validateAbilityEntityChildSkillDefinition(result)).toEqual([]);

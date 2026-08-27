@@ -42,11 +42,12 @@ export function compileEventTargetSimpleDamageOperationSource(
   if (!action.alwaysNext || attackerTarget !== 'caster') {
     throw new Error(`${sourcePath}: unsupported simple damage action control flags`);
   }
-  if (
-    action.target.targetSource === 'Context' &&
-    context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey)
-  ) {
-    requireUnfilteredTarget(action.target, `${sourcePath}.target`);
+  // combat-spec target-resolution：GetTargetsView 仅在 InstantSearch 执行 selectorData。
+  // Context 读取已保存的组；残留选择器仍由来源层解析，但不能变成这次伤害的过滤条件。
+  if (action.target.targetSource === 'Context') {
+    if (!action.target.targetGroupKey ||
+      !context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey))
+      throw new Error(`${sourcePath}.target: unsupported simple event damage target`);
   } else {
     requireFixedTarget(action.target, 'Target', `${sourcePath}.target`);
   }
@@ -188,8 +189,6 @@ function compileSimplePoiseOperand(
     !unit.serializedPoiseCalculationPresent ||
     calculation?.kind !== 'definite' ||
     calculation.applyScale ||
-    calculation.valueScale.blackboardKey !== null ||
-    calculation.valueScale.value !== 0 ||
     unit.processors.length > 0 ||
     unit.damageDecorateMask !== 0 ||
     unit.ignoreDamageImmuneLevel !== 'None' ||
@@ -201,6 +200,8 @@ function compileSimplePoiseOperand(
   }
   // PoisePack 原生规格不保存元素字段，修正器只读取 decorate mask；仍验证来源元素是已知枚举。
   projectNativeDamageElement(unit.damageType, `${sourcePath}.units[1].damageType`);
+  // combat-spec definite-value-calculation：applyScale=false 不求值 valueScale，
+  // 因而其残留数值或黑板引用不能阻断未缩放的失衡值；启用缩放仍保持上面的显式拒绝。
   return scalarOperand(calculation.value);
 }
 
@@ -209,28 +210,10 @@ function requireFixedTarget(
   targetSource: 'Target' | 'Owner' | 'Source',
   sourcePath: string,
 ): void {
-  if (target.targetSource !== targetSource || !isUnfilteredTarget(target)) {
+  if (target.targetSource !== targetSource) {
     throw new Error(`${sourcePath}: unsupported simple event damage target`);
   }
   // 反编译已确认只有 Context 来源读取 targetGroupKey；固定 Target/Owner 上的同名字段是残留值。
-}
-
-function requireUnfilteredTarget(target: TargetReferenceSource, sourcePath: string): void {
-  if (!isUnfilteredTarget(target)) {
-    throw new Error(`${sourcePath}: unsupported simple event damage target`);
-  }
-}
-
-function isUnfilteredTarget(target: TargetReferenceSource): boolean {
-  return (
-    (target.finderType !== null ||
-      target.finderShape !== null ||
-      target.finderOwnerPartsQuery !== null ||
-      target.validatorTypes.length > 0 ||
-      target.postProcessorTypes.length > 0 ||
-      target.finderSpawnedObjectType !== null ||
-      target.validatorTagQueries.length > 0) === false
-  );
 }
 
 function scalarOperand(source: ScalarSource): CompiledActionValueOperandSource {

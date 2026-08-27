@@ -245,7 +245,9 @@ export type CompiledBuffStepSource =
   | Step<
       'storeSourceAttributeValue',
       Parameters<'storeSourceAttributeValue'> & {
-        readonly attribute: { readonly kind: 'specific'; readonly key: 'maxHealth' };
+        readonly attribute:
+          | { readonly kind: 'specific'; readonly key: 'maxHealth' }
+          | { readonly kind: 'secondary' };
       }
     >
   | Step<'calculateActionValue'>

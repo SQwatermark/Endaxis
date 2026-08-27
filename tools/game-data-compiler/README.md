@@ -7,6 +7,25 @@
 装备的特有入口从公共编译流程中剥离。旧 Python 生成器在迁移完成前仅作为可执行对照，
 不能继续承载新功能。
 
+## 当前纵向迁移（2026-08-27）
+
+架构及类型归属检查点已提交 `9d9fb195`；后续以第二名完整干员检验公共链路，不继续扩建中间层。
+主动矩阵现为 86/309，完整生成仍为艾维文娜 1 名。秋栗 7/9、埃特拉 6/9 主动可编译，
+但潜能 AddBuff、跨等级天赋 Buff 初始化及主动动作闭包仍有缺口，不能把主动比例当成整名完成度。
+
+续作补齐公共 `StoreAttributeValue(Sub)`：按 combat-spec `compound-status-action-contracts.md`
+和 `StoreAttributeValueAction` 选择施术者副属性，不使用此路径残留的 `attributeType=Level`。
+复用正式动态属性读取步骤；保留非转换阶段、取整标志及黑板操作数，不新增干员专用快照算法。
+秋栗连携随后已通过转换及隔离旧技能/养成的本地生产模拟探针。公共伤害投影依据
+`target-resolution.md` 仅对 InstantSearch 执行选择器；Context 必须绑定已证明的敌人组。
+未缩放失衡依据 `definite-value-calculation.md` 不读取残留倍率，启用缩放的形状仍严格阻断。
+
+时间轴运行投影的 `blackboard` 直接消费正式初值契约，保留数值动态声明，补丁同名键后覆盖；
+主动技能与实体子技能共用。静态求值的 `ResolvedSkillBlackboardSource` 仍排除动态初值，
+不得将运行初值反灌成常量证据。此边界依据 combat-spec `skill-blackboard.md`；不是改写本体
+的动态/静态键复位生命周期，也未启用黑板活性删除。艾维文娜已重建补回 9 个动态初值。
+最新检查为 327 文件 / 3907 项、四套类型检查及艾维文娜整名 `--check`，完整生成数量未增加。
+
 ## 数据契约与依赖边界（2026-08-27）
 
 生成数据的唯一正式结构现位于 [`packages/game-data-contract`](../../packages/game-data-contract/README.md)。

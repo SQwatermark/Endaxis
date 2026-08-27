@@ -12,6 +12,25 @@ const context = {
 } as const;
 
 describe('Operator 主动技能正式运行定义', () => {
+  it('动态声明进入实例初值，同名等级补丁覆盖初值而不改变来源', () => {
+    const source = activeSkillFixture('dynamic');
+    source.castData = { startCdFrame: 0 };
+    source.blackboard = [
+      { key: 'count', valueDouble: 0, valueStr: '', isDynamic: true },
+      { key: 'atb', valueDouble: 3, valueStr: '', isDynamic: true },
+    ];
+    const definition = compileOperatorActiveSkillRuntimeDefinitionSource({
+      key: 'comboSkill', skillType: 'comboSkill', value: source, sourcePath: 'dynamic', context,
+      patch: { levels: [1, 2], blackboard: { atb: [7.5, 8] },
+        cooldownSeconds: [0, 0], costTypes: [0, 0], costValues: [0, 0] },
+    });
+    expect(definition.blackboard).toEqual({ count: 0, atb: [7.5, 8] });
+    expect(source.blackboard).toEqual([
+      { key: 'count', valueDouble: 0, valueStr: '', isDynamic: true },
+      { key: 'atb', valueDouble: 3, valueStr: '', isDynamic: true },
+    ]);
+  });
+
   it('从 SkillPatch 恢复等级黑板、战技费用与帧精确冷却', () => {
     const source = activeSkillFixture('battle');
     (source.castData as Record<string, unknown>).startCdFrame = 3;

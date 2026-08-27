@@ -21,6 +21,57 @@ function damageSource(index = 0) {
 }
 
 describe('公共回调伤害投影', () => {
+  it.each(['Target', 'Context'])('%s 不执行残留选择器，但 Context 必须绑定已证明的敌人组', targetSource => {
+    const raw = rawDamage();
+    const redundantSelector = {
+      finderData: { $type: 'Beyond.Gameplay.Core.Selector+MainTargetFinder+Data, Gameplay.Beyond' },
+      validatorData: [{ $type: 'Beyond.Gameplay.Core.Selector+ExcludeOwnerValidator+Data, Gameplay.Beyond' }],
+      postProcessorData: [],
+    };
+    const action = parseDamageActionSource({
+      ...raw,
+      targetSettings: { ...raw.targetSettings, targetSource, targetGroupKey: 'tar', selectorData: redundantSelector },
+      effectSource: { ...raw.effectSource, selectorData: redundantSelector },
+    }, 'damage', {});
+    const context = {
+      actionOwnerTarget: 'caster', actionSourceTarget: 'caster',
+      staticEnemyTargetGroupKeys: new Set(['tar']),
+    } as const;
+    expect(compileEventTargetSimpleDamageOperationSource(action, 'damage', context))
+      .toEqual(compileEventTargetSimpleDamageOperationSource(damageSource(), 'baseline'));
+    if (targetSource === 'Context') {
+      expect(() => compileEventTargetSimpleDamageOperationSource(action, 'damage'))
+        .toThrow('unsupported simple event damage target');
+      expect(() => compileEventTargetSimpleDamageOperationSource({
+        ...action, target: { ...action.target, targetGroupKey: '' },
+      }, 'damage', { ...context, staticEnemyTargetGroupKeys: new Set(['']) }))
+        .toThrow('unsupported simple event damage target');
+    }
+  });
+
+  it('InstantSearch 不能借用同名已保存目标组绕过搜索投影', () => {
+    const source = damageSource();
+    expect(() => compileEventTargetSimpleDamageOperationSource({
+      ...source, target: { ...source.target, targetSource: 'InstantSearch', targetGroupKey: 'tar' },
+    }, 'damage', {
+      actionOwnerTarget: 'caster', actionSourceTarget: 'caster',
+      staticEnemyTargetGroupKeys: new Set(['tar']),
+    })).toThrow('unsupported simple event damage target');
+  });
+
+  it('非搜索路径仍通过来源解析器拒绝未知残留选择器', () => {
+    const raw = rawDamage();
+    expect(() => parseDamageActionSource({
+      ...raw,
+      targetSettings: { ...raw.targetSettings, targetSource: 'Context', targetGroupKey: 'tar',
+        selectorData: {
+          finderData: { $type: 'Beyond.Gameplay.Core.Selector+UnknownFinder+Data, Gameplay.Beyond' },
+          validatorData: [], postProcessorData: [],
+        },
+      },
+    }, 'damage', {})).toThrow('unsupported finder');
+  });
+
   it('完整回调动作图保留 startFrame=0 的区间时间膨胀，并拒绝延迟启动', () => {
     const launch = parseProjectileLaunchActionSource(scopeFixtures[0]!.launch, 'launch');
     const controlled = {
@@ -273,6 +324,22 @@ describe('公共回调伤害投影', () => {
       compileEventTargetSimpleDamageOperationSource({ ...source, units }, 'ultimate.damage')
         .parameters.stagger,
     ).toEqual({ kind: 'blackboard', key: 'poise_lance' });
+  });
+
+  it.each([
+    { value: 0.5, blackboardKey: null, levelValues: null },
+    { value: 0, blackboardKey: 'unused_scale', levelValues: null },
+  ])('未缩放失衡不读取残留倍率 %j；开启缩放时仍严格阻断', valueScale => {
+    const source = damageSource();
+    const poise = source.units[1]!;
+    if (poise.poiseCalculation?.kind !== 'definite') throw new Error('fixture');
+    const calculation = { ...poise.poiseCalculation, valueScale };
+    const project = (applyScale: boolean) => compileEventTargetSimpleDamageOperationSource({
+      ...source,
+      units: [source.units[0]!, { ...poise, poiseCalculation: { ...calculation, applyScale } }],
+    }, 'damage');
+    expect(project(false).parameters.stagger).toEqual({ kind: 'blackboard', key: 'poise_lance' });
+    expect(() => project(true)).toThrow('unsupported simple event Poise DamageUnit behavior');
   });
 
   it.each([

@@ -1,4 +1,6 @@
 import type { ScheduledSequenceDefinition } from '../../../../packages/game-data-contract/src/actions.ts';
+import type { SkillDefinition } from '../../../../packages/game-data-contract/src/skills.ts';
+import { numericDeclaredBlackboard } from '../source/blackboard.ts';
 import type { SkillPatchSource } from '../source/skillPatch.ts';
 import { parseKnownSkillActionGraphSource } from '../source/skillActionGraph.ts';
 import { collectNativeActionNodes } from '../source/controlFlow.ts';
@@ -12,7 +14,6 @@ import {
   prepareSkillDefinitionInputSource,
   assertNoUnprojectedSkillRootEffects,
 } from './skillDefinitionInput.ts';
-import type { ResolvedSkillBlackboardSource } from './skillBlackboard.ts';
 import { collectPresentationOnlyTargetGroups } from './skillPresentationTargets.ts';
 
 /** 正式调度输出子集；原生时间轴结束帧必填，动作仍限于已支持的公共投影。 */
@@ -23,14 +24,14 @@ export type CompiledActiveSkillTimelineSequenceSource = Readonly<
 };
 
 /**
- * 主动技能与实体子技能共用的装配中间态：调度项已符合正式子集，但黑板仍携带默认值与补丁等级身份。
- * 消费者分别绑定技能等级或实体默认板；durationFrame 等原生信息不等同于技能块宽度。
+ * 主动技能与实体子技能共用的装配结果：黑板是实例初值，不再充当静态求值环境。
+ * 原生时长与技能块宽度仍分别保留；技能等级的具体取值由最终消费者选择。
  */
 export interface CompiledActiveSkillRuntimeProjectionSource {
   readonly skillId: string;
   readonly durationFrame: number;
   readonly timelineBlockFrames: number;
-  readonly blackboard: ResolvedSkillBlackboardSource;
+  readonly blackboard: NonNullable<SkillDefinition['blackboard']>;
   readonly scheduledSequences: readonly CompiledActiveSkillTimelineSequenceSource[];
 }
 
@@ -105,7 +106,12 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
     skillId: graph.skillId,
     durationFrame: graph.durationFrame,
     timelineBlockFrames: Math.min(exclusiveFrame + 1, ...allowNextFrames),
-    blackboard: prepared.blackboard,
+    // combat-spec skill-blackboard：动态声明也进入实例初值；补丁同名键后覆盖。
+    // 此处位于动作投影输出边界，不能回灌到上面的静态解析环境消除动态引用。
+    blackboard: {
+      ...numericDeclaredBlackboard(graph.declaredBlackboard, true),
+      ...prepared.blackboard.values,
+    },
     scheduledSequences: graph.actionGroup.timelineActions
       .map(timeline => ({
         startFrame: timeline.startFrame,

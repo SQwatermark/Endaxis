@@ -1287,6 +1287,10 @@ export default {
             3.98,
             4.32
           ],
+          "cam_angle": 0,
+          "cam_duration": 0.3,
+          "input_angle": 0,
+          "lance_count": 0,
           "poise": 5,
           "poise_lance": 5,
           "poise_lance_ult": 10,
@@ -2512,6 +2516,11 @@ export default {
             3.8
           ],
           "atk_scale_lance_back": 1,
+          "cam_angle": 0,
+          "cam_duration": 0,
+          "input_angle": 0,
+          "owner_mainchar_alpha": 0,
+          "owner_mainchar_distance": 0,
           "poise": 10,
           "poise_lance": 0,
           "potential_2": 0,

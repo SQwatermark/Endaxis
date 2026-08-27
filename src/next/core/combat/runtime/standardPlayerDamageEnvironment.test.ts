@@ -32,6 +32,11 @@ import { validateSkillDefinition } from '../../game-data/validateSkillDefinition
 import { ActionBlackboardOperationExecutor } from './actionBlackboardOperationExecutor';
 import { BuffOperationExecutor } from './buffOperationExecutor';
 import { TargetContextOperationExecutor } from './targetContextOperationExecutor';
+import {
+  ATTRIBUTE_MODIFIER_SOURCES,
+  CombatAttributeModifier,
+  attributeModifierValues,
+} from '../attributes/combatAttributes';
 
 const damageStep: Extract<ResolvedCombatStep, { kind: 'dealDamage' }> = {
   kind: 'dealDamage',
@@ -722,6 +727,50 @@ describe('StandardPlayerDamageEnvironment', () => {
         targetKey: 'max_hp',
       }),
     ).toBe(5000);
+  });
+
+  it('副属性快照在执行时读取非转换阶段，并保留技能黑板乘加公式', () => {
+    const environment = createEnvironment();
+    const baseContext = createContext();
+    if (baseContext.panel === undefined) throw new Error('fixture panel');
+    const context = {
+      ...baseContext,
+      panel: {
+        ...baseContext.panel,
+        attributes: { ...baseContext.panel.attributes, will: 100 },
+      },
+    };
+    environment.runtimeOptions.createOperationExecutor(context);
+    const runtime = environment.runtimeOptions.createOperatorBuffRuntime?.('operator', context.panel);
+    if (!(runtime instanceof BuffDefinitionOperationTarget)) throw new Error('fixture Buff runtime');
+    const read = environment.runtimeOptions.readSourceAttributeValue!;
+    const blackboard = new ActionBlackboard({ sub_ratio: 0.02 });
+    const executor = new ActionBlackboardOperationExecutor({
+      execute: () => false, evaluate: () => false,
+    }, undefined, { sourceId: 'operator', read });
+    const parameters = {
+      attribute: { kind: 'secondary' }, stage: 'finalNonConverted', useFloor: false,
+      divisor: { kind: 'blackboard', key: 'unused-divisor' },
+      multiplier: { kind: 'blackboard', key: 'sub_ratio' },
+      base: { kind: 'constant', value: 1 }, targetKey: 'atb_up',
+    } as const;
+    const execute = () => executor.execute({ kind: 'storeSourceAttributeValue', parameters }, { blackboard });
+    expect(execute()).toBe(true);
+    expect(blackboard.getNumber('atb_up')).toBeCloseTo(3);
+    for (const [source, value] of [
+      [ATTRIBUTE_MODIFIER_SOURCES.buff, 25],
+      [ATTRIBUTE_MODIFIER_SOURCES.converted, 1000],
+    ] as const) {
+      runtime.container.attributes.addModifier(new CombatAttributeModifier(
+        'will', attributeModifierValues('addition', value), source, 'runtime',
+      ));
+    }
+    execute();
+    expect(blackboard.getNumber('atb_up')).toBeCloseTo(3.5);
+    expect(read('operator', { ...parameters, stage: 'armedNonConverted' })).toBe(100);
+    blackboard.assignDynamic('sub_ratio', 0.04);
+    execute();
+    expect(blackboard.getNumber('atb_up')).toBeCloseTo(6);
   });
 
   it('reuses one operator Buff runtime for assembly operations and damage modifiers', () => {

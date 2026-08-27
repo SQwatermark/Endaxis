@@ -65,6 +65,7 @@ export function compileActionNode(
       'buffApplication',
       'blackboardMutation',
       'blackboardCalculation',
+      'attributeSnapshot',
       'resource',
       'finisherSpGain',
       'presentation',
@@ -393,8 +394,8 @@ export function compileActionNode(
           : null;
     if (
       target !== 'caster' ||
-      action.primaryAttributeType !== 'Specific' ||
-      action.attributeType !== 'MaxHp'
+      (action.primaryAttributeType !== 'Sub' &&
+        (action.primaryAttributeType !== 'Specific' || action.attributeType !== 'MaxHp'))
     ) {
       throw new Error(`${node.sourcePath}: unsupported attribute snapshot target or selector`);
     }
@@ -402,7 +403,11 @@ export function compileActionNode(
       {
         kind: 'storeSourceAttributeValue',
         parameters: {
-          attribute: { kind: 'specific', key: 'maxHealth' },
+          // combat-spec StoreAttributeValue：Sub 由目标副属性决定，attributeType 此时不参与选择。
+          // 保留动态属性读取，不能把生成时面板或 SkillPatch 等级值固化为快照。
+          attribute: action.primaryAttributeType === 'Sub'
+            ? { kind: 'secondary' }
+            : { kind: 'specific', key: 'maxHealth' },
           stage:
             action.storeAttributeType === 'BaseNonConverted'
               ? 'armedNonConverted'

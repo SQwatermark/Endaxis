@@ -46,7 +46,7 @@ export function compileOperatorActiveSkillRuntimeDefinitionSource(input: {
     key: input.key,
     sourceSkillId: runtime.skillId,
     blackboard: Object.fromEntries(
-      Object.entries(runtime.blackboard.values).map(([key, values]) => [key, collapse(values)]),
+      Object.entries(runtime.blackboard).map(([key, values]) => [key, collapse(values)]),
     ),
     timelineBlockFrames: runtime.timelineBlockFrames,
     costFrame,

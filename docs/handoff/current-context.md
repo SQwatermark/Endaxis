@@ -7,7 +7,52 @@
 `refactor/operator-completion` 的完整干员成果。唯一新转换入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
-### 2026-08-27：技能组、养成与元素类型边界收敛（当前未提交）
+### 2026-08-27：秋栗连携转换与运行探针闭环（本次收尾提交）
+
+- 在检查点 `9d9fb195` 后的续作本次统一提交并推送；保留该检查点作为架构整理基线。
+- 公共伤害投影按 combat-spec `target-resolution.md` 修正：非 InstantSearch 不执行残留
+  selectorData，Context 仍必须绑定已证明的非空敌人目标组；未知来源结构继续由 parser 拒绝。
+  按 `definite-value-calculation.md` 修正未缩放失衡：applyScale=false 不读取残留 valueScale；
+  applyScale=true 尚未接入该输出子集，继续严格拒绝。
+- 实际运行发现动态声明初值被遗漏，导致秋栗 count 缺失。公共时间轴输出现按
+  `skill-blackboard.md` 保留动态数值初值，同名补丁后覆盖；主动技能与实体子技能共用。
+  静态解析仍排除动态初值，不做动态常量折叠。运行投影的 blackboard 直接派生正式 SkillDefinition
+  初值类型，不再把静态求值中间态交给最终消费者。这不是重做本体黑板生命周期。
+- 真实秋栗连携源图可转换：主动矩阵 **86/309**，秋栗 **7/9**；完整生成/正式注册仍为 **1 名**。
+  本地生产模拟探针仅借现有秋栗面板，关闭旧技能/天赋/潜能/Buff/实体；使用新转换连携，
+  实际第 22/34 帧各产生一段伤害与 5 点失衡。无新增完整干员注册；探针位于 tmp，不提交。
+- 已通过生成器重建艾维文娜整名产物，只新增 9 个原生动态初值；动作图、天赋、潜能不变。
+  原先测试发现的产物 stale 已通过这次重建修复，不手工改生成结果。
+- 下一步仍聚焦秋栗：战技 BlowOffEnemyAction、终结技 ChannelingCastingAction；随后闭合潜能
+  1/5 AddBuff、养成消耗绑定和完整 Buff/实体依赖。不要把 ChannelingAction 的证据直接套给
+  ChannelingCastingAction，不扩张装备，不按技能名猜规则，不放开未经证明的目标组。
+- 本次验证：联合 327 文件 / 3907 项、四套类型检查、艾维文娜整名重建检查；无旧版和
+  combat-spec 修改，武器生成检查本轮未重跑。tmp 与本地探针不进入 Git。
+
+### 2026-08-27：架构检查点已提交，恢复第二名干员纵向迁移（前序快照）
+
+- 用户要求“先提交一次再继续”：已提交 `9d9fb195`（`refactor: centralize game data contracts
+  and compiler type ownership`），提交后工作树干净；未推送，未包含 tmp、旧版代码和正式生成产物。
+  下方此前标注“未提交”的架构整理记录均已进入该检查点；本节之后的续作尚未提交。
+- 已重新运行 30 名干员主动迁移矩阵：仍为 **83/309**，正式主动 10 项、完整生成 1 名（艾维文娜）。
+  秋栗/埃特拉均为 6/9，但这只衡量主动技能，不能以此认定整名最接近完成。
+- 按 combat-spec `779c916` 的 `compound-status-action-contracts.md` 和
+  `StoreAttributeValueAction` 补齐公共 `Sub` 属性快照投影，复用正式 `storeSourceAttributeValue`。
+  原生 `Sub/Level` 选择副属性，`Level` 不参与此路径；保持动态非转换属性、黑板倍率与取整公式，
+  不固定生成时面板。只接受能明确归约到施术者的 Owner/Source；不放开敌人、Buff Owner 或实体目标。
+- 秋栗连携 `timelineActions[6]` 的属性快照阻塞已清除，但下一处 DamageAction 对 `Context/tar`
+  的目标校验仍失败；不能当成整项编译通过。其战技仍停在 BlowOffEnemyAction，终结技仍停在
+  ChannelingCastingAction。下一步先核对 `tar` 的生产者及 Context 路径是否读取残留 selectorData，
+  有 combat-spec 证据后再调整公共目标投影，不能直接删掉所有选择器校验。
+- 整名基础/养成只读预检：两名均无 AddPassiveSkill 请求；秋栗两个天赋可投影，潜能 1/5 的
+  AddBuff 安装未支持；埃特拉两个天赋均有跨等级附加 Buff 初始化，潜能 5 也需 AddBuff 支持。
+  该预检未装配主动消耗绑定、Buff 闭包和实体，不是完整养成通过率，也不把缺少 costResources
+  的检查结果记为原生行为缺口。继续沿公共安装/参数列实现，禁止按干员手写效果。
+- 验证：联合 **327 文件 / 3899 项**通过，四套类型检查通过，艾维文娜整名 `--check` 通过。
+  新增编译目标/阶段边界及生产运行环境回归，验证运行时副属性变化、Converted 排除和动态黑板倍率。
+  无 combat-spec、旧版或正式生成产物修改；本轮未重跑武器生成检查，前述正式 stale 仍未覆盖。
+
+### 2026-08-27：技能组、养成与元素类型边界收敛（已纳入上述提交）
 
 - 技能身份/组/变体/主动配置的正式字段从契约派生；配置入口校验 skillType 和 levelSource，
   变体也执行校验。未知字符串更早带字段路径阻断，处决/下落攻击不能冒充等级来源。
