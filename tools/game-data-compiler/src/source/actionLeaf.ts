@@ -70,6 +70,8 @@ import {
   parseLockCameraAimActionSource,
   parseUltimateShowActionSource,
   parseWeaponVisibilityActionSource,
+  parseWeaponAnimationActionSource,
+  parseModifyWeaponMountPointActionSource,
   parseVoiceTriggerActionSource,
   parseOverrideCameraFollowActionSource,
   parseTemporaryUnlockActionSource,
@@ -423,6 +425,16 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'presentation',
         action: parseWeaponVisibilityActionSource(value, path),
       };
+    case 'CharWeaponAnimationAction':
+      return {
+        family: 'presentation',
+        action: parseWeaponAnimationActionSource(value, path),
+      };
+    case 'ModifyWeaponMountPoint':
+      return {
+        family: 'presentation',
+        action: parseModifyWeaponMountPointActionSource(value, path),
+      };
     case 'VoiceTriggerAction':
       return {
         family: 'presentation',
@@ -491,7 +503,8 @@ export function tryParseKnownNativeActionLeafSource(
     case 'FindTargetAction':
     case 'ContinuousFindTargetAction':
     case 'MergeTargetAction':
-    case 'PickTargetAction': {
+    case 'PickTargetAction':
+    case 'ConvertToTargetContext': {
       const targetGroup = parseTargetGroupActionSource(value, path);
       if (!targetGroup) throw new Error(`${path}: failed to parse target group action ${name}`);
       return { family: 'targetGroup', action: targetGroup };

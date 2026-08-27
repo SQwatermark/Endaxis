@@ -66,6 +66,7 @@ export type NativeConditionSource =
     })
   | (ConditionIdentity & {
       readonly kind: 'entityCount';
+      readonly target?: TargetReferenceSource;
       readonly targetSource: string;
       readonly targetGroupKey: string;
       readonly minimumCount: number;
@@ -702,9 +703,14 @@ function parseEntityCount(
   sourceType: string,
 ): NativeConditionSource {
   const target = requireRecord(condition.checkTarget, `${path}.checkTarget`);
+  const parsedTarget =
+    'selectorOwner' in target
+      ? parseTargetReferenceSource(condition.checkTarget, `${path}.checkTarget`)
+      : undefined;
   return {
     kind: 'entityCount',
     sourceType,
+    ...(parsedTarget === undefined ? {} : { target: parsedTarget }),
     targetSource: requireNonEmptyString(target.targetSource, `${path}.checkTarget.targetSource`),
     targetGroupKey: requireString(target.targetGroupKey, `${path}.checkTarget.targetGroupKey`),
     minimumCount: requireInteger(condition.minNum, `${path}.minNum`),

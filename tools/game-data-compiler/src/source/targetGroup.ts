@@ -58,7 +58,11 @@ export interface TargetGroupWriteSource {
   readonly sourcePath: string;
   readonly targetGroupKey: string;
   readonly producerType:
-    'FindTargetAction' | 'ContinuousFindTargetAction' | 'MergeTargetAction' | 'PickTargetAction';
+    | 'FindTargetAction'
+    | 'ContinuousFindTargetAction'
+    | 'MergeTargetAction'
+    | 'PickTargetAction'
+    | 'ConvertToTargetContext';
   readonly finderType: string | null;
   readonly finderFactionTarget: string | null;
   readonly finderTargetObjectType: string | null;
@@ -98,6 +102,28 @@ export interface TargetGroupWriteSource {
   readonly pickIndexValue: number | null;
   readonly pickIndexBlackboardKey: string | null;
   readonly saveCountToBlackboardKey: string | null;
+  /** ConvertToTargetContext 的原生操作；当前仅闭环不会改写目标的 None 分支。 */
+  readonly conversionOperation?: 'None' | 'ConvertEntityToPosition';
+  /** None 分支不消费这些字段，但来源 IR 仍完整保留，避免把原生事实吞掉。 */
+  readonly conversionTransform?: TargetContextTransformSource;
+}
+
+export interface SerializedBlackboardNumberSource {
+  readonly useBlackboardKey: boolean;
+  readonly value: number;
+  readonly blackboardKey: string;
+}
+
+export interface TargetContextTransformSource {
+  readonly translateOperation: string;
+  readonly translationRef: string;
+  readonly translationDegrees: number;
+  readonly excludeTarget: string;
+  readonly vector: {
+    readonly x: SerializedBlackboardNumberSource;
+    readonly y: SerializedBlackboardNumberSource;
+    readonly z: SerializedBlackboardNumberSource;
+  };
 }
 
 /** 不含时间轴位置和相邻动作关联的纯原生目标组动作事实。 */
@@ -157,6 +183,21 @@ const FIND_FIELDS = new Set([
   'useAdvancedDirectionSetting',
   'useCenterEntityMountPoint',
 ]);
+const CONVERT_FIELDS = new Set([
+  '$type',
+  'isEnable',
+  'priorityLevel',
+  'priorityOffset',
+  'serverActionIndex',
+  'convertFrom',
+  'targetGroupKey',
+  'operationType',
+  'translateOperation',
+  'translationRef',
+  'translationDeg',
+  'excludeTarget',
+  'blackboardVector3',
+]);
 
 /**
  * 解析单个目标组写入动作。树遍历和“该写入是否能证明唯一敌人”等场景判断由后续阶段处理。
@@ -173,7 +214,8 @@ export function parseTargetGroupWriteAction(
     producerType !== 'FindTargetAction' &&
     producerType !== 'ContinuousFindTargetAction' &&
     producerType !== 'MergeTargetAction' &&
-    producerType !== 'PickTargetAction'
+    producerType !== 'PickTargetAction' &&
+    producerType !== 'ConvertToTargetContext'
   ) {
     return null;
   }
@@ -203,7 +245,8 @@ export function parseTargetGroupActionSource(
     producerType !== 'FindTargetAction' &&
     producerType !== 'ContinuousFindTargetAction' &&
     producerType !== 'MergeTargetAction' &&
-    producerType !== 'PickTargetAction'
+    producerType !== 'PickTargetAction' &&
+    producerType !== 'ConvertToTargetContext'
   ) {
     return null;
   }
@@ -217,7 +260,114 @@ export function parseTargetGroupActionSource(
   if (producerType === 'PickTargetAction') {
     return parsePickTargetAction(action, path);
   }
+  if (producerType === 'ConvertToTargetContext') {
+    return parseConvertToTargetContextAction(action, path);
+  }
   return null;
+}
+
+function parseConvertToTargetContextAction(
+  action: Record<string, unknown>,
+  path: string,
+): TargetGroupActionSource {
+  requireExactFields(action, CONVERT_FIELDS, path);
+  const operation = requireNonEmptyString(action.operationType, `${path}.operationType`);
+  if (operation !== 'None' && operation !== 'ConvertEntityToPosition')
+    throw new Error(`${path}.operationType: unsupported operation ${JSON.stringify(operation)}`);
+  const translateOperation = requireNonEmptyString(
+    action.translateOperation,
+    `${path}.translateOperation`,
+  );
+  if (!['Rotate180DegAroundRef', 'RotateAroundRefCW'].includes(translateOperation))
+    throw new Error(
+      `${path}.translateOperation: unsupported operation ${JSON.stringify(translateOperation)}`,
+    );
+  const translationRef = requireNonEmptyString(action.translationRef, `${path}.translationRef`);
+  const excludeTarget = requireNonEmptyString(action.excludeTarget, `${path}.excludeTarget`);
+  for (const [key, value] of [
+    ['translationRef', translationRef],
+    ['excludeTarget', excludeTarget],
+  ] as const) {
+    if (
+      !['ActionSource', 'ActionOwner', 'InputTarget', 'CurrentTarget', 'ContextTarget'].includes(
+        value,
+      )
+    )
+      throw new Error(`${path}.${key}: unsupported target ${JSON.stringify(value)}`);
+  }
+
+  const sourcePath = `${path}.convertFrom`;
+  const source = parseTargetReferenceSource(action.convertFrom, sourcePath);
+  const sourceRecord = requireRecord(action.convertFrom, sourcePath);
+  const summary = parseSelectorSummarySource(
+    sourceRecord.selectorData,
+    `${sourcePath}.selectorData`,
+    source.targetSource === 'InstantSearch',
+  );
+  const input: TargetGroupInputSource = {
+    targetSource: source.targetSource,
+    targetGroupKey: source.targetGroupKey,
+    finderType: summary.finderType,
+    finderFactionTarget: summary.finderFactionTarget,
+    finderTargetObjectType: summary.finderTargetObjectType,
+    finderCheckAlive: summary.finderCheckAlive,
+    finderShape: summary.finderShape,
+    finderOwnerPartsQuery: summary.finderOwnerPartsQuery,
+    validatorTypes: summary.validatorTypes,
+    postProcessorTypes: summary.postProcessorTypes,
+    priorityFilters: summary.priorityFilters,
+    shuffleTargets: summary.shuffleTargets,
+    distanceValidators: summary.distanceValidators,
+    finderSpawnedObjectType: source.finderSpawnedObjectType,
+    validatorTagQueries: source.validatorTagQueries,
+  };
+  const vector = requireRecord(action.blackboardVector3, `${path}.blackboardVector3`);
+  requireExactFields(vector, new Set(['x', 'y', 'z']), `${path}.blackboardVector3`);
+  const parseComponent = (key: 'x' | 'y' | 'z'): SerializedBlackboardNumberSource => {
+    const componentPath = `${path}.blackboardVector3.${key}`;
+    const component = requireRecord(vector[key], componentPath);
+    requireExactFields(
+      component,
+      new Set(['useBlackboardKey', 'value', 'blackboardKey']),
+      componentPath,
+    );
+    return {
+      useBlackboardKey: requireBoolean(
+        component.useBlackboardKey,
+        `${componentPath}.useBlackboardKey`,
+      ),
+      value: requireNumber(component.value, `${componentPath}.value`),
+      blackboardKey: requireString(component.blackboardKey, `${componentPath}.blackboardKey`),
+    };
+  };
+  return {
+    ...createBaseAction(
+      'ConvertToTargetContext',
+      requireNonEmptyString(action.targetGroupKey, `${path}.targetGroupKey`),
+      [input],
+    ),
+    finderType: summary.finderType,
+    finderFactionTarget: summary.finderFactionTarget,
+    finderTargetObjectType: summary.finderTargetObjectType,
+    finderCheckAlive: summary.finderCheckAlive,
+    finderShape: summary.finderShape,
+    finderOwnerPartsQuery: summary.finderOwnerPartsQuery,
+    validatorTypes: summary.validatorTypes,
+    postProcessorTypes: summary.postProcessorTypes,
+    priorityFilters: summary.priorityFilters,
+    shuffleTargets: summary.shuffleTargets,
+    distanceValidators: summary.distanceValidators,
+    finderSpawnedObjectType: source.finderSpawnedObjectType,
+    validatorTagQueries: source.validatorTagQueries,
+    conversionOperation: operation,
+    conversionTransform: {
+      translateOperation,
+      translationRef,
+      translationDegrees: requireNumber(action.translationDeg, `${path}.translationDeg`),
+      excludeTarget,
+      vector: { x: parseComponent('x'), y: parseComponent('y'), z: parseComponent('z') },
+    },
+  };
 }
 
 function parseFindTargetAction(

@@ -14,6 +14,91 @@ const META = {
 } as const;
 
 describe('公共 Action 叶子分派', () => {
+  it('ConvertToTargetContext 完整保留 None 复制与未启用的空间字段', () => {
+    const convertFrom = targetFixture(
+      'InstantSearch',
+      {
+        finderData: { $type: 'Example.Selector+MainTargetFinder+Data, Example' },
+        validatorData: [],
+        postProcessorData: [],
+      },
+      'trigger',
+    );
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.ConvertToTargetContext+Data, Gameplay.Beyond',
+          convertFrom,
+          targetGroupKey: 'trigger',
+          operationType: 'None',
+          translateOperation: 'Rotate180DegAroundRef',
+          translationRef: 'ActionSource',
+          translationDeg: 0,
+          excludeTarget: 'ActionSource',
+          blackboardVector3: {
+            x: scalarFixture(0),
+            y: scalarFixture(0),
+            z: scalarFixture(0),
+          },
+        },
+        'fixture.convert',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'targetGroup',
+      action: {
+        producerType: 'ConvertToTargetContext',
+        targetGroupKey: 'trigger',
+        finderType: 'MainTargetFinder',
+        conversionOperation: 'None',
+        conversionTransform: {
+          translateOperation: 'Rotate180DegAroundRef',
+          translationRef: 'ActionSource',
+          translationDegrees: 0,
+          excludeTarget: 'ActionSource',
+          vector: {
+            x: { useBlackboardKey: false, value: 0, blackboardKey: '' },
+          },
+        },
+      },
+    });
+  });
+
+  it('ConvertToTargetContext 接受已闭环的实体转位置分支并拒绝未知空间操作', () => {
+    const action = {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.ConvertToTargetContext+Data, Gameplay.Beyond',
+      convertFrom: targetFixture('Target'),
+      targetGroupKey: 'center',
+      operationType: 'ConvertEntityToPosition',
+      translateOperation: 'Rotate180DegAroundRef',
+      translationRef: 'ActionSource',
+      translationDeg: 0,
+      excludeTarget: 'ActionSource',
+      blackboardVector3: {
+        x: scalarFixture(0),
+        y: scalarFixture(0),
+        z: scalarFixture(0),
+      },
+    };
+    expect(parseKnownNativeActionLeafSource(action, 'fixture.convert', {})).toMatchObject({
+      family: 'targetGroup',
+      action: {
+        producerType: 'ConvertToTargetContext',
+        conversionOperation: 'ConvertEntityToPosition',
+        inputTargets: [{ targetSource: 'Target' }],
+      },
+    });
+    expect(() =>
+      parseKnownNativeActionLeafSource(
+        { ...action, operationType: 'TranslatePosition' },
+        'fixture.convert',
+        {},
+      ),
+    ).toThrow('unsupported operation "TranslatePosition"');
+  });
+
   it('CreateBuffAttachingSkill 复用公共 Buff 载荷并保留当前施放技能生命周期', () => {
     expect(
       parseKnownNativeActionLeafSource(

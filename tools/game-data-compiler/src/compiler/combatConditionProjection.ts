@@ -55,6 +55,8 @@ function compileConditionLeaf(
       'any',
       'entityCount',
       'squadInFight',
+      'probability',
+      'distance',
     ].includes(condition.kind)
   )
     throw new Error(`${sourcePath}: unaudited single-enemy action condition ${condition.kind}`);
@@ -63,7 +65,47 @@ function compileConditionLeaf(
     !['floatCompare', 'buffStack', 'distance', 'entityCount', 'any'].includes(condition.kind)
   )
     throw new Error(`${sourcePath}: unaudited AbilityEntity condition ${condition.kind}`);
+  if (condition.kind === 'probability') {
+    return { kind: 'probability', probability: actionValueOperand(condition.value) };
+  }
   if (condition.kind === 'distance') {
+    const sourceIsSpatialPoint =
+      condition.source.targetSource === 'Context' &&
+      targetGroups.get(condition.source.targetGroupKey ?? '') === 'spatialPoint';
+    const targetIsSpatialPoint =
+      condition.target.targetSource === 'Context' &&
+      targetGroups.get(condition.target.targetGroupKey ?? '') === 'spatialPoint';
+    const sourceIsCaster =
+      condition.source.targetSource === 'Owner' && context.actionOwnerTarget === 'caster';
+    const targetIsCaster =
+      condition.target.targetSource === 'Owner' && context.actionOwnerTarget === 'caster';
+    if (
+      ((sourceIsSpatialPoint && targetIsCaster) || (targetIsSpatialPoint && sourceIsCaster)) &&
+      !condition.includeTargetRadius &&
+      !condition.containsHittableObject
+    ) {
+      return {
+        kind: 'actionValueCompare',
+        left: { kind: 'constant', value: 0 },
+        operator: condition.lessThan ? 'lessOrEqual' : 'greater',
+        right: { kind: 'constant', value: condition.distance },
+      };
+    }
+    if (
+      context.actionTargetTarget === 'enemy' &&
+      context.actionOwnerTarget === 'caster' &&
+      condition.source.targetSource === 'Owner' &&
+      condition.target.targetSource === 'Target' &&
+      !condition.includeTargetRadius &&
+      !condition.containsHittableObject
+    ) {
+      return {
+        kind: 'actionValueCompare',
+        left: { kind: 'constant', value: 0 },
+        operator: condition.lessThan ? 'lessOrEqual' : 'greater',
+        right: { kind: 'constant', value: condition.distance },
+      };
+    }
     if (
       context.actionTargetTarget !== 'currentAbilityEntity' ||
       context.actionOwnerTarget !== 'caster' ||
@@ -236,6 +278,24 @@ function compileConditionLeaf(
     const projectedGroup = targetGroups.get(condition.targetGroupKey);
     const knownStaticEnemy = context.staticEnemyTargetGroupKeys?.has(condition.targetGroupKey);
     if (
+      condition.targetSource === 'InstantSearch' &&
+      condition.target?.finderType === 'MainTargetFinder' &&
+      condition.target.validatorTypes.length === 0 &&
+      condition.target.postProcessorTypes.length === 0 &&
+      !condition.containsHittableTarget &&
+      !condition.excludeDeadEntity &&
+      condition.storeKey === '' &&
+      operator !== undefined &&
+      context.actionTargetTarget === 'enemy'
+    ) {
+      return {
+        kind: 'actionValueCompare',
+        left: { kind: 'constant', value: 1 },
+        operator,
+        right: { kind: 'constant', value: condition.minimumCount },
+      };
+    }
+    if (
       condition.targetSource === 'Context' &&
       (projectedGroup === 'controlledOperator' || knownStaticEnemy) &&
       !condition.containsHittableTarget &&
@@ -252,7 +312,6 @@ function compileConditionLeaf(
     }
     if (
       condition.targetSource === 'Target' &&
-      condition.targetGroupKey === '' &&
       !condition.excludeDeadEntity &&
       condition.storeKey === '' &&
       (!condition.containsHittableTarget || context.fixedHittableTargetCount !== undefined) &&
@@ -261,6 +320,7 @@ function compileConditionLeaf(
         context.actionTargetTarget,
       )
     ) {
+      // GetTargetsView 的 Target 分支直接读取输入目标；序列化残留 group key 不参与解析。
       // 已绑定单一 ActionTarget 的回调不会以空集合调用；保留为显式常量比较，
       // 不把一般 Context 集合查询错误简化为唯一木桩。
       return {

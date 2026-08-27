@@ -52,6 +52,7 @@ export type CompiledBuffConditionSource =
       | 'contextTargetContains'
       | 'eventBuffTagsMatch'
       | 'eventTargetBuffCountCompare'
+      | 'probability'
     >
   | (Condition<'healthCompare'> & { readonly target: 'controlledOperator' })
   | (Condition<'eventDamageTagsMatch'> & {
@@ -100,8 +101,9 @@ type EntityTimeDilation = Omit<
   Extract<Parameters<'startTimeDilation'>, { scope: 'entity' }>,
   'abilityEntityTargets' | 'ignoreSlotCheck' | 'curve' | 'targets'
 > & {
-  readonly curve: Extract<TimeScaleCurveDefinition, { kind: 'named' }>;
+  readonly curve: Extract<TimeScaleCurveDefinition, { kind: 'inline' | 'named' }>;
   readonly targets: readonly ('enemy' | 'caster')[];
+  readonly abilityEntityTargets?: readonly [{ readonly kind: 'ownerSpawned' }];
 };
 
 type ContextTargetSource = Parameters<'mergeContextTargets'>['sources'][number];
@@ -121,7 +123,7 @@ type BuffApplicationParameters = Omit<
     | 'party'
     | 'partyExceptCaster'
     | 'partyExceptCasterAndSameCharacterType';
-  readonly source?: 'eventSource' | 'buffSource' | 'buffOwner';
+  readonly source?: 'enemy' | 'eventSource' | 'buffSource' | 'buffOwner';
 };
 
 type DamageParameters = Pick<
@@ -157,6 +159,7 @@ type DamageParameters = Pick<
   readonly stagger?: CompiledActionValueOperandSource;
 };
 export type CompiledSimpleDamageOperationSource = Step<'dealDamage', DamageParameters>;
+export type CompiledSimplePoiseOperationSource = Step<'dealStagger'>;
 
 type HealParameters = Parameters<'heal'> & {
   readonly target: 'caster' | 'controlledOperator';
@@ -269,11 +272,12 @@ export type CompiledBuffStepSource =
     >
   | Step<'gainFinisherSp'>
   | CompiledSimpleDamageOperationSource
+  | CompiledSimplePoiseOperationSource
   | Step<'heal', HealParameters>
   | Step<
       'finishBuffsById',
       Parameters<'finishBuffsById'> & {
-        readonly target: 'buffOwner' | 'caster';
+        readonly target: 'buffOwner' | 'caster' | 'enemy';
         readonly reason: 'early' | 'other';
       }
     >

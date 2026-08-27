@@ -243,10 +243,10 @@ it('契约派生仍保留条件种类、目标和递归子树的支持边界', (
   >().toBeNever();
 });
 
-it('动作窄子集不因复用契约而纳入实体内联曲线、等级列或未知运算', () => {
+it('动作窄子集只纳入已证明的实体曲线，不扩张等级列或未知运算', () => {
   expectTypeOf<
     Extract<ProjectedParameters<'startTimeDilation'>, { scope: 'entity' }>['curve']['kind']
-  >().toEqualTypeOf<'named'>();
+  >().toEqualTypeOf<'inline' | 'named'>();
   expectTypeOf<ProjectedParameters<'modifyActionValue'>['operation']>().toEqualTypeOf<
     'assign' | 'add' | 'multiply' | 'divide'
   >();

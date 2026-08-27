@@ -39,10 +39,23 @@ export interface CompileActionSequenceProgramOptions<TLeaf, TCondition, TStep, T
     },
     state: TState,
   ) => CompiledActionNodeProgram<TStep, TState> | null;
+  /** 领域可在固定目标模型下把有界 Channeling 精确折叠为等价次数的子序列。 */
+  readonly compileChanneling?: (
+    node: NativeActionNodeSource<TLeaf> & {
+      readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'channeling' }>;
+    },
+    state: TState,
+  ) => CompiledActionNodeProgram<TStep, TState> | null;
   /** 领域已证明整个条件节点及两分支都不可见时，可整体省略，避免为纯表现控制流伪造输入。 */
   readonly canOmitIfElse?: (
     node: NativeActionNodeSource<TLeaf> & {
       readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'ifElse' }>;
+    },
+  ) => boolean;
+  /** 领域证明条件与子动作均不进入其可见模型时，允许省略整个原生动态开关。 */
+  readonly canOmitTogglable?: (
+    node: NativeActionNodeSource<TLeaf> & {
+      readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'togglable' }>;
     },
   ) => boolean;
   readonly createConditionalStep: (input: {
@@ -168,6 +181,25 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
     );
     if (compiled !== null) {
       return [...compiled.steps, ...compileActionNodePrograms(rest, options, compiled.state)];
+    }
+  }
+  if (first!.body.kind === 'channeling' && options.compileChanneling !== undefined) {
+    const compiled = options.compileChanneling(
+      first as NativeActionNodeSource<TLeaf> & {
+        readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'channeling' }>;
+      },
+      state,
+    );
+    if (compiled !== null) {
+      return [...compiled.steps, ...compileActionNodePrograms(rest, options, compiled.state)];
+    }
+  }
+  if (first!.body.kind === 'togglable') {
+    const togglable = first as NativeActionNodeSource<TLeaf> & {
+      readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'togglable' }>;
+    };
+    if (options.canOmitTogglable?.(togglable) === true) {
+      return compileActionNodePrograms(rest, options, state);
     }
   }
   if (first!.body.kind !== 'leaf') {

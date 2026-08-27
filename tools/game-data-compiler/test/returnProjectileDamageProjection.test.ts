@@ -281,22 +281,27 @@ describe('公共回调伤害投影', () => {
     );
   });
 
-  it.each(['attacker', 'effectSource'] as const)(
-    '未投影的投射物 Owner 不能由 %s 借用为施法者',
-    field => {
-      const source = damageSource();
-      const action =
-        field === 'attacker'
-          ? { ...source, attacker: 'ActionOwner' }
-          : { ...source, effectSource: { ...source.effectSource, targetSource: 'Owner' } };
-      expect(() =>
-        compileEventTargetSimpleDamageOperationSource(action, 'damage', {
-          actionOwnerTarget: 'unavailable',
-          actionSourceTarget: 'caster',
-        }),
-      ).toThrow('Owner projection is unavailable');
-    },
-  );
+  it('未投影的投射物 Owner 不能作为伤害攻击者借用施法者身份', () => {
+    const source = damageSource();
+    expect(() =>
+      compileEventTargetSimpleDamageOperationSource(
+        { ...source, attacker: 'ActionOwner' },
+        'damage',
+        { actionOwnerTarget: 'unavailable', actionSourceTarget: 'caster' },
+      ),
+    ).toThrow('Owner projection is unavailable');
+  });
+
+  it('表现专用 effectSource 不要求投射物 Owner 映射为施法者', () => {
+    const source = damageSource();
+    expect(
+      compileEventTargetSimpleDamageOperationSource(
+        { ...source, effectSource: { ...source.effectSource, targetSource: 'Owner' } },
+        'damage',
+        { actionOwnerTarget: 'unavailable', actionSourceTarget: 'caster' },
+      ),
+    ).toEqual(compileEventTargetSimpleDamageOperationSource(source, 'baseline'));
+  });
 
   it('未绑定的 Owner Buff 条件不能查询施法者的 Buff', () => {
     const raw = structuredClone(scopeFixtures[0]!.reach.sequence);

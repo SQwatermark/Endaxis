@@ -1,4 +1,7 @@
-import { compileEventTargetSimpleDamageOperationSource } from './simpleDamageOperation.ts';
+import {
+  compileEventTargetSimpleDamageOperationSource,
+  compileEventTargetSimplePoiseOperationSource,
+} from './simpleDamageOperation.ts';
 import type { CompiledActionValueOperandSource } from './combatActionProjectionTypes.ts';
 import type { BuffApplicationActionSource } from '../source/buffActions.ts';
 import type { NativeActionNodeSource } from '../source/controlFlow.ts';
@@ -63,6 +66,7 @@ export function compileActionNode(
     ![
       'damage',
       'buffApplication',
+      'buffFinish',
       'blackboardMutation',
       'blackboardCalculation',
       'attributeSnapshot',
@@ -137,7 +141,9 @@ export function compileActionNode(
   if (node.body.value.family === 'buffFinish') {
     const action = node.body.value.action;
     if (
-      (action.owner.targetSource !== 'Owner' && action.owner.targetSource !== 'Source') ||
+      (action.owner.targetSource !== 'Owner' &&
+        action.owner.targetSource !== 'Source' &&
+        action.owner.targetSource !== 'Target') ||
       action.owner.targetGroupKey !== '' ||
       action.limitSource ||
       action.buffSource.targetSource !== 'Source' ||
@@ -168,7 +174,15 @@ export function compileActionNode(
           target:
             action.owner.targetSource === 'Owner'
               ? requireActionOwnerProjection(context, node.sourcePath)
-              : 'caster',
+              : action.owner.targetSource === 'Source'
+                ? 'caster'
+                : context.actionTargetTarget === 'enemy'
+                  ? 'enemy'
+                  : (() => {
+                      throw new Error(
+                        `${node.sourcePath}: Buff finish Target projection is unavailable`,
+                      );
+                    })(),
           buffIds,
           reason: action.isFinishedEarly ? 'early' : 'other',
           ...(action.finishAll ? {} : { count: actionValueOperand(action.finishLayerCount) }),
@@ -183,12 +197,24 @@ export function compileActionNode(
       !['enemy', 'eventTarget'].includes(context.actionTargetTarget)
     )
       throw new Error(`${node.sourcePath}: unsupported Buff damage source`);
+    const damageContext = {
+      ...context,
+      actionOwnerTarget: context.actionOwnerTarget,
+      actionSourceTarget: context.actionSourceTarget,
+    } as const;
     return [
-      compileEventTargetSimpleDamageOperationSource(node.body.value.action, node.sourcePath, {
-        ...context,
-        actionOwnerTarget: context.actionOwnerTarget,
-        actionSourceTarget: context.actionSourceTarget,
-      }),
+      node.body.value.action.units.length === 1 &&
+      node.body.value.action.units[0]?.attributeType === 'Poise'
+        ? compileEventTargetSimplePoiseOperationSource(
+            node.body.value.action,
+            node.sourcePath,
+            damageContext,
+          )
+        : compileEventTargetSimpleDamageOperationSource(
+            node.body.value.action,
+            node.sourcePath,
+            damageContext,
+          ),
     ];
   }
   if (node.body.value.family === 'elementalInfliction') {
@@ -707,7 +733,13 @@ function compileBuffApplication(
               context.actionTargetTarget === 'currentAbilityEntity'
             ? undefined
             : 'eventSource'
-        : null;
+        : action.buffSource === 'ContextTarget' &&
+            context.actionTargetTarget === 'enemy' &&
+            action.contextKey === 'smart_target'
+          ? 'enemy'
+          : action.buffSource === 'InputTarget' && context.actionTargetTarget === 'enemy'
+            ? 'enemy'
+            : null;
   if (target === null || target === 'abilityEntity' || source === null)
     throw new Error(`${sourcePath}: unsupported Buff target/source`);
   return action.buffs.flatMap((entry, index) => {

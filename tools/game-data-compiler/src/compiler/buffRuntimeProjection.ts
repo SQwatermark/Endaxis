@@ -790,7 +790,13 @@ function assertSpatialContextWriteIsolation(
     for (const consumer of leaves) {
       if (consumer === node || consumer.body.kind !== 'leaf') continue;
       if (!JSON.stringify(consumer.body.value.action).includes(JSON.stringify(key))) continue;
-      if (consumer.body.value.family !== 'spatial') {
+      if (
+        consumer.body.value.family !== 'spatial' &&
+        !(
+          consumer.body.value.family === 'condition' &&
+          consumer.body.value.action.kind === 'distance'
+        )
+      ) {
         throw new Error(
           `${node.sourcePath}: spatial output ${key} reaches combat action ${consumer.sourcePath}`,
         );
@@ -939,7 +945,36 @@ function createBuffSequenceProjection(
         state: partyTargetGroups,
       };
     },
+    compileChanneling: (node, partyTargetGroups) => {
+      const target = node.body.target;
+      const isSingleEnemy =
+        context.actionTargetTarget === 'enemy' &&
+        target.targetSource === 'Context' &&
+        target.targetGroupKey !== '' &&
+        (context.staticEnemyTargetGroupKeys?.has(target.targetGroupKey) === true ||
+          partyTargetGroups.get(target.targetGroupKey) === 'enemy') &&
+        target.finderType === null &&
+        target.validatorTypes.length === 0 &&
+        target.postProcessorTypes.length === 0;
+      if (
+        !isSingleEnemy ||
+        !node.body.executeEachFrame ||
+        node.body.maxCountPerTarget !== 1 ||
+        !(node.body.triggerIntervalSeconds > 0) ||
+        !(node.body.targetTriggerIntervalSeconds > 0)
+      )
+        return null;
+      // 唯一木桩 + 每目标最多一次，使逐帧 Channeling 精确退化为首次 Tick 执行一次。
+      return {
+        steps: compileActionSequenceProgram(node.body.actionOnTick, {
+          ...createBuffSequenceProjection(visualOnlyIds, context, extensions),
+          initialState: () => partyTargetGroups,
+        }).steps,
+        state: partyTargetGroups,
+      };
+    },
     canOmitIfElse: node => isCombatInvisibleIfElse(node),
+    canOmitTogglable: node => isCombatInvisibleTogglable(node),
     createConditionalStep: ({ condition, whenTrue, whenFalse, alwaysNext }) => ({
       kind: 'conditional',
       parameters: { condition, ...(alwaysNext ? { alwaysNext: true } : {}) },
@@ -949,6 +984,33 @@ function createBuffSequenceProjection(
     rootFilterError: 'sequence owner/guard root filters are not yet supported',
     unsupportedNodeError: node => `${node.sourcePath}: unsupported Buff runtime action`,
   };
+}
+
+function isCombatInvisibleTogglable(
+  node: NativeActionNodeSource<KnownNativeActionLeafSource> & {
+    readonly body: Extract<
+      NativeActionNodeSource<KnownNativeActionLeafSource>['body'],
+      { kind: 'togglable' }
+    >;
+  },
+): boolean {
+  const conditionNodes = collectNativeActionNodes(node.body.condition).filter(
+    child => child.metadata.enabled,
+  );
+  const actionNodes = collectNativeActionNodes(node.body.action).filter(
+    child => child.metadata.enabled,
+  );
+  return (
+    conditionNodes.length > 0 &&
+    conditionNodes.every(
+      child => child.body.kind === 'leaf' && child.body.value.family === 'condition',
+    ) &&
+    actionNodes.every(
+      child =>
+        child.body.kind === 'leaf' &&
+        (child.body.value.family === 'inputControl' || child.body.value.family === 'presentation'),
+    )
+  );
 }
 
 function isCombatInvisibleIfElse(

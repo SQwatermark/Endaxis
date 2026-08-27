@@ -5,10 +5,12 @@ import { projectNativeDamageElement } from '../source/damageElement.ts';
 
 import type {
   CompiledActionValueOperandSource,
+  CompiledSimplePoiseOperationSource,
   CompiledSimpleDamageOperationSource,
 } from './combatActionProjectionTypes.ts';
 export type {
   CompiledActionValueOperandSource,
+  CompiledSimplePoiseOperationSource,
   CompiledSimpleDamageOperationSource,
 } from './combatActionProjectionTypes.ts';
 
@@ -27,10 +29,7 @@ export function compileEventTargetSimpleDamageOperationSource(
     readonly staticEnemyTargetGroupKeys?: ReadonlySet<string>;
   } = { actionOwnerTarget: 'caster', actionSourceTarget: 'caster' },
 ): CompiledSimpleDamageOperationSource {
-  if (
-    context.actionOwnerTarget === 'unavailable' &&
-    (action.attacker === 'ActionOwner' || action.effectSource.targetSource === 'Owner')
-  ) {
+  if (context.actionOwnerTarget === 'unavailable' && action.attacker === 'ActionOwner') {
     throw new Error(`${sourcePath}: damage action Owner projection is unavailable`);
   }
   const attackerTarget =
@@ -53,18 +52,18 @@ export function compileEventTargetSimpleDamageOperationSource(
   } else {
     requireFixedTarget(action.target, 'Target', `${sourcePath}.target`);
   }
-  const effectSourceTarget =
-    action.effectSource.targetSource === 'Owner'
-      ? ('caster' as const)
-      : action.effectSource.targetSource === 'Source'
-        ? context.actionSourceTarget
-        : null;
-  if (effectSourceTarget !== 'caster') {
+  if (
+    action.effectSource.targetSource !== 'Owner' &&
+    action.effectSource.targetSource !== 'Source'
+  ) {
     throw new Error(`${sourcePath}.effectSource: unsupported simple event damage source`);
   }
+  // combat-spec 的 DamageAction 适配边界已闭环：effectSource 只决定表现归属，
+  // 不参与 attacker、倍率或目标结算。投射物回调的 Owner 因而无需冒充施术干员；
+  // 仍完整校验它是无选择器副作用的固定 Owner/Source 引用。
   requireFixedTarget(
     action.effectSource,
-    action.effectSource.targetSource as 'Owner' | 'Source',
+    action.effectSource.targetSource,
     `${sourcePath}.effectSource`,
   );
   if (action.units.length < 1 || action.units.length > 2) {
@@ -146,7 +145,7 @@ export function compileEventTargetSimpleDamageOperationSource(
     throw new Error(`${sourcePath}: unsupported event damage decorate mask ${mask}`);
   }
   const stagger =
-    poiseUnit === undefined ? undefined : compileSimplePoiseOperand(poiseUnit, sourcePath);
+    poiseUnit === undefined ? undefined : compileSimplePoiseOperand(poiseUnit, sourcePath, 1);
   return {
     kind: 'dealDamage',
     parameters: {
@@ -175,9 +174,50 @@ export function compileEventTargetSimpleDamageOperationSource(
   };
 }
 
+/** 投影只含一个原生 Poise DamageUnit 的动作；它不制造零生命伤害命中。 */
+export function compileEventTargetSimplePoiseOperationSource(
+  action: DamageActionSource,
+  sourcePath: string,
+  context: {
+    readonly actionOwnerTarget: 'buffOwner' | 'caster' | 'unavailable';
+    readonly actionSourceTarget: 'caster';
+    readonly staticEnemyTargetGroupKeys?: ReadonlySet<string>;
+  } = { actionOwnerTarget: 'caster', actionSourceTarget: 'caster' },
+): CompiledSimplePoiseOperationSource {
+  if (action.units.length !== 1 || action.units[0]!.attributeType !== 'Poise')
+    throw new Error(`${sourcePath}: expected one Poise DamageUnit`);
+  if (
+    !action.alwaysNext ||
+    (action.attacker !== 'ActionSource' && action.attacker !== 'ActionOwner') ||
+    (action.attacker === 'ActionOwner' && context.actionOwnerTarget === 'unavailable')
+  )
+    throw new Error(`${sourcePath}: unsupported poise damage action control flags`);
+  if (action.target.targetSource === 'Context') {
+    if (
+      !action.target.targetGroupKey ||
+      !context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey)
+    )
+      throw new Error(`${sourcePath}.target: unsupported poise damage target`);
+  } else {
+    requireFixedTarget(action.target, 'Target', `${sourcePath}.target`);
+  }
+  if (action.effectSource.targetSource !== 'Owner' && action.effectSource.targetSource !== 'Source')
+    throw new Error(`${sourcePath}.effectSource: unsupported poise damage source`);
+  requireFixedTarget(
+    action.effectSource,
+    action.effectSource.targetSource,
+    `${sourcePath}.effectSource`,
+  );
+  return {
+    kind: 'dealStagger',
+    parameters: { value: compileSimplePoiseOperand(action.units[0]!, sourcePath, 0) },
+  };
+}
+
 function compileSimplePoiseOperand(
   unit: DamageActionSource['units'][number],
   sourcePath: string,
+  unitIndex: number,
 ): CompiledActionValueOperandSource {
   const calculation = unit.poiseCalculation;
   if (
@@ -201,7 +241,7 @@ function compileSimplePoiseOperand(
   // 原生 PlayerDamageActionDataAdapter 在 Poise 分支只构造 poiseCalculation；顶层 atkScale
   // 仍会被反序列化，但不会进入 PoisePack 或失衡公式，因此其字面值/黑板键都是序列化残留。
   // PoisePack 原生规格不保存元素字段，修正器只读取 decorate mask；仍验证来源元素是已知枚举。
-  projectNativeDamageElement(unit.damageType, `${sourcePath}.units[1].damageType`);
+  projectNativeDamageElement(unit.damageType, `${sourcePath}.units[${unitIndex}].damageType`);
   // combat-spec definite-value-calculation：applyScale=false 不求值 valueScale，
   // 因而其残留数值或黑板引用不能阻断未缩放的失衡值；启用缩放仍保持上面的显式拒绝。
   return scalarOperand(calculation.value);

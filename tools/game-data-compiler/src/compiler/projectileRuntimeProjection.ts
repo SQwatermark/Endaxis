@@ -73,6 +73,41 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
         }),
       ];
     }
+    if (enabled.length === 1 && enabled[0]!.event === 'hit') {
+      return [
+        compileZeroDistanceFirstTickHitProjectileSource({
+          sourcePath,
+          launch,
+          runtime,
+          template,
+          hitGraph: callback('hit'),
+          callbackContext: input.callbackContext,
+          visualOnlyIds: input.visualOnlyIds,
+          callbackExtensions: input.callbackExtensions,
+        }),
+      ];
+    }
+    if (
+      enabled.length === 2 &&
+      enabled.some(item => item.event === 'block') &&
+      enabled.some(item => item.event === 'hit') &&
+      enabled[0]!.skillId === enabled[1]!.skillId
+    ) {
+      // combat-spec 已闭环首 Tick 顺序为 collision(hit) → move/block；零距离唯一木桩
+      // 先命中并以 maxHitCount=1 结束该投射物，因此同路由的 block 是未到达备选。
+      return [
+        compileZeroDistanceFirstTickHitProjectileSource({
+          sourcePath,
+          launch,
+          runtime,
+          template,
+          hitGraph: callback('hit'),
+          callbackContext: input.callbackContext,
+          visualOnlyIds: input.visualOnlyIds,
+          callbackExtensions: input.callbackExtensions,
+        }),
+      ];
+    }
     const unsupported = enabled.filter(item => item.event !== 'hit' && item.event !== 'reach');
     if (unsupported.length > 0 || enabled.length !== 2)
       throw new Error(
@@ -92,6 +127,45 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
       }),
     ];
   };
+}
+
+/** 首帧必然碰撞但没有 reach 路由的投射物；只执行原生启用的 hit 回调。 */
+export function compileZeroDistanceFirstTickHitProjectileSource(input: {
+  readonly sourcePath: string;
+  readonly launch: ProjectileLaunchActionSource;
+  readonly runtime: ProjectileRuntimeSource;
+  readonly template: {
+    readonly projectileId: string;
+    readonly entityBlackboard: readonly DeclaredBlackboardValueSource[];
+  } | null;
+  readonly hitGraph: SkillActionGraphSource<KnownNativeActionLeafSource>;
+  readonly callbackContext: CombatActionProjectionContextSource;
+  readonly visualOnlyIds?: ReadonlySet<string>;
+  readonly callbackExtensions?: CombatActionProjectionExtensionsSource;
+}): CompiledActionBlackboardScopeSource {
+  const { sourcePath, launch, runtime, template } = input;
+  if (runtime.projectileId !== launch.projectileId)
+    throw new Error(`${sourcePath}: ProjectileData identity mismatch`);
+  assertSupportedFirstTickShape(runtime, sourcePath, {
+    maxHitCounts: new Set([1]),
+    requireCollider: !runtime.hitOnReach,
+    allowHitOnReach: true,
+  });
+  const hit = compileImmediateProjectileCallbackSkillSource({
+    graph: input.hitGraph,
+    context: input.callbackContext,
+    visualOnlyIds: input.visualOnlyIds,
+    extensions: input.callbackExtensions,
+  });
+  return compileSynchronousProjectileCallbackScopesSource({
+    sourcePath,
+    launch,
+    template,
+    invocations: [{ event: 'hit', ...hit }],
+    // 此形状不做实体板赋值，回调声明也不读取 EntityBB；完整 ProjectileData 已足够
+    // 证明同步 hit 路由，不要求另造一个空模板目录项。
+    allowMissingEntityBlackboardEvidence: true,
+  });
 }
 
 /**
@@ -222,13 +296,22 @@ export function compileZeroDistanceFirstTickProjectileSource(input: {
   });
 }
 
-function assertSupportedFirstTickShape(runtime: ProjectileRuntimeSource, path: string): void {
+function assertSupportedFirstTickShape(
+  runtime: ProjectileRuntimeSource,
+  path: string,
+  options: {
+    readonly maxHitCounts?: ReadonlySet<number>;
+    readonly requireCollider?: boolean;
+    readonly allowHitOnReach?: boolean;
+  } = {},
+): void {
   const segment = runtime.moveSegments[0];
+  const maxHitCounts = options.maxHitCounts ?? new Set([-1]);
   if (
     !runtime.finishOnReach ||
-    runtime.hitOnReach ||
+    (runtime.hitOnReach && options.allowHitOnReach !== true) ||
     runtime.allowHitSameTarget ||
-    runtime.maxHitCount !== -1 ||
+    !maxHitCounts.has(runtime.maxHitCount) ||
     runtime.collisionDetectTiming !== 0 ||
     runtime.hitAndBlockDetectDelayTime !== 0 ||
     runtime.hitAndBlockDetectDelayDistance !== 0 ||
@@ -240,6 +323,10 @@ function assertSupportedFirstTickShape(runtime: ProjectileRuntimeSource, path: s
     runtime.targetFilter.filterObjectType ||
     runtime.targetFilter.filterSlot ||
     runtime.targetFilter.filterGameplayTag ||
+    (options.requireCollider === true &&
+      (runtime.colliderShape === null ||
+        runtime.colliderShape.shapeType !== 1 ||
+        !(runtime.colliderShape.radius > 0))) ||
     runtime.presetPointKeys.length !== 2 ||
     runtime.presetPointKeys[0] !== 'LaunchPoint' ||
     runtime.presetPointKeys[1] !== 'TargetPoint' ||

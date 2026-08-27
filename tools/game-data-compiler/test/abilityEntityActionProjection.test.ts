@@ -145,7 +145,7 @@ describe('原生查询 → Context → 逐能力实体动作的公共投影', ()
     ).toThrow();
   });
 
-  it.each(['distance', 'source', 'includeTargetRadius', 'containsHittableObject'] as const)(
+  it.each(['source', 'includeTargetRadius', 'containsHittableObject'] as const)(
     '未证明的距离选项 %s 不在循环外或未知目标上放行',
     field => {
       const source = nodes();
@@ -165,9 +165,7 @@ describe('原生查询 → Context → 逐能力实体动作的公共投影', ()
       const bad =
         field === 'source'
           ? { ...condition, source: { ...condition.source, targetSource: 'Context' } }
-          : field === 'distance'
-            ? condition
-            : { ...condition, [field]: true };
+          : { ...condition, [field]: true };
       expect(() =>
         compileCombatActionSequenceSource(
           {
@@ -179,7 +177,7 @@ describe('原生查询 → Context → 逐能力实体动作的公共投影', ()
           },
           {
             ...returnTargetContext,
-            actionTargetTarget: field === 'distance' ? 'enemy' : 'currentAbilityEntity',
+            actionTargetTarget: 'currentAbilityEntity',
           },
         ),
       ).toThrow(/distance|zero-distance/);

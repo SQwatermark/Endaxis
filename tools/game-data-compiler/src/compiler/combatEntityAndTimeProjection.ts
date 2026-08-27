@@ -84,30 +84,31 @@ export function compileBuffLeafNode(
   }
   if (node.body.value.family === 'abilityEntity') {
     const action = node.body.value.action;
-    const bornAtBlockPoint =
-      action.bornAt.targetSource === 'Target' &&
-      action.bornAt.targetGroupKey === '' &&
+    const bornAtSpatialPoint =
+      ((action.bornAt.targetSource === 'Target' && action.bornAt.targetGroupKey === '') ||
+        (action.bornAt.targetSource === 'Context' &&
+          action.bornAt.targetGroupKey !== '' &&
+          partyTargetGroups.get(action.bornAt.targetGroupKey) === 'spatialPoint')) &&
       action.bornAt.finderType === null &&
       action.bornAt.validatorTypes.length === 0 &&
       action.bornAt.postProcessorTypes.length === 0;
+    const bornAtControlledOperator =
+      action.bornAt.targetSource === 'Source' &&
+      action.bornAt.finderType === 'CharacterTeamFinder' &&
+      action.bornAt.validatorTypes.length === 1 &&
+      action.bornAt.validatorTypes[0] === 'MainCharacterValidator' &&
+      action.bornAt.postProcessorTypes.length === 0;
+    const sourceIsCaster =
+      action.sourceType === 'ActionSource' ||
+      (action.sourceType === 'ActionOwner' && context.actionOwnerTarget === 'caster');
     if (
       !action.setSource ||
-      action.sourceType !== 'ActionSource' ||
+      !sourceIsCaster ||
       action.sourceContextKey !== '' ||
       action.setTarget ||
-      !bornAtBlockPoint ||
-      action.bornMountPoint !== 'None' ||
-      action.bornPositionOffset.some(value => value !== 0) ||
+      (!bornAtSpatialPoint && !bornAtControlledOperator) ||
       action.checkNavmeshAreaName ||
       action.forbiddenAreaNames.length !== 0 ||
-      action.attachToClosestMeshPoint ||
-      action.rotateYFromBoneToCurrentPosition ||
-      action.bornRotation !== 'SourceForward' ||
-      action.bornRotationContextTarget !== '' ||
-      action.useAdvancedDirection ||
-      action.clampToXZPlane ||
-      action.applyBornRotationOffset ||
-      action.bornRotationOffset.some((value, index) => value !== (index === 3 ? 1 : 0)) ||
       action.assignEntityBlackboard ||
       action.assignments.length !== 0 ||
       !action.assignBlackboard ||
@@ -123,7 +124,8 @@ export function compileBuffLeafNode(
       action.dieOnEnd
     )
       throw new Error(`${node.sourcePath}: unsupported AbilityEntity spawn projection`);
-    // bornAt=Target 在 block 回调中是命中点；零空间模型只保留实体身份与黑板继承。
+    // 出生位置、挂点和旋转均已由来源 IR 严格保留；零空间模型只保留实体身份、
+    // 技能与黑板继承。带区域准入检查的生成仍可能改变“是否出生”，不能在此省略。
     return {
       steps: [
         {
@@ -183,7 +185,13 @@ export function compileBuffLeafNode(
               durationSeconds: { kind: 'constant', value: action.durationSeconds },
               slot: gameplayTagIdFromPath('TimeDilation/Layer/Entity/HitStop'),
               priority,
-              curve: { kind: 'named', key: action.curveKey },
+              curve:
+                action.directCurveKeys.length > 0
+                  ? {
+                      kind: 'inline',
+                      keys: projectTimeDilationCurveKeys(action.directCurveKeys, node.sourcePath),
+                    }
+                  : { kind: 'named', key: action.curveKey },
               finishByAction: false,
               targets: ['enemy', 'caster'],
             },
@@ -261,6 +269,11 @@ export function compileBuffLeafNode(
     if (action.layer === 'Entity') {
       const target = action.effectTargets[0];
       const source = action.effectTargets[1];
+      const ownerSpawnedAbilityEntities =
+        action.effectTargets.length === 1 &&
+        target !== undefined &&
+        isOwnerSpawnedAbilityEntityInstantSearch(target) &&
+        context.actionOwnerTarget === 'caster';
       const targets =
         action.effectTargets.length === 1 &&
         target?.targetSource === 'Owner' &&
@@ -272,7 +285,9 @@ export function compileBuffLeafNode(
               source?.targetSource === 'Source' &&
               source.targetGroupKey === ''
             ? (['enemy', 'caster'] as const)
-            : null;
+            : ownerSpawnedAbilityEntities
+              ? ([] as const)
+              : null;
       if (
         !action.useCurveKey ||
         action.curveKey.length === 0 ||
@@ -293,6 +308,9 @@ export function compileBuffLeafNode(
               curve: { kind: 'named', key: action.curveKey },
               finishByAction: action.finishByAction,
               targets,
+              ...(ownerSpawnedAbilityEntities
+                ? { abilityEntityTargets: [{ kind: 'ownerSpawned' as const }] }
+                : {}),
             },
           },
         ],
@@ -430,6 +448,18 @@ export function compileBuffLeafNode(
       write.producerType === 'FindTargetAction' &&
       write.finderType === 'FixedPointFinder' &&
       write.postProcessorTypes.length === 0
+    ) {
+      const nextGroups = new Map(partyTargetGroups);
+      nextGroups.set(write.targetGroupKey, 'spatialPoint');
+      return { steps: [], state: nextGroups };
+    }
+    if (
+      context.actionTargetTarget === 'enemy' &&
+      write.producerType === 'ConvertToTargetContext' &&
+      write.conversionOperation === 'ConvertEntityToPosition' &&
+      write.inputTargets.length === 1 &&
+      write.inputTargets[0]?.targetSource === 'Target' &&
+      write.inputTargets[0]?.targetGroupKey === ''
     ) {
       const nextGroups = new Map(partyTargetGroups);
       nextGroups.set(write.targetGroupKey, 'spatialPoint');

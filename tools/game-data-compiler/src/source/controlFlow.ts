@@ -96,6 +96,12 @@ export type NativeActionBodySource<TLeaf> =
       readonly totalDurationSeconds: number;
       readonly actionOnTick: NativeSequenceSource<TLeaf>;
     }
+  | {
+      /** 条件每 Tick 重算；false→true 启动 child，true 时 Tick，true→false 结束。 */
+      readonly kind: 'togglable';
+      readonly condition: NativeSequenceSource<TLeaf>;
+      readonly action: NativeSequenceSource<TLeaf>;
+    }
   | { readonly kind: 'negateNextResult' };
 
 export interface NativeActionNodeSource<TLeaf> {
@@ -134,6 +140,10 @@ export function collectNativeActionNodes<TLeaf>(
           break;
         case 'timelineJump':
           visitSequence(body.condition);
+          break;
+        case 'togglable':
+          visitSequence(body.condition);
+          visitSequence(body.action);
           break;
         case 'leaf':
         case 'negateNextResult':
@@ -214,6 +224,8 @@ function parseNativeActionNodeSource<TLeaf>(
     body = parseTickIntervalBody(action, path, inheritedBlackboard, parseLeaf);
   } else if (nativeName === 'TickIntervalActionV2') {
     body = parseTickIntervalV2Body(action, path, inheritedBlackboard, parseLeaf);
+  } else if (nativeName === 'TogglableAction') {
+    body = parseTogglableBody(action, path, inheritedBlackboard, parseLeaf);
   } else if (nativeName === 'NotNextCheckAction') {
     requireExactFields(action, new Set(ACTION_META_FIELDS), path);
     body = { kind: 'negateNextResult' };
@@ -221,6 +233,30 @@ function parseNativeActionNodeSource<TLeaf>(
     body = { kind: 'leaf', value: parseLeaf(value, path) };
   }
   return { sourcePath: path, metadata, body };
+}
+
+function parseTogglableBody<TLeaf>(
+  action: Record<string, unknown>,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+  parseLeaf: NativeLeafParser<TLeaf>,
+): NativeActionBodySource<TLeaf> {
+  requireExactFields(action, new Set([...ACTION_META_FIELDS, 'condition', 'action']), path);
+  return {
+    kind: 'togglable',
+    condition: parseNativeSequenceSource(
+      action.condition,
+      `${path}.condition`,
+      inheritedBlackboard,
+      parseLeaf,
+    ),
+    action: parseNativeSequenceSource(
+      action.action,
+      `${path}.action`,
+      inheritedBlackboard,
+      parseLeaf,
+    ),
+  };
 }
 
 function parseTickIntervalV2Body<TLeaf>(

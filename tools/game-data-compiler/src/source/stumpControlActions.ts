@@ -9,7 +9,10 @@ import {
 } from './primitives.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 import { parseScalarSource, type BlackboardLevelValues } from './scalar.ts';
-import { parseTimeDilationCurveKeys } from './timeDilationActions.ts';
+import {
+  parseTimeDilationCurveKeys,
+  type TimeDilationCurveKeySource,
+} from './timeDilationActions.ts';
 import { parseAdvancedDirectionSource } from './spatial.ts';
 
 export interface StaticEnemyControlActionSource {
@@ -24,6 +27,7 @@ export interface TargetHitStopActionSource {
   readonly target: TargetReferenceSource;
   readonly affectType: string;
   readonly curveKey: string;
+  readonly directCurveKeys: readonly TimeDilationCurveKeySource[];
   readonly durationSeconds: number;
   readonly priorityTagId: number;
 }
@@ -242,8 +246,11 @@ export function parseTargetHitStopActionSource(
   const useDirectCurve = requireBoolean(action.useDirectCurve, `${path}.useDirectCurve`);
   const directCurve = requireArray(action.directCurve, `${path}.directCurve`);
   const curveKey = requireString(action.curveKey, `${path}.curveKey`);
-  if (useDirectCurve || directCurve.length > 0 || curveKey.length === 0)
-    throw new Error(`${path}: direct or missing hit-stop curve is unsupported`);
+  if (
+    (useDirectCurve && directCurve.length === 0) ||
+    (!useDirectCurve && (directCurve.length > 0 || curveKey.length === 0))
+  )
+    throw new Error(`${path}: inconsistent hit-stop curve source`);
   const duration = requireNumber(action.duration, `${path}.duration`);
   if (!Number.isFinite(duration) || duration < 0)
     throw new Error(`${path}.duration: expected finite non-negative number`);
@@ -255,6 +262,9 @@ export function parseTargetHitStopActionSource(
     target: parseTargetReferenceSource(action.target, `${path}.target`),
     affectType,
     curveKey,
+    directCurveKeys: useDirectCurve
+      ? parseTimeDilationCurveKeys(directCurve, `${path}.directCurve`)
+      : [],
     durationSeconds: duration,
     priorityTagId: requireInteger(priority.tagId, `${path}.timeDilationPriority.tagId`),
   };

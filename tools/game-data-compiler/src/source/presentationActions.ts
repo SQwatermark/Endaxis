@@ -64,11 +64,83 @@ export interface CameraPresentationActionSource {
     | 'hideUi'
     | 'ultimateShow'
     | 'weaponVisibility'
+    | 'weaponAnimation'
+    | 'weaponMountPoint'
     | 'voiceTrigger'
     | 'overrideCameraFollow'
     | 'temporaryUnlock'
     | 'lockCameraAim';
   readonly readBlackboardKeys?: readonly string[];
+}
+
+export function parseModifyWeaponMountPointActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      ...ACTION_META_FIELDS,
+      'weaponIndex',
+      'overrideIdleMountPoint',
+      'idleMountPoint',
+      'overrideFightMountPoint',
+      'fightMountPoint',
+    ]),
+    path,
+  );
+  requireInteger(action.weaponIndex, `${path}.weaponIndex`);
+  requireBoolean(action.overrideIdleMountPoint, `${path}.overrideIdleMountPoint`);
+  requireString(action.idleMountPoint, `${path}.idleMountPoint`);
+  requireBoolean(action.overrideFightMountPoint, `${path}.overrideFightMountPoint`);
+  requireString(action.fightMountPoint, `${path}.fightMountPoint`);
+  return { kind: 'weaponMountPoint' };
+}
+
+export function parseWeaponAnimationActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      ...ACTION_META_FIELDS,
+      'weaponId',
+      'paramAction',
+      'actionOnEnd',
+      'endAction',
+      'actionOnInterrupt',
+      'interruptionAction',
+      'overrideInterruptionTime',
+      'interruptionBefore',
+    ]),
+    path,
+  );
+  requireInteger(action.weaponId, `${path}.weaponId`);
+  parseAnimatorParameterAction(action.paramAction, `${path}.paramAction`);
+  requireBoolean(action.actionOnEnd, `${path}.actionOnEnd`);
+  parseAnimatorParameterAction(action.endAction, `${path}.endAction`);
+  requireBoolean(action.actionOnInterrupt, `${path}.actionOnInterrupt`);
+  parseAnimatorParameterAction(action.interruptionAction, `${path}.interruptionAction`);
+  requireBoolean(action.overrideInterruptionTime, `${path}.overrideInterruptionTime`);
+  requireNumber(action.interruptionBefore, `${path}.interruptionBefore`);
+  return { kind: 'weaponAnimation' };
+}
+
+function parseAnimatorParameterAction(value: unknown, path: string): void {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set(['animatorParam', 'paramType', 'boolValue', 'intValue', 'floatValue']),
+    path,
+  );
+  requireInteger(action.animatorParam, `${path}.animatorParam`);
+  requireString(action.paramType, `${path}.paramType`);
+  requireBoolean(action.boolValue, `${path}.boolValue`);
+  requireInteger(action.intValue, `${path}.intValue`);
+  requireNumber(action.floatValue, `${path}.floatValue`);
 }
 
 export function parseHideUiActionSource(
