@@ -1,35 +1,29 @@
+import type {
+  LevelValues,
+  SkillDefinition,
+  SkillCostDefinition,
+} from '../../../../../packages/game-data-contract/src/index.ts';
 import type { OperatorActiveSkillTypeSource } from './activeSkills.ts';
 import type { SkillPatchSource } from '../../source/skillPatch.ts';
 import { requireNonNegativeInteger, requireRecord } from '../../source/primitives.ts';
 import {
   compileActiveSkillRuntimeProjectionSource,
-  type CompiledActiveSkillRuntimeProjectionSource,
+  type CompiledActiveSkillTimelineSequenceSource,
 } from '../../compiler/activeSkillRuntimeProjection.ts';
 import type {
   CombatActionProjectionContextSource,
   CombatActionProjectionExtensionsSource,
-  CompiledBuffDefinitionSource,
-} from '../../compiler/buffRuntimeProjection.ts';
+} from '../../compiler/combatProjectionCommon.ts';
+import type { CompiledBuffDefinitionSource } from '../../compiler/buffProjectionTypes.ts';
 
-type LevelValueSource = number | readonly number[];
-
-export interface CompiledOperatorActiveSkillRuntimeDefinitionSource {
-  readonly key: string;
-  readonly sourceSkillId: string;
-  readonly blackboard: Readonly<Record<string, LevelValueSource>>;
-  readonly timelineBlockFrames: number;
-  readonly cooldownFrames?: LevelValueSource;
-  readonly costs?: readonly {
-    readonly resource: 'sp' | 'ultimateEnergy';
-    readonly value: LevelValueSource;
-  }[];
-  readonly costFrame: number;
-  readonly scheduledSequences: readonly {
-    readonly startFrame: number;
-    readonly endFrame: number;
-    readonly sequence: CompiledActiveSkillRuntimeProjectionSource['scheduledSequences'][number]['sequence'];
-  }[];
-}
+/** 已编译的正式技能子集；来源身份、黑板与消耗帧必填，不接受尚未接入的事件字段。 */
+export type CompiledOperatorActiveSkillRuntimeDefinitionSource = Readonly<
+  Pick<SkillDefinition, 'key' | 'timelineBlockFrames' | 'cooldownFrames'> &
+    Required<Pick<SkillDefinition, 'sourceSkillId' | 'blackboard' | 'costFrame'>>
+> & {
+  readonly costs?: readonly Readonly<SkillCostDefinition>[];
+  readonly scheduledSequences: readonly CompiledActiveSkillTimelineSequenceSource[];
+};
 
 export function compileOperatorActiveSkillRuntimeDefinitionSource(input: {
   readonly key: string;
@@ -104,6 +98,7 @@ export function renderOperatorActiveSkillRuntimeDefinitionSource(input: {
   };
 }
 
-function collapse(values: readonly number[]): LevelValueSource {
+function collapse(values: LevelValues): LevelValues {
+  if (typeof values === 'number') return values;
   return values.every(value => value === values[0]) ? values[0]! : [...values];
 }

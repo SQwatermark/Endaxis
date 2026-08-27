@@ -36,20 +36,23 @@ const dependency: CompiledWeaponTraitRuntimeDependencySource = {
     declaredBlackboard: [],
     actionGroup: { timelineActions: [], passiveEvents: [] },
   },
-  levels: [1, 2].map(level => ({
-    level,
-    installation: {
-      originKind: 'weapon',
-      originId: definition.slug,
-      sourcePath: `WeaponBasicTable.${definition.slug}`,
-      skillId: 'sk_wpn_test_0001',
-      level,
-      patchApplied: true,
-      blackboard: {},
+  request: {
+    originKind: 'weapon',
+    originId: definition.slug,
+    sourcePath: `WeaponBasicTable.${definition.slug}`,
+    skillId: 'sk_wpn_test_0001',
+    levelSource: {
+      kind: 'weaponProgression',
+      slotIndex: 0,
+      breakthroughTemplateId: 'fixture',
+      talentTemplateId: 'fixture',
     },
-    startupBuffs: [],
-    toggleBuffs: [],
-  })),
+    inputBlackboard: {},
+  },
+  levels: [1, 2],
+  blackboard: {},
+  startupBuffs: [],
+  toggleBuffs: [],
   referencedBuffIds: [],
 };
 
@@ -143,8 +146,10 @@ describe('weapon runtime definitions', () => {
   });
 
   it('把费用成功事件投影到公共技能 AbilityEvent，而不改写触发时机', () => {
+    const amount = Object.freeze([10, 20]);
     const withPassiveEvent: CompiledWeaponTraitRuntimeDependencySource = {
       ...dependency,
+      blackboard: { amount, constant: 7 },
       actionGraph: {
         ...dependency.actionGraph,
         actionGroup: {
@@ -194,6 +199,8 @@ describe('weapon runtime definitions', () => {
 
     const result = compileWeaponRuntimeDefinitionBatchSource([definition], [withPassiveEvent], {});
 
+    expect(result.definitions[0]?.traits[0]?.eventHandlers?.[0]?.blackboard.amount).toBe(amount);
+    expect(result.definitions[0]?.traits[0]?.eventHandlers?.[0]?.blackboard.constant).toBe(7);
     expect(result.diagnostics).toEqual([]);
     expect(result.definitions[0]?.traits[0]?.eventHandlers).toMatchObject([
       {

@@ -426,7 +426,6 @@ export {
   compileWeaponStaticDefinitionBatchSource,
   type CompiledWeaponStaticDefinitionBatchSource,
   type CompiledWeaponStaticDefinitionSource,
-  type CompiledWeaponTraitLevelRuntimeDependencySource,
   type CompiledWeaponTraitRuntimeDependencySource,
   type CompiledWeaponTraitStaticDefinitionSource,
   type CompiledWeaponToggleBuffGroupSource,

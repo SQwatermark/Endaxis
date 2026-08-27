@@ -186,8 +186,8 @@ describe('黑板声明和引用', () => {
     };
     const parsed = parseDeclaredBlackboard(payload.value, payload.path);
     expect(parsed).toEqual(runPythonOracle({ operation: 'parseDeclaredBlackboard', payload }));
-    expect(numericDeclaredBlackboard(parsed)).toEqual({ ratio: [0.8] });
-    expect(numericDeclaredBlackboard(parsed, true)).toEqual({ ratio: [0.8], runtime: [1] });
+    expect(numericDeclaredBlackboard(parsed)).toEqual({ ratio: 0.8 });
+    expect(numericDeclaredBlackboard(parsed, true)).toEqual({ ratio: 0.8, runtime: 1 });
   });
 });
 

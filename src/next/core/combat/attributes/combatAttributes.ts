@@ -1,3 +1,16 @@
+// 纯数据契约由独立包唯一声明；此路径保留兼容导出。
+export {
+  ATTRIBUTE_MODIFIER_TIMINGS,
+  type AttributeModifierTiming,
+  ATTRIBUTE_MODIFIER_SLOTS,
+  type AttributeModifierSlot,
+  type AttributeModifierValues,
+} from '../../../../../packages/game-data-contract/src/modifiers.ts';
+import {
+  type AttributeModifierSlot,
+  type AttributeModifierTiming,
+  type AttributeModifierValues,
+} from '../../../../../packages/game-data-contract/src/modifiers.ts';
 /**
  * 面板解析和战斗运行时共享的属性修正聚合核心。
  * 调用方必须按已确认的原生槽位注册修正，并显式管理启停，不能预先合并而丢失来源身份。
@@ -20,38 +33,9 @@ export const ATTRIBUTE_MODIFIER_SOURCES = {
 export type AttributeModifierSource =
   (typeof ATTRIBUTE_MODIFIER_SOURCES)[keyof typeof ATTRIBUTE_MODIFIER_SOURCES];
 
-export const ATTRIBUTE_MODIFIER_TIMINGS = ['deck', 'runtime'] as const;
-/** 属性修正写入原生八槽公式的处理时机。 */
-export type AttributeModifierTiming = (typeof ATTRIBUTE_MODIFIER_TIMINGS)[number];
-
-export const ATTRIBUTE_MODIFIER_SLOTS = [
-  'addition',
-  'multiplier',
-  'finalAddition',
-  'finalMultiplier',
-  'baseAddition',
-  'baseMultiplier',
-  'baseFinalAddition',
-  'baseFinalMultiplier',
-] as const;
-/** 原生属性聚合公式中的固定槽位。 */
-export type AttributeModifierSlot = (typeof ATTRIBUTE_MODIFIER_SLOTS)[number];
-
 export const COMBAT_ATTRIBUTE_VALUE_STAGES = ['armed', 'final'] as const;
 /** 属性聚合中可供原生动作读取的已确认阶段。 */
 export type CombatAttributeValueStage = (typeof COMBAT_ATTRIBUTE_VALUE_STAGES)[number];
-
-/** 一个修正在各槽位提供的稀疏数值集合。 */
-export interface AttributeModifierValues {
-  readonly addition: number;
-  readonly multiplier: number;
-  readonly finalAddition: number;
-  readonly finalMultiplier: number;
-  readonly baseAddition: number;
-  readonly baseMultiplier: number;
-  readonly baseFinalAddition: number;
-  readonly baseFinalMultiplier: number;
-}
 
 /** 一组战斗属性的基础值和按槽位计算方式。 */
 export interface CombatAttributeDefinition {

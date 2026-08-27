@@ -6,7 +6,7 @@ import type {
 import type {
   CompiledBuffSequenceSource,
   CompiledBuffStepSource,
-} from './buffRuntimeProjection.ts';
+} from './combatActionProjectionTypes.ts';
 
 export interface CompiledActionBlackboardScopeSource {
   readonly kind: 'withActionBlackboardScope';

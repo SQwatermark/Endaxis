@@ -1,34 +1,24 @@
+// 纯数据契约由独立包唯一声明；此路径保留兼容导出。
+export {
+  type PoiseModifierSide,
+  type PoiseProcessTiming,
+  type PoiseModifierNumber,
+  type PoiseModifierCondition,
+  type ModifyPoiseScalarProcessorDefinition,
+  type PoiseModifierDefinition,
+} from '../../../../../packages/game-data-contract/src/modifiers.ts';
+import {
+  type PoiseModifierCondition,
+  type PoiseModifierDefinition,
+  type PoiseModifierNumber,
+  type PoiseModifierSide,
+  type PoiseProcessTiming,
+} from '../../../../../packages/game-data-contract/src/modifiers.ts';
 /**
  * Buff 对单次失衡包的声明式修正。
  * 该模型属于通用 Buff 运行时；武器、装备和干员只负责生成相同的定义。
  */
 import type { DamageTag } from '../../game-data/operatorDefinition';
-
-export type PoiseModifierSide = 'attacker' | 'defender';
-export type PoiseProcessTiming = 'beforeCalculation' | 'afterCalculation';
-export type PoiseModifierNumber = number | { readonly blackboardKey: string };
-
-export type PoiseModifierCondition =
-  | { readonly kind: 'casterControlled' }
-  | {
-      readonly kind: 'eventDamageTagsMatch';
-      readonly match: 'hasAny' | 'hasAll';
-      readonly tags: readonly DamageTag[];
-    }
-  | { readonly kind: 'all'; readonly conditions: readonly PoiseModifierCondition[] };
-
-export interface ModifyPoiseScalarProcessorDefinition {
-  readonly kind: 'modifyPoiseScalar';
-  readonly timing: 'beforeCalculation';
-  readonly side: PoiseModifierSide;
-  readonly addition: PoiseModifierNumber;
-}
-
-export interface PoiseModifierDefinition {
-  readonly enabledSide: PoiseModifierSide;
-  readonly condition?: PoiseModifierCondition;
-  readonly processors: readonly ModifyPoiseScalarProcessorDefinition[];
-}
 
 /** 同一次失衡计算持有的可变倍率快照。 */
 export class PoiseCalculationContext {

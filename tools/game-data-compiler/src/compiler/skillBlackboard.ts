@@ -1,3 +1,4 @@
+import type { BlackboardLevelValues } from '../source/scalar.ts';
 import {
   numericDeclaredBlackboard,
   type DeclaredBlackboardValueSource,
@@ -8,7 +9,7 @@ export interface ResolvedSkillBlackboardSource {
   readonly definitionLevel: number;
   readonly declaredDefaults: Readonly<Record<string, number>>;
   readonly levels: readonly number[];
-  readonly values: Readonly<Record<string, readonly number[]>>;
+  readonly values: BlackboardLevelValues;
 }
 
 export interface SelectedSkillBlackboardSource {
@@ -27,20 +28,9 @@ export function resolveSkillBlackboardSource(
   patch: SkillPatchSource | null,
 ): ResolvedSkillBlackboardSource {
   const levels = patch?.levels ?? [definitionLevel];
-  const declaredDefaults = Object.fromEntries(
-    Object.entries(numericDeclaredBlackboard(declared)).map(([key, [value]]) => [key, value!]),
-  );
-  const values: Record<string, readonly number[]> = Object.fromEntries(
-    Object.entries(declaredDefaults).map(([key, value]) => [
-      key,
-      Array.from({ length: levels.length }, () => value),
-    ]),
-  );
-  if (patch) {
-    for (const [key, levelValues] of Object.entries(patch.blackboard)) {
-      values[key] = levelValues;
-    }
-  }
+  const declaredDefaults = numericDeclaredBlackboard(declared);
+  // 默认值不随等级变化；只有原生补丁贡献等级列，并保持其原引用与真实等级身份。
+  const values: BlackboardLevelValues = { ...declaredDefaults, ...patch?.blackboard };
   return { definitionLevel, declaredDefaults, levels, values };
 }
 
@@ -71,7 +61,10 @@ export function selectSkillBlackboardLevel(
     level: requestedLevel,
     patchApplied: true,
     values: Object.fromEntries(
-      Object.entries(source.values).map(([key, levelValues]) => [key, levelValues[levelIndex]!]),
+      Object.entries(source.values).map(([key, values]) => [
+        key,
+        typeof values === 'number' ? values : values[levelIndex]!,
+      ]),
     ),
   };
 }

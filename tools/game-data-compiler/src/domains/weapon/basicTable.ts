@@ -6,7 +6,8 @@ import {
   requireRecord,
   requireString,
 } from '../../source/primitives.ts';
-import { projectWeaponType, type ProjectedWeaponTypeSource } from '../../compiler/weaponType.ts';
+import { projectWeaponType } from '../../compiler/weaponType.ts';
+import type { OperatorWeaponType } from '../../../../../packages/game-data-contract/src/primitives.ts';
 import { parseWeaponTypeValue, type WeaponTypeSource } from '../../source/weaponType.ts';
 
 const WEAPON_FIELDS = new Set([
@@ -35,7 +36,7 @@ export interface WeaponBasicSource {
   readonly maximumLevel: number;
   readonly rarity: number;
   readonly nativeWeaponType: WeaponTypeSource;
-  readonly weaponType: ProjectedWeaponTypeSource;
+  readonly weaponType: OperatorWeaponType;
   readonly modelPath: string;
   readonly potentialSkillId: string;
   readonly skillIds: readonly string[];

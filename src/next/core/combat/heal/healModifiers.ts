@@ -1,51 +1,22 @@
-import type { ComparisonOperator } from '../../game-data/operatorDefinition';
+// 纯数据契约由独立包唯一声明；此路径保留兼容导出。
+export {
+  type HealModifierSide,
+  type HealProcessTiming,
+  type HealModifierNumber,
+  type HealModifierCondition,
+  type ModifyHealCalculationResultProcessorDefinition,
+  type ModifyHealingIncreaseProcessorDefinition,
+  type HealModifierDefinition,
+} from '../../../../../packages/game-data-contract/src/modifiers.ts';
+import {
+  type HealModifierCondition,
+  type HealModifierDefinition,
+  type HealModifierNumber,
+  type HealModifierSide,
+  type HealProcessTiming,
+} from '../../../../../packages/game-data-contract/src/modifiers.ts';
 import { compareCombatNumbers } from '../runtime/numericComparison';
 import type { CombatVitals } from '../runtime/combatVitals';
-
-export type HealModifierSide = 'healer' | 'receiver';
-export type HealProcessTiming = 'afterCalculation' | 'beforeCalculation';
-export type HealModifierNumber = number | { readonly blackboardKey: string };
-
-export type HealModifierCondition =
-  | {
-      readonly kind: 'targetHealthCompare';
-      readonly valueType: 'current' | 'ratio';
-      readonly operator: ComparisonOperator;
-      readonly value: HealModifierNumber;
-    }
-  | {
-      readonly kind: 'buffBlackboardCompare';
-      readonly left: HealModifierNumber;
-      readonly operator: ComparisonOperator;
-      readonly right: HealModifierNumber;
-    }
-  | {
-      readonly kind: 'healTagsMatch';
-      readonly match: 'hasAny' | 'hasAll';
-      readonly tagIds: readonly number[];
-    };
-
-export interface ModifyHealCalculationResultProcessorDefinition {
-  readonly kind: 'modifyCalculationResult';
-  readonly timing: 'afterCalculation';
-  readonly baseMultiplier: HealModifierNumber;
-  readonly multiplierCount: HealModifierNumber;
-}
-
-export interface ModifyHealingIncreaseProcessorDefinition {
-  readonly kind: 'modifyHealingIncrease';
-  readonly timing: 'beforeCalculation';
-  readonly side: HealModifierSide;
-  readonly addition: HealModifierNumber;
-}
-
-export interface HealModifierDefinition {
-  readonly enabledSide: HealModifierSide;
-  readonly condition?: HealModifierCondition;
-  readonly processors: readonly (
-    ModifyHealCalculationResultProcessorDefinition | ModifyHealingIncreaseProcessorDefinition
-  )[];
-}
 
 export class HealCalculationContext {
   constructor(

@@ -44,6 +44,34 @@ describe('公共属性修正编译器', () => {
     );
   });
 
+  it('整列参数保持同一引用，不展开成逐等级修正', () => {
+    const values = Object.freeze([0, 1, 2.5]);
+    const compiled = compileResolvedAttributeModifierSource({
+      sourcePath: 'fixture.modifier',
+      modifyAttributeType: 'Main',
+      attributeType: 'Atk',
+      formulaItem: 'BaseAddition',
+      value: values,
+    });
+    expect(compiled.value).toBe(values);
+    expect(resolveCompiledAttributeModifierTargets(compiled, 'Will', 'Str')).toEqual(['Will']);
+  });
+
+  it.each([{ value: [] }, { value: [0, Number.NaN] }, { value: [1, Number.POSITIVE_INFINITY] }])(
+    '拒绝空列和列内非有限值 $value',
+    ({ value }) => {
+      expect(() =>
+        compileResolvedAttributeModifierSource({
+          sourcePath: 'fixture.modifier',
+          modifyAttributeType: 'Specific',
+          attributeType: 'Str',
+          formulaItem: 'BaseAddition',
+          value,
+        }),
+      ).toThrow('attribute modifier value must be finite and level columns must not be empty');
+    },
+  );
+
   it('按原生规则展开 Specific、Main、Sub、All，同时保留声明属性', () => {
     const target = (modifyAttributeType: ModifyAttributeTypeSource) =>
       compileFixture(modifyAttributeType, 'BaseAddition');

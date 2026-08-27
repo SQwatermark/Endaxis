@@ -2,6 +2,11 @@ import type {
   AttributeTypeSource,
   ResolvedAttributeModifierSource,
 } from '../source/attributeModifiers.ts';
+import type {
+  AttributeModifierSlot,
+  OperatorAttribute,
+  LevelValues,
+} from '../../../../packages/game-data-contract/src/index.ts';
 
 // 领域适配器只通过公共编译入口消费规范化属性修正，不直接依赖原生枚举解析模块。
 export {
@@ -11,20 +16,11 @@ export {
   type ResolvedAttributeModifierSource,
 } from '../source/attributeModifiers.ts';
 
-export const ATTRIBUTE_MODIFIER_SLOTS = [
-  'addition',
-  'multiplier',
-  'finalAddition',
-  'finalMultiplier',
-  'baseAddition',
-  'baseMultiplier',
-  'baseFinalAddition',
-  'baseFinalMultiplier',
-] as const;
-export type AttributeModifierSlotSource = (typeof ATTRIBUTE_MODIFIER_SLOTS)[number];
+export { ATTRIBUTE_MODIFIER_SLOTS } from '../../../../packages/game-data-contract/src/modifiers.ts';
+export type AttributeModifierSlotSource = AttributeModifierSlot;
 
 export type CompiledAttributeModifierTargetSource = 'specific' | 'main' | 'sub' | 'all';
-export type ProjectedPrimaryAttributeSource = 'strength' | 'agility' | 'intellect' | 'will';
+export type ProjectedPrimaryAttributeSource = OperatorAttribute;
 
 const PRIMARY_ATTRIBUTE_KEYS: Readonly<
   Partial<Record<AttributeTypeSource, ProjectedPrimaryAttributeSource>>
@@ -93,19 +89,24 @@ export function projectPrimaryAttributeKey(
  * 领域无关的静态属性修正程序。声明属性即使在 Main/Sub/All 模式下不参与目标选择也继续保留，
  * 以便审计原始数据，不能因运行时忽略而从公共 IR 删除。
  */
-export interface CompiledAttributeModifierSource {
+export interface CompiledAttributeModifierSource<Value extends LevelValues = number> {
   readonly sourcePath: string;
   readonly target: CompiledAttributeModifierTargetSource;
   readonly declaredAttributeType: AttributeTypeSource;
   readonly slot: AttributeModifierSlotSource;
-  readonly value: number;
+  readonly value: Value;
 }
 
-export function compileResolvedAttributeModifierSource(
-  source: ResolvedAttributeModifierSource,
-): CompiledAttributeModifierSource {
-  if (!Number.isFinite(source.value)) {
-    throw new Error(`${source.sourcePath}: attribute modifier value must be finite`);
+export function compileResolvedAttributeModifierSource<Value extends LevelValues>(
+  source: Omit<ResolvedAttributeModifierSource, 'value'> & { readonly value: Value },
+): CompiledAttributeModifierSource<Value> {
+  // 结构与公式槽只解释一次；等级列逐值校验但不展开成多份修正对象。
+  const input: LevelValues = source.value;
+  const values = typeof input === 'number' ? [input] : input;
+  if (values.length === 0 || values.some(value => !Number.isFinite(value))) {
+    throw new Error(
+      `${source.sourcePath}: attribute modifier value must be finite and level columns must not be empty`,
+    );
   }
   return {
     sourcePath: source.sourcePath,
@@ -118,7 +119,7 @@ export function compileResolvedAttributeModifierSource(
 
 /** 按原生 AttributeModifierTargetResolver 展开 Specific/Main/Sub/All。 */
 export function resolveCompiledAttributeModifierTargets(
-  modifier: CompiledAttributeModifierSource,
+  modifier: CompiledAttributeModifierSource<LevelValues>,
   mainAttribute: AttributeTypeSource | null,
   subAttribute: AttributeTypeSource | null,
 ): readonly AttributeTypeSource[] {

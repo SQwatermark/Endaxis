@@ -124,7 +124,7 @@ describe('领域无关的被动 SkillData', () => {
       definitionLevel: 1,
       declaredDefaults: { duration: 5, damage_up: 0.1 },
       levels: [1, 2],
-      values: { duration: [5, 5], damage_up: [0.2, 0.3], patch_only: [1, 2] },
+      values: { duration: 5, damage_up: [0.2, 0.3], patch_only: [1, 2] },
     });
   });
 

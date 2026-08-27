@@ -5,7 +5,6 @@ import { compileBuffRuntimeDefinitionSource } from '../src/compiler/buffRuntimeP
 import { compileStandardStumpBuffClosure } from '../src/compiler/standardStumpBuffClosure.ts';
 import { parseBuffRuntimeSource } from '../src/source/buffRuntime.ts';
 import { compileOperatorBuffDefinitions } from '../../../src/next/core/compiler/compileSkill';
-import type { SkillBuffDefinition } from '../../../src/next/core/game-data/operatorDefinition';
 import { CombatAttributeSet } from '../../../src/next/core/combat/attributes/combatAttributes';
 import { CombatBuffContainer } from '../../../src/next/core/combat/buffs/combatBuffs';
 import { CompiledCombatBuffDefinitions } from '../../../src/next/core/combat/buffs/combatBuffDefinitions';
@@ -39,7 +38,7 @@ describe('原始易伤载体的动态子 Buff → 正式编译和运行端口', 
       const definitions = compileOperatorBuffDefinitions({
         ...childClosure.definitions,
         [carrierId]: carrier,
-      } as Record<string, SkillBuffDefinition>);
+      });
       const attributes = new CombatAttributeSet<string>();
       attributes.define('electricVulnerabilityIncrease', 0, { minimum: -10, maximum: 10 });
       const container = new CombatBuffContainer('enemy', attributes);

@@ -1,3 +1,4 @@
+import { compileGearSetContribution } from '../../../src/next/core/compiler/compileEquipment.ts';
 import { describe, expect, it } from 'vitest';
 
 import { compileEquipmentSuitStaticDefinitionBatchSource } from '../src/index.ts';
@@ -14,16 +15,30 @@ describe('装备套装静态定义', () => {
       {
         slug: 'suit_fixture',
         modifiers: [
-          { kind: 'damageScale', target: 'ether', slot: 'baseAddition', value: [0.2] },
-          { kind: 'panelStat', stat: 'staggerDamagePercent', value: [0.2] },
+          { kind: 'damageScale', target: 'ether', slot: 'baseAddition', value: 0.2 },
+          { kind: 'panelStat', stat: 'staggerDamagePercent', value: 0.2 },
           {
             kind: 'skillCooldownMultiplier',
             skillTypes: 'comboSkill',
-            value: [0.85],
+            value: 0.85,
           },
         ],
       },
     ]);
+    const definition = result.definitions[0]!;
+    const attributes = { main: 'will', secondary: 'agility' } as const;
+    expect(compileGearSetContribution(definition, attributes)).toEqual(
+      compileGearSetContribution(
+        {
+          ...definition,
+          modifiers: definition.modifiers.map(modifier => ({
+            ...modifier,
+            value: typeof modifier.value === 'number' ? [modifier.value] : modifier.value,
+          })),
+        },
+        attributes,
+      ),
+    );
     expect(result.diagnostics).toEqual([
       expect.objectContaining({
         status: 'scenario-omitted',

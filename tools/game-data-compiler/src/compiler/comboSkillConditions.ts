@@ -1,11 +1,9 @@
 import type { ComboSkillConditionSource } from '../source/comboSkillConditions.ts';
 import type { CompiledAbilitySystemBlackboardsSource } from './abilitySystemBlackboards.ts';
 import { requireNonEmptyString } from '../source/primitives.ts';
-import {
-  compileCombatConditionSequenceSource,
-  type CombatActionProjectionContextSource,
-  type CompiledBuffSequenceSource,
-} from './buffRuntimeProjection.ts';
+import { compileCombatConditionSequenceSource } from './buffRuntimeProjection.ts';
+import type { CombatActionProjectionContextSource } from './combatProjectionCommon.ts';
+import type { CompiledBuffSequenceSource } from './combatActionProjectionTypes.ts';
 
 const INFLICTION_COMBO_EVENTS = {
   126: 'beforeOutputInfliction',

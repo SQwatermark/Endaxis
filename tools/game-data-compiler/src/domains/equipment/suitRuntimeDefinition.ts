@@ -1,10 +1,10 @@
 import { requireRecord } from '../../source/primitives.ts';
 import { parseBuffRuntimeSource } from '../../source/buffRuntime.ts';
+import type { CompiledBuffDefinitionSource } from '../../compiler/buffProjectionTypes.ts';
 import type {
-  CompiledBuffDefinitionSource,
   CompiledBuffSequenceSource,
   CompiledBuffStepSource,
-} from '../../compiler/buffRuntimeProjection.ts';
+} from '../../compiler/combatActionProjectionTypes.ts';
 import {
   buffRuntimeReadsBlackboardKey,
   collectBuffRuntimePresentationActionPaths,
@@ -15,6 +15,7 @@ import {
 } from '../../compiler/buffRuntimeProjection.ts';
 import type {
   CompiledGearSetStaticDefinitionSource,
+  CompiledGearSetRuntimeDependencySource,
   CompiledGearSetToggleBuffGroupSource,
   UnresolvedSkillBlackboardValueSource,
 } from './suitStaticDefinition.ts';
@@ -35,19 +36,12 @@ export interface CompiledEquipmentSuitRuntimeBatchSource {
  */
 export function compileEquipmentSuitRuntimeBatchSource(
   definitions: readonly CompiledGearSetStaticDefinitionSource[],
-  dependencies: readonly {
-    readonly suitId: string;
-    readonly skillId: string;
-    readonly startupBuffIds: readonly string[];
-    readonly startupBuffs?: readonly {
-      readonly buffId: string;
-      readonly blackboardAssignments: Readonly<
-        Record<string, number | string | UnresolvedSkillBlackboardValueSource>
-      >;
-    }[];
-    readonly toggleBuffIds: readonly string[];
-    readonly toggleBuffs: readonly CompiledGearSetToggleBuffGroupSource[];
-  }[],
+  // 来源计划的消费视图；兼容旧调用省略 startupBuffs，不复制安装参数字段。
+  dependencies: readonly (Pick<
+    CompiledGearSetRuntimeDependencySource,
+    'suitId' | 'skillId' | 'startupBuffIds' | 'toggleBuffIds' | 'toggleBuffs'
+  > &
+    Partial<Pick<CompiledGearSetRuntimeDependencySource, 'startupBuffs'>>)[],
   buffDataValue: unknown,
 ): CompiledEquipmentSuitRuntimeBatchSource {
   const buffData = requireRecord(buffDataValue, 'BuffData');
@@ -184,10 +178,7 @@ export function compileEquipmentSuitRuntimeBatchSource(
         });
         continue;
       }
-      const assignments: Record<
-        string,
-        { readonly kind: 'constant'; readonly value: number | string }
-      > = {};
+      const assignments: Record<string, { readonly kind: 'constant'; readonly value: number }> = {};
       for (const [targetKey, value] of Object.entries(installation.blackboardAssignments)) {
         if (isUnresolvedSkillBlackboardValue(value)) {
           if (buffRuntimeReadsBlackboardKey(rootSource, targetKey)) {
@@ -204,6 +195,16 @@ export function compileEquipmentSuitRuntimeBatchSource(
               reason: `unmaterialized server passive skill blackboard value ${JSON.stringify(value.key)} is never read by the installed Buff`,
             });
           }
+          continue;
+        }
+        if (typeof value !== 'number') {
+          blocked = true;
+          diagnostics.push({
+            status: 'blocked',
+            sourcePath: `SkillData.${dependency.skillId}.buffs.${installation.buffId}.${targetKey}`,
+            reason:
+              'direct string Buff assignment is not supported by the generated action contract',
+          });
           continue;
         }
         assignments[targetKey] = { kind: 'constant', value };

@@ -1,7 +1,10 @@
-import {
-  compileResolvedAttributeModifierSource,
-  type ResolvedAttributeModifierSource,
-} from '../../compiler/attributeModifier.ts';
+import type {
+  GearDefinition,
+  GearSlotType,
+  GearTraitDefinition,
+} from '../../../../../packages/game-data-contract/src/equipment.ts';
+import { compileResolvedAttributeModifierSource } from '../../compiler/attributeModifier.ts';
+import { isBuildContributionModifier } from '../../compiler/buildAttributeProjection.ts';
 import type {
   EquipmentAttributeModifierSource,
   EquipmentItemSource,
@@ -10,7 +13,6 @@ import type {
 import {
   projectEquipmentAttributeModifier,
   type EquipmentAttributeModifierProjectionSource,
-  type ProjectedEquipmentModifierSource,
 } from './projection.ts';
 import type {
   BuildDefinitionDiagnosticSource,
@@ -20,22 +22,22 @@ import type {
 export type EquipmentDefinitionDiagnosticSource = BuildDefinitionDiagnosticSource;
 export type CompiledEquipmentModifierDefinitionSource = CompiledBuildModifierDefinitionSource;
 
-export type CompiledGearSlotTypeSource = 'armor' | 'gloves' | 'accessory';
-export interface CompiledGearTraitDefinitionSource {
-  readonly key: string;
-  readonly levelCount: number;
-  readonly modifiers: readonly CompiledEquipmentModifierDefinitionSource[];
-}
+// 兼容旧导入路径；槽位身份的唯一声明位于独立契约。
+export type { GearSlotType as CompiledGearSlotTypeSource } from '../../../../../packages/game-data-contract/src/equipment.ts';
 
-export interface CompiledGearDefinitionSource {
-  readonly slug: string;
-  readonly assetSlug: string;
-  readonly slotType: CompiledGearSlotTypeSource;
-  readonly levelRequirement: number;
-  readonly baseDefense: number;
+/** 正式装备词条的静态输出子集，不是来源或优化 IR。 */
+export type CompiledGearTraitDefinitionSource = Readonly<
+  Pick<GearTraitDefinition, 'key' | 'levelCount'>
+> & {
+  readonly modifiers: readonly CompiledEquipmentModifierDefinitionSource[];
+};
+
+export type CompiledGearDefinitionSource = Readonly<
+  Pick<GearDefinition, 'slug' | 'slotType' | 'levelRequirement' | 'baseDefense' | 'gearSetSlug'> &
+    Required<Pick<GearDefinition, 'assetSlug'>>
+> & {
   readonly traits: readonly CompiledGearTraitDefinitionSource[];
-  readonly gearSetSlug?: string;
-}
+};
 
 export interface CompiledEquipmentDefinitionSource {
   readonly definition?: CompiledGearDefinitionSource;
@@ -47,26 +49,15 @@ export interface CompiledEquipmentDefinitionBatchSource {
   readonly diagnostics: readonly EquipmentDefinitionDiagnosticSource[];
 }
 
-const GEAR_SLOT_BY_PART_TYPE: Readonly<
-  Partial<Record<EquipmentPartTypeSource, CompiledGearSlotTypeSource>>
-> = {
+const GEAR_SLOT_BY_PART_TYPE: Readonly<Partial<Record<EquipmentPartTypeSource, GearSlotType>>> = {
   Body: 'armor',
   Hand: 'gloves',
   EDC: 'accessory',
 };
 
-type ProjectedModifierLevelValues = ProjectedEquipmentModifierSource extends infer T
-  ? T extends ProjectedEquipmentModifierSource
-    ? Omit<T, 'value'> & { readonly value: readonly number[] }
-    : never
-  : never;
-
-interface ProjectedModifierLevels {
-  readonly source: EquipmentAttributeModifierSource;
-  readonly status: EquipmentAttributeModifierProjectionSource['status'];
-  readonly modifier?: ProjectedModifierLevelValues;
-  readonly reason?: string;
-}
+type ProjectedModifierLevels = EquipmentAttributeModifierProjectionSource<readonly number[]> & {
+  readonly origin: EquipmentAttributeModifierSource;
+};
 
 /**
  * 把一条原生装备记录组装成 Next 正式定义。
@@ -91,15 +82,15 @@ export function compileEquipmentDefinitionSource(
     if (entry.status === 'supported') continue;
     diagnostics.push({
       status: entry.status,
-      sourcePath: entry.source.sourcePath,
-      reason: entry.reason ?? 'equipment modifier projection failed without a reason',
+      sourcePath: entry.origin.sourcePath,
+      reason: entry.reason,
     });
   }
 
   const baseDefenseEntries = projected.filter(
     entry =>
       entry.status === 'supported' &&
-      entry.modifier?.kind === 'panelStat' &&
+      entry.modifier.kind === 'panelStat' &&
       entry.modifier.stat === 'baseDefense',
   );
   if (baseDefenseEntries.length !== 1) {
@@ -109,14 +100,16 @@ export function compileEquipmentDefinitionSource(
       reason: `expected exactly one base-defense modifier, got ${baseDefenseEntries.length}`,
     });
   }
-  const baseDefenseValues = baseDefenseEntries[0]?.modifier?.value ?? [];
+  const baseDefenseEntry = baseDefenseEntries[0];
+  const baseDefenseValues =
+    baseDefenseEntry?.status === 'supported' ? baseDefenseEntry.modifier.value : [];
   if (
     baseDefenseValues.length === 0 ||
     baseDefenseValues.some(value => value !== baseDefenseValues[0])
   ) {
     diagnostics.push({
       status: 'blocked',
-      sourcePath: baseDefenseEntries[0]?.source.sourcePath ?? equipment.sourcePath,
+      sourcePath: baseDefenseEntries[0]?.origin.sourcePath ?? equipment.sourcePath,
       reason: 'GearDefinition.baseDefense cannot represent enhancement-dependent values',
     });
   }
@@ -163,51 +156,16 @@ export function compileEquipmentDefinitionBatchSource(
 }
 
 function projectModifierLevels(source: EquipmentAttributeModifierSource): ProjectedModifierLevels {
-  const projections = source.attributeValues.map(value =>
-    projectEquipmentAttributeModifier(
-      compileResolvedAttributeModifierSource({
-        sourcePath: source.sourcePath,
-        modifyAttributeType: source.modifyAttributeType,
-        attributeType: source.attributeType,
-        formulaItem: source.formulaItem,
-        value,
-      } satisfies ResolvedAttributeModifierSource),
-    ),
+  const projection = projectEquipmentAttributeModifier(
+    compileResolvedAttributeModifierSource({
+      sourcePath: source.sourcePath,
+      modifyAttributeType: source.modifyAttributeType,
+      attributeType: source.attributeType,
+      formulaItem: source.formulaItem,
+      value: source.attributeValues,
+    }),
   );
-  const first = projections[0]!;
-  if (projections.some(projection => projection.status !== first.status)) {
-    return {
-      source,
-      status: 'blocked',
-      reason: 'the same native modifier changes projection status between enhancement levels',
-    };
-  }
-  if (first.status !== 'supported') {
-    return { source, status: first.status, reason: first.reason };
-  }
-  if (
-    projections.some(
-      projection =>
-        projection.status !== 'supported' ||
-        modifierIdentity(projection.modifier) !== modifierIdentity(first.modifier),
-    )
-  ) {
-    return {
-      source,
-      status: 'blocked',
-      reason: 'the same native modifier changes semantic identity between enhancement levels',
-    };
-  }
-  return {
-    source,
-    status: 'supported',
-    modifier: {
-      ...first.modifier,
-      value: projections.map(projection =>
-        projection.status === 'supported' ? projection.modifier.value : Number.NaN,
-      ),
-    },
-  };
+  return { ...projection, origin: source };
 }
 
 function compileTraits(
@@ -216,24 +174,21 @@ function compileTraits(
 ): CompiledGearTraitDefinitionSource[] {
   const groups = new Map<number, ProjectedModifierLevels[]>();
   for (const entry of projected) {
-    if (
-      entry.status !== 'supported' ||
-      (entry.modifier?.kind === 'panelStat' && entry.modifier.stat === 'baseDefense')
-    ) {
+    if (entry.status !== 'supported' || !isBuildContributionModifier(entry.modifier)) {
       continue;
     }
-    const group = groups.get(entry.source.attributeIndex) ?? [];
+    const group = groups.get(entry.origin.attributeIndex) ?? [];
     group.push(entry);
-    groups.set(entry.source.attributeIndex, group);
+    groups.set(entry.origin.attributeIndex, group);
   }
 
   const traits: CompiledGearTraitDefinitionSource[] = [];
   for (const [attributeIndex, entries] of [...groups].sort(([left], [right]) => left - right)) {
-    const levelCount = entries[0]!.source.attributeValues.length;
-    if (entries.some(entry => entry.source.attributeValues.length !== levelCount)) {
+    const levelCount = entries[0]!.origin.attributeValues.length;
+    if (entries.some(entry => entry.origin.attributeValues.length !== levelCount)) {
       diagnostics.push({
         status: 'blocked',
-        sourcePath: entries[0]!.source.sourcePath,
+        sourcePath: entries[0]!.origin.sourcePath,
         reason: `attrIndex ${attributeIndex} contains inconsistent enhancement level counts`,
       });
       continue;
@@ -241,61 +196,12 @@ function compileTraits(
     traits.push({
       key: `attribute-${attributeIndex}`,
       levelCount,
-      modifiers: entries.map(entry => toFormalModifier(entry.modifier!)),
+      modifiers: entries.flatMap(entry =>
+        entry.status === 'supported' && isBuildContributionModifier(entry.modifier)
+          ? [entry.modifier]
+          : [],
+      ),
     });
   }
   return traits;
-}
-
-function toFormalModifier(
-  modifier: NonNullable<ProjectedModifierLevels['modifier']>,
-): CompiledEquipmentModifierDefinitionSource {
-  switch (modifier.kind) {
-    case 'attribute':
-      return {
-        kind: 'attribute',
-        attribute: modifier.attribute,
-        operation: modifier.operation,
-        value: modifier.value,
-      };
-    case 'panelStat':
-      if (modifier.stat === 'baseDefense') {
-        throw new Error('baseDefense must be lifted before compiling gear traits');
-      }
-      return { kind: 'panelStat', stat: modifier.stat, value: modifier.value };
-    case 'damageScale':
-      return {
-        kind: 'damageScale',
-        target: modifier.target,
-        slot: modifier.slot,
-        value: modifier.value,
-      };
-    case 'staticHealingIncrease':
-      return {
-        kind: 'staticHealingIncrease',
-        target: modifier.target,
-        value: modifier.value,
-      };
-    case 'skillCooldownMultiplier':
-      return {
-        kind: 'skillCooldownMultiplier',
-        skillTypes: modifier.skillTypes,
-        value: modifier.value,
-      };
-  }
-}
-
-function modifierIdentity(modifier: ProjectedEquipmentModifierSource): string {
-  switch (modifier.kind) {
-    case 'attribute':
-      return `${modifier.kind}/${modifier.attribute}/${modifier.operation}`;
-    case 'panelStat':
-      return `${modifier.kind}/${modifier.stat}`;
-    case 'damageScale':
-      return `${modifier.kind}/${modifier.target}`;
-    case 'staticHealingIncrease':
-      return `${modifier.kind}/${modifier.target}`;
-    case 'skillCooldownMultiplier':
-      return `${modifier.kind}/${modifier.skillTypes}`;
-  }
 }

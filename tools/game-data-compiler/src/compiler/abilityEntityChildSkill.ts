@@ -1,4 +1,4 @@
-import type { AbilityEntityChildSkillDefinition } from '../../../../src/next/core/game-data/operatorDefinition.ts';
+import type { AbilityEntityChildSkillDefinition } from '../../../../packages/game-data-contract/src/index.ts';
 import { requireArray, requireRecord } from '../source/primitives.ts';
 import { compileActiveSkillRuntimeProjectionSource } from './activeSkillRuntimeProjection.ts';
 
@@ -43,5 +43,5 @@ export function compileAbilityEntityChildSkillSource(
     scheduledSequences: runtime.scheduledSequences,
   };
   // 此处只输出候选。产品侧结构/运行验证在整名门禁中完成；不能把浏览器运行引擎加载进 Node 来源编译器。
-  return definition as AbilityEntityChildSkillDefinition;
+  return definition;
 }

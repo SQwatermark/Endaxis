@@ -13,6 +13,8 @@
     "convert:images": "node scripts/convert-png-to-webp.js",
     "type-check": "vue-tsc --noEmit --project tsconfig.app.json",
     "type-check:next": "vue-tsc --noEmit --project tsconfig.next.json",
+    "type-check:game-data-contract": "tsc --project packages/game-data-contract/tsconfig.json",
+    "type-check:game-data-production": "tsc --project tools/game-data-compiler/tsconfig.production.json",
     "type-check:game-data": "tsc --project tools/game-data-compiler/tsconfig.json",
     "test": "vitest",
     "test:next": "vitest run src/next",

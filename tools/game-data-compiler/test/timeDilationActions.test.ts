@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { parseTimeDilationActionSource, parseUltimateTimeActionSource } from '../src/index.ts';
 import { scalarFixture, targetFixture } from './sourceFixtures.ts';
+import { parseTimeDilationCurveKeys } from '../src/source/timeDilationActions.ts';
 
 const META = {
   $type: 'Beyond.Gameplay.Core.TimeDilationAction+Data, Gameplay.Beyond',
@@ -14,6 +15,14 @@ const curve = [
 ];
 
 describe('时间膨胀动作来源', () => {
+  it('来源层保留未知整数权重模式，是否可输出由投影层决定', () => {
+    expect(
+      parseTimeDilationCurveKeys([{ ...curve[0], weightedMode: 4 }], 'curve')[0],
+    ).toMatchObject({ weightedMode: 4 });
+    expect(() => parseTimeDilationCurveKeys([{ ...curve[0], weightedMode: 0.5 }], 'curve')).toThrow(
+      'curve[0].weightedMode',
+    );
+  });
   it('保留普通动作的标签、曲线选择、目标和冷却影响窗口', () => {
     const parsed = parseTimeDilationActionSource(
       {

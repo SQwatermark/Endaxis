@@ -7,6 +7,211 @@
 装备的特有入口从公共编译流程中剥离。旧 Python 生成器在迁移完成前仅作为可执行对照，
 不能继续承载新功能。
 
+## 数据契约与依赖边界（2026-08-27）
+
+生成数据的唯一正式结构现位于 [`packages/game-data-contract`](../../packages/game-data-contract/README.md)。
+该文档固定模块依赖图、数据转换图、字段归属、等级轴与引用边界；后续修改必须先遵守这些约定。
+转换器和 Endaxis 本体都消费独立契约，禁止互相导入，包括 type-only 导入。
+本体原 `operatorDefinition.ts` / `equipmentDefinition.ts` 仅保留兼容转导出；Buff 的纯数据属性
+也已脱离运行类，不再从执行器类型裁剪 `SkillBuffDefinition`。生成文件暂保持原 import 路径，
+经兼容入口消费同一契约，不因此重写已有产物。
+
+独立契约迁移完成后，已沿既定模型收敛静态属性链路：一份结构与等级参数列直接投影，
+不再逐等级展开属性对象、投影后比较身份、再聚合回列。此前被撤回的试改没有直接恢复；
+本次不加连续等级限制，不调整运行条件选择。真实不同的等级效果、缺档、默认回退及覆盖顺序不能删除。
+不把公共契约的建立计为新增完整干员；完整生成与正式注册仍为艾维文娜 1 名。
+
+独立门禁：`npm run type-check:game-data-contract`、`npm run type-check:game-data-production`，以及
+`test/dataContractBoundaries.test.ts`。生产图只允许编译器、契约和既有无本体依赖的 `src/shared` 工具；
+跨端集成测试单独允许消费本体。契约自身不允许运行类、回调字段或包外依赖。
+完整结构 validator 仍暂留本体，后续纯校验迁移必须先拆掉与 Buff 执行器的耦合，不能复制一套近似实现。
+
+### 静态属性链路的固定分工
+
+1. 来源层保留原生目标、属性和公式槽；`SkillPatch` 保留真实等级 ID 与参数列。
+2. `passiveSkillInstallation.ts` 负责等级选择和输入覆盖。定义编译时武器直接取整列；套装按原生固定
+   等级取值，缺档或 nativeDefault 仍用 SkillData 默认值。输入黑板在补丁后覆盖为单值。
+3. `cardSkillBuildModifiers.ts` 是武器/套装共同的 CardSkill 参数绑定入口：字面量保持单值，
+   黑板引用直接传列。`attributeModifier.ts` 规范化原生身份，`buildAttributeProjection.ts` 只投影一次。
+   单件装备精锻也传整列，干员养成的单值继续使用同一个公共投影，不另建算法。
+4. `CompiledBuildModifierDefinitionSource<Value>` 只约束独立契约中的已支持贡献种类；
+   `ProjectedBuildModifierSource<Value>` 仅额外包含待提升的 `baseDefense`。除这个特例外，投影结果
+   就是正式修正，无需 `toFormalModifier` 再搬字段。类型可表示不等于已取得转换证据。
+5. 装备装配只处理基础防御提升、attrIndex 分组和精锻档数；武器装配只处理词条与领域身份。
+   CardSkill 不允许设置装备顶层基础防御，返回 blocked 诊断；缺黑板不补零。
+
+`Value` 使用独立契约的 `LevelValues`。不折叠原生等级列中的重复数值；这里只是不再为字面常量
+和固定等级套装制造重复数组。已有数值数组仍合法，不要求为表示变化批量重写正式数据。
+机械门禁禁止领域读取 `cardAttributeModifiers` 自行绑定参数，回归检查整列引用未复制、原生槽位
+边界未放宽、默认回退/输入覆盖未变，以及本体构筑解析中单值与原重复数组等价。
+
+### 武器运行安装链路（2026-08-27）
+
+`CompiledWeaponTraitRuntimeDependencySource` 现在保留一次原始请求、等级 ID 列、黑板列、启动 Buff、
+Toggle 组和动作图。旧 `CompiledWeaponTraitLevelRuntimeDependencySource` 已删除，不再为每一等级
+复制整个安装上下文和 Buff 参数。静态修正与运行安装共用同一份已处理输入覆盖的黑板。
+
+- `materializePassiveBuffInstallation<Value>` 是单值/整列通用的参数绑定器；引用沿用原列，直接赋值
+  保持单值/字符串，缺失的服务端参数保留 unresolved 身份。套装仍使用固定等级的单值调用。
+- `compileTraitPlans` 逐档求值真正依赖等级的条件，只选择安装对象的引用；它不是逐档重新编译 Buff。
+  必须在闭包场景省略之后，比较最终安装顺序、Buff ID 与参数键。不同 Toggle 组跨档交替成立，
+  只要最终结构相同就可以保留，不能要求每个组跨档启用状态一致。
+- `selectInstallationValues` 对同一参数来源直接沿用单值/原列；只有跨档选中了不同参数来源，
+  才按各自下标组成结果列，例如 `[A[0], B[1]]`。缺失/非数字值仍按 Buff 实际读集阻断或明确省略。
+- 事件黑板、Deck 初始化黑板直接使用同一批参数列，不再从每级安装对象倒收集。
+  绑定参数列需覆盖来源等级轴；本次未新增原生等级连续性限制或改变缺档回退。
+
+真实 77 把武器的 78 个生成文件与静态重构后的基线逐字一致，2034 个词条等级的对象级差分为零。
+针对交替 Toggle、最终结构变化、表现省略、必读/未读服务端参数的回归独立于本机 tmp，
+并通过本体 validator 与构筑编译器检查生成列的实际解析。
+
+### 默认值、补丁列与运行引用（2026-08-27）
+
+默认值链路已去掉“先包单元素数组、再按等级扩列”：`numericDeclaredBlackboard` 直接返回单值，
+`resolveSkillBlackboardSource` 只做默认值与原生 Patch 列的覆盖合并。技能、Buff、主动与被动入口
+共用这个数值模型，不在各领域入口补回重复数组。
+
+| 数据字段 | 形式与边界 |
+| --- | --- |
+| `DeclaredBlackboardValueSource.value` | 原始单个声明的数值/字符串，保留动态标记。 |
+| `SkillPatchSource.blackboard` | 原生补丁等级列，与 `levels` 的真实等级 ID 一一对应；相等值的列也不在这里折叠。 |
+| `ResolvedSkillBlackboardSource.values` | 默认值为单值，补丁值保留原列引用；动态声明默认不纳入，Patch 可以另行提供同名值。 |
+| `ScalarSource.levelValues` | `LevelValues \| null`：上层已知数值或未知输入。保留原字段名，但不再只表示数组；只是解析上下文，不是常量传播。 |
+
+`selectSkillBlackboardLevel` 仅在请求等级精确命中时按列下标取值，单值直接沿用；null/缺档仍只回到
+声明默认值，不泄漏 Patch-only 键。额外输入黑板的覆盖仍在此后。Buff 局部声明可以覆盖继承上下文，
+即使调用方显式纳入动态初值，动作和寿命参数也仍按 `blackboardKey` 编译成运行引用，不能冻结为初值。
+主动技能正式装配沿用既有输出折叠规则，只新增对单值的直接传递；费用/冷却的单位转换不变。
+
+真实武器候选输出有 10 份文件从重复默认数组改为单值，2034 个词条等级的对象级比较无差异。
+它们只生成到 tmp，未覆盖正式目录；因此正式武器 `--check` 现在除既有 `wpn_funnel_0016` 的行为来源
+陈旧项外，还会看到这些预期表示差异。不能再宣称正式武器目录只有一个 stale。艾维文娜整名产物未变。
+
+**尚未完成**：这不等于生成器所有等级化数据、优化与表示都已整理完毕。
+公共动作/Buff 的输出子集已集中到契约派生模块；其他编译模块的类型仍须逐项按证据收敛，
+不能将这次整理称为整个生成器已统一。类型兼容检查也不等于外部 JSON 的运行时结构校验。
+武器 Buff 挂首词条、纯 validator 独立化另行处理，不混入本批等级链路重构。
+
+### 公共动作/Buff 的输出类型边界（2026-08-27）
+
+- 显示信息、属性修正、伤害/治疗/失衡修正从独立契约派生，只附加当前已支持的字段和条件子集。
+  不重写槽位、乘区、处理器字段；叠加类型映射的值必须是契约枚举，不能放宽成 string。
+- 原生曲线关键帧仍保留整数 weightedMode，输出关键帧使用契约定义；投影只接受 0/1/2/3，
+  未支持的值带原始动作路径阻断，不断言、不截位、不补默认值。依据为 combat-spec 的
+  AnimationCurveEvaluator（WeightedIn=1 / WeightedOut=2）；合法关键帧数据不变。
+- 治疗参数是属性公式与固定值公式的互斥联合，不能把 amount/attribute/multiplier/addition 全写成
+  独立可选字段。Buff 动作赋值当前只支持数值操作数；CreateBuff 与 Aura 共用投影入口，字符串直写
+  在转换时阻断，套装安装也返回 blocked，而不是生成本体无法执行的常量。
+  原生字符串仍完整保留；引用分支不读取残留直接值，已证明纯表现的整项仍先省略。
+  Buff 定义的字符串默认值及动态 buffId 字符串读取不受影响；不要为了赋值而拓宽数值运算操作数。
+- `test/compiledCombatContract.test.ts` 由 `type-check:game-data` 检查整个公共 Buff、条件、
+  步骤、序列和武器输出是否可赋给契约（不是只检查某个 JSON 样本）。跨端测试直接使用这些输出，
+  不允许借助 unknown/as 绕过不兼容；现有运行时 validator 仍正常执行。
+
+该批联合 326 文件 / 3852 项、四套类型检查、艾维文娜整名及 77 把武器临时基线的生成检查通过。
+
+### 公共输出类型的固定归属（2026-08-27）
+
+| 模块 | 责任与依赖 |
+| --- | --- |
+| `combatActionProjectionTypes.ts` | 条件、动作值、步骤、序列与简单伤害输出的已支持子集，只依赖独立契约。 |
+| `buffProjectionTypes.ts` | Buff 根字段、显示与修正器输出，依赖契约及上述动作类型。 |
+| `buffRuntimeProjection.ts` / `simpleDamageOperation.ts` | 原生语义投影；旧类型入口仅转导出，不再声明副本。 |
+
+窄子集不代表新协议：公共字段由 Pick/Extract 等派生，只保留现有目标、枚举、必需字段和递归子树
+限制。例如事件技能类型不含处决，实体时间膨胀只接受命名曲线，Buff 查询尚未输出同施法过滤位；
+复用契约时不得顺便放开这些限制。支持判断仍由投影执行，不以类型代替来源证据或场景审计。
+
+`dataContractBoundaries.test.ts` 机械检查 12 个公共输出类型只声明一次，两个类型模块不得反向导入
+来源、编译实现或领域模块，也不得放入可执行语句。`compiledCombatContract.test.ts` 同时检查
+契约兼容与未支持形状的排除（递归条件、目标、必需字段、曲线和运算）。
+
+迁移前后 12 个类型双向可赋值；擦除类型、移除注释后的两个投影模块 JavaScript 完全一致。
+主文件从 3709 行降到 3166 行，两个类型文件为 277/152 行，相关生产代码合计净减 132 行。
+联合 **326 文件 / 3856 项**、四套类型检查、艾维文娜整名及 77 把武器临时基线检查通过；
+没有更新正式产物、游戏规则或完整干员数。
+
+实现随后已按公共职责分离：`combatConditionProjection.ts` 负责条件，
+`combatActionLeafProjection.ts` 负责普通动作叶子，`combatEntityAndTimeProjection.ts` 负责
+实体/时间动作，`combatProjectionCommon.ts` 负责共享上下文及操作数。主文件保留 Buff 装配
+和控制流编排，从 3166 行降到 1199 行；57 个函数及常量初始化器的 AST 与拆分前一致。
+类型消费者直接引用所属模块，传递依赖门禁包含 type-only import，禁止经其他模块绕回上层。
+联合 **326 文件 / 3858 项**、四套类型检查、整名及武器临时基线检查通过，正式产物不变。
+不为文件拆分制造新框架，不启动尚未批准的激进优化。架构边界收敛后回到第二名完整 Operator 纵向迁移。
+
+### 阶段输出与真正中间态的归属（2026-08-27）
+
+类型准入规则见[独立契约的类型归属](../../packages/game-data-contract/README.md#类型归属与中间表示)。
+新增中间类型必须说明生产者、消费者、额外信息、不变量以及退出阶段；仅仅重命名、转交字段
+不构成创建第二套 schema 的理由。编译工具类型不必进入契约，原生类型也不得因外形相同合并。
+
+| 当前类型/模块 | 类别与处理 |
+| --- | --- |
+| `weaponType.ts` / `ProjectedWeaponTypeSource` | 正式身份直接使用 `OperatorWeaponType`，旧名只转导出；原生到正式的映射保留 |
+| `CompiledWeaponStaticDefinitionSource` / `CompiledWeaponTraitStaticDefinitionSource` | 正式阶段输出，从 Weapon/词条契约派生，修正器仍取已支持子集 |
+| `CompiledWeaponRuntimeDefinitionSource` | 静态候选补齐行为后的正式输出，资源字段及初始化黑板来自契约；不是优化 IR |
+| `CompiledWeaponEventHandlerSource` | 公共事件协议的已支持子集，priority/blackboard 必填；两种触发入口互斥 |
+| `CompiledWeaponTraitRuntimeDependencySource` | 静态编译→运行装配的依赖计划，保留原生请求、动作图、等级身份与资源引用；不输出 |
+| `CompiledWeaponToggleConditionSource` / Toggle 组 | 安装判定中间态，原生比较名及未解析值保留到场景装配；不能冒充正式条件 |
+| `CompiledGearDefinitionSource` / 词条 | 正式输出子集，槽位与字段来自契约，assetSlug 和 modifiers 保持必填 |
+| `ProjectedModifierLevels` | 装配用的修正结果及原生 origin，保留索引和来源；进入正式装备后不再携带 origin |
+| 各种 Batch / Diagnostic / Request | 编译工具数据，不是正式游戏 schema，也不是为优化新增的 IR |
+
+本轮已收敛武器星级、武器类型、Ability 事件和装备槽位四组身份；语义战斗事件仍保留当前三类
+及物理异常四项/装备者范围。契约拥有更多形状不代表转换器自动支持，映射之外的原生值仍阻断。
+`dataContractBoundaries.test.ts` 对这四组已确认身份扫描重复联合与校验集合，也检查已迁移的
+阶段输出不再手写契约字段；`compiledCombatContract.test.ts` 验证兼容性、必填项及不支持形状。
+这些是明确范围的门禁，不宣称已经证明全转换器没有任何同义类型。
+
+本轮联合 **326 文件 / 3868 项**、四套类型检查、艾维文娜整名及 77 把武器临时基线 `--check`
+通过。生成行为及正式产物不变，未新增完整干员；正式武器此前的陈旧差异仍未覆盖。
+
+后续切片已收敛干员角色/星级、头部/成长/信赖、套装及主动技能调度输出：
+
+| 类型/模块 | 本轮归属与约束 |
+| --- | --- |
+| `OperatorCharacterTableSource` | 原生记录与投影身份的关联中间态；原生 profession/rarity 保留，角色和星级直接使用契约 |
+| `CompiledOperatorDefinitionHeaderSource` | 正式字段由 Operator 契约派生；sourceCharacterId 供编译追踪，装配时删除 |
+| `CompiledOperatorAttributeGrowthSource` | 直接取只读 AttributeGrowthDefinition；关键帧选择与截断算法不变 |
+| `OperatorPanelMilestoneSource` | 精确 level/breakStage 查询输入，不是正式成长表 |
+| `CompiledTrustAttributeBonusSource` | values 来自契约；attributes 仍限具体四维，默认数值复用契约常量 |
+| 套装静态输出/运行依赖 | 静态身份来自 GearSetDefinition；运行入口用 Pick/Partial 消费已有计划，不复制安装字段 |
+| `CompiledActiveSkillTimelineSequenceSource` | ScheduledSequence 子集，endFrame 必填，步骤限公共已支持投影 |
+| `CompiledOperatorActiveSkillRuntimeDefinitionSource` | 字段与费用派生契约，sourceSkillId/blackboard/costFrame 必填，复用公共调度项 |
+| `CompiledActiveSkillRuntimeProjectionSource` | 保留原生时长与等级黑板的装配中间态，供主动技能和实体子技能分别消费 |
+| 实体蓝图及子技能 | 已直接使用契约，不新增同形类型；删除子技能返回断言，直接检查输出 |
+
+前序切片将枚举门禁扩至六组、阶段字段门禁扩至十二类，实体输出入口禁止类型断言。
+不为已有契约直出的实体再建 IR，不把来源、等级选择和未解析安装计划误并入正式定义。
+
+本切片联合 **326 文件 / 3878 项**、四套类型检查通过；艾维文娜整名及 77 把武器临时基线
+`--check` 一致。正式文件未更新，未新增完整干员，未改变场景或原生支持范围。
+
+### 技能组、养成与元素边界（后续切片）
+
+- `OperatorSkillIdentitySource`、技能组/变体计划和主动入口的正式分类字段改由契约派生；
+  `nativeGroupType`、有序 `skillKeys`、源文件及旧投影配置仍是有用途的链接输入，不直接输出。
+  技能分类与等级来源不是同一枚举：处决/下落攻击可作为技能，但不能作为独立养成等级来源。
+  配置入口按契约校验两者，变体也校验；错误包含精确字段路径，不再等装配时用断言掩盖。
+- 主动技能旧公共支持列表保留原有顺序，类型直接转导出 `SkillType`，列表以契约约束并有值域/
+  顺序回归。该列表兼有当前支持边界和兼容顺序职责，不把它升级为第二套游戏类型。
+- 整名装配删除 SkillDefinition、SkillGroupDefinition 及私有/公共 Buff 的四处输出断言，
+  Buff 分桶始终保留公共投影类型，分组使用 satisfies 校验；既有变体装配阻塞没有放开。
+- `ProjectedDamageElementSource` 只转导出契约 `DamageElement`；原生枚举、别名及映射保持。
+  旧公开数组从唯一映射取值，仍按 physical/heat/electric/cryo/nature 排列，不跟随契约展示顺序重排。
+- 简单伤害的五类 damageType 从伤害协议用 Extract 取支持子集，不因值相同改用角色元素类型。
+  门禁区分独立联合声明和 Extract/Exclude 的范围选择，不能凭集合相同判定同一语义身份。
+- `CompiledOperatorProgressionEntrySource` 保留：它携带来源路径、原生 skillId、overwrite、
+  字符串值和构筑条件。正式养成编译才绑定技能组、将 overwrite 转为 assign、拒绝未支持项，
+  并直接输出 UpgradeModifier/OperatorUpgrade 契约；本轮没有改变这套算法或强行合并两层。
+
+当前门禁覆盖八组枚举、十六类派生字段，输出断言检查覆盖实体和整名装配。
+这批明确归属已收敛，下一步回到第二名完整干员的纵向迁移，以真实闭包检验公共契约；
+不继续无界扫描并为每个临时对象创建新 IR，后续发现的问题按同一准入规则就地处理。
+
+本切片联合 **326 文件 / 3888 项**、四套类型检查及艾维文娜/77 把武器临时基线 `--check`
+通过。合法产物不变；配置中的非法技能分类或等级来源现在更早带字段路径阻断。
+
 ## 0. 当前唯一交付目标
 
 在新版能够对象级生成并运行验证旧版已支持的完整干员前，唯一优先目标是恢复完整 Operator
@@ -109,10 +314,9 @@ npm run generate:game-data:operator-active-skills -- --complete `
 - 伤害 key 按技能身份与最终结构路径确定，展开后的独立回调步骤各有唯一 key；不随机、不取绝对路径。
   结构校验与模拟必须使用正式产品 validator/ScenarioSimulationService，不复制近似协议。
 
-共享正式类型会让 TypeScript 同时检查运行引擎的间接类型依赖，所以本工具的 tsconfig 不再把
-`erasableSyntaxOnly` 施加到整个产品依赖图。`architectureBoundaries.test.ts` 仍将该规则严格施加
-到工具自身全部 TS 文件；Node 直接执行验证另行覆盖新入口。不得借此引入需要转译的脚本语法，
-也不得为了避开类型检查复制一套正式协议。
+生产配置 `tsconfig.production.json` 启用 `erasableSyntaxOnly`，并证明依赖图不加载本体。
+完整测试配置仍包含使用本体执行器的集成探针；`architectureBoundaries.test.ts` 将可擦除语法要求
+施加到工具与测试自身。运行引擎中的类只属于集成测试依赖，不再是生成结构的间接类型依赖。
 
 ## 1. 不可越过的证据边界
 

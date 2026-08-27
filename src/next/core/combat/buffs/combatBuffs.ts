@@ -1,3 +1,33 @@
+// 纯数据契约由独立包唯一声明；此路径保留兼容导出。
+export {
+  BUFF_STACKING_TYPES,
+  type BuffStackingType,
+  type BuffDuration,
+  type BuffTriggerCount,
+  type BuffMaxStackCount,
+  type BuffPriority,
+  type BuffShieldPriority,
+  type BuffShieldDamageAbsorptionDefinition,
+  type BuffShieldDefinition,
+  type BuffSustainedProtectionDefinition,
+  type BuffTimeClock,
+  type CombatBuffPresentation,
+  type CombatBuffChildPresentation,
+  type BuffKeywordEnhancementDefinition,
+} from '../../../../../packages/game-data-contract/src/buffs.ts';
+import {
+  type BuffDuration,
+  type BuffKeywordEnhancementDefinition,
+  type BuffMaxStackCount,
+  type BuffPriority,
+  type BuffShieldDefinition,
+  type BuffStackingType,
+  type BuffSustainedProtectionDefinition,
+  type BuffTimeClock,
+  type BuffTriggerCount,
+  type CombatBuffChildPresentation,
+  type CombatBuffPresentation,
+} from '../../../../../packages/game-data-contract/src/buffs.ts';
 /**
  * 一次模拟中每个实体的 Buff 状态所有者。
  * 调用方通过稳定定义添加 Buff，并按战斗时钟推进；不得把实例写回定义或项目存档。
@@ -57,23 +87,6 @@ import {
 const BUFF_LIFETIME_EPSILON = 0.00001;
 const BUFF_PRIORITY_EPSILON = 0.00001;
 
-export const BUFF_STACKING_TYPES = [
-  'unlimited',
-  'highPriority',
-  'stack',
-  'enhance',
-  'refresh',
-  'extend',
-  'modify',
-  'unique',
-  'enhanceAndRefresh',
-  'overwriteDuration',
-  'enhanceAndOverwriteDuration',
-  'highPriorityWithMaxStack',
-] as const;
-/** 同身份 Buff 再次添加时采用的原生叠加策略。 */
-export type BuffStackingType = (typeof BUFF_STACKING_TYPES)[number];
-
 export const BUFF_FINISH_REASONS = [
   'lifetime',
   'ignite',
@@ -113,50 +126,6 @@ export interface BuffSharedSpGainModifierDefinition {
   readonly applyToReturnSpGain: boolean;
 }
 
-/** 固定秒数或由实例黑板提供的 Buff 持续时间。 */
-export type BuffDuration = number | { readonly blackboardKey: string };
-/** 固定值或由实例黑板提供的 Buff 可触发次数。 */
-export type BuffTriggerCount = number | { readonly blackboardKey: string };
-/** 固定最大层数，或从首次施加实例的黑板读取的动态最大层数。 */
-export type BuffMaxStackCount = number | { readonly blackboardKey: string };
-/** 固定优先级，或从实例黑板读取并按原生配置选择取反的动态优先级。 */
-export type BuffPriority = number | { readonly blackboardKey: string; readonly negate?: boolean };
-
-export type BuffShieldPriority = 'normal' | 'prioritizeConsume';
-
-export interface BuffShieldDamageAbsorptionDefinition {
-  readonly damageType: DamageType;
-  readonly ratio: BuffDuration;
-  readonly scale: BuffDuration;
-}
-
-export interface BuffShieldDefinition {
-  readonly infinityValue: boolean;
-  readonly value:
-    | BuffDuration
-    | {
-        readonly attribute: string;
-        readonly multiplier: BuffDuration;
-        readonly addition: BuffDuration;
-      };
-  readonly damageAbsorptions: readonly BuffShieldDamageAbsorptionDefinition[];
-  readonly absorbCount: BuffTriggerCount;
-  readonly absorbAllDamageWhenConsumed: boolean;
-  readonly removeBuffWhenConsumed: boolean;
-  readonly priority: BuffShieldPriority;
-  /** 只保留原生表现选择位；后端不解释 EffectActionCfg。 */
-  readonly replaceHitEffect: boolean;
-}
-
-export interface BuffSustainedProtectionDefinition {
-  readonly target: 'owner' | 'buffSource';
-  readonly superArmor: BuffDuration;
-  readonly impactResistance: BuffDuration;
-}
-
-/** Buff 生命周期可选择的原生时间域；缺省使用 TimeManager 默认时钟。 */
-export type BuffTimeClock = 'default' | 'global' | 'self';
-
 /** 一帧内供 Buff 实例选择的三路时间增量。 */
 export interface BuffTickDeltas {
   readonly defaultDeltaSeconds: number;
@@ -188,29 +157,6 @@ export interface BuffLifecycleActions<Key extends string> {
   readonly trigger?: (buff: CombatBuff<Key>) => void;
   readonly ignite?: (buff: CombatBuff<Key>, igniteType: string, sourceId: string) => boolean;
   readonly duringEnable?: BuffDuringEnableAction<Key>;
-}
-
-/** Buff 实例的用户可观察显示身份；不参与数值计算，但必须随定义进入运行时。 */
-export interface CombatBuffPresentation {
-  readonly iconId?: string;
-  readonly iconPath?: string;
-  readonly visible?: boolean;
-  readonly showInHeadBarCommon?: boolean;
-  readonly showInHeadBarAttached?: boolean;
-  readonly showInSquadIcon?: boolean;
-  readonly onlyShowForMainCharacter?: boolean;
-  readonly iconStyleInSquad?: string;
-  readonly abnormalColorType?: string;
-  readonly orderPriority?: {
-    readonly useDirectoryValue: boolean;
-    readonly value: number;
-    readonly category: string;
-  };
-}
-
-export interface CombatBuffChildPresentation {
-  readonly buffId: string;
-  readonly presentation: CombatBuffPresentation;
 }
 
 /** 可复用、不可变的 Buff 定义；实例状态不应写回这里。 */
@@ -247,15 +193,6 @@ export interface CombatBuffDefinition<Key extends string> {
   readonly shields?: readonly BuffShieldDefinition[];
   readonly sustainedProtection?: BuffSustainedProtectionDefinition;
   readonly actions?: BuffLifecycleActions<Key>;
-}
-
-/** 原生 KeywordEnhance：由普通 Buff 的加入边沿持久改写关键词 rate。 */
-export interface BuffKeywordEnhancementDefinition {
-  readonly triggerBuffIds: readonly string[];
-  readonly operation: 'assign' | 'add' | 'multiply';
-  readonly targetKey: string;
-  readonly initialValue: BuffDuration;
-  readonly value: BuffDuration;
 }
 
 /** 添加 Buff 实例时由具体行为提供的初始黑板和层数。 */

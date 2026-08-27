@@ -1,8 +1,6 @@
 import type { KeywordBuffActionSource } from '../source/keywordActions.ts';
-import type {
-  CompiledBuffStepSource,
-  CombatActionProjectionContextSource,
-} from './buffRuntimeProjection.ts';
+import type { CompiledBuffStepSource } from './combatActionProjectionTypes.ts';
+import type { CombatActionProjectionContextSource } from './combatProjectionCommon.ts';
 import type { ScalarSource } from '../source/scalar.ts';
 
 /** 空增强名单没有监听/后续 rate 写入；复用普通载体施加，属性仍由原始 BuffData 决定。 */

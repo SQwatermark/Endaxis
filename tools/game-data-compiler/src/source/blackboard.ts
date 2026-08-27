@@ -77,15 +77,16 @@ export function parseBlackboardDataPairs(
 }
 
 /**
- * 为局部解析提供已声明的数值来源。动态初值默认不能证明运行时值，只有调用方明确要求时才纳入。
+ * 为局部解析提供已声明的数值来源，默认值保持单值，不伪造等级列。
+ * 动态初值默认不能证明运行时值，只有调用方明确要求时才纳入；纳入后也不能消除运行时引用。
  */
 export function numericDeclaredBlackboard(
   values: readonly DeclaredBlackboardValueSource[],
   includeDynamicDefaults = false,
-): Readonly<Record<string, readonly number[]>> {
+): Readonly<Record<string, number>> {
   return Object.fromEntries(
     values
       .filter(item => (includeDynamicDefaults || !item.isDynamic) && typeof item.value === 'number')
-      .map(item => [item.key, [item.value as number]]),
+      .map(item => [item.key, item.value as number]),
   );
 }

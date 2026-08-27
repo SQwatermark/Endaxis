@@ -1,7 +1,10 @@
+import { parseSkillBuffInstallSources } from '../src/source/skillBuffInstall.ts';
+import { resolvePassiveSkillDefinitionBlackboard } from '../src/compiler/passiveSkillInstallation.ts';
 import { describe, expect, it } from 'vitest';
 
 import {
   materializePassiveSkillInstallation,
+  materializePassiveBuffInstallation,
   type CompiledPassiveSkillDefinitionSource,
   type PassiveSkillCompileRequestSource,
 } from '../src/index.ts';
@@ -37,6 +40,107 @@ describe('被动技能安装实例化', () => {
       level: 2,
       patchApplied: true,
     });
+  });
+
+  it('定义编译保留武器原列和非连续等级身份，输入覆盖仍在补丁之后', () => {
+    const request = fixtureRequest({
+      kind: 'weaponProgression',
+      slotIndex: 0,
+      breakthroughTemplateId: 'breakthrough_fixture',
+      talentTemplateId: 'talent_fixture',
+    });
+    const compiled = fixtureDefinition();
+    const blackboard = resolvePassiveSkillDefinitionBlackboard(request, compiled);
+    expect(blackboard).toEqual({ damage_up: 0.8, patch_only: [4] });
+    expect(blackboard.patch_only).toBe(compiled.definition.blackboard.values.patch_only);
+    expect(compiled.definition.blackboard.levels).toEqual([2]);
+    expect(compiled.definition.blackboard.values.damage_up).toEqual([0.3]);
+  });
+
+  it.each([
+    { kind: 'nativeDefault' } as const,
+    { kind: 'equipmentSuitThreshold', level: 3, requiredCount: 3 } as const,
+    { kind: 'equipmentSuitThreshold', level: 2, requiredCount: 3 } as const,
+  ])('固定等级定义复用安装器的默认回退和输入覆盖：%j', levelSource => {
+    const request = fixtureRequest(levelSource);
+    const compiled = fixtureDefinition();
+    expect(resolvePassiveSkillDefinitionBlackboard(request, compiled)).toEqual(
+      materializePassiveSkillInstallation(request, compiled).blackboard,
+    );
+  });
+
+  it('定义编译同样拒绝不匹配的 SkillData 身份', () => {
+    expect(() =>
+      resolvePassiveSkillDefinitionBlackboard(
+        { ...fixtureRequest({ kind: 'nativeDefault' }), skillId: 'other' },
+        fixtureDefinition(),
+      ),
+    ).toThrow('does not match compiled definition');
+  });
+
+  it('同一 Buff 绑定器支持整列、零值、字符串和未解析输入，且不修改来源', () => {
+    const [source] = parseSkillBuffInstallSources(
+      [
+        {
+          buffId: 'buff_fixture',
+          assignBlackboard: true,
+          assignItems: [
+            {
+              targetKey: 'duration',
+              inputValueKey: 'duration',
+              useDirectValue: false,
+              directValueType: 'Numeric',
+              numericValue: 0,
+              stringValue: '',
+            },
+            {
+              targetKey: 'zero',
+              inputValueKey: '',
+              useDirectValue: true,
+              directValueType: 'Numeric',
+              numericValue: 0,
+              stringValue: '',
+            },
+            {
+              targetKey: 'label',
+              inputValueKey: '',
+              useDirectValue: true,
+              directValueType: 'String',
+              numericValue: 0,
+              stringValue: 'label',
+            },
+            {
+              targetKey: 'server',
+              inputValueKey: 'server_value',
+              useDirectValue: false,
+              directValueType: 'Numeric',
+              numericValue: 0,
+              stringValue: '',
+            },
+          ],
+        },
+      ],
+      'fixture.buffs',
+    );
+    const duration = Object.freeze([10, 20]);
+    const bound = materializePassiveBuffInstallation(source!, { duration });
+    expect(bound.blackboardAssignments.duration).toBe(duration);
+    expect(bound.blackboardAssignments).toEqual({
+      duration: [10, 20],
+      zero: 0,
+      label: 'label',
+      server: { kind: 'unresolvedSkillBlackboard', key: 'server_value' },
+    });
+    expect(
+      materializePassiveBuffInstallation(source!, { duration: 10 }).blackboardAssignments.duration,
+    ).toBe(10);
+    expect(
+      materializePassiveBuffInstallation({ ...source!, assignBlackboard: false }, { duration }),
+    ).toEqual({
+      buffId: 'buff_fixture',
+      blackboardAssignments: {},
+    });
+    expect(source!.assignments[0]?.inputValueKey).toBe('duration');
   });
 
   it('条件养成被动在实例化后继续保留原生条件 ID', () => {

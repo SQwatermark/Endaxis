@@ -1,9 +1,17 @@
-import { buffRuntimeReadsBlackboardKey } from '../../compiler/buffRuntimeProjection.ts';
+import type { LevelValues } from '../../../../../packages/game-data-contract/src/index.ts';
+import type { CombatEventTrigger } from '../../../../../packages/game-data-contract/src/actions.ts';
 import type {
-  CompiledBuffDefinitionSource,
+  EquipmentAbilityEvent,
+  EquipmentEventHandlerDefinition,
+  WeaponDefinition,
+  WeaponTraitDefinition,
+} from '../../../../../packages/game-data-contract/src/equipment.ts';
+import { buffRuntimeReadsBlackboardKey } from '../../compiler/buffRuntimeProjection.ts';
+import type { CompiledBuffDefinitionSource } from '../../compiler/buffProjectionTypes.ts';
+import type {
   CompiledBuffSequenceSource,
   CompiledBuffStepSource,
-} from '../../compiler/buffRuntimeProjection.ts';
+} from '../../compiler/combatActionProjectionTypes.ts';
 import {
   compileCombatActionSequenceSource,
   compileSkillSpGainActionSequenceSource,
@@ -12,7 +20,7 @@ import { compileAbilityEventPrograms } from '../../compiler/abilityEventProgram.
 import { compileStandardStumpBuffClosure } from '../../compiler/standardStumpBuffClosure.ts';
 import { evaluateStandardStumpFullHealthComparison } from '../../compiler/standardStumpScenarioPolicy.ts';
 import type { BuildDefinitionDiagnosticSource } from '../../compiler/formalBuildDefinition.ts';
-import type { UnresolvedPassiveSkillBlackboardValueSource } from '../../compiler/passiveSkillInstallation.ts';
+import type { MaterializedPassiveBuffInstallationSource } from '../../compiler/passiveSkillInstallation.ts';
 import type {
   CompiledWeaponStaticDefinitionSource,
   CompiledWeaponTraitRuntimeDependencySource,
@@ -23,56 +31,40 @@ export interface CompiledWeaponRuntimeDefinitionBatchSource {
   readonly diagnostics: readonly BuildDefinitionDiagnosticSource[];
 }
 
+/** 正式输出的已支持子集；由静态候选补齐行为，不承担优化 IR 职责。 */
 export type CompiledWeaponRuntimeDefinitionSource = Omit<
   CompiledWeaponStaticDefinitionSource,
   'traits'
-> & {
-  readonly assetSlug?: string;
-  readonly iconPath?: string;
-  readonly traits: readonly (CompiledWeaponStaticDefinitionSource['traits'][number] & {
-    readonly buffDefinitions?: Readonly<Record<string, CompiledBuffDefinitionSource>>;
-    readonly initializationBlackboard?: Readonly<Record<string, readonly number[]>>;
-    readonly initializationSequence?: CompiledBuffSequenceSource;
-    readonly eventHandlers?: readonly CompiledWeaponEventHandlerSource[];
-  })[];
-};
+> &
+  Readonly<Pick<WeaponDefinition, 'assetSlug' | 'iconPath'>> & {
+    readonly traits: readonly (CompiledWeaponStaticDefinitionSource['traits'][number] &
+      Readonly<Pick<WeaponTraitDefinition, 'initializationBlackboard'>> & {
+        readonly buffDefinitions?: Readonly<Record<string, CompiledBuffDefinitionSource>>;
+        readonly initializationSequence?: CompiledBuffSequenceSource;
+        readonly eventHandlers?: readonly CompiledWeaponEventHandlerSource[];
+      })[];
+  };
 
+// 已接入的语义事件子集：前两类尚不生成筛选字段，物理异常固定为四类且仅监听装备者。
 type CompiledWeaponSemanticEventSource =
-  | { readonly kind: 'buffConsumed' }
-  | { readonly kind: 'spGained' }
-  | {
-      readonly kind: 'physicalInflictionApplied';
+  | Readonly<Pick<Extract<CombatEventTrigger, { kind: 'buffConsumed' | 'spGained' }>, 'kind'>>
+  | (Readonly<Extract<CombatEventTrigger, { kind: 'physicalInflictionApplied' }>> & {
       readonly types: readonly ['airborne', 'knockDown', 'fracture', 'crush'];
       readonly scope: 'operator';
-    };
+    });
 
-type CompiledWeaponAbilityEventSource =
-  | 'enterFight'
-  | 'beforeOutputDamage'
-  | 'outputCriticalDamage'
-  | 'outputHeal'
-  | 'beforeCastSkill'
-  | 'afterSkillApplyCost'
-  | 'beforeOutputPhysicalInfliction'
-  | 'beforeOutputInfliction'
-  | 'beforeOutputSpellBurst'
-  | 'beforeOutputBuff'
-  | 'outputBuff'
-  | 'addedBuff';
-
-export type CompiledWeaponEventHandlerSource = {
-  readonly key: string;
-  readonly priority: number;
-  readonly blackboard: Readonly<Record<string, readonly number[]>>;
+export type CompiledWeaponEventHandlerSource = Readonly<
+  Required<Pick<EquipmentEventHandlerDefinition, 'key' | 'priority' | 'blackboard'>>
+> & {
   readonly sequence: CompiledBuffSequenceSource;
 } & (
-  | { readonly event: CompiledWeaponSemanticEventSource }
-  | { readonly abilityEvent: CompiledWeaponAbilityEventSource }
-);
+    | { readonly event: CompiledWeaponSemanticEventSource; readonly abilityEvent?: never }
+    | { readonly event?: never; readonly abilityEvent: EquipmentAbilityEvent }
+  );
 
 /**
- * 把武器各词条的逐等级被动安装合并为正式等级化贡献。
- * Buff 只编译一次；每级变化只进入初始化黑板，动作结构必须在所有等级保持一致。
+ * 从一份安装结构与等级参数列装配武器贡献；Buff 蓝图只编译一次。
+ * 条件允许随等级切换来源，但场景省略后的最终安装顺序、Buff ID 和参数键必须一致。
  */
 export function compileWeaponRuntimeDefinitionBatchSource(
   definitions: readonly CompiledWeaponStaticDefinitionSource[],
@@ -162,14 +154,14 @@ export function compileWeaponRuntimeDefinitionBatchSource(
         });
         return trait;
       }
-      const initializationBlackboard: Record<string, number[]> = {};
+      const initializationBlackboard: Record<string, LevelValues> = {};
       const steps: CompiledBuffStepSource[] = (activePlans[0] ?? []).map(
         (installation, installationIndex) => {
           const assignments: Record<string, { kind: 'blackboard'; key: string }> = {};
-          for (const targetKey of Object.keys(installation.assignments).sort()) {
+          for (const targetKey of Object.keys(installation.blackboardAssignments).sort()) {
             const key = `install_${installationIndex}_${targetKey}`;
-            const values = activePlans.map(plan => plan[installationIndex]!.assignments[targetKey]);
-            if (values.some(value => typeof value !== 'number')) {
+            const values = selectInstallationValues(activePlans, installationIndex, targetKey);
+            if (values === null) {
               const source = closure.sources.get(installation.buffId)!;
               const sourcePath = `WeaponBasicTable.${definition.slug}.${trait.key}.${installation.buffId}.${targetKey}`;
               if (buffRuntimeReadsBlackboardKey(source, targetKey)) {
@@ -189,7 +181,7 @@ export function compileWeaponRuntimeDefinitionBatchSource(
               }
               continue;
             }
-            initializationBlackboard[key] = values as number[];
+            initializationBlackboard[key] = values;
             assignments[targetKey] = { kind: 'blackboard', key };
           }
           return {
@@ -281,7 +273,7 @@ function compileWeaponEventHandlers(
  * 因此保持其动作顺序与 Deck 条件，只把触发边界折叠为面板完成后的单次初始化。
  */
 function compileWeaponDeckInitialization(dependency: CompiledWeaponTraitRuntimeDependencySource): {
-  readonly blackboard: Readonly<Record<string, readonly number[]>>;
+  readonly blackboard: Readonly<Record<string, LevelValues>>;
   readonly steps: CompiledBuffStepSource[];
 } {
   const events = dependency.actionGraph.actionGroup.passiveEvents;
@@ -309,11 +301,11 @@ function projectWeaponAbilityEvent(
   sourcePath: string,
 ):
   | { readonly event: CompiledWeaponSemanticEventSource }
-  | { readonly abilityEvent: CompiledWeaponAbilityEventSource } {
+  | { readonly abilityEvent: EquipmentAbilityEvent } {
   if (typeof event !== 'string') {
     throw new Error(`${sourcePath}: unnamed numeric weapon AbilityEvent is unsupported`);
   }
-  const abilityEvents: Readonly<Record<string, CompiledWeaponAbilityEventSource>> = {
+  const abilityEvents: Readonly<Record<string, EquipmentAbilityEvent>> = {
     OnEnterFight: 'enterFight',
     OnBeforeOutputDamage: 'beforeOutputDamage',
     OnOutputCriticalDamage: 'outputCriticalDamage',
@@ -347,57 +339,88 @@ function projectWeaponAbilityEvent(
 
 function compileWeaponEventBlackboard(
   dependency: CompiledWeaponTraitRuntimeDependencySource,
-): Record<string, readonly number[]> {
-  const keys = [
-    ...new Set(dependency.levels.flatMap(level => Object.keys(level.installation.blackboard))),
-  ].sort();
+): Record<string, LevelValues> {
   return Object.fromEntries(
-    keys.map(key => {
-      const values = dependency.levels.map(level => level.installation.blackboard[key]);
-      if (values.some(value => typeof value !== 'number')) {
-        throw new Error(
-          `weapon event blackboard ${JSON.stringify(key)} is not numeric at every level`,
-        );
-      }
-      return [key, values as number[]];
-    }),
+    Object.keys(dependency.blackboard)
+      .sort()
+      .map(key => {
+        const values = dependency.blackboard[key];
+        if (!isNumericLevelValues(values, dependency.levels.length)) {
+          throw new Error(
+            `weapon event blackboard ${JSON.stringify(key)} is not numeric at every level`,
+          );
+        }
+        return [key, values];
+      }),
   );
 }
 
-interface PlannedBuffInstallation {
-  readonly buffId: string;
-  readonly assignments: Readonly<
-    Record<string, number | string | UnresolvedPassiveSkillBlackboardValueSource>
-  >;
-}
+type PlannedBuffInstallation = MaterializedPassiveBuffInstallationSource<LevelValues>;
 
+/**
+ * 这里只按真实等级选择安装对象的引用，不复制安装参数或动作图。
+ * 必须先保留各档选择，闭包省略后再比较最终计划；不同 Toggle 组可以安装相同结构。
+ */
 function compileTraitPlans(
   dependency: CompiledWeaponTraitRuntimeDependencySource,
   diagnostics: BuildDefinitionDiagnosticSource[],
 ): readonly PlannedBuffInstallation[][] {
-  return dependency.levels.map(level => {
-    const activeToggleBuffs = level.toggleBuffs.flatMap(group => {
+  return dependency.levels.map((level, levelIndex) => {
+    const activeToggleBuffs = dependency.toggleBuffs.flatMap(group => {
       const results = group.conditions.map(condition => {
-        if (typeof condition.value !== 'number') return null;
-        return evaluateStandardStumpFullHealthComparison(condition.comparison, condition.value);
+        const value = Array.isArray(condition.value)
+          ? condition.value[levelIndex]
+          : condition.value;
+        if (typeof value !== 'number' || !Number.isFinite(value)) return null;
+        return evaluateStandardStumpFullHealthComparison(condition.comparison, value);
       });
       if (results.some(result => result === null)) {
         diagnostics.push({
           status: 'blocked',
-          sourcePath: `${dependency.weaponId}.${dependency.traitKey}.level${level.level}`,
+          sourcePath: `${dependency.weaponId}.${dependency.traitKey}.level${level}`,
           reason: 'toggle Buff condition requires an unmaterialized server passive skill value',
         });
         return [];
       }
       return results.every(Boolean) ? group.buffs : [];
     });
-    return [...level.startupBuffs, ...activeToggleBuffs].map(item => ({
-      buffId: item.buffId,
-      assignments: item.blackboardAssignments,
-    }));
+    return [...dependency.startupBuffs, ...activeToggleBuffs];
   });
 }
 
 function planIdentity(plan: readonly PlannedBuffInstallation[]): string {
-  return JSON.stringify(plan.map(item => [item.buffId, Object.keys(item.assignments).sort()]));
+  return JSON.stringify(
+    plan.map(item => [item.buffId, Object.keys(item.blackboardAssignments).sort()]),
+  );
+}
+
+/**
+ * 不变的安装参数直接沿用原单值/列；只有不同等级选中了不同参数来源，才逐档取值形成结果列。
+ * 例如两组 Toggle 交替安装同一个 Buff，输入列分别为 A/B，结果应为 [A[0], B[1]]，
+ * 不能只拿首组，也不能把所有原组都安装进去。
+ */
+function selectInstallationValues(
+  plans: readonly (readonly PlannedBuffInstallation[])[],
+  installationIndex: number,
+  targetKey: string,
+): LevelValues | null {
+  const first = plans[0]![installationIndex]!.blackboardAssignments[targetKey];
+  if (plans.every(plan => plan[installationIndex]!.blackboardAssignments[targetKey] === first)) {
+    return isNumericLevelValues(first, plans.length) ? first : null;
+  }
+  const selected = plans.map((plan, levelIndex) => {
+    const value = plan[installationIndex]!.blackboardAssignments[targetKey];
+    return Array.isArray(value) ? value[levelIndex] : value;
+  });
+  return isNumericLevelValues(selected, plans.length) ? selected : null;
+}
+
+/** 本阶段只校验已绑定的数字参数及其轴长度，不代替完整生成定义 validator。 */
+function isNumericLevelValues(value: unknown, levelCount: number): value is LevelValues {
+  return typeof value === 'number'
+    ? Number.isFinite(value)
+    : Array.isArray(value) &&
+        value.length === levelCount &&
+        value.length > 0 &&
+        value.every(item => typeof item === 'number' && Number.isFinite(item));
 }

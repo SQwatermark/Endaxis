@@ -1,13 +1,18 @@
 import {
   projectPrimaryAttributeKey,
   type AttributeTypeSource,
-  type ProjectedPrimaryAttributeSource,
 } from '../../compiler/attributeModifier.ts';
-import { projectWeaponType, type ProjectedWeaponTypeSource } from '../../compiler/weaponType.ts';
+import { projectWeaponType } from '../../compiler/weaponType.ts';
 import {
-  projectNativeDamageElement,
-  type ProjectedDamageElementSource,
-} from '../../source/damageElement.ts';
+  OPERATOR_RARITIES,
+  type OperatorAttribute,
+  type OperatorRarity,
+  type OperatorRole,
+  type OperatorWeaponType,
+  type DamageElement,
+} from '../../../../../packages/game-data-contract/src/primitives.ts';
+import type { AttributeGrowthDefinition } from '../../../../../packages/game-data-contract/src/operators.ts';
+import { projectNativeDamageElement } from '../../source/damageElement.ts';
 import {
   parseNativeOperatorCharacterTableSource,
   type CharacterAttributeKeyFrameSource,
@@ -15,41 +20,32 @@ import {
   type ProfessionCategorySource,
 } from '../../source/operatorCharacterTable.ts';
 
-export type OperatorPrimaryAttributeSource = ProjectedPrimaryAttributeSource;
+// 旧名只作兼容转导出；正式身份唯一声明于独立契约。
+export type {
+  OperatorAttribute as OperatorPrimaryAttributeSource,
+  OperatorRole as ProjectedOperatorRoleSource,
+  OperatorRarity as ProjectedOperatorRaritySource,
+} from '../../../../../packages/game-data-contract/src/primitives.ts';
 export type { CharacterAttributeKeyFrameSource } from '../../source/operatorCharacterTable.ts';
 
-export type ProjectedOperatorRoleSource =
-  | 'guard'
-  | 'caster'
-  | 'defender'
-  | 'vanguard'
-  | 'supporter'
-  | 'striker';
-
-export type ProjectedOperatorRaritySource = 4 | 5 | 6;
-
+/** 原生记录及正式身份的关联中间态，原生枚举仍保留供审计。 */
 export interface OperatorCharacterTableSource extends NativeOperatorCharacterTableSource {
-  readonly mainAttribute: OperatorPrimaryAttributeSource;
-  readonly secondaryAttribute: OperatorPrimaryAttributeSource;
-  readonly weaponType: ProjectedWeaponTypeSource;
-  readonly element: ProjectedDamageElementSource;
-  readonly role: ProjectedOperatorRoleSource;
-  readonly projectedRarity: ProjectedOperatorRaritySource;
+  readonly mainAttribute: OperatorAttribute;
+  readonly secondaryAttribute: OperatorAttribute;
+  readonly weaponType: OperatorWeaponType;
+  readonly element: DamageElement;
+  readonly role: OperatorRole;
+  readonly projectedRarity: OperatorRarity;
 }
 
+/** 选择原生精确关键帧的编译输入；正式成长表不携带 breakStage。 */
 export interface OperatorPanelMilestoneSource {
   readonly level: number;
   readonly breakStage: number;
 }
 
-export interface CompiledOperatorAttributeGrowthSource {
-  readonly strength: readonly number[];
-  readonly agility: readonly number[];
-  readonly intellect: readonly number[];
-  readonly will: readonly number[];
-  readonly baseAttack: readonly number[];
-  readonly baseHealth: readonly number[];
-}
+/** 正式成长表的只读输出，不是另一套面板模型。 */
+export type CompiledOperatorAttributeGrowthSource = Readonly<AttributeGrowthDefinition>;
 
 export const STANDARD_OPERATOR_PANEL_MILESTONES: readonly OperatorPanelMilestoneSource[] = [
   { level: 1, breakStage: 0 },
@@ -84,19 +80,13 @@ export function parseOperatorCharacterTableSource(
       `${source.sourcePath}.subAttrType`,
     ),
     weaponType: projectWeaponType(source.nativeWeaponType, `${source.sourcePath}.weaponType`),
-    element: projectNativeDamageElement(
-      source.characterTypeId,
-      `${source.sourcePath}.charTypeId`,
-    ),
+    element: projectNativeDamageElement(source.characterTypeId, `${source.sourcePath}.charTypeId`),
     role: projectOperatorRole(source.profession, `${source.sourcePath}.profession`),
     projectedRarity: projectOperatorRarity(source.rarity, `${source.sourcePath}.rarity`),
   };
 }
 
-function projectOperatorRole(
-  profession: ProfessionCategorySource,
-  path: string,
-): ProjectedOperatorRoleSource {
+function projectOperatorRole(profession: ProfessionCategorySource, path: string): OperatorRole {
   const result = PROJECTED_OPERATOR_ROLES[profession];
   if (result === undefined) {
     throw new Error(`${path}: ProfessionCategory ${profession} has no supported Next projection`);
@@ -104,23 +94,23 @@ function projectOperatorRole(
   return result;
 }
 
-function projectOperatorRarity(rarity: number, path: string): ProjectedOperatorRaritySource {
-  if (rarity !== 4 && rarity !== 5 && rarity !== 6) {
+function projectOperatorRarity(rarity: number, path: string): OperatorRarity {
+  const result = OPERATOR_RARITIES.find(candidate => candidate === rarity);
+  if (result === undefined) {
     throw new Error(`${path}: rarity ${rarity} has no supported Next projection`);
   }
-  return rarity;
+  return result;
 }
 
-const PROJECTED_OPERATOR_ROLES: Readonly<
-  Partial<Record<ProfessionCategorySource, ProjectedOperatorRoleSource>>
-> = {
-  GUARD: 'guard',
-  DEFENDER: 'defender',
-  SUPPORTER: 'supporter',
-  CASTER: 'caster',
-  VANGUARD: 'vanguard',
-  ASSAULT: 'striker',
-};
+const PROJECTED_OPERATOR_ROLES: Readonly<Partial<Record<ProfessionCategorySource, OperatorRole>>> =
+  {
+    GUARD: 'guard',
+    DEFENDER: 'defender',
+    SUPPORTER: 'supporter',
+    CASTER: 'caster',
+    VANGUARD: 'vanguard',
+    ASSAULT: 'striker',
+  };
 
 /** 按原生列表顺序寻找精确关键帧；缺失时不插值、不寻找相邻等级。 */
 export function findExactCharacterAttributeKeyFrame(
@@ -159,10 +149,7 @@ export function compileOperatorAttributeGrowthSource(
   };
 }
 
-function requirePrimaryAttribute(
-  attribute: AttributeTypeSource,
-  path: string,
-): OperatorPrimaryAttributeSource {
+function requirePrimaryAttribute(attribute: AttributeTypeSource, path: string): OperatorAttribute {
   const result = projectPrimaryAttributeKey(attribute);
   if (result === null) throw new Error(`${path}: ${attribute} is not a primary attribute`);
   return result;

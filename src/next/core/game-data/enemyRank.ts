@@ -1,7 +1,12 @@
-/** 原生 EnemyTemplateData.rank；与用于筛选和展示的五档 EnemyTier 无关。 */
-export const ENEMY_RANKS = ['mob', 'elite', 'boss'] as const;
-export type EnemyRank = (typeof ENEMY_RANKS)[number];
-
+// 纯数据契约由独立包唯一声明；此路径保留兼容导出。
+export {
+  ENEMY_RANKS,
+  type EnemyRank,
+} from '../../../../packages/game-data-contract/src/primitives.ts';
+import {
+  ENEMY_RANKS,
+  type EnemyRank,
+} from '../../../../packages/game-data-contract/src/primitives.ts';
 export function isEnemyRank(value: unknown): value is EnemyRank {
   return typeof value === 'string' && (ENEMY_RANKS as readonly string[]).includes(value);
 }

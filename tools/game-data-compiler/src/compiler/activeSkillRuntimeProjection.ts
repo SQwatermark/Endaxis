@@ -1,12 +1,13 @@
+import type { ScheduledSequenceDefinition } from '../../../../packages/game-data-contract/src/actions.ts';
 import type { SkillPatchSource } from '../source/skillPatch.ts';
 import { parseKnownSkillActionGraphSource } from '../source/skillActionGraph.ts';
 import { collectNativeActionNodes } from '../source/controlFlow.ts';
-import {
-  compileCombatActionSequenceSource,
-  type CombatActionProjectionContextSource,
-  type CombatActionProjectionExtensionsSource,
-  type CompiledBuffSequenceSource,
-} from './buffRuntimeProjection.ts';
+import { compileCombatActionSequenceSource } from './buffRuntimeProjection.ts';
+import type {
+  CombatActionProjectionContextSource,
+  CombatActionProjectionExtensionsSource,
+} from './combatProjectionCommon.ts';
+import type { CompiledBuffSequenceSource } from './combatActionProjectionTypes.ts';
 import {
   prepareSkillDefinitionInputSource,
   assertNoUnprojectedSkillRootEffects,
@@ -14,13 +15,17 @@ import {
 import type { ResolvedSkillBlackboardSource } from './skillBlackboard.ts';
 import { collectPresentationOnlyTargetGroups } from './skillPresentationTargets.ts';
 
-export interface CompiledActiveSkillTimelineSequenceSource {
-  readonly startFrame: number;
-  readonly endFrame: number;
+/** 正式调度输出子集；原生时间轴结束帧必填，动作仍限于已支持的公共投影。 */
+export type CompiledActiveSkillTimelineSequenceSource = Readonly<
+  Required<Pick<ScheduledSequenceDefinition, 'startFrame' | 'endFrame'>>
+> & {
   readonly sequence: CompiledBuffSequenceSource;
-}
+};
 
-/** 可由正式 SkillDefinition 渲染器消费的主动技能时间轴战斗投影。 */
+/**
+ * 主动技能与实体子技能共用的装配中间态：调度项已符合正式子集，但黑板仍携带默认值与补丁等级身份。
+ * 消费者分别绑定技能等级或实体默认板；durationFrame 等原生信息不等同于技能块宽度。
+ */
 export interface CompiledActiveSkillRuntimeProjectionSource {
   readonly skillId: string;
   readonly durationFrame: number;

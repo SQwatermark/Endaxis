@@ -1,4 +1,4 @@
-import type { AbilityEntityDefinition } from '../../../../src/next/core/game-data/operatorDefinition.ts';
+import type { AbilityEntityDefinition } from '../../../../packages/game-data-contract/src/index.ts';
 import type { NativeAbilityEntityTemplateSource } from '../source/abilityEntity.ts';
 import { compileAbilityEntityChildSkillSource } from './abilityEntityChildSkill.ts';
 

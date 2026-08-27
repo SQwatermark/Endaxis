@@ -1,10 +1,11 @@
+// 纯数据契约由独立包唯一声明；此路径保留兼容导出。
+export { type ActionBlackboardValue } from '../../../../../packages/game-data-contract/src/primitives.ts';
+import { type ActionBlackboardValue } from '../../../../../packages/game-data-contract/src/primitives.ts';
 /**
  * 管理技能 direct blackboard，并按原生查找顺序回退读取干员 entity blackboard。
  * 普通键随技能实例重置；`EntityBB_` 动态写入会路由到同一干员共享的实体黑板。
  */
 import type { ActionValueOperand } from '../../game-data/operatorDefinition';
-
-export type ActionBlackboardValue = string | number | null;
 
 const FLOAT_ASSIGNMENT_EPSILON = 0.00001;
 const ENTITY_BLACKBOARD_PREFIX = 'EntityBB_';

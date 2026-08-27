@@ -112,6 +112,32 @@ describe('公共回调伤害投影', () => {
       kind: 'startTimeDilation',
       parameters: { scope: 'global', priority: 10, ignoredTargets: ['controlled'] },
     });
+    const key =
+      graph.actionGroup.timelineActions[0]!.sequence.actions[0]!.body.value.action
+        .inlineCurveKeys[0]!;
+    for (const mode of [0, 1, 2, 3]) {
+      key.weightedMode = mode;
+      const step = compileImmediateProjectileCallbackSkillSource({
+        graph,
+        context: returnProjectionContext,
+        extensions: { resolveTimeDilationPriority: () => 10 },
+      }).sequence.steps[0]!;
+      expect(step).toMatchObject({
+        parameters: { curve: { kind: 'inline', keys: [{ ...key }] } },
+      });
+    }
+    for (const mode of [-1, 4, 0.5, NaN]) {
+      key.weightedMode = mode;
+      expect(() =>
+        compileImmediateProjectileCallbackSkillSource({
+          graph,
+          context: returnProjectionContext,
+          extensions: { resolveTimeDilationPriority: () => 10 },
+        }),
+      ).toThrow('callback.timeDilation.timeScaleCurve[0].weightedMode: unsupported value');
+      expect(key.weightedMode).toBe(mode);
+    }
+    key.weightedMode = 0;
     graph.actionGroup.timelineActions[0]!.startFrame = 1;
     expect(() =>
       compileImmediateProjectileCallbackSkillSource({

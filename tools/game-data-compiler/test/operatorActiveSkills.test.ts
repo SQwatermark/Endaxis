@@ -2,8 +2,22 @@ import { describe, expect, it } from 'vitest';
 
 import { compileOperatorActiveSkills, parseOperatorActiveSkillEntries } from '../src/index.ts';
 import { activeSkillFixture } from './sourceFixtures.ts';
+import { OPERATOR_ACTIVE_SKILL_TYPES } from '../src/domains/operator/activeSkills.ts';
+import { SKILL_TYPES } from '../../../packages/game-data-contract/src/primitives.ts';
 
 describe('Operator 主动技能入口', () => {
+  it('兼容列表保留既有顺序，当前支持值域与契约一致', () => {
+    expect(OPERATOR_ACTIVE_SKILL_TYPES).toEqual([
+      'basicAttack',
+      'finisher',
+      'plungingAttack',
+      'battleSkill',
+      'comboSkill',
+      'ultimate',
+    ]);
+    expect([...OPERATOR_ACTIVE_SKILL_TYPES].sort()).toEqual([...SKILL_TYPES].sort());
+  });
+
   it('绑定编辑器 key、原生 skillId 与公共 SkillData 定义', () => {
     const result = compileOperatorActiveSkills(
       [

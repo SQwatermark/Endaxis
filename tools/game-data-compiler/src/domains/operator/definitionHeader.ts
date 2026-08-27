@@ -1,11 +1,5 @@
-import type { ProjectedDamageElementSource } from '../../source/damageElement.ts';
-import type { ProjectedWeaponTypeSource } from '../../compiler/weaponType.ts';
-import type {
-  CompiledOperatorAttributeGrowthSource,
-  OperatorPrimaryAttributeSource,
-  ProjectedOperatorRaritySource,
-  ProjectedOperatorRoleSource,
-} from './characterTable.ts';
+import type { OperatorDefinition } from '../../../../../packages/game-data-contract/src/operators.ts';
+import type { CompiledOperatorAttributeGrowthSource } from './characterTable.ts';
 import type { OperatorSourceClosure } from './sourceClosure.ts';
 import type { CompiledTrustAttributeBonusSource } from './talentNodes.ts';
 
@@ -14,19 +8,24 @@ import type { CompiledTrustAttributeBonusSource } from './talentNodes.ts';
  * slug/gameId 是 Endaxis 产品身份，不从 CharacterTable 的显示字段猜测；技能与养成行为也由后续
  * 专用编译阶段装配。因此该结构不能单独注册为完整干员定义。
  */
-export interface CompiledOperatorDefinitionHeaderSource {
-  readonly slug: string;
-  readonly gameId: string;
+export type CompiledOperatorDefinitionHeaderSource = Readonly<
+  Pick<
+    OperatorDefinition,
+    | 'slug'
+    | 'gameId'
+    | 'rarity'
+    | 'weaponType'
+    | 'element'
+    | 'role'
+    | 'mainAttribute'
+    | 'secondaryAttribute'
+  >
+> & {
+  /** 编译期来源追踪，不写入正式产物。 */
   readonly sourceCharacterId: string;
-  readonly rarity: ProjectedOperatorRaritySource;
-  readonly weaponType: ProjectedWeaponTypeSource;
-  readonly element: ProjectedDamageElementSource;
-  readonly role: ProjectedOperatorRoleSource;
-  readonly mainAttribute: OperatorPrimaryAttributeSource;
-  readonly secondaryAttribute: OperatorPrimaryAttributeSource;
   readonly attributes: CompiledOperatorAttributeGrowthSource;
   readonly trustAttributeBonus?: CompiledTrustAttributeBonusSource;
-}
+};
 
 /** 从同一个严格 Operator 来源闭包组装正式定义头部，不重新读取原始表。 */
 export function compileOperatorDefinitionHeaderSource(

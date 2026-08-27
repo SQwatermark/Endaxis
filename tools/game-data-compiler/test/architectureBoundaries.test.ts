@@ -12,9 +12,9 @@ const commonRoots = [join(sourceRoot, 'source'), join(sourceRoot, 'compiler')];
 const domainsRoot = join(sourceRoot, 'domains');
 
 describe('游戏数据编译器架构边界', () => {
-  it('工具自身仍只允许 Node 可直接擦除的语法，正式类型的间接依赖不扩大执行边界', () => {
-    // 正式 Operator 类型间接引用运行引擎的类。共享类型时 tsc 会检查这些文件，
-    // 但它们不在 Node 工具执行路径中；不能为避开这种类型依赖再复制一套正式协议。
+  it('工具及跨端测试自身只允许 Node 可直接擦除的语法', () => {
+    // 完整测试配置包含本体集成探针；执行器的类只属于测试依赖。
+    // 生产入口另由 dataContractBoundaries 的独立配置证明不加载本体。
     const configPath = join(sourceRoot, '..', 'tsconfig.json');
     const config = ts.readConfigFile(configPath, ts.sys.readFile);
     const parsed = ts.parseJsonConfigFileContent(config.config, ts.sys, join(sourceRoot, '..'));
@@ -84,6 +84,27 @@ describe('游戏数据编译器架构边界', () => {
         /switch\s*\([^)]*(?:\$type|actionType|nativeType)[^)]*\)/.test(content) ||
         /(?:parse|compile)(?:Known)?NativeAction(?:Leaf|Node|Source)/.test(content);
       return dispatchesNativeAction ? [display(path)] : [];
+    });
+    expect(violations).toEqual([]);
+  });
+
+  it('CardSkill 属性参数绑定只能在公共编译层实现，领域只选择等级与装配', () => {
+    const violations = sourceFiles(domainsRoot).flatMap(path => {
+      const content = readFileSync(path, 'utf8');
+      const source = ts.createSourceFile(path, content, ts.ScriptTarget.Latest, true);
+      let readsCardAttributes = false;
+      function visit(node: ts.Node): void {
+        if (
+          (ts.isPropertyAccessExpression(node) && node.name.text === 'cardAttributeModifiers') ||
+          (ts.isElementAccessExpression(node) &&
+            ts.isStringLiteral(node.argumentExpression) &&
+            node.argumentExpression.text === 'cardAttributeModifiers')
+        )
+          readsCardAttributes = true;
+        ts.forEachChild(node, visit);
+      }
+      visit(source);
+      return readsCardAttributes ? [display(path)] : [];
     });
     expect(violations).toEqual([]);
   });

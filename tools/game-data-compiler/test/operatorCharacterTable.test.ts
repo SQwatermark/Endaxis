@@ -35,6 +35,21 @@ describe('干员 CharacterTable 适配', () => {
     expect(findExactCharacterAttributeKeyFrame(character, 90, 3)).toBeNull();
   });
 
+  it.each([4, 5, 6, 3, 7])('星级 %s 保留原生值，按正式范围接受或阻断', rarity => {
+    const table = characterTable();
+    table.chr_0004_pelica.rarity = rarity;
+    if ([4, 5, 6].includes(rarity)) {
+      expect(parseOperatorCharacterTableSource(table, 'chr_0004_pelica')).toMatchObject({
+        rarity,
+        projectedRarity: rarity,
+      });
+    } else {
+      expect(() => parseOperatorCharacterTableSource(table, 'chr_0004_pelica')).toThrow(
+        `rarity ${rarity} has no supported Next projection`,
+      );
+    }
+  });
+
   it('按显式六档里程碑投影，并与旧 Python 面板 oracle 对象级一致', () => {
     const table = characterTable();
     const character = parseOperatorCharacterTableSource(table, 'chr_0004_pelica');

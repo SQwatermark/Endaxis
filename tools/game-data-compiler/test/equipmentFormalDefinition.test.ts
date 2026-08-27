@@ -24,7 +24,11 @@ const fixture = JSON.parse(
 
 describe('单件装备正式定义组装', () => {
   it('提升基础防御并按原生 attrIndex 保留四档词条', () => {
-    const result = compileEquipmentDefinitionSource(parseFixture());
+    const equipment = parseFixture();
+    const result = compileEquipmentDefinitionSource(equipment);
+    expect(result.definition?.traits[0]?.modifiers[0]?.value).toBe(
+      equipment.attributeModifiers[1]?.attributeValues,
+    );
 
     expect(result.diagnostics).toEqual([]);
     expect(result.definition).toEqual({

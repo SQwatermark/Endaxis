@@ -1,23 +1,15 @@
-/**
- * 属性、Buff 和技能分类汇入最终伤害公式前的统一倍率容器。
- * 调用方必须保留来源方/目标方与区间身份，不能先行压缩为一个总乘区。
- */
-export const DAMAGE_SCALE_ZONES = [
-  'product',
-  'normal',
-  'abnormalAndBurst',
-  'enhanced',
-  'combo',
-  'vulnerable',
-  'race',
-] as const;
-/** 七区间伤害倍率中的稳定区间身份。 */
-export type DamageScaleZone = (typeof DAMAGE_SCALE_ZONES)[number];
-
-export const DAMAGE_SCALE_SIDES = ['attacker', 'defender'] as const;
-/** 区分来源方增伤和目标方易伤/减伤的倍率所有者。 */
-export type DamageScaleSide = (typeof DAMAGE_SCALE_SIDES)[number];
-
+// 纯数据契约由独立包唯一声明；此路径保留兼容导出。
+export {
+  DAMAGE_SCALE_ZONES,
+  type DamageScaleZone,
+  DAMAGE_SCALE_SIDES,
+  type DamageScaleSide,
+} from '../../../../../packages/game-data-contract/src/modifiers.ts';
+import {
+  DAMAGE_SCALE_ZONES,
+  type DamageScaleSide,
+  type DamageScaleZone,
+} from '../../../../../packages/game-data-contract/src/modifiers.ts';
 interface DamageScaleZoneDefinition {
   readonly multiplyWithinSide: boolean;
   readonly mergeSidesAdditively: boolean;

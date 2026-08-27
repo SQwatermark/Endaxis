@@ -1,3 +1,4 @@
+import type { LevelValues } from '../../../../packages/game-data-contract/src/index.ts';
 import type { PassiveSkillCompileRequestSource } from './passiveSkillRequest.ts';
 import { requireNonNegativeInteger } from '../source/primitives.ts';
 import type { CompiledPassiveSkillDefinitionSource } from './passiveSkillBatch.ts';
@@ -10,10 +11,10 @@ export interface UnresolvedPassiveSkillBlackboardValueSource {
   readonly key: string;
 }
 
-export interface MaterializedPassiveBuffInstallationSource {
+export interface MaterializedPassiveBuffInstallationSource<Value extends LevelValues = number> {
   readonly buffId: string;
   readonly blackboardAssignments: Readonly<
-    Record<string, number | string | UnresolvedPassiveSkillBlackboardValueSource>
+    Record<string, Value | number | string | UnresolvedPassiveSkillBlackboardValueSource>
   >;
 }
 
@@ -37,11 +38,7 @@ export function materializePassiveSkillInstallation(
   compiled: CompiledPassiveSkillDefinitionSource,
   resolvedWeaponLevel?: number,
 ): MaterializedPassiveSkillInstallationSource {
-  if (request.skillId !== compiled.skillId) {
-    throw new Error(
-      `${request.sourcePath}: request skill ${JSON.stringify(request.skillId)} does not match compiled definition ${JSON.stringify(compiled.skillId)}`,
-    );
-  }
+  requireMatchingSkill(request, compiled);
   const requestedLevel = resolveRequestedLevel(request, resolvedWeaponLevel);
   const selected = selectSkillBlackboardLevel(compiled.definition.blackboard, requestedLevel);
   return {
@@ -59,13 +56,42 @@ export function materializePassiveSkillInstallation(
 }
 
 /**
- * 依据一次被动安装已经选定的动作黑板物化 CreateBuff 参数。
+ * 为定义编译选择数值形态，不生成逐等级 SkillData 副本。
+ * 武器保留来源等级列；固定等级/原生默认选择仍复用安装器的补丁回退语义。
+ * 输入黑板在补丁之后覆盖，覆盖值保持与等级无关的单值。
+ * 返回值不自带等级轴；武器调用方必须同时保留 compiled.definition.blackboard.levels。
+ */
+export function resolvePassiveSkillDefinitionBlackboard(
+  request: PassiveSkillCompileRequestSource,
+  compiled: CompiledPassiveSkillDefinitionSource,
+): Readonly<Record<string, LevelValues>> {
+  requireMatchingSkill(request, compiled);
+  if (request.levelSource.kind !== 'weaponProgression') {
+    return materializePassiveSkillInstallation(request, compiled).blackboard;
+  }
+  return { ...compiled.definition.blackboard.values, ...request.inputBlackboard };
+}
+
+function requireMatchingSkill(
+  request: PassiveSkillCompileRequestSource,
+  compiled: CompiledPassiveSkillDefinitionSource,
+): void {
+  if (request.skillId !== compiled.skillId) {
+    throw new Error(
+      `${request.sourcePath}: request skill ${JSON.stringify(request.skillId)} does not match compiled definition ${JSON.stringify(compiled.skillId)}`,
+    );
+  }
+}
+
+/**
+ * 把 CreateBuff 参数引用绑定到被动黑板：固定等级传单值，定义编译可直接传等级列。
+ * 只绑定一份安装结构；列保持原引用，直接赋值保持常量，不制造逐等级 Buff 副本。
  * 未出现在客户端补丁中的服务端值保留身份，交给领域场景投影判断是否会被实际读取。
  */
-export function materializePassiveBuffInstallation(
+export function materializePassiveBuffInstallation<Value extends LevelValues>(
   source: SkillBuffInstallSource,
-  blackboard: Readonly<Record<string, number>>,
-): MaterializedPassiveBuffInstallationSource {
+  blackboard: Readonly<Record<string, Value>>,
+): MaterializedPassiveBuffInstallationSource<Value> {
   if (!source.assignBlackboard) return { buffId: source.buffId, blackboardAssignments: {} };
   return {
     buffId: source.buffId,

@@ -1,3 +1,7 @@
+import type { SkillType } from '../../../../../packages/game-data-contract/src/primitives.ts';
+import type { SkillGroupDefinition } from '../../../../../packages/game-data-contract/src/skills.ts';
+export type { SkillType as OperatorActiveSkillTypeSource } from '../../../../../packages/game-data-contract/src/primitives.ts';
+
 import {
   compileActiveSkillRequestBatch,
   type CompiledActiveSkillDefinitionSource,
@@ -13,6 +17,7 @@ import {
 const ENTRY_REQUIRED_FIELDS = new Set(['key', 'skillType', 'source']);
 const ENTRY_FIELDS = new Set([...ENTRY_REQUIRED_FIELDS, 'compile']);
 
+/** 兼容旧入口的支持列表和遍历顺序；类型身份归契约，不能把排序差异误当成新枚举。 */
 export const OPERATOR_ACTIVE_SKILL_TYPES = [
   'basicAttack',
   'finisher',
@@ -20,17 +25,16 @@ export const OPERATOR_ACTIVE_SKILL_TYPES = [
   'battleSkill',
   'comboSkill',
   'ultimate',
-] as const;
-export type OperatorActiveSkillTypeSource = (typeof OPERATOR_ACTIVE_SKILL_TYPES)[number];
+] as const satisfies readonly SkillType[];
 
 /** operators.json 中的领域身份；compile 暂时只保留，不由新主干解释旧 Python 策略。 */
-export interface OperatorActiveSkillEntrySource {
+export type OperatorActiveSkillEntrySource = Readonly<
+  Pick<SkillGroupDefinition, 'key' | 'skillType'>
+> & {
   readonly sourcePath: string;
-  readonly key: string;
-  readonly skillType: OperatorActiveSkillTypeSource;
   readonly sourceFile: string;
   readonly projectionConfig: SourceRecord | null;
-}
+};
 
 export interface CompiledOperatorActiveSkillEntrySource extends OperatorActiveSkillEntrySource {
   readonly skillId: string;
@@ -54,16 +58,17 @@ export function parseOperatorActiveSkillEntries(
     if (!/^[A-Za-z0-9._-]+\.json$/.test(sourceFile)) {
       throw new Error(`${path}.source: expected a safe JSON file name`);
     }
-    const skillType = requireNonEmptyString(row.skillType, `${path}.skillType`);
-    if (!(OPERATOR_ACTIVE_SKILL_TYPES as readonly string[]).includes(skillType)) {
+    const skillTypeName = requireNonEmptyString(row.skillType, `${path}.skillType`);
+    const skillType = OPERATOR_ACTIVE_SKILL_TYPES.find(type => type === skillTypeName);
+    if (skillType === undefined) {
       throw new Error(
-        `${path}.skillType: unsupported operator skill type ${JSON.stringify(skillType)}`,
+        `${path}.skillType: unsupported operator skill type ${JSON.stringify(skillTypeName)}`,
       );
     }
     return {
       sourcePath: path,
       key: requireNonEmptyString(row.key, `${path}.key`),
-      skillType: skillType as OperatorActiveSkillTypeSource,
+      skillType,
       sourceFile,
       projectionConfig:
         row.compile === undefined ? null : requireRecord(row.compile, `${path}.compile`),

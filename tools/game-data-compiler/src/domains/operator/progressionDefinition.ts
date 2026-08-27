@@ -6,7 +6,7 @@ import {
   type ActionSequenceDefinition,
   type OperatorUpgradeDefinition,
   type UpgradeModifierDefinition,
-} from '../../../../../src/next/core/game-data/operatorDefinition.ts';
+} from '../../../../../packages/game-data-contract/src/index.ts';
 import { projectBuildAttributeModifier } from '../../compiler/buildAttributeProjection.ts';
 import { projectSingleBuildConditionSource } from '../../compiler/buildCondition.ts';
 import type { OperatorProgressionSource } from './progression.ts';

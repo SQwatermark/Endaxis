@@ -1,3 +1,4 @@
+import type { LevelValues } from '../../../../packages/game-data-contract/src/index.ts';
 import {
   requireBoolean,
   requireExactFields,
@@ -12,8 +13,11 @@ export interface ScalarSource {
   readonly value: number;
   /** 启用黑板引用时的键；未启用时固定为 null。 */
   readonly blackboardKey: string | null;
-  /** 从上层 SkillPatch 解析出的逐等级值；运行时输入没有该数组。 */
-  readonly levelValues: readonly number[] | null;
+  /**
+   * 上层已知的黑板数值：声明默认值为单值，真实 SkillPatch 为等级列，未知输入为 null。
+   * 这是解析上下文，不是运行时常量传播；blackboardKey 非空时仍必须保留按键求值。
+   */
+  readonly levelValues: LevelValues | null;
 }
 
 export interface StringScalarSource {
@@ -28,7 +32,7 @@ export interface IntegerScalarSource {
   readonly blackboardKey: string | null;
 }
 
-export type BlackboardLevelValues = Readonly<Record<string, readonly number[]>>;
+export type BlackboardLevelValues = Readonly<Record<string, LevelValues>>;
 
 export function parseScalarSource(
   value: unknown,

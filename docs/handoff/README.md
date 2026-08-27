@@ -18,6 +18,8 @@
 若当前分支为 `refactor/common-game-data` 或 `refactor/operator-completion`，还必须阅读
 [`tools/game-data-compiler/README.md`](../../tools/game-data-compiler/README.md)。它是统一 TypeScript
 游戏数据编译器的实现契约，优先于后文保留的旧 Python 生成器历史描述。
+涉及生成结构时还必须阅读[独立游戏数据契约](../../packages/game-data-contract/README.md)：
+转换器与本体不得相互依赖；结构的唯一归属、数据转换图与等级边界以该文档为准。
 
 ## 一句话总览
 

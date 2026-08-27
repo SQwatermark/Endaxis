@@ -20,6 +20,14 @@ describe('干员天赋属性节点', () => {
     expect(result).toBeNull();
   });
 
+  it('数值等于默认但属性不同，不能误删信赖奖励', () => {
+    const nodes = parseOperatorTalentNodeSources(growthTable([10, 15, 15, 20], [42]), 'chr_test');
+    expect(compileTrustAttributeBonusSource(nodes, 'intellect')).toEqual({
+      values: [10, 15, 15, 20],
+      attributes: ['will'],
+    });
+  });
+
   it('保留双属性例外，并与旧 Python oracle 一致', () => {
     const table = growthTable([8, 10, 10, 15], [41, 42]);
     const nodes = parseOperatorTalentNodeSources(table, 'chr_test');

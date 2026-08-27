@@ -1,4 +1,12 @@
 import {
+  SKILL_TYPES,
+  SKILL_LEVEL_SOURCES,
+} from '../../../../../packages/game-data-contract/src/primitives.ts';
+import type {
+  SkillGroupDefinition,
+  SkillGroupVariantDefinition,
+} from '../../../../../packages/game-data-contract/src/skills.ts';
+import {
   requireArray,
   requireExactFields,
   requireNonEmptyString,
@@ -52,27 +60,28 @@ export interface NativeOperatorSkillGroupSource {
   readonly skillIds: readonly string[];
 }
 
-export interface OperatorSkillIdentitySource {
-  readonly key: string;
+/** 正式技能分类与原生技能 ID 的绑定；原生 ID 不是编辑器 key。 */
+export type OperatorSkillIdentitySource = Readonly<
+  Pick<SkillGroupDefinition, 'key' | 'skillType'>
+> & {
   readonly skillId: string;
-  readonly skillType: string;
-}
+};
 
-export interface OperatorSkillGroupVariantSource {
-  readonly key: string;
-  readonly levelSource: string;
+/** 配置中的链接计划，装配前保留原生等级组和有序技能键，不提前内联技能定义。 */
+export type OperatorSkillGroupVariantSource = Readonly<
+  Pick<SkillGroupVariantDefinition, 'key' | 'levelSource'>
+> & {
   readonly nativeGroupType: number;
   readonly skillKeys: readonly string[];
-}
+};
 
-export interface OperatorSkillGroupSource {
-  readonly key: string;
-  readonly skillType: string;
-  readonly levelSource: string;
+export type OperatorSkillGroupSource = Readonly<
+  Pick<SkillGroupDefinition, 'key' | 'skillType' | 'levelSource'>
+> & {
   readonly nativeGroupType: number;
   readonly skillKeys: readonly string[];
   readonly variants: readonly OperatorSkillGroupVariantSource[];
-}
+};
 
 export interface OperatorSkillGroupValidationOptions {
   readonly routingOnlyNativeSkillIds?: readonly string[];
@@ -153,7 +162,11 @@ export function parseOperatorSkillGroupSources(
             requireExactFields(variant, VARIANT_FIELDS, variantPath);
             return {
               key: requireNonEmptyString(variant.key, `${variantPath}.key`),
-              levelSource: requireNonEmptyString(variant.levelSource, `${variantPath}.levelSource`),
+              levelSource: requireGroupIdentity(
+                variant.levelSource,
+                SKILL_LEVEL_SOURCES,
+                `${variantPath}.levelSource`,
+              ),
               nativeGroupType: requireNonNegativeInteger(
                 variant.nativeGroupType,
                 `${variantPath}.nativeGroupType`,
@@ -166,8 +179,12 @@ export function parseOperatorSkillGroupSources(
     }
     return {
       key: requireNonEmptyString(group.key, `${groupPath}.key`),
-      skillType: requireNonEmptyString(group.skillType, `${groupPath}.skillType`),
-      levelSource: requireNonEmptyString(group.levelSource, `${groupPath}.levelSource`),
+      skillType: requireGroupIdentity(group.skillType, SKILL_TYPES, `${groupPath}.skillType`),
+      levelSource: requireGroupIdentity(
+        group.levelSource,
+        SKILL_LEVEL_SOURCES,
+        `${groupPath}.levelSource`,
+      ),
       nativeGroupType: requireNonNegativeInteger(
         group.nativeGroupType,
         `${groupPath}.nativeGroupType`,
@@ -275,6 +292,19 @@ export function validateOperatorSkillGroups(
       assigned.push(key);
     }
   }
+}
+
+/** 配置中的正式身份在读取边界校验；不为未知字符串伪造类型，也不解释原生组整数。 */
+function requireGroupIdentity<T extends string>(
+  value: unknown,
+  allowed: readonly T[],
+  path: string,
+): T {
+  const name = requireNonEmptyString(value, path);
+  const result = allowed.find(item => item === name);
+  if (result === undefined)
+    throw new Error(`${path}: unsupported identity ${JSON.stringify(name)}`);
+  return result;
 }
 
 function distinctStrings(value: unknown, path: string): string[] {

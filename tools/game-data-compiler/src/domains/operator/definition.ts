@@ -2,8 +2,7 @@ import type {
   OperatorDefinition,
   SkillDefinition,
   SkillGroupDefinition,
-  OperatorBuffDefinitions,
-} from '../../../../../src/next/core/game-data/operatorDefinition.ts';
+} from '../../../../../packages/game-data-contract/src/index.ts';
 import type { compileOperatorFoundationSource } from './sourceClosure.ts';
 import { compileOperatorDefinitionHeaderSource } from './definitionHeader.ts';
 import {
@@ -14,6 +13,7 @@ import type { CompiledOperatorActiveSkillRuntimeDefinitionSource } from './activ
 import type { CompiledAbilityEntityTemplateCatalogSource } from '../../compiler/abilityEntityCatalog.ts';
 import { compileAbilityEntityDefinitionSource } from '../../compiler/abilityEntityDefinition.ts';
 import { compileStandardStumpBuffClosure } from '../../compiler/standardStumpBuffClosure.ts';
+import type { CompiledBuffDefinitionSource } from '../../compiler/buffProjectionTypes.ts';
 import { assignGeneratedDamageStepKeys } from '../../compiler/definitionStepKeys.ts';
 
 export interface OperatorDefinitionAssemblyInput {
@@ -74,10 +74,7 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
       throw new Error(`skill identity mismatch ${item.definition.key}`);
     definitions.set(
       item.definition.key,
-      assignGeneratedDamageStepKeys(
-        item.definition,
-        item.definition.sourceSkillId,
-      ) as SkillDefinition,
+      assignGeneratedDamageStepKeys(item.definition, item.definition.sourceSkillId),
     );
   }
   requireExactIdentities(
@@ -105,8 +102,6 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
   const skillGroups = skillLibrary.skillGroups.map(group => {
     if (group.variants.length)
       throw new Error(`${group.key}: variant assembly is not yet supported`);
-    if (!['basicAttack', 'battleSkill', 'comboSkill', 'ultimate'].includes(group.levelSource))
-      throw new Error(`${group.key}: unsupported level source`);
     return {
       key: group.key,
       skillType: group.skillType,
@@ -115,7 +110,7 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
         group.skillKeys.length === 1
           ? definitions.get(group.skillKeys[0]!)!
           : group.skillKeys.map(key => definitions.get(key)!),
-    } as SkillGroupDefinition;
+    } satisfies SkillGroupDefinition;
   });
   const bindings = new Map<string, string>();
   for (const spawn of input.activeSkills.flatMap(item => item.abilityEntitySpawns)) {
@@ -144,8 +139,8 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
   const buffClosure = compileStandardStumpBuffClosure(roots, input.loadBuff);
   const blocked = buffClosure.diagnostics.filter(item => item.status === 'blocked');
   if (blocked.length) throw new Error(`operator Buff closure blocked: ${JSON.stringify(blocked)}`);
-  const privateBuffs: Record<string, unknown> = {},
-    commonBuffs: Record<string, unknown> = {};
+  const privateBuffs: Record<string, CompiledBuffDefinitionSource> = {},
+    commonBuffs: Record<string, CompiledBuffDefinitionSource> = {};
   for (const [id, definition] of Object.entries(buffClosure.definitions)) {
     if (id.startsWith('buff_common_')) commonBuffs[id] = definition;
     else if (id.startsWith(`buff_${foundation.identity.characterId}_`))
@@ -159,12 +154,12 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     skillGroups,
     talents,
     potentials,
-    buffDefinitions: privateBuffs as OperatorBuffDefinitions,
+    buffDefinitions: privateBuffs,
     abilityEntityDefinitions,
   };
   return {
     operator,
-    commonBuffDefinitions: commonBuffs as OperatorBuffDefinitions,
+    commonBuffDefinitions: commonBuffs,
     audit: {
       scope: 'operator-definition-candidate',
       rootBuffIds: roots,

@@ -3,12 +3,12 @@ import type { ProjectileLaunchActionSource } from '../source/referenceActions.ts
 import type { ProjectileRuntimeSource } from '../source/projectileRuntime.ts';
 import type { KnownNativeActionLeafSource } from '../source/actionLeaf.ts';
 import type { SkillActionGraphSource } from '../source/skillActionGraph.ts';
-import {
-  compileCombatActionSequenceSource,
-  type CombatActionProjectionContextSource,
-  type CombatActionProjectionExtensionsSource,
-  type CompiledBuffSequenceSource,
-} from './buffRuntimeProjection.ts';
+import { compileCombatActionSequenceSource } from './buffRuntimeProjection.ts';
+import type {
+  CombatActionProjectionContextSource,
+  CombatActionProjectionExtensionsSource,
+} from './combatProjectionCommon.ts';
+import type { CompiledBuffSequenceSource } from './combatActionProjectionTypes.ts';
 import {
   compileSynchronousProjectileCallbackScopesSource,
   type CompiledActionBlackboardScopeSource,

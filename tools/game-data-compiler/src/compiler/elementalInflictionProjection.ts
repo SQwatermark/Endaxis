@@ -1,7 +1,7 @@
-import type { CombatStepParameters } from '../../../../src/next/core/game-data/operatorDefinition.ts';
+import type { CombatStepParameters } from '../../../../packages/game-data-contract/src/actions.ts';
 import { projectNativeDamageElement } from '../source/damageElement.ts';
 import type { ElementalInflictionActionSource } from '../source/elementalInflictionActions.ts';
-import type { CombatActionProjectionContextSource } from './buffRuntimeProjection.ts';
+import type { CombatActionProjectionContextSource } from './combatProjectionCommon.ts';
 
 /** combat-spec spell-infliction.md：Source 与 Owner 是独立身份，不因宿主类型改变目标。 */
 export function projectElementalInflictionAction(

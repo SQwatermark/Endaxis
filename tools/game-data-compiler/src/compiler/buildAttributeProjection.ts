@@ -1,82 +1,53 @@
 import {
   projectPrimaryAttributeKey,
   type CompiledAttributeModifierSource,
-  type ProjectedPrimaryAttributeSource,
 } from './attributeModifier.ts';
 import type { AttributeTypeSource } from './attributeModifier.ts';
 
-export type ProjectedBuildAttribute = ProjectedPrimaryAttributeSource | 'main' | 'secondary';
+import type {
+  EquipmentAttribute,
+  EquipmentDamageScaleTarget,
+  EquipmentPanelStat,
+  LevelValues,
+} from '../../../../packages/game-data-contract/src/index.ts';
+import type { CompiledBuildModifierDefinitionSource } from './formalBuildDefinition.ts';
 
-export type ProjectedBuildPanelStat =
-  | 'baseDefense'
-  | 'attackFlat'
-  | 'attackPercent'
-  | 'healthFlat'
-  | 'healthPercent'
-  | 'criticalRate'
-  | 'artsIntensity'
-  | 'ultimateEnergyGainEfficiency'
-  | 'staggerDamagePercent';
+export type ProjectedBuildAttribute = EquipmentAttribute;
+export type ProjectedBuildPanelStat = EquipmentPanelStat | 'baseDefense';
+export type ProjectedBuildDamageScale = EquipmentDamageScaleTarget;
 
-export type ProjectedBuildDamageScale =
-  | 'normalAttack'
-  | 'battleSkill'
-  | 'comboSkill'
-  | 'ultimate'
-  | 'physical'
-  | 'heat'
-  | 'electric'
-  | 'cryo'
-  | 'nature'
-  | 'ether'
-  | 'staggeredEnemy';
+/**
+ * 正式贡献直接使用契约；唯一额外结果是装备顶层的基础防御，不能混入词条修正。
+ * 数值形态不参与语义分派，单值和等级列使用同一投影。
+ */
+export type ProjectedBuildModifierSource<Value extends LevelValues = number> =
+  | CompiledBuildModifierDefinitionSource<Value>
+  | { readonly kind: 'panelStat'; readonly stat: 'baseDefense'; readonly value: Value };
 
-export type ProjectedBuildModifierSource =
-  | {
-      readonly kind: 'attribute';
-      readonly attribute: ProjectedBuildAttribute;
-      readonly operation: 'flat' | 'percent';
-      readonly value: number;
-    }
-  | {
-      readonly kind: 'panelStat';
-      readonly stat: ProjectedBuildPanelStat;
-      readonly value: number;
-    }
-  | {
-      readonly kind: 'damageScale';
-      readonly target: ProjectedBuildDamageScale;
-      readonly slot: 'baseAddition' | 'addition';
-      readonly value: number;
-    }
-  | {
-      readonly kind: 'staticHealingIncrease';
-      readonly target: 'output';
-      readonly value: number;
-    }
-  | {
-      readonly kind: 'skillCooldownMultiplier';
-      readonly skillTypes: 'comboSkill';
-      readonly value: number;
-    };
-
-export type BuildAttributeModifierProjectionSource =
+export type BuildAttributeModifierProjectionSource<Value extends LevelValues = number> =
   | {
       readonly status: 'supported';
-      readonly source: CompiledAttributeModifierSource;
-      readonly modifier: ProjectedBuildModifierSource;
+      readonly source: CompiledAttributeModifierSource<Value>;
+      readonly modifier: ProjectedBuildModifierSource<Value>;
     }
   | {
       readonly status: 'scenario-omitted';
-      readonly source: CompiledAttributeModifierSource;
+      readonly source: CompiledAttributeModifierSource<Value>;
       readonly reason:
         'playerDamageTakenRequiresEnemyActiveDamage' | 'shieldOutputDoesNotAffectStumpEnemyDamage';
     }
   | {
       readonly status: 'blocked';
-      readonly source: CompiledAttributeModifierSource;
+      readonly source: CompiledAttributeModifierSource<Value>;
       readonly reason: string;
     };
+
+/** 装备装配器先提升 baseDefense；其余结果本身就是正式贡献，无需再搬运字段。 */
+export function isBuildContributionModifier<Value extends LevelValues>(
+  modifier: ProjectedBuildModifierSource<Value>,
+): modifier is CompiledBuildModifierDefinitionSource<Value> {
+  return modifier.kind !== 'panelStat' || modifier.stat !== 'baseDefense';
+}
 
 const DAMAGE_SCALE_ATTRIBUTES: Readonly<
   Partial<Record<AttributeTypeSource, ProjectedBuildDamageScale>>
@@ -107,9 +78,9 @@ const PLAYER_DAMAGE_TAKEN_ATTRIBUTES = new Set([
  * 把干员养成、武器、装备共用的原生静态属性程序投影为 Next 构筑语义。
  * 每个分支同时校验原生目标和公式槽；同名属性若换槽，必须重新取证。
  */
-export function projectBuildAttributeModifier(
-  source: CompiledAttributeModifierSource,
-): BuildAttributeModifierProjectionSource {
+export function projectBuildAttributeModifier<Value extends LevelValues>(
+  source: CompiledAttributeModifierSource<Value>,
+): BuildAttributeModifierProjectionSource<Value> {
   if (PLAYER_DAMAGE_TAKEN_ATTRIBUTES.has(source.declaredAttributeType)) {
     if (source.target === 'specific' && source.slot === 'baseFinalMultiplier') {
       return {
@@ -210,9 +181,9 @@ export function projectBuildAttributeModifier(
   );
 }
 
-function projectPanelStat(
-  source: CompiledAttributeModifierSource,
-): Extract<ProjectedBuildModifierSource, { kind: 'panelStat' }> | null {
+function projectPanelStat<Value extends LevelValues>(
+  source: CompiledAttributeModifierSource<Value>,
+): Extract<ProjectedBuildModifierSource<Value>, { kind: 'panelStat' }> | null {
   if (source.target !== 'specific') return null;
   const key = `${source.declaredAttributeType}/${source.slot}`;
   const stat = {
@@ -229,16 +200,16 @@ function projectPanelStat(
   return stat === undefined ? null : { kind: 'panelStat', stat, value: source.value };
 }
 
-function supported(
-  source: CompiledAttributeModifierSource,
-  modifier: ProjectedBuildModifierSource,
-): BuildAttributeModifierProjectionSource {
+function supported<Value extends LevelValues>(
+  source: CompiledAttributeModifierSource<Value>,
+  modifier: ProjectedBuildModifierSource<Value>,
+): BuildAttributeModifierProjectionSource<Value> {
   return { status: 'supported', source, modifier };
 }
 
-function blocked(
-  source: CompiledAttributeModifierSource,
+function blocked<Value extends LevelValues>(
+  source: CompiledAttributeModifierSource<Value>,
   reason: string,
-): BuildAttributeModifierProjectionSource {
+): BuildAttributeModifierProjectionSource<Value> {
   return { status: 'blocked', source, reason };
 }

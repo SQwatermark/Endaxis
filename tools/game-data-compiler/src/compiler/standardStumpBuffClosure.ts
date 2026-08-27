@@ -6,8 +6,8 @@ import {
   compileBuffRuntimeDefinitionSource,
   isAfterEnemyDefeatedOnlyBuffRuntime,
   isPresentationOnlyBuffStackEffect,
-  type CompiledBuffDefinitionSource,
 } from './buffRuntimeProjection.ts';
+import type { CompiledBuffDefinitionSource } from './buffProjectionTypes.ts';
 import { standardStumpBuffAbilityEventOmissionReason } from './standardStumpScenarioPolicy.ts';
 
 export interface StandardStumpBuffClosureDiagnostic {

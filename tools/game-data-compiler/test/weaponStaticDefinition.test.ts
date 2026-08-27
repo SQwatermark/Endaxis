@@ -1,9 +1,10 @@
+import { compileWeaponContributions } from '../../../src/next/core/compiler/compileEquipment.ts';
 import { describe, expect, it } from 'vitest';
 
 import { compileWeaponStaticDefinitionBatchSource } from '../src/index.ts';
 
 describe('武器静态定义', () => {
-  it('使用精确基础攻击节点和 SkillPatch 真实档位生成候选，并保留逐档 Buff 输入', () => {
+  it('使用精确基础攻击节点和 SkillPatch 真实档位生成候选，以一份 Buff 安装保留参数列', () => {
     const result = compileWeaponStaticDefinitionBatchSource(
       { wpn_lance_fixture: weaponFixture() },
       upgradeFixture(),
@@ -41,19 +42,116 @@ describe('武器静态定义', () => {
       slotIndex: 0,
       skillId: 'sk_wpn_fixture',
       referencedBuffIds: ['buff_wpn_fixture'],
-      levels: [
+      request: { originKind: 'weapon', skillId: 'sk_wpn_fixture' },
+      levels: [1, 2],
+      blackboard: { will: [20, 36], duration: [10, 20] },
+      startupBuffs: [{ buffId: 'buff_wpn_fixture', blackboardAssignments: { duration: [10, 20] } }],
+      toggleBuffs: [],
+    });
+    const dependency = result.runtimeDependencies[0]!;
+    expect(dependency.startupBuffs[0]?.blackboardAssignments.duration).toBe(
+      dependency.blackboard.duration,
+    );
+  });
+
+  it('常量不按补丁档位复制，黑板引用仍保留完整等级列', () => {
+    const passive = passiveFixture();
+    passive.cardAttributeModifier = {
+      isConvertedAttribute: false,
+      attributeModifiers: [
         {
-          level: 1,
-          installation: { patchApplied: true, blackboard: { will: 20, duration: 10 } },
-          startupBuffs: [{ buffId: 'buff_wpn_fixture', blackboardAssignments: { duration: 10 } }],
+          modifyAttributeType: 'Specific',
+          attributeType: 'Will',
+          formulaItem: 'BaseAddition',
+          param: { value: 7, useBlackboardKey: false, blackboardKey: '' },
         },
         {
-          level: 2,
-          installation: { patchApplied: true, blackboard: { will: 36, duration: 20 } },
-          startupBuffs: [{ buffId: 'buff_wpn_fixture', blackboardAssignments: { duration: 20 } }],
+          modifyAttributeType: 'Specific',
+          attributeType: 'Agi',
+          formulaItem: 'BaseAddition',
+          param: { value: 0, useBlackboardKey: true, blackboardKey: 'will' },
         },
       ],
+    };
+    const result = compileWeaponStaticDefinitionBatchSource(
+      { wpn_lance_fixture: weaponFixture() },
+      upgradeFixture(),
+      { sk_wpn_fixture: passive },
+      { sk_wpn_fixture: patchFixture() },
+    );
+    expect(result.diagnostics).toEqual([]);
+    const definition = result.definitions[0]!;
+    const expanded = {
+      ...definition,
+      traits: definition.traits.map(trait => ({
+        ...trait,
+        modifiers: trait.modifiers.map(modifier => {
+          const value = modifier.value;
+          return {
+            ...modifier,
+            value:
+              typeof value === 'number'
+                ? Array.from({ length: trait.levelCount }, () => value)
+                : value,
+          };
+        }),
+      })),
+    };
+    for (const level of [1, 2]) {
+      const attributes = { main: 'will', secondary: 'agility' } as const;
+      expect(compileWeaponContributions(definition, [level], attributes)).toEqual(
+        compileWeaponContributions(expanded, [level], attributes),
+      );
+    }
+    expect(result.definitions[0]?.traits[0]).toEqual({
+      key: 'skill1',
+      levelCount: 2,
+      modifiers: [
+        { kind: 'attribute', attribute: 'will', operation: 'flat', value: 7 },
+        { kind: 'attribute', attribute: 'agility', operation: 'flat', value: [20, 36] },
+      ],
     });
+  });
+
+  it.each([
+    {
+      attributeType: 'Will',
+      key: 'missing',
+      reason: 'missing materialized blackboard value "missing"',
+    },
+    {
+      attributeType: 'Def',
+      key: 'will',
+      reason: 'CardSkill cannot define GearDefinition.baseDefense',
+    },
+  ])('共同编译器保留静态阻塞和运行依赖：$reason', ({ attributeType, key, reason }) => {
+    const passive = passiveFixture();
+    passive.cardAttributeModifier = {
+      isConvertedAttribute: false,
+      attributeModifiers: [
+        {
+          modifyAttributeType: 'Specific',
+          attributeType,
+          formulaItem: 'BaseAddition',
+          param: { value: 0, useBlackboardKey: true, blackboardKey: key },
+        },
+      ],
+    };
+    const result = compileWeaponStaticDefinitionBatchSource(
+      { wpn_lance_fixture: weaponFixture() },
+      upgradeFixture(),
+      { sk_wpn_fixture: passive },
+      { sk_wpn_fixture: patchFixture() },
+    );
+    expect(result.definitions).toEqual([]);
+    expect(result.runtimeDependencies).toHaveLength(1);
+    expect(result.diagnostics).toEqual([
+      {
+        status: 'blocked',
+        sourcePath: 'SkillData.sk_wpn_fixture.cardAttributeModifier.attributeModifiers[0]',
+        reason,
+      },
+    ]);
   });
 
   it('缺少任一正式基础攻击节点时保留运行依赖，但阻止整把武器进入正式候选', () => {
@@ -77,6 +175,29 @@ describe('武器静态定义', () => {
         reason: 'WeaponDefinition requires an exact base-attack row at level 60',
       }),
     );
+  });
+
+  it.each([3, 4, 5, 6, 2, 7])('星级 %s 按正式契约边界接受或阻断', rarity => {
+    const result = compileWeaponStaticDefinitionBatchSource(
+      { wpn_lance_fixture: { ...weaponFixture(), rarity } },
+      upgradeFixture(),
+      { sk_wpn_fixture: passiveFixture() },
+      { sk_wpn_fixture: patchFixture() },
+    );
+    if ([3, 4, 5, 6].includes(rarity)) {
+      expect(result.definitions[0]?.rarity).toBe(rarity);
+      expect(result.diagnostics.some(item => item.status === 'blocked')).toBe(false);
+    } else {
+      expect(result.definitions).toEqual([]);
+      expect(result.diagnostics).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            status: 'blocked',
+            sourcePath: 'WeaponBasicTable.wpn_lance_fixture.rarity',
+          }),
+        ]),
+      );
+    }
   });
 
   it('固定按原生 ID 排序，且拒绝重复选择身份', () => {

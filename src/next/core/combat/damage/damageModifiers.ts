@@ -1,127 +1,35 @@
+// 纯数据契约由独立包唯一声明；此路径保留兼容导出。
+export {
+  type DamageModifierNumber,
+  type DamageModifierExternalCondition,
+  type DamageModifierCondition,
+  type DamageProcessorDefinition,
+  type DamageModifierDefinition,
+} from '../../../../../packages/game-data-contract/src/modifiers.ts';
+import {
+  type DamageModifierCondition,
+  type DamageModifierDefinition,
+  type DamageModifierExternalCondition,
+  type DamageModifierNumber,
+  type DamageProcessorDefinition,
+} from '../../../../../packages/game-data-contract/src/modifiers.ts';
 /**
  * Buff 定义与伤害包各处理阶段之间的声明式协议。
  * 修正必须明确所属阶段、作用方和条件，不能直接回调或任意修改完整伤害上下文。
  */
-import type { DamageScaleSide, DamageScaleZone } from './damageScale';
-import type {
-  ComparisonOperator,
-  CombatTarget,
-  DamageFeature,
-  DamageTag,
-  DamageType,
-} from '../../game-data/operatorDefinition';
 import { compareCombatNumbers } from '../runtime/numericComparison';
-import {
-  attributeModifierValues,
-  type AttributeModifierSlot,
-  type AttributeModifierTiming,
-  type AttributeModifierValues,
-} from '../attributes/combatAttributes';
+import { attributeModifierValues } from '../attributes/combatAttributes';
 import type {
   DamageModifierSide,
   DamageProcessTiming,
-  DamageTargetHealthType,
   PlayerDamageContext,
 } from './playerDamageContext';
-
-/** 伤害处理器中的动态数值可直接取常量，也可读取所属 Buff 实例的黑板。 */
-export type DamageModifierNumber = number | { readonly blackboardKey: string };
-
-/** 战斗装配层负责使用统一条件系统判断当前伤害修正是否成立。 */
-export type DamageModifierExternalCondition =
-  | {
-      readonly kind: 'entityTagMatch';
-      readonly target: CombatTarget;
-      readonly tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
-      readonly tagIds: readonly number[];
-    }
-  | { readonly kind: 'casterControlled' }
-  | {
-      readonly kind: 'buffIdCountCompare';
-      readonly target: 'caster' | 'enemy';
-      readonly buffIds: readonly string[];
-      readonly operator: ComparisonOperator;
-      readonly value: DamageModifierNumber;
-    }
-  | {
-      readonly kind: 'eventDamageTagsMatch';
-      readonly match: 'exact' | 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
-      readonly tags: readonly DamageTag[];
-    }
-  | {
-      readonly kind: 'eventDamageFeaturesMatch';
-      readonly match: 'exact' | 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
-      readonly features: readonly DamageFeature[];
-    }
-  | {
-      readonly kind: 'eventDamageTypesMatch';
-      readonly damageTypes: readonly DamageType[];
-    }
-  | {
-      readonly kind: 'targetHealthCompare';
-      readonly target: 'enemy';
-      readonly valueType: 'current' | 'ratio';
-      readonly operator: ComparisonOperator;
-      readonly value: DamageModifierNumber;
-    }
-  | {
-      readonly kind: 'targetPoiseCompare';
-      readonly target: 'enemy';
-      readonly returnValueIfMissing: boolean;
-      readonly operator: ComparisonOperator;
-      readonly value: DamageModifierNumber;
-    };
-
-/** 伤害修正专用条件树；Buff 黑板只在持有该修正的实例内求值。 */
-export type DamageModifierCondition =
-  | DamageModifierExternalCondition
-  | { readonly kind: 'sourceSkillCastMatch' }
-  | {
-      readonly kind: 'buffBlackboardCompare';
-      readonly left: DamageModifierNumber;
-      readonly operator: ComparisonOperator;
-      readonly right: DamageModifierNumber;
-    }
-  | { readonly kind: 'not'; readonly condition: DamageModifierCondition }
-  | { readonly kind: 'all'; readonly conditions: readonly DamageModifierCondition[] }
-  | { readonly kind: 'any'; readonly conditions: readonly DamageModifierCondition[] };
 
 /** 战斗装配层只判断依赖场景或当前伤害包的叶子条件。 */
 export type DamageModifierConditionEvaluator = (
   condition: DamageModifierExternalCondition,
   resolveNumber: (value: DamageModifierNumber) => number,
 ) => boolean;
-
-/** 在指定阶段向倍率区间或即时属性写入修正的处理器定义。 */
-export type DamageProcessorDefinition =
-  | {
-      readonly kind: 'multiplyValue';
-      readonly timing: DamageProcessTiming;
-      readonly targetHealthTypes: readonly DamageTargetHealthType[];
-      readonly scale: number;
-    }
-  | {
-      readonly kind: 'damageScale';
-      readonly side: DamageScaleSide;
-      readonly zone: DamageScaleZone;
-      readonly addition: DamageModifierNumber;
-    }
-  | {
-      readonly kind: 'instantAttribute';
-      readonly targetSide: DamageModifierSide;
-      readonly attribute: string;
-      readonly values:
-        | AttributeModifierValues
-        | { readonly slot: AttributeModifierSlot; readonly value: DamageModifierNumber };
-      readonly attributeTiming: AttributeModifierTiming;
-    };
-
-/** 一个 Buff 在伤害生命周期中注册的全部处理器。 */
-export interface DamageModifierDefinition {
-  readonly enabledSide: DamageModifierSide;
-  readonly processors: readonly DamageProcessorDefinition[];
-  readonly condition?: DamageModifierCondition;
-}
 
 /** 由一个已启用 Buff 实例持有的运行时修正。 */
 export class DamageModifier {

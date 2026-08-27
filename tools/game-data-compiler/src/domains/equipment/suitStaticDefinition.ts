@@ -1,4 +1,5 @@
-import { compileResolvedAttributeModifierSource } from '../../compiler/attributeModifier.ts';
+import type { GearSetDefinition } from '../../../../../packages/game-data-contract/src/equipment.ts';
+import { compileCardSkillBuildModifiers } from '../../compiler/cardSkillBuildModifiers.ts';
 import { compilePassiveSkillRequestBatch } from '../../compiler/passiveSkillBatch.ts';
 import {
   materializePassiveBuffInstallation,
@@ -12,14 +13,13 @@ import type {
   CompiledEquipmentModifierDefinitionSource,
   EquipmentDefinitionDiagnosticSource,
 } from './formalDefinition.ts';
-import { projectEquipmentAttributeModifier } from './projection.ts';
 
-export interface CompiledGearSetStaticDefinitionSource {
-  readonly slug: string;
+/** 正式套装的静态输出子集，行为闭包尚待装配。 */
+export type CompiledGearSetStaticDefinitionSource = Readonly<Pick<GearSetDefinition, 'slug'>> & {
   readonly modifiers: readonly CompiledEquipmentModifierDefinitionSource[];
-}
+};
 
-/** 静态定义之外仍需由 Buff/条件/动作编译器装配的原生依赖。 */
+/** 静态编译产生、运行装配消费的依赖计划；安装参数及未解析值不写入正式套装定义。 */
 export interface CompiledGearSetRuntimeDependencySource {
   readonly suitId: string;
   readonly skillId: string;
@@ -106,40 +106,12 @@ export function compileEquipmentSuitStaticDefinitionBatchSource(
       );
     }
     const installation = materializePassiveSkillInstallation(request, compiled);
-    const modifiers: CompiledEquipmentModifierDefinitionSource[] = [];
     const blockedBefore = diagnostics.filter(entry => entry.status === 'blocked').length;
-    for (const [
-      index,
-      nativeModifier,
-    ] of compiled.definition.skill.cardAttributeModifiers.modifiers.entries()) {
-      const sourcePath = `${compiled.sourcePath}.cardAttributeModifier.attributeModifiers[${index}]`;
-      const value =
-        nativeModifier.parameter.blackboardKey === null
-          ? nativeModifier.parameter.value
-          : installation.blackboard[nativeModifier.parameter.blackboardKey];
-      if (value === undefined) {
-        diagnostics.push({
-          status: 'blocked',
-          sourcePath,
-          reason: `missing materialized blackboard value ${JSON.stringify(nativeModifier.parameter.blackboardKey)}`,
-        });
-        continue;
-      }
-      const projection = projectEquipmentAttributeModifier(
-        compileResolvedAttributeModifierSource({
-          sourcePath,
-          modifyAttributeType: nativeModifier.modifyAttributeType,
-          attributeType: nativeModifier.attributeType,
-          formulaItem: nativeModifier.formulaItem,
-          value,
-        }),
-      );
-      if (projection.status !== 'supported') {
-        diagnostics.push({ status: projection.status, sourcePath, reason: projection.reason });
-        continue;
-      }
-      modifiers.push(toFormalModifier(projection.modifier));
-    }
+    const modifiers = compileCardSkillBuildModifiers(
+      compiled,
+      installation.blackboard,
+      diagnostics,
+    );
     if (diagnostics.filter(entry => entry.status === 'blocked').length === blockedBefore) {
       definitions.push({ slug: request.originId, modifiers });
     }
@@ -193,30 +165,4 @@ export function compileEquipmentSuitStaticDefinitionBatchSource(
   }
 
   return { definitions, runtimeDependencies, diagnostics };
-}
-
-function toFormalModifier(
-  modifier: import('./projection.ts').ProjectedEquipmentModifierSource,
-): CompiledEquipmentModifierDefinitionSource {
-  const value = [modifier.value] as const;
-  switch (modifier.kind) {
-    case 'attribute':
-      return {
-        kind: modifier.kind,
-        attribute: modifier.attribute,
-        operation: modifier.operation,
-        value,
-      };
-    case 'panelStat':
-      if (modifier.stat === 'baseDefense') {
-        throw new Error('equipment suit CardSkill cannot define GearDefinition.baseDefense');
-      }
-      return { kind: modifier.kind, stat: modifier.stat, value };
-    case 'damageScale':
-      return { kind: modifier.kind, target: modifier.target, slot: modifier.slot, value };
-    case 'staticHealingIncrease':
-      return { kind: modifier.kind, target: modifier.target, value };
-    case 'skillCooldownMultiplier':
-      return { kind: modifier.kind, skillTypes: modifier.skillTypes, value };
-  }
 }

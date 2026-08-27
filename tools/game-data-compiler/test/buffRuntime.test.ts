@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseBuffRuntimeSource } from '../src/index.ts';
+import { parseBuffRuntimeSource, compileBuffRuntimeDefinitionSource } from '../src/index.ts';
 import { scalarFixture, targetFixture } from './sourceFixtures.ts';
 
 describe('Buff 运行时公共来源', () => {
@@ -51,13 +51,13 @@ describe('Buff 运行时公共来源', () => {
     expect(parsed.lifecycle.duration).toEqual({
       value: 0,
       blackboardKey: 'duration',
-      levelValues: [15],
+      levelValues: 15,
     });
     expect(parsed.applyTagIds).toEqual([-1757502026]);
     expect(parsed.attributeModifiers.modifiers[0]?.parameter).toEqual({
       value: 0,
       blackboardKey: 'atk_up',
-      levelValues: [0.05],
+      levelValues: 0.05,
     });
     expect(parsed.graph.abilityEvents[0]?.actions[0]?.actions[0]?.body).toMatchObject({
       kind: 'leaf',
@@ -75,6 +75,27 @@ describe('Buff 运行时公共来源', () => {
       },
     });
     expect(parsed.unsupportedPayloads).toEqual([]);
+  });
+
+  it('动态默认值保持单值，但生命周期编译仍保留按黑板键求值', () => {
+    const source = parseBuffRuntimeSource(
+      buffFixture({
+        lifeType: 'Limited',
+        blackboard: [{ key: 'duration', valueDouble: 5, valueStr: '', isDynamic: true }],
+        duration: scalarFixture(0, 'duration'),
+      }),
+      'BuffData.buff_fixture',
+      { duration: [20, 30] },
+    );
+    // Buff 局部声明覆盖继承上下文；这里是初值，不代表安装覆盖后只能取 5。
+    expect(source.lifecycle.duration).toEqual({
+      value: 0,
+      blackboardKey: 'duration',
+      levelValues: 5,
+    });
+    const compiled = compileBuffRuntimeDefinitionSource(source);
+    expect(compiled.blackboard).toEqual({ duration: 5 });
+    expect(compiled.durationSeconds).toEqual({ blackboardKey: 'duration' });
   });
 
   it('does not silently discard unsupported modifier payloads', () => {
@@ -149,7 +170,7 @@ describe('Buff 运行时公共来源', () => {
             modifier: {
               attributeType: 'PoiseDamageOutputScalar',
               formulaItem: 'BaseAddition',
-              parameter: { blackboardKey: 'poise_up', levelValues: [0.3] },
+              parameter: { blackboardKey: 'poise_up', levelValues: 0.3 },
             },
           },
         ],
@@ -186,7 +207,7 @@ describe('Buff 运行时公共来源', () => {
     expect(parsed.shields).toMatchObject([
       {
         infinityValue: false,
-        value: { blackboardKey: 'shield_valid', levelValues: [500] },
+        value: { blackboardKey: 'shield_valid', levelValues: 500 },
         damageAbsorptions: [],
         absorbCount: { value: -1 },
         removeBuffWhenConsumed: true,
@@ -241,7 +262,7 @@ describe('Buff 运行时公共来源', () => {
             modifier: {
               attributeType: 'HealOutputIncrease',
               formulaItem: 'BaseAddition',
-              parameter: { blackboardKey: 'heal_up', levelValues: [0.2] },
+              parameter: { blackboardKey: 'heal_up', levelValues: 0.2 },
             },
           },
         ],

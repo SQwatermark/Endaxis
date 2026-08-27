@@ -11,6 +11,80 @@ import {
 } from '../src/index.ts';
 
 describe('公共 Buff 运行时投影', () => {
+  it.each(['buffApplication', 'aura'] as const)(
+    '%s 共用数值赋值边界：字符串直写阻断，但不读取未启用的残留字符串',
+    family => {
+      const sequence = sourceFixture().graph.abilityEvents[0]!.actions[0]!;
+      const apply = sequence.actions[1]!;
+      if (apply.body.kind !== 'leaf' || apply.body.value.family !== 'buffApplication')
+        throw new Error('fixture');
+      const assignment = {
+        targetKey: 'rate',
+        inputValueKey: 'source_rate',
+        useDirectValue: true,
+        valueType: 'String',
+        numericValue: 7,
+        stringValue: 'label',
+      };
+      const entry = {
+        ...apply.body.value.action.buffs[0]!,
+        assignBlackboard: true,
+        assignments: [assignment],
+      };
+      const action = {
+        ...apply.body.value.action,
+        buffs: [entry],
+        target: fixedTarget('Target'),
+        buffSource: 'ActionSource' as const,
+      };
+      const project = (visualOnlyIds = new Set<string>()) =>
+        compileCombatActionSequenceSource(
+          {
+            ...sequence,
+            actions: [
+              {
+                ...apply,
+                body:
+                  family === 'buffApplication'
+                    ? { kind: 'leaf', value: { family, action } }
+                    : {
+                        kind: 'leaf',
+                        value: {
+                          family,
+                          action: {
+                            kind: 'globalPartyAura',
+                            debugName: '',
+                            target: 'party',
+                            buffSource: 'ActionSource',
+                            inheritSourceSkillCastInfo: false,
+                            buffs: [entry],
+                          },
+                        },
+                      },
+              },
+            ],
+          },
+          {
+            actionOwnerTarget: 'caster',
+            actionSourceTarget: 'caster',
+            actionTargetTarget: family === 'aura' ? 'buffOwner' : 'enemy',
+          },
+          visualOnlyIds,
+        );
+      expect(() => project()).toThrow('unsupported direct Buff assignment type String');
+      // 已证明纯表现的整项先省略，不因其中未执行的字符串写入阻塞。
+      expect(project(new Set([entry.buffId])).steps).toEqual([]);
+      assignment.useDirectValue = false;
+      expect(project().steps[0]).toMatchObject({
+        parameters: { blackboardAssignments: { rate: { kind: 'blackboard', key: 'source_rate' } } },
+      });
+      assignment.useDirectValue = true;
+      assignment.valueType = 'Numeric';
+      expect(project().steps[0]).toMatchObject({
+        parameters: { blackboardAssignments: { rate: { kind: 'constant', value: 7 } } },
+      });
+    },
+  );
   it.each(['OnBuffStart', 'DuringBuffEnable'] as const)(
     '%s 的来源、持有者和默认目标不借用能力事件',
     event => {

@@ -3,10 +3,13 @@ import {
   type AttributeTypeSource,
 } from '../../compiler/attributeModifier.ts';
 import type { OperatorTalentNodeSource } from '../../source/operatorTalentNodes.ts';
-import type { OperatorPrimaryAttributeSource } from './characterTable.ts';
+import type { OperatorAttribute } from '../../../../../packages/game-data-contract/src/primitives.ts';
+import {
+  DEFAULT_TRUST_ATTRIBUTE_BONUS,
+  type TrustAttributeBonusDefinition,
+} from '../../../../../packages/game-data-contract/src/operators.ts';
 
 const TRUST_BREAK_STAGES = [1, 2, 3, 4] as const;
-const DEFAULT_TRUST_VALUES = [10, 15, 15, 20] as const;
 
 export {
   parseOperatorTalentNodeSources,
@@ -15,10 +18,12 @@ export {
   type TalentNodeTypeSource,
 } from '../../source/operatorTalentNodes.ts';
 
-export interface CompiledTrustAttributeBonusSource {
-  readonly values: readonly number[];
-  readonly attributes: readonly OperatorPrimaryAttributeSource[];
-}
+/** 已解析为具体四维的正式奖励，不输出 main/secondary 相对身份。 */
+export type CompiledTrustAttributeBonusSource = Readonly<
+  Pick<TrustAttributeBonusDefinition, 'values'>
+> & {
+  readonly attributes: readonly OperatorAttribute[];
+};
 
 /**
  * 把四个 Attr 节点投影为 Next 好感属性。全局默认值不重复写入干员定义。
@@ -26,11 +31,11 @@ export interface CompiledTrustAttributeBonusSource {
  */
 export function compileTrustAttributeBonusSource(
   nodes: readonly OperatorTalentNodeSource[],
-  mainAttribute: OperatorPrimaryAttributeSource,
+  mainAttribute: OperatorAttribute,
 ): CompiledTrustAttributeBonusSource | null {
   const byStage = new Map<
     number,
-    { readonly attributes: readonly OperatorPrimaryAttributeSource[]; readonly value: number }
+    { readonly attributes: readonly OperatorAttribute[]; readonly value: number }
   >();
   for (const node of nodes) {
     if (node.nodeType !== 'attribute') continue;
@@ -73,16 +78,16 @@ export function compileTrustAttributeBonusSource(
     throw new Error('talentNodeMap: trust attributes differ between break stages');
   }
   const values = ordered.map(item => item.value);
-  if (sameValues(values, DEFAULT_TRUST_VALUES) && sameValues(attributes, [mainAttribute])) {
+  if (
+    sameValues(values, DEFAULT_TRUST_ATTRIBUTE_BONUS.values) &&
+    sameValues(attributes, [mainAttribute])
+  ) {
     return null;
   }
   return { values, attributes };
 }
 
-function projectPrimaryAttribute(
-  attribute: AttributeTypeSource,
-  path: string,
-): OperatorPrimaryAttributeSource {
+function projectPrimaryAttribute(attribute: AttributeTypeSource, path: string): OperatorAttribute {
   const result = projectPrimaryAttributeKey(attribute);
   if (result === null) throw new Error(`${path}: unsupported attribute ${attribute}`);
   return result;

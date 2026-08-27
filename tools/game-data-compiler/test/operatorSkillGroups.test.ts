@@ -8,17 +8,41 @@ import {
 } from '../src/index.ts';
 import { runPythonOracle } from './pythonOracle.ts';
 
-const SKILLS: readonly OperatorSkillIdentitySource[] = [
-  ['basicAttack1', 'attack_1', 'basicAttack'],
-  ['basicAttack2', 'attack_2', 'basicAttack'],
-  ['finisher', 'power_attack', 'finisher'],
-  ['plungingAttack', 'plunging', 'plungingAttack'],
-  ['battleSkill', 'normal_skill', 'battleSkill'],
-  ['comboSkill', 'combo_skill', 'comboSkill'],
-  ['ultimate', 'ultimate_skill', 'ultimate'],
-].map(([key, skillId, skillType]) => ({ key, skillId, skillType }));
+const SKILLS: readonly OperatorSkillIdentitySource[] = (
+  [
+    ['basicAttack1', 'attack_1', 'basicAttack'],
+    ['basicAttack2', 'attack_2', 'basicAttack'],
+    ['finisher', 'power_attack', 'finisher'],
+    ['plungingAttack', 'plunging', 'plungingAttack'],
+    ['battleSkill', 'normal_skill', 'battleSkill'],
+    ['comboSkill', 'combo_skill', 'comboSkill'],
+    ['ultimate', 'ultimate_skill', 'ultimate'],
+  ] as const
+).map(([key, skillId, skillType]) => ({ key, skillId, skillType }));
 
 describe('干员技能等级组', () => {
+  it.each([
+    ['skillType', 'passive'],
+    ['levelSource', 'finisher'],
+    ['levelSource', 'plungingAttack'],
+  ])('配置入口拒绝不属于契约的 %s=%s', (field, value) => {
+    const groups = operatorGroups();
+    groups[0]![field] = value;
+    expect(() => parseOperatorSkillGroupSources(groups, 'fixture.skillGroups')).toThrow(
+      `fixture.skillGroups[0].${field}: unsupported identity ${JSON.stringify(value)}`,
+    );
+  });
+
+  it('变体同样校验等级来源，不借用技能类型枚举', () => {
+    const groups = operatorGroups();
+    groups[0]!.variants = [
+      { key: 'bad', levelSource: 'finisher', nativeGroupType: 2, skillKeys: ['basicAttack1'] },
+    ];
+    expect(() => parseOperatorSkillGroupSources(groups, 'fixture.skillGroups')).toThrow(
+      'fixture.skillGroups[0].variants[0].levelSource: unsupported identity "finisher"',
+    );
+  });
+
   it('严格读取原生有序组，并通过佩丽卡式显式分组与 Python oracle', () => {
     const growth = growthTable();
     const rawGroups = operatorGroups();
@@ -46,7 +70,7 @@ describe('干员技能等级组', () => {
   });
 
   it('把强化普攻保留在普攻释放组，但按其原生终结技等级组校验', () => {
-    const skills = [
+    const skills: readonly OperatorSkillIdentitySource[] = [
       { key: 'basic', skillId: 'basic', skillType: 'basicAttack' },
       { key: 'enhanced', skillId: 'enhanced', skillType: 'basicAttack' },
     ];

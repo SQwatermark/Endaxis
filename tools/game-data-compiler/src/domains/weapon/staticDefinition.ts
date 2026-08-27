@@ -1,23 +1,24 @@
-import { compileResolvedAttributeModifierSource } from '../../compiler/attributeModifier.ts';
+import type { LevelValues } from '../../../../../packages/game-data-contract/src/index.ts';
+import {
+  WEAPON_RARITIES,
+  type WeaponRarity,
+  type WeaponDefinition,
+  type WeaponTraitDefinition,
+} from '../../../../../packages/game-data-contract/src/equipment.ts';
+import { compileCardSkillBuildModifiers } from '../../compiler/cardSkillBuildModifiers.ts';
 import { compilePassiveSkillRequestBatch } from '../../compiler/passiveSkillBatch.ts';
 import {
   materializePassiveBuffInstallation,
-  materializePassiveSkillInstallation,
+  resolvePassiveSkillDefinitionBlackboard,
   type MaterializedPassiveBuffInstallationSource,
-  type MaterializedPassiveSkillInstallationSource,
   type UnresolvedPassiveSkillBlackboardValueSource,
 } from '../../compiler/passiveSkillInstallation.ts';
 import type { CompiledPassiveSkillDefinitionSource } from '../../compiler/passiveSkillBatch.ts';
 import type { PassiveSkillCompileRequestSource } from '../../compiler/passiveSkillRequest.ts';
-import type { ProjectedWeaponTypeSource } from '../../compiler/weaponType.ts';
 import type {
   BuildDefinitionDiagnosticSource,
   CompiledBuildModifierDefinitionSource,
 } from '../../compiler/formalBuildDefinition.ts';
-import {
-  projectBuildAttributeModifier,
-  type ProjectedBuildModifierSource,
-} from '../../compiler/buildAttributeProjection.ts';
 import { parseWeaponBaseAttackSources } from './baseAttack.ts';
 import { parseWeaponBasicSources } from './basicTable.ts';
 import { discoverWeaponPassiveSkillRequests } from './passiveDiscovery.ts';
@@ -25,43 +26,40 @@ import type { SkillActionGraphSource } from '../../source/skillActionGraph.ts';
 import type { KnownNativeActionLeafSource } from '../../source/actionLeaf.ts';
 
 const FORMAL_BASE_ATTACK_LEVELS = [1, 20, 40, 60, 80, 90] as const;
-const FORMAL_WEAPON_RARITIES = new Set([3, 4, 5, 6]);
-
-export interface CompiledWeaponTraitStaticDefinitionSource {
-  readonly key: string;
-  readonly levelCount: number;
-  readonly modifiers: readonly CompiledBuildModifierDefinitionSource[];
+function isWeaponRarity(value: number): value is WeaponRarity {
+  return WEAPON_RARITIES.some(rarity => rarity === value);
 }
+
+/** 正式词条的静态输出子集，修正器已完成投影；不是优化 IR。 */
+export type CompiledWeaponTraitStaticDefinitionSource = Readonly<
+  Pick<WeaponTraitDefinition, 'key' | 'levelCount'>
+> & {
+  readonly modifiers: readonly CompiledBuildModifierDefinitionSource[];
+};
 
 /** 尚未装配 Buff/动作图的正式 WeaponDefinition 候选。 */
-export interface CompiledWeaponStaticDefinitionSource {
-  readonly slug: string;
-  readonly rarity: 3 | 4 | 5 | 6;
-  readonly weaponType: ProjectedWeaponTypeSource;
-  readonly baseAttackAtLevelNodes: readonly number[];
+export type CompiledWeaponStaticDefinitionSource = Readonly<
+  Pick<WeaponDefinition, 'slug' | 'rarity' | 'weaponType' | 'baseAttackAtLevelNodes'>
+> & {
   readonly traits: readonly CompiledWeaponTraitStaticDefinitionSource[];
-}
+};
 
+/** 安装条件的中间态：保留原生比较名及未解析值，运行装配阶段再按场景判定。 */
 export interface CompiledWeaponToggleConditionSource {
   readonly kind: 'currentHpRatio';
   readonly comparison: string;
-  readonly value: number | UnresolvedPassiveSkillBlackboardValueSource;
+  readonly value: LevelValues | UnresolvedPassiveSkillBlackboardValueSource;
 }
 
 export interface CompiledWeaponToggleBuffGroupSource {
   readonly conditions: readonly CompiledWeaponToggleConditionSource[];
-  readonly buffs: readonly MaterializedPassiveBuffInstallationSource[];
+  readonly buffs: readonly MaterializedPassiveBuffInstallationSource<LevelValues>[];
 }
 
-/** 一条武器词条在一个真实 SkillPatch 等级上的安装输入。 */
-export interface CompiledWeaponTraitLevelRuntimeDependencySource {
-  readonly level: number;
-  readonly installation: MaterializedPassiveSkillInstallationSource;
-  readonly startupBuffs: readonly MaterializedPassiveBuffInstallationSource[];
-  readonly toggleBuffs: readonly CompiledWeaponToggleBuffGroupSource[];
-}
-
-/** 静态属性之外仍须交给公共 Buff/动作编译器闭合的词条依赖。 */
+/**
+ * 静态编译产生、运行装配消费的依赖计划，不是另一套 WeaponDefinition。
+ * 保留原生请求、动作图与等级身份，供公共编译器闭合资源及行为；不写入正式产物。
+ */
 export interface CompiledWeaponTraitRuntimeDependencySource {
   readonly weaponId: string;
   readonly traitKey: string;
@@ -72,7 +70,12 @@ export interface CompiledWeaponTraitRuntimeDependencySource {
    * 正式运行定义必须显式编译它，或对非空程序失败关闭。
    */
   readonly actionGraph: SkillActionGraphSource<KnownNativeActionLeafSource>;
-  readonly levels: readonly CompiledWeaponTraitLevelRuntimeDependencySource[];
+  /** 保留原始安装请求和等级 ID，参数列下标对应这里的顺序，不把行号冒充原生等级。 */
+  readonly request: PassiveSkillCompileRequestSource;
+  readonly levels: readonly number[];
+  readonly blackboard: Readonly<Record<string, LevelValues>>;
+  readonly startupBuffs: readonly MaterializedPassiveBuffInstallationSource<LevelValues>[];
+  readonly toggleBuffs: readonly CompiledWeaponToggleBuffGroupSource[];
   readonly referencedBuffIds: readonly string[];
 }
 
@@ -87,7 +90,7 @@ export interface CompiledWeaponStaticDefinitionBatchSource {
  *
  * 身份暂时使用原生 weaponId；展示名、图标和稳定公开 slug 必须由独立身份表提供，不能从
  * modelPath 或文本猜测。只要任一静态词条被阻断，该武器就不会出现在 definitions 中；但
- * 已解析的逐档运行依赖仍完整返回，供后续 Buff/动作闭包审计使用。
+ * 已解析的运行依赖仍完整返回，供后续 Buff/动作闭包审计使用。
  */
 export function compileWeaponStaticDefinitionBatchSource(
   weaponBasicTableValue: unknown,
@@ -131,7 +134,7 @@ export function compileWeaponStaticDefinitionBatchSource(
       }
       return row.baseAttack;
     });
-    if (!FORMAL_WEAPON_RARITIES.has(weapon.rarity)) {
+    if (!isWeaponRarity(weapon.rarity)) {
       diagnostics.push({
         status: 'blocked',
         sourcePath: `${weapon.sourcePath}.rarity`,
@@ -144,13 +147,11 @@ export function compileWeaponStaticDefinitionBatchSource(
       const compiled = requireCompiledSkill(request, compiledBySkillId);
       const levels = [...compiled.definition.blackboard.levels];
       const traitKey = `skill${request.levelSource.kind === 'weaponProgression' ? request.levelSource.slotIndex + 1 : traits.length + 1}`;
-      const installations = levels.map(level =>
-        materializePassiveSkillInstallation(request, compiled, level),
-      );
+      const blackboard = resolvePassiveSkillDefinitionBlackboard(request, compiled);
       traits.push({
         key: traitKey,
         levelCount: levels.length,
-        modifiers: compileTraitModifiers(compiled, installations, diagnostics),
+        modifiers: compileCardSkillBuildModifiers(compiled, blackboard, diagnostics),
       });
       runtimeDependencies.push({
         weaponId: weapon.weaponId,
@@ -159,14 +160,13 @@ export function compileWeaponStaticDefinitionBatchSource(
           request.levelSource.kind === 'weaponProgression' ? request.levelSource.slotIndex : -1,
         skillId: request.skillId,
         actionGraph: compiled.definition.skill.actionGraph,
-        levels: installations.map(installation => ({
-          level: installation.level,
-          installation,
-          startupBuffs: compiled.definition.skill.startupBuffs.map(buff =>
-            materializePassiveBuffInstallation(buff, installation.blackboard),
-          ),
-          toggleBuffs: compileToggleBuffs(compiled, installation),
-        })),
+        request,
+        levels,
+        blackboard,
+        startupBuffs: compiled.definition.skill.startupBuffs.map(buff =>
+          materializePassiveBuffInstallation(buff, blackboard),
+        ),
+        toggleBuffs: compileToggleBuffs(compiled, blackboard),
         referencedBuffIds: compiled.definition.skill.references
           .filter(
             (
@@ -179,10 +179,10 @@ export function compileWeaponStaticDefinitionBatchSource(
       });
     }
 
-    if (blockedCount(diagnostics) === blockedBefore && FORMAL_WEAPON_RARITIES.has(weapon.rarity)) {
+    if (blockedCount(diagnostics) === blockedBefore && isWeaponRarity(weapon.rarity)) {
       definitions.push({
         slug: weapon.weaponId,
-        rarity: weapon.rarity as 3 | 4 | 5 | 6,
+        rarity: weapon.rarity,
         weaponType: weapon.weaponType,
         baseAttackAtLevelNodes,
         traits,
@@ -223,71 +223,9 @@ function requireCompiledSkill(
   return compiled;
 }
 
-function compileTraitModifiers(
-  compiled: CompiledPassiveSkillDefinitionSource,
-  installations: readonly MaterializedPassiveSkillInstallationSource[],
-  diagnostics: BuildDefinitionDiagnosticSource[],
-): CompiledBuildModifierDefinitionSource[] {
-  return compiled.definition.skill.cardAttributeModifiers.modifiers.flatMap(
-    (nativeModifier, modifierIndex) => {
-      const sourcePath = `${compiled.sourcePath}.cardAttributeModifier.attributeModifiers[${modifierIndex}]`;
-      const projected = installations.map(installation => {
-        const key = nativeModifier.parameter.blackboardKey;
-        const value = key === null ? nativeModifier.parameter.value : installation.blackboard[key];
-        if (value === undefined) {
-          return {
-            status: 'missing' as const,
-            reason: `missing materialized blackboard value ${JSON.stringify(key)}`,
-          };
-        }
-        return projectBuildAttributeModifier(
-          compileResolvedAttributeModifierSource({
-            sourcePath,
-            modifyAttributeType: nativeModifier.modifyAttributeType,
-            attributeType: nativeModifier.attributeType,
-            formulaItem: nativeModifier.formulaItem,
-            value,
-          }),
-        );
-      });
-      const first = projected[0]!;
-      if (first.status === 'missing') {
-        diagnostics.push({ status: 'blocked', sourcePath, reason: first.reason });
-        return [];
-      }
-      if (first.status !== 'supported') {
-        diagnostics.push({ status: first.status, sourcePath, reason: first.reason });
-        return [];
-      }
-      if (
-        projected.some(
-          entry =>
-            entry.status !== 'supported' ||
-            modifierIdentity(entry.modifier) !== modifierIdentity(first.modifier),
-        )
-      ) {
-        diagnostics.push({
-          status: 'blocked',
-          sourcePath,
-          reason: 'weapon trait modifier changes semantic identity between SkillPatch levels',
-        });
-        return [];
-      }
-      return [
-        toFormalModifier(
-          first.modifier,
-          projected.map(entry =>
-            entry.status === 'supported' ? entry.modifier.value : Number.NaN,
-          ),
-        ),
-      ];
-    },
-  );
-}
-
 function compileToggleBuffs(
   compiled: CompiledPassiveSkillDefinitionSource,
-  installation: MaterializedPassiveSkillInstallationSource,
+  blackboard: Readonly<Record<string, LevelValues>>,
 ): CompiledWeaponToggleBuffGroupSource[] {
   return compiled.definition.skill.toggleBuffs.map((group, groupIndex) => ({
     conditions: group.conditions.map((condition, conditionIndex) => {
@@ -297,58 +235,15 @@ function compileToggleBuffs(
         );
       }
       const key = condition.value.blackboardKey;
-      const value = key === null ? condition.value.value : installation.blackboard[key];
+      const value = key === null ? condition.value.value : blackboard[key];
       return {
         kind: 'currentHpRatio' as const,
         comparison: condition.comparison,
         value: value ?? { kind: 'unresolvedSkillBlackboard' as const, key: key! },
       };
     }),
-    buffs: group.buffs.map(buff =>
-      materializePassiveBuffInstallation(buff, installation.blackboard),
-    ),
+    buffs: group.buffs.map(buff => materializePassiveBuffInstallation(buff, blackboard)),
   }));
-}
-
-function toFormalModifier(
-  modifier: ProjectedBuildModifierSource,
-  value: readonly number[],
-): CompiledBuildModifierDefinitionSource {
-  switch (modifier.kind) {
-    case 'attribute':
-      return {
-        kind: modifier.kind,
-        attribute: modifier.attribute,
-        operation: modifier.operation,
-        value,
-      };
-    case 'panelStat':
-      if (modifier.stat === 'baseDefense') {
-        throw new Error('weapon CardSkill cannot define GearDefinition.baseDefense');
-      }
-      return { kind: modifier.kind, stat: modifier.stat, value };
-    case 'damageScale':
-      return { kind: modifier.kind, target: modifier.target, slot: modifier.slot, value };
-    case 'staticHealingIncrease':
-      return { kind: modifier.kind, target: modifier.target, value };
-    case 'skillCooldownMultiplier':
-      return { kind: modifier.kind, skillTypes: modifier.skillTypes, value };
-  }
-}
-
-function modifierIdentity(modifier: ProjectedBuildModifierSource): string {
-  switch (modifier.kind) {
-    case 'attribute':
-      return `${modifier.kind}/${modifier.attribute}/${modifier.operation}`;
-    case 'panelStat':
-      return `${modifier.kind}/${modifier.stat}`;
-    case 'damageScale':
-      return `${modifier.kind}/${modifier.target}/${modifier.slot}`;
-    case 'staticHealingIncrease':
-      return `${modifier.kind}/${modifier.target}`;
-    case 'skillCooldownMultiplier':
-      return `${modifier.kind}/${modifier.skillTypes}`;
-  }
 }
 
 function blockedCount(diagnostics: readonly BuildDefinitionDiagnosticSource[]): number {

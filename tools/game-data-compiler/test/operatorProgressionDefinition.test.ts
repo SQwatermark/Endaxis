@@ -26,7 +26,7 @@ const context: OperatorProgressionDefinitionContext = {
     { key: 'comboSkill', skillId: 'chr_0012_avywen_combo_skill', skillType: 'comboSkill' },
     { key: 'ultimate', skillId: 'chr_0012_avywen_ultimate_skill', skillType: 'ultimate' },
   ],
-  skillGroups: ['battleSkill', 'comboSkill', 'ultimate'].map((key, index) => ({
+  skillGroups: (['battleSkill', 'comboSkill', 'ultimate'] as const).map((key, index) => ({
     key,
     skillType: key,
     levelSource: key,

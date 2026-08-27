@@ -1,3 +1,17 @@
+// 纯数据契约由独立包唯一声明；此路径保留兼容导出。
+export {
+  DAMAGE_PROCESS_TIMINGS,
+  type DamageProcessTiming,
+  DAMAGE_MODIFIER_SIDES,
+  type DamageModifierSide,
+  DAMAGE_TARGET_HEALTH_TYPES,
+  type DamageTargetHealthType,
+} from '../../../../../packages/game-data-contract/src/modifiers.ts';
+import {
+  type DamageModifierSide,
+  type DamageProcessTiming,
+  type DamageTargetHealthType,
+} from '../../../../../packages/game-data-contract/src/modifiers.ts';
 /**
  * 单次玩家伤害包跨原生处理阶段传递的唯一上下文。
  * 每次命中都应新建实例；处理器只能在自己的阶段修改允许的字段。
@@ -13,18 +27,6 @@ import type {
   PlayerDamageAttackerSnapshot,
   PlayerDamageDefenderSnapshot,
 } from './playerActiveDamageInput';
-
-export const DAMAGE_PROCESS_TIMINGS = ['beforeCalculation', 'afterCalculation'] as const;
-/** 伤害修正器可以挂载的原生处理阶段。 */
-export type DamageProcessTiming = (typeof DAMAGE_PROCESS_TIMINGS)[number];
-
-export const DAMAGE_MODIFIER_SIDES = ['attacker', 'defender'] as const;
-/** 指明修正来自伤害来源方还是目标方。 */
-export type DamageModifierSide = (typeof DAMAGE_MODIFIER_SIDES)[number];
-
-export const DAMAGE_TARGET_HEALTH_TYPES = ['none', 'normal', 'independent'] as const;
-/** 目标的生命形态分类，供特定伤害规则筛选。 */
-export type DamageTargetHealthType = (typeof DAMAGE_TARGET_HEALTH_TYPES)[number];
 
 /** 单次伤害包冻结的来源方与目标方属性快照。 */
 export interface PlayerDamageAttributeSnapshots {

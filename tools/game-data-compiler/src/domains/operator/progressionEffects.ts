@@ -19,6 +19,11 @@ interface CompiledProgressionEntryBaseSource {
   readonly activeCondition: CompiledBuildConditionGroupSource | null;
 }
 
+/**
+ * 原生养成效果的规范化中间态，由 progressionDefinition 绑定技能组及正式修正器后退出。
+ * 保留来源路径、原生 skillId、字符串值及 overwrite 运算；不能直接替换成 UpgradeModifierDefinition。
+ * 例如 overwrite 需在投影时明确转为 assign，未支持的参数和字符串仍由该边界拒绝。
+ */
 export type CompiledOperatorProgressionEntrySource =
   | (CompiledProgressionEntryBaseSource & { readonly kind: 'none' })
   | (CompiledProgressionEntryBaseSource & {

@@ -1,3 +1,34 @@
+// 纯数据契约由独立包唯一声明；此路径保留兼容导出。
+export {
+  COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
+  type CombatBuffSemanticRole,
+  type CombatBuffDefinitionNumberOperand,
+  type CombatBuffDefinitionAttributeSelector,
+  type CombatBuffDefinitionAttributeStage,
+  type CombatBuffDefinitionAction,
+  type CombatBuffSpellBurstDefinition,
+  type CombatBuffDefinitionLifecycleActions,
+  type CombatBuffDefinitionAttributeModifier,
+  type CombatBuffDefinitionDamageProcessor,
+  type CombatBuffDefinitionDamageModifier,
+  type CombatBuffDefinitionEntry,
+  type CombatBuffDefinitionsDocument,
+} from '../../../../../packages/game-data-contract/src/buffs.ts';
+import {
+  COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
+  type CombatBuffDefinitionAction,
+  type CombatBuffDefinitionAttributeModifier,
+  type CombatBuffDefinitionAttributeSelector,
+  type CombatBuffDefinitionAttributeStage,
+  type CombatBuffDefinitionDamageModifier,
+  type CombatBuffDefinitionDamageProcessor,
+  type CombatBuffDefinitionEntry,
+  type CombatBuffDefinitionLifecycleActions,
+  type CombatBuffDefinitionNumberOperand,
+  type CombatBuffDefinitionsDocument,
+  type CombatBuffSemanticRole,
+  type CombatBuffSpellBurstDefinition,
+} from '../../../../../packages/game-data-contract/src/buffs.ts';
 /**
  * 外部 Buff 数据进入通用 Buff 运行时前的语义化定义边界。
  * 数据源必须先转换为这里支持的原语；未知原生行为不能以回调或静默缺省方式穿透。
@@ -15,14 +46,10 @@ import {
 } from '../../game-data/operatorDefinition';
 import type { ActionBlackboardValue } from '../runtime/actionBlackboard';
 import type {
-  BuffDuration,
-  BuffKeywordEnhancementDefinition,
   BuffLifecycleActions,
   BuffPriority,
   BuffShieldDefinition,
-  BuffStackingType,
   BuffSustainedProtectionDefinition,
-  BuffTimeClock,
   BuffTriggerCount,
   CombatBuff,
   CombatBuffDefinition,
@@ -39,213 +66,18 @@ import {
   ATTRIBUTE_MODIFIER_SOURCES,
   ATTRIBUTE_MODIFIER_SLOTS,
   attributeModifierValues,
-  type AttributeModifierSlot,
 } from '../attributes/combatAttributes';
-import type {
-  DamageModifierDefinition,
-  DamageModifierCondition,
-  DamageModifierNumber,
-  DamageProcessorDefinition,
-} from '../damage/damageModifiers';
+import type { DamageModifierCondition } from '../damage/damageModifiers';
 import { DAMAGE_SCALE_SIDES, DAMAGE_SCALE_ZONES } from '../damage/damageScale';
 import { DAMAGE_MODIFIER_SIDES } from '../damage/playerDamageContext';
 import type { HealModifierDefinition } from '../heal/healModifiers';
 import type { PoiseModifierCondition, PoiseModifierDefinition } from '../damage/poiseModifiers';
 
-export const COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION = 1 as const;
-
-/** 核心能够理解并交给专用适配器处理的 Buff 语义角色。 */
-export type CombatBuffSemanticRole =
-  | { readonly kind: 'elementalAttachment'; readonly element: InflictionElement }
-  | { readonly kind: 'elementalBurst'; readonly element: InflictionElement }
-  | {
-      readonly kind: 'compoundStatus';
-      readonly consumedElement: InflictionElement;
-      readonly incomingElement: InflictionElement;
-    };
-
-/** 定义动作可从常量或当前 Buff 黑板读取的数值。 */
-export type CombatBuffDefinitionNumberOperand = number | { readonly blackboardKey: string };
-
-/** StoreAttributeValue 在来源实体上选择属性的方式。 */
-export type CombatBuffDefinitionAttributeSelector =
-  | { readonly kind: 'specific'; readonly key: string }
-  | { readonly kind: 'main' | 'secondary' | 'all' };
-
-/** StoreAttributeValue 读取的原生属性聚合阶段，二者都必须排除 Converted 来源。 */
-export type CombatBuffDefinitionAttributeStage = 'armedNonConverted' | 'finalNonConverted';
-
-/** index 核心向战斗装配层提出的属性读取请求。 */
+/** 执行器向战斗装配层提出的读取请求，不属于生成数据契约。 */
 export interface CombatBuffDefinitionAttributeReadRequest {
   readonly target: 'source';
   readonly attribute: CombatBuffDefinitionAttributeSelector;
   readonly stage: CombatBuffDefinitionAttributeStage;
-}
-
-/** 外部 Buff 定义当前允许表达的生命周期动作。 */
-export type CombatBuffDefinitionAction =
-  | { readonly kind: 'emitElementalInflictionStarted' }
-  | { readonly kind: 'refreshAttributeModifierValues' }
-  | {
-      readonly kind: 'storeAttributeValue';
-      readonly target: 'source';
-      readonly attribute: CombatBuffDefinitionAttributeSelector;
-      readonly stage: CombatBuffDefinitionAttributeStage;
-      readonly useFloor: boolean;
-      readonly divisor: CombatBuffDefinitionNumberOperand;
-      readonly multiplier: CombatBuffDefinitionNumberOperand;
-      readonly base: CombatBuffDefinitionNumberOperand;
-      readonly targetKey: string;
-    }
-  | {
-      readonly kind: 'modifyBlackboard';
-      readonly operation: 'assign' | 'add';
-      readonly targetKey: string;
-      readonly value: number | { readonly blackboardKey: string };
-    }
-  | {
-      /**
-       * 对一段已由原生 CompareFloat/IfElse/Assign 证明等价的数值链做边界投影。
-       * 这不是把未知分支猜成 clamp；调用方必须保存原始动作顺序的证据。
-       */
-      readonly kind: 'clampBlackboard';
-      readonly targetKey: string;
-      readonly minimum?: CombatBuffDefinitionNumberOperand;
-      readonly maximum?: CombatBuffDefinitionNumberOperand;
-    }
-  | {
-      /** 触发法术爆发；伤害由运行时按定义中的 `spellBurst` 参数执行。 */
-      readonly kind: 'triggerSpellBurst';
-      readonly burstType: string;
-    }
-  | {
-      /** Buff 生命周期中的原生 DamageAction；倍率读取当前 Buff 黑板并走标准玩家伤害。 */
-      readonly kind: 'dealAttackScaledDamage';
-      readonly damageType: DamageType;
-      readonly attackScale: CombatBuffDefinitionNumberOperand;
-      readonly tags: readonly DamageTag[];
-      readonly features: readonly DamageFeature[];
-      readonly canCritical: boolean;
-    }
-  | {
-      /** 已确认对数值无影响的纯表现动作（动画/特效/声音/镜头等），`actionType` 记录原生类型名。 */
-      readonly kind: 'visualOnly';
-      readonly actionType: string;
-    }
-  | {
-      /** 已恢复真实语义，但在 Endaxis 固定木桩模型中严格不可触发的动作。 */
-      readonly kind: 'simulationNoEffect';
-      readonly reason: 'enemyWeaknessWindowRequiresEnemyActiveBehavior';
-      readonly nativeActionType: string;
-    };
-
-/** 法术爆发的伤害参数；从原生 `DamageAction` 与 `ReadSkillSettingData` 提取。 */
-export interface CombatBuffSpellBurstDefinition {
-  readonly burstType: string;
-  /** 爆发伤害的元素类型（原生 damageType 归一化后的语义枚举）。 */
-  readonly damageType: DamageType;
-  /** 爆发倍率在 SkillSetting 中的 dataKey。 */
-  readonly skillSettingDataKey: string;
-  /** SkillSetting 列号（原生 1 基；运行时按列号减一取数组下标）。 */
-  readonly skillSettingColumn: number;
-  /** 原生 DamageAction 的基础倍率；被 SkillSetting 倍率覆盖，仅作证据保留。 */
-  readonly atkScaleBase: number;
-}
-
-/** Buff 定义 在各生命周期边界执行的动作集合。 */
-export interface CombatBuffDefinitionLifecycleActions {
-  readonly start?: readonly CombatBuffDefinitionAction[];
-  readonly trigger?: readonly CombatBuffDefinitionAction[];
-  readonly enhanceChanged?: readonly CombatBuffDefinitionAction[];
-  readonly afterEnhance?: readonly CombatBuffDefinitionAction[];
-  readonly finish?: readonly CombatBuffDefinitionAction[];
-}
-
-/** 外部定义中一项可序列化的原生八槽属性修正。 */
-export interface CombatBuffDefinitionAttributeModifier {
-  readonly attribute: string;
-  readonly slot: AttributeModifierSlot;
-  readonly value: number | { readonly blackboardKey: string };
-  readonly target?: 'owner' | 'buffSource';
-  /** 原生 isConvertedAttribute=true 时保留 converted 来源身份。 */
-  readonly source?: 'converted';
-}
-
-/** 外部和内联 Buff 定义中可序列化的伤害处理器。 */
-export type CombatBuffDefinitionDamageProcessor =
-  | {
-      readonly kind: 'damageScale';
-      readonly side: Extract<DamageProcessorDefinition, { readonly kind: 'damageScale' }>['side'];
-      readonly zone: Extract<DamageProcessorDefinition, { readonly kind: 'damageScale' }>['zone'];
-      readonly addition: DamageModifierNumber;
-    }
-  | {
-      readonly kind: 'instantAttribute';
-      readonly targetSide: Extract<
-        DamageProcessorDefinition,
-        { readonly kind: 'instantAttribute' }
-      >['targetSide'];
-      readonly attribute: string;
-      readonly values: Extract<
-        DamageProcessorDefinition,
-        { readonly kind: 'instantAttribute' }
-      >['values'];
-      readonly attributeTiming: 'runtime';
-    };
-
-/** Buff 激活期间向伤害生命周期注册的一项纯数据修正。 */
-export interface CombatBuffDefinitionDamageModifier {
-  readonly enabledSide: DamageModifierDefinition['enabledSide'];
-  readonly condition?: DamageModifierCondition;
-  readonly processors: readonly CombatBuffDefinitionDamageProcessor[];
-}
-
-/**
- * 游戏数据提取边界输出的稳定纯数据表示。
- * 原生表结构和可执行回调不得跨越此边界。
- */
-/** 外部定义中的一项稳定 Buff 定义。 */
-export interface CombatBuffDefinitionEntry {
-  readonly id: string;
-  /** Buff 的用户可观察图标身份和显示规则；不参与数值计算但不得在编译边界丢失。 */
-  readonly presentation?: CombatBuffPresentation;
-  readonly childPresentations?: readonly {
-    readonly buffId: string;
-    readonly presentation: CombatBuffPresentation;
-  }[];
-  /** 缺省为 default；仅在解包配置明确使用全局或实体时间时填写。 */
-  readonly timeClock?: BuffTimeClock;
-  /** 解包数据中的原始有符号 int32 applyTags。 */
-  readonly applyTagIds?: readonly number[];
-  /** Buff 被延长动作阻止结束后，临时注册到所属实体的原始标签。 */
-  readonly extendTagIds?: readonly number[];
-  readonly stackingType: BuffStackingType;
-  readonly stackingKey?: string;
-  readonly priority?: BuffPriority;
-  readonly maxStackCount?: number;
-  readonly durationSeconds?: BuffDuration;
-  readonly triggerIntervalSeconds?: BuffDuration;
-  readonly waitFirstTriggerInterval?: boolean;
-  readonly maxTriggerCount?: BuffTriggerCount;
-  readonly blackboard?: Readonly<Record<string, ActionBlackboardValue>>;
-  readonly attributeModifiers?: readonly CombatBuffDefinitionAttributeModifier[];
-  readonly damageModifiers?: readonly CombatBuffDefinitionDamageModifier[];
-  readonly keywordEnhancements?: readonly BuffKeywordEnhancementDefinition[];
-  readonly healModifiers?: readonly HealModifierDefinition[];
-  readonly poiseModifiers?: readonly PoiseModifierDefinition[];
-  readonly shields?: readonly BuffShieldDefinition[];
-  readonly sustainedProtection?: BuffSustainedProtectionDefinition;
-  readonly role?: CombatBuffSemanticRole;
-  readonly actions?: CombatBuffDefinitionLifecycleActions;
-  /** 元素爆发 Buff 的伤害参数；非爆发条目省略。 */
-  readonly spellBurst?: CombatBuffSpellBurstDefinition;
-}
-
-/** 带 schema 版本的外部 Buff 定义文档。 */
-export interface CombatBuffDefinitionsDocument {
-  readonly schemaVersion: typeof COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION;
-  readonly revision: string;
-  readonly buffs: readonly CombatBuffDefinitionEntry[];
 }
 
 /** 把定义语义角色和动作编译为核心定义时使用的受控端口。 */

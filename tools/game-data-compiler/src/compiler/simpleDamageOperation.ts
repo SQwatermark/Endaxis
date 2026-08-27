@@ -3,32 +3,14 @@ import type { ScalarSource } from '../source/scalar.ts';
 import type { TargetReferenceSource } from '../source/target.ts';
 import { projectNativeDamageElement } from '../source/damageElement.ts';
 
-export type CompiledActionValueOperandSource =
-  | { readonly kind: 'constant'; readonly value: number }
-  | { readonly kind: 'blackboard'; readonly key: string };
-
-export interface CompiledSimpleDamageOperationSource {
-  readonly kind: 'dealDamage';
-  readonly parameters: {
-    readonly damageType: 'physical' | 'heat' | 'electric' | 'cryo' | 'nature';
-    readonly attackScale: CompiledActionValueOperandSource;
-    readonly calculation?: 'breakingAttack';
-    readonly calculationMultiplier?: number;
-    readonly tags: readonly (
-      | 'normalAttack'
-      | 'normalAttackLastCombo'
-      | 'powerAttack'
-      | 'plungingAttack'
-      | 'dashAttack'
-      | 'normalSkill'
-      | 'ultimateSkill'
-      | 'comboSkill'
-    )[];
-    readonly features?: readonly 'canBreakWeakness'[];
-    readonly stagger?: CompiledActionValueOperandSource;
-    readonly staggerOnlyWhenCasterControlled?: boolean;
-  };
-}
+import type {
+  CompiledActionValueOperandSource,
+  CompiledSimpleDamageOperationSource,
+} from './combatActionProjectionTypes.ts';
+export type {
+  CompiledActionValueOperandSource,
+  CompiledSimpleDamageOperationSource,
+} from './combatActionProjectionTypes.ts';
 
 /**
  * 投影固定单敌人场景中的标准攻击倍率伤害（Hp 后接可选的固定 Poise 单元）。

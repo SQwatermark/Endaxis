@@ -43,7 +43,21 @@ describe('单件装备属性投影', () => {
       undefined,
     ],
   ] as const)('maps %s/%s/%s', (target, attribute, slot, kind, semanticTarget, operation) => {
-    expect(projectEquipmentAttributeModifier(fixture(target, attribute, slot))).toMatchObject({
+    const source = fixture(target, attribute, slot);
+    const values = Object.freeze([0, 0.25, -0.5]);
+    const column = projectEquipmentAttributeModifier({ ...source, value: values });
+    expect(column.status).toBe('supported');
+    if (column.status === 'supported') {
+      expect(column.modifier.value).toBe(values);
+      for (const value of values) {
+        expect(projectEquipmentAttributeModifier({ ...source, value })).toEqual({
+          status: 'supported',
+          source: { ...source, value },
+          modifier: { ...column.modifier, value },
+        });
+      }
+    }
+    expect(projectEquipmentAttributeModifier(source)).toMatchObject({
       status: 'supported',
       modifier: {
         kind,
@@ -129,6 +143,25 @@ describe('单件装备属性投影', () => {
     ).toMatchObject({
       status: 'scenario-omitted',
       reason: 'shieldOutputDoesNotAffectStumpEnemyDamage',
+    });
+  });
+
+  it('整列输入不会绕过未知公式槽或木桩省略边界', () => {
+    const value = Object.freeze([0.2, 0.3]);
+    expect(
+      projectEquipmentAttributeModifier({
+        ...fixture('specific', 'Atk', 'baseAddition'),
+        value,
+      }),
+    ).toMatchObject({ status: 'blocked' });
+    expect(
+      projectEquipmentAttributeModifier({
+        ...fixture('specific', 'FireDamageTakenScalar', 'baseFinalMultiplier'),
+        value,
+      }),
+    ).toMatchObject({
+      status: 'scenario-omitted',
+      reason: 'playerDamageTakenRequiresEnemyActiveDamage',
     });
   });
 

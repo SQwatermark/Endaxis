@@ -1,11 +1,11 @@
 import type { NativeActionNodeSource } from '../source/controlFlow.ts';
 import type { KnownNativeActionLeafSource } from '../source/actionLeaf.ts';
 import type { FinishOwnerActionSource } from '../source/lifecycleActions.ts';
+import type { CombatActionProjectionContextSource } from './combatProjectionCommon.ts';
 import type {
-  CombatActionProjectionContextSource,
   CompiledBuffConditionSource,
   CompiledBuffStepSource,
-} from './buffRuntimeProjection.ts';
+} from './combatActionProjectionTypes.ts';
 
 /** 原生 JumpTo 在 Execute/Tick 重试条件；不能投影成只执行一次的普通条件分支。 */
 export function projectTimelineJump(
