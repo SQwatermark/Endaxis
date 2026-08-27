@@ -1,4 +1,8 @@
-import { collectNativeActionNodes } from '../source/controlFlow.ts';
+import {
+  collectNativeActionNodes,
+  type NativeActionNodeSource,
+  type NativeSequenceSource,
+} from '../source/controlFlow.ts';
 import type { SkillActionGraphSource } from '../source/skillActionGraph.ts';
 import type { KnownNativeActionLeafSource } from '../source/actionLeaf.ts';
 import type { TargetGroupActionSource } from '../source/targetGroup.ts';
@@ -10,6 +14,45 @@ function isPresentationQuery(action: TargetGroupActionSource): boolean {
     action.validatorTypes.length === 0 &&
     action.postProcessorTypes.length === 0
   );
+}
+
+const PRESENTATION_ONLY_CONDITION_KINDS = new Set(['mainOperator', 'floatCompare', 'distance']);
+
+function isPresentationConditionNode(
+  node: NativeActionNodeSource<KnownNativeActionLeafSource>,
+): boolean {
+  if (!node.metadata.enabled) return true;
+  if (node.body.kind !== 'leaf') return false;
+  const leaf = node.body.value;
+  return (
+    leaf.family === 'presentationCalculation' ||
+    (leaf.family === 'condition' && PRESENTATION_ONLY_CONDITION_KINDS.has(leaf.action.kind))
+  );
+}
+
+function isPresentationActionNode(
+  node: NativeActionNodeSource<KnownNativeActionLeafSource>,
+): boolean {
+  if (!node.metadata.enabled) return true;
+  const body = node.body;
+  if (body.kind === 'leaf')
+    return body.value.family === 'presentation' || body.value.family === 'presentationCalculation';
+  if (body.kind !== 'ifElse') return false;
+  return (
+    body.condition.actions.every(isPresentationConditionNode) &&
+    isPresentationOnlyActionSequence(body.whenTrue) &&
+    isPresentationOnlyActionSequence(body.whenFalse)
+  );
+}
+
+/**
+ * 只识别“条件和中间黑板值最终仅选择表现动作”的窄控制树。当前白名单故意只覆盖实际镜头样本的
+ * mainOperator/floatCompare/distance；带写回副作用的战斗条件、循环和时间动作一律不能省略。
+ */
+export function isPresentationOnlyActionSequence(
+  sequence: NativeSequenceSource<KnownNativeActionLeafSource>,
+): boolean {
+  return sequence.actions.every(isPresentationActionNode);
 }
 
 /**

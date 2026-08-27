@@ -2,7 +2,10 @@ import { describe, expect, it } from 'vitest';
 import fixture from './fixtures/avywenna-entity-child-skills.json';
 import { parseKnownSkillActionGraphSource } from '../src/source/skillActionGraph.ts';
 import { parseTargetReferenceSource } from '../src/source/target.ts';
-import { collectPresentationOnlyTargetGroups } from '../src/compiler/skillPresentationTargets.ts';
+import {
+  collectPresentationOnlyTargetGroups,
+  isPresentationOnlyActionSequence,
+} from '../src/compiler/skillPresentationTargets.ts';
 import { targetFixture } from './sourceFixtures.ts';
 
 function graph() {
@@ -11,6 +14,64 @@ function graph() {
 }
 
 describe('整张 SkillData 的表现目标依赖', () => {
+  it('只用于选择镜头的条件树可整体省略，任一战斗分支都会保留', () => {
+    const leaf = (family: string, kind: string) => ({
+      sourcePath: `fixture.${kind}`,
+      metadata: { nativeName: kind, enabled: true },
+      body: { kind: 'leaf', value: { family, action: { kind } } },
+    });
+    const sequence = {
+      sourcePath: 'fixture.sequence',
+      guard: null,
+      actions: [
+        {
+          sourcePath: 'fixture.ifElse',
+          metadata: { nativeName: 'IfElseAction', enabled: true },
+          body: {
+            kind: 'ifElse',
+            condition: {
+              actions: [leaf('condition', 'mainOperator'), leaf('condition', 'floatCompare')],
+            },
+            whenTrue: { actions: [leaf('presentation', 'cameraControl')] },
+            whenFalse: {
+              actions: [
+                {
+                  sourcePath: 'fixture.nested',
+                  metadata: { nativeName: 'IfElseAction', enabled: true },
+                  body: {
+                    kind: 'ifElse',
+                    condition: { actions: [leaf('condition', 'distance')] },
+                    whenTrue: { actions: [leaf('presentation', 'cameraControl')] },
+                    whenFalse: { actions: [leaf('presentation', 'cameraControl')] },
+                  },
+                },
+              ],
+            },
+          },
+        },
+      ],
+    } as unknown as Parameters<typeof isPresentationOnlyActionSequence>[0];
+    expect(isPresentationOnlyActionSequence(sequence)).toBe(true);
+    const branch = sequence.actions[0]!;
+    if (branch.body.kind !== 'ifElse') throw new Error('fixture');
+    const combat = {
+      ...sequence,
+      actions: [
+        {
+          ...branch,
+          body: {
+            ...branch.body,
+            whenFalse: {
+              ...branch.body.whenFalse,
+              actions: [leaf('resource', 'modifySkillPoint')],
+            },
+          },
+        },
+      ],
+    } as unknown as Parameters<typeof isPresentationOnlyActionSequence>[0];
+    expect(isPresentationOnlyActionSequence(combat)).toBe(false);
+  });
+
   it('跨序列特效读取与方向查询均保留来源信息，两个纯表现目标可省略', () => {
     const source = graph();
     const fixedPoint = source.actionGroup.timelineActions[0]!.sequence.actions[1]!;

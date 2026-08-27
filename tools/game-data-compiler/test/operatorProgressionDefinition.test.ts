@@ -88,6 +88,53 @@ describe('干员养成正式定义组装', () => {
     expect(definition.passiveSkills).toBeUndefined();
   });
 
+  it('每档潜能的 AddBuff 生成自身初始化程序，由构筑层累计启用各档', () => {
+    const source = progression();
+    const effectId = source.potential.unlocks[0]!.effectId;
+    const modified = {
+      ...source,
+      compiledEffectBundles: source.compiledEffectBundles.map(bundle =>
+        bundle.effectId === effectId
+          ? {
+              ...bundle,
+              entries: [
+                {
+                  kind: 'buff' as const,
+                  modifyType: 'addBuff' as const,
+                  sourcePath: `${bundle.sourcePath}.dataList[0]`,
+                  activeCondition: null,
+                  buffId: 'buff.potential',
+                  inputBlackboard: { amount: 7 },
+                },
+              ],
+            }
+          : bundle,
+      ),
+    };
+    const definition = compileOperatorPotentialDefinition(
+      modified,
+      { key: 'potential1', level: 1 },
+      context,
+    );
+    expect(definition).toEqual({
+      key: 'potential1',
+      levels: 1,
+      initializationSequence: {
+        steps: [
+          {
+            kind: 'applyBuff',
+            parameters: {
+              buffId: 'buff.potential',
+              target: 'caster',
+              inheritSourceSkillCastInfo: false,
+              blackboardAssignments: { amount: { kind: 'constant', value: 7 } },
+            },
+          },
+        ],
+      },
+    });
+  });
+
   it.each([0, 1, 2])('天赋等级 %s 经正式构筑只产生零个或一个初始化程序', level => {
     const definition = compileOperatorTalentDefinition(
       progression(),

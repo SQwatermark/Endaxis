@@ -45,8 +45,10 @@ export function compileEventTargetSimpleDamageOperationSource(
   // combat-spec target-resolution：GetTargetsView 仅在 InstantSearch 执行 selectorData。
   // Context 读取已保存的组；残留选择器仍由来源层解析，但不能变成这次伤害的过滤条件。
   if (action.target.targetSource === 'Context') {
-    if (!action.target.targetGroupKey ||
-      !context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey))
+    if (
+      !action.target.targetGroupKey ||
+      !context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey)
+    )
       throw new Error(`${sourcePath}.target: unsupported simple event damage target`);
   } else {
     requireFixedTarget(action.target, 'Target', `${sourcePath}.target`);
@@ -182,8 +184,6 @@ function compileSimplePoiseOperand(
     unit.attributeType !== 'Poise' ||
     !unit.simpleCalculation ||
     unit.takeAttackSnapshot ||
-    unit.attackScale.blackboardKey !== null ||
-    unit.attackScale.value !== 0 ||
     unit.serializedAttackCalculationPresent ||
     unit.attackCalculation !== null ||
     !unit.serializedPoiseCalculationPresent ||
@@ -198,6 +198,8 @@ function compileSimplePoiseOperand(
   ) {
     throw new Error(`${sourcePath}: unsupported simple event Poise DamageUnit behavior`);
   }
+  // 原生 PlayerDamageActionDataAdapter 在 Poise 分支只构造 poiseCalculation；顶层 atkScale
+  // 仍会被反序列化，但不会进入 PoisePack 或失衡公式，因此其字面值/黑板键都是序列化残留。
   // PoisePack 原生规格不保存元素字段，修正器只读取 decorate mask；仍验证来源元素是已知枚举。
   projectNativeDamageElement(unit.damageType, `${sourcePath}.units[1].damageType`);
   // combat-spec definite-value-calculation：applyScale=false 不求值 valueScale，

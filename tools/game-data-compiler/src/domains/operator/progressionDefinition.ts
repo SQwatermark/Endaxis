@@ -45,7 +45,6 @@ export function compileOperatorTalentDefinition(
     nodes.map(node => node.talentEffectId),
     source,
     context,
-    'talent',
   );
 }
 
@@ -58,7 +57,7 @@ export function compileOperatorPotentialDefinition(
   const unlocks = source.potential.unlocks.filter(unlock => unlock.level === binding.level);
   if (unlocks.length !== 1)
     throw new Error(`${binding.key}: expected one potential unlock at level ${binding.level}`);
-  return assembleUpgrade(binding.key, [unlocks[0]!.effectId], source, context, 'potential');
+  return assembleUpgrade(binding.key, [unlocks[0]!.effectId], source, context);
 }
 
 function assembleUpgrade(
@@ -66,7 +65,6 @@ function assembleUpgrade(
   effectIds: readonly string[],
   source: Progression,
   context: OperatorProgressionDefinitionContext,
-  sourceKind: 'talent' | 'potential',
 ): OperatorUpgradeDefinition {
   if (!key.trim()) throw new Error('upgrade key must not be empty');
   const levels = effectIds.map(effectId => {
@@ -83,15 +81,11 @@ function assembleUpgrade(
       ({
         steps: bundle.entries.flatMap(entry => {
           if (entry.kind !== 'buff') return [];
-          if (sourceKind !== 'talent')
-            throw new Error(
-              `${entry.sourcePath}: potential AddBuff collection is not yet projected`,
-            );
           if (entry.activeCondition !== null)
             throw new Error(
               `${entry.sourcePath}: attached Buff has an unrepresentable build condition`,
             );
-          // combat-spec CharMiscFeature.Start → RefreshTalentBuff：角色直接给自身加 Buff，
+          // combat-spec CharMiscFeature.Start → RefreshTalentBuff/RefreshPotentialBuff：角色直接给自身加 Buff，
           // 不是 AddPassiveSkill。初始黑板只来自 attachBuff，不继承某次技能的施放信息。
           return [
             {

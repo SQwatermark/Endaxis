@@ -1,0 +1,99 @@
+import { describe, expect, it } from 'vitest';
+
+import { compileBuffLeafNode } from '../src/compiler/combatEntityAndTimeProjection.ts';
+import type { CombatActionProjectionContextSource } from '../src/compiler/combatProjectionCommon.ts';
+import { parseKnownNativeActionLeafSource } from '../src/source/actionLeaf.ts';
+import { scalarFixture, targetFixture } from './sourceFixtures.ts';
+
+const META = {
+  isEnable: true,
+  priorityLevel: 'Default',
+  priorityOffset: 0,
+  serverActionIndex: 1,
+} as const;
+
+const ACTIVE_SKILL_CONTEXT: CombatActionProjectionContextSource = {
+  actionOwnerTarget: 'caster',
+  actionSourceTarget: 'caster',
+  actionTargetTarget: 'enemy',
+  staticEnemyTargetGroupKeys: new Set(['tar']),
+};
+
+function node(value: ReturnType<typeof parseKnownNativeActionLeafSource>) {
+  return {
+    sourcePath: 'fixture.action',
+    metadata: {
+      nativeType: 'Example.fixture+Data, Example',
+      nativeName: 'fixture',
+      enabled: true,
+      priorityLevel: 'Default',
+      priorityOffset: 0,
+      serverActionIndex: 1,
+    },
+    body: { kind: 'leaf' as const, value },
+  };
+}
+
+function blowOff(deadOption: string) {
+  return parseKnownNativeActionLeafSource(
+    {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.BlowOffEnemyAction+Data, Gameplay.Beyond',
+      attackerTargetSettings: targetFixture('Owner'),
+      targetSettings: targetFixture('Context', undefined, 'tar'),
+      blowOffDistance: scalarFixture(3.2),
+      distanceRandomRange: scalarFixture(0.2),
+      overwriteHeight: false,
+      blowOffHeight: scalarFixture(0),
+      directionSettings: {
+        directionType: 'SourceToTarget',
+        sourceMountPoint: 'None',
+        targetMountPoint: 'None',
+        customSourceAndTarget: false,
+        clampToXZ: true,
+        invertDirection: false,
+      },
+      totalTime: scalarFixture(0),
+      isExtra: false,
+      deadOption,
+    },
+    'fixture.action',
+    {},
+  );
+}
+
+describe('施法输入限制与木桩物理控制投影', () => {
+  it('OnlyDead 吹飞在死亡终止模型中省略，活目标吹飞仍阻断', () => {
+    expect(
+      compileBuffLeafNode(node(blowOff('OnlyDead')), new Set(), new Map(), ACTIVE_SKILL_CONTEXT),
+    ).toEqual({ steps: [], state: new Map() });
+    expect(() =>
+      compileBuffLeafNode(node(blowOff('NotDead')), new Set(), new Map(), ACTIVE_SKILL_CONTEXT),
+    ).toThrow('live-target BlowOffEnemy physical infliction');
+  });
+
+  it('自身 ChannelingCasting 只限制同一施法区间，不产生战斗步骤', () => {
+    const action = parseKnownNativeActionLeafSource(
+      {
+        ...META,
+        $type: 'Beyond.Gameplay.Core.ChannelingCastingAction+Data, Gameplay.Beyond',
+        cantSwitchPosition: true,
+        cantSwitchToCenter: false,
+        duration: scalarFixture(3.7),
+        cantCastSkill: true,
+      },
+      'fixture.action',
+      {},
+    );
+    expect(compileBuffLeafNode(node(action), new Set(), new Map(), ACTIVE_SKILL_CONTEXT)).toEqual({
+      steps: [],
+      state: new Map(),
+    });
+    expect(() =>
+      compileBuffLeafNode(node(action), new Set(), new Map(), {
+        ...ACTIVE_SKILL_CONTEXT,
+        actionSourceTarget: 'buffSource',
+      }),
+    ).toThrow('unsupported ChannelingCastingAction owner');
+  });
+});

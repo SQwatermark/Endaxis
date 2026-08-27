@@ -14,7 +14,10 @@ import {
   prepareSkillDefinitionInputSource,
   assertNoUnprojectedSkillRootEffects,
 } from './skillDefinitionInput.ts';
-import { collectPresentationOnlyTargetGroups } from './skillPresentationTargets.ts';
+import {
+  collectPresentationOnlyTargetGroups,
+  isPresentationOnlyActionSequence,
+} from './skillPresentationTargets.ts';
 
 /** 正式调度输出子集；原生时间轴结束帧必填，动作仍限于已支持的公共投影。 */
 export type CompiledActiveSkillTimelineSequenceSource = Readonly<
@@ -113,6 +116,7 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
       ...prepared.blackboard.values,
     },
     scheduledSequences: graph.actionGroup.timelineActions
+      .filter(timeline => !isPresentationOnlyActionSequence(timeline.sequence))
       .map(timeline => ({
         startFrame: timeline.startFrame,
         endFrame: timeline.endFrame,

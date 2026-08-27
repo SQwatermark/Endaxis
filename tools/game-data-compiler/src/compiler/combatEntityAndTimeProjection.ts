@@ -178,15 +178,25 @@ export function compileBuffLeafNode(
       action.target.targetSource === 'Target' ||
       (action.target.targetSource === 'Context' &&
         context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey) === true);
-    if (
-      context.actionTargetTarget !== 'enemy' ||
-      context.actionSourceTarget !== 'caster' ||
-      action.source.targetSource !== 'Source' ||
-      !targetIsEnemy
-    )
+    const sourceIsCaster =
+      (action.source.targetSource === 'Source' && context.actionSourceTarget === 'caster') ||
+      (action.source.targetSource === 'Owner' && context.actionOwnerTarget === 'caster');
+    if (context.actionTargetTarget !== 'enemy' || !sourceIsCaster || !targetIsEnemy)
       throw new Error(`${node.sourcePath}: unsupported static-enemy control projection`);
+    if (action.kind === 'blowOffEnemy' && action.deadOption !== 'OnlyDead')
+      throw new Error(
+        `${node.sourcePath}: live-target BlowOffEnemy physical infliction is not projected`,
+      );
     // 木桩无主动行为，且 Endaxis 距离恒为零；受击动画、拉拽和 OnlyTarget hit-stop
-    // 均不改变玩家动作、伤害或资源账本。
+    // 均不改变玩家动作、伤害或资源账本。OnlyDead 的吹飞只在敌人已经死亡后进入 Process；
+    // 标准木桩的死亡是数值终止边界，不继续执行可能产生的新伤害链。
+    return { steps: [], state: partyTargetGroups };
+  }
+  if (node.body.value.family === 'castingControl') {
+    if (context.actionSourceTarget !== 'caster')
+      throw new Error(`${node.sourcePath}: unsupported ChannelingCastingAction owner`);
+    // 原生动作只在自身区间持有禁止切人/回中/再次施法的句柄及同寿命标记 Buff。
+    // Endaxis 直接安排现实时间操作，当前技能自身的占用区间已覆盖该限制；没有黑板或战斗输出。
     return { steps: [], state: partyTargetGroups };
   }
   if (node.body.value.family === 'timeDilation') {

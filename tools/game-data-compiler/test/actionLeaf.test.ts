@@ -425,6 +425,67 @@ describe('公共 Action 叶子分派', () => {
     });
   });
 
+  it('BlowOffEnemyAction 严格保留死亡过滤，ChannelingCastingAction 保留输入限制区间', () => {
+    const blowOff = {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.BlowOffEnemyAction+Data, Gameplay.Beyond',
+      attackerTargetSettings: targetFixture('Owner'),
+      targetSettings: targetFixture('Context', undefined, 'tar'),
+      blowOffDistance: scalarFixture(3.2),
+      distanceRandomRange: scalarFixture(0.2),
+      overwriteHeight: false,
+      blowOffHeight: scalarFixture(0),
+      directionSettings: {
+        directionType: 'SourceToTarget',
+        sourceMountPoint: 'None',
+        targetMountPoint: 'None',
+        customSourceAndTarget: false,
+        clampToXZ: true,
+        invertDirection: false,
+      },
+      totalTime: scalarFixture(0),
+      isExtra: false,
+      deadOption: 'OnlyDead',
+    };
+    expect(parseKnownNativeActionLeafSource(blowOff, 'fixture.blowOff', {})).toMatchObject({
+      family: 'stumpControl',
+      action: { kind: 'blowOffEnemy', deadOption: 'OnlyDead' },
+    });
+    expect(() =>
+      parseKnownNativeActionLeafSource(
+        { ...blowOff, undocumentedFlag: true },
+        'fixture.blowOff',
+        {},
+      ),
+    ).toThrow('undocumentedFlag');
+
+    const channeling = {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.ChannelingCastingAction+Data, Gameplay.Beyond',
+      cantSwitchPosition: true,
+      cantSwitchToCenter: false,
+      duration: scalarFixture(3.7),
+      cantCastSkill: true,
+    };
+    expect(parseKnownNativeActionLeafSource(channeling, 'fixture.channeling', {})).toMatchObject({
+      family: 'castingControl',
+      action: {
+        kind: 'channelingCasting',
+        cantSwitchPosition: true,
+        cantSwitchToCenter: false,
+        cantCastSkill: true,
+        duration: { value: 3.7, blackboardKey: null },
+      },
+    });
+    expect(() =>
+      parseKnownNativeActionLeafSource(
+        { ...channeling, undocumentedFlag: true },
+        'fixture.channeling',
+        {},
+      ),
+    ).toThrow('undocumentedFlag');
+  });
+
   it('SnapToTargetWithRangeAction 严格保留贴近目标的空间载荷', () => {
     const curve = [
       {

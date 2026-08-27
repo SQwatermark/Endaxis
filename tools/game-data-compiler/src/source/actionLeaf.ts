@@ -31,6 +31,10 @@ import {
   type CharacterTypeIdReadActionSource,
 } from './characterIdentityActions.ts';
 import { parseNativeSequenceSource, type NativeSequenceSource } from './controlFlow.ts';
+import {
+  parseChannelingCastingActionSource,
+  type ChannelingCastingActionSource,
+} from './castingControlActions.ts';
 import { parseDamageActionSource, type DamageActionSource } from './damageActions.ts';
 import { parseHealActionSource, type HealActionSource } from './healActions.ts';
 import {
@@ -74,6 +78,7 @@ import { parseInterruptActionSource, type InterruptActionSource } from './interr
 import { parseVulnerableActionSource, type KeywordBuffActionSource } from './keywordActions.ts';
 import {
   parseEnemyHurtAnimationActionSource,
+  parseBlowOffEnemyActionSource,
   parsePullActionSource,
   parsePushBackActionSource,
   parseTargetHitStopActionSource,
@@ -238,6 +243,7 @@ export type KnownNativeActionLeafSource =
       readonly family: 'inputControl';
       readonly action: ComboCacheActionSource | AllowNextSkillActionSource;
     }
+  | { readonly family: 'castingControl'; readonly action: ChannelingCastingActionSource }
   | { readonly family: 'selfDefense'; readonly action: SetSuperArmorActionSource }
   | { readonly family: 'timedMarker'; readonly action: TimedMarkerApplicationSource }
   | { readonly family: 'globalCooldown'; readonly action: GlobalCooldownApplicationSource }
@@ -595,6 +601,16 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'stumpControl',
         action: parsePushBackActionSource(value, path, inheritedBlackboard),
+      };
+    case 'BlowOffEnemyAction':
+      return {
+        family: 'stumpControl',
+        action: parseBlowOffEnemyActionSource(value, path, inheritedBlackboard),
+      };
+    case 'ChannelingCastingAction':
+      return {
+        family: 'castingControl',
+        action: parseChannelingCastingActionSource(value, path, inheritedBlackboard),
       };
     case 'AddCameraControlStateAction':
       return {

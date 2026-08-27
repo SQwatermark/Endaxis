@@ -74,6 +74,7 @@ export function compileActionNode(
       'spatialMeasurement',
       'selfDefense',
       'inputControl',
+      'castingControl',
       'timeDilation',
       'environment',
       'elementalInfliction',
@@ -405,9 +406,10 @@ export function compileActionNode(
         parameters: {
           // combat-spec StoreAttributeValue：Sub 由目标副属性决定，attributeType 此时不参与选择。
           // 保留动态属性读取，不能把生成时面板或 SkillPatch 等级值固化为快照。
-          attribute: action.primaryAttributeType === 'Sub'
-            ? { kind: 'secondary' }
-            : { kind: 'specific', key: 'maxHealth' },
+          attribute:
+            action.primaryAttributeType === 'Sub'
+              ? { kind: 'secondary' }
+              : { kind: 'specific', key: 'maxHealth' },
           stage:
             action.storeAttributeType === 'BaseNonConverted'
               ? 'armedNonConverted'
@@ -582,6 +584,8 @@ export function compileActionNode(
   if (node.body.value.family === 'selfDefense') return [];
   // 现实时间轴直接给出施法操作，不经过客户端输入缓存窗口。
   if (node.body.value.family === 'inputControl') return [];
+  // 技能内施法限制由现实时间轴的技能占用区间覆盖；原生载荷仍在来源层严格解析。
+  if (node.body.value.family === 'castingControl') return [];
   throw new Error(`${node.sourcePath}: unsupported Buff runtime action`);
 }
 

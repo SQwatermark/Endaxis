@@ -7,6 +7,33 @@
 `refactor/operator-completion` 的完整干员成果。唯一新转换入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
+### 2026-08-27：秋栗主动技能 9/9 与潜能 AddBuff 首次安装闭环（当前检查点）
+
+- 秋栗战技的 `BlowOffEnemyAction` 已按 combat-spec 物理异常证据严格解析：只有
+  `deadOption=OnlyDead` 可在“唯一木桩死亡即数值终止”的模型下省略；活目标吹飞仍失败关闭。
+  同一战技中只用于镜头选择的主控/距离/角度条件树会整体省略，任一分支含战斗动作即保留。
+- 终结技 `ChannelingCastingAction` 已由 1.4.4 类型布局和原生回退方法闭环。它只在施术者上持有
+  换位、回中、再次施法限制句柄和同寿命标记 Buff，没有战斗输出；Next 在技能自身占用区间及
+  无切换输入后端下严格解析后省略。复刻库新增 `docs/channeling-casting-action.md`。
+- Poise 单元已按原生 `PlayerDamageActionDataAdapter` 修正：失衡分支只读取独立
+  `poiseCalculation`，不再因顶层残留 `atkScale=2` 阻断；真正的处理器、免疫、mask 和缩放仍严格。
+- 主动迁移矩阵现为 **88/309**，完整主动技能干员 **2 名**；秋栗 **9/9**，战技 2 个调度序列、
+  终结技 9 个。完整整名定义仍为 **1 名**，尚未生成或注册秋栗正式定义。
+- combat-spec 已恢复潜能 AddBuff：按潜能解锁表顺序累计 `level <= 当前等级` 的 AddBuff，逐条检查
+  构筑条件；`RefreshPotentialBuff` 结束旧句柄、显式清表，再以角色自身为来源和目标重装。
+  Endaxis 现允许每档潜能生成自身 `initializationSequence`，构筑层累计启用 1..N 档，与原生一致。
+- 秋栗完整生成已继续推进到下一真实阻塞：
+  `buff_chr_0019_karin_talent_2_combo` 的 `CreateGlobalBuffAction`。本机 VFS 已复核
+  `global_buff_combo_trigger.asset`（manifest 451359 / asset 249506）：Limited、动态 duration、
+  Stack、最多 4 层，向全队投射 `buff_common_affixes_combo_trigger` 并传递 `imbue_scale`。
+  子 Buff 的下一次战技/终结技消费会创建 SkillAffix 并结束精确父 GlobalBuff 层；这是会改变伤害的
+  机制，不能按普通 party Buff 粗略摊平，也不能直接复用旧 Python 的 `akekuriComboImbue` 特判。
+- 下一步先为统一 TS 编译器增加有版本证据的 GlobalBuff 模板输入、Create/FinishParent 严格动作
+  IR，以及固定队伍下仍保留“同一父层、全队镜像、任一成员消费一层”的投影；然后编译三层公共
+  SkillAffix Buff，运行双人消费/时限/潜能 5 延长数值差分，最后生成并注册秋栗整名定义。
+- 验证：game-data **92 文件 / 684 项**、编译器类型检查通过；combat-spec 潜能附加与 GlobalBuff
+  定向 **9 项**通过。完整生成当前预期在 CreateGlobalBuffAction 失败；tmp 审计和 VFS 输出不提交。
+
 ### 2026-08-27：秋栗连携转换与运行探针闭环（本次收尾提交）
 
 - 在检查点 `9d9fb195` 后的续作本次统一提交并推送；保留该检查点作为架构整理基线。
@@ -32,7 +59,7 @@
 ### 2026-08-27：架构检查点已提交，恢复第二名干员纵向迁移（前序快照）
 
 - 用户要求“先提交一次再继续”：已提交 `9d9fb195`（`refactor: centralize game data contracts
-  and compiler type ownership`），提交后工作树干净；未推送，未包含 tmp、旧版代码和正式生成产物。
+and compiler type ownership`），提交后工作树干净；未推送，未包含 tmp、旧版代码和正式生成产物。
   下方此前标注“未提交”的架构整理记录均已进入该检查点；本节之后的续作尚未提交。
 - 已重新运行 30 名干员主动迁移矩阵：仍为 **83/309**，正式主动 10 项、完整生成 1 名（艾维文娜）。
   秋栗/埃特拉均为 6/9，但这只衡量主动技能，不能以此认定整名最接近完成。

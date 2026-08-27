@@ -10,6 +10,7 @@ import {
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 import { parseScalarSource, type BlackboardLevelValues } from './scalar.ts';
 import { parseTimeDilationCurveKeys } from './timeDilationActions.ts';
+import { parseAdvancedDirectionSource } from './spatial.ts';
 
 export interface StaticEnemyControlActionSource {
   readonly kind: 'enemyHurtAnimation' | 'pull' | 'pushBack';
@@ -27,7 +28,15 @@ export interface TargetHitStopActionSource {
   readonly priorityTagId: number;
 }
 
-export type StumpControlActionSource = StaticEnemyControlActionSource | TargetHitStopActionSource;
+export interface BlowOffEnemyActionSource {
+  readonly kind: 'blowOffEnemy';
+  readonly source: TargetReferenceSource;
+  readonly target: TargetReferenceSource;
+  readonly deadOption: string;
+}
+
+export type StumpControlActionSource =
+  StaticEnemyControlActionSource | TargetHitStopActionSource | BlowOffEnemyActionSource;
 
 const META = ['$type', 'isEnable', 'priorityLevel', 'priorityOffset', 'serverActionIndex'];
 
@@ -156,6 +165,54 @@ export function parsePushBackActionSource(
       `${path}.attackerTargetSettings`,
     ),
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
+  };
+}
+
+/**
+ * 严格保存 BlowOffEnemyAction 的目标、空间参数与死亡过滤。具体物理异常链只有在目标仍可参与
+ * 木桩数值模拟时才能投影；OnlyDead 切片可在目标死亡终止模型下审计省略。
+ */
+export function parseBlowOffEnemyActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): BlowOffEnemyActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      ...META,
+      'attackerTargetSettings',
+      'targetSettings',
+      'blowOffDistance',
+      'distanceRandomRange',
+      'overwriteHeight',
+      'blowOffHeight',
+      'directionSettings',
+      'totalTime',
+      'isExtra',
+      'deadOption',
+    ]),
+    path,
+  );
+  for (const key of [
+    'blowOffDistance',
+    'distanceRandomRange',
+    'blowOffHeight',
+    'totalTime',
+  ] as const)
+    parseScalarSource(action[key], `${path}.${key}`, inheritedBlackboard);
+  requireBoolean(action.overwriteHeight, `${path}.overwriteHeight`);
+  parseAdvancedDirectionSource(action.directionSettings, `${path}.directionSettings`);
+  requireBoolean(action.isExtra, `${path}.isExtra`);
+  return {
+    kind: 'blowOffEnemy',
+    source: parseTargetReferenceSource(
+      action.attackerTargetSettings,
+      `${path}.attackerTargetSettings`,
+    ),
+    target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
+    deadOption: requireString(action.deadOption, `${path}.deadOption`),
   };
 }
 
