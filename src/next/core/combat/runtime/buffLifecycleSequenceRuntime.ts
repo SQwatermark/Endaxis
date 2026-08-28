@@ -252,11 +252,13 @@ export function attachBuffLifecycleSequences<Key extends string>(
   const eventRegistrations = new WeakMap<CombatBuff<Key>, AbilityEventRegistration[]>();
   const childBuffs = new WeakMap<CombatBuff<Key>, { finish(reason: 'other'): boolean }[]>();
   const activeEnableSequences = new WeakMap<CombatBuff<Key>, ActionSequence>();
+  const triggerSequences = new WeakMap<CombatBuff<Key>, ActionSequence>();
   const runtimeFor = (buff: CombatBuff<Key>): CombatActionSequenceRuntime => {
     let runtime = runtimes.get(buff);
     if (runtime !== undefined) return runtime;
     const context: CombatOperationContext = {
       blackboard: buff.blackboard,
+      damageCalculationSnapshots: new Map(),
       targetContext: new RuntimeTargetContext(),
       ...(currentTarget === undefined ? {} : { currentTarget }),
       ...(buff.skillCastInfo === null ? {} : { skillCastInfo: buff.skillCastInfo }),
@@ -455,7 +457,18 @@ export function attachBuffLifecycleSequences<Key extends string>(
               : [new BuffSkillSlotReplacementAction(skillSlotReplacements, resolveOperations)]),
           ]),
         }),
-    ...(sequences.start === undefined ? {} : { start: buff => execute(sequences.start, buff) }),
+    ...(sequences.start === undefined && sequences.trigger === undefined
+      ? {}
+      : {
+          start: buff => {
+            if (sequences.trigger !== undefined) {
+              const sequence = runtimeFor(buff).createSequence(sequences.trigger);
+              sequence.reset({});
+              triggerSequences.set(buff, sequence);
+            }
+            execute(sequences.start, buff);
+          },
+        }),
     ...(sequences.enable === undefined && abilityEventResponses.length === 0
       ? {}
       : {
@@ -491,7 +504,14 @@ export function attachBuffLifecycleSequences<Key extends string>(
       : { afterEnhance: buff => execute(sequences.afterEnhance, buff) }),
     ...(sequences.trigger === undefined
       ? {}
-      : { trigger: buff => execute(sequences.trigger, buff) }),
+      : {
+          trigger: buff => {
+            const sequence = triggerSequences.get(buff);
+            if (sequence === undefined)
+              throw new Error(`buff '${definition.id}' trigger sequence was not prepared`);
+            sequence.executeInstant({});
+          },
+        }),
     ...(igniteEventResponses.length === 0
       ? {}
       : {

@@ -47,6 +47,10 @@ export interface HealOperationDependencies {
 export class HealOperationExecutor implements CombatOperationExecutor {
   constructor(readonly dependencies: HealOperationDependencies) {}
 
+  prepare(step: ResolvedCombatOperationStep, context: CombatOperationContext): void {
+    this.dependencies.delegate.prepare?.(step, context);
+  }
+
   execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean {
     if (step.kind !== 'heal') return this.dependencies.delegate.execute(step, context);
     const target = this.dependencies.resolveTarget(

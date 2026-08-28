@@ -134,6 +134,8 @@ export interface CombatAbilityWeaknessTriggeredEvent {
 export interface CombatOperationContext {
   /** 当前动作环境独占的 direct 黑板；生命周期由技能、Buff 或连携条件宿主管理。 */
   readonly blackboard: ActionBlackboard;
+  /** 由宿主 Reset 准备、按动作实例保存的原生攻击计算快照。 */
+  readonly damageCalculationSnapshots?: Map<ResolvedCombatOperationStep, number>;
   /** 只有读取或写入原生 Context 目标组的步骤才要求存在。 */
   readonly targetContext?: RuntimeTargetContext;
   /** 连携条件的原生 InputTarget；承受附着事件中它是施加者，不是物理事件 targetId。 */
@@ -194,6 +196,7 @@ export interface CombatOperationContext {
 }
 
 export interface CombatOperationExecutor {
+  prepare?(step: ResolvedCombatOperationStep, context: CombatOperationContext): void;
   execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean;
   end?(step: ResolvedCombatOperationStep, context?: CombatOperationContext): void;
   evaluate(
@@ -261,6 +264,7 @@ export class SkillRuntime {
     const runtime = this;
     this.#operationContext = {
       blackboard: this.#blackboard,
+      damageCalculationSnapshots: new Map(),
       targetContext: this.#targetContext,
       requestTimelineJump: destinationFrame => this.#requestTimelineJump(destinationFrame),
       requestTimelineFinish: () => this.#requestTimelineFinish(),
@@ -407,12 +411,13 @@ export class SkillRuntime {
           }),
       },
     );
-    this.#timeline.reset(this.#context);
     this.#blackboard.restore(this.#program.initialBlackboard);
     this.#targetContext.clear();
     this.#blackboard.assign(this.#preparedStartBlackboard);
     this.#preparedStartBlackboard = {};
     this.#sequenceRuntime.reset();
+    this.#operationContext.damageCalculationSnapshots!.clear();
+    this.#timeline.reset(this.#context);
     this.#passedFrames = 0;
     this.#appliedCost = false;
     this.#attemptedCost = false;

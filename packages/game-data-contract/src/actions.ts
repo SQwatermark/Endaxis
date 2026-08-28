@@ -50,6 +50,8 @@ export interface DealDamageParameters {
   calculation?: DamageCalculation;
   /** 单次命中的攻击倍率；原生允许在命中前通过动作黑板动态计算。 */
   attackScale: LevelValues | ActionValueOperand;
+  /** 原生动作 Reset 时冻结本伤害单元的攻击计算结果，后续执行复用该值。 */
+  takeAttackSnapshot?: boolean;
   /** 破防攻击计算中的逐命中倍率；标准伤害不得设置。 */
   calculationMultiplier?: LevelValues;
   /** MultiplyAttributeCalculation 读取的来源实体原生属性键。 */

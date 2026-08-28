@@ -56,6 +56,7 @@ function createAttributeSnapshots(attack = 100, defense = 0, criticalRate = 0) {
 describe('PlayerDamageOperationExecutor', () => {
   it('applies standard health damage before the hit poise unit', () => {
     let sourceControlled = false;
+    let runtimeAttack = 100;
     const healthEvents: string[] = [];
     const targetVitals = new CombatVitals({
       health: 1000,
@@ -76,7 +77,7 @@ describe('PlayerDamageOperationExecutor', () => {
       targetVitals,
       clock: new CombatClock(),
       receipt,
-      captureAttributeSnapshots: () => createAttributeSnapshots(),
+      captureAttributeSnapshots: () => createAttributeSnapshots(runtimeAttack),
       criticalSamples: { nextCriticalSample },
       attackDetail: {
         panelAttack: 100,
@@ -195,6 +196,25 @@ describe('PlayerDamageOperationExecutor', () => {
       nonCriticalDamage: 100,
     });
     expect(nextCriticalSample).not.toHaveBeenCalled();
+
+    const snapshotStep = {
+      ...DAMAGE_STEP,
+      parameters: {
+        ...DAMAGE_STEP.parameters,
+        attackScale: 1,
+        takeAttackSnapshot: true,
+        stagger: undefined,
+      },
+    };
+    const snapshotContext = {
+      blackboard: new ActionBlackboard(),
+      damageCalculationSnapshots: new Map(),
+    };
+    executor.prepare(snapshotStep, snapshotContext);
+    runtimeAttack = 999;
+    executor.prepare(snapshotStep, snapshotContext);
+    executor.execute(snapshotStep, snapshotContext);
+    expect(targetVitals.health).toBe(250);
   });
 
   it('does not publish a stale panel attack tree after runtime attack changes', () => {

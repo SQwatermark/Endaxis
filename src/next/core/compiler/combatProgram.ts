@@ -131,6 +131,7 @@ export interface ResolvedCombatStepParameters {
     damageType: DamageType;
     calculation?: 'standard' | 'breakingAttack' | 'attribute';
     attackScale: number | ActionValueOperand;
+    takeAttackSnapshot?: boolean;
     calculationMultiplier?: number;
     calculationAttribute?: string;
     calculationAddition?: number | ActionValueOperand;

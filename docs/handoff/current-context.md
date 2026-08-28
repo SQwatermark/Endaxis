@@ -7,7 +7,7 @@
 `refactor/operator-completion` 的完整干员成果。唯一新转换入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
-### 2026-08-28：Wulfgard 主动技能 9/9 与整名闭包推进（最新检查点）
+### 2026-08-28：Wulfgard 整名定义、攻击快照与燃烧闭环（最新检查点）
 
 - 严格主动迁移审计提升为 **167/309**，主动全可编译干员增至 **5 名**：Xaihi、Yvonne、
   Avywenna、Akekuri、Wulfgard。Wulfgard 从 7/9 到 9/9：`MarkCanInterrupt` 依据
@@ -23,14 +23,20 @@
   因而精确保留 `[0.2, 0.3]`。能力实体子技能中 `ActionSource=caster` 的伤害可以归属原施术者，
   entity Owner 仍不能冒充攻击者；受击动画等木桩无结果控制动作被严格省略。敌人持有 Buff 的
   `DamageAction(Target=Owner)` 也只在静态 owner 已证明为敌人时投影。
-- 当前整名唯一剩余阻塞已推进到公共 `buff_common_burning_status` 的
-  `DamageUnit.takeAtkSnapshot=true`。复刻库证明该字段在动作 Reset 时冻结攻击计算，之后每跳复用；
-  Endaxis 尚无对应的动作实例攻击快照容器。它可能在攻击 Buff 于燃烧期间变化时改变伤害，不能按
-  残留字段忽略，也不能偷用每跳实时面板。下一阶段先补公共运行时快照及生命周期测试，再完成
-  Wulfgard 整名生成、正式注册、全技能上轴和数值回归。
-- 验证：game-data **93 文件 / 709 项**、Next **237 文件 / 3246 项**，game-data contract、
-  production、compiler 与 Next 四套类型检查全部通过。本阶段中间审计及失败候选均只写入 `tmp/`，
-  未进入 Git。
+- 公共 `DamageUnit.takeAtkSnapshot=true` 已按复刻库的动作 Reset 语义接入：技能每次施法、Buff 每个
+  实例分别持有快照目录，准备阶段在本轮黑板恢复之后、动作执行之前冻结 `attack * attackScale`；
+  Buff 的 trigger 动作实例从 Buff 启用时开始复用，后续每跳不会偷读实时攻击。快照以动作实例身份
+  隔离，不要求伤害步骤为了内部状态伪造 hit key；外层责任链也不会再截断战斗末端的准备阶段。
+- 公共燃烧伤害同时保留原生 Burning/Dot 分类位与 `CriticalRate.FinalMultiplier=0` 的禁暴击即时修正。
+  未证明的破防攻击快照和 Poise 快照继续失败关闭。Wulfgard 已完成整名生成并切入稳定产品导出：
+  **9 技能、2 天赋、5 潜能、1 能力实体、2 私有 Buff、7 公共 Buff**；完整统一 TS 定义增至
+  **5 名**。全量主动矩阵保持 **167/309、5 名主动全可编译**，但完整定义计数由 4 提升为 5。
+- Wulfgard 9 个技能均通过逐项上轴完整模拟，终结技的燃烧周期伤害不再因缺快照失败；整名
+  `--complete --check` 可从固定 1.4.4 来源逐字重建。验证：game-data **93 文件 / 709 项**、
+  Next **237 文件 / 3246 项**，game-data contract、production、compiler 与 Next 四套类型检查通过。
+  中间审计只写入已忽略的 `tmp/`，没有进入 Git。
+- 下一阶段仍按矩阵做横向覆盖。最接近的 Antal、Da Pan、Ember、Estella、Last Rite 均为 6/9；
+  先按“是否影响木桩伤害结果”筛选一个公共价值最高的阻塞，不因动作名称相似就批量省略控制行为。
 
 ### 2026-08-28：Xaihi 统一 TS 整名定义完成（前序检查点）
 

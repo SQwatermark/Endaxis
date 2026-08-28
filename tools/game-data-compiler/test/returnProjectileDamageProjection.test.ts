@@ -518,19 +518,61 @@ describe('公共回调伤害投影', () => {
     },
   );
 
-  it.each([0, 1])('第 %i 单元的施法时攻击快照未接入时严格拒绝', index => {
+  it('投影生命伤害的攻击快照、灼烧/DOT 分类和禁暴击即时修正', () => {
+    const source = damageSource();
+    expect(
+      compileEventTargetSimpleDamageOperationSource(
+        {
+          ...source,
+          units: [
+            {
+              ...source.units[0]!,
+              takeAttackSnapshot: true,
+              damageDecorateMask: 67108864 + 268435456,
+              processors: [
+                {
+                  kind: 'instantAttributeModifier',
+                  targetSide: 'Attacker',
+                  modifyAttributeType: 'Specific',
+                  attributeType: 'CriticalRate',
+                  formulaItem: 'FinalMultiplier',
+                  parameter: { value: 0, blackboardKey: null, levelValues: null },
+                },
+              ],
+            },
+          ],
+        },
+        'damage',
+      ).parameters,
+    ).toMatchObject({
+      takeAttackSnapshot: true,
+      tags: ['fireAbnormal'],
+      features: ['dot'],
+      instantAttributeModifiers: [
+        {
+          targetSide: 'attacker',
+          attribute: 'criticalRate',
+          slot: 'finalMultiplier',
+          value: { kind: 'constant', value: 0 },
+          attributeTiming: 'runtime',
+        },
+      ],
+    });
+  });
+
+  it('失衡单元和破防公式仍不接受攻击快照', () => {
     const source = damageSource();
     expect(() =>
       compileEventTargetSimpleDamageOperationSource(
         {
           ...source,
-          units: source.units.map((unit, i) =>
-            i === index ? { ...unit, takeAttackSnapshot: true } : unit,
+          units: source.units.map((unit, index) =>
+            index === 1 ? { ...unit, takeAttackSnapshot: true } : unit,
           ),
         },
         'damage',
       ),
-    ).toThrow('DamageUnit behavior');
+    ).toThrow('Poise DamageUnit behavior');
   });
 
   it('普通 AtkScaleCalculation 只读嵌套倍率，简单路径不读失效的残留公式', () => {

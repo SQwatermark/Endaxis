@@ -199,6 +199,7 @@ function resolveStep(
             skillLevel,
             `${path}.parameters.attackScale`,
           ),
+          ...(step.parameters.takeAttackSnapshot ? { takeAttackSnapshot: true } : {}),
           ...(step.parameters.calculationMultiplier === undefined
             ? {}
             : {

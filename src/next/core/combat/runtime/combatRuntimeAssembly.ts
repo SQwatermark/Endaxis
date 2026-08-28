@@ -370,6 +370,22 @@ const unsupportedReactiveTerminal: CombatOperationExecutor = {
   },
 };
 
+/**
+ * 普通 execute/end/evaluate 仍沿完整责任链传播；Reset 阶段的原生计算准备只交给
+ * 战斗环境末端。外层解释器没有自己的准备状态，不能因未声明 prepare 而截断它。
+ */
+function withTerminalPreparation(
+  chain: CombatOperationExecutor,
+  terminal: CombatOperationExecutor,
+): CombatOperationExecutor {
+  return {
+    prepare: (step, context) => terminal.prepare?.(step, context),
+    execute: (step, context) => chain.execute(step, context),
+    end: (step, context) => chain.end?.(step, context),
+    evaluate: (condition, context) => chain.evaluate(condition, context),
+  };
+}
+
 /** 一次战斗的时钟、账本、实体能力系统与回执的唯一装配根。 */
 export class CombatRuntimeAssembly {
   readonly #options: CombatRuntimeAssemblyOptions;
@@ -1695,7 +1711,7 @@ export class CombatRuntimeAssembly {
       ownerId => this.#abilitySystems.get(ownerId)?.currentSkillTimelineFrame,
       operator.panel?.attributes,
     );
-    rootOperations = new SkillResourceOperationExecutor({
+    const operationChain = new SkillResourceOperationExecutor({
       sourceOperatorId: operatorId,
       sourceActionId: program.skillId,
       clock: this.clock,
@@ -1706,6 +1722,7 @@ export class CombatRuntimeAssembly {
       onSpGained: event => this.semanticEvents.emit({ kind: 'spGained', ...event }),
       delegate,
     });
+    rootOperations = withTerminalPreparation(operationChain, terminalDelegate);
     return rootOperations;
   }
 
@@ -1894,7 +1911,7 @@ export class CombatRuntimeAssembly {
       undefined,
       operator.panel?.attributes,
     );
-    reactiveOperations = new SkillResourceOperationExecutor({
+    const operationChain = new SkillResourceOperationExecutor({
       sourceOperatorId: operatorId,
       sourceActionId,
       clock: this.clock,
@@ -1905,6 +1922,7 @@ export class CombatRuntimeAssembly {
       onSpGained: event => this.semanticEvents.emit({ kind: 'spGained', ...event }),
       delegate: blackboardOperations,
     });
+    reactiveOperations = withTerminalPreparation(operationChain, terminal);
     const bindingKey = `${operatorId}\u0000${sourceActionId}`;
     if (!this.#reactiveOperationBindings.has(bindingKey)) {
       this.#reactiveOperationBindings.set(bindingKey, reactiveOperations);

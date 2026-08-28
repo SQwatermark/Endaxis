@@ -37,7 +37,7 @@ import {
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from './combatClock';
 import type { CombatVitals } from './combatVitals';
-import type { CombatOperationExecutor } from './skillRuntime';
+import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import { resolveActionValueOperand } from './actionBlackboard';
 import { deriveHitId } from '../timeline/deriveHitId';
 
@@ -126,6 +126,22 @@ export interface PlayerDamageOperationDependencies {
 /** 执行已确认的标准玩家伤害路径，包括两个修正阶段。 */
 export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
   constructor(readonly dependencies: PlayerDamageOperationDependencies) {}
+
+  prepare(step: RuntimeOperation, operationContext: CombatOperationContext): void {
+    if (step.kind !== 'dealDamage' || step.parameters.takeAttackSnapshot !== true) return;
+    const snapshots = operationContext.damageCalculationSnapshots;
+    if (snapshots === undefined) throw new Error('attack snapshot requires a stateful action host');
+    if (snapshots.has(step)) return;
+    if (step.parameters.calculation !== undefined)
+      throw new Error('attack snapshot currently requires standard attack-scale damage');
+    const attackScale = this.#resolveActionValue(
+      step.parameters.attackScale,
+      operationContext,
+      'snapshot damage scale',
+    );
+    const attributes = this.dependencies.captureAttributeSnapshots(step).attacker;
+    snapshots.set(step, attributes.attack * attackScale);
+  }
 
   execute(step: RuntimeOperation, operationContext?: OperationContext): boolean {
     if (step.kind === 'dealStagger') {
@@ -350,6 +366,11 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
         operationContext,
         'dynamic fixed damage value',
       );
+    }
+    if (step.parameters.takeAttackSnapshot === true) {
+      const snapshot = operationContext?.damageCalculationSnapshots?.get(step);
+      if (snapshot === undefined) throw new Error('attack snapshot was not prepared');
+      return snapshot;
     }
     const attackScale = this.#resolveActionValue(
       step.parameters.attackScale,

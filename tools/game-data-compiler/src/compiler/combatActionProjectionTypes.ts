@@ -136,6 +136,7 @@ type DamageParameters = Pick<
   Parameters<'dealDamage'>,
   | 'damageType'
   | 'attackScale'
+  | 'takeAttackSnapshot'
   | 'calculation'
   | 'calculationMultiplier'
   | 'tags'
@@ -161,8 +162,9 @@ type DamageParameters = Pick<
     | 'normalSkill'
     | 'ultimateSkill'
     | 'comboSkill'
+    | 'fireAbnormal'
   )[];
-  readonly features?: readonly 'canBreakWeakness'[];
+  readonly features?: readonly ('canBreakWeakness' | 'dot')[];
   readonly stagger?: CompiledActionValueOperandSource;
 };
 export type CompiledSimpleDamageOperationSource = Step<'dealDamage', DamageParameters>;

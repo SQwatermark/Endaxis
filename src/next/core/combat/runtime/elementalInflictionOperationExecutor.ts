@@ -11,7 +11,7 @@ import {
 } from '../infliction/elementalInfliction';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from './combatClock';
-import type { CombatOperationExecutor } from './skillRuntime';
+import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import type { CombatSkillCastInfo } from './skillCastInfo';
 
 type RuntimeOperation = ResolvedCombatOperationStep;
@@ -73,6 +73,10 @@ export interface ElementalInflictionOperationDependencies {
 /** 在目标解析后、后续命中步骤前执行一次附着。 */
 export class ElementalInflictionOperationExecutor implements CombatOperationExecutor {
   constructor(readonly dependencies: ElementalInflictionOperationDependencies) {}
+
+  prepare(step: ResolvedCombatOperationStep, context: CombatOperationContext): void {
+    this.dependencies.delegate.prepare?.(step, context);
+  }
 
   execute(
     step: RuntimeOperation,

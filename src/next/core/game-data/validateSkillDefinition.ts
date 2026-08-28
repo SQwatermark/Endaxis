@@ -1098,6 +1098,11 @@ function validateCombatStep(
         `${path}.parameters.attackScale`,
         out,
       );
+      if (
+        parameters.takeAttackSnapshot !== undefined &&
+        typeof parameters.takeAttackSnapshot !== 'boolean'
+      )
+        push(out, `${path}.parameters.takeAttackSnapshot`, 'expected boolean');
       if (parameters.calculationMultiplier !== undefined) {
         validateLevelValues(
           parameters.calculationMultiplier,

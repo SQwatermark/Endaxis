@@ -82,7 +82,6 @@ export function compileEventTargetSimpleDamageOperationSource(
   );
   if (
     unit.attributeType !== 'Hp' ||
-    unit.takeAttackSnapshot ||
     unit.serializedPoiseCalculationPresent ||
     unit.poiseCalculation !== null ||
     unit.onlyEnableForMainOperator ||
@@ -101,10 +100,11 @@ export function compileEventTargetSimpleDamageOperationSource(
       : null;
   if (
     breakingCalculation !== null &&
-    (breakingCalculation.multiplier.blackboardKey !== null ||
+    (unit.takeAttackSnapshot ||
+      breakingCalculation.multiplier.blackboardKey !== null ||
       breakingCalculation.multiplier.levelValues !== null)
   ) {
-    throw new Error(`${sourcePath}: dynamic breaking-attack multiplier is unsupported`);
+    throw new Error(`${sourcePath}: snapshot/dynamic breaking-attack multiplier is unsupported`);
   }
   const attackScale = unit.simpleCalculation
     ? unit.attackScale
@@ -124,6 +124,7 @@ export function compileEventTargetSimpleDamageOperationSource(
   const slots = {
     BaseAddition: 'baseAddition',
     BaseMultiplier: 'baseMultiplier',
+    FinalMultiplier: 'finalMultiplier',
   } as const;
   const instantAttributeModifiers = unit.processors.map((processor, index) => {
     if (
@@ -161,6 +162,8 @@ export function compileEventTargetSimpleDamageOperationSource(
   const comboSkill = Math.floor(mask / 8192) % 2 === 1;
   const dashAttack = Math.floor(mask / 131072) % 2 === 1;
   const normalAttackLastCombo = Math.floor(mask / 2097152) % 2 === 1;
+  const burning = Math.floor(mask / 67108864) % 2 === 1;
+  const dot = Math.floor(mask / 268435456) % 2 === 1;
   if (
     !Number.isSafeInteger(mask) ||
     mask < 0 ||
@@ -174,7 +177,7 @@ export function compileEventTargetSimpleDamageOperationSource(
       (comboSkill ? 8192 : 0) -
       (dashAttack ? 131072 : 0) -
       (normalAttackLastCombo ? 2097152 : 0) !==
-      0
+      (burning ? 67108864 : 0) + (dot ? 268435456 : 0)
   ) {
     throw new Error(`${sourcePath}: unsupported event damage decorate mask ${mask}`);
   }
@@ -185,6 +188,7 @@ export function compileEventTargetSimpleDamageOperationSource(
     parameters: {
       damageType,
       attackScale: scalarOperand(attackScale),
+      ...(unit.takeAttackSnapshot ? { takeAttackSnapshot: true } : {}),
       ...(breakingCalculation === null
         ? {}
         : {
@@ -200,8 +204,16 @@ export function compileEventTargetSimpleDamageOperationSource(
         ...(normalSkill ? (['normalSkill'] as const) : []),
         ...(ultimateSkill ? (['ultimateSkill'] as const) : []),
         ...(comboSkill ? (['comboSkill'] as const) : []),
+        ...(burning ? (['fireAbnormal'] as const) : []),
       ],
-      ...(canBreakWeakness ? { features: ['canBreakWeakness'] as const } : {}),
+      ...(canBreakWeakness || dot
+        ? {
+            features: [
+              ...(canBreakWeakness ? (['canBreakWeakness'] as const) : []),
+              ...(dot ? (['dot'] as const) : []),
+            ],
+          }
+        : {}),
       ...(instantAttributeModifiers.length === 0 ? {} : { instantAttributeModifiers }),
       ...(stagger === undefined ? {} : { stagger }),
       ...(poiseUnit?.onlyEnableForMainOperator ? { staggerOnlyWhenCasterControlled: true } : {}),

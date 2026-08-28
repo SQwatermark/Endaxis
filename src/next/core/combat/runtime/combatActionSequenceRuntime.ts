@@ -46,6 +46,10 @@ class OperationStep extends CombatStep {
   override end(): void {
     this.runtime.operations.end?.(this.step, this.operationContext);
   }
+
+  override reset(): void {
+    this.runtime.operations.prepare?.(this.step, this.operationContext);
+  }
 }
 
 class OnceStep extends CombatStep {
