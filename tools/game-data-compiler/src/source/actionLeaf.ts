@@ -53,8 +53,10 @@ import {
 } from './skillSettingActions.ts';
 import { parseDamageActionSource, type DamageActionSource } from './damageActions.ts';
 import {
+  parseAirborneActionSource,
   parseKnockDownActionSource,
   parsePhysicalInflictionActionSource,
+  type AirborneActionSource,
   type KnockDownActionSource,
   type PhysicalInflictionActionSource,
 } from './physicalInflictionActions.ts';
@@ -278,6 +280,7 @@ const REFERENCE_CLOSURE_ACTION_NAMES = new Set([
   'SpawnAbilityEntity',
   'CastSkill',
   'ForceSpellStatusAction',
+  'AirborneAction',
   'KnockDownAction',
   'FractureAction',
   'CrushAction',
@@ -354,7 +357,8 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'forcedElementalStatus'; readonly action: ForcedElementalStatusActionSource }
   | {
       readonly family: 'physicalInfliction';
-      readonly action: KnockDownActionSource | PhysicalInflictionActionSource;
+      readonly action:
+        AirborneActionSource | KnockDownActionSource | PhysicalInflictionActionSource;
     }
   | { readonly family: 'spellBurstEvent'; readonly action: TriggerSpellBurstEventSource }
   | {
@@ -882,6 +886,11 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'physicalInfliction',
         action: parseKnockDownActionSource(value, path, inheritedBlackboard),
+      };
+    case 'AirborneAction':
+      return {
+        family: 'physicalInfliction',
+        action: parseAirborneActionSource(value, path, inheritedBlackboard),
       };
     case 'FractureAction':
       return {

@@ -6,6 +6,7 @@ import { commonBuffDefinitions as yvonneCommonBuffDefinitions } from '../operato
 import { commonBuffDefinitions as xaihiCommonBuffDefinitions } from '../operators/generated-definitions/xaihi/xaihi.operator.generated';
 import { commonBuffDefinitions as wulfgardCommonBuffDefinitions } from '../operators/generated-definitions/wulfgard/wulfgard.operator.generated';
 import { commonBuffDefinitions as emberCommonBuffDefinitions } from '../operators/generated-definitions/ember/ember.operator.generated';
+import { commonBuffDefinitions as daPanCommonBuffDefinitions } from '../operators/generated-definitions/da-pan/da-pan.operator.generated';
 
 /**
  * 已迁移的公共 Buff 使用统一编译器产物；其余定义暂保留旧生成基线。
@@ -19,4 +20,5 @@ export const commonBuffDefinitions: OperatorBuffDefinitions = Object.freeze({
   ...xaihiCommonBuffDefinitions,
   ...wulfgardCommonBuffDefinitions,
   ...emberCommonBuffDefinitions,
+  ...daPanCommonBuffDefinitions,
 });

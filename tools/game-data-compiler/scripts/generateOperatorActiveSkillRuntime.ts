@@ -26,7 +26,10 @@ import type { OperatorActiveSkillTypeSource } from '../src/domains/operator/acti
 import { writeGeneratedDefinitionFiles } from '../src/compiler/writeGeneratedDefinitionFiles.ts';
 import { compileStandardStumpBuffClosure } from '../src/compiler/standardStumpBuffClosure.ts';
 import { collectCombatInvisibleBuffClosureIds } from '../src/compiler/combatInvisibleBuffClosure.ts';
-import { collectCompiledBuffIds } from '../src/compiler/compiledBuffReferences.ts';
+import {
+  collectCompiledBuffIds,
+  collectCompiledPhysicalInflictionBuffIds,
+} from '../src/compiler/compiledBuffReferences.ts';
 import { collectSkillActionReferences } from '../src/source/referenceGraph.ts';
 import type { ProjectileLaunchActionSource } from '../src/source/referenceActions.ts';
 import type { NativeConditionSource } from '../src/source/condition.ts';
@@ -39,6 +42,7 @@ export interface OperatorActiveSkillRuntimeArguments {
   readonly sourceRoot: string;
   readonly sourceFile: string;
   readonly skillPatchTable: string;
+  readonly skillSettingCatalog?: string;
   readonly buffDataRoot: string;
   readonly supplementalBuffIds: readonly string[];
   /** 整名两阶段规划中，由其他技能生成的能力实体子技能所观察的逻辑 Buff 身份。 */
@@ -385,15 +389,23 @@ export function planOperatorActiveSkillRuntime(
   for (const id of args.supplementalBuffIds)
     if (!runtimeBuffIds.has(id))
       throw new Error(`supplemental Buff '${id}' is not applied by the compiled runtime`);
-  const buffData = loadBuffClosureSources(args.supplementalBuffIds, args.buffDataRoot);
+  // 正式动作已经给出完整静态 Buff 身份；闭包根不能只依赖命令行手填补充项，
+  // 否则物理异常等隐式公共 Buff 会在最终内联阶段虚假报缺失。
+  const buffClosureRoots = [
+    ...new Set([
+      ...collectCompiledPhysicalInflictionBuffIds(definition.scheduledSequences),
+      ...args.supplementalBuffIds,
+    ]),
+  ].sort();
+  const buffData = loadBuffClosureSources(buffClosureRoots, args.buffDataRoot);
   const buffClosure = compileStandardStumpBuffClosure(
-    args.supplementalBuffIds,
+    buffClosureRoots,
     buffData,
     undefined,
+    args.skillSettingCatalog === undefined ? undefined : readJson(args.skillSettingCatalog),
     undefined,
-    undefined,
-    undefined,
-    undefined,
+    () => ({ resolveTimeDilationPriority }),
+    new Map(buffClosureRoots.map(id => [id, 'enemy'] as const)),
     undefined,
     registry,
   );

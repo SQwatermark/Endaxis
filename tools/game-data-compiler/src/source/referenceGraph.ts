@@ -205,14 +205,19 @@ function collectLeafReferences(
       const statusBuffId =
         leaf.action.kind === 'knockDown'
           ? 'buff_physical_knockdown'
-          : leaf.action.kind === 'fracture'
-            ? 'buff_physical_fracture'
-            : 'buff_physical_crushed';
+          : leaf.action.kind === 'airborne'
+            ? 'buff_physical_airborne'
+            : leaf.action.kind === 'fracture'
+              ? 'buff_physical_fracture'
+              : 'buff_physical_crushed';
       output.push(
         referenceFromIdentity('buff', 'physicalStatus', active, statusBuffId, null, sourcePath),
       );
       // force 只绕过根动作的破防门；载体自身的依赖仍由 Buff 图继续展开。
-      if (leaf.action.kind !== 'knockDown' || !leaf.action.forceKnockDown) {
+      if (
+        (leaf.action.kind !== 'knockDown' || !leaf.action.forceKnockDown) &&
+        (leaf.action.kind !== 'airborne' || !leaf.action.forceAirborne)
+      ) {
         output.push(
           referenceFromIdentity(
             'buff',

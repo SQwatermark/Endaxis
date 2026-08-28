@@ -28,6 +28,24 @@ export interface KnockDownActionSource {
   readonly returnTrueWhen: AbilityActionReturnTrueMethodSource;
 }
 
+/** 浮空与击倒共享破防/返回门，但控制参数和原生字段身份不同。 */
+export interface AirborneActionSource {
+  readonly kind: 'airborne';
+  readonly source: TargetReferenceSource;
+  readonly target: TargetReferenceSource;
+  readonly forceAirborne: boolean;
+  readonly floatingDuration: ScalarSource;
+  readonly floatingHeight: ScalarSource;
+  readonly speedFactorMultiplier: number;
+  readonly faceDirection: AdvancedDirectionSource;
+  /** 特效负载只保留为来源证据，不投影为木桩战斗状态。 */
+  readonly airborneEffect: Readonly<Record<string, unknown>>;
+  readonly immobilizedTime: number;
+  readonly isExtra: boolean;
+  readonly deadOption: ControlledStateDeadOptionSource;
+  readonly returnTrueWhen: AbilityActionReturnTrueMethodSource;
+}
+
 interface PhysicalInflictionActionBaseSource {
   readonly attacker: TargetReferenceSource;
   readonly target: TargetReferenceSource;
@@ -53,6 +71,65 @@ export interface CrushActionSource extends PhysicalInflictionActionBaseSource {
 }
 
 export type PhysicalInflictionActionSource = FractureActionSource | CrushActionSource;
+
+export function parseAirborneActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): AirborneActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'source',
+      'target',
+      'forceAirborne',
+      'floatingDuration',
+      'floatingHeight',
+      'speedFactorMultiplier',
+      'faceDirection',
+      'airborneEffect',
+      'immobilizedTime',
+      'isExtra',
+      'deadOption',
+      'returnTrueWhen',
+    ]),
+    path,
+  );
+  const deadOption = parseDeadOption(action.deadOption, `${path}.deadOption`);
+  const returnTrueWhen = parseReturnTrueWhen(action.returnTrueWhen, `${path}.returnTrueWhen`);
+  return {
+    kind: 'airborne',
+    source: parseTargetReferenceSource(action.source, `${path}.source`),
+    target: parseTargetReferenceSource(action.target, `${path}.target`),
+    forceAirborne: requireBoolean(action.forceAirborne, `${path}.forceAirborne`),
+    floatingDuration: parseScalarSource(
+      action.floatingDuration,
+      `${path}.floatingDuration`,
+      inheritedBlackboard,
+    ),
+    floatingHeight: parseScalarSource(
+      action.floatingHeight,
+      `${path}.floatingHeight`,
+      inheritedBlackboard,
+    ),
+    speedFactorMultiplier: requireNumber(
+      action.speedFactorMultiplier,
+      `${path}.speedFactorMultiplier`,
+    ),
+    faceDirection: parseAdvancedDirectionSource(action.faceDirection, `${path}.faceDirection`),
+    airborneEffect: requireRecord(action.airborneEffect, `${path}.airborneEffect`),
+    immobilizedTime: requireNumber(action.immobilizedTime, `${path}.immobilizedTime`),
+    isExtra: requireBoolean(action.isExtra, `${path}.isExtra`),
+    deadOption,
+    returnTrueWhen,
+  };
+}
 
 export function parsePhysicalInflictionActionSource(
   value: unknown,
@@ -84,9 +161,7 @@ export function parsePhysicalInflictionActionSource(
     fields.add('ignoreHitEffect');
   }
   requireExactFields(action, fields, path);
-  const deadOption = requireString(action.deadOption, `${path}.deadOption`);
-  if (deadOption !== 'AllValid' && deadOption !== 'OnlyAlive' && deadOption !== 'OnlyDead')
-    throw new Error(`${path}.deadOption: unsupported ControlledStateDeadOption ${deadOption}`);
+  const deadOption = parseDeadOption(action.deadOption, `${path}.deadOption`);
   const base: PhysicalInflictionActionBaseSource = {
     attacker: parseTargetReferenceSource(
       action.attackerTargetSettings,
@@ -155,19 +230,8 @@ export function parseKnockDownActionSource(
     ]),
     path,
   );
-  const deadOption = requireString(action.deadOption, `${path}.deadOption`);
-  if (deadOption !== 'AllValid' && deadOption !== 'OnlyAlive' && deadOption !== 'OnlyDead') {
-    throw new Error(`${path}.deadOption: unsupported ControlledStateDeadOption ${deadOption}`);
-  }
-  const returnTrueWhen = requireString(action.returnTrueWhen, `${path}.returnTrueWhen`);
-  if (
-    returnTrueWhen !== 'Always' &&
-    returnTrueWhen !== 'BothSuccessAndInterrupted' &&
-    returnTrueWhen !== 'OnlySuccess' &&
-    returnTrueWhen !== 'OnlyInterrupted'
-  ) {
-    throw new Error(`${path}.returnTrueWhen: unsupported ReturnTrueMethod ${returnTrueWhen}`);
-  }
+  const deadOption = parseDeadOption(action.deadOption, `${path}.deadOption`);
+  const returnTrueWhen = parseReturnTrueWhen(action.returnTrueWhen, `${path}.returnTrueWhen`);
   return {
     kind: 'knockDown',
     source: parseTargetReferenceSource(action.source, `${path}.source`),
@@ -180,4 +244,23 @@ export function parseKnockDownActionSource(
     deadOption,
     returnTrueWhen,
   };
+}
+
+function parseDeadOption(value: unknown, path: string): ControlledStateDeadOptionSource {
+  const result = requireString(value, path);
+  if (result !== 'AllValid' && result !== 'OnlyAlive' && result !== 'OnlyDead')
+    throw new Error(`${path}: unsupported ControlledStateDeadOption ${result}`);
+  return result;
+}
+
+function parseReturnTrueWhen(value: unknown, path: string): AbilityActionReturnTrueMethodSource {
+  const result = requireString(value, path);
+  if (
+    result !== 'Always' &&
+    result !== 'BothSuccessAndInterrupted' &&
+    result !== 'OnlySuccess' &&
+    result !== 'OnlyInterrupted'
+  )
+    throw new Error(`${path}: unsupported ReturnTrueMethod ${result}`);
+  return result;
 }

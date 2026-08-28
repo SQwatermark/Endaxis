@@ -1861,8 +1861,12 @@ function validateCombatStep(
       }
       break;
     case 'applyPhysicalInfliction': {
-      if (parameters.type !== 'fracture' && parameters.type !== 'crush') {
-        push(out, `${path}.parameters.type`, "expected 'fracture' or 'crush'");
+      if (
+        parameters.type !== 'fracture' &&
+        parameters.type !== 'crush' &&
+        parameters.type !== 'airborne'
+      ) {
+        push(out, `${path}.parameters.type`, "expected 'fracture', 'crush', or 'airborne'");
       }
       if (parameters.target !== 'enemy') {
         push(out, `${path}.parameters.target`, "expected 'enemy'");
@@ -1872,9 +1876,15 @@ function validateCombatStep(
       const statusBuffId =
         parameters.type === 'crush'
           ? requireString(parameters, 'crushedBuffId', `${path}.parameters`, out)
-          : requireString(parameters, 'fractureBuffId', `${path}.parameters`, out);
+          : parameters.type === 'airborne'
+            ? requireString(parameters, 'airborneBuffId', `${path}.parameters`, out)
+            : requireString(parameters, 'fractureBuffId', `${path}.parameters`, out);
       const statusDefinitionKey =
-        parameters.type === 'crush' ? 'crushedDefinition' : 'fractureDefinition';
+        parameters.type === 'crush'
+          ? 'crushedDefinition'
+          : parameters.type === 'airborne'
+            ? 'airborneDefinition'
+            : 'fractureDefinition';
       if (parameters.type === 'crush') {
         validateActionValueOperand(
           parameters.damageMultiplier,
@@ -1882,6 +1892,26 @@ function validateCombatStep(
           out,
         );
         requireBoolean(parameters, 'ignoreHitEffect', `${path}.parameters`, out);
+      }
+      if (parameters.type === 'airborne') {
+        validateActionValueOperand(parameters.duration, `${path}.parameters.duration`, out);
+        validateActionValueOperand(parameters.height, `${path}.parameters.height`, out);
+        requireFiniteNumber(parameters, 'speedFactorMultiplier', `${path}.parameters`, out);
+        requireBoolean(parameters, 'force', `${path}.parameters`, out);
+        requireEnum(
+          parameters,
+          'targetFilter',
+          new Set(['aliveOnly', 'skipAll']),
+          `${path}.parameters`,
+          out,
+        );
+        requireEnum(
+          parameters,
+          'returnWhen',
+          new Set(['always', 'successAndInterrupted', 'success', 'interrupted']),
+          `${path}.parameters`,
+          out,
+        );
       }
       for (const [definitionKey, buffId] of [
         ['noGuardDefinition', noGuardBuffId],

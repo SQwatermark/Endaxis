@@ -4095,3 +4095,27 @@ Gain)`，且数值为目标派生浮点值乘 `factor`；目标派生字段/枚�
   命中。应先在 combat-spec 恢复重复命中过滤，再继续 Tangtang 直至终结技可见 Debuff 闭环。
   本阶段门禁为 game-data **93 文件 / 688 项通过**、Next **237 文件 / 3242 项通过**，两套专用
   类型检查与 `git diff --check` 通过。
+
+### 2026-08-28：Airborne 公共链闭环并完成大潘整名迁移
+
+- combat-spec 先从 1.4.4 `GameAssembly.dll` 定点恢复 `AirborneAction.ExecuteInternal`
+  (`0x06CC9958`) 与 `_TryAirborne` (`0x06CCA794`)：非强制首次只加公共破防层，强制浮空绕过该门；
+  真正进入浮空时执行 GameplayTag 准入、通用 Before、`buff_physical_airborne`、控制组件、通用
+  After，并按 success/interrupted 两个跨目标标志计算四种返回策略。20 个真实动作严格适配通过；
+  空间轨迹、朝向和落地继续留在控制组件边界，不进入唯一静态木桩状态。
+- Endaxis 将 Airborne 并入既有 `applyPhysicalInfliction`，内联破防与浮空 Buff 完整组件树，保留
+  动态持续时间、高度、速度倍率、force、目标过滤和返回策略。固定木桩没有空间控制组件，因此状态
+  Buff/通用事件照常执行，但 `OnlySuccess` 不会伪造成功；当前真实样本均为 `Always`。同时纠正
+  Fracture/Crush 首次只加破防层时不应发布通用 Before 的旧时序。
+- `DamageDecorateMask` 按 combat-spec 生成枚举补齐 Crush=16384、Airborne=32768、
+  KnockDown=65536、Fracture=1073741824，四者统一启用物理异常伤害倍率。主动技能规划器只对编译
+  结果中的物理异常 ID 自动建立公共 Buff 水合闭包，并带入 SkillSetting、时间膨胀优先级和固定
+  enemy 宿主；普通 `applyBuff` 不被错误扩大为额外闭包根。
+- combo 的 `smart_target` 在运行入口由 `prepareComboCast` 严格拒绝非敌方候选，手工排轴则回退
+  唯一木桩；编译期现复用这一不变量。KnockDown 的真实 Owner/Source 两种来源均可投影。大潘终结技
+  的 inline Global 时间膨胀严格保存“全局作用、忽略 Source/caster”的原始形状。
+- 大潘现由统一整名产物正式注册：9 个主动技能、2 项天赋、5 项潜能、4 个私有 Buff、10 个公共
+  Buff；公共定义进入全局只读目录。正式技能逐项放轴/模拟及生成干员回归 **432/432** 通过，整名
+  `--check` 幂等通过。横向主动矩阵由本轮开始时 182/309 提升至 **191/309**，完整主动技能干员
+  由 6 增至 7。安塔尔达到 8/9，只剩处决投射物延迟回调；下一步先恢复该回调时序，再生成安塔尔
+  整名定义。

@@ -16,6 +16,18 @@ function setIsExtra(event: Event): void {
     },
   });
 }
+
+function statusLabel(): string {
+  if (props.step.parameters.type === 'crush') return '压制 Buff';
+  if (props.step.parameters.type === 'airborne') return '浮空 Buff';
+  return '碎甲 Buff';
+}
+
+function statusBuffId(): string {
+  if (props.step.parameters.type === 'crush') return props.step.parameters.crushedBuffId;
+  if (props.step.parameters.type === 'airborne') return props.step.parameters.airborneBuffId;
+  return props.step.parameters.fractureBuffId;
+}
 </script>
 
 <template>
@@ -33,15 +45,8 @@ function setIsExtra(event: Event): void {
       <input :value="step.parameters.noGuardBuffId" readonly />
     </label>
     <label>
-      <span>{{ step.parameters.type === 'crush' ? '压制 Buff' : '碎甲 Buff' }}</span>
-      <input
-        :value="
-          step.parameters.type === 'crush'
-            ? step.parameters.crushedBuffId
-            : step.parameters.fractureBuffId
-        "
-        readonly
-      />
+      <span>{{ statusLabel() }}</span>
+      <input :value="statusBuffId()" readonly />
     </label>
     <label class="step-editor__check step-editor__check--field">
       <input type="checkbox" :checked="step.parameters.isExtra" @change="setIsExtra" />

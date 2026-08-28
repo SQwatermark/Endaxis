@@ -87,9 +87,11 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
         ),
     ),
   );
-  // StoreSmartTarget writes the selected enemy to this implicit native context group.
-  // Only register it after the header projection has strictly proven fixed-dummy enemy targeting.
-  if (targeting.definition.smartTarget === 'enemy') staticEnemyTargetGroupKeys.add('smart_target');
+  // StoreSmartTarget writes the selected candidate to this implicit native context group. 对 input/trigger
+  // 路径，prepareComboCast 会在施法前严格拒绝非敌方候选；无候选手工排轴则回退唯一木桩。
+  // 因而所有已支持的 smartTarget 模式在技能运行入口之后都具有同一 enemy 不变量。
+  if (targeting.definition.smartTarget !== undefined)
+    staticEnemyTargetGroupKeys.add('smart_target');
   const exclusiveFrame = Number(prepared.root.exclusiveFrame);
   if (!Number.isInteger(exclusiveFrame) || exclusiveFrame < 0)
     throw new Error(`${input.sourcePath}.exclusiveFrame: expected non-negative integer`);

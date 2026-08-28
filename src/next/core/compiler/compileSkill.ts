@@ -679,6 +679,23 @@ function resolveStep(
           },
         };
       }
+      if (parameters.type === 'airborne') {
+        const { airborneDefinition, ...airborneParameters } = parameters;
+        return {
+          ...keyed,
+          kind: step.kind,
+          parameters: {
+            ...airborneParameters,
+            noGuardDefinition: resolvedNoGuard,
+            airborneDefinition: resolveSkillBuffDefinition(
+              airborneDefinition,
+              skillLevel,
+              `${path}.parameters.airborneDefinition`,
+              abilityEntities,
+            ),
+          },
+        };
+      }
       const { fractureDefinition, ...fractureParameters } = parameters;
       return {
         ...keyed,

@@ -1,4 +1,7 @@
-import type { PhysicalInflictionActionSource } from '../source/physicalInflictionActions.ts';
+import type {
+  AirborneActionSource,
+  PhysicalInflictionActionSource,
+} from '../source/physicalInflictionActions.ts';
 import type { SkillBuffDefinition } from '../../../../packages/game-data-contract/src/buffs.ts';
 import type { CompiledBuffStepSource } from './combatActionProjectionTypes.ts';
 import {
@@ -22,7 +25,7 @@ const DEFERRED_PHYSICAL_BUFF_DEFINITION: SkillBuffDefinition = {
  * 敌人主动表现，在固定木桩模型中不进入正式协议；公共 Buff 蓝图由最终装配层内联。
  */
 export function projectPhysicalInflictionAction(
-  action: PhysicalInflictionActionSource,
+  action: AirborneActionSource | PhysicalInflictionActionSource,
   path: string,
   context: CombatActionProjectionContextSource,
 ): Extract<CompiledBuffStepSource, { readonly kind: 'applyPhysicalInfliction' }> {
@@ -30,13 +33,43 @@ export function projectPhysicalInflictionAction(
     (action.target.targetSource === 'Target' && context.actionTargetTarget === 'enemy') ||
     (action.target.targetSource === 'Context' &&
       context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey) === true);
-  if (
-    context.actionOwnerTarget !== 'caster' ||
-    action.attacker.targetSource !== 'Owner' ||
-    action.attacker.targetGroupKey !== '' ||
-    !fixedEnemy
-  )
+  const source = action.kind === 'airborne' ? action.source : action.attacker;
+  const fixedCasterSource =
+    (source.targetSource === 'Owner' &&
+      source.targetGroupKey === '' &&
+      context.actionOwnerTarget === 'caster') ||
+    (source.targetSource === 'Source' &&
+      source.targetGroupKey === '' &&
+      context.actionSourceTarget === 'caster');
+  if (!fixedCasterSource || !fixedEnemy)
     throw new Error(`${path}: unsupported physical-infliction attacker/target`);
+
+  if (action.kind === 'airborne') {
+    const returnWhen = {
+      Always: 'always',
+      BothSuccessAndInterrupted: 'successAndInterrupted',
+      OnlySuccess: 'success',
+      OnlyInterrupted: 'interrupted',
+    } as const;
+    return {
+      kind: 'applyPhysicalInfliction',
+      parameters: {
+        type: 'airborne',
+        target: 'enemy',
+        isExtra: action.isExtra,
+        noGuardBuffId: 'buff_physical_no_guard',
+        noGuardDefinition: DEFERRED_PHYSICAL_BUFF_DEFINITION,
+        airborneBuffId: 'buff_physical_airborne',
+        airborneDefinition: DEFERRED_PHYSICAL_BUFF_DEFINITION,
+        duration: actionValueOperand(action.floatingDuration),
+        height: actionValueOperand(action.floatingHeight),
+        speedFactorMultiplier: action.speedFactorMultiplier,
+        force: action.forceAirborne,
+        targetFilter: action.deadOption === 'OnlyDead' ? 'skipAll' : 'aliveOnly',
+        returnWhen: returnWhen[action.returnTrueWhen],
+      },
+    };
+  }
   if (action.deadOption === 'OnlyDead')
     throw new Error(
       `${path}: dead-only physical infliction is outside the fixed living stump model`,

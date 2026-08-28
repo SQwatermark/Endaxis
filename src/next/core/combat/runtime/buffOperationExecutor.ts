@@ -160,13 +160,13 @@ export interface BuffOperationDependencies {
   readonly onPhysicalInflictionApplied?: (event: {
     readonly sourceOperatorId: string;
     readonly targetId: string;
-    readonly type: 'fracture' | 'crush';
+    readonly type: 'airborne' | 'fracture' | 'crush';
     readonly skillCastInfo: CombatSkillCastInfo;
   }) => void;
   readonly onBeforeOutputPhysicalInfliction?: (event: {
     readonly sourceId: string;
     readonly targetId: string;
-    readonly type: 'fracture' | 'crush';
+    readonly type: 'airborne' | 'fracture' | 'crush';
   }) => void;
   readonly delegate: CombatOperationExecutor;
 }
@@ -190,13 +190,20 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           `physical infliction target '${target.ownerId}' does not support Buff application`,
         );
       }
+      if (step.parameters.type === 'airborne' && step.parameters.targetFilter === 'skipAll') {
+        return step.parameters.returnWhen === 'always';
+      }
       const noGuardCount = target.getCountByIds([step.parameters.noGuardBuffId]);
-      this.dependencies.onBeforeOutputPhysicalInfliction?.({
-        sourceId: this.dependencies.sourceId,
-        targetId: target.ownerId,
-        type: step.parameters.type,
-      });
       const hasNoGuard = noGuardCount > 0;
+      const entersPhysicalInfliction =
+        hasNoGuard || (step.parameters.type === 'airborne' && step.parameters.force);
+      if (entersPhysicalInfliction) {
+        this.dependencies.onBeforeOutputPhysicalInfliction?.({
+          sourceId: this.dependencies.sourceId,
+          targetId: target.ownerId,
+          type: step.parameters.type,
+        });
+      }
       const crushBlackboardValues: Readonly<Record<string, number>> =
         hasNoGuard && step.parameters.type === 'crush'
           ? (() => {
@@ -214,7 +221,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
               return values;
             })()
           : {};
-      const request: BuffApplicationRequest = !hasNoGuard
+      const request: BuffApplicationRequest = !entersPhysicalInfliction
         ? {
             buffId: step.parameters.noGuardBuffId,
             definition: step.parameters.noGuardDefinition,
@@ -236,18 +243,29 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
               blackboardValues: crushBlackboardValues,
               skillCastInfo: context.skillCastInfo,
             }
-          : {
-              buffId: step.parameters.fractureBuffId,
-              definition: step.parameters.fractureDefinition,
-              sourceId: this.dependencies.sourceId,
-              ...(this.dependencies.sourceActionId === undefined
-                ? {}
-                : { sourceActionId: this.dependencies.sourceActionId }),
-              blackboardValues: {},
-              skillCastInfo: context.skillCastInfo,
-            };
+          : step.parameters.type === 'fracture'
+            ? {
+                buffId: step.parameters.fractureBuffId,
+                definition: step.parameters.fractureDefinition,
+                sourceId: this.dependencies.sourceId,
+                ...(this.dependencies.sourceActionId === undefined
+                  ? {}
+                  : { sourceActionId: this.dependencies.sourceActionId }),
+                blackboardValues: {},
+                skillCastInfo: context.skillCastInfo,
+              }
+            : {
+                buffId: step.parameters.airborneBuffId,
+                definition: step.parameters.airborneDefinition,
+                sourceId: this.dependencies.sourceId,
+                ...(this.dependencies.sourceActionId === undefined
+                  ? {}
+                  : { sourceActionId: this.dependencies.sourceActionId }),
+                blackboardValues: {},
+                skillCastInfo: context.skillCastInfo,
+              };
       const applied = target.apply(request);
-      if (applied && hasNoGuard) {
+      if (applied && entersPhysicalInfliction) {
         this.dependencies.onPhysicalInflictionApplied?.({
           sourceOperatorId: this.dependencies.sourceId,
           targetId: target.ownerId,
@@ -255,7 +273,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           skillCastInfo: context.skillCastInfo,
         });
       }
-      if (applied && hasNoGuard) {
+      if (applied && entersPhysicalInfliction && hasNoGuard) {
         const remainingCount = target.getCountByIds([step.parameters.noGuardBuffId]);
         const consumedLayers = Math.max(0, noGuardCount - remainingCount);
         if (consumedLayers > 0) {
@@ -269,7 +287,10 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           });
         }
       }
-      return applied;
+      if (step.parameters.type !== 'airborne') return applied;
+      // 固定木桩不安装空间控制组件：状态 Buff 与通用 After 链仍执行，但不能伪造
+      // ApplyAirborne 的 Success/Interruption。真实 1.4.4 样本当前均使用 Always。
+      return step.parameters.returnWhen === 'always';
     }
 
     if (step.kind === 'applyBuff') {

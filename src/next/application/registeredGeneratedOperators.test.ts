@@ -768,7 +768,8 @@ describe('registered generated operators', () => {
           entry.event === 'DamageApplied' &&
           entry.sourceId === 'track:dapan' &&
           entry.frame >= 572 &&
-          String(entry.data?.stepKey).includes('comboSkill'),
+          (String(entry.data?.stepKey).includes('comboSkill') ||
+            String(entry.data?.stepKey).includes('chr_0018_dapan_combo_skill')),
       )?.data?.value;
       return typeof value === 'number' ? value : undefined;
     };

@@ -53,6 +53,19 @@ export function createPhysicalInflictionDefinitionHydrator(
           },
         } as T;
       }
+      if (parameters.type === 'airborne') {
+        const airborneBuffId = parameters.airborneBuffId;
+        if (typeof airborneBuffId !== 'string')
+          throw new Error('airborne is missing Buff identity');
+        return {
+          kind: 'applyPhysicalInfliction',
+          parameters: {
+            ...parameters,
+            noGuardDefinition: resolve(noGuardBuffId),
+            airborneDefinition: resolve(airborneBuffId),
+          },
+        } as T;
+      }
       throw new Error(`unsupported physical infliction type ${String(parameters.type)}`);
     }
     return Object.fromEntries(

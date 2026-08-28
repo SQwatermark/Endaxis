@@ -265,10 +265,18 @@ function inspectSequence(
             flags,
             source,
           );
-        } else {
+        } else if (step.parameters.type === 'fracture') {
           inspectBuffDefinition(
             step.parameters.fractureDefinition,
             `${stepPath}.parameters.fractureDefinition`,
+            collect,
+            flags,
+            source,
+          );
+        } else {
+          inspectBuffDefinition(
+            step.parameters.airborneDefinition,
+            `${stepPath}.parameters.airborneDefinition`,
             collect,
             flags,
             source,

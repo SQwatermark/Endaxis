@@ -404,6 +404,47 @@ export function compileBuffLeafNode(
         state: partyTargetGroups,
       };
     }
+    const inlineGlobalIgnoringSource =
+      !action.useCurveKey &&
+      action.curveKey === '' &&
+      action.inlineCurveKeys.length > 0 &&
+      action.ignoreTargets.length === 1 &&
+      ignored?.targetSource === 'Source' &&
+      ignored.targetGroupKey === '' &&
+      action.effectTargets.length === 0 &&
+      context.actionSourceTarget === 'caster';
+    if (inlineGlobalIgnoringSource) {
+      return {
+        steps: [
+          {
+            kind: 'startTimeDilation',
+            parameters: {
+              scope: 'global',
+              durationSeconds: actionValueOperand(action.duration),
+              slot:
+                action.slotTagId === 0
+                  ? 'unassigned'
+                  : projectGameplayTags([action.slotTagId], context, node.sourcePath)[0]!,
+              priority,
+              curve: {
+                kind: 'inline',
+                keys: projectTimeDilationCurveKeys(action.inlineCurveKeys, node.sourcePath),
+              },
+              finishByAction: action.finishByAction,
+              ignoredTargets: ['caster'],
+              ...(action.useTimeScaleForSkillCooldownTick
+                ? {
+                    influenceSkillCooldownSeconds: actionValueOperand(
+                      action.influenceSkillCooldownTime,
+                    ),
+                  }
+                : {}),
+            },
+          },
+        ],
+        state: partyTargetGroups,
+      };
+    }
     if (
       action.useCurveKey ||
       action.curveKey !== '' ||

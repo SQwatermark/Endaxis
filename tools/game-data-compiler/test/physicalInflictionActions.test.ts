@@ -1,6 +1,7 @@
 import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { describe, expect, it } from 'vitest';
 import {
+  parseAirborneActionSource,
   parseKnockDownActionSource,
   parsePhysicalInflictionActionSource,
 } from '../src/source/physicalInflictionActions.ts';
@@ -74,6 +75,35 @@ function physical(kind: 'fracture' | 'crush', overrides: Record<string, unknown>
     deadOption: 'AllValid',
     ...(kind === 'crush' ? { damageMultiplier: scalarFixture(1), ignoreHitEffect: false } : {}),
     immobilizedTime: 0,
+    ...overrides,
+  };
+}
+function airborne(overrides: Record<string, unknown> = {}) {
+  return {
+    $type: 'Beyond.Gameplay.Core.AirborneAction+AirborneActionData, Gameplay.Beyond',
+    isEnable: true,
+    priorityLevel: 'Default',
+    priorityOffset: 0,
+    serverActionIndex: 13,
+    source: targetFixture('Owner'),
+    target: targetFixture('Context', undefined, 'targets'),
+    forceAirborne: false,
+    floatingDuration: scalarFixture(1.5, 'airborne_duration'),
+    floatingHeight: scalarFixture(2),
+    speedFactorMultiplier: 3,
+    faceDirection: {
+      directionType: 'TargetToSource',
+      sourceMountPoint: 'None',
+      targetMountPoint: 'None',
+      customSourceAndTarget: false,
+      clampToXZ: true,
+      invertDirection: false,
+    },
+    airborneEffect: { moveType: 'FollowTarget', effectName: '' },
+    immobilizedTime: 1,
+    isExtra: false,
+    deadOption: 'AllValid',
+    returnTrueWhen: 'Always',
     ...overrides,
   };
 }
@@ -279,7 +309,11 @@ describe('击倒来源与隐式引用', () => {
       }),
     ).toThrow('source/target');
     expect(() =>
-      projectKnockDownAction(action, 'fixture', { ...context, actionOwnerTarget: 'buffOwner' }),
+      projectKnockDownAction(
+        parseKnockDownActionSource(knockDown({ source: targetFixture('Owner') }), 'fixture', {}),
+        'fixture',
+        { ...context, actionOwnerTarget: 'buffOwner' },
+      ),
     ).toThrow('source/target');
     expect(() => projectKnockDownAction({ ...action, isExtra: true }, 'fixture', context)).toThrow(
       'extra knock-down',
@@ -377,5 +411,57 @@ describe('断裂与猛击公共物理异常链', () => {
         staticEnemyTargetGroupKeys: new Set(),
       }),
     ).toThrow('attacker/target');
+  });
+});
+
+describe('浮空公共物理异常链', () => {
+  const context = {
+    actionOwnerTarget: 'caster',
+    actionSourceTarget: 'caster',
+    actionTargetTarget: 'enemy',
+    staticEnemyTargetGroupKeys: new Set(['targets']),
+  } as const;
+
+  it('严格保留控制参数并投影破防、状态 Buff 与返回策略', () => {
+    const source = parseAirborneActionSource(
+      airborne({ returnTrueWhen: 'OnlySuccess' }),
+      'fixture',
+      { airborne_duration: [1.5, 2] },
+    );
+    expect(source).toMatchObject({
+      kind: 'airborne',
+      source: { targetSource: 'Owner' },
+      target: { targetSource: 'Context', targetGroupKey: 'targets' },
+      floatingDuration: { blackboardKey: 'airborne_duration', levelValues: [1.5, 2] },
+      floatingHeight: { value: 2 },
+      speedFactorMultiplier: 3,
+      airborneEffect: { moveType: 'FollowTarget' },
+    });
+    const projected = projectPhysicalInflictionAction(source, 'fixture', context);
+    expect(projected.parameters).toMatchObject({
+      type: 'airborne',
+      duration: { kind: 'blackboard', key: 'airborne_duration' },
+      height: { kind: 'constant', value: 2 },
+      speedFactorMultiplier: 3,
+      force: false,
+      targetFilter: 'aliveOnly',
+      returnWhen: 'success',
+    });
+    expect(collectCompiledBuffApplications([projected])).toEqual([
+      { buffId: 'buff_physical_no_guard', target: 'enemy' },
+      { buffId: 'buff_physical_airborne', target: 'enemy' },
+    ]);
+  });
+
+  it('强制浮空不引入根破防引用，OnlyDead 保留为固定木桩跳过', () => {
+    expect(references(airborne({ forceAirborne: true }))).toMatchObject([
+      { id: 'buff_physical_airborne', state: 'active' },
+    ]);
+    const projected = projectPhysicalInflictionAction(
+      parseAirborneActionSource(airborne({ deadOption: 'OnlyDead' }), 'fixture', {}),
+      'fixture',
+      context,
+    );
+    expect(projected.parameters).toMatchObject({ targetFilter: 'skipAll', returnWhen: 'always' });
   });
 });

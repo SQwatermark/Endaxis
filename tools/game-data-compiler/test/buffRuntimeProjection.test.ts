@@ -119,15 +119,21 @@ describe('公共 Buff 运行时投影', () => {
     expect(() => project({ ...poiseOnly, attacker: 'ActionOwner' }, 'enemy')).toThrow(
       'enemy Buff Owner',
     );
-    expect(() =>
+    expect(
       project(
         {
           ...damage,
-          units: damage.units.map(unit => ({ ...unit, damageDecorateMask: 65536 + 16384 })),
+          units: damage.units.map(unit => ({
+            ...unit,
+            damageDecorateMask: unit.attributeType === 'Hp' ? 65536 + 16384 : 0,
+          })),
         },
         'enemy',
-      ),
-    ).toThrow();
+      ).lifecycleSequences?.start?.steps[0],
+    ).toMatchObject({
+      kind: 'dealDamage',
+      parameters: { features: ['knockDown', 'physicalInfliction'] },
+    });
   });
 
   it.each(['buffApplication', 'aura'] as const)(

@@ -369,6 +369,30 @@ function stepNode(
           ),
     );
   } else if (step.kind === 'applyPhysicalInfliction') {
+    const statusDefinition =
+      step.parameters.type === 'crush'
+        ? step.parameters.crushedDefinition
+        : step.parameters.type === 'airborne'
+          ? step.parameters.airborneDefinition
+          : step.parameters.fractureDefinition;
+    const statusDefinitionKey =
+      step.parameters.type === 'crush'
+        ? 'crushedDefinition'
+        : step.parameters.type === 'airborne'
+          ? 'airborneDefinition'
+          : 'fractureDefinition';
+    const statusLabel =
+      step.parameters.type === 'crush'
+        ? '压制 Buff'
+        : step.parameters.type === 'airborne'
+          ? '浮空 Buff'
+          : '碎甲 Buff';
+    const statusBuffId =
+      step.parameters.type === 'crush'
+        ? step.parameters.crushedBuffId
+        : step.parameters.type === 'airborne'
+          ? step.parameters.airborneBuffId
+          : step.parameters.fractureBuffId;
     children.push(
       inlineBuffDefinitionNode(
         step.parameters.noGuardDefinition,
@@ -379,15 +403,11 @@ function stepNode(
         editorSection,
       ),
       inlineBuffDefinitionNode(
-        step.parameters.type === 'crush'
-          ? step.parameters.crushedDefinition
-          : step.parameters.fractureDefinition,
+        statusDefinition,
         `${id}:${step.parameters.type}-definition`,
-        `${sourcePath}.parameters.${step.parameters.type === 'crush' ? 'crushedDefinition' : 'fractureDefinition'}`,
-        step.parameters.type === 'crush' ? '压制 Buff' : '碎甲 Buff',
-        step.parameters.type === 'crush'
-          ? step.parameters.crushedBuffId
-          : step.parameters.fractureBuffId,
+        `${sourcePath}.parameters.${statusDefinitionKey}`,
+        statusLabel,
+        statusBuffId,
         editorSection,
       ),
     );

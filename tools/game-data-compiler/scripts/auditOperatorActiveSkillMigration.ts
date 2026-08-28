@@ -10,6 +10,7 @@ interface Arguments {
   readonly manifest: string;
   readonly sourceRoot: string;
   readonly skillPatchTable: string;
+  readonly skillSettingCatalog: string;
   readonly buffDataRoot: string;
   readonly abilityEntityCatalog: string;
   readonly projectileBlackboardCatalog: string;
@@ -49,6 +50,7 @@ export async function auditOperatorActiveSkillMigration(args: Arguments) {
           sourceRoot: args.sourceRoot,
           sourceFile: skill.sourceFile,
           skillPatchTable: args.skillPatchTable,
+          skillSettingCatalog: args.skillSettingCatalog,
           buffDataRoot: args.buffDataRoot,
           supplementalBuffIds: [],
           abilityEntityCatalog: args.abilityEntityCatalog,
@@ -146,6 +148,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     '--manifest',
     '--source-root',
     '--skill-patch-table',
+    '--skill-setting-catalog',
     '--buff-data-root',
     '--ability-entity-catalog',
     '--projectile-blackboard-catalog',
@@ -173,6 +176,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       manifest: required('--manifest'),
       sourceRoot: required('--source-root'),
       skillPatchTable: required('--skill-patch-table'),
+      skillSettingCatalog: required('--skill-setting-catalog'),
       buffDataRoot: required('--buff-data-root'),
       abilityEntityCatalog: required('--ability-entity-catalog'),
       projectileBlackboardCatalog: required('--projectile-blackboard-catalog'),

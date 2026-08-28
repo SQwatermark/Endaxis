@@ -252,6 +252,18 @@ export interface CombatStepParameters {
         damageMultiplier: ActionValueOperand;
         ignoreHitEffect: boolean;
       }
+    | {
+        type: 'airborne';
+        airborneBuffId: string;
+        airborneDefinition: SkillBuffDefinition;
+        duration: ActionValueOperand;
+        height: ActionValueOperand;
+        speedFactorMultiplier: number;
+        force: boolean;
+        /** 原生 AllValid/OnlyAlive 都只选存活目标；OnlyDead 实际跳过全部目标。 */
+        targetFilter: 'aliveOnly' | 'skipAll';
+        returnWhen: 'always' | 'successAndInterrupted' | 'success' | 'interrupted';
+      }
   );
   applyElementalReaction: {
     reaction: ElementalReaction;

@@ -241,10 +241,7 @@ describe('BuffOperationExecutor', () => {
 
     expect(executor.execute(step, context)).toBe(true);
     expect(executor.execute(step, context)).toBe(true);
-    expect(beforeOutput).toEqual([
-      { sourceId: 'antal', targetId: 'enemy', type: 'fracture' },
-      { sourceId: 'antal', targetId: 'enemy', type: 'fracture' },
-    ]);
+    expect(beforeOutput).toEqual([{ sourceId: 'antal', targetId: 'enemy', type: 'fracture' }]);
     expect(applied).toEqual(['buff_physical_no_guard', 'buff_physical_fracture']);
     expect(consumed).toEqual([
       {
@@ -256,6 +253,76 @@ describe('BuffOperationExecutor', () => {
         blackboardValues: {},
       },
     ]);
+  });
+
+  it('applies Airborne through its force/no-guard gate without pretending stump control success', () => {
+    let noGuardCount = 0;
+    const applied: string[] = [];
+    const beforeOutput: string[] = [];
+    const target = {
+      ownerId: 'enemy',
+      apply: (request: { buffId: string }) => {
+        applied.push(request.buffId);
+        if (request.buffId === 'buff_physical_no_guard') noGuardCount += 1;
+        return true;
+      },
+      getCountByIds: (ids: readonly string[]) =>
+        ids.includes('buff_physical_no_guard') ? noGuardCount : 0,
+      finishByIds: () => 0,
+      holdByIds: () => ({ release: () => undefined }),
+      getCountByTags: () => 0,
+      matchesEntityTags: () => false,
+      findFirstByIds: () => undefined,
+      findFirstByTags: () => undefined,
+      finishByTags: () => 0,
+    };
+    const executor = new BuffOperationExecutor({
+      sourceId: 'antal',
+      resolveTarget: () => target,
+      onBeforeOutputPhysicalInfliction: event => beforeOutput.push(event.type),
+      delegate,
+    });
+    const parameters = {
+      type: 'airborne' as const,
+      target: 'enemy' as const,
+      isExtra: false,
+      noGuardBuffId: 'buff_physical_no_guard',
+      noGuardDefinition: { stackingType: 'enhanceAndRefresh' as const },
+      airborneBuffId: 'buff_physical_airborne',
+      airborneDefinition: { stackingType: 'refresh' as const },
+      duration: { kind: 'constant' as const, value: 1.5 },
+      height: { kind: 'constant' as const, value: 2 },
+      speedFactorMultiplier: 3,
+      force: false,
+      targetFilter: 'aliveOnly' as const,
+      returnWhen: 'always' as const,
+    };
+    const context = {
+      blackboard: new ActionBlackboard(),
+      skillCastInfo: {
+        skillCastId: 1,
+        originSkillId: 'comboSkill',
+        originSkillType: 'comboSkill' as const,
+        nonReturnedSpCost: 0,
+      },
+    };
+
+    expect(executor.execute({ kind: 'applyPhysicalInfliction', parameters }, context)).toBe(true);
+    expect(beforeOutput).toEqual([]);
+    expect(executor.execute({ kind: 'applyPhysicalInfliction', parameters }, context)).toBe(true);
+    expect(beforeOutput).toEqual(['airborne']);
+    expect(applied).toEqual(['buff_physical_no_guard', 'buff_physical_airborne']);
+
+    expect(
+      executor.execute(
+        {
+          kind: 'applyPhysicalInfliction',
+          parameters: { ...parameters, force: true, returnWhen: 'success' },
+        },
+        context,
+      ),
+    ).toBe(false);
+    expect(applied.at(-1)).toBe('buff_physical_airborne');
   });
 
   it('resolves Crush assignments only when the existing no-guard layer is consumed', () => {

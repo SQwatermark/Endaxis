@@ -3,6 +3,29 @@ export function collectCompiledBuffIds(value: unknown): ReadonlySet<string> {
   return new Set(collectCompiledBuffApplications(value).map(item => item.buffId));
 }
 
+/** 只收集仍需最终内联水合的物理异常公共 Buff；普通 applyBuff 已携带自己的定义。 */
+export function collectCompiledPhysicalInflictionBuffIds(value: unknown): ReadonlySet<string> {
+  const ids = new Set<string>();
+  const visit = (item: unknown): void => {
+    if (Array.isArray(item)) {
+      item.forEach(visit);
+      return;
+    }
+    if (item === null || typeof item !== 'object') return;
+    const record = item as Record<string, unknown>;
+    if (record.kind === 'applyPhysicalInfliction') {
+      const parameters = record.parameters as Record<string, unknown>;
+      for (const key of ['noGuardBuffId', 'fractureBuffId', 'crushedBuffId', 'airborneBuffId']) {
+        const id = parameters[key];
+        if (typeof id === 'string' && id.length > 0) ids.add(id);
+      }
+    }
+    Object.values(record).forEach(visit);
+  };
+  visit(value);
+  return ids;
+}
+
 export interface CompiledBuffApplicationReference {
   readonly buffId: string;
   readonly target: string;
@@ -33,7 +56,11 @@ export function collectCompiledBuffApplications(
       const type = parameters.type;
       const noGuardBuffId = parameters.noGuardBuffId;
       const abnormalBuffId =
-        type === 'fracture' ? parameters.fractureBuffId : parameters.crushedBuffId;
+        type === 'fracture'
+          ? parameters.fractureBuffId
+          : type === 'crush'
+            ? parameters.crushedBuffId
+            : parameters.airborneBuffId;
       if (typeof noGuardBuffId !== 'string' || typeof abnormalBuffId !== 'string')
         throw new Error('compiled physical infliction step has invalid Buff identities');
       applications.push({ buffId: noGuardBuffId, target: 'enemy' });

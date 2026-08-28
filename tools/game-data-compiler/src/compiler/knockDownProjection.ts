@@ -18,13 +18,14 @@ export function projectKnockDownAction(
     (action.target.targetSource === 'Target' && context.actionTargetTarget === 'enemy') ||
     (action.target.targetSource === 'Context' &&
       context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey) === true);
-  if (
-    context.actionOwnerTarget !== 'caster' ||
-    context.actionSourceTarget !== 'caster' ||
-    action.source.targetSource !== 'Source' ||
-    action.source.targetGroupKey !== '' ||
-    !fixedEnemy
-  ) {
+  const fixedCasterSource =
+    (action.source.targetSource === 'Source' &&
+      action.source.targetGroupKey === '' &&
+      context.actionSourceTarget === 'caster') ||
+    (action.source.targetSource === 'Owner' &&
+      action.source.targetGroupKey === '' &&
+      context.actionOwnerTarget === 'caster');
+  if (!fixedCasterSource || !fixedEnemy) {
     throw new Error(`${path}: unsupported knock-down source/target`);
   }
   if (action.isExtra) throw new Error(`${path}: extra knock-down requires BuffAddContext support`);

@@ -540,7 +540,7 @@ describe('公共回调伤害投影', () => {
     ).toEqual(tags);
   });
 
-  it.each([1, 8, 16384, 4353, 2 ** 32 + 4352, Number.MAX_SAFE_INTEGER + 1, -1, 0.5])(
+  it.each([1, 8, 4353, 2 ** 32 + 4352, Number.MAX_SAFE_INTEGER + 1, -1, 0.5])(
     '未知位/非安全整数 %s 不被位运算截断后放行',
     mask => {
       const source = damageSource();
@@ -555,6 +555,16 @@ describe('公共回调伤害投影', () => {
       ).toThrow('damage decorate mask');
     },
   );
+
+  it.each([16384, 32768, 1073741824])('物理异常伤害位 %i 启用统一倍率特征', mask => {
+    const source = damageSource();
+    expect(
+      compileEventTargetSimpleDamageOperationSource(
+        { ...source, units: [{ ...source.units[0]!, damageDecorateMask: mask }] },
+        'damage',
+      ).parameters.features,
+    ).toEqual(['physicalInfliction']);
+  });
 
   it('投影生命伤害的攻击快照、灼烧/DOT 分类和禁暴击即时修正', () => {
     const source = damageSource();

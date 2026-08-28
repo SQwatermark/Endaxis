@@ -162,6 +162,8 @@ export function compileEventTargetSimpleDamageOperationSource(
   const plungingAttack = Math.floor(mask / 1024) % 2 === 1;
   const canBreakWeakness = Math.floor(mask / 4096) % 2 === 1;
   const comboSkill = Math.floor(mask / 8192) % 2 === 1;
+  const crush = Math.floor(mask / 16384) % 2 === 1;
+  const airborne = Math.floor(mask / 32768) % 2 === 1;
   // DamageEnums.g.cs：KnockDown=65536 同时属于 PhysicalInfliction 组合掩码。
   const knockDown = Math.floor(mask / 65536) % 2 === 1;
   const dashAttack = Math.floor(mask / 131072) % 2 === 1;
@@ -169,6 +171,8 @@ export function compileEventTargetSimpleDamageOperationSource(
   const burning = Math.floor(mask / 67108864) % 2 === 1;
   const shatter = Math.floor(mask / 134217728) % 2 === 1;
   const dot = Math.floor(mask / 268435456) % 2 === 1;
+  const fracture = Math.floor(mask / 1073741824) % 2 === 1;
+  const physicalInfliction = crush || airborne || knockDown || fracture;
   if (
     !Number.isSafeInteger(mask) ||
     mask < 0 ||
@@ -180,10 +184,15 @@ export function compileEventTargetSimpleDamageOperationSource(
       (plungingAttack ? 1024 : 0) -
       (canBreakWeakness ? 4096 : 0) -
       (comboSkill ? 8192 : 0) -
+      (crush ? 16384 : 0) -
+      (airborne ? 32768 : 0) -
       (knockDown ? 65536 : 0) -
       (dashAttack ? 131072 : 0) -
       (normalAttackLastCombo ? 2097152 : 0) !==
-      (burning ? 67108864 : 0) + (shatter ? 134217728 : 0) + (dot ? 268435456 : 0)
+      (burning ? 67108864 : 0) +
+        (shatter ? 134217728 : 0) +
+        (dot ? 268435456 : 0) +
+        (fracture ? 1073741824 : 0)
   ) {
     throw new Error(`${sourcePath}: unsupported event damage decorate mask ${mask}`);
   }
@@ -213,12 +222,13 @@ export function compileEventTargetSimpleDamageOperationSource(
         ...(burning ? (['fireAbnormal'] as const) : []),
         ...(shatter ? (['cryoAbnormal'] as const) : []),
       ],
-      ...(canBreakWeakness || dot || knockDown || shatter
+      ...(canBreakWeakness || dot || physicalInfliction || shatter
         ? {
             features: [
               ...(canBreakWeakness ? (['canBreakWeakness'] as const) : []),
               ...(dot ? (['dot'] as const) : []),
-              ...(knockDown ? (['knockDown', 'physicalInfliction'] as const) : []),
+              ...(knockDown ? (['knockDown'] as const) : []),
+              ...(physicalInfliction ? (['physicalInfliction'] as const) : []),
               ...(shatter ? (['shatter'] as const) : []),
             ],
           }

@@ -125,6 +125,13 @@ export interface ResolvedCombatStepParameters {
       > & {
         readonly noGuardDefinition: ResolvedSkillBuffDefinition;
         readonly crushedDefinition: ResolvedSkillBuffDefinition;
+      })
+    | (Omit<
+        Extract<CombatStepParameters['applyPhysicalInfliction'], { type: 'airborne' }>,
+        'noGuardDefinition' | 'airborneDefinition'
+      > & {
+        readonly noGuardDefinition: ResolvedSkillBuffDefinition;
+        readonly airborneDefinition: ResolvedSkillBuffDefinition;
       });
   applyElementalReaction: CombatStepParameters['applyElementalReaction'];
   consumeElementalReaction: CombatStepParameters['consumeElementalReaction'];
