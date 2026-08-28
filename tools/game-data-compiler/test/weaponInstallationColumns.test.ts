@@ -1,3 +1,4 @@
+import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { compileWeaponContributions } from '../../../src/next/core/compiler/compileEquipment.ts';
@@ -90,7 +91,12 @@ describe('武器安装结构与等级列', () => {
   it('不变的列保持原引用，直接赋值保持单值，安装动作只生成一份', () => {
     const values = Object.freeze([10, 20]);
     const source = dependency({ startupBuffs: [installation(values), installation(7)] });
-    const result = compileWeaponRuntimeDefinitionBatchSource([definition], [source], buffs);
+    const result = compileWeaponRuntimeDefinitionBatchSource(
+      [definition],
+      [source],
+      buffs,
+      fixtureGameplayTagRegistry,
+    );
     expect(result.diagnostics).toEqual([]);
     const trait = result.definitions[0]!.traits[0]!;
     expect(trait.initializationBlackboard?.[`install_0_${parameter}`]).toBe(values);
@@ -101,7 +107,12 @@ describe('武器安装结构与等级列', () => {
 
   it('不同 Toggle 组交替安装同一结构，只按当前等级选取对应来源参数', () => {
     const source = dependency({ toggleBuffs: alternatingGroups() });
-    const result = compileWeaponRuntimeDefinitionBatchSource([definition], [source], buffs);
+    const result = compileWeaponRuntimeDefinitionBatchSource(
+      [definition],
+      [source],
+      buffs,
+      fixtureGameplayTagRegistry,
+    );
     expect(result.diagnostics).toEqual([]);
     const generated: WeaponDefinition = result.definitions[0]!;
     expect(validateWeaponDefinition(generated)).toEqual([]);
@@ -146,10 +157,15 @@ describe('武器安装结构与等级列', () => {
         stackEffects: [{ effectActions: [] }],
       },
     };
-    const result = compileWeaponRuntimeDefinitionBatchSource([definition], [source], {
-      ...buffs,
-      [omittedId]: presentation,
-    });
+    const result = compileWeaponRuntimeDefinitionBatchSource(
+      [definition],
+      [source],
+      {
+        ...buffs,
+        [omittedId]: presentation,
+      },
+      fixtureGameplayTagRegistry,
+    );
     expect(result.diagnostics.map(item => item.status)).toEqual(['scenario-omitted']);
     expect(result.definitions[0]?.traits[0]?.initializationSequence?.steps).toHaveLength(1);
   });
@@ -175,6 +191,7 @@ describe('武器安装结构与等级列', () => {
           ...buffs,
           [otherId]: { ...buffs[buffId], id: otherId },
         },
+        fixtureGameplayTagRegistry,
       );
       expect(result.definitions).toEqual([]);
       expect(result.diagnostics).toContainEqual(
@@ -193,6 +210,7 @@ describe('武器安装结构与等级列', () => {
       [definition],
       [dependency({ toggleBuffs: groups })],
       buffs,
+      fixtureGameplayTagRegistry,
     );
     expect(result.definitions).toEqual([]);
     expect(result.diagnostics).toContainEqual(
@@ -219,6 +237,7 @@ describe('武器安装结构与等级列', () => {
         }),
       ],
       buffs,
+      fixtureGameplayTagRegistry,
     );
     expect(result.definitions).toHaveLength(1);
     expect(result.diagnostics).toContainEqual(
@@ -248,6 +267,7 @@ describe('武器安装结构与等级列', () => {
         }),
       ],
       {},
+      fixtureGameplayTagRegistry,
     );
     expect(result.definitions).toEqual([]);
     expect(result.diagnostics.map(item => item.sourcePath)).toEqual([

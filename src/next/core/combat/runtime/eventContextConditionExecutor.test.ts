@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ActionBlackboard } from './actionBlackboard';
 import { EventContextConditionExecutor } from './eventContextConditionExecutor';
-import { GameplayTagRegistry, gameplayTagIdFromPath } from '../tags/gameplayTags';
+import { GameplayTagRegistry } from '../tags/gameplayTags';
 
 const terminal = {
   execute: () => true,
@@ -20,7 +20,7 @@ describe('EventContextConditionExecutor', () => {
         sourceId: 'holder',
         targetId: 'enemy',
         buffId: 'freeze',
-        buffTagIds: [],
+        buffTags: [],
       },
     };
     expect(executor.evaluate({ kind: 'eventSourceMatchesBuffSource' }, context)).toBe(true);
@@ -266,7 +266,7 @@ describe('EventContextConditionExecutor', () => {
         targetId: 'operator',
         buffId: 'buff:matched',
         sourceId: 'enemy',
-        buffTagIds: [101, 202],
+        buffTags: ['Test/Tag101', 'Test/Tag202'],
       },
     };
 
@@ -278,7 +278,7 @@ describe('EventContextConditionExecutor', () => {
     );
     expect(
       executor.evaluate(
-        { kind: 'eventBuffTagsMatch', match: 'hasAny', buffTagIds: [202] },
+        { kind: 'eventBuffTagsMatch', match: 'hasAny', buffTags: ['Test/Tag202'] },
         context,
       ),
     ).toBe(true);
@@ -292,12 +292,7 @@ describe('EventContextConditionExecutor', () => {
       terminal,
       undefined,
       undefined,
-      (_targetId, ownedTagIds, requiredTagIds, match) =>
-        registry.query(
-          ownedTagIds.map(value => value as ReturnType<typeof gameplayTagIdFromPath>),
-          requiredTagIds.map(value => value as ReturnType<typeof gameplayTagIdFromPath>),
-          match,
-        ),
+      (_targetId, ownedTags, requiredTags, match) => registry.query(ownedTags, requiredTags, match),
     );
 
     expect(
@@ -305,7 +300,7 @@ describe('EventContextConditionExecutor', () => {
         {
           kind: 'eventBuffTagsMatch',
           match: 'hasAny',
-          buffTagIds: [gameplayTagIdFromPath(parentPath)],
+          buffTags: [parentPath],
         },
         {
           blackboard: new ActionBlackboard(),
@@ -314,7 +309,7 @@ describe('EventContextConditionExecutor', () => {
             targetId: 'enemy',
             sourceId: 'operator',
             buffId: 'buff_physical_do_fracture',
-            buffTagIds: [gameplayTagIdFromPath(childPath)],
+            buffTags: [childPath],
           },
         },
       ),
@@ -422,13 +417,17 @@ describe('EventContextConditionExecutor', () => {
         requestedHealing: 216,
         actualHealing: 0,
         overhealing: 216,
-        tagIds: [-320297214],
+        tags: ['Skill/Character/Common/Heal/NormalSkillHeal'],
       },
     };
 
     expect(
       executor.evaluate(
-        { kind: 'eventHealTagsMatch', match: 'hasAny', tagIds: [-320297214, 1] },
+        {
+          kind: 'eventHealTagsMatch',
+          match: 'hasAny',
+          tags: ['Skill/Character/Common/Heal/NormalSkillHeal', 'Test/Tag1'],
+        },
         context,
       ),
     ).toBe(true);
@@ -463,7 +462,10 @@ describe('EventContextConditionExecutor', () => {
         {
           kind: 'eventBuffTagsMatch',
           match: 'hasAny',
-          buffTagIds: [1466867135, -421286163],
+          buffTags: [
+            'Skill/Character/Common/SpellStatus/Conduct',
+            'Skill/Character/Common/SpellStatus/Corrupt',
+          ],
           buffIdOutputKey: 'buffid',
         },
         {
@@ -474,7 +476,7 @@ describe('EventContextConditionExecutor', () => {
             targetId: 'enemy',
             buffId: 'buff:conduct',
             layers: 3,
-            buffTagIds: [1466867135],
+            buffTags: ['Skill/Character/Common/SpellStatus/Conduct'],
             blackboardValues: { count: 3 },
           },
         },
@@ -549,7 +551,7 @@ describe('EventContextConditionExecutor', () => {
         requestedHealing: 10,
         actualHealing: 10,
         overhealing: 0,
-        tagIds: [],
+        tags: [],
       },
     };
 

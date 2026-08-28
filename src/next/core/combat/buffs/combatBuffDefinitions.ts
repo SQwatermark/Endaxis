@@ -61,7 +61,7 @@ import type {
   ElementalInflictionStartedPayload,
 } from '../infliction/elementalInflictionBuffAdapter';
 import { createElementalAttachmentLifecycleActions } from '../infliction/elementalInflictionBuffAdapter';
-import { gameplayTagId } from '../tags/gameplayTags';
+import { assertGameplayTag } from '../tags/gameplayTags';
 import {
   ATTRIBUTE_MODIFIER_SOURCES,
   ATTRIBUTE_MODIFIER_SLOTS,
@@ -171,8 +171,8 @@ export class CompiledCombatBuffDefinitions<
       presentation: entry.presentation,
       childPresentations: entry.childPresentations,
       timeClock: entry.timeClock,
-      applyTags: entry.applyTagIds?.map(gameplayTagId),
-      extendTags: entry.extendTagIds?.map(gameplayTagId),
+      applyTags: entry.applyTags,
+      extendTags: entry.extendTags,
       stackingType: entry.stackingType,
       stackingKey: entry.stackingKey,
       priority: entry.priority,
@@ -292,8 +292,8 @@ export function parseCombatBuffDefinitionEntry(
     'presentation',
     'childPresentations',
     'timeClock',
-    'applyTagIds',
-    'extendTagIds',
+    'applyTags',
+    'extendTags',
     'stackingType',
     'stackingKey',
     'priority',
@@ -328,8 +328,8 @@ export function parseCombatBuffDefinitionEntry(
             `${path}.timeClock`,
           ),
         }),
-    ...parseOptionalGameplayTagIds(entry, 'applyTagIds', path),
-    ...parseOptionalGameplayTagIds(entry, 'extendTagIds', path),
+    ...parseOptionalGameplayTags(entry, 'applyTags', path),
+    ...parseOptionalGameplayTags(entry, 'extendTags', path),
     stackingType,
     ...parseOptionalString(entry, 'stackingKey', path),
     ...parseOptionalPriority(entry, path),
@@ -691,14 +691,12 @@ function parseHealModifierCondition(
 ): NonNullable<HealModifierDefinition['condition']> {
   const condition = requireObject(input, path);
   if (condition.kind === 'healTagsMatch') {
-    requireOnlyKeys(condition, path, ['kind', 'match', 'tagIds']);
-    if (!Array.isArray(condition.tagIds)) throw new Error(`${path}.tagIds: expected array`);
+    requireOnlyKeys(condition, path, ['kind', 'match', 'tags']);
+    if (!Array.isArray(condition.tags)) throw new Error(`${path}.tags: expected array`);
     return {
       kind: 'healTagsMatch',
       match: requireEnum(condition.match, ['hasAny', 'hasAll'] as const, `${path}.match`),
-      tagIds: condition.tagIds.map((tagId, index) =>
-        requireInteger(tagId, `${path}.tagIds[${index}]`),
-      ),
+      tags: condition.tags.map((tagId, index) => parseGameplayTag(tagId, `${path}.tags[${index}]`)),
     };
   }
   if (condition.kind === 'targetHealthCompare') {
@@ -816,9 +814,9 @@ function parseDamageModifierCondition(input: unknown, path: string): DamageModif
   const condition = requireObject(input, path);
   switch (condition.kind) {
     case 'entityTagMatch': {
-      requireOnlyKeys(condition, path, ['kind', 'target', 'tagQueryType', 'tagIds']);
-      if (!Array.isArray(condition.tagIds) || condition.tagIds.length === 0) {
-        throw new Error(`${path}.tagIds: expected non-empty array`);
+      requireOnlyKeys(condition, path, ['kind', 'target', 'tagQueryType', 'tags']);
+      if (!Array.isArray(condition.tags) || condition.tags.length === 0) {
+        throw new Error(`${path}.tags: expected non-empty array`);
       }
       return {
         kind: 'entityTagMatch',
@@ -828,11 +826,12 @@ function parseDamageModifierCondition(input: unknown, path: string): DamageModif
           ['hasAny', 'hasAll', 'exceptAny', 'exceptAll'] as const,
           `${path}.tagQueryType`,
         ),
-        tagIds: condition.tagIds.map((value, index) => {
+        tags: condition.tags.map((value, index) => {
           try {
-            return gameplayTagId(value as number);
+            assertGameplayTag(value);
+            return value;
           } catch {
-            throw new Error(`${path}.tagIds[${index}]: expected signed 32-bit integer`);
+            throw new Error(`${path}.tags[${index}]: expected readable GameplayTag path`);
           }
         }),
       };
@@ -1033,12 +1032,6 @@ function requireFiniteNumber(input: unknown, path: string): number {
   return input;
 }
 
-function requireInteger(input: unknown, path: string): number {
-  const value = requireFiniteNumber(input, path);
-  if (!Number.isInteger(value)) throw new Error(`${path}: expected integer`);
-  return value;
-}
-
 function parseOptionalAttributeModifiers(
   entry: Readonly<Record<string, unknown>>,
   path: string,
@@ -1084,9 +1077,9 @@ function parseOptionalAttributeModifiers(
   };
 }
 
-function parseOptionalGameplayTagIds(
+function parseOptionalGameplayTags(
   entry: Readonly<Record<string, unknown>>,
-  key: 'applyTagIds' | 'extendTagIds',
+  key: 'applyTags' | 'extendTags',
   path: string,
 ): Partial<Pick<CombatBuffDefinitionEntry, typeof key>> {
   if (entry[key] === undefined) return {};
@@ -1096,9 +1089,10 @@ function parseOptionalGameplayTagIds(
   return {
     [key]: entry[key].map((value, index) => {
       try {
-        return gameplayTagId(value as number);
+        assertGameplayTag(value);
+        return value;
       } catch {
-        throw new Error(`${path}.${key}[${index}]: expected signed 32-bit integer`);
+        throw new Error(`${path}.${key}[${index}]: expected readable GameplayTag path`);
       }
     }),
   } as Partial<Pick<CombatBuffDefinitionEntry, typeof key>>;
@@ -1750,4 +1744,12 @@ function requireRole<Key, Attribute extends string>(
   const definition = entries.get(key);
   if (definition === undefined) throw new Error(`buff definition is missing ${label}`);
   return definition;
+}
+function parseGameplayTag(value: unknown, path: string): string {
+  try {
+    assertGameplayTag(value);
+    return value;
+  } catch {
+    throw new Error(path + ': expected readable GameplayTag path');
+  }
 }

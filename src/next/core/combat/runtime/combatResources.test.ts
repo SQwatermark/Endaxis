@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { CombatResources } from './combatResources';
 import { SharedSpGainModifier } from '../resources/sharedSpGainModifiers';
-import { gameplayTagId } from '../tags/gameplayTags';
 
 function createResources() {
   return new CombatResources({
@@ -18,14 +17,14 @@ function createResources() {
         ultimateEnergy: 0,
         maxUltimateEnergy: 100,
         ultimateEnergyGainMultiplier: 1.5,
-        allowedUltimateEnergyRecoveryTagIds: null,
+        allowedUltimateEnergyRecoveryTags: null,
       },
       {
         operatorId: 'other',
         ultimateEnergy: 0,
         maxUltimateEnergy: 100,
         ultimateEnergyGainMultiplier: 0.5,
-        allowedUltimateEnergyRecoveryTagIds: null,
+        allowedUltimateEnergyRecoveryTags: null,
       },
     ],
   });
@@ -60,7 +59,7 @@ describe('CombatResources', () => {
   });
 
   it('returns a complete snapshot deeply isolated from runtime state', () => {
-    const allowedTag = gameplayTagId(264623624);
+    const allowedTag = 'Skill/Character/chr_0026_lastrite';
     const initial = {
       sp: 100,
       maxSp: 300,
@@ -75,7 +74,7 @@ describe('CombatResources', () => {
           ultimateEnergy: 20,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 1.5,
-          allowedUltimateEnergyRecoveryTagIds: new Set([allowedTag]),
+          allowedUltimateEnergyRecoveryTags: new Set([allowedTag]),
         },
       ],
     };
@@ -83,9 +82,9 @@ describe('CombatResources', () => {
 
     initial.sharedSpGain.baseGainEfficiency = 2;
     initial.normalSkillUltimateEnergy.selfGainPerSp = 2;
-    initial.squad[0]!.allowedUltimateEnergyRecoveryTagIds.clear();
+    initial.squad[0]!.allowedUltimateEnergyRecoveryTags.clear();
     resources.pay('source', [{ resource: 'sp', value: 40 }]);
-    resources.changeUltimateEnergy('source', 10, { recoveryTagId: allowedTag });
+    resources.changeUltimateEnergy('source', 10, { recoveryTag: allowedTag });
 
     const snapshot = resources.snapshot();
     expect(snapshot).toEqual({
@@ -102,7 +101,7 @@ describe('CombatResources', () => {
           ultimateEnergy: 35,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 1.5,
-          allowedUltimateEnergyRecoveryTagIds: new Set([allowedTag]),
+          allowedUltimateEnergyRecoveryTags: new Set([allowedTag]),
         },
       ],
     });
@@ -110,7 +109,7 @@ describe('CombatResources', () => {
     (snapshot.sharedSpGain as { baseGainEfficiency: number }).baseGainEfficiency = 3;
     (snapshot.spRecovery as { pauseRemaining: number }).pauseRemaining = 9;
     (snapshot.normalSkillUltimateEnergy as { selfGainPerSp: number }).selfGainPerSp = 3;
-    (snapshot.squad[0]!.allowedUltimateEnergyRecoveryTagIds as Set<typeof allowedTag>).clear();
+    (snapshot.squad[0]!.allowedUltimateEnergyRecoveryTags as Set<typeof allowedTag>).clear();
 
     expect(resources.snapshot()).toEqual({
       ...snapshot,
@@ -120,7 +119,7 @@ describe('CombatResources', () => {
       squad: [
         {
           ...snapshot.squad[0],
-          allowedUltimateEnergyRecoveryTagIds: new Set([allowedTag]),
+          allowedUltimateEnergyRecoveryTags: new Set([allowedTag]),
         },
       ],
     });
@@ -296,14 +295,14 @@ describe('CombatResources', () => {
           ultimateEnergy: 99,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 1,
-          allowedUltimateEnergyRecoveryTagIds: null,
+          allowedUltimateEnergyRecoveryTags: null,
         },
         {
           operatorId: 'blocked',
           ultimateEnergy: 20,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 1,
-          allowedUltimateEnergyRecoveryTagIds: new Set(),
+          allowedUltimateEnergyRecoveryTags: new Set(),
         },
       ],
     });
@@ -315,7 +314,7 @@ describe('CombatResources', () => {
   });
 
   it('applies the native ultimate-energy scaling order and first-tag permission', () => {
-    const allowedTag = gameplayTagId(264623624);
+    const allowedTag = 'Skill/Character/chr_0026_lastrite';
     const resources = new CombatResources({
       sp: 0,
       maxSp: 300,
@@ -330,7 +329,7 @@ describe('CombatResources', () => {
           ultimateEnergy: 0,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 1.5,
-          allowedUltimateEnergyRecoveryTagIds: new Set([allowedTag]),
+          allowedUltimateEnergyRecoveryTags: new Set([allowedTag]),
         },
       ],
     });
@@ -345,7 +344,7 @@ describe('CombatResources', () => {
     const allowed = resources.changeUltimateEnergy('source', 0.1, {
       coefficient: 2,
       isPercentValue: true,
-      recoveryTagId: allowedTag,
+      recoveryTag: allowedTag,
     });
     expect(allowed.applied).toBe(true);
     expect(allowed.requestedValue).toBeCloseTo(30);
@@ -353,7 +352,7 @@ describe('CombatResources', () => {
 
     const ignoredMultiplier = resources.changeUltimateEnergy('source', 10, {
       ignoreGainMultiplier: true,
-      recoveryTagId: allowedTag,
+      recoveryTag: allowedTag,
     });
     expect(ignoredMultiplier.requestedValue).toBe(10);
     expect(ignoredMultiplier.currentValue).toBeCloseTo(40);
@@ -374,7 +373,7 @@ describe('CombatResources', () => {
           ultimateEnergy: 80,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 1,
-          allowedUltimateEnergyRecoveryTagIds: null,
+          allowedUltimateEnergyRecoveryTags: null,
         },
       ],
     });
@@ -399,8 +398,8 @@ describe('CombatResources', () => {
   });
 
   it('unions active ultimate-energy recovery restrictions and restores the base policy', () => {
-    const firstTag = gameplayTagId(11);
-    const secondTag = gameplayTagId(12);
+    const firstTag = 'Test/Tag11';
+    const secondTag = 'Test/Tag12';
     const resources = new CombatResources({
       sp: 0,
       maxSp: 300,
@@ -415,7 +414,7 @@ describe('CombatResources', () => {
           ultimateEnergy: 20,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 1,
-          allowedUltimateEnergyRecoveryTagIds: null,
+          allowedUltimateEnergyRecoveryTags: null,
         },
       ],
     });
@@ -426,11 +425,11 @@ describe('CombatResources', () => {
     );
 
     expect(resources.changeUltimateEnergy('source', 5).applied).toBe(false);
-    expect(resources.changeUltimateEnergy('source', 5, { recoveryTagId: secondTag }).applied).toBe(
+    expect(resources.changeUltimateEnergy('source', 5, { recoveryTag: secondTag }).applied).toBe(
       true,
     );
     resources.revertUltimateEnergyRecoveryRestriction(first, false);
-    expect(resources.changeUltimateEnergy('source', 5, { recoveryTagId: firstTag }).applied).toBe(
+    expect(resources.changeUltimateEnergy('source', 5, { recoveryTag: firstTag }).applied).toBe(
       false,
     );
     resources.revertUltimateEnergyRecoveryRestriction(second, true);

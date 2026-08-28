@@ -62,8 +62,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "duration": 0,
             "phy_spell_up": 0,
@@ -269,9 +269,9 @@ const definition = {
                   "condition": {
                     "kind": "eventBuffTagsMatch",
                     "match": "hasAny",
-                    "buffTagIds": [
-                      -1110095722,
-                      1466867135
+                    "buffTags": [
+                      "Skill/Character/Common/SpellStatus/Burning",
+                      "Skill/Character/Common/SpellStatus/Conduct"
                     ]
                   }
                 },

@@ -25,6 +25,44 @@ function damageSource(index = 0) {
 }
 
 describe('公共回调伤害投影', () => {
+  it.each([
+    ['Atk', 'Atk'],
+    ['CriticalRate', 'criticalRate'],
+    ['CriticalDamageIncrease', 'criticalDamageIncrease'],
+  ] as const)('即时属性 %s 使用与 Buff 相同的运行时身份', (attributeType, attribute) => {
+    const source = damageSource();
+    const compiled = compileEventTargetSimpleDamageOperationSource(
+      {
+        ...source,
+        units: [
+          {
+            ...source.units[0]!,
+            processors: [
+              {
+                kind: 'instantAttributeModifier',
+                targetSide: 'Attacker',
+                modifyAttributeType: 'Specific',
+                attributeType,
+                formulaItem: 'BaseMultiplier',
+                parameter: { value: 0, blackboardKey: 'bonus', levelValues: null },
+              },
+            ],
+          },
+        ],
+      },
+      'damage',
+    );
+    expect(compiled.parameters.instantAttributeModifiers).toEqual([
+      {
+        targetSide: 'attacker',
+        attribute,
+        slot: 'baseMultiplier',
+        value: { kind: 'blackboard', key: 'bonus' },
+        attributeTiming: 'runtime',
+      },
+    ]);
+  });
+
   it.each(['Target', 'Context'])(
     '%s 不执行残留选择器，但 Context 必须绑定已证明的敌人组',
     targetSource => {
@@ -656,7 +694,11 @@ describe('公共回调伤害投影', () => {
           kind: 'all',
           conditions: [
             { kind: 'actionValueCompare' },
-            { kind: 'buffStackCompare', target: 'enemy', buffTagIds: [-1640994543] },
+            {
+              kind: 'buffStackCompare',
+              target: 'enemy',
+              buffTags: ['Skill/Character/Common/Affixes/Vulnerable/VulnerablePulse'],
+            },
           ],
         },
       },

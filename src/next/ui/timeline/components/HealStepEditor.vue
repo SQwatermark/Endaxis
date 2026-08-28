@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { GameplayTag } from '../../../../../packages/game-data-contract/src/gameplayTags';
+
 /** 编辑普通治疗公式；目标选择仍由场景中的控制时间线与干员生命账本解析。 */
 import { useI18n } from 'vue-i18n';
 import {
@@ -15,7 +17,7 @@ import {
 } from '../skillDefinitionEditorViewModel';
 import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
 import EditorFieldLabel from './EditorFieldLabel.vue';
-import GameplayTagIdsEditor from './GameplayTagIdsEditor.vue';
+import GameplayTagsEditor from './GameplayTagsEditor.vue';
 
 type HealStep = Extract<CombatStepDefinition, { kind: 'heal' }>;
 type FormulaField = 'multiplier' | 'addition';
@@ -139,8 +141,8 @@ function amountValue(): number | undefined {
   return resolveLevelValueForEditor(props.step.parameters.amount, props.skillLevel);
 }
 
-function setTagIds(tagIds: readonly number[]): void {
-  update({ ...props.step.parameters, tagIds });
+function setTags(tags: readonly GameplayTag[]): void {
+  update({ ...props.step.parameters, tags });
 }
 
 const operandLabels = () => ({
@@ -248,10 +250,10 @@ const operandLabels = () => ({
 
     <label class="step-editor__operand">
       <EditorFieldLabel
-        :label="t('nextTimeline.skillEditing.healTagIds')"
-        :help="t('nextTimeline.skillEditing.fieldHelp.healTagIds')"
+        :label="t('nextTimeline.skillEditing.healTags')"
+        :help="t('nextTimeline.skillEditing.fieldHelp.healTags')"
       />
-      <GameplayTagIdsEditor :ids="step.parameters.tagIds" :minimum="0" @update="setTagIds" />
+      <GameplayTagsEditor :tags="step.parameters.tags" :minimum="0" @update="setTags" />
     </label>
   </div>
 </template>

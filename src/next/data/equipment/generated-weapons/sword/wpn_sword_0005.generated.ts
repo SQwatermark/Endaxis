@@ -64,8 +64,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "atk_up2": 0,
             "duration": 0,

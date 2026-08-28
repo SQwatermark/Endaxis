@@ -196,7 +196,7 @@ describe('ElementalInflictionBuffAdapter', () => {
       ...index,
       getAttachment: element => ({
         ...attachment(element),
-        applyTags: [1535684437 as never],
+        applyTags: ['Skill/Character/Common/SpellStatus/Frozen' as never],
       }),
     };
     const adapter = new ElementalInflictionBuffAdapter(
@@ -213,7 +213,7 @@ describe('ElementalInflictionBuffAdapter', () => {
       targetId: 'enemy',
       buffId: 'attachment.cryo',
       sourceId: 'operator',
-      buffTagIds: [1535684437],
+      buffTags: ['Skill/Character/Common/SpellStatus/Frozen'],
       skillCastInfo: null,
     });
   });

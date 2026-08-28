@@ -1,3 +1,4 @@
+import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { describe, expect, it } from 'vitest';
 import carriers from './fixtures/avywenna-vulnerable-buffs.json';
 import children from './fixtures/avywenna-vulnerable-children.json';
@@ -11,7 +12,17 @@ const input = { ...carriers, ...children };
 
 describe('有证据的关键词默认 child 依赖闭包', () => {
   it('自动发现原始四 Buff，输出保留动态键，VFX 单独归类省略', () => {
-    const closure = compileStandardStumpBuffClosure([root], input);
+    const closure = compileStandardStumpBuffClosure(
+      [root],
+      input,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      fixtureGameplayTagRegistry,
+    );
     expect([...closure.sources.keys()].sort()).toEqual(Object.keys(input).sort());
     expect(Object.keys(closure.definitions).sort()).toEqual([root, carrier, child].sort());
     expect(closure.diagnostics.every(item => item.status === 'scenario-omitted')).toBe(true);

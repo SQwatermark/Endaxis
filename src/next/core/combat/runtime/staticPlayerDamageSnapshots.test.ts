@@ -115,6 +115,63 @@ const electricDamage: Extract<ResolvedCombatStep, { kind: 'dealDamage' }> = {
 };
 
 describe('resolveStaticPlayerDamageSnapshots', () => {
+  it('庇护属性保留原始无界槽，只有敌方快照影响对敌伤害', () => {
+    const attacker = createOperatorAttackAttributes(panel);
+    const defender = new CombatAttributeSet<string>();
+    initializeEnemyCombatAttributes(defender, {
+      ...enemy.defenderAttributes,
+      shelterDamageMultiplier: 0.1,
+    });
+    const modifier = new CombatAttributeModifier(
+      'shelterDamageMultiplier',
+      attributeModifierValues('baseAddition', 0.2),
+      ATTRIBUTE_MODIFIER_SOURCES.buff,
+      'runtime',
+    );
+    attacker.addModifier(modifier);
+    expect(
+      resolveStaticPlayerDamageSnapshots(createContext(), electricDamage, attacker, defender)
+        .defender.shelterDamageMultiplier,
+    ).toBe(0.1);
+    defender.addModifier(modifier);
+    expect(
+      resolveStaticPlayerDamageSnapshots(createContext(), electricDamage, attacker, defender)
+        .defender.shelterDamageMultiplier,
+    ).toBeCloseTo(0.3);
+    defender.removeModifier(modifier);
+    expect(defender.get('shelterDamageMultiplier')).toBe(0.1);
+  });
+  it('完整暴击面板经共同属性槽求值，技能局部修正不污染其他快照', () => {
+    const attributes = createOperatorAttackAttributes(panel);
+    attributes.addModifier(
+      new CombatAttributeModifier(
+        'criticalRate',
+        attributeModifierValues('finalMultiplier', 0.5),
+        ATTRIBUTE_MODIFIER_SOURCES.buff,
+        'runtime',
+      ),
+    );
+    attributes.addModifier(
+      new CombatAttributeModifier(
+        'criticalDamageIncrease',
+        attributeModifierValues('finalMultiplier', 2),
+        ATTRIBUTE_MODIFIER_SOURCES.buff,
+        'runtime',
+      ),
+    );
+    const base = createContext();
+    const boosted = { ...base, program: { ...base.program, statModifiers: { criticalRate: 0.3 } } };
+    expect(
+      resolveStaticPlayerDamageSnapshots(boosted, electricDamage, attributes).attacker,
+    ).toMatchObject({ criticalRate: (0.15 + 0.3) * 0.5, criticalDamageIncrease: 1.2 });
+    expect(
+      resolveStaticPlayerDamageSnapshots(base, electricDamage, attributes).attacker.criticalRate,
+    ).toBeCloseTo(0.075);
+    expect(attributes.get('criticalRate')).toBeCloseTo(0.075);
+    expect(attributes.modifierCount).toBe(2);
+    expect(panel.criticalRate).toBe(0.15);
+  });
+
   it('配装快照不读取触发技能修正，但保留面板的无条件类型增伤', () => {
     const skillContext = createContext();
     const { program: _program, equipmentContributions: _contributions, ...battle } = skillContext;

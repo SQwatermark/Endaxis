@@ -54,6 +54,49 @@ function requireSingleSkill(skillGroupKey: string): SkillDefinition {
 }
 
 describe('compileScenarioTimeline', () => {
+  it('Switch 的全部候选伤害绑定放置实例 hitId，而不是遗漏未选分支', () => {
+    const scenario = place(createScenario(), 'battleSkill', 0);
+    const cast = scenario.tracks[0]!.skillCasts[0]!;
+    cast.customDefinition = {
+      key: 'battleSkill',
+      timelineBlockFrames: 1,
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'switch',
+                parameters: { choice: { kind: 'constant', value: 0 }, alwaysNext: true },
+                options: [0, 1].map(value => ({
+                  value: { kind: 'constant', value },
+                  sequence: {
+                    steps: [
+                      {
+                        kind: 'dealDamage',
+                        key: `case${value}`,
+                        parameters: { damageType: 'physical', attackScale: 1, tags: [] },
+                      },
+                    ],
+                  },
+                })),
+              },
+            ],
+          },
+        },
+      ],
+    };
+    const program = compileScenarioTimeline(scenario, index()).operators[0]!.skills.find(
+      skill => skill.castId === cast.id,
+    )!;
+    const step = program.timelineActions[0]!.sequence.steps[0]!;
+    if (step.kind !== 'switch') throw new Error('expected switch');
+    expect(step.options.map(option => option.sequence.steps[0]!.hitId)).toEqual([
+      deriveHitId(cast.id, 'case0'),
+      deriveHitId(cast.id, 'case1'),
+    ]);
+  });
+
   it('copies cast-specific simulation inputs into the placed combat program', () => {
     const scenario = place(createScenario(), 'battleSkill', 0);
     scenario.tracks[0]!.skillCasts[0]!.simulationInputs = {

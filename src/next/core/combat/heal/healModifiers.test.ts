@@ -28,7 +28,11 @@ describe('heal modifiers', () => {
         healModifiers: [
           {
             enabledSide: 'healer',
-            condition: { kind: 'healTagsMatch', match: 'hasAny', tagIds: [-1517158118] },
+            condition: {
+              kind: 'healTagsMatch',
+              match: 'hasAny',
+              tags: ['Skill/Character/Common/Heal/ComboSkillHeal'],
+            },
             processors: [
               {
                 kind: 'modifyHealingIncrease',
@@ -47,7 +51,7 @@ describe('heal modifiers', () => {
       'ally',
       vitals(500),
       100,
-      [-1517158118],
+      ['Skill/Character/Common/Heal/ComboSkillHeal'],
       0.1,
       0.05,
     );

@@ -16,6 +16,10 @@ function attributes(
 }
 
 describe('injectDamageScaleAttributes', () => {
+  it('Shatter 单独携带或与晶异常标签并存，都只注入一次晶异常增伤', () => {
+    expect(classifyDamageTags([], ['shatter'])).toEqual(['cryoAbnormal']);
+    expect(classifyDamageTags(['cryoAbnormal'], ['shatter'])).toEqual(['cryoAbnormal']);
+  });
   it('classifies native burst and abnormal damage tags', () => {
     expect(
       classifyDamageTags(['fireBurst', 'electricBurst', 'cryoAbnormal', 'natureAbnormal']),

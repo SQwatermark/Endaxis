@@ -1,3 +1,4 @@
+import type { GameplayTag, GameplayTagQueryType } from './gameplayTags.ts';
 import {
   type CombatTarget,
   type ComparisonOperator,
@@ -82,8 +83,8 @@ export type DamageModifierExternalCondition =
   | {
       readonly kind: 'entityTagMatch';
       readonly target: CombatTarget;
-      readonly tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
-      readonly tagIds: readonly number[];
+      readonly tagQueryType: GameplayTagQueryType;
+      readonly tags: readonly GameplayTag[];
     }
   | { readonly kind: 'casterControlled' }
   | {
@@ -189,7 +190,7 @@ export type HealModifierCondition =
   | {
       readonly kind: 'healTagsMatch';
       readonly match: 'hasAny' | 'hasAll';
-      readonly tagIds: readonly number[];
+      readonly tags: readonly GameplayTag[];
     };
 
 export interface ModifyHealCalculationResultProcessorDefinition {

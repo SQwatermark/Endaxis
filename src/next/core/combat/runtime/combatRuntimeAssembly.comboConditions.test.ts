@@ -103,7 +103,7 @@ function setup() {
           ultimateEnergy: 0,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 1,
-          allowedUltimateEnergyRecoveryTagIds: null,
+          allowedUltimateEnergyRecoveryTags: null,
         },
       ],
     },
@@ -545,7 +545,7 @@ describe('assembly 原生常驻连携条件', () => {
     });
     assembly.timeDilation!.startGlobal({
       durationSeconds: 10,
-      slot: 1,
+      slot: 'Test/TimeSlot1',
       priority: 1,
       constantScale: 0.5,
       influenceSkillCooldownSeconds: 10,

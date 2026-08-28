@@ -1,4 +1,4 @@
-/** 从已编译动作树收集静态 applyBuff 依赖；动态 ID 必须在更早的来源编译边界解决。 */
+/** 从已编译动作树收集显式与隐式 Buff 依赖；动态 ID 在来源编译边界解决。 */
 export function collectCompiledBuffIds(value: unknown): ReadonlySet<string> {
   return new Set(collectCompiledBuffApplications(value).map(item => item.buffId));
 }
@@ -19,6 +19,15 @@ export function collectCompiledBuffApplications(
     }
     if (item === null || typeof item !== 'object') return;
     const record = item as Record<string, unknown>;
+    if (record.kind === 'applyKnockDown') {
+      const parameters = record.parameters as Record<string, unknown>;
+      if (parameters.targetFilter !== 'skipAll') {
+        // 原生根动作的隐式安装仍是依赖，不能在从来源图转到正式程序时丢失。
+        applications.push({ buffId: 'buff_physical_knockdown', target: 'enemy' });
+        if (!parameters.force)
+          applications.push({ buffId: 'buff_physical_no_guard', target: 'enemy' });
+      }
+    }
     if (record.kind === 'applyBuff') {
       const parameters = record.parameters;
       if (parameters === null || typeof parameters !== 'object')

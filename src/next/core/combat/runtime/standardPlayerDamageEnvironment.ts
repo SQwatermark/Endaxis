@@ -73,12 +73,18 @@ import {
   initializeEnemyCombatAttributes,
   resolveStaticPlayerDamageSnapshots,
 } from './staticPlayerDamageSnapshots';
-import { gameplayTagId, type GameplayTagRegistry } from '../tags/gameplayTags';
+import type { GameplayTagRegistry } from '../tags/gameplayTags';
 import { HealOperationExecutor, type ResolvedHealTarget } from './healOperationExecutor';
 import { compareCombatNumbers } from './numericComparison';
 import type { RegisterBuffAbilityEventAction } from './buffLifecycleSequenceRuntime';
 import type { CombatResources } from './combatResources';
 import type { HealModifierSide } from '../heal/healModifiers';
+import type { GameplayTagPredefine } from '../tags/gameplayTagPredefine';
+import { OrdinaryKnockDownRuntime } from './ordinaryKnockDownRuntime';
+import {
+  KnockDownOperationExecutor,
+  type KnockDownAbilityEvent,
+} from './knockDownOperationExecutor';
 
 type DamageStep = Extract<ResolvedCombatStep, { kind: 'dealDamage' | 'dealFixedDamage' }>;
 type EnvironmentOptions = Pick<
@@ -105,6 +111,7 @@ type EnvironmentOptions = Pick<
 >;
 
 export type StandardPlayerDamageEvent =
+  | KnockDownAbilityEvent
   | 'enterFight'
   | 'ownerHpZero'
   | 'beforeDamageAction'
@@ -168,6 +175,14 @@ export interface StandardPlayerDamageEnvironmentOptions {
   readonly tagRegistry?: GameplayTagRegistry;
   /** 当前帧主控身份由场景控制时间线提供；仅在伤害修正使用该条件时需要。 */
   readonly isOperatorControlled?: (operatorId: string, frame: number) => boolean;
+  /**
+   * 普通倒地的显式装配端口。到期策略必须来自当前闭包的消费者审计；
+   * 不默认注入零秒起身，也不因存在本端口就放开标准场景预检。
+   */
+  readonly knockDown?: {
+    readonly predefine: GameplayTagPredefine;
+    readonly onDurationElapsed: (runtime: OrdinaryKnockDownRuntime) => void;
+  };
 }
 
 const strictTerminal: CombatOperationExecutor = {
@@ -188,6 +203,7 @@ export class StandardPlayerDamageEnvironment {
   readonly #enemyAttributes: CombatAttributeSet<string>;
   readonly #enemyBuffs: CombatBuffContainer<string>;
   readonly #enemyBuffRuntime: BuffDefinitionOperationTarget<string>;
+  readonly #enemyKnockDown: OrdinaryKnockDownRuntime | null;
   readonly #operatorBuffRuntimes = new Map<string, BuffDefinitionOperationTarget<string>>();
   readonly #inflictionAdapters = new Map<string, ElementalInflictionBuffAdapter<string>>();
   readonly #reactions = new ElementalReactionContainer();
@@ -232,6 +248,14 @@ export class StandardPlayerDamageEnvironment {
     );
     // 敌人生命账本由场景装配层创建并注入，环境只持有引用，不在首次绑定时另行构造。
     this.#enemyVitals = options.enemyVitals;
+    this.#enemyKnockDown =
+      options.knockDown === undefined
+        ? null
+        : new OrdinaryKnockDownRuntime(
+            this.#enemyBuffs,
+            options.knockDown.predefine,
+            options.knockDown.onDurationElapsed,
+          );
     // 对象字面量中的 getter 会把自己的 this 绑定为字面量本身，因此用箭头闭包引用环境实例。
     const vitalsRuntimeOf = (): FrameRuntime | null => this.#enemyVitalsRuntime;
     this.runtimeOptions = {
@@ -241,7 +265,10 @@ export class StandardPlayerDamageEnvironment {
       enemyBuffRuntime: this.#enemyBuffRuntime,
       bindBattleRuntime: context => {
         this.#bindBattleRuntime(context, true);
-        return { enemyVitalsRuntime: this.#enemyVitalsRuntime };
+        return {
+          enemyVitalsRuntime: this.#enemyVitalsRuntime,
+          enemyControlRuntime: this.#enemyKnockDown,
+        };
       },
       get enemyVitalsRuntime() {
         return vitalsRuntimeOf();
@@ -465,7 +492,66 @@ export class StandardPlayerDamageEnvironment {
       // 配装元素链仍需独立闭环，不能因 HP 伤害可用而自动开放。
       delegate: 'program' in context ? this.#createReactionExecutor(context) : strictTerminal,
     });
-    return this.#createHealExecutor(context, operatorId, damage);
+    const delegate = 'program' in context ? this.#createKnockDownExecutor(context, damage) : damage;
+    return this.#createHealExecutor(context, operatorId, delegate);
+  }
+
+  #createKnockDownExecutor(
+    context: CombatOperationExecutorContext,
+    delegate: CombatOperationExecutor,
+  ): CombatOperationExecutor {
+    const control = this.#enemyKnockDown;
+    if (control === null) return delegate;
+    const sourceId = context.program.operatorId;
+    const record = (event: string) =>
+      context.receipt.record({
+        frame: context.clock.frame,
+        time: context.clock.time,
+        event,
+        sourceId,
+        targetId: 'enemy',
+        data: { type: 'knockDown' },
+      });
+    return new KnockDownOperationExecutor({
+      sourceId,
+      target: this.#enemyBuffRuntime,
+      // 固定木桩不安装 markDie；HP 账本归零不等于原生死亡标记。
+      isTargetAlive: () => true,
+      predefine: control.predefine,
+      getControl: () => control,
+      readSourceDurationAddition: () =>
+        this.#operatorBuffRuntime(sourceId).container.attributes.get('KnockDownTimeAddition'),
+      resolveBuffDefinition: id => context.buffDefinitions?.[id],
+      emit: (event, payload) => {
+        const output =
+          event === 'beforeOutputKnockDown' ||
+          event === 'afterOutputKnockDown' ||
+          event === 'beforeOutputPhysicalInfliction' ||
+          event === 'afterOutputPhysicalInfliction';
+        this.#emit(output ? sourceId : 'enemy', event, payload);
+        // 旧语义消费者仍在专属来源事件发生的时点同步运行，不能延迟到整个根动作返回。
+        if (event === 'afterOutputKnockDown') {
+          context.semanticEvents.emit({
+            kind: 'knockDownOutput',
+            sourceOperatorId: sourceId,
+            targetId: 'enemy',
+          });
+        } else if (event === 'afterOutputPhysicalInfliction') {
+          context.semanticEvents.emit({
+            kind: 'physicalInflictionApplied',
+            sourceOperatorId: sourceId,
+            targetId: 'enemy',
+            type: 'knockDown',
+            skillCastInfo: payload.skillCastInfo,
+          });
+        }
+      },
+      onNoGuard: () => record('PhysicalNoGuardApplied'),
+      // 木桩不安装敌人动作/动画控制回调，组件的 Buff、标签、计时和事件已经保留。
+      onControlApplied: () => {},
+      onPhysicalInflictionApplied: () => record('PhysicalInflictionApplied'),
+      delegate,
+    });
   }
 
   #createHealExecutor(
@@ -517,7 +603,7 @@ export class StandardPlayerDamageEnvironment {
           requestedHealing: event.requestedHealing,
           actualHealing: event.actualHealing,
           overhealing: event.overhealing,
-          tagIds: event.tagIds,
+          tags: event.tags,
         });
       },
       delegate,
@@ -551,10 +637,7 @@ export class StandardPlayerDamageEnvironment {
     switch (condition.kind) {
       case 'entityTagMatch': {
         const target = condition.target === 'caster' ? operatorBuffs : this.#enemyBuffs;
-        return target.matchesEntityTags(
-          condition.tagIds.map(gameplayTagId),
-          condition.tagQueryType,
-        );
+        return target.matchesEntityTags(condition.tags, condition.tagQueryType);
       }
       case 'casterControlled':
         if (this.options.isOperatorControlled === undefined || this.#clock === null) {
@@ -979,9 +1062,8 @@ export class StandardPlayerDamageEnvironment {
       sourceId: payload.sourceId,
       attack: resolveOperatorAttack(panel, operatorAttributes),
       enhance: operatorAttributes.get('PhysicalAndSpellInflictionEnhance'),
-      criticalRate: panel.criticalRate + operatorAttributes.get('criticalRate'),
-      criticalDamageIncrease:
-        panel.criticalDamage + operatorAttributes.get('criticalDamageIncrease'),
+      criticalRate: operatorAttributes.get('criticalRate'),
+      criticalDamageIncrease: operatorAttributes.get('criticalDamageIncrease'),
       criticalSample: this.options.criticalSamples.nextCriticalSample(),
       settings,
       defender: this.#requireEnemyIdentity().defenderAttributes,
@@ -1023,10 +1105,8 @@ export class StandardPlayerDamageEnvironment {
         finalAttackValue: attack * payload.attackScale,
         attacker: {
           attack,
-          criticalRate: payload.canCritical
-            ? panel.criticalRate + attributes.get('criticalRate')
-            : 0,
-          criticalDamageIncrease: panel.criticalDamage + attributes.get('criticalDamageIncrease'),
+          criticalRate: payload.canCritical ? attributes.get('criticalRate') : 0,
+          criticalDamageIncrease: attributes.get('criticalDamageIncrease'),
           weaknessDamageMultiplier: 1,
           igniteDamageMultiplier: 1,
           physicalInflictionDamageMultiplier: 1,

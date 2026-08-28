@@ -424,7 +424,7 @@ export const lastRiteBattleSkill: SkillDefinition = withSkillBlackboard(
             resource: 'ultimateEnergy',
             amount: { kind: 'blackboard', key: 'usp' },
             recipient: 'caster',
-            ultimateRecoveryTagId: 264623624,
+            ultimateRecoveryTag: "Skill/Character/chr_0026_lastrite",
           }),
         ),
       ),
@@ -454,7 +454,7 @@ export const lastRiteComboSkill: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.6 },
-            slot: 0,
+            slot: "unassigned",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -486,7 +486,7 @@ export const lastRiteComboSkill: SkillDefinition = withSkillBlackboard(
             resource: 'ultimateEnergy',
             amount: { kind: 'blackboard', key: 'usp_base' },
             recipient: 'caster',
-            ultimateRecoveryTagId: 264623624,
+            ultimateRecoveryTag: "Skill/Character/chr_0026_lastrite",
           }),
           branch(
             {
@@ -502,7 +502,7 @@ export const lastRiteComboSkill: SkillDefinition = withSkillBlackboard(
                 amount: { kind: 'blackboard', key: 'usp' },
                 coefficient: { kind: 'blackboard', key: 'infliction_num' },
                 recipient: 'caster',
-                ultimateRecoveryTagId: 264623624,
+                ultimateRecoveryTag: "Skill/Character/chr_0026_lastrite",
               }),
               step('modifyActionValue', {
                 key: 'recover_usp',
@@ -563,7 +563,7 @@ export const lastRiteComboSkill: SkillDefinition = withSkillBlackboard(
                     amount: { kind: 'blackboard', key: 'usp' },
                     coefficient: 4,
                     recipient: 'caster',
-                    ultimateRecoveryTagId: 264623624,
+                    ultimateRecoveryTag: "Skill/Character/chr_0026_lastrite",
                   }),
                 ),
                 sequence(
@@ -572,7 +572,7 @@ export const lastRiteComboSkill: SkillDefinition = withSkillBlackboard(
                     amount: { kind: 'blackboard', key: 'usp' },
                     coefficient: { kind: 'blackboard', key: 'infliction_num_total' },
                     recipient: 'caster',
-                    ultimateRecoveryTagId: 264623624,
+                    ultimateRecoveryTag: "Skill/Character/chr_0026_lastrite",
                   }),
                 ),
                 { alwaysNext: true },
@@ -615,7 +615,7 @@ export const lastRiteUltimate: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 1 },
-            slot: 1464849466,
+            slot: "TimeDilation/Layer/Entity/HitStop",
             priority: 10,
             curve: { kind: 'named', key: 'RESETto1' },
             finishByAction: false,
@@ -641,7 +641,7 @@ export const lastRiteUltimate: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 2 },
-            slot: 1464849466,
+            slot: "TimeDilation/Layer/Entity/HitStop",
             priority: 50,
             curve: { kind: 'named', key: 'RESETto1' },
             finishByAction: false,
@@ -675,7 +675,7 @@ export const lastRiteUltimate: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.1 },
-            slot: 0,
+            slot: "unassigned",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -973,7 +973,7 @@ export const lastRiteGeneratedOperator: OperatorDefinition = {
                               kind: 'entityTagMatch',
                               target: 'caster',
                               tagQueryType: 'hasAny',
-                              tagIds: [264623624],
+                              tags: ["Skill/Character/chr_0026_lastrite"],
                             },
                             sequence(
                               step('applyBuff', {

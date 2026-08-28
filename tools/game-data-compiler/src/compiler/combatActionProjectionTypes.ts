@@ -2,6 +2,7 @@ import type {
   CombatStepDefinition,
   CombatStepKind,
   CombatStepParameters,
+  ActionSwitchOptionDefinition,
 } from '../../../../packages/game-data-contract/src/actions.ts';
 import type {
   ActionValueOperand,
@@ -33,6 +34,7 @@ type MarkerTarget = 'caster' | 'eventTarget' | 'buffOwner' | 'buffSource' | 'cur
 export type CompiledBuffConditionSource =
   | Condition<
       | 'casterControlled'
+      | 'currentBuffStackCompare'
       | 'deckAttributeCompare'
       | 'eventInflictionElementIn'
       | 'contextTargetCountCompare'
@@ -163,8 +165,11 @@ type DamageParameters = Pick<
     | 'ultimateSkill'
     | 'comboSkill'
     | 'fireAbnormal'
+    | 'cryoAbnormal'
   )[];
-  readonly features?: readonly ('canBreakWeakness' | 'dot')[];
+  readonly features?: readonly (
+    'canBreakWeakness' | 'dot' | 'knockDown' | 'physicalInfliction' | 'shatter'
+  )[];
   readonly stagger?: CompiledActionValueOperandSource;
 };
 export type CompiledSimpleDamageOperationSource = Step<'dealDamage', DamageParameters>;
@@ -179,6 +184,8 @@ type HealParameters = Parameters<'heal'> & {
 };
 
 export type CompiledBuffStepSource =
+  | Step<'applyKnockDown'>
+  | Step<'igniteBuffs'>
   | Step<'triggerSpellBurst'>
   | Step<'startTimeDilation', GlobalTimeDilation | EntityTimeDilation>
   | Step<
@@ -221,6 +228,12 @@ export type CompiledBuffStepSource =
     >
   | (Step<'forEachContextTarget'> & { readonly body: CompiledBuffSequenceSource })
   | (Step<'repeatEachTick'> & { readonly body: CompiledBuffSequenceSource })
+  | (Step<'once'> & { readonly body: CompiledBuffSequenceSource })
+  | (Step<'switch'> & {
+      readonly options: readonly (Omit<ActionSwitchOptionDefinition, 'sequence'> & {
+        readonly sequence: CompiledBuffSequenceSource;
+      })[];
+    })
   | Step<
       'mergeContextTargets',
       Pick<Parameters<'mergeContextTargets'>, 'saveToContextKey'> & {

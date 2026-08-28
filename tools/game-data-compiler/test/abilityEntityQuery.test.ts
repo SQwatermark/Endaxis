@@ -9,7 +9,7 @@ import {
   parseTargetGroupWriteAction,
   parseTargetReferenceSource,
 } from '../src/index.ts';
-import { GameplayTagRegistry, gameplayTagIdFromPath } from '../../../src/shared/gameplayTags.ts';
+import { GameplayTagRegistry, gameplayTagIdFromPath } from '../src/source/nativeGameplayTags.ts';
 import {
   abilityEntityFixture,
   activeSkillWithOwnerSpawnedAbilityEntityQueryFixture,
@@ -113,9 +113,9 @@ describe('OwnerSpawned AbilityEntity 公共查询投影', () => {
       ownerSpawnedAbilityEntityFindTargetActionFixture(),
       'skill.find',
       {
-      startFrame: 10,
-      endFrame: 20,
-      actionPath: ['timelineActions[0]', 'actionData[0]'],
+        startFrame: 10,
+        endFrame: 20,
+        actionPath: ['timelineActions[0]', 'actionData[0]'],
       },
     );
     expect(write).not.toBeNull();
@@ -145,11 +145,7 @@ describe('OwnerSpawned AbilityEntity 公共查询投影', () => {
     });
 
     expect(
-      compileActiveSkillAbilityEntityQueriesSource(
-        compiled,
-        catalog,
-        new GameplayTagRegistry([]),
-      ),
+      compileActiveSkillAbilityEntityQueriesSource(compiled, catalog, new GameplayTagRegistry([])),
     ).toMatchObject([
       {
         targetGroupKey: 'entities',

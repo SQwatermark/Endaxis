@@ -46,7 +46,7 @@ describe('Perlica standard damage slice', () => {
           ultimateEnergy: 0,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 1,
-          allowedUltimateEnergyRecoveryTagIds: null,
+          allowedUltimateEnergyRecoveryTags: null,
         },
       ],
     });

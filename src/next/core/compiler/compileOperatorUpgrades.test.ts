@@ -265,7 +265,7 @@ describe('operator upgrade compilation', () => {
                                   condition: {
                                     kind: 'eventBuffTagsMatch',
                                     match: 'hasAny',
-                                    buffTagIds: [1535684437],
+                                    buffTags: ['Skill/Character/Common/SpellStatus/Frozen'],
                                   },
                                 },
                                 whenTrue: {

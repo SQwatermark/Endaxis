@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { GameplayTag } from '../../../../../packages/game-data-contract/src/gameplayTags';
+
 /**
  * Buff 查询、读取、结束与保留步骤的参数编辑器。
  *
@@ -13,7 +15,7 @@ import {
   type CombatTarget,
 } from '../../../core/game-data/operatorDefinition';
 import EditorFieldLabel from './EditorFieldLabel.vue';
-import GameplayTagIdsEditor from './GameplayTagIdsEditor.vue';
+import GameplayTagsEditor from './GameplayTagsEditor.vue';
 
 type BuffManagementStep = Extract<
   CombatStepDefinition,
@@ -99,7 +101,7 @@ function setQueryKind(event: Event): void {
   const query =
     kind === 'id'
       ? { kind: 'id' as const, buffIds: ['custom-buff'] }
-      : { kind: 'tag' as const, tagQueryType: 'hasAny' as const, buffTagIds: [0] };
+      : { kind: 'tag' as const, tagQueryType: 'hasAny' as const, buffTags: ['Custom/Tag'] };
   if (props.step.kind === 'readBuffBlackboard') {
     update({ ...props.step, parameters: { ...props.step.parameters, query } });
   } else if (props.step.kind === 'readBuffStackCount') {
@@ -126,7 +128,7 @@ function setReadBuffIds(event: Event): void {
   }
 }
 
-function setReadTagIds(buffTagIds: readonly number[]): void {
+function setReadTags(buffTags: readonly GameplayTag[]): void {
   if (!usesQuery.value) return;
   if (props.step.kind === 'readBuffBlackboard') {
     if (props.step.parameters.query.kind !== 'tag') return;
@@ -134,7 +136,7 @@ function setReadTagIds(buffTagIds: readonly number[]): void {
       ...props.step,
       parameters: {
         ...props.step.parameters,
-        query: { ...props.step.parameters.query, buffTagIds },
+        query: { ...props.step.parameters.query, buffTags },
       },
     });
   } else if (props.step.kind === 'readBuffStackCount') {
@@ -143,7 +145,7 @@ function setReadTagIds(buffTagIds: readonly number[]): void {
       ...props.step,
       parameters: {
         ...props.step.parameters,
-        query: { ...props.step.parameters.query, buffTagIds },
+        query: { ...props.step.parameters.query, buffTags },
       },
     });
   }
@@ -200,9 +202,9 @@ function setDirectBuffIds(event: Event): void {
   }
 }
 
-function setDirectTagIds(buffTagIds: readonly number[]): void {
+function setDirectTags(buffTags: readonly GameplayTag[]): void {
   if (props.step.kind !== 'finishBuffsByTag') return;
-  update({ ...props.step, parameters: { ...props.step.parameters, buffTagIds } });
+  update({ ...props.step, parameters: { ...props.step.parameters, buffTags } });
 }
 
 function setDirectQueryType(event: Event): void {
@@ -279,12 +281,12 @@ function setReason(event: Event): void {
         </label>
         <label>
           <EditorFieldLabel
-            :label="t('nextTimeline.skillEditing.buffTagIds')"
-            :help="t('nextTimeline.skillEditing.fieldHelp.buffTagIds')"
+            :label="t('nextTimeline.skillEditing.buffTags')"
+            :help="t('nextTimeline.skillEditing.fieldHelp.buffTags')"
           />
-          <GameplayTagIdsEditor
-            :ids="readQuery?.kind === 'tag' ? readQuery.buffTagIds : []"
-            @update="setReadTagIds"
+          <GameplayTagsEditor
+            :tags="readQuery?.kind === 'tag' ? readQuery.buffTags : []"
+            @update="setReadTags"
           />
         </label>
       </template>
@@ -322,10 +324,10 @@ function setReason(event: Event): void {
       </label>
       <label>
         <EditorFieldLabel
-          :label="t('nextTimeline.skillEditing.buffTagIds')"
-          :help="t('nextTimeline.skillEditing.fieldHelp.buffTagIds')"
+          :label="t('nextTimeline.skillEditing.buffTags')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.buffTags')"
         />
-        <GameplayTagIdsEditor :ids="step.parameters.buffTagIds" @update="setDirectTagIds" />
+        <GameplayTagsEditor :tags="step.parameters.buffTags" @update="setDirectTags" />
       </label>
     </template>
 

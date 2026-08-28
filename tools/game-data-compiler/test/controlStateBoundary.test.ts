@@ -1,0 +1,61 @@
+import { describe, expect, it } from 'vitest';
+import akekuri from '../../../src/next/data/operators/generated-definitions/akekuri/akekuri.operator.generated';
+import avywenna from '../../../src/next/data/operators/generated-definitions/avywenna/avywenna.operator.generated';
+import wulfgard from '../../../src/next/data/operators/generated-definitions/wulfgard/wulfgard.operator.generated';
+import xaihi from '../../../src/next/data/operators/generated-definitions/xaihi/xaihi.operator.generated';
+import yvonne from '../../../src/next/data/operators/generated-definitions/yvonne/yvonne.operator.generated';
+import { standardStumpBuffAbilityEventOmissionReason } from '../src/compiler/standardStumpScenarioPolicy.ts';
+
+function visit(value: unknown, inspect: (row: Record<string, unknown>) => void) {
+  if (Array.isArray(value)) return value.forEach(item => visit(item, inspect));
+  if (value === null || typeof value !== 'object') return;
+  const row = value as Record<string, unknown>;
+  inspect(row);
+  Object.values(row).forEach(child => visit(child, inspect));
+}
+
+describe('无敌人主动行为的控制状态边界', () => {
+  it.each([
+    'OnBeforeOutputKnockDown',
+    'OnAfterOutputKnockDown',
+    'OnBeforeTakeKnockDown',
+    'OnAfterTakeKnockDown',
+    'OnBeforeApplyPhysics',
+    'OnAfterApplyPhysics',
+  ])('%s 不因敌人没有动作被无条件删除', event => {
+    expect(standardStumpBuffAbilityEventOmissionReason(event)).toBeNull();
+  });
+
+  it('五份完整定义目前只有伊冯的干员自身查询可能读取起身祖先标签；新增消费者必须重新审计', () => {
+    const watched = 'Status/Immobilized/Getup';
+    const readers: { operator: string; target: unknown }[] = [];
+    for (const [operator, definition] of Object.entries({
+      akekuri,
+      avywenna,
+      wulfgard,
+      xaihi,
+      yvonne,
+    })) {
+      visit(definition, row => {
+        if (
+          row.kind === 'entityTagMatch' &&
+          Array.isArray(row.tags) &&
+          row.tags.some(
+            tag => typeof tag === 'string' && (tag === watched || watched.startsWith(tag + '/')),
+          )
+        )
+          readers.push({ operator, target: row.target });
+      });
+    }
+    expect(readers).toEqual([{ operator: 'yvonne', target: 'buffOwner' }]);
+    const applications: unknown[] = [];
+    visit(yvonne, row => {
+      if (row.kind !== 'applyBuff') return;
+      const parameters = row.parameters as Record<string, unknown>;
+      if (parameters.buffId === 'buff_chr_0017_yvonne_normal_skill_projectile')
+        applications.push(parameters.target);
+    });
+    expect(applications.length).toBeGreaterThan(0);
+    expect(new Set(applications)).toEqual(new Set(['caster']));
+  });
+});

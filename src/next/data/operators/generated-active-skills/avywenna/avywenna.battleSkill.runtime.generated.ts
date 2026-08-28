@@ -11,8 +11,8 @@ export const supplementalBuffDefinitions = {
     "priority": 0,
     "maxStackCount": 1,
     "durationSeconds": 2,
-    "applyTagIds": [],
-    "extendTagIds": [],
+    "applyTags": [],
+    "extendTags": [],
     "blackboard": {},
     "attributeModifiers": []
   }
@@ -215,7 +215,7 @@ export default {
                             "kind": "constant",
                             "value": 0.15
                           },
-                          "slot": 1464849466,
+                          "slot": "TimeDilation/Layer/Entity/HitStop",
                           "priority": 10,
                           "curve": {
                             "kind": "named",
@@ -471,8 +471,8 @@ export default {
                                                         "kind": "buffStackCompare",
                                                         "target": "enemy",
                                                         "tagQueryType": "hasAny",
-                                                        "buffTagIds": [
-                                                          -1640994543
+                                                        "buffTags": [
+                                                          "Skill/Character/Common/Affixes/Vulnerable/VulnerablePulse"
                                                         ],
                                                         "operator": "greaterOrEqual",
                                                         "value": {
@@ -591,7 +591,7 @@ export default {
                                                     "kind": "constant",
                                                     "value": 0.2
                                                   },
-                                                  "slot": 1464849466,
+                                                  "slot": "TimeDilation/Layer/Entity/HitStop",
                                                   "priority": 10,
                                                   "curve": {
                                                     "kind": "inline",
@@ -643,7 +643,7 @@ export default {
                                                     "kind": "constant",
                                                     "value": 0.2
                                                   },
-                                                  "slot": 1464849466,
+                                                  "slot": "TimeDilation/Layer/Entity/HitStop",
                                                   "priority": 10,
                                                   "curve": {
                                                     "kind": "inline",
@@ -921,8 +921,8 @@ export default {
                                                         "kind": "buffStackCompare",
                                                         "target": "enemy",
                                                         "tagQueryType": "hasAny",
-                                                        "buffTagIds": [
-                                                          -1640994543
+                                                        "buffTags": [
+                                                          "Skill/Character/Common/Affixes/Vulnerable/VulnerablePulse"
                                                         ],
                                                         "operator": "greaterOrEqual",
                                                         "value": {
@@ -975,7 +975,7 @@ export default {
                                                           "kind": "constant",
                                                           "value": 0.4
                                                         },
-                                                        "slot": 1464849466,
+                                                        "slot": "TimeDilation/Layer/Entity/HitStop",
                                                         "priority": 10,
                                                         "curve": {
                                                           "kind": "named",
@@ -1020,7 +1020,7 @@ export default {
                                                           "kind": "constant",
                                                           "value": 0.4
                                                         },
-                                                        "slot": 1464849466,
+                                                        "slot": "TimeDilation/Layer/Entity/HitStop",
                                                         "priority": 10,
                                                         "curve": {
                                                           "kind": "named",
@@ -1083,7 +1083,7 @@ export default {
                                                     "kind": "constant",
                                                     "value": 0.2
                                                   },
-                                                  "slot": 1464849466,
+                                                  "slot": "TimeDilation/Layer/Entity/HitStop",
                                                   "priority": 10,
                                                   "curve": {
                                                     "kind": "inline",
@@ -1135,7 +1135,7 @@ export default {
                                                     "kind": "constant",
                                                     "value": 0.2
                                                   },
-                                                  "slot": 1464849466,
+                                                  "slot": "TimeDilation/Layer/Entity/HitStop",
                                                   "priority": 10,
                                                   "curve": {
                                                     "kind": "inline",

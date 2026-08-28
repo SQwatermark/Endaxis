@@ -47,6 +47,42 @@ describe('LevelValues editor helpers', () => {
 });
 
 describe('技能顶层结构默认值', () => {
+  it('Switch 默认值可保存，重复伤害 key 与缺失候选序列能被校验器定位', () => {
+    const template = templateDefinition();
+    const step = createSkillEditorStep(template, 'switch');
+    const draft = {
+      ...template,
+      scheduledSequences: [{ startFrame: 0, sequence: { steps: [step] } }],
+    };
+    expect(validateSkillDefinition(draft)).toEqual([]);
+    if (step.kind !== 'switch') throw new Error('expected switch');
+    const damage = template.scheduledSequences[0]!.sequence.steps[0]!;
+    const duplicate = {
+      ...step,
+      options: [0, 1].map(value => ({
+        value: { kind: 'constant', value },
+        sequence: { steps: [damage] },
+      })),
+    };
+    expect(
+      validateSkillDefinition({
+        ...draft,
+        scheduledSequences: [{ startFrame: 0, sequence: { steps: [duplicate] } }],
+      }),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ message: expect.stringContaining('duplicate damage step key') }),
+      ]),
+    );
+    const invalid = { ...step, options: [{ value: { kind: 'constant', value: 0 } }] };
+    expect(
+      validateSkillDefinition({
+        ...draft,
+        scheduledSequences: [{ startFrame: 0, sequence: { steps: [invalid] } }],
+      }).map(issue => issue.path),
+    ).toContain('$.scheduledSequences[0].sequence.steps[0].options[0].sequence');
+  });
+
   it('复制脱离序列的嵌套步骤时会重建其中的伤害步骤键', () => {
     const draft = templateDefinition();
     const copied = duplicateSkillEditorDetachedStep(draft, {
@@ -499,7 +535,7 @@ describe('skillDefinitionEditorViewModel', () => {
       parameters: {
         scope: 'global',
         durationSeconds: { kind: 'constant', value: 1 },
-        slot: 0,
+        slot: 'unassigned',
         priority: 0,
         curve: { kind: 'named', key: 'RESETto1' },
         finishByAction: false,

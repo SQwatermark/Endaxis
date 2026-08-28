@@ -1,3 +1,4 @@
+import { projectGameplayTags } from './combatProjectionCommon.ts';
 import {
   compileEventTargetSimpleDamageOperationSource,
   compileEventTargetSimplePoiseOperationSource,
@@ -10,6 +11,8 @@ import type { TargetReferenceSource } from '../source/target.ts';
 import type { CompiledBuffStepSource } from './combatActionProjectionTypes.ts';
 import type { BlackboardAssignmentSource } from '../source/assignments.ts';
 import { projectElementalInflictionAction } from './elementalInflictionProjection.ts';
+import { projectKnockDownAction } from './knockDownProjection.ts';
+import { projectBuffIgniteAction } from './buffIgniteProjection.ts';
 import { projectKeywordBuffAction } from './keywordBuffProjection.ts';
 import {
   type ProjectedTargetGroup,
@@ -21,7 +24,7 @@ import {
   isPartyInstantSearch,
   actionValueOperand,
 } from './combatProjectionCommon.ts';
-import { gameplayTagIdFromPath } from '../../../../src/shared/gameplayTags.ts';
+import { gameplayTagIdFromPath } from '../source/nativeGameplayTags.ts';
 import type {
   BuffApplicationSource,
   BuffApplicationTarget,
@@ -60,6 +63,9 @@ export function compileActionNode(
   if (node.body.kind !== 'leaf') {
     throw new Error(`${node.sourcePath}: unsupported Buff runtime action`);
   }
+  if (node.body.value.family === 'physicalInfliction') {
+    return [projectKnockDownAction(node.body.value.action, node.sourcePath, context)];
+  }
   if (
     context.actionTargetTarget === 'currentAbilityEntity' &&
     !['buffApplication', 'blackboardMutation', 'blackboardCalculation'].includes(
@@ -71,6 +77,7 @@ export function compileActionNode(
     context.actionTargetTarget === 'enemy' &&
     ![
       'damage',
+      'heal',
       'buffApplication',
       'buffInheritance',
       'buffBlackboardRead',
@@ -97,6 +104,7 @@ export function compileActionNode(
       'eventListener',
       'environment',
       'elementalInfliction',
+      'buffIgnite',
       'forcedElementalStatus',
       'spellBurstEvent',
       'levelEvent',
@@ -128,9 +136,18 @@ export function compileActionNode(
     );
   }
   if (node.body.value.family === 'levelEvent') {
+    if (
+      node.body.value.action.kind === 'physicalNoGuardStartedEvent' &&
+      context.actionOwnerTarget !== 'buffOwner'
+    ) {
+      throw new Error(`${node.sourcePath}: OnPhysicalNoGuardStart requires a Buff environment`);
+    }
     // combat-spec：该动作只发布 GameLevelEvent/BattleRecorder 事实；Next 木桩没有其消费者，
     // 状态本身由承载 Buff 生命周期表示，故不重复建立另一套状态。
     return [];
+  }
+  if (node.body.value.family === 'buffIgnite') {
+    return [projectBuffIgniteAction(node.body.value.action, node.sourcePath, context)];
   }
   if (node.body.value.family === 'spellBurstEvent') {
     return [
@@ -173,7 +190,11 @@ export function compileActionNode(
         kind: 'restrictUltimateEnergyRecovery',
         parameters: {
           target: 'caster',
-          allowedRecoveryTagIds: action.allowedRecoveryTagIds,
+          allowedRecoveryTags: projectGameplayTags(
+            action.allowedRecoveryTagIds,
+            context,
+            node.sourcePath,
+          ),
           clearUltimateEnergyOnEnd: action.clearUltimateEnergyOnEnd,
         },
       },
@@ -208,6 +229,14 @@ export function compileActionNode(
     return [{ kind: 'refreshCurrentBuffAttributeModifiers', parameters: {} }];
   }
   if (node.body.value.family === 'eventListener') {
+    if (
+      context.actionOwnerTarget === 'caster' &&
+      node.body.value.action.events.every(event => event.abilityEvent === 'OnBeforeTakeDamage')
+    ) {
+      // EventListenerAction 在 ActionOwner 注册；木桩不攻击，干员不会收到伤害包。
+      // 只省略干员受伤前监听，不能删除敌人受伤或干员输出伤害的监听。
+      return [];
+    }
     if (node.body.value.action.events.every(event => event.abilityEvent === 'OnAfterKillEntity')) {
       // 固定木桩死亡后不再继续累计有效伤害；击杀后的延迟资源返还不进入模拟可见结果。
       return [];
@@ -297,7 +326,11 @@ export function compileActionNode(
           parameters: {
             target,
             tagQueryType: action.settings.tagQuery.queryType,
-            buffTagIds: action.settings.tagQuery.tagIds,
+            buffTags: projectGameplayTags(
+              action.settings.tagQuery.tagIds,
+              context,
+              node.sourcePath,
+            ),
             reason: action.isFinishedEarly ? 'early' : 'other',
             ...(action.finishAll ? {} : { count: actionValueOperand(action.finishLayerCount) }),
           },
@@ -374,7 +407,8 @@ export function compileActionNode(
       context.actionSourceTarget !== 'caster' ||
       (context.actionOwnerTarget === 'currentAbilityEntity' &&
         node.body.value.action.attacker === 'ActionOwner') ||
-      !['enemy', 'eventTarget'].includes(context.actionTargetTarget)
+      (!['enemy', 'eventTarget'].includes(context.actionTargetTarget) &&
+        !(context.actionTargetTarget === 'buffOwner' && context.fixedBuffOwnerTarget === 'enemy'))
     )
       throw new Error(`${node.sourcePath}: unsupported Buff damage source`);
     const damageContext = {
@@ -449,7 +483,7 @@ export function compileActionNode(
         parameters: {
           target: 'enemy',
           tagQueryType: 'hasAny',
-          buffTagIds: [gameplayTagIdFromPath(tags[consumedElement])],
+          buffTags: [tags[consumedElement]],
           reason: 'early',
           count: consumedLayers,
         },
@@ -476,7 +510,7 @@ export function compileActionNode(
             kind: 'buffStackCompare',
             target: 'enemy',
             tagQueryType: 'hasAny',
-            buffTagIds: [gameplayTagIdFromPath(tags[consumedElement])],
+            buffTags: [tags[consumedElement]],
             operator: 'greaterOrEqual',
             value: consumedLayers,
           },
@@ -540,7 +574,11 @@ export function compileActionNode(
         parameters: {
           target,
           ...(action.alwaysNext ? { alwaysNext: true } : {}),
-          tagIds: action.useHealTags ? action.healTagIds : [],
+          tags: projectGameplayTags(
+            action.useHealTags ? action.healTagIds : [],
+            context,
+            node.sourcePath,
+          ),
           ...calculation,
         },
       },
@@ -569,7 +607,7 @@ export function compileActionNode(
             ? {
                 kind: 'tag' as const,
                 tagQueryType: action.tagQueryType,
-                buffTagIds: action.buffTagIds,
+                buffTags: projectGameplayTags(action.buffTagIds, context, node.sourcePath),
               }
             : null;
     if (query === null) throw new Error(`${node.sourcePath}: unsupported BuffCount query`);
@@ -593,13 +631,29 @@ export function compileActionNode(
   }
   if (node.body.value.family === 'buffBlackboardRead') {
     const action = node.body.value.action;
-    if (
-      (action.target.targetSource === 'Owner' || action.target.targetSource === 'Source') &&
-      action.target.targetGroupKey === '' &&
+    const query =
       action.settings.checkType === 'Id' &&
       action.settings.buffIds.length > 0 &&
       action.settings.buffIds.every(id => id.length > 0) &&
       action.settings.tagQuery.tagIds.length === 0
+        ? { kind: 'id' as const, buffIds: action.settings.buffIds }
+        : action.settings.checkType === 'Tag' &&
+            action.settings.buffIds.length === 0 &&
+            action.settings.tagQuery.tagIds.length > 0
+          ? {
+              kind: 'tag' as const,
+              tagQueryType: action.settings.tagQuery.queryType,
+              buffTags: projectGameplayTags(
+                action.settings.tagQuery.tagIds,
+                context,
+                node.sourcePath,
+              ),
+            }
+          : null;
+    if (
+      (action.target.targetSource === 'Owner' || action.target.targetSource === 'Source') &&
+      action.target.targetGroupKey === '' &&
+      query !== null
     ) {
       return [
         {
@@ -609,7 +663,7 @@ export function compileActionNode(
               action.target.targetSource === 'Owner'
                 ? requireActionOwnerProjection(context, node.sourcePath)
                 : context.actionSourceTarget,
-            query: { kind: 'id', buffIds: action.settings.buffIds },
+            query,
             desiredKey: action.desiredKey,
             outputKey: action.outputKey,
           },
@@ -819,7 +873,13 @@ export function compileActionNode(
         ...(action.spGainSource === null ? {} : { spGainSource: action.spGainSource }),
         ...(action.isPercentValue ? { isPercentValue: true } : {}),
         ...(action.useUltimateRecoveryTag
-          ? { ultimateRecoveryTagId: action.ultimateRecoveryTagId }
+          ? {
+              ultimateRecoveryTag: projectGameplayTags(
+                [action.ultimateRecoveryTagId],
+                context,
+                node.sourcePath,
+              )[0]!,
+            }
           : {}),
         ...(action.ignoreUltimateGainScalar ? { ignoreUltimateEnergyGainMultiplier: true } : {}),
       },

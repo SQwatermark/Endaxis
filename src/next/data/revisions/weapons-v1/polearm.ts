@@ -964,10 +964,10 @@ export default [
                 {
                   "kind": "eventHealTagsMatch",
                   "match": "hasAny",
-                  "tagIds": [
-                    -320297214,
-                    -1517158118,
-                    -1499119779
+                  "tags": [
+                    "Skill/Character/Common/Heal/NormalSkillHeal",
+                    "Skill/Character/Common/Heal/ComboSkillHeal",
+                    "Skill/Character/Common/Heal/UltimateSkillHeal"
                   ]
                 },
                 {

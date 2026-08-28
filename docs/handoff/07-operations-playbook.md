@@ -1,5 +1,9 @@
 # 操作与恢复手册
 
+> 当前统一 TS 编译器工作树为 `Endaxis-game-data-refactor` / `refactor/common-game-data`。
+> 优先按[2026-08-28 检查点](2026-08-28-sync-checkpoint.md)中的路径、跨仓库边界和命令恢复。
+> 下文以主仓库 `Endaxis` 为路径的命令需按实际工作树替换，不能擅自切换用户正在调试的主工作树。
+
 ## 1. 新会话开始时
 
 按顺序执行：

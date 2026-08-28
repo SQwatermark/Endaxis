@@ -1,3 +1,5 @@
+import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
+import { readGameplayTagPaths } from './readGameplayTagPaths.ts';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -11,6 +13,7 @@ import { writeGeneratedDefinitionFiles } from '../src/compiler/writeGeneratedDef
 interface Arguments {
   readonly template: string;
   readonly comboSkill: string;
+  readonly gameplayTagCatalog?: string;
   readonly slug: string;
   readonly skillGroup: string;
   /** 仅当前角色拥有的生成子目录；不会替换整个干员库。 */
@@ -26,6 +29,9 @@ export async function generateOperatorRuntimeDefinition(args: Arguments) {
     JSON.parse(template),
     JSON.parse(comboSkill),
     { operatorSlug: args.slug, skillGroupKey: args.skillGroup },
+    args.gameplayTagCatalog
+      ? new GameplayTagRegistry(readGameplayTagPaths(args.gameplayTagCatalog))
+      : undefined,
   );
   const file = renderOperatorRuntimeDefinitionSource(result.definition);
   const destination = path.resolve(args.output, file.relativePath);
@@ -109,6 +115,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       ![
         '--template',
         '--combo-skill',
+        '--gameplay-tag-catalog',
         '--slug',
         '--skill-group',
         '--output',
@@ -130,6 +137,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     await generateOperatorRuntimeDefinition({
       template: required('--template'),
       comboSkill: required('--combo-skill'),
+      gameplayTagCatalog: values.get('--gameplay-tag-catalog'),
       slug: required('--slug'),
       skillGroup: required('--skill-group'),
       output: required('--output'),

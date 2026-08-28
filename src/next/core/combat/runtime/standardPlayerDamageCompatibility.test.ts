@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { CompiledSkillProgram, ResolvedActionSequence } from '../../compiler/combatProgram';
 import type { CombatOperatorProgram } from './combatRuntimeAssembly';
+import { compileOperatorBuffDefinitions } from '../../compiler/compileSkill';
 import {
   assertStandardPlayerDamageCompatibility,
   inspectStandardPlayerDamageCompatibility,
@@ -88,6 +89,135 @@ function compatibilityInput(
 }
 
 describe('standardPlayerDamageCompatibility', () => {
+  it('已内嵌配置列可执行；强化列仍要求来源面板', () => {
+    const sequence = (enhanced: boolean): ResolvedActionSequence => ({
+      steps: [
+        {
+          kind: 'readSkillSettingData',
+          parameters: {
+            items: [
+              {
+                storeKey: 'scale',
+                column: { kind: 'constant', value: 1 },
+                values: [2],
+                ...(enhanced
+                  ? {
+                      enhance: {
+                        target: 'caster' as const,
+                        formula: { kind: 'linear' as const, paramA: 1 },
+                      },
+                    }
+                  : {}),
+              },
+            ],
+          },
+        },
+      ],
+    });
+    expect(
+      inspectStandardPlayerDamageCompatibility(compatibilityInput(operator(sequence(false)))),
+    ).toEqual([]);
+    expect(
+      inspectStandardPlayerDamageCompatibility(compatibilityInput(operator(sequence(true)))),
+    ).toContainEqual(
+      expect.objectContaining({ detail: expect.stringContaining('resolved operator panel') }),
+    );
+    expect(
+      inspectStandardPlayerDamageCompatibility(
+        compatibilityInput(operator(sequence(true), 0, true)),
+      ),
+    ).toEqual([]);
+  });
+  it('普通倒地必须有显式装配、来源面板和隐式 Buff，不能漏过 Buff 内行为', () => {
+    const sequence: ResolvedActionSequence = {
+      steps: [
+        {
+          kind: 'applyKnockDown',
+          parameters: {
+            target: 'enemy',
+            duration: { kind: 'constant', value: 1 },
+            force: false,
+            isExtra: false,
+            targetFilter: 'aliveOnly',
+            returnWhen: 'always',
+          },
+        },
+      ],
+    };
+    const entry = {
+      ...operator(sequence, 0, true),
+      buffDefinitions: compileOperatorBuffDefinitions({
+        buff_physical_knockdown: { stackingType: 'refresh', durationSeconds: 2 },
+        buff_physical_no_guard: { stackingType: 'refresh', durationSeconds: 2 },
+      }),
+    };
+    expect(inspectStandardPlayerDamageCompatibility(compatibilityInput(entry))).toEqual([
+      expect.objectContaining({ detail: expect.stringContaining('root knock-down') }),
+    ]);
+    const input = { ...compatibilityInput(entry), supportsKnockDown: true };
+    expect(inspectStandardPlayerDamageCompatibility(input)).toEqual([]);
+    const missing = inspectStandardPlayerDamageCompatibility({
+      ...input,
+      operators: [{ ...entry, panel: undefined, buffDefinitions: {} }],
+    });
+    expect(missing).toHaveLength(3);
+    expect(missing.map(issue => issue.detail).join('\n')).toContain('attribute panel');
+    const unsupported = compileOperatorBuffDefinitions({
+      bad: {
+        stackingType: 'unique',
+        scheduledSequences: [
+          {
+            startFrame: 0,
+            sequence: {
+              steps: [
+                {
+                  kind: 'dealDamage',
+                  parameters: { damageType: 'lifeDrain', attackScale: 1, tags: [] },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    });
+    expect(
+      inspectStandardPlayerDamageCompatibility({
+        ...input,
+        operators: [{ ...entry, buffDefinitions: { ...entry.buffDefinitions, ...unsupported } }],
+      }),
+    ).toEqual([expect.objectContaining({ code: 'unsupported-damage-calculation' })]);
+  });
+  it('Switch 不会隐藏未选分支的不兼容行为，报告包含候选路径', () => {
+    const issues = inspectStandardPlayerDamageCompatibility(
+      compatibilityInput(
+        operator({
+          steps: [
+            {
+              kind: 'switch',
+              parameters: { choice: { kind: 'constant', value: 0 }, alwaysNext: true },
+              options: [
+                { value: { kind: 'constant', value: 0 }, sequence: { steps: [] } },
+                {
+                  value: { kind: 'constant', value: 1 },
+                  sequence: {
+                    steps: [
+                      {
+                        kind: 'changeResource',
+                        parameters: { resource: 'sp', recipient: 'caster', amount: 1 },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          ],
+        }),
+      ),
+    );
+    expect(issues).toHaveLength(1);
+    expect(issues[0]!.path).toContain('.options[1].sequence.steps[0]');
+  });
+
   it('accepts current-cast Buff lifetime with context binding checked at execution', () => {
     const issues = inspectStandardPlayerDamageCompatibility(
       compatibilityInput(
@@ -174,7 +304,7 @@ describe('standardPlayerDamageCompatibility', () => {
                   kind: 'entityTagMatch',
                   target: 'enemy',
                   tagQueryType: 'hasAny',
-                  tagIds: [1466867135],
+                  tags: ['Skill/Character/Common/SpellStatus/Conduct'],
                 },
               },
               whenTrue: {
@@ -210,7 +340,7 @@ describe('standardPlayerDamageCompatibility', () => {
                     parameters: {
                       target: 'enemy',
                       tagQueryType: 'hasAny',
-                      buffTagIds: [1466867135],
+                      buffTags: ['Skill/Character/Common/SpellStatus/Conduct'],
                       reason: 'early',
                     },
                   },
@@ -282,7 +412,7 @@ describe('standardPlayerDamageCompatibility', () => {
               parameters: {
                 scope: 'global',
                 durationSeconds: { kind: 'constant', value: 1 },
-                slot: 1,
+                slot: 'Test/TimeSlot1',
                 priority: 1,
                 curve: { kind: 'named', key: 'ComboSkill' },
                 finishByAction: false,
@@ -317,7 +447,7 @@ describe('standardPlayerDamageCompatibility', () => {
             attribute: 'will',
             multiplier: { kind: 'constant', value: 1 },
             addition: 0,
-            tagIds: [],
+            tags: [],
           },
         },
         {

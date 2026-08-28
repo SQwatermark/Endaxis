@@ -1,3 +1,4 @@
+import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { describe, expect, it } from 'vitest';
 import {
   compileOperatorRuntimeDefinitionSource,
@@ -8,7 +9,12 @@ import { operatorRuntimeFixture } from './operatorRuntimeDefinitionFixture.ts';
 
 const binding = { operatorSlug: 'arcane', skillGroupKey: 'comboSkill' };
 const compile = (fixture = operatorRuntimeFixture()) =>
-  compileOperatorRuntimeDefinitionSource(fixture.template, fixture.comboSkill, binding);
+  compileOperatorRuntimeDefinitionSource(
+    fixture.template,
+    fixture.comboSkill,
+    binding,
+    fixtureGameplayTagRegistry,
+  );
 
 describe('角色常驻运行定义生成', () => {
   it('真实五条件/两层黑板与正式生成文件一致，未解码后缀仍为 partial', () => {
@@ -65,10 +71,15 @@ describe('角色常驻运行定义生成', () => {
       f.template.abilitySystem.skillDataBundle.comboSkillConditions[0]!.comboSkillEvent = 999;
     expect(() =>
       renderOperatorRuntimeDefinitionSource(
-        compileOperatorRuntimeDefinitionSource(f.template, f.comboSkill, {
-          operatorSlug: failure === 'unsafe-slug' ? '../arcane' : 'arcane',
-          skillGroupKey: failure === 'empty-group' ? '' : 'comboSkill',
-        }).definition,
+        compileOperatorRuntimeDefinitionSource(
+          f.template,
+          f.comboSkill,
+          {
+            operatorSlug: failure === 'unsafe-slug' ? '../arcane' : 'arcane',
+            skillGroupKey: failure === 'empty-group' ? '' : 'comboSkill',
+          },
+          fixtureGameplayTagRegistry,
+        ).definition,
       ),
     ).toThrow();
   });

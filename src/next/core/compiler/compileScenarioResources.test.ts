@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { gameplayTagId } from '../combat/tags/gameplayTags';
 import { createEmptyScenario } from '../project/createProject';
 import type { ScenarioDocument, TrackDocument } from '../project/schema';
 import {
@@ -49,7 +48,7 @@ function operatorRules(
   return {
     maxUltimateEnergy: 100,
     ultimateEnergyGainMultiplier: 1,
-    allowedUltimateEnergyRecoveryTagIds: null,
+    allowedUltimateEnergyRecoveryTags: null,
     ...overrides,
   };
 }
@@ -67,7 +66,7 @@ function options(): CompileScenarioResourcesOptions {
         operatorRules({
           maxUltimateEnergy: 80,
           ultimateEnergyGainMultiplier: 1.2,
-          allowedUltimateEnergyRecoveryTagIds: new Set([gameplayTagId(7)]),
+          allowedUltimateEnergyRecoveryTags: new Set(['Test/Tag7']),
         }),
       ],
     ]),
@@ -91,14 +90,14 @@ describe('compileScenarioResources', () => {
           ultimateEnergy: 30,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 1,
-          allowedUltimateEnergyRecoveryTagIds: null,
+          allowedUltimateEnergyRecoveryTags: null,
         },
         {
           operatorId: 'track:2',
           ultimateEnergy: 40,
           maxUltimateEnergy: 80,
           ultimateEnergyGainMultiplier: 1.2,
-          allowedUltimateEnergyRecoveryTagIds: new Set([gameplayTagId(7)]),
+          allowedUltimateEnergyRecoveryTags: new Set(['Test/Tag7']),
         },
       ],
       normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },

@@ -29,7 +29,7 @@ import {
   type CompiledActiveSkillAbilityEntityQuerySource,
 } from '../../compiler/activeSkillAbilityEntityQueries.ts';
 import type { CompiledAbilityEntityTemplateCatalogSource } from '../../compiler/abilityEntityCatalog.ts';
-import type { GameplayTagRegistry } from '../../../../../src/shared/gameplayTags.ts';
+import type { GameplayTagRegistry } from '../../source/nativeGameplayTags.ts';
 import type { OperatorProductIdentitySource } from './productIdentity.ts';
 
 export interface OperatorAbilityEntityQueryContext {

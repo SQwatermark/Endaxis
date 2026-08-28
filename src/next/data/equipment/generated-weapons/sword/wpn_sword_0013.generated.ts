@@ -64,8 +64,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "atk_up_ex": 0,
             "duration": 0
@@ -185,8 +185,8 @@ const definition = {
                   "condition": {
                     "kind": "eventBuffTagsMatch",
                     "match": "hasAny",
-                    "buffTagIds": [
-                      1075718177
+                    "buffTags": [
+                      "Skill/Character/Common/NoGuard"
                     ]
                   }
                 },

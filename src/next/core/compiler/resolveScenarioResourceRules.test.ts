@@ -49,7 +49,7 @@ describe('resolveScenarioOperatorResourceRules', () => {
     ).toEqual({
       maxUltimateEnergy: 68,
       ultimateEnergyGainMultiplier: 1.25,
-      allowedUltimateEnergyRecoveryTagIds: null,
+      allowedUltimateEnergyRecoveryTags: null,
     });
   });
 

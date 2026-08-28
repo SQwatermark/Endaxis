@@ -64,8 +64,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "dmg_up": 0,
             "duration": 0
@@ -179,8 +179,8 @@ const definition = {
                   "condition": {
                     "kind": "eventBuffTagsMatch",
                     "match": "hasAny",
-                    "buffTagIds": [
-                      1466867135
+                    "buffTags": [
+                      "Skill/Character/Common/SpellStatus/Conduct"
                     ]
                   }
                 },

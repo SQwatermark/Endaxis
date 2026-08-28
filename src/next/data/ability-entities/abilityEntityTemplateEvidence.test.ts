@@ -23,7 +23,7 @@ describe('AbilityEntity template evidence adapter', () => {
         value => value.id === 'abilityentity_chr_0012_avywen_combo_skill_lance',
       ),
     ).toMatchObject({
-      bornTagIds: expect.arrayContaining([1447025331]),
+      bornTags: expect.arrayContaining(["Skill/Character/chr_0012_avywen/Lance/ComboLance"]),
       lifetime: { kind: 'limited', durationSeconds: 62 },
     });
     expect(

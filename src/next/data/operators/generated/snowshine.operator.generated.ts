@@ -383,7 +383,7 @@ export const snowshineBattleSkill: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 0.7 },
-            slot: 1464849466,
+            slot: "TimeDilation/Layer/Entity/HitStop",
             priority: 10,
             curve: { kind: 'inline', keys: [{ time: 0, value: 0.3, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0.333333343 }, { time: 0.5, value: 0.3, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0.333333343, outWeight: 0.333333343 }, { time: 1, value: 1, inTangent: 4.596606, outTangent: 4.596606, weightedMode: 0, inWeight: 0.0243593454, outWeight: 0 }] },
             finishByAction: false,
@@ -446,7 +446,7 @@ export const snowshineComboSkill: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.533 },
-            slot: 0,
+            slot: "unassigned",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -511,7 +511,7 @@ export const snowshineUltimate: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 1 },
-            slot: 1464849466,
+            slot: "TimeDilation/Layer/Entity/HitStop",
             priority: 10,
             curve: { kind: 'named', key: 'RESETto1' },
             finishByAction: false,
@@ -688,7 +688,7 @@ export const snowshineGeneratedOperator: OperatorDefinition = {
                   kind: 'entityTagMatch',
                   target: 'caster',
                   tagQueryType: 'hasAny',
-                  tagIds: [-1957150384],
+                  tags: ["Skill/Character/Common/Affixes/Shelter"],
                 },
                 sequence(
                   step('applyBuff', {
@@ -723,7 +723,7 @@ export const snowshineGeneratedOperator: OperatorDefinition = {
       priority: 0,
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration' },
-      applyTagIds: [1483840340],
+      applyTags: ["Skill/Character/Common/Shielded"],
       blackboard: {
         'duration': 9999,
         'potential_1': 0,
@@ -773,7 +773,7 @@ export const snowshineGeneratedOperator: OperatorDefinition = {
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 2 },
-            slot: -1855252810,
+            slot: "TimeDilation/Layer/Entity/Frozen",
             priority: 50,
             curve: { kind: 'inline', keys: [{ time: 0, value: 1, inTangent: -1, outTangent: -1, weightedMode: 0, inWeight: 0, outWeight: 0.333333343 }, { time: 1, value: 0, inTangent: -1, outTangent: -1, weightedMode: 0, inWeight: 0.333333343, outWeight: 0 }] },
             finishByAction: true,
@@ -876,7 +876,7 @@ export const snowshineGeneratedOperator: OperatorDefinition = {
                         attribute: 'will',
                         multiplier: { kind: 'blackboard', key: 'heal_scale' },
                         addition: { kind: 'blackboard', key: 'heal_static_value' },
-                        tagIds: [-1517158118],
+                        tags: ["Skill/Character/Common/Heal/ComboSkillHeal"],
                       }),
                     ),
                   },
@@ -919,7 +919,7 @@ export const snowshineGeneratedOperator: OperatorDefinition = {
                         attribute: 'will',
                         multiplier: { kind: 'blackboard', key: 'heal_scale_loop' },
                         addition: { kind: 'blackboard', key: 'heal_static_value_loop' },
-                        tagIds: [-1517158118],
+                        tags: ["Skill/Character/Common/Heal/ComboSkillHeal"],
                       }),
                     ),
                   },
@@ -978,7 +978,7 @@ export const snowshineGeneratedOperator: OperatorDefinition = {
                         step('startTimeDilation', {
                           scope: 'entity',
                           durationSeconds: { kind: 'constant', value: 2 },
-                          slot: -1855252810,
+                          slot: "TimeDilation/Layer/Entity/Frozen",
                           priority: 50,
                           curve: { kind: 'inline', keys: [{ time: 0, value: 1, inTangent: -1, outTangent: -1, weightedMode: 0, inWeight: 0, outWeight: 0.333333343 }, { time: 1, value: 0, inTangent: -1, outTangent: -1, weightedMode: 0, inWeight: 0.333333343, outWeight: 0 }] },
                           finishByAction: true,
@@ -1033,7 +1033,7 @@ export const snowshineGeneratedOperator: OperatorDefinition = {
                                     triggerIntervalSeconds: 1,
                                     waitFirstTriggerInterval: true,
                                     maxTriggerCount: 1,
-                                    applyTagIds: [1535684437],
+                                    applyTags: ["Skill/Character/Common/SpellStatus/Frozen"],
                                     blackboard: {
                                       'count': 1,
                                       'duration': 5,
@@ -1061,7 +1061,7 @@ export const snowshineGeneratedOperator: OperatorDefinition = {
                                                     priority: 0,
                                                     maxStackCount: 1,
                                                     durationSeconds: { blackboardKey: 'duration' },
-                                                    applyTagIds: [-717418722, 889346577],
+                                                    applyTags: ["Status/Immobilized/Frozen", "Status/DisableFaceToAttacker"],
                                                     blackboard: {
                                                       'duration': 9999,
                                                     },
@@ -1070,7 +1070,7 @@ export const snowshineGeneratedOperator: OperatorDefinition = {
                                                         step('startTimeDilation', {
                                                           scope: 'entity',
                                                           durationSeconds: { kind: 'blackboard', key: 'duration' },
-                                                          slot: -1855252810,
+                                                          slot: "TimeDilation/Layer/Entity/Frozen",
                                                           priority: 50,
                                                           curve: { kind: 'inline', keys: [{ time: 0, value: 0, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0.333333343 }, { time: 1, value: 0, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0.333333343, outWeight: 0 }] },
                                                           finishByAction: true,

@@ -34,7 +34,7 @@ describe('TimeDilationOperationExecutor', () => {
       parameters: {
         scope: 'global',
         durationSeconds: { kind: 'blackboard', key: 'duration' },
-        slot: 1,
+        slot: 'Test/TimeSlot1',
         priority: PRIORITY,
         curve: { kind: 'named', key: 'constant-half' },
         finishByAction: false,
@@ -68,7 +68,7 @@ describe('TimeDilationOperationExecutor', () => {
       parameters: {
         scope: 'global',
         durationSeconds: { kind: 'constant', value: 1 },
-        slot: 1,
+        slot: 'Test/TimeSlot1',
         priority: PRIORITY,
         curve: { kind: 'named', key: 'constant-half' },
         finishByAction: false,
@@ -97,7 +97,7 @@ describe('TimeDilationOperationExecutor', () => {
       parameters: {
         scope: 'entity',
         durationSeconds: { kind: 'constant', value: 1 },
-        slot: 2,
+        slot: 'Test/TimeSlot2',
         priority: PRIORITY,
         curve: {
           kind: 'inline',
@@ -148,7 +148,7 @@ describe('TimeDilationOperationExecutor', () => {
         parameters: {
           scope: 'global',
           durationSeconds: { kind: 'constant', value: 1 },
-          slot: 1,
+          slot: 'Test/TimeSlot1',
           priority: PRIORITY,
           curve: { kind: 'named', key: 'constant-half' },
           finishByAction: false,
@@ -164,7 +164,7 @@ describe('TimeDilationOperationExecutor', () => {
         parameters: {
           scope: 'entity',
           durationSeconds: { kind: 'constant', value: 1 },
-          slot: 2,
+          slot: 'Test/TimeSlot2',
           priority: PRIORITY,
           curve: { kind: 'named', key: 'constant-half' },
           finishByAction: false,

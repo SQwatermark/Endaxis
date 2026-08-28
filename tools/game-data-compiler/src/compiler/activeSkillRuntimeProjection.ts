@@ -21,6 +21,7 @@ import {
 } from './skillPresentationTargets.ts';
 import { parseSkillTargetSelectionHeaderSource } from '../source/skillTargetSelection.ts';
 import { compileSkillSmartTargetSource } from './comboSmartTarget.ts';
+import { assertPresentationCalculationIsolation } from './presentationCalculationIsolation.ts';
 
 /** 正式调度输出子集；原生时间轴结束帧必填，动作仍限于已支持的公共投影。 */
 export type CompiledActiveSkillTimelineSequenceSource = Readonly<
@@ -107,6 +108,26 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
     staticEnemyTargetGroupKeys,
     presentationOnlyTargetGroupKeys: collectPresentationOnlyTargetGroups(graph),
   };
+  const scheduledSequences = graph.actionGroup.timelineActions
+    .filter(timeline => !isPresentationOnlyActionSequence(timeline.sequence))
+    .map(timeline => ({
+      startFrame: timeline.startFrame,
+      endFrame: timeline.endFrame,
+      sequence: compileCombatActionSequenceSource(
+        timeline.sequence,
+        {
+          ...context,
+          timelineRange: { startFrame: timeline.startFrame, endFrame: timeline.endFrame },
+        },
+        visualOnlyIds,
+        extensions,
+      ),
+    }))
+    .filter(timeline => timeline.sequence.steps.length > 0);
+  assertPresentationCalculationIsolation(
+    graph.actionGroup.timelineActions.map(item => item.sequence),
+    scheduledSequences.map(item => item.sequence),
+  );
   return {
     skillId: graph.skillId,
     durationFrame: graph.durationFrame,
@@ -118,21 +139,6 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
       ...prepared.blackboard.values,
     },
     ...targeting.definition,
-    scheduledSequences: graph.actionGroup.timelineActions
-      .filter(timeline => !isPresentationOnlyActionSequence(timeline.sequence))
-      .map(timeline => ({
-        startFrame: timeline.startFrame,
-        endFrame: timeline.endFrame,
-        sequence: compileCombatActionSequenceSource(
-          timeline.sequence,
-          {
-            ...context,
-            timelineRange: { startFrame: timeline.startFrame, endFrame: timeline.endFrame },
-          },
-          visualOnlyIds,
-          extensions,
-        ),
-      }))
-      .filter(timeline => timeline.sequence.steps.length > 0),
+    scheduledSequences,
   };
 }

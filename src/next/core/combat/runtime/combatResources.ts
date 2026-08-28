@@ -4,7 +4,7 @@
  */
 import type { CompiledSkillCost } from '../../compiler/combatProgram';
 import type { SpGainKind } from '../../game-data/operatorDefinition';
-import type { GameplayTagId } from '../tags/gameplayTags';
+import type { GameplayTag } from '../tags/gameplayTags';
 import {
   SharedSpGainModifierSet,
   type SharedSpGainSettings,
@@ -23,7 +23,7 @@ export interface OperatorResourceSnapshot {
    * 当前终结技能量回复限制聚合后的许可标签；null 表示没有限制，空集合会拦截全部正向回复。
    * 原生由多个有效限制句柄取并集，资源账本只消费聚合结果，不负责 Buff 生命周期。
    */
-  readonly allowedUltimateEnergyRecoveryTagIds: ReadonlySet<GameplayTagId> | null;
+  readonly allowedUltimateEnergyRecoveryTags: ReadonlySet<GameplayTag> | null;
 }
 
 /** 普通战技消耗技力时队内终结技能量的换算参数。 */
@@ -97,16 +97,16 @@ export interface UltimateEnergyChange {
 export interface UltimateEnergyChangeOptions {
   readonly coefficient?: number;
   readonly isPercentValue?: boolean;
-  readonly recoveryTagId?: GameplayTagId;
+  readonly recoveryTag?: GameplayTag;
   readonly ignoreGainMultiplier?: boolean;
 }
 
 interface OperatorResources extends Omit<
   OperatorResourceSnapshot,
-  'ultimateEnergy' | 'allowedUltimateEnergyRecoveryTagIds'
+  'ultimateEnergy' | 'allowedUltimateEnergyRecoveryTags'
 > {
   ultimateEnergy: number;
-  allowedUltimateEnergyRecoveryTagIds: ReadonlySet<GameplayTagId> | null;
+  allowedUltimateEnergyRecoveryTags: ReadonlySet<GameplayTag> | null;
 }
 
 export interface CombatResourceRuntimeResolvers {
@@ -137,10 +137,10 @@ export class CombatResources {
   readonly #ultimateEnergySystemUnlocked: boolean;
   readonly #squad: readonly OperatorResources[];
   readonly #operators = new Map<string, OperatorResources>();
-  readonly #baseUltimateRecoveryRestrictions = new Map<string, ReadonlySet<GameplayTagId> | null>();
+  readonly #baseUltimateRecoveryRestrictions = new Map<string, ReadonlySet<GameplayTag> | null>();
   readonly #ultimateRecoveryRestrictionHandles = new Map<
     number,
-    { readonly operatorId: string; readonly allowed: ReadonlySet<GameplayTagId> }
+    { readonly operatorId: string; readonly allowed: ReadonlySet<GameplayTag> }
   >();
   #nextUltimateRecoveryRestrictionHandle = 1;
   readonly #normalSkillUltimateEnergy: NormalSkillUltimateEnergySettings;
@@ -198,17 +198,17 @@ export class CombatResources {
       }
       const runtime = {
         ...member,
-        allowedUltimateEnergyRecoveryTagIds:
-          member.allowedUltimateEnergyRecoveryTagIds === null
+        allowedUltimateEnergyRecoveryTags:
+          member.allowedUltimateEnergyRecoveryTags === null
             ? null
-            : new Set(member.allowedUltimateEnergyRecoveryTagIds),
+            : new Set(member.allowedUltimateEnergyRecoveryTags),
       };
       this.#operators.set(member.operatorId, runtime);
       this.#baseUltimateRecoveryRestrictions.set(
         member.operatorId,
-        member.allowedUltimateEnergyRecoveryTagIds === null
+        member.allowedUltimateEnergyRecoveryTags === null
           ? null
-          : new Set(member.allowedUltimateEnergyRecoveryTagIds),
+          : new Set(member.allowedUltimateEnergyRecoveryTags),
       );
       return runtime;
     });
@@ -244,10 +244,10 @@ export class CombatResources {
         ultimateEnergy: member.ultimateEnergy,
         maxUltimateEnergy: member.maxUltimateEnergy,
         ultimateEnergyGainMultiplier: member.ultimateEnergyGainMultiplier,
-        allowedUltimateEnergyRecoveryTagIds:
-          member.allowedUltimateEnergyRecoveryTagIds === null
+        allowedUltimateEnergyRecoveryTags:
+          member.allowedUltimateEnergyRecoveryTags === null
             ? null
-            : new Set(member.allowedUltimateEnergyRecoveryTagIds),
+            : new Set(member.allowedUltimateEnergyRecoveryTags),
       })),
       normalSkillUltimateEnergy: { ...this.#normalSkillUltimateEnergy },
     };
@@ -336,7 +336,7 @@ export class CombatResources {
     const applied = this.#trySetUltimateEnergy(
       operator,
       previousValue + requestedValue,
-      options.recoveryTagId,
+      options.recoveryTag,
     );
     return {
       operatorId,
@@ -425,13 +425,13 @@ export class CombatResources {
 
   requestUltimateEnergyRecoveryRestriction(
     operatorId: string,
-    allowedRecoveryTagIds: ReadonlySet<GameplayTagId>,
+    allowedRecoveryTags: ReadonlySet<GameplayTag>,
   ): number {
     this.#requireOperator(operatorId);
     const handle = this.#nextUltimateRecoveryRestrictionHandle++;
     this.#ultimateRecoveryRestrictionHandles.set(handle, {
       operatorId,
-      allowed: new Set(allowedRecoveryTagIds),
+      allowed: new Set(allowedRecoveryTags),
     });
     this.#refreshUltimateEnergyRecoveryRestriction(operatorId);
     return handle;
@@ -452,27 +452,27 @@ export class CombatResources {
     const operator = this.#requireOperator(operatorId);
     if (dynamic.length === 0) {
       const base = this.#baseUltimateRecoveryRestrictions.get(operatorId)!;
-      operator.allowedUltimateEnergyRecoveryTagIds = base === null ? null : new Set(base);
+      operator.allowedUltimateEnergyRecoveryTags = base === null ? null : new Set(base);
       return;
     }
-    const allowed = new Set<GameplayTagId>();
+    const allowed = new Set<GameplayTag>();
     const base = this.#baseUltimateRecoveryRestrictions.get(operatorId);
     if (base !== null && base !== undefined) for (const tag of base) allowed.add(tag);
     for (const entry of dynamic) for (const tag of entry.allowed) allowed.add(tag);
-    operator.allowedUltimateEnergyRecoveryTagIds = allowed;
+    operator.allowedUltimateEnergyRecoveryTags = allowed;
   }
 
   #trySetUltimateEnergy(
     operator: OperatorResources,
     value: number,
-    recoveryTagId?: GameplayTagId,
+    recoveryTag?: GameplayTag,
   ): boolean {
-    const restriction = operator.allowedUltimateEnergyRecoveryTagIds;
+    const restriction = operator.allowedUltimateEnergyRecoveryTags;
     if (
       !this.#ultimateEnergySystemUnlocked ||
       (value > operator.ultimateEnergy &&
         restriction !== null &&
-        (recoveryTagId === undefined || !restriction.has(recoveryTagId)))
+        (recoveryTag === undefined || !restriction.has(recoveryTag)))
     ) {
       return false;
     }

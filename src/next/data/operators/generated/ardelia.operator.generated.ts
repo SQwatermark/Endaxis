@@ -1145,7 +1145,7 @@ export const ardeliaComboSkill: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.8 },
-            slot: 0,
+            slot: "unassigned",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -1296,7 +1296,7 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 1 },
-            slot: 1464849466,
+            slot: "TimeDilation/Layer/Entity/HitStop",
             priority: 10,
             curve: { kind: 'named', key: 'RESETto1' },
             finishByAction: false,

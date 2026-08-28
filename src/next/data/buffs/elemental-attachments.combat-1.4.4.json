@@ -4,7 +4,7 @@
   "buffs": [
     {
       "id": "buff_common_energy_shard_attached_fire",
-      "applyTagIds": [-1558844517],
+      "applyTags": ["Skill/Character/Common/SpellInflict/FireInflict"],
       "stackingType": "enhanceAndRefresh",
       "maxStackCount": 4,
       "blackboard": {
@@ -37,7 +37,7 @@
     },
     {
       "id": "buff_common_energy_shard_attached_pulse",
-      "applyTagIds": [2123008650],
+      "applyTags": ["Skill/Character/Common/SpellInflict/PulseInflict"],
       "stackingType": "enhanceAndRefresh",
       "maxStackCount": 4,
       "blackboard": {
@@ -69,7 +69,7 @@
     },
     {
       "id": "buff_common_energy_shard_attached_cryst",
-      "applyTagIds": [1570888476],
+      "applyTags": ["Skill/Character/Common/SpellInflict/CrystInflict"],
       "stackingType": "enhanceAndRefresh",
       "maxStackCount": 4,
       "blackboard": {
@@ -101,7 +101,7 @@
     },
     {
       "id": "buff_common_energy_shard_attached_natural",
-      "applyTagIds": [-1411846745],
+      "applyTags": ["Skill/Character/Common/SpellInflict/NaturalInflict"],
       "stackingType": "enhanceAndRefresh",
       "maxStackCount": 4,
       "blackboard": {

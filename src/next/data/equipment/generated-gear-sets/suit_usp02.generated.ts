@@ -18,8 +18,8 @@ const definition = {
       triggerIntervalSeconds: 0,
       waitFirstTriggerInterval: true,
       maxTriggerCount: 1,
-      applyTagIds: [],
-      extendTagIds: [],
+      applyTags: [],
+      extendTags: [],
       blackboard: {
         dmg_up: 0.25,
         duration: 15,
@@ -38,7 +38,7 @@ const definition = {
                   condition: {
                     kind: 'eventBuffTagsMatch',
                     match: 'hasAny',
-                    buffTagIds: [2029588776, -1748167886, -1957150384, -881002460],
+                    buffTags: ["Skill/Character/Common/Affixes/Weak", "Skill/Character/Common/Affixes/Enhance", "Skill/Character/Common/Affixes/Shelter", "Skill/Character/Common/Affixes/Vulnerable"],
                   },
                 },
                 whenTrue: {
@@ -95,8 +95,8 @@ const definition = {
           category: 'CommonCharBuff',
         },
       },
-      applyTagIds: [],
-      extendTagIds: [],
+      applyTags: [],
+      extendTags: [],
       blackboard: {
         dmg_up: 0.25,
         duration: 15,

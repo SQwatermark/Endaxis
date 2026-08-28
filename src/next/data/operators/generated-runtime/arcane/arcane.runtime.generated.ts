@@ -92,8 +92,8 @@ export default {
                             "kind": "contextTargetBuffStackCompare",
                             "contextKey": "trigger",
                             "tagQueryType": "hasAny",
-                            "buffTagIds": [
-                              -1558844517
+                            "buffTags": [
+                              "Skill/Character/Common/SpellInflict/FireInflict"
                             ],
                             "operator": "greaterOrEqual",
                             "value": {
@@ -155,8 +155,8 @@ export default {
                             "kind": "contextTargetBuffStackCompare",
                             "contextKey": "trigger",
                             "tagQueryType": "hasAny",
-                            "buffTagIds": [
-                              2123008650
+                            "buffTags": [
+                              "Skill/Character/Common/SpellInflict/PulseInflict"
                             ],
                             "operator": "greaterOrEqual",
                             "value": {
@@ -218,8 +218,8 @@ export default {
                             "kind": "contextTargetBuffStackCompare",
                             "contextKey": "trigger",
                             "tagQueryType": "hasAny",
-                            "buffTagIds": [
-                              1570888476
+                            "buffTags": [
+                              "Skill/Character/Common/SpellInflict/CrystInflict"
                             ],
                             "operator": "greaterOrEqual",
                             "value": {

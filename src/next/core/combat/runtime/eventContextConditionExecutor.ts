@@ -1,3 +1,4 @@
+import type { GameplayTag } from '../../../../../packages/game-data-contract/src/gameplayTags';
 /**
  * 求值依赖当前事件负载的条件。
  *
@@ -19,10 +20,10 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
     readonly delegate: CombatOperationExecutor,
     readonly isOperatorControlled?: (operatorId: string) => boolean,
     readonly resolveEntitySourceId?: (entityId: string) => string,
-    readonly matchBuffTagIds?: (
+    readonly matchBuffTags?: (
       targetId: string,
-      ownedTagIds: readonly number[],
-      requiredTagIds: readonly number[],
+      ownedTags: readonly GameplayTag[],
+      requiredTags: readonly GameplayTag[],
       match: GameplayTagQueryType,
     ) => boolean,
   ) {}
@@ -205,12 +206,12 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       const event = context.event;
       if (event.kind !== 'buffApplied' && event.kind !== 'buffConsumed') return false;
       const matched =
-        this.matchBuffTagIds === undefined
-          ? matchValues(event.buffTagIds ?? [], condition.buffTagIds, condition.match)
-          : this.matchBuffTagIds(
+        this.matchBuffTags === undefined
+          ? matchValues(event.buffTags ?? [], condition.buffTags, condition.match)
+          : this.matchBuffTags(
               event.targetId,
-              event.buffTagIds ?? [],
-              condition.buffTagIds,
+              event.buffTags ?? [],
+              condition.buffTags,
               condition.match,
             );
       if (matched && condition.buffIdOutputKey !== undefined) {
@@ -220,9 +221,9 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
     }
     if (condition.kind === 'eventHealTagsMatch') {
       const event = context.event;
-      const tagIds =
-        event.kind === 'abilityHeal' || event.kind === 'operatorHealed' ? event.tagIds : null;
-      return tagIds !== null && matchValues(tagIds, condition.tagIds, condition.match);
+      const tags =
+        event.kind === 'abilityHeal' || event.kind === 'operatorHealed' ? event.tags : null;
+      return tags !== null && matchValues(tags, condition.tags, condition.match);
     }
     if (condition.kind === 'eventSpGainMatch') {
       const event = context.event;

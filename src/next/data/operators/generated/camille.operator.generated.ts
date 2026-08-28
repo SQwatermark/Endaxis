@@ -373,7 +373,7 @@ export const camilleBasicAttack5: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 0.08 },
-            slot: -1855252810,
+            slot: "TimeDilation/Layer/Entity/Frozen",
             priority: 50,
             curve: { kind: 'inline', keys: [{ time: 0, value: 0.2, inTangent: 0.6, outTangent: 0.6, weightedMode: 0, inWeight: 0, outWeight: 0.333333343 }, { time: 1, value: 0.8, inTangent: 0.6, outTangent: 0.6, weightedMode: 0, inWeight: 0.333333343, outWeight: 0 }] },
             finishByAction: false,
@@ -527,7 +527,7 @@ export const camilleFinisher: SkillDefinition = withSkillBlackboard(
               step('startTimeDilation', {
                 scope: 'entity',
                 durationSeconds: { kind: 'constant', value: 0.1 },
-                slot: 257664179,
+                slot: "TimeDilation/Layer/Entity/VisualAdjust",
                 priority: 50,
                 curve: { kind: 'inline', keys: [{ time: 0, value: 0, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0 }, { time: 1, value: 1, inTangent: 2, outTangent: 2, weightedMode: 0, inWeight: 0, outWeight: 0 }] },
                 finishByAction: false,
@@ -555,7 +555,7 @@ export const camilleFinisher: SkillDefinition = withSkillBlackboard(
               step('startTimeDilation', {
                 scope: 'entity',
                 durationSeconds: { kind: 'constant', value: 0.3 },
-                slot: 257664179,
+                slot: "TimeDilation/Layer/Entity/VisualAdjust",
                 priority: 10,
                 curve: { kind: 'inline', keys: [{ time: 0, value: 1.5, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0 }, { time: 1, value: 1.5, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0 }] },
                 finishByAction: false,
@@ -576,7 +576,7 @@ export const camilleFinisher: SkillDefinition = withSkillBlackboard(
               step('startTimeDilation', {
                 scope: 'global',
                 durationSeconds: { kind: 'constant', value: 0.25 },
-                slot: 257664179,
+                slot: "TimeDilation/Layer/Entity/VisualAdjust",
                 priority: 50,
                 curve: { kind: 'inline', keys: [{ time: 0, value: 0, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0 }, { time: 1, value: 1, inTangent: 2, outTangent: 2, weightedMode: 0, inWeight: 0, outWeight: 0 }] },
                 finishByAction: false,
@@ -687,7 +687,7 @@ export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.6 },
-            slot: 0,
+            slot: "unassigned",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -749,7 +749,7 @@ export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
                   kind: 'entityTagMatch',
                   target: 'enemy',
                   tagQueryType: 'hasAny',
-                  tagIds: [2079142122],
+                  tags: ["Skill/Character/chr_0033_camille/NormalSkillBatTarget"],
                 },
                 sequence(
                   branch(
@@ -766,7 +766,7 @@ export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
                         attribute: 'intellect',
                         multiplier: { kind: 'blackboard', key: 'heal_sub_multi' },
                         addition: { kind: 'blackboard', key: 'heal_base' },
-                        tagIds: [-1517158118],
+                        tags: ["Skill/Character/Common/Heal/ComboSkillHeal"],
                       }),
                     ),
                     undefined,
@@ -841,7 +841,7 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.900000036 },
-            slot: 0,
+            slot: "unassigned",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -903,7 +903,7 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.5 },
-            slot: 0,
+            slot: "unassigned",
             priority: 100,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -951,7 +951,7 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
                     attribute: 'intellect',
                     multiplier: { kind: 'blackboard', key: 'heal_sub_multi' },
                     addition: { kind: 'blackboard', key: 'heal_base' },
-                    tagIds: [-1517158118],
+                    tags: ["Skill/Character/Common/Heal/ComboSkillHeal"],
                   }),
                 ),
                 undefined,
@@ -1027,7 +1027,7 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 2.77 },
-            slot: 0,
+            slot: "unassigned",
             priority: 100,
             curve: { kind: 'inline', keys: [{ time: 0, value: 0, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0.333333343 }, { time: 1, value: 0, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0.333333343, outWeight: 0 }] },
             finishByAction: true,
@@ -1476,7 +1476,7 @@ export const camilleGeneratedOperator: OperatorDefinition = {
                         {
                           kind: 'eventHealTagsMatch',
                           match: 'hasAny',
-                          tagIds: [-320297214, -1517158118, -1499119779],
+                          tags: ["Skill/Character/Common/Heal/NormalSkillHeal", "Skill/Character/Common/Heal/ComboSkillHeal", "Skill/Character/Common/Heal/UltimateSkillHeal"],
                         },
                         sequence(
                           step('applyBuff', {

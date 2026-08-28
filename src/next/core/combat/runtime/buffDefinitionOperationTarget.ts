@@ -18,7 +18,7 @@ import type {
   BuffOperationTarget,
   BuffQueryResult,
 } from './buffOperationExecutor';
-import type { GameplayTagId, GameplayTagQueryType } from '../tags/gameplayTags';
+import type { GameplayTag, GameplayTagQueryType } from '../tags/gameplayTags';
 import { COMBAT_FRAME_INTERVAL } from './combatClock';
 import type { FrameRuntime } from './combatSimulation';
 import {
@@ -28,6 +28,7 @@ import {
 } from './buffLifecycleSequenceRuntime';
 import type { CombatOperationExecutor } from './skillRuntime';
 import type { AbilityTickDeltas } from './timeDilationRuntime';
+import type { CombatSkillCastInfo } from './skillCastInfo';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 
 export interface CombatBuffDefinitionResolver<Key extends string> {
@@ -88,7 +89,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
       targetId: this.ownerId,
       buffId: request.buffId,
       sourceId: request.sourceId,
-      buffTagIds: definition.applyTags?.map(Number) ?? [],
+      buffTags: definition.applyTags ?? [],
       skillCastInfo: request.skillCastInfo ?? null,
     };
     // 原生 OnBeforeOutputBuff 在来源 AbilitySystem 上同步发布，且早于目标 Buff 实例创建。
@@ -129,7 +130,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
         targetId: this.container.ownerId,
         buffId: buff.definition.id,
         layers,
-        buffTagIds: buff.definition.applyTags?.map(Number) ?? [],
+        buffTags: buff.definition.applyTags ?? [],
         blackboardValues: buff.blackboard.snapshot(),
       }),
     );
@@ -224,12 +225,12 @@ export class BuffDefinitionOperationTarget<Key extends string>
         : attachBuffLifecycleSequences(
             baseDefinition,
             lifecycleSequences ?? {},
-            buff =>
+            (buff, actionSourceId = buff.sourceId, skillCastInfo = buff.skillCastInfo) =>
               this.#resolveLifecycleOperations!({
                 ownerId: buff.owner.ownerId,
-                sourceId: buff.sourceId,
+                sourceId: actionSourceId,
                 sourceActionId: buff.sourceActionId,
-                skillCastInfo: buff.skillCastInfo,
+                skillCastInfo,
               }),
             this.currentTarget,
             abilityEventResponses,
@@ -276,8 +277,8 @@ export class BuffDefinitionOperationTarget<Key extends string>
     return this.container.finishCountByIds(ids, count, reason);
   }
 
-  ignite(igniteType: string, sourceId: string): number {
-    return this.container.ignite(igniteType, sourceId);
+  ignite(igniteType: string, sourceId: string, skillCastInfo?: CombatSkillCastInfo): number {
+    return this.container.ignite(igniteType, sourceId, skillCastInfo);
   }
 
   holdByIds(ids: readonly string[]): { release(): void } {
@@ -285,7 +286,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
   }
 
   getCountByTags(
-    tags: readonly GameplayTagId[],
+    tags: readonly GameplayTag[],
     type: GameplayTagQueryType,
     exact?: boolean,
   ): number {
@@ -293,7 +294,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
   }
 
   getInstanceCountByTags(
-    tags: readonly GameplayTagId[],
+    tags: readonly GameplayTag[],
     type: GameplayTagQueryType,
     exact?: boolean,
   ): number {
@@ -301,24 +302,24 @@ export class BuffDefinitionOperationTarget<Key extends string>
   }
 
   matchesEntityTags(
-    tags: readonly GameplayTagId[],
+    tags: readonly GameplayTag[],
     type: GameplayTagQueryType,
     exact?: boolean,
   ): boolean {
     return this.container.matchesEntityTags(tags, type, exact);
   }
 
-  matchesTagIds(
-    ownedTags: readonly GameplayTagId[],
-    requiredTags: readonly GameplayTagId[],
+  matchesTags(
+    ownedTags: readonly GameplayTag[],
+    requiredTags: readonly GameplayTag[],
     type: GameplayTagQueryType,
     exact?: boolean,
   ): boolean {
-    return this.container.matchesTagIds(ownedTags, requiredTags, type, exact);
+    return this.container.matchesTags(ownedTags, requiredTags, type, exact);
   }
 
   findFirstByTags(
-    tags: readonly GameplayTagId[],
+    tags: readonly GameplayTag[],
     type: GameplayTagQueryType,
     exact?: boolean,
   ): BuffQueryResult | undefined {
@@ -326,7 +327,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
   }
 
   finishByTags(
-    tags: readonly GameplayTagId[],
+    tags: readonly GameplayTag[],
     type: GameplayTagQueryType,
     reason: BuffFinishReason,
     exact?: boolean,
@@ -335,7 +336,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
   }
 
   finishCountByTags(
-    tags: readonly GameplayTagId[],
+    tags: readonly GameplayTag[],
     type: GameplayTagQueryType,
     count: number,
     reason: BuffFinishReason,

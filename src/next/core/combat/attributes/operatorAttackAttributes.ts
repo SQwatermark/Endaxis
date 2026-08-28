@@ -39,7 +39,9 @@ export type OperatorRuntimeAttribute =
   | 'AtbCostAddition'
   | 'ComboSkillCooldownRecoveryScalar'
   | 'UltimateSpGainScalar'
+  | 'KnockDownTimeAddition'
   | 'criticalRate'
+  | 'shelterDamageMultiplier'
   | 'criticalDamageIncrease'
   | 'healOutputIncrease'
   | 'healTakenIncrease';
@@ -52,6 +54,8 @@ export interface OperatorAttackDerivationInput {
   /** 面板术法强度就是原生 PhysicalAndSpellInflictionEnhance(87) 的构筑期值。 */
   readonly artsIntensity?: number;
   readonly ultimateEnergyGainEfficiency?: number;
+  readonly criticalRate?: number;
+  readonly criticalDamage?: number;
   readonly mainAttribute: OperatorAttribute;
   readonly secondaryAttribute: OperatorAttribute;
   readonly combatModifiers?: readonly {
@@ -125,11 +129,15 @@ export function createOperatorAttackAttributes(
   result.define('healTakenIncrease', staticHealing.taken, {
     otherAttributeBaseAddition: Math.floor(input.attributes.will) * HEAL_TAKEN_INCREASE_PER_WILL,
   });
-  // 面板值仍由构筑层持有；这里保存战斗中 Buff 产生的即时增量。
-  result.define('criticalRate', 0, {});
-  result.define('criticalDamageIncrease', 0, {});
+  // 完整面板必须进入同一属性公式；只保存增量会使最终乘法绕过静态暴击率/暴伤。
+  result.define('criticalRate', input.criticalRate ?? 0, {});
+  result.define('criticalDamageIncrease', input.criticalDamage ?? 0, {});
   // AttributeMetaTable[45]: default 0, no min/max.
   result.define('AtbCostAddition', 0, {});
+  // AttributeMetaTable[34]：倒地请求读取来源的时长加成，默认 0、下限 0、无上限。
+  result.define('KnockDownTimeAddition', 0, { minimum: 0 });
+  // AttributeMetaTable[63]：默认 0、无上下限；保存关键词属性不表示模拟干员受击。
+  result.define('shelterDamageMultiplier', 0, {});
   // AttributeMetaTable[93]: default 1, minimum 0, no maximum.
   result.define('ComboSkillCooldownRecoveryScalar', 1, { minimum: 0 });
   // AttributeMetaTable[44]: 正向终结技能量回复在每次结算时读取该动态属性。

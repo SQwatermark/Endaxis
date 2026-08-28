@@ -1,3 +1,4 @@
+import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { describe, expect, it } from 'vitest';
 import { parseComboSkillConditionsSource } from '../src/source/comboSkillConditions.ts';
 import {
@@ -9,6 +10,7 @@ import { parseAbilitySystemBlackboardsSource } from '../src/source/abilitySystem
 import { targetFixture } from './sourceFixtures.ts';
 
 const context = {
+  gameplayTagRegistry: fixtureGameplayTagRegistry,
   actionOwnerTarget: 'caster',
   actionSourceTarget: 'caster',
   actionTargetTarget: 'eventTarget',

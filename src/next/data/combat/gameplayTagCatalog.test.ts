@@ -1,42 +1,36 @@
 import { describe, expect, it } from 'vitest';
-import { gameplayTagIdFromPath } from '../../core/combat/tags/gameplayTags';
 import {
-  GAMEPLAY_TAG_DEFINITIONS,
   GAMEPLAY_TAG_PATHS,
   gameplayTagRegistry,
-  gameplayTagPath,
   parseGameplayTagReference,
-  requireGameplayTagId,
+  requireGameplayTag,
 } from './gameplayTagCatalog';
 
-describe('versioned GameplayTag catalog', () => {
-  it('contains every unique path from the pinned native config', () => {
-    expect(GAMEPLAY_TAG_PATHS).toHaveLength(652);
-    expect(new Set(GAMEPLAY_TAG_PATHS)).toHaveLength(652);
-    expect(new Set(GAMEPLAY_TAG_DEFINITIONS.map(definition => definition.id))).toHaveLength(652);
+describe('可读 GameplayTag 目录', () => {
+  it('保留固定来源的全部路径，不包含数字身份', () => {
+    expect(GAMEPLAY_TAG_PATHS).toHaveLength(6806);
+    expect(new Set(GAMEPLAY_TAG_PATHS)).toHaveLength(6806);
+    expect(GAMEPLAY_TAG_PATHS).toContain('Category/Interactive');
+    expect(GAMEPLAY_TAG_PATHS).not.toContain('');
+    expect(GAMEPLAY_TAG_PATHS.every(path => typeof path === 'string')).toBe(true);
   });
-
-  it('provides the native hierarchy to production tag queries', () => {
+  it('子路径匹配父标签，但不能误匹配同名前缀', () => {
     expect(
       gameplayTagRegistry.matches(
-        requireGameplayTagId('Status/Immobilized/Frozen'),
-        requireGameplayTagId('Status/Immobilized'),
+        requireGameplayTag('Status/Immobilized/Frozen'),
+        requireGameplayTag('Status/Immobilized'),
       ),
     ).toBe(true);
+    expect(gameplayTagRegistry.matches('Status/ImmobilizedOther', 'Status/Immobilized')).toBe(
+      false,
+    );
   });
-
-  it('maps paths and signed ids without usage-site guesses', () => {
-    const path = 'Skill/Character/Common/Heal/ComboSkillHeal';
-    const id = gameplayTagIdFromPath(path);
-    expect(id).toBe(-1517158118);
-    expect(requireGameplayTagId(path)).toBe(id);
-    expect(gameplayTagPath(id)).toBe(path);
-  });
-
-  it('parses registered paths and preserves unknown signed source ids', () => {
-    expect(parseGameplayTagReference('TimeDilation/Layer/Entity/HitStop')).toBe(1464849466);
-    expect(parseGameplayTagReference('-123')).toBe(-123);
-    expect(parseGameplayTagReference('not/a/registered/path')).toBeUndefined();
-    expect(parseGameplayTagReference('2147483648')).toBeUndefined();
+  it('编辑器支持可读自定义路径，拒绝数字串和占位符', () => {
+    expect(parseGameplayTagReference('TimeDilation/Layer/Entity/HitStop')).toBe(
+      'TimeDilation/Layer/Entity/HitStop',
+    );
+    expect(parseGameplayTagReference('Custom/MyBuff')).toBe('Custom/MyBuff');
+    for (const invalid of ['-123', '2147483648', 'unknown:123'])
+      expect(parseGameplayTagReference(invalid)).toBeUndefined();
   });
 });

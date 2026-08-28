@@ -91,7 +91,7 @@ describe('zhuangFangyi generated skill audit', () => {
       parameters: {
         target: 'enemy',
         outputKey: 'inflictCnt',
-        query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [2123008650] },
+        query: { kind: 'tag', tagQueryType: 'hasAny', buffTags: ["Skill/Character/Common/SpellInflict/PulseInflict"] },
       },
     });
   });

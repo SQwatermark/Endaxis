@@ -18,6 +18,10 @@ export interface CompileActionSequenceProgramOptions<TLeaf, TCondition, TStep, T
   ) => TCondition | null;
   /** 只有已证明无副作用且结果不被消费的尾条件才可删；缺省保留求值。 */
   readonly canOmitTerminalCondition?: (condition: TCondition) => boolean;
+  /** 来源已证明纯读取时，先投影其控制的末端；末端为空就无需建立条件的运行模型。 */
+  readonly canOmitUnusedCondition?: (node: NativeActionNodeSource<TLeaf>) => boolean;
+  /** 返回值被 Switch/资格判断等外层消费；统一禁止删除决定该结果的尾守卫。 */
+  readonly resultIsConsumed?: boolean;
   readonly combineConditions: (conditions: readonly TCondition[]) => TCondition;
   readonly negateCondition: (condition: TCondition) => TCondition;
   readonly compileLeaf: (
@@ -43,6 +47,20 @@ export interface CompileActionSequenceProgramOptions<TLeaf, TCondition, TStep, T
   readonly compileChanneling?: (
     node: NativeActionNodeSource<TLeaf> & {
       readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'channeling' }>;
+    },
+    state: TState,
+  ) => CompiledActionNodeProgram<TStep, TState> | null;
+  /** 宿主须证明执行一次的状态寿命及子序列生命周期可表示；未接入的调用方保持阻断。 */
+  readonly compileOnce?: (
+    node: NativeActionNodeSource<TLeaf> & {
+      readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'once' }>;
+    },
+    state: TState,
+  ) => CompiledActionNodeProgram<TStep, TState> | null;
+  /** 多分支保留有序标签、独立实例和返回值；由公共领域投影决定正式表示。 */
+  readonly compileSwitch?: (
+    node: NativeActionNodeSource<TLeaf> & {
+      readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'switch' }>;
     },
     state: TState,
   ) => CompiledActionNodeProgram<TStep, TState> | null;
@@ -120,12 +138,20 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
   if (first!.body.kind === 'negateNextResult') {
     const [next, ...bodyNodes] = rest;
     if (next === undefined) throw new Error(`${first!.sourcePath}: dangling NotNextCheckAction`);
+    const body = compileActionNodePrograms(bodyNodes, options, state);
+    if (
+      !options.resultIsConsumed &&
+      body.length === 0 &&
+      options.canOmitUnusedCondition?.(next) === true
+    )
+      return [];
     const condition = options.compileCondition(next, state);
     if (condition === null) {
       throw new Error(`${first!.sourcePath}: NotNextCheckAction must precede a condition`);
     }
-    const body = compileActionNodePrograms(bodyNodes, options, state);
-    return body.length === 0 && options.canOmitTerminalCondition?.(condition) === true
+    return !options.resultIsConsumed &&
+      body.length === 0 &&
+      options.canOmitTerminalCondition?.(condition) === true
       ? []
       : [
           options.createConditionalStep({
@@ -135,10 +161,18 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
           }),
         ];
   }
+  // 纯守卫不写编译期状态，故其后续动作可以先投影；不能对普通写入动作倒序执行。
+  const guardedBody =
+    options.canOmitUnusedCondition?.(first!) === true
+      ? compileActionNodePrograms(rest, options, state)
+      : undefined;
+  if (!options.resultIsConsumed && guardedBody?.length === 0) return [];
   const condition = options.compileCondition(first!, state);
   if (condition !== null) {
-    const body = compileActionNodePrograms(rest, options, state);
-    return body.length === 0 && options.canOmitTerminalCondition?.(condition) === true
+    const body = guardedBody ?? compileActionNodePrograms(rest, options, state);
+    return !options.resultIsConsumed &&
+      body.length === 0 &&
+      options.canOmitTerminalCondition?.(condition) === true
       ? []
       : [
           options.createConditionalStep({
@@ -158,7 +192,21 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
     if (!first!.body.alwaysNext) {
       throw new Error(`${first!.sourcePath}: stopping IfElse is unsupported`);
     }
+    const whenTrue = compileActionSequenceProgramFromState(first!.body.whenTrue, options, state);
+    const whenFalse = compileActionSequenceProgramFromState(first!.body.whenFalse, options, state);
     const conditionNodes = first!.body.condition.actions.filter(node => node.metadata.enabled);
+    if (
+      whenTrue.steps.length === 0 &&
+      whenFalse.steps.length === 0 &&
+      conditionNodes.every((child, index) =>
+        child.body.kind === 'negateNextResult'
+          ? conditionNodes[index + 1] !== undefined &&
+            options.canOmitUnusedCondition?.(conditionNodes[index + 1]!) === true
+          : options.canOmitUnusedCondition?.(child) === true,
+      )
+    ) {
+      return compileActionNodePrograms(rest, options, state);
+    }
     const branchConditions: TCondition[] = [];
     for (let index = 0; index < conditionNodes.length; index += 1) {
       const child = conditionNodes[index]!;
@@ -181,8 +229,14 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
     if (branchConditions.length === 0) {
       throw new Error(`${first!.sourcePath}: empty condition sequence`);
     }
-    const whenTrue = compileActionSequenceProgramFromState(first!.body.whenTrue, options, state);
-    const whenFalse = compileActionSequenceProgramFromState(first!.body.whenFalse, options, state);
+    // 已支持条件也不能留下空壳 branch；没有来源级证明时，用投影后的副作用信息补判。
+    if (
+      whenTrue.steps.length === 0 &&
+      whenFalse.steps.length === 0 &&
+      branchConditions.every(condition => options.canOmitTerminalCondition?.(condition) === true)
+    ) {
+      return compileActionNodePrograms(rest, options, state);
+    }
     return [
       options.createConditionalStep({
         condition: options.combineConditions(branchConditions),
@@ -208,6 +262,28 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
     const compiled = options.compileChanneling(
       first as NativeActionNodeSource<TLeaf> & {
         readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'channeling' }>;
+      },
+      state,
+    );
+    if (compiled !== null) {
+      return [...compiled.steps, ...compileActionNodePrograms(rest, options, compiled.state)];
+    }
+  }
+  if (first!.body.kind === 'once' && options.compileOnce !== undefined) {
+    const compiled = options.compileOnce(
+      first as NativeActionNodeSource<TLeaf> & {
+        readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'once' }>;
+      },
+      state,
+    );
+    if (compiled !== null) {
+      return [...compiled.steps, ...compileActionNodePrograms(rest, options, compiled.state)];
+    }
+  }
+  if (first!.body.kind === 'switch' && options.compileSwitch !== undefined) {
+    const compiled = options.compileSwitch(
+      first as NativeActionNodeSource<TLeaf> & {
+        readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'switch' }>;
       },
       state,
     );

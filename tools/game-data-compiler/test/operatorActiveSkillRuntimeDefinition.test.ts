@@ -1,3 +1,4 @@
+import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { describe, expect, it } from 'vitest';
 import {
   compileOperatorActiveSkillRuntimeDefinitionSource,
@@ -6,6 +7,7 @@ import {
 import { activeSkillFixture } from './sourceFixtures.ts';
 
 const context = {
+  gameplayTagRegistry: fixtureGameplayTagRegistry,
   actionOwnerTarget: 'caster',
   actionSourceTarget: 'caster',
   actionTargetTarget: 'enemy',
@@ -20,9 +22,18 @@ describe('Operator 主动技能正式运行定义', () => {
       { key: 'atb', valueDouble: 3, valueStr: '', isDynamic: true },
     ];
     const definition = compileOperatorActiveSkillRuntimeDefinitionSource({
-      key: 'comboSkill', skillType: 'comboSkill', value: source, sourcePath: 'dynamic', context,
-      patch: { levels: [1, 2], blackboard: { atb: [7.5, 8] },
-        cooldownSeconds: [0, 0], costTypes: [0, 0], costValues: [0, 0] },
+      key: 'comboSkill',
+      skillType: 'comboSkill',
+      value: source,
+      sourcePath: 'dynamic',
+      context,
+      patch: {
+        levels: [1, 2],
+        blackboard: { atb: [7.5, 8] },
+        cooldownSeconds: [0, 0],
+        costTypes: [0, 0],
+        costValues: [0, 0],
+      },
     });
     expect(definition.blackboard).toEqual({ count: 0, atb: [7.5, 8] });
     expect(source.blackboard).toEqual([
@@ -68,8 +79,8 @@ describe('Operator 主动技能正式运行定义', () => {
           priority: 0,
           maxStackCount: 1,
           durationSeconds: 2,
-          applyTagIds: [],
-          extendTagIds: [],
+          applyTags: [],
+          extendTags: [],
           blackboard: {},
           attributeModifiers: [],
         },

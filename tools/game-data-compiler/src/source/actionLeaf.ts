@@ -11,6 +11,9 @@ import {
 import {
   parseAdvancedBuffFinishActionSource,
   parseBuffApplicationActionSource,
+  parseBuffIgniteActionSource,
+  parsePhysicalNoGuardStartedEventSource,
+  type BuffIgniteActionSource,
   parseBuffInheritanceActionSource,
   parseLegacyBuffFinishActionSource,
   parseTaggedBuffFinishActionSource,
@@ -49,6 +52,10 @@ import {
   type SkillSettingReadActionSource,
 } from './skillSettingActions.ts';
 import { parseDamageActionSource, type DamageActionSource } from './damageActions.ts';
+import {
+  parseKnockDownActionSource,
+  type KnockDownActionSource,
+} from './physicalInflictionActions.ts';
 import { parseHealActionSource, type HealActionSource } from './healActions.ts';
 import {
   parseBreakInteractiveActionSource,
@@ -112,6 +119,7 @@ import {
 } from './normalSkillUltimateEnergy.ts';
 import {
   parseEnhancedActionSource,
+  parseShelterActionSource,
   parseVulnerableActionSource,
   type KeywordBuffActionSource,
 } from './keywordActions.ts';
@@ -268,6 +276,7 @@ const REFERENCE_CLOSURE_ACTION_NAMES = new Set([
   'SpawnAbilityEntity',
   'CastSkill',
   'ForceSpellStatusAction',
+  'KnockDownAction',
 ]);
 
 export type KnownNativeActionParseScope = 'all' | 'referenceClosure';
@@ -337,12 +346,15 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'heal'; readonly action: HealActionSource }
   | { readonly family: 'environment'; readonly action: BreakInteractiveActionSource }
   | { readonly family: 'elementalInfliction'; readonly action: ElementalInflictionActionSource }
+  | { readonly family: 'buffIgnite'; readonly action: BuffIgniteActionSource }
   | { readonly family: 'forcedElementalStatus'; readonly action: ForcedElementalStatusActionSource }
+  | { readonly family: 'physicalInfliction'; readonly action: KnockDownActionSource }
   | { readonly family: 'spellBurstEvent'; readonly action: TriggerSpellBurstEventSource }
   | {
       readonly family: 'levelEvent';
       readonly action:
         | SpellAbnormalLifecycleEventSource
+        | ReturnType<typeof parsePhysicalNoGuardStartedEventSource>
         | SpellInflictionStartedEventSource
         | ForceTriggerWeaknessEventSource;
     }
@@ -428,6 +440,11 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'keywordBuff',
         action: parseVulnerableActionSource(value, path, inheritedBlackboard),
       };
+    case 'ShelterAction':
+      return {
+        family: 'keywordBuff',
+        action: parseShelterActionSource(value, path, inheritedBlackboard),
+      };
     case 'EnhancedAction':
       return {
         family: 'keywordBuff',
@@ -453,6 +470,10 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'elementalInfliction',
         action: parseElementalInflictionActionSource(value, path),
       };
+    case 'IgniteAction':
+      return { family: 'buffIgnite', action: parseBuffIgniteActionSource(value, path) };
+    case 'OnPhysicalNoGuardStart':
+      return { family: 'levelEvent', action: parsePhysicalNoGuardStartedEventSource(value, path) };
     case 'ForceSpellStatusAction':
       return {
         family: 'forcedElementalStatus',
@@ -849,6 +870,11 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'stumpControl',
         action: parsePushBackActionSource(value, path, inheritedBlackboard),
+      };
+    case 'KnockDownAction':
+      return {
+        family: 'physicalInfliction',
+        action: parseKnockDownActionSource(value, path, inheritedBlackboard),
       };
     case 'BlowOffEnemyAction':
       return {

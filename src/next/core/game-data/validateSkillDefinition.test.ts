@@ -137,7 +137,7 @@ describe('validateSkillDefinition', () => {
                 attribute: 'will',
                 multiplier: [1, 2],
                 addition: { kind: 'blackboard', key: 'base' },
-                tagIds: [-1],
+                tags: ['Test/TagNegative1'],
               },
             },
           ],
@@ -169,7 +169,7 @@ describe('validateSkillDefinition', () => {
               parameters: {
                 target: 'controlledOperator',
                 amount: { kind: 'blackboard', key: 'final_heal_value' },
-                tagIds: [-1517158118],
+                tags: ['Skill/Character/Common/Heal/ComboSkillHeal'],
               },
             },
           ],
@@ -259,7 +259,7 @@ describe('validateSkillDefinition', () => {
               parameters: {
                 scope: 'global',
                 durationSeconds: { kind: 'constant', value: 1 },
-                slot: 1,
+                slot: 'Test/TimeSlot1',
                 priority: 2,
                 curve: { kind: 'named', key: 'ComboSkill' },
                 finishByAction: false,
@@ -286,7 +286,7 @@ describe('validateSkillDefinition', () => {
               parameters: {
                 scope: 'entity',
                 durationSeconds: { kind: 'constant', value: 1 },
-                slot: 1,
+                slot: 'Test/TimeSlot1',
                 priority: 2,
                 curve: { kind: 'named', key: 'ComboSkill' },
                 finishByAction: false,
@@ -364,7 +364,7 @@ describe('validateSkillDefinition', () => {
               parameters: {
                 scope: 'global',
                 durationSeconds: { kind: 'constant', value: 1 },
-                slot: 1,
+                slot: 'Test/TimeSlot1',
                 priority: 2,
                 curve: { kind: 'named', key: 'ComboSkill' },
                 finishByAction: false,

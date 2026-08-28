@@ -6,6 +6,9 @@
 
 ## 推荐阅读顺序
 
+接续统一 TS 编译器时，先读 [2026-08-28 同步交接检查点](2026-08-28-sync-checkpoint.md)
+和 [当前任务快照](current-context.md)。前者汇总本批交付、测试、未解阻塞与下一步；下文部分专题保留历史背景。
+
 1. [背景、目标与历史](./01-background-and-goals.md)：项目为何存在，旧版 Endaxis 有什么问题，Next 要交付什么。
 2. [项目与工具总览](./02-projects-and-tools.md)：AKEDatabase、VFS 浏览器、AnimeStudio、IL2CPP Dumper、C# Combat Spec 等分别做什么。
 3. [证据链与研究方法](./03-evidence-and-research-method.md)：一项游戏规则如何被发现、验证、复刻并进入生产代码。

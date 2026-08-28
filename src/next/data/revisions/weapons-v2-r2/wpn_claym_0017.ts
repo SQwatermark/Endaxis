@@ -49,8 +49,8 @@ const definition = {
               category: 'CommonCharBuff',
             },
           },
-          applyTagIds: [],
-          extendTagIds: [],
+          applyTags: [],
+          extendTags: [],
           blackboard: {
             duration: 10,
             phy_spell_up: 0,
@@ -93,8 +93,8 @@ const definition = {
               category: 'CommonCharBuff',
             },
           },
-          applyTagIds: [],
-          extendTagIds: [],
+          applyTags: [],
+          extendTags: [],
           blackboard: {
             duration2: 0,
             phy_dmg_up_mult: 0,
@@ -154,7 +154,7 @@ const definition = {
                   condition: {
                     kind: 'eventBuffTagsMatch',
                     match: 'hasAny',
-                    buffTagIds: [1066759270],
+                    buffTags: ["Skill/Character/Common/Affixes/Vulnerable/VulnerablePhysic"],
                   },
                 },
                 whenTrue: {
@@ -215,7 +215,7 @@ const definition = {
                         condition: {
                           kind: 'eventTargetBuffCountCompare',
                           tagQueryType: 'hasAny',
-                          buffTagIds: [1075718177],
+                          buffTags: ["Skill/Character/Common/NoGuard"],
                           operator: 'greaterOrEqual',
                           value: {
                             kind: 'constant',
@@ -234,7 +234,7 @@ const definition = {
                               query: {
                                 kind: 'tag',
                                 tagQueryType: 'hasAny',
-                                buffTagIds: [1075718177],
+                                buffTags: ["Skill/Character/Common/NoGuard"],
                               },
                             },
                           },

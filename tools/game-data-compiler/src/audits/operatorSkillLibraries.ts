@@ -10,7 +10,7 @@ import {
   parseProjectileDefinitionReferenceNodes,
 } from '../compiler/referenceDefinitions.ts';
 import { compileAbilityEntityTemplateCatalogSource } from '../compiler/abilityEntityCatalog.ts';
-import { GameplayTagRegistry } from '../../../../src/shared/gameplayTags.ts';
+import { GameplayTagRegistry } from '../source/nativeGameplayTags.ts';
 
 export interface OperatorSkillLibraryAuditEntrySource {
   readonly slug: string;

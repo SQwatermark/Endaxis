@@ -16,7 +16,7 @@ export const yvonneComboSkill: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.667 },
-            slot: 0,
+            slot: "unassigned",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -42,7 +42,7 @@ export const yvonneComboSkill: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 0.15 },
-            slot: 1464849466,
+            slot: "TimeDilation/Layer/Entity/HitStop",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -796,7 +796,7 @@ export const yvonneUltimate: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 1 },
-            slot: 1464849466,
+            slot: "TimeDilation/Layer/Entity/HitStop",
             priority: 10,
             curve: { kind: 'named', key: 'RESETto1' },
             finishByAction: false,
@@ -2690,7 +2690,7 @@ export const yvonneUltimateAttackEnd: SkillDefinition = withSkillBlackboard(
                   kind: 'buffStackCompare',
                   target: 'enemy',
                   tagQueryType: 'hasAny',
-                  buffTagIds: [1535684437],
+                  buffTags: ["Skill/Character/Common/SpellStatus/Frozen"],
                   operator: 'greaterOrEqual',
                   value: { kind: 'constant', value: 1 },
                 },
@@ -2703,7 +2703,7 @@ export const yvonneUltimateAttackEnd: SkillDefinition = withSkillBlackboard(
                   step('finishBuffsByTag', {
                     target: 'enemy',
                     tagQueryType: 'hasAny',
-                    buffTagIds: [1535684437],
+                    buffTags: ["Skill/Character/Common/SpellStatus/Frozen"],
                     reason: 'early',
                   }),
                 ),
@@ -2840,7 +2840,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                 {
                   kind: 'eventBuffTagsMatch',
                   match: 'hasAny',
-                  buffTagIds: [1535684437],
+                  buffTags: ["Skill/Character/Common/SpellStatus/Frozen"],
                 },
                 sequence(
                   step('applyBuff', {
@@ -2882,7 +2882,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
               kind: 'entityTagMatch',
               target: 'caster',
               tagQueryType: 'exceptAny',
-              tagIds: [430405417, 839947434, -1666491964, -1855674685, 1253324189, 1015258574, -1472906513, -1486085048],
+              tags: ["Status/Immobilized", "Status/InCommonInteraction", "GameplayState/Interacting/BambooRaft/OnBoat", "Status/Ability/Skill/CantCastAnySkill", "GameplayState/Interacting/Bomb/Create", "Status/InCommonInteractionCanMove", "Status/Silence", "Status/DisableNormalSkill"],
             },
             sequence(
               sequence(
@@ -2905,7 +2905,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                         kind: 'buffStackCompare',
                         target: 'enemy',
                         tagQueryType: 'hasAny',
-                        buffTagIds: [1570888476, -1411846745],
+                        buffTags: ["Skill/Character/Common/SpellInflict/CrystInflict", "Skill/Character/Common/SpellInflict/NaturalInflict"],
                         operator: 'greaterOrEqual',
                         value: { kind: 'constant', value: 1 },
                       },
@@ -2915,7 +2915,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                             kind: 'buffStackCompare',
                             target: 'enemy',
                             tagQueryType: 'hasAny',
-                            buffTagIds: [1570888476],
+                            buffTags: ["Skill/Character/Common/SpellInflict/CrystInflict"],
                             operator: 'greaterOrEqual',
                             value: { kind: 'constant', value: 1 },
                           },
@@ -2923,7 +2923,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                             step('readBuffStackCount', {
                               target: 'buffOwner',
                               outputKey: 'count',
-                              query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [1570888476] },
+                              query: { kind: 'tag', tagQueryType: 'hasAny', buffTags: ["Skill/Character/Common/SpellInflict/CrystInflict"] },
                             }),
                             step('calculateActionValue', {
                               key: 'atk_scale_final',
@@ -2975,7 +2975,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                             step('readBuffStackCount', {
                               target: 'buffOwner',
                               outputKey: 'count',
-                              query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [-1411846745] },
+                              query: { kind: 'tag', tagQueryType: 'hasAny', buffTags: ["Skill/Character/Common/SpellInflict/NaturalInflict"] },
                             }),
                             step('calculateActionValue', {
                               key: 'atk_scale_final',
@@ -3100,7 +3100,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                         kind: 'buffStackCompare',
                         target: 'enemy',
                         tagQueryType: 'hasAny',
-                        buffTagIds: [1570888476, -1411846745],
+                        buffTags: ["Skill/Character/Common/SpellInflict/CrystInflict", "Skill/Character/Common/SpellInflict/NaturalInflict"],
                         operator: 'greaterOrEqual',
                         value: { kind: 'constant', value: 1 },
                       },
@@ -3110,7 +3110,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                             kind: 'buffStackCompare',
                             target: 'enemy',
                             tagQueryType: 'hasAny',
-                            buffTagIds: [1570888476],
+                            buffTags: ["Skill/Character/Common/SpellInflict/CrystInflict"],
                             operator: 'greaterOrEqual',
                             value: { kind: 'constant', value: 1 },
                           },
@@ -3118,7 +3118,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                             step('readBuffStackCount', {
                               target: 'buffOwner',
                               outputKey: 'count',
-                              query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [1570888476] },
+                              query: { kind: 'tag', tagQueryType: 'hasAny', buffTags: ["Skill/Character/Common/SpellInflict/CrystInflict"] },
                             }),
                             step('calculateActionValue', {
                               key: 'atk_scale_final',
@@ -3163,7 +3163,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                             step('readBuffStackCount', {
                               target: 'buffOwner',
                               outputKey: 'count',
-                              query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [-1411846745] },
+                              query: { kind: 'tag', tagQueryType: 'hasAny', buffTags: ["Skill/Character/Common/SpellInflict/NaturalInflict"] },
                             }),
                             step('calculateActionValue', {
                               key: 'atk_scale_final',
@@ -3299,7 +3299,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                 amount: { kind: 'blackboard', key: 'ex_usp_up' },
                 recipient: 'caster',
                 isPercentValue: true,
-                ultimateRecoveryTagId: 669811152,
+                ultimateRecoveryTag: "Skill/Character/chr_0017_yvonne/UltimateEndUsp",
               }),
             ),
           ),
@@ -3352,7 +3352,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
       priority: 0,
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration_end' },
-      applyTagIds: [-388303696],
+      applyTags: ["Status/DisableBreakingAttack"],
       blackboard: {
         'atk_up': 0,
         'crit_dmg_up': 0,
@@ -3478,7 +3478,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
       priority: 0,
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration' },
-      applyTagIds: [-388303696],
+      applyTags: ["Status/DisableBreakingAttack"],
       blackboard: {
         'atk_up': 0,
         'crit_dmg_up': 0,
@@ -3764,13 +3764,13 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                 kind: 'entityTagMatch',
                 target: 'enemy',
                 tagQueryType: 'hasAny',
-                tagIds: [1570888476],
+                tags: ["Skill/Character/Common/SpellInflict/CrystInflict"],
               },
               {
                 kind: 'entityTagMatch',
                 target: 'enemy',
                 tagQueryType: 'exceptAny',
-                tagIds: [1535684437],
+                tags: ["Skill/Character/Common/SpellStatus/Frozen"],
               },
             ],
           },
@@ -3796,13 +3796,13 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                 kind: 'entityTagMatch',
                 target: 'enemy',
                 tagQueryType: 'hasAny',
-                tagIds: [1535684437],
+                tags: ["Skill/Character/Common/SpellStatus/Frozen"],
               },
               {
                 kind: 'entityTagMatch',
                 target: 'enemy',
                 tagQueryType: 'exceptAny',
-                tagIds: [1570888476],
+                tags: ["Skill/Character/Common/SpellInflict/CrystInflict"],
               },
             ],
           },
@@ -3825,7 +3825,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
             kind: 'entityTagMatch',
             target: 'enemy',
             tagQueryType: 'hasAll',
-            tagIds: [1570888476, 1535684437],
+            tags: ["Skill/Character/Common/SpellInflict/CrystInflict", "Skill/Character/Common/SpellStatus/Frozen"],
           },
           processors: [
             {
@@ -3963,7 +3963,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                                           triggerIntervalSeconds: 1,
                                           waitFirstTriggerInterval: true,
                                           maxTriggerCount: 1,
-                                          applyTagIds: [1535684437],
+                                          applyTags: ["Skill/Character/Common/SpellStatus/Frozen"],
                                           blackboard: {
                                             'count': 1,
                                             'duration': 5,
@@ -3991,7 +3991,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                                                           priority: 0,
                                                           maxStackCount: 1,
                                                           durationSeconds: { blackboardKey: 'duration' },
-                                                          applyTagIds: [-717418722, 889346577],
+                                                          applyTags: ["Status/Immobilized/Frozen", "Status/DisableFaceToAttacker"],
                                                           blackboard: {
                                                             'duration': 9999,
                                                           },
@@ -4000,7 +4000,7 @@ export const yvonneGeneratedOperator: OperatorDefinition = {
                                                               step('startTimeDilation', {
                                                                 scope: 'entity',
                                                                 durationSeconds: { kind: 'blackboard', key: 'duration' },
-                                                                slot: -1855252810,
+                                                                slot: "TimeDilation/Layer/Entity/Frozen",
                                                                 priority: 50,
                                                                 curve: { kind: 'inline', keys: [{ time: 0, value: 0, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0.333333343 }, { time: 1, value: 0, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0.333333343, outWeight: 0 }] },
                                                                 finishByAction: true,

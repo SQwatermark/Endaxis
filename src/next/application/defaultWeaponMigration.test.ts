@@ -17,6 +17,7 @@ import { createWeaponMigrationBackupStorage } from '../ui/timeline/weaponMigrati
 import { openProject } from './openProject';
 import { canMigrateWeaponRevision, prepareDefaultWeaponMigration } from './defaultWeaponMigration';
 
+// 标签契约整体迁为可读路径；以下哈希固定同一历史行为在新契约中的表示。
 describe('published generated weapon revision', () => {
   it('pins all v1 weapon definitions independently of mutable legacy adapters', async () => {
     expect(legacyWeaponDefinitions).toHaveLength(77);
@@ -27,7 +28,7 @@ describe('published generated weapon revision', () => {
       await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)),
     );
     expect(Array.from(digest, byte => byte.toString(16).padStart(2, '0')).join('')).toBe(
-      '07fcf18abfd172525e3ce087b96a55cfbdceb92ea241807b9f738e408edf8aa7',
+      'ecba473bc9eb2e92e3a1a3bf6741f18a6d0a549e7b25de6876f6ab595ff91475',
     );
     expect(
       legacyWeaponDefinitions.flatMap(definition => validateWeaponDefinition(definition)),
@@ -45,7 +46,7 @@ describe('published generated weapon revision', () => {
       Array.from(targetDigest, byte => byte.toString(16).padStart(2, '0')).join(''),
     ]).toEqual([
       'endaxis-next-definitions-v2-weapons-1.4.4-r3',
-      '4f0283089cc10075ebf50bbab6cd972f8b6393f580b80d8e66ddf2107bd4080e',
+      'd7eecb6fdf3cf9a6c27ae0358ad5c2a1b494dea1d0ac66048ea257b7754e256e',
     ]);
     expect(nextGameDataRepository.getWeapons()).toEqual(nextWeaponDefinitions);
     expect(Object.keys(nextWeaponRegistration.aliases)).toHaveLength(77);
@@ -62,7 +63,7 @@ describe('published generated weapon revision', () => {
       ),
     );
     expect(Array.from(digest, byte => byte.toString(16).padStart(2, '0')).join('')).toBe(
-      '58c2f3ca62fb70c164b9c0b34dbf48397be7443ce4771ff057467f432641e740',
+      '236154f1d103399c83bb2f1f463f36b69738cc81888e7eab0248effe71a75a32',
     );
     expect(
       previous
@@ -91,7 +92,7 @@ describe('published generated weapon revision', () => {
       ),
     );
     expect(Array.from(digest, byte => byte.toString(16).padStart(2, '0')).join('')).toBe(
-      '412cadadedb380c8013ff54e8e3254b6233645483d93f06933f11823506be20a',
+      'a0348bef211010fdf03cb64434fcbc97f75665fb0027c8bb6fc1f67535348426',
     );
     expect(
       previous

@@ -695,7 +695,7 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.867000043 },
-            slot: 0,
+            slot: "unassigned",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -711,7 +711,7 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 0.15 },
-            slot: 1464849466,
+            slot: "TimeDilation/Layer/Entity/HitStop",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -1245,7 +1245,7 @@ export const tangtangUltimate: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 1 },
-            slot: 1464849466,
+            slot: "TimeDilation/Layer/Entity/HitStop",
             priority: 10,
             curve: { kind: 'named', key: 'RESETto1' },
             finishByAction: false,
@@ -8634,7 +8634,7 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                     priority: 0,
                     maxStackCount: 1,
                     durationSeconds: { blackboardKey: 'duration_waterdebuff' },
-                    applyTagIds: [1925762097],
+                    applyTags: ["Skill/Character/Common/Affixes/Slow"],
                     blackboard: {
                       'duration_waterdebuff': 30,
                       'ratio_speedreduction': 0.7,
@@ -8751,7 +8751,7 @@ export const tangtangGeneratedOperator: OperatorDefinition = {
                   priority: 0,
                   maxStackCount: 1,
                   durationSeconds: { blackboardKey: 'duration_talent1buff' },
-                  applyTagIds: [1925762097],
+                  applyTags: ["Skill/Character/Common/Affixes/Slow"],
                   blackboard: {
                     'duration_talent1buff': 3,
                     'ratio_speedreduction': 0.7,

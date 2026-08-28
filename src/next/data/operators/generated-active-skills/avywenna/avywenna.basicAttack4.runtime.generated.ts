@@ -95,7 +95,7 @@ export default {
                       "kind": "constant",
                       "value": 0.05
                     },
-                    "slot": 1464849466,
+                    "slot": "TimeDilation/Layer/Entity/HitStop",
                     "priority": 10,
                     "curve": {
                       "kind": "named",
@@ -179,7 +179,7 @@ export default {
                       "kind": "constant",
                       "value": 0.22
                     },
-                    "slot": 1464849466,
+                    "slot": "TimeDilation/Layer/Entity/HitStop",
                     "priority": 10,
                     "curve": {
                       "kind": "named",

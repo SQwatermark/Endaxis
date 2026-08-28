@@ -1,9 +1,15 @@
-import { describe, expect, it } from 'vitest';
+import { fixtureGameplayTagRegistry } from '../../../../../tools/game-data-compiler/test/gameplayTagFixtures.ts';
+import { describe, expect, it, vi } from 'vitest';
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
 import type { CombatBuffDefinitionsDocument } from '../buffs/combatBuffDefinitions';
 import type { SkillSettingsDocument } from '../infliction/skillSettings';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { CombatClock } from './combatClock';
+import damageFixture from '../../../../../tools/game-data-compiler/test/fixtures/avywenna-return-damage.json';
+import { parseDamageActionSource } from '../../../../../tools/game-data-compiler/src/source/damageActions.ts';
+import { compileEventTargetSimpleDamageOperationSource } from '../../../../../tools/game-data-compiler/src/compiler/simpleDamageOperation.ts';
+import { scalarFixture } from '../../../../../tools/game-data-compiler/test/sourceFixtures.ts';
+import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import { CombatResources } from './combatResources';
 import type {
   CombatEnemyProgram,
@@ -17,7 +23,6 @@ import { createEnemyCombatVitals } from './combatVitalsFactory';
 import { CombatVitalsConditionExecutor } from './combatVitalsConditionExecutor';
 import { ActionBlackboard } from './actionBlackboard';
 import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
-import { gameplayTagId } from '../tags/gameplayTags';
 import { elementalAttachments } from '../../../data/buffs/elementalAttachments';
 import { skillSettings } from '../../../data/combat/skillSettings';
 import { ELEMENTAL_INFLICTION_EVENTS } from './elementalInflictionOperationExecutor';
@@ -153,6 +158,218 @@ function createEquipmentContext(): EquipmentEventOperationExecutorContext {
   };
 }
 
+it.each(['criticalRate', 'criticalDamageIncrease'] as const)(
+  '即时 %s 最终乘法作用于完整面板，结束后下一击恢复',
+  attribute => {
+    const original = createContext();
+    const context = {
+      ...original,
+      program: { ...original.program, statModifiers: { criticalRate: 0.3 } },
+    };
+    const environment = createEnvironment(testEnemy, 0.1);
+    const samples = vi.spyOn(environment.options.criticalSamples, 'nextCriticalSample');
+    const executor = environment.runtimeOptions.createOperationExecutor(context);
+    const blackboard = new ActionBlackboard({ multiplier: 0, atk_scale_lance: 1 });
+    const runtime = new CombatActionSequenceRuntime(executor, { blackboard });
+    // 原生形状 → 公共投影 → 正式编译 → 实际环境；不用手写运行时修正绕过生成链。
+    const raw = structuredClone(damageFixture[0]!.branch.failActions.actionData[0]!);
+    const projected = compileEventTargetSimpleDamageOperationSource(
+      parseDamageActionSource(
+        {
+          ...raw,
+          damageUnits: [
+            {
+              ...raw.damageUnits[0]!,
+              damageProcessors: [
+                {
+                  $type: 'Beyond.Gameplay.Core.InstantModifyAttribute, Gameplay.Beyond',
+                  modifyTargetSide: 'Attacker',
+                  modifier: {
+                    modifyAttributeType: 'Specific',
+                    attributeType:
+                      attribute === 'criticalRate' ? 'CriticalRate' : 'CriticalDamageIncrease',
+                    formulaItem: 'FinalMultiplier',
+                    param: scalarFixture(0, 'multiplier'),
+                  },
+                },
+              ],
+            },
+          ],
+        },
+        'critical.damage',
+        {},
+      ),
+      'critical.damage',
+    );
+    const sequence = runtime.createSequence(compileActionSequence({ steps: [projected] }, 1));
+    sequence.executeInstant({});
+    expect(samples).toHaveBeenCalledTimes(attribute === 'criticalRate' ? 0 : 1);
+    executor.execute(damageStep);
+    blackboard.assignDynamic('multiplier', 1);
+    sequence.executeInstant({});
+    const hits = (context.receipt as CombatReceiptCollector).entries.filter(
+      entry => entry.event === 'DamageApplied',
+    );
+    expect(hits).toHaveLength(3);
+    expect(hits[0]!.data?.criticalMultiplier).toBe(1);
+    expect(hits[0]!.data?.isCritical).toBe(attribute !== 'criticalRate');
+    expect(hits[1]!.data?.criticalMultiplier).toBe(1.6);
+    expect(hits[2]!.data?.criticalMultiplier).toBe(1.6);
+    expect(samples).toHaveBeenCalledTimes(attribute === 'criticalRate' ? 2 : 3);
+  },
+);
+
+it.each(['burst', 'buff'] as const)(
+  '%s 旁路读取完整暴击属性，不重复加入面板或继承技能加成',
+  route => {
+    const run = (sample: number, finalMultiplier: number) => {
+      const base = createContext();
+      const context = {
+        ...base,
+        program: { ...base.program, statModifiers: { criticalRate: 0.8 } },
+      };
+      const environment = new StandardPlayerDamageEnvironment({
+        criticalSamples: { nextCriticalSample: () => sample },
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        enemyVitals: createEnemyCombatVitals(testEnemy),
+        spellInflictionSettings: createSkillSettings(),
+        elementalInflictionDocument: {
+          schemaVersion: 1,
+          revision: 'critical-test',
+          buffs: [
+            {
+              id: 'attachment.electric',
+              stackingType: 'enhanceAndRefresh',
+              stackingKey: 'attachment.electric',
+              maxStackCount: 4,
+              durationSeconds: 10,
+              role: { kind: 'elementalAttachment', element: 'electric' },
+            },
+            {
+              id: 'burst.electric',
+              stackingType: 'unlimited',
+              durationSeconds: 5,
+              triggerIntervalSeconds: 1,
+              waitFirstTriggerInterval: true,
+              maxTriggerCount: 1,
+              role: { kind: 'elementalBurst', element: 'electric' },
+              actions: {
+                trigger:
+                  route === 'burst'
+                    ? [{ kind: 'triggerSpellBurst', burstType: 'Pulse' }]
+                    : [
+                        {
+                          kind: 'dealAttackScaledDamage',
+                          damageType: 'electric',
+                          attackScale: 1,
+                          tags: [],
+                          features: [],
+                          canCritical: true,
+                        },
+                      ],
+              },
+              spellBurst: {
+                burstType: 'Pulse',
+                damageType: 'electric',
+                skillSettingDataKey: '法术爆发伤害倍率',
+                skillSettingColumn: 1,
+                atkScaleBase: 50,
+              },
+            },
+          ],
+        },
+      });
+      const executor = environment.runtimeOptions.createOperationExecutor(context);
+      const owner = environment.runtimeOptions.createOperatorBuffRuntime!(
+        'operator',
+        context.panel,
+      );
+      if (!(owner instanceof BuffDefinitionOperationTarget))
+        throw new Error('fixture Buff runtime');
+      owner.container.attributes.addModifier(
+        new CombatAttributeModifier(
+          'criticalRate',
+          attributeModifierValues('finalMultiplier', finalMultiplier),
+          ATTRIBUTE_MODIFIER_SOURCES.buff,
+          'runtime',
+        ),
+      );
+      owner.container.attributes.addModifier(
+        new CombatAttributeModifier(
+          'criticalDamageIncrease',
+          attributeModifierValues('finalMultiplier', 2),
+          ATTRIBUTE_MODIFIER_SOURCES.buff,
+          'runtime',
+        ),
+      );
+      for (let i = 0; i < 2; i++)
+        executor.execute({
+          kind: 'applyElementalInfliction',
+          parameters: { element: 'electric', isExtra: false },
+        });
+      for (let frame = 0; frame < 31; frame++)
+        environment.runtimeOptions.enemyBuffRuntime.advanceFrame();
+      const hits = (context.receipt as CombatReceiptCollector).entries.filter(
+        entry => entry.event === 'DamageApplied',
+      );
+      expect(hits).toHaveLength(1);
+      return hits[0]!.data;
+    };
+    expect(run(0.2, 1)).toMatchObject({ isCritical: false, criticalMultiplier: 1 });
+    expect(run(0.1, 1)).toMatchObject({ isCritical: true, criticalMultiplier: 2.2 });
+    expect(run(0.1, 0)).toMatchObject({ isCritical: false, criticalMultiplier: 1 });
+  },
+);
+
+it('技能编译保留即时 Atk 修正，只影响当前命中且每次读取当前黑板', () => {
+  const context = createContext();
+  const environment = createEnvironment();
+  const executor = environment.runtimeOptions.createOperationExecutor(context);
+  const blackboard = new ActionBlackboard({ bonus: 0.5 });
+  const compiled = compileActionSequence(
+    {
+      steps: [
+        {
+          kind: 'dealDamage',
+          parameters: {
+            ...damageStep.parameters,
+            instantAttributeModifiers: [
+              {
+                targetSide: 'attacker',
+                attribute: 'Atk',
+                slot: 'baseMultiplier',
+                value: { kind: 'blackboard', key: 'bonus' },
+                attributeTiming: 'runtime',
+              },
+            ],
+          },
+        },
+      ],
+    },
+    1,
+  );
+  const runtime = new CombatActionSequenceRuntime(executor, { blackboard });
+  const sequence = runtime.createSequence(compiled);
+  sequence.executeInstant({});
+  executor.execute(damageStep);
+  blackboard.assignDynamic('bonus', 1);
+  sequence.executeInstant({});
+  executor.execute(damageStep);
+  const hits = (context.receipt as CombatReceiptCollector).entries.filter(
+    entry => entry.event === 'DamageApplied',
+  );
+  // 基础攻击 700、战技增伤 20%、防御除以 3、电抗 20%。即时攻击不残留到下一击。
+  const base = ((700 * 1.2) / 3) * 0.8;
+  expect(hits).toHaveLength(4);
+  for (const [index, scale] of [1.5, 1, 2, 1].entries()) {
+    expect(hits[index]!.data?.value).toBeCloseTo(base * scale);
+  }
+});
+
 it('装备末端从真实配装上下文结算伤害，不继承触发技能或发送伪技能命中', () => {
   const context = createEquipmentContext();
   const environment = createEnvironment();
@@ -210,7 +427,7 @@ it('装备末端满血治疗仍按 output、receive 顺序发布事件，且不�
   }
   const executor = environment.runtimeOptions.createEquipmentEventOperationExecutor!(context);
   expect(
-    executor.execute({ kind: 'heal', parameters: { target: 'caster', amount: 100, tagIds: [] } }),
+    executor.execute({ kind: 'heal', parameters: { target: 'caster', amount: 100, tags: [] } }),
   ).toBe(true);
   expect(events).toEqual(['outputHeal', 'receiveHeal']);
 });
@@ -369,6 +586,7 @@ describe('StandardPlayerDamageEnvironment', () => {
           'fixture.combo',
         ).conditions.map((source, index) => {
           const compiled = compilePendingComboConditionSource(source, {
+            gameplayTagRegistry: fixtureGameplayTagRegistry,
             actionOwnerTarget: 'caster',
             actionSourceTarget: 'caster',
             actionTargetTarget: 'eventTarget',
@@ -528,6 +746,7 @@ describe('StandardPlayerDamageEnvironment', () => {
         const pending: number[] = [];
         source.conditions.forEach((condition, index) => {
           const compiled = compilePendingComboConditionSource(condition, {
+            gameplayTagRegistry: fixtureGameplayTagRegistry,
             actionOwnerTarget: 'caster',
             actionSourceTarget: 'caster',
             actionTargetTarget: 'eventTarget',
@@ -691,7 +910,7 @@ describe('StandardPlayerDamageEnvironment', () => {
             ultimateEnergy: 40,
             maxUltimateEnergy: 80,
             ultimateEnergyGainMultiplier: 1,
-            allowedUltimateEnergyRecoveryTagIds: null,
+            allowedUltimateEnergyRecoveryTags: null,
           },
         ],
       }),
@@ -741,29 +960,47 @@ describe('StandardPlayerDamageEnvironment', () => {
       },
     };
     environment.runtimeOptions.createOperationExecutor(context);
-    const runtime = environment.runtimeOptions.createOperatorBuffRuntime?.('operator', context.panel);
-    if (!(runtime instanceof BuffDefinitionOperationTarget)) throw new Error('fixture Buff runtime');
+    const runtime = environment.runtimeOptions.createOperatorBuffRuntime?.(
+      'operator',
+      context.panel,
+    );
+    if (!(runtime instanceof BuffDefinitionOperationTarget))
+      throw new Error('fixture Buff runtime');
     const read = environment.runtimeOptions.readSourceAttributeValue!;
     const blackboard = new ActionBlackboard({ sub_ratio: 0.02 });
-    const executor = new ActionBlackboardOperationExecutor({
-      execute: () => false, evaluate: () => false,
-    }, undefined, { sourceId: 'operator', read });
+    const executor = new ActionBlackboardOperationExecutor(
+      {
+        execute: () => false,
+        evaluate: () => false,
+      },
+      undefined,
+      { sourceId: 'operator', read },
+    );
     const parameters = {
-      attribute: { kind: 'secondary' }, stage: 'finalNonConverted', useFloor: false,
+      attribute: { kind: 'secondary' },
+      stage: 'finalNonConverted',
+      useFloor: false,
       divisor: { kind: 'blackboard', key: 'unused-divisor' },
       multiplier: { kind: 'blackboard', key: 'sub_ratio' },
-      base: { kind: 'constant', value: 1 }, targetKey: 'atb_up',
+      base: { kind: 'constant', value: 1 },
+      targetKey: 'atb_up',
     } as const;
-    const execute = () => executor.execute({ kind: 'storeSourceAttributeValue', parameters }, { blackboard });
+    const execute = () =>
+      executor.execute({ kind: 'storeSourceAttributeValue', parameters }, { blackboard });
     expect(execute()).toBe(true);
     expect(blackboard.getNumber('atb_up')).toBeCloseTo(3);
     for (const [source, value] of [
       [ATTRIBUTE_MODIFIER_SOURCES.buff, 25],
       [ATTRIBUTE_MODIFIER_SOURCES.converted, 1000],
     ] as const) {
-      runtime.container.attributes.addModifier(new CombatAttributeModifier(
-        'will', attributeModifierValues('addition', value), source, 'runtime',
-      ));
+      runtime.container.attributes.addModifier(
+        new CombatAttributeModifier(
+          'will',
+          attributeModifierValues('addition', value),
+          source,
+          'runtime',
+        ),
+      );
     }
     execute();
     expect(blackboard.getNumber('atb_up')).toBeCloseTo(3.5);
@@ -808,7 +1045,7 @@ describe('StandardPlayerDamageEnvironment', () => {
               kind: 'entityTagMatch',
               target: 'enemy',
               tagQueryType: 'hasAny',
-              tagIds: [1925762097],
+              tags: ['Skill/Character/Common/Affixes/Slow'],
             },
             processors: [
               {
@@ -831,7 +1068,7 @@ describe('StandardPlayerDamageEnvironment', () => {
     if (!(enemyBuffs instanceof BuffDefinitionOperationTarget)) {
       throw new Error('enemy Buff runtime is unavailable');
     }
-    enemyBuffs.container.addEntityTags([gameplayTagId(1925762097)]);
+    enemyBuffs.container.addEntityTags(['Skill/Character/Common/Affixes/Slow']);
     const healthBeforeTaggedHit = environment.enemyVitals.health;
     expect(executor.execute(damageStep)).toBe(true);
     const taggedDamage = healthBeforeTaggedHit - environment.enemyVitals.health;
@@ -1007,7 +1244,7 @@ describe('StandardPlayerDamageEnvironment', () => {
           attribute: 'will',
           multiplier: 2,
           addition: 0,
-          tagIds: [],
+          tags: [],
         },
       }),
     ).toBe(true);
@@ -1076,7 +1313,7 @@ describe('StandardPlayerDamageEnvironment', () => {
           attribute: 'will',
           multiplier: 1,
           addition: 0,
-          tagIds: [],
+          tags: [],
         },
       }),
     ).toBe(true);

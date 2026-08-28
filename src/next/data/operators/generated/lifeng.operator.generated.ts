@@ -352,7 +352,7 @@ export const lifengBattleSkill: SkillDefinition = withSkillBlackboard(
                 kind: 'buffStackCompare',
                 target: 'enemy',
                 tagQueryType: 'hasAny',
-                buffTagIds: [1075718177],
+                buffTags: ["Skill/Character/Common/NoGuard"],
                 operator: 'lessOrEqual',
                 value: { kind: 'blackboard', key: 'num' },
               },
@@ -446,7 +446,7 @@ export const lifengComboSkill: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.933 },
-            slot: 0,
+            slot: "unassigned",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -516,7 +516,7 @@ export const lifengUltimate: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 1 },
-            slot: 1464849466,
+            slot: "TimeDilation/Layer/Entity/HitStop",
             priority: 10,
             curve: { kind: 'named', key: 'RESETto1' },
             finishByAction: false,

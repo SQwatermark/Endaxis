@@ -4,7 +4,11 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { downloadAkedbSources, parseArguments } from '../scripts/downloadAkedbSources.ts';
+import {
+  downloadAkedbSources,
+  loadAkedbSourceCatalog,
+  parseArguments,
+} from '../scripts/downloadAkedbSources.ts';
 
 const temporaryDirectories: string[] = [];
 
@@ -17,6 +21,95 @@ afterEach(async () => {
 });
 
 describe('AKEDB 资源下载器', () => {
+  it.each([true, false])(
+    '精确配置由 Endaxis 清单维护，CDN 可用=%s；不依赖远端集合索引',
+    async available => {
+      const root = await fs.mkdtemp(path.join(os.tmpdir(), 'endaxis-exact-json-'));
+      temporaryDirectories.push(root);
+      const catalog = path.join(root, 'sources.json');
+      const output = path.join(root, 'output');
+      const fallback = path.join(root, 'fallback');
+      const logicalPath = 'GameplayConfig/GameplayTagPredefineTable.json';
+      await writeJson(catalog, {
+        defaultVersion: 'test@1',
+        sharedJsonIndex: 'asset-sync-index.json',
+        tableCfg: ['MustNotFetch'],
+        jsonCollections: {},
+        jsonFiles: [logicalPath],
+      });
+      await writeJson(path.join(fallback, logicalPath), { provider: 'vfs' });
+      await writeJson(path.join(output, 'akedb-source-provenance.json'), { keep: true });
+      const requests: string[] = [];
+      const server = http.createServer((request, response) => {
+        requests.push(request.url!);
+        if (available && request.url === `/public/Json/${logicalPath}`)
+          response.end(JSON.stringify({ provider: 'akedb' }));
+        else response.writeHead(404).end();
+      });
+      await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+      try {
+        const address = server.address();
+        if (address === null || typeof address === 'string') throw new Error('missing test port');
+        const args = {
+          cdn: `http://127.0.0.1:${address.port}`,
+          version: null,
+          sourceCatalog: catalog,
+          output,
+          workers: 1,
+          tablesOnly: false,
+          vfsFallback: fallback,
+          jsonFile: logicalPath,
+        };
+        await expect(
+          downloadAkedbSources({ ...args, jsonFile: '../not-declared.json' }),
+        ).rejects.toThrow('not declared');
+        await expect(downloadAkedbSources({ ...args, tablesOnly: true })).rejects.toThrow(
+          'cannot be combined',
+        );
+        await downloadAkedbSources(args);
+      } finally {
+        await new Promise<void>((resolve, reject) =>
+          server.close(error => (error ? reject(error) : resolve())),
+        );
+      }
+      expect(requests).toEqual([`/public/Json/${logicalPath}`]);
+      expect(await readJson(path.join(output, logicalPath))).toEqual({
+        provider: available ? 'akedb' : 'vfs',
+      });
+      expect(await readJson(path.join(output, `${logicalPath}.provenance.json`))).toMatchObject({
+        logicalPath,
+        provider: available ? 'akedb' : 'vfs-index-browser',
+        sha256: expect.stringMatching(/^[0-9a-f]{64}$/),
+      });
+      expect(await readJson(path.join(output, 'akedb-source-provenance.json'))).toEqual({
+        keep: true,
+      });
+    },
+  );
+
+  it('精确配置路径不允许穿越、重复或伪装为绝对 URL', async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'endaxis-json-catalog-'));
+    temporaryDirectories.push(root);
+    const catalog = path.join(root, 'sources.json');
+    for (const jsonFiles of [
+      ['../escape.json'],
+      ['https://example.com/data.json'],
+      ['X/a.json', 'X/a.json'],
+    ]) {
+      await writeJson(catalog, {
+        defaultVersion: 'test@1',
+        sharedJsonIndex: 'asset-sync-index.json',
+        tableCfg: [],
+        jsonCollections: {},
+        jsonFiles,
+      });
+      await expect(loadAkedbSourceCatalog(catalog)).rejects.toThrow();
+    }
+    expect(
+      parseArguments(['--json-file', 'GameplayConfig/GameplayTagPredefineTable.json']).jsonFile,
+    ).toBe('GameplayConfig/GameplayTagPredefineTable.json');
+  });
+
   it('保留 HTTP VFS fallback 基址，不把 URL 误解析成本地路径', () => {
     expect(
       parseArguments(['--vfs-fallback', 'http://desktop:8765/api/akedb-compatible/']).vfsFallback,
@@ -177,7 +270,6 @@ describe('AKEDB 资源下载器', () => {
       ]),
     );
   });
-
 });
 
 async function writeJson(filePath: string, value: unknown): Promise<void> {

@@ -410,6 +410,7 @@ export const EDITABLE_COMBAT_STEP_KINDS = [
   'openComboWindow',
   'listenForCombatEvents',
   'conditional',
+  'switch',
   'once',
 ] as const satisfies readonly CombatStepKind[];
 export type EditableCombatStepKind = (typeof EDITABLE_COMBAT_STEP_KINDS)[number];
@@ -509,7 +510,7 @@ export function createSkillEditorStep(
         parameters: {
           scope: 'global',
           durationSeconds: { kind: 'constant', value: 1 },
-          slot: 0,
+          slot: 'unassigned',
           priority: 0,
           curve: { kind: 'named', key: 'RESETto1' },
           finishByAction: false,
@@ -547,7 +548,7 @@ export function createSkillEditorStep(
           attribute: 'will',
           multiplier: 1,
           addition: 0,
-          tagIds: [],
+          tags: [],
         },
       };
     case 'applyElementalInfliction':
@@ -611,7 +612,7 @@ export function createSkillEditorStep(
         parameters: {
           target: 'caster',
           tagQueryType: 'hasAny',
-          buffTagIds: [0],
+          buffTags: ['Custom/Tag'],
           reason: 'early',
         },
       };
@@ -692,6 +693,12 @@ export function createSkillEditorStep(
       return {
         kind,
         parameters: { responses: [createCombatEventResponseDraft()] },
+      };
+    case 'switch':
+      return {
+        kind,
+        parameters: { choice: { kind: 'constant', value: 0 }, alwaysNext: true },
+        options: [{ value: { kind: 'constant', value: 0 }, sequence: { steps: [] } }],
       };
     case 'conditional':
       return {

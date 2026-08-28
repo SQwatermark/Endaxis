@@ -1,7 +1,8 @@
+import type { GameplayTag } from '../../../../../packages/game-data-contract/src/gameplayTags';
 import { describe, expect, it, vi } from 'vitest';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer } from '../buffs/combatBuffs';
-import { GameplayTagRegistry, gameplayTagIdFromPath } from '../tags/gameplayTags';
+import { GameplayTagRegistry } from '../tags/gameplayTags';
 import { ActionBlackboard } from './actionBlackboard';
 import { BuffOperationExecutor } from './buffOperationExecutor';
 import type { CombatOperationExecutor } from './skillRuntime';
@@ -16,7 +17,7 @@ describe('BuffOperationExecutor', () => {
     '原生默认 %s 读增强层数，排除结束实例并保留重复 ID 求和',
     kind => {
       const path = 'buff/test/enhanced';
-      const tag = gameplayTagIdFromPath(path);
+      const tag = path;
       const target = new CombatBuffContainer(
         'enemy',
         new CombatAttributeSet(),
@@ -42,7 +43,7 @@ describe('BuffOperationExecutor', () => {
               outputKey: 'count',
               query:
                 kind === 'tag'
-                  ? { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [tag] }
+                  ? { kind: 'tag', tagQueryType: 'hasAny', buffTags: [tag] }
                   : {
                       kind: 'id',
                       buffIds: kind === 'id' ? ['layer', 'ended'] : ['layer', 'layer', 'ended'],
@@ -89,7 +90,7 @@ describe('BuffOperationExecutor', () => {
           sourceId: 'teammate',
           targetId: 'enemy',
           buffId: 'corrosion',
-          buffTagIds: [],
+          buffTags: [],
         },
       };
       expect(executor.execute(step, context)).toBe(true);
@@ -129,7 +130,7 @@ describe('BuffOperationExecutor', () => {
   );
   it('compares matching Buff instances on the real event target without counting enhance layers', () => {
     const path = 'buff/status/poise';
-    const tag = gameplayTagIdFromPath(path);
+    const tag = path;
     const target = new CombatBuffContainer(
       'enemy',
       new CombatAttributeSet(),
@@ -154,7 +155,7 @@ describe('BuffOperationExecutor', () => {
         targetId: 'enemy',
         sourceId: 'operator',
         buffId: 'latest',
-        buffTagIds: [tag],
+        buffTags: [tag],
       },
     };
 
@@ -163,7 +164,7 @@ describe('BuffOperationExecutor', () => {
         {
           kind: 'eventTargetBuffCountCompare',
           tagQueryType: 'hasAny',
-          buffTagIds: [tag],
+          buffTags: [tag],
           operator: 'greaterOrEqual',
           value: { kind: 'blackboard', key: 'required' },
         },
@@ -176,7 +177,7 @@ describe('BuffOperationExecutor', () => {
         {
           kind: 'eventTargetBuffCountCompare',
           tagQueryType: 'hasAny',
-          buffTagIds: [tag],
+          buffTags: [tag],
           operator: 'greaterOrEqual',
           value: { kind: 'blackboard', key: 'required' },
         },
@@ -251,7 +252,7 @@ describe('BuffOperationExecutor', () => {
         targetId: 'enemy',
         buffId: 'buff_physical_no_guard',
         layers: 1,
-        buffTagIds: [],
+        buffTags: [],
         blackboardValues: {},
       },
     ]);
@@ -542,7 +543,7 @@ describe('BuffOperationExecutor', () => {
   });
 
   it('resolves a partial tag Buff finish count from the current action blackboard', () => {
-    const calls: { tags: readonly number[]; count: number; reason: string }[] = [];
+    const calls: { tags: readonly GameplayTag[]; count: number; reason: string }[] = [];
     const executor = new BuffOperationExecutor({
       sourceId: 'operator',
       resolveTarget: () => ({
@@ -562,7 +563,7 @@ describe('BuffOperationExecutor', () => {
       }),
       delegate,
     });
-    const tag = gameplayTagIdFromPath('buff/status/fire');
+    const tag = 'buff/status/fire';
 
     expect(
       executor.execute(
@@ -571,7 +572,7 @@ describe('BuffOperationExecutor', () => {
           parameters: {
             target: 'enemy',
             tagQueryType: 'hasAny',
-            buffTagIds: [tag],
+            buffTags: [tag],
             reason: 'early',
             count: { kind: 'constant', value: 1 },
           },
@@ -610,7 +611,7 @@ describe('BuffOperationExecutor', () => {
             query: {
               kind: 'tag',
               tagQueryType: 'hasAny',
-              buffTagIds: [gameplayTagIdFromPath('buff/status/conduct')],
+              buffTags: ['buff/status/conduct'],
             },
           },
         },
@@ -746,7 +747,7 @@ describe('BuffOperationExecutor', () => {
                   : {
                       kind: 'tag',
                       tagQueryType: 'hasAny',
-                      buffTagIds: [gameplayTagIdFromPath('buff/status/fracture')],
+                      buffTags: ['buff/status/fracture'],
                     },
             },
           },
@@ -1044,7 +1045,7 @@ describe('BuffOperationExecutor', () => {
             requestedHealing: 100,
             actualHealing: 0,
             overhealing: 100,
-            tagIds: [1],
+            tags: ['Test/Tag1'],
           },
         },
       ),
@@ -1198,7 +1199,7 @@ describe('BuffOperationExecutor', () => {
             targetId: 'enemy',
             buffId: 'buff:conduct',
             layers: 3,
-            buffTagIds: [1466867135],
+            buffTags: ['Skill/Character/Common/SpellStatus/Conduct'],
             blackboardValues: { count: 3 },
           },
         },
@@ -1450,7 +1451,7 @@ describe('BuffOperationExecutor', () => {
       id: 'conduct',
       stackingType: 'enhance' as const,
       maxStackCount: 4,
-      applyTags: [gameplayTagIdFromPath(path)],
+      applyTags: [path],
     };
     target.add(definition, 'operator');
     target.add(definition, 'operator');
@@ -1467,7 +1468,7 @@ describe('BuffOperationExecutor', () => {
       kind: 'buffStackCompare' as const,
       target: 'buffOwner' as const,
       tagQueryType: 'hasAny' as const,
-      buffTagIds: [gameplayTagIdFromPath(path)],
+      buffTags: [path],
       operator: 'greaterOrEqual' as const,
       value: { kind: 'constant' as const, value: 2.000009 },
     };
@@ -1495,11 +1496,11 @@ describe('BuffOperationExecutor', () => {
       {
         id: 'enhanced-state',
         stackingType: 'unlimited',
-        applyTags: [gameplayTagIdFromPath(classificationPath)],
+        applyTags: [classificationPath],
       },
       'operator',
     );
-    target.addEntityTags([gameplayTagIdFromPath(childPath)]);
+    target.addEntityTags([childPath]);
     const executor = new BuffOperationExecutor({
       sourceId: 'operator',
       resolveTarget: () => target,
@@ -1509,17 +1510,17 @@ describe('BuffOperationExecutor', () => {
       kind: 'entityTagMatch' as const,
       target: 'caster' as const,
       tagQueryType: 'hasAny' as const,
-      tagIds: [gameplayTagIdFromPath(parentPath)],
+      tags: [parentPath],
     };
 
     expect(executor.evaluate(condition)).toBe(true);
     expect(
       executor.evaluate({
         ...condition,
-        tagIds: [gameplayTagIdFromPath(classificationPath)],
+        tags: [classificationPath],
       }),
     ).toBe(false);
-    target.removeEntityTags([gameplayTagIdFromPath(childPath)]);
+    target.removeEntityTags([childPath]);
     expect(executor.evaluate(condition)).toBe(false);
   });
 
@@ -1534,7 +1535,7 @@ describe('BuffOperationExecutor', () => {
       {
         id: 'first',
         stackingType: 'unlimited',
-        applyTags: [gameplayTagIdFromPath(path)],
+        applyTags: [path],
         blackboard: { count: 4 },
       },
       'operator',
@@ -1543,7 +1544,7 @@ describe('BuffOperationExecutor', () => {
       {
         id: 'second',
         stackingType: 'unlimited',
-        applyTags: [gameplayTagIdFromPath(path)],
+        applyTags: [path],
         blackboard: { count: 9 },
       },
       'operator',
@@ -1564,7 +1565,7 @@ describe('BuffOperationExecutor', () => {
             query: {
               kind: 'tag',
               tagQueryType: 'hasAny',
-              buffTagIds: [gameplayTagIdFromPath(path)],
+              buffTags: [path],
             },
             desiredKey: 'count',
             outputKey: 'conductCount',
@@ -1634,7 +1635,7 @@ describe('BuffOperationExecutor', () => {
       {
         id: 'matched',
         stackingType: 'unlimited',
-        applyTags: [gameplayTagIdFromPath(matchedPath)],
+        applyTags: [matchedPath],
       },
       'operator',
     );
@@ -1651,7 +1652,7 @@ describe('BuffOperationExecutor', () => {
         query: {
           kind: 'tag' as const,
           tagQueryType: 'hasAny' as const,
-          buffTagIds: [gameplayTagIdFromPath(path)],
+          buffTags: [path],
         },
         desiredKey: 'count',
         outputKey: 'output',
@@ -1677,7 +1678,7 @@ describe('BuffOperationExecutor', () => {
       {
         id: 'first',
         stackingType: 'unlimited',
-        applyTags: [gameplayTagIdFromPath(path)],
+        applyTags: [path],
       },
       'operator',
     );
@@ -1685,7 +1686,7 @@ describe('BuffOperationExecutor', () => {
       {
         id: 'second',
         stackingType: 'unlimited',
-        applyTags: [gameplayTagIdFromPath(path)],
+        applyTags: [path],
       },
       'operator',
     );
@@ -1693,7 +1694,7 @@ describe('BuffOperationExecutor', () => {
       {
         id: 'unrelated',
         stackingType: 'unlimited',
-        applyTags: [gameplayTagIdFromPath(otherPath)],
+        applyTags: [otherPath],
       },
       'operator',
     );
@@ -1709,7 +1710,7 @@ describe('BuffOperationExecutor', () => {
         parameters: {
           target: 'enemy',
           tagQueryType: 'hasAny',
-          buffTagIds: [gameplayTagIdFromPath(path)],
+          buffTags: [path],
           reason: 'early',
         },
       }),

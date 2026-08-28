@@ -1,54 +1,17 @@
-import {
-  gameplayTagId,
-  GameplayTagRegistry,
-  type GameplayTagId,
-} from '../../core/combat/tags/gameplayTags';
-import { GAMEPLAY_TAG_DEFINITIONS, GAMEPLAY_TAG_PATHS } from './gameplayTagCatalog.generated';
+import { assertGameplayTag, GameplayTagRegistry, type GameplayTag } from '../../core/combat/tags/gameplayTags';
+import { GAMEPLAY_TAG_PATHS } from './gameplayTagCatalog.generated';
+export { GAMEPLAY_TAG_PATHS };
 
-export { GAMEPLAY_TAG_DEFINITIONS, GAMEPLAY_TAG_PATHS };
-
-/** Immutable version registry shared by all containers within and across simulation runs. */
+/** 不含单次模拟状态；只提供路径查询语义和编辑器候选。 */
 export const gameplayTagRegistry = new GameplayTagRegistry(GAMEPLAY_TAG_PATHS);
+const paths = new Set<string>(GAMEPLAY_TAG_PATHS);
 
-const byId = new Map<number, (typeof GAMEPLAY_TAG_DEFINITIONS)[number]>(
-  GAMEPLAY_TAG_DEFINITIONS.map(definition => [definition.id, definition]),
-);
-const byPath = new Map<string, (typeof GAMEPLAY_TAG_DEFINITIONS)[number]>(
-  GAMEPLAY_TAG_DEFINITIONS.map(definition => [definition.path, definition]),
-);
-
-export function gameplayTagDefinitionById(
-  id: number,
-): (typeof GAMEPLAY_TAG_DEFINITIONS)[number] | undefined {
-  return byId.get(id);
+export function requireGameplayTag(path: string): GameplayTag {
+  if (!paths.has(path)) throw new Error("GameplayTagConfig 未包含 '" + path + "'");
+  return path;
 }
 
-export function gameplayTagDefinitionByPath(
-  path: string,
-): (typeof GAMEPLAY_TAG_DEFINITIONS)[number] | undefined {
-  return byPath.get(path);
-}
-
-export function gameplayTagPath(id: number): string | undefined {
-  return gameplayTagDefinitionById(id)?.path;
-}
-
-export function requireGameplayTagId(path: string): GameplayTagId {
-  const definition = gameplayTagDefinitionByPath(path);
-  if (definition === undefined) throw new Error(`GameplayTagConfig does not contain '${path}'`);
-  return definition.id;
-}
-
-/** Accept an exact registered path or a preserved signed int32 source value. */
-export function parseGameplayTagReference(value: string): GameplayTagId | undefined {
-  const trimmed = value.trim();
-  const definition = gameplayTagDefinitionByPath(trimmed);
-  if (definition !== undefined) return definition.id;
-  if (!/^-?\d+$/.test(trimmed)) return undefined;
-  const numeric = Number(trimmed);
-  try {
-    return gameplayTagId(numeric);
-  } catch {
-    return undefined;
-  }
+/** 自定义干员可以使用可读自定义路径，不接受数字或 unknown 占位符。 */
+export function parseGameplayTagReference(value: string): GameplayTag | undefined {
+  try { const path = value.trim(); assertGameplayTag(path); return path; } catch { return undefined; }
 }

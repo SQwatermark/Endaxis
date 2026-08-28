@@ -66,8 +66,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "duration": 25,
             "lv": 0,
@@ -204,8 +204,8 @@ const definition = {
                   "condition": {
                     "kind": "eventBuffTagsMatch",
                     "match": "hasAny",
-                    "buffTagIds": [
-                      -421286163
+                    "buffTags": [
+                      "Skill/Character/Common/SpellStatus/Corrupt"
                     ]
                   }
                 },

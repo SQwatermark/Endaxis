@@ -24,7 +24,6 @@ import type {
   ResolvedSkillBuffDefinition,
   ResolvedStatusModifier,
 } from './combatProgram';
-import { gameplayTagId } from '../combat/tags/gameplayTags';
 
 /** 编译一个技能所需的定义、等级和稳定来源身份。 */
 export interface CompileSkillInput {
@@ -222,6 +221,10 @@ function resolveStep(
                 ),
               }),
           tags: step.parameters.tags,
+          ...(step.parameters.features === undefined ? {} : { features: step.parameters.features }),
+          ...(step.parameters.instantAttributeModifiers === undefined
+            ? {}
+            : { instantAttributeModifiers: step.parameters.instantAttributeModifiers }),
           ...(step.parameters.stagger === undefined
             ? {}
             : {
@@ -260,6 +263,7 @@ function resolveStep(
             `${path}.parameters.value`,
           ),
           tags: step.parameters.tags,
+          ...(step.parameters.features === undefined ? {} : { features: step.parameters.features }),
           ...(step.parameters.stagger === undefined
             ? {}
             : {
@@ -308,7 +312,7 @@ function resolveStep(
                   skillLevel,
                   `${path}.parameters.addition`,
                 ),
-                tagIds: step.parameters.tagIds,
+                tags: step.parameters.tags,
               }
             : {
                 target: step.parameters.target,
@@ -320,7 +324,7 @@ function resolveStep(
                   skillLevel,
                   `${path}.parameters.amount`,
                 ),
-                tagIds: step.parameters.tagIds,
+                tags: step.parameters.tags,
               },
       };
     case 'changeResource':
@@ -353,10 +357,10 @@ function resolveStep(
           ...(step.parameters.isPercentValue === undefined
             ? {}
             : { isPercentValue: step.parameters.isPercentValue }),
-          ...(step.parameters.ultimateRecoveryTagId === undefined
+          ...(step.parameters.ultimateRecoveryTag === undefined
             ? {}
             : {
-                ultimateRecoveryTagId: gameplayTagId(step.parameters.ultimateRecoveryTagId),
+                ultimateRecoveryTag: step.parameters.ultimateRecoveryTag,
               }),
           ...(step.parameters.ignoreUltimateEnergyGainMultiplier === undefined
             ? {}
@@ -372,7 +376,7 @@ function resolveStep(
         kind: step.kind,
         parameters: {
           ...step.parameters,
-          allowedRecoveryTagIds: step.parameters.allowedRecoveryTagIds.map(gameplayTagId),
+          allowedRecoveryTags: step.parameters.allowedRecoveryTags,
         },
       };
     case 'applyStatus':
@@ -407,6 +411,21 @@ function resolveStep(
                 ),
               }),
         },
+      };
+    case 'switch':
+      return {
+        ...keyed,
+        kind: step.kind,
+        parameters: step.parameters,
+        options: step.options.map((option, index) => ({
+          value: option.value,
+          sequence: resolveActionSequence(
+            option.sequence,
+            skillLevel,
+            `${path}.options[${index}].sequence`,
+            abilityEntities,
+          ),
+        })),
       };
     case 'conditional':
       return {
@@ -481,7 +500,7 @@ function resolveStep(
             step.parameters.query.kind === 'tag'
               ? {
                   ...step.parameters.query,
-                  buffTagIds: step.parameters.query.buffTagIds.map(gameplayTagId),
+                  buffTags: step.parameters.query.buffTags,
                 }
               : step.parameters.query,
         },
@@ -504,7 +523,7 @@ function resolveStep(
             step.parameters.query.kind === 'tag'
               ? {
                   ...step.parameters.query,
-                  buffTagIds: step.parameters.query.buffTagIds.map(gameplayTagId),
+                  buffTags: step.parameters.query.buffTags,
                 }
               : step.parameters.query,
         },
@@ -515,7 +534,7 @@ function resolveStep(
         kind: step.kind,
         parameters: {
           ...step.parameters,
-          buffTagIds: step.parameters.buffTagIds.map(gameplayTagId),
+          buffTags: step.parameters.buffTags,
         },
       };
     case 'finishBuffsById':
@@ -547,15 +566,15 @@ function resolveStep(
     case 'storeSourceAttributeValue':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'changeResourceByActionValue': {
-      const { coefficient, ultimateRecoveryTagId, ...parameters } = step.parameters;
+      const { coefficient, ultimateRecoveryTag, ...parameters } = step.parameters;
       return {
         ...keyed,
         kind: step.kind,
         parameters: {
           ...parameters,
-          ...(ultimateRecoveryTagId === undefined
+          ...(ultimateRecoveryTag === undefined
             ? {}
-            : { ultimateRecoveryTagId: gameplayTagId(ultimateRecoveryTagId) }),
+            : { ultimateRecoveryTag: ultimateRecoveryTag }),
           ...(coefficient === undefined
             ? {}
             : {
@@ -667,6 +686,7 @@ function resolveStep(
       };
     }
     case 'applyElementalInfliction':
+    case 'applyKnockDown':
     case 'triggerSpellBurst':
     case 'applyElementalReaction':
     case 'consumeElementalReaction':

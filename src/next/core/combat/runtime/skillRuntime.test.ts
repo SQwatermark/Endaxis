@@ -43,7 +43,7 @@ function createBattleSkillRuntime(
         ultimateEnergy: 0,
         maxUltimateEnergy: 100,
         ultimateEnergyGainMultiplier: 1,
-        allowedUltimateEnergyRecoveryTagIds: null,
+        allowedUltimateEnergyRecoveryTags: null,
       },
     ],
   });
@@ -460,7 +460,7 @@ describe('SkillRuntime', () => {
       targetId: 'perlica',
       sourceId: 'enemy',
       buffId: 'buff.enemy.catch',
-      buffTagIds: [],
+      buffTags: [],
     });
 
     expect(fixture.runtime.passedFrames).toBe(6);

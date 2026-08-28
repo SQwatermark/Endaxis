@@ -1,3 +1,4 @@
+import { projectGameplayTags } from './combatProjectionCommon.ts';
 import type { NativeActionNodeSource } from '../source/controlFlow.ts';
 import type { KnownNativeActionLeafSource } from '../source/actionLeaf.ts';
 import { parseObjectTypeMask } from '../source/objectType.ts';
@@ -23,7 +24,31 @@ export function compileEventCondition(
   return compileConditionLeaf(node.body.value.action, node.sourcePath, context, targetGroups);
 }
 
+/** 只证明条件求值没有可见副作用，不要求其空间/相机输入已经具备 Next 运行模型。 */
+export function canOmitUnusedNativeCondition(
+  node: NativeActionNodeSource<KnownNativeActionLeafSource>,
+): boolean {
+  if (node.body.kind !== 'leaf' || node.body.value.family !== 'condition') return false;
+  const condition = node.body.value.action;
+  if (condition.kind === 'entityCount') return condition.storeKey === '';
+  return [
+    'mainOperator',
+    'twoDirectionAngle',
+    'distance',
+    'floatCompare',
+    'comboCameraAlphaSetting',
+  ].includes(condition.kind);
+}
+
 /** 条件也可能写黑板；即便没有后继步骤，写入及其前置守卫也不能消去。 */
+export function canOmitUnusedCompiledCondition(condition: CompiledBuffConditionSource): boolean {
+  if (condition.kind === 'probability') return false; // 抽样会推进随机流。
+  if (condition.kind === 'all' || condition.kind === 'any')
+    return condition.conditions.every(canOmitUnusedCompiledCondition);
+  if (condition.kind === 'not') return canOmitUnusedCompiledCondition(condition.condition);
+  return !conditionWritesBlackboard(condition);
+}
+
 export function conditionWritesBlackboard(condition: CompiledBuffConditionSource): boolean {
   if (condition.kind === 'all' || condition.kind === 'any')
     return condition.conditions.some(conditionWritesBlackboard);
@@ -234,7 +259,7 @@ function compileConditionLeaf(
     const operator = COMPARISON_OPERATORS[condition.comparison];
     const target =
       condition.targetSource === 'InstantSearch' &&
-      condition.characterTeamSelectionRole === 'controlledOperator'
+      condition.characterTeamSelection?.kind === 'controlledOperator'
         ? ('controlledOperator' as const)
         : condition.targetSource === 'Owner' &&
             condition.targetGroupKey === '' &&
@@ -449,7 +474,7 @@ function compileConditionLeaf(
     return {
       kind: 'eventHealTagsMatch',
       match: condition.queryType,
-      tagIds: condition.tagIds,
+      tags: projectGameplayTags(condition.tagIds, context, sourcePath),
     };
   }
   if (condition.kind === 'consumeBuffLayer') {
@@ -502,7 +527,7 @@ function compileConditionLeaf(
     return {
       kind: 'eventBuffTagsMatch',
       match,
-      buffTagIds: condition.matcher.buffTagIds,
+      buffTags: projectGameplayTags(condition.matcher.buffTagIds, context, sourcePath),
       ...(condition.buffIdOutputKey === undefined
         ? {}
         : { buffIdOutputKey: condition.buffIdOutputKey }),
@@ -555,6 +580,26 @@ function compileConditionLeaf(
     return { kind: 'eventSourceTargetMatch', operator: 'equal' };
   }
   if (condition.kind === 'buffStack') {
+    // combat-spec：Environment 不走目标解析，精确读取正在执行的 Buff，而非同 ID 总层数。
+    if (condition.buffCheckType === 'Environment') {
+      const operator = COMPARISON_OPERATORS[condition.comparison];
+      if (
+        condition.sourceType !== 'CheckBuffStackNumAdvanced' ||
+        context.actionOwnerTarget !== 'buffOwner' ||
+        condition.countType !== 'BuffCount' ||
+        condition.limitSkillCastId ||
+        condition.buffIds.length !== 0 ||
+        condition.buffTagIds.length !== 0 ||
+        operator === undefined
+      ) {
+        throw new Error(`${sourcePath}: unsupported Environment Buff stack condition`);
+      }
+      return {
+        kind: 'currentBuffStackCompare',
+        operator,
+        value: actionValueOperand(condition.value),
+      };
+    }
     // ByTag 无目标返回 false；不能沿用 Advanced 的零层路径或实例计数。
     if (
       condition.targetSource === 'Context' &&
@@ -571,7 +616,7 @@ function compileConditionLeaf(
         kind: 'contextTargetBuffStackCompare',
         contextKey: condition.targetGroupKey,
         tagQueryType: condition.tagQueryType,
-        buffTagIds: condition.buffTagIds,
+        buffTags: projectGameplayTags(condition.buffTagIds, context, sourcePath),
         operator,
         value: actionValueOperand(condition.value),
       };
@@ -601,7 +646,7 @@ function compileConditionLeaf(
               ? context.actionSourceTarget
               : singleBuffConditionTarget(context, sourcePath),
         tagQueryType: condition.tagQueryType,
-        buffTagIds: condition.buffTagIds,
+        buffTags: projectGameplayTags(condition.buffTagIds, context, sourcePath),
         operator,
         value: actionValueOperand(condition.value),
       };
@@ -653,7 +698,7 @@ function compileConditionLeaf(
       kind: 'entityTagMatch',
       target,
       tagQueryType: condition.tagQueryType,
-      tagIds: condition.tagIds,
+      tags: projectGameplayTags(condition.tagIds, context, sourcePath),
     };
   }
   if (condition.kind === 'any') {

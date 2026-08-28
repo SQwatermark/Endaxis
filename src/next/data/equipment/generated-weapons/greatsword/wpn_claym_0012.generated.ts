@@ -59,8 +59,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "heal_up": 0
           },
@@ -71,8 +71,8 @@ const definition = {
               "condition": {
                 "kind": "healTagsMatch",
                 "match": "hasAny",
-                "tagIds": [
-                  -1517158118
+                "tags": [
+                  "Skill/Character/Common/Heal/ComboSkillHeal"
                 ]
               },
               "processors": [

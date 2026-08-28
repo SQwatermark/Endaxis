@@ -18,17 +18,19 @@ export interface CircularOrderSource {
   readonly rangeCheckTarget: TargetReferenceSource;
 }
 
-export type CharacterTeamSelectionRole =
-  | 'controlledOperator'
-  | 'lowestHealthRatioOperator'
-  | 'lowestHealthRatioOperatorExceptControlled'
-  | 'lowestHealthRatioOperatorExceptCaster';
+export type CharacterTeamSelectionSource =
+  | { readonly kind: 'controlledOperator' }
+  | {
+      readonly kind: 'lowestHealthRatioOperator';
+      /** 原始排除引用；Context 名称不证明组内身份，Owner 也不在来源层等同 caster。 */
+      readonly excludedTarget: TargetReferenceSource | null;
+    };
 
 /** 识别已取证的主控与最低生命比例队友选择器。 */
-export function parseCharacterTeamSelectionRole(
+export function parseCharacterTeamSelection(
   value: unknown,
   path: string,
-): CharacterTeamSelectionRole | null {
+): CharacterTeamSelectionSource | null {
   const selector = requireRecord(value, path);
   if (!('finderData' in selector)) return null;
   const finder = requireRecord(selector.finderData, `${path}.finderData`);
@@ -44,24 +46,21 @@ export function parseCharacterTeamSelectionRole(
     const validator = requireRecord(validators[0], validatorPath);
     if (selectorComponentName(validator, validatorPath) !== 'MainCharacterValidator') return null;
     requireExactFields(validator, new Set(['$type']), validatorPath);
-    return 'controlledOperator';
+    return { kind: 'controlledOperator' };
   }
   if (validators.length > 0 || ![1, 2].includes(processors.length)) return null;
 
-  let exclusionRole: 'Controlled' | 'Caster' | null = null;
+  let excludedTarget: TargetReferenceSource | null = null;
   const priorityIndex = processors.length === 2 ? 1 : 0;
   if (processors.length === 2) {
     const exclusionPath = `${path}.postProcessorData[0]`;
     const exclusion = requireRecord(processors[0], exclusionPath);
     if (selectorComponentName(exclusion, exclusionPath) !== 'ExcludeTarget') return null;
     requireExactFields(exclusion, new Set(['$type', 'excludedTargetSettings']), exclusionPath);
-    const excluded = parseTargetReferenceSource(
+    excludedTarget = parseTargetReferenceSource(
       exclusion.excludedTargetSettings,
       `${exclusionPath}.excludedTargetSettings`,
     );
-    if (isPlainTarget(excluded, 'Context', 'Main')) exclusionRole = 'Controlled';
-    else if (isPlainTarget(excluded, 'Owner', '')) exclusionRole = 'Caster';
-    else return null;
   }
 
   const priorityPath = `${path}.postProcessorData[${priorityIndex}]`;
@@ -90,8 +89,7 @@ export function parseCharacterTeamSelectionRole(
   if (!isEmptyBuffCountFilter(priority.buffFilterSettings, `${priorityPath}.buffFilterSettings`)) {
     return null;
   }
-  if (!exclusionRole) return 'lowestHealthRatioOperator';
-  return `lowestHealthRatioOperatorExcept${exclusionRole}`;
+  return { kind: 'lowestHealthRatioOperator', excludedTarget };
 }
 
 /** 选择器是否明确排除当前输入 Target。 */

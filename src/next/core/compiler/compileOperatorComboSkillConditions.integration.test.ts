@@ -1,3 +1,4 @@
+import { fixtureGameplayTagRegistry } from '../../../../tools/game-data-compiler/test/gameplayTagFixtures.ts';
 import { describe, expect, it } from 'vitest';
 import { unityComboConditionFixture } from '../../../../tools/game-data-compiler/test/unityComboConditionFixture.ts';
 import { parseUnityComboSkillConditionsSource } from '../../../../tools/game-data-compiler/src/source/unityComboSkillConditions.ts';
@@ -76,6 +77,7 @@ function template(
       blackboards,
       { key: `condition:${index}`, skillGroupKey: 'comboSkill' },
       {
+        gameplayTagRegistry: fixtureGameplayTagRegistry,
         actionOwnerTarget: 'caster',
         actionSourceTarget: 'caster',
         actionTargetTarget: 'eventTarget',

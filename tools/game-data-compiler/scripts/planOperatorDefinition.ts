@@ -22,7 +22,7 @@ import {
 } from './generateOperatorActiveSkillRuntime.ts';
 import { writeGeneratedDefinitionFiles } from '../src/compiler/writeGeneratedDefinitionFiles.ts';
 import { compilePassiveSkillRequestBatch } from '../src/compiler/passiveSkillBatch.ts';
-import { GameplayTagRegistry } from '../../../src/shared/gameplayTags.ts';
+import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
 import { collectNativeActionNodes } from '../src/source/controlFlow.ts';
 
 /**
@@ -128,12 +128,15 @@ export function planOperatorDefinition(
     ),
   );
   const timeDilationPriorities = readTimeDilationPriorities(args.timeDilationCatalog);
+  const gameplayTagRegistry = new GameplayTagRegistry(
+    readGameplayTagPaths(args.gameplayTagCatalog),
+  );
   const candidate = assembleOperatorDefinition({
     foundation,
     activeSkills,
     entityCatalog,
     loadAbilityEntity: id => read(path.join(args.sourceRoot, 'AbilityEntityData', `${id}.json`)),
-    gameplayTagRegistry: new GameplayTagRegistry(readGameplayTagPaths(args.gameplayTagCatalog)),
+    gameplayTagRegistry,
     talentBindings: requireArray(row.talents, 'talents').map(value => {
       const binding = requireRecord(value, 'talent');
       return {
@@ -176,6 +179,7 @@ export function planOperatorDefinition(
       );
       if (launches.length === 0) return { resolveTimeDilationPriority };
       const prepared = prepareProjectileProjection(args, launches, visualOnlyIds, {
+        gameplayTagRegistry,
         actionOwnerTarget: 'unavailable',
         actionSourceTarget: 'caster',
         actionTargetTarget: 'enemy',

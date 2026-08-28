@@ -7,7 +7,466 @@
 `refactor/operator-completion` 的完整干员成果。唯一新转换入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
-### 2026-08-28：Wulfgard 整名定义、攻击快照与燃烧闭环（最新检查点）
+本批收束总览、跨仓库分支、复现命令与下一步见
+[2026-08-28 同步交接检查点](2026-08-28-sync-checkpoint.md)。下列阶段记录的“未提交”等状态是历史记录，
+本批成果随本检查点提交交付；实际推送结果以各仓库 Git 远端为准。
+
+### 2026-08-28：余烬连携的原生目标查询闭合，Next 快照接线待办（最新检查点）
+
+- combat-spec 已按 runtime-1 恢复 `CurHpRatioAsc` 与 `ExcludeTarget`，复用公共 Selector、
+  GetTargetsView 和目标组上下文；没有给余烬写独立选人算法。HP 是虚槽 76/77 的 double 比例，
+  不过滤满血、不要求位置；继承公共 0.001 权重归一化与对象哈希决胜，不承诺队伍首项。
+- 真实两项 FindTarget 夹具已固定在两仓库：主控 → `Main`；排除已保存 Main → 最低生命比例 →
+  `CureTarget`。C# 验证查询后切主控、血量变化、Context 治疗、重查覆盖、空结果及死亡候选。
+  治疗测试的固定 50 点仅用于路由验证，不冒充原始连携数值或整名装配。
+- 来源层将 `characterTeamSelectionRole` 改为 `CharacterTeamSelectionSource`，保留实际排除引用，
+  删除 `Main` 名称硬编码和 Owner→caster 的提前猜测。旧 oracle 仅适配仍然等价的 null／主控形状，
+  不用已丢失引用的旧最低血量 role 伪造新证据。旧生成器、旧版业务代码未修改。
+- Next 查询快照尚未实现，仍不能宣称连携或余烬整名完成。下一项必须同时处理：公共契约查询操作、
+  TargetContextOperationExecutor 写入实例快照、现有主控查询仅存别名的快捷路径、Context 治疗、
+  以及显式可复现的 Next 并列选择边界。不能直接调用治疗时重选人的 lowestHealthRatio 枚举。
+- 具体原生 RVA、来源 SHA-256、复现命令在 combat-spec `docs/selector-pipeline.md`；
+  Endaxis 的分层数据流与接入顺序见[队友目标快照](../research/character-team-target-snapshots.md)。
+- 验证：四套类型检查通过；C# 相关 **108 项通过**，全量 **1531 通过 / 14 项既有失败**。
+  Next/转换器联合 **349 文件 / 4175 项通过**；主动矩阵复跑仍 **172/309 / 5 名完整**。
+  两仓库 `git diff --check` 通过。本检查点纳入本批提交，tmp 不提交。
+
+### 2026-08-28：庇护公共载体闭合，余烬战技连续执行通过（前序检查点）
+
+- 已从本地 1.4.4 完整 runtime-1 镜像恢复 ShelterAction 的 KeywordAction 共同路径。
+  无 subtype 重载 type=4 的原生字符串 slot 确认载体 ID，不按名称猜测；证据、RVA、
+  复现命令写入 combat-spec `docs/keyword-actions.md`，两端共享各自已有关键词解析/执行管线。
+- ShelterAction 不能整项删除：载体保留庇护 Buff 分类标签（已有套装读者）、HighPriority、
+  默认子 Buff、来源与父子清理。不是实体状态标签。Next 不新增敌人攻击或干员受击事件；
+  仅保留既有属性容器中的 `shelterDamageMultiplier`，原始 AttributeMeta[63] 默认 0、无界。
+  敌方庇护通过既有伤害公式读取；Owner→Owner 仅在 Owner 已证明为 caster 时投影。
+- 原始四件固定夹具在两端保留：干员根 → 公共庇护载体 → 默认图标 child → VFX。
+  纯 VFX 明确省略，载体/图标身份和优先级不省略。未知 Owner、动态 child、非空增强仍严格阻断。
+- 标准入口漏接的 `readSkillSettingData` 预检已修复：执行器本来支持内嵌列，强化读取仍要求面板。
+  真实余烬战技 4 条调度及完整 Buff 闭包在本地连续两次施放通过，首次破防、再次倒地及伤害有输出；
+  庇护关闭/开启两种探针均通过。探针借用通用面板并显式注入天赋开关，**不是原始天赋养成装配验收**。
+- 全量主动矩阵重跑仍 **172/309、5 名完整、余烬 8/9**。本轮消除的是战技依赖/执行阻塞，
+  不是新增一项主动定义；未发布余烬完整生成文件。
+- 下一项：按 combat-spec 补 CureTarget 的查询时冻结、排除主控及最低血量选择证据；
+  不能换成治疗时重新选人，也不能把并列结果猜成队伍首项。随后补物理公共 Buff 的归属、
+  原始天赋/潜能装配与整名生成验收。不要回到敌人主动行为或重新搭建独立庇护系统。
+- 验证：四套类型检查通过；C# 关键词 20 项通过，全量 1517 通过 / 14 失败。
+  14 项仍是既有外部装备夹具缺失、缓存样本计数变化及敌方 Channeling 解析边界，未放宽或跳过。
+  Next/转换器联合 **348 文件 / 4165 项通过**，两仓库 `git diff --check` 通过。
+  未提交/推送；tmp 探针不提交，旧版代码未修改。
+
+### 2026-08-28：自下而上删除无效分支，余烬战技主动转换恢复（前序检查点）
+
+- 用户明确：余烬战技是范围攻击，角度影响原生扇形范围；Next 确保攻击命中敌人。
+  **不能把这一边界描述成原生角度仅有表现作用**。只控制范围/选点的分支可省略，
+  仍影响倍率、Buff、控制或其他数值的角度引用不能删除。
+- 公共 `actionSequenceProgram.ts` 先投影分支末端，再向根回收空分支；空分支的纯条件
+  不要求先建模，且从最终产物直接删除，不留空 `conditional`。已支持条件也按副作用检查回收。
+  普通写入动作保持原顺序，不反向传播编译期目标状态；条件写黑板、随机抽样仍保留。
+  `resultIsConsumed` 统一保护 Switch/连携资格等仍被使用的尾守卫返回值。
+- `presentationCalculationIsolation.ts` 在投影后的有效程序上检查角度/曲线引用，并在整个
+  SkillData 范围检查跨调度读取。Assign 目的键不是读取；赋值本身仍保留，未开展通用黑板 DCE。
+  已移除分支里的条件不再成为假消费者。范围受影响不等于实际数值路径可无条件删除。
+- 余烬战技真实主动规划通过：4 条调度序列，伤害、根倒地、Buff 和时序保留。
+  干员 `OnBeforeTakeDamage` 监听按无敌人攻击场景省略，敌方/输出伤害监听不放开。
+  修复正式动作树丢失根倒地隐式 Buff 依赖的问题，保留倒地/破防两项及其敌方归属。
+- 最新主动矩阵 **172/309、5 名完整、余烬 8/9**；仍没有发布或登记余烬完整定义。
+  连携仍阻塞于 `CureTarget` 查询时冻结的最低血量队友选择。combat-spec 的 PriorityFilter
+  公共比较有 0.001 近似等权及对象哈希决胜，不能把旧“队伍首项”实现当作证据。
+- 真实战技完整执行尝试进一步被 `buff_chr_0009_azrila_normal_skill_shelter` 的
+  `ShelterAction` 来源解析阻断。下一步按证据确认庇护/子 Buff 身份的可观察边界，
+  再接通整个 Buff 闭包；不能据技能主体 compiled 宣称战技已完整模拟。
+  后续整名装配还需处理物理状态 Buff 的公共归属，不塞到干员私有目录。
+- 联合回归 **347 文件 / 4158 项通过**（本轮 +8）；转换器完整/生产、契约、Next 四套类型检查通过，
+  最后一次条件回收调整后再次通过转换器两套类型检查。两个仓库 `git diff --check` 通过。
+  未提交/推送；tmp 探针不提交，旧版代码未修改。
+
+### 2026-08-28：普通倒地正式入口与余烬后续阻塞（前序检查点）
+
+- 公共 `knockDownProjection.ts` 已将经过来源/目标证明的普通根动作转成 `applyKnockDown`，
+  保留时长黑板、force、OnlyDead 和四种返回策略；拒绝 extra、未证明目标组和非干员宿主。
+  主动技能的普通主控治疗复用既有 Heal 投影，没有另写治疗执行器。
+- 标准模拟入口已显式安装实体控制时钟及到期退出策略。执行前扫描整场编译静态程序：
+  技能、Buff、能力实体、被动/初始化、连携、装备、面板修饰器均纳入起身标签读者检查。
+  含根倒地时，Getup 或祖先标签的非 caster 查询会阻断；未知 buffOwner 归属同样阻断。
+  **这是保守检查，不是精确可达性证明**：未摆放技能和未使用定义也参与，余烬配伊冯的
+  caster 所属 BuffOwner 读者仍可能误阻断，后续须证明归属后再收窄，不按 ID 前缀猜。
+  缺来源面板、缺隐式状态 Buff、extra 或装备来源根动作仍报错；隐式 Buff 的事件/点燃程序也预检。
+- 真实全量矩阵前后仍为 **171/309、5 名完整、余烬 7/9**，未生成/登记余烬完整定义。
+  原倒地阻塞之后暴露两个独立缺口，下一轮优先处理它们：
+  1. 战技 `timelineActions[1]...actionData[2].failActions`：`input_angle` 表现计算被活性检查
+     判定流入条件。需比较实际分支保留行为，证明方向仅影响表现后才能归约，不能填默认角度。
+  2. 连携 `timelineActions[6]...actionData[6].succeedActions.actionData[1]`：潜能分支的
+     `CharacterTeamFinder → 排除已保存主控 Main → CurHpRatioAsc / maxNum=1 → CureTarget → Heal`。
+     虽然运行时已有最低血量治疗目标，但查询时选人和治疗时重新选人不是同一语义；
+     必须保留目标上下文、空候选及并列顺序，不能因为木桩不攻击就删掉治疗事件。
+- 定向测试覆盖正式项目入口的首次破防/再次倒地及消费者拒绝。联合 **347 文件 / 4150 项通过**
+  （本轮 +25），四套类型检查通过；全量矩阵也已重新运行，未增加完整数。
+  没有新增敌人攻击、红圈、防反、移动或起身动画；未提交/推送，保留已有未提交工作。
+
+### 2026-08-28：倒地标准环境显式装配与余烬来源纠正（前序检查点）
+
+- 已确认原生控制计时使用原始 delta × 实体最终倍率，assembly 复用现有时间膨胀运行时，
+  在 Buff 推进前更新同一个敌人控制实例。模式 0/2 不改变控制时钟；冻屏可暂停控制而不暂停默认 Buff。
+  `KnockDownTimeAddition` 根据新取回的 AttributeMetaTable 初始化为 0、下限 0、无上限。
+- 标准环境新增显式 `knockDown` 装配端口；要求调用者提供经过消费者审计的到期策略，不默认零秒起身。
+  根动作从当前定义宿主取得同一 Buff 闭包；`beforeOutputKnockDown / afterOutputKnockDown`
+  接入公共 Buff 同步事件，首次破防不误触发，语义消费者不延迟到整个根动作结束后。
+- **重要纠正**：按实际 manifest/养成根解析的余烬来源闭包是 10 SkillData / 15 BuffData，
+  missing=0、dynamic references=0；当前附属被动仅 `chr_0009_azrila_talent_2`。
+  `buff_chr_0009_azrila_talent_0_1` 不在闭包，不能再把它称为必须接入的余烬天赋。
+  其下游本地缺失/CDN 404 不是当前余烬阻塞；不补假数据，不强行安装该候选。
+  当前闭包起身/祖先标签候选查询与未知标签均为 0，仍需最终程序及队友/装备组合门禁。
+- 正式根来源投影和标准预检**仍阻断**：需要①最终场景消费者门禁；②无读者闭包的显式到期策略；
+  ③公共根动作投影；④真实五 Buff 伤害、余烬战技/连携及整名验收。不是继续扩张起身动画或追未挂接天赋。
+  `isExtra=true`、部位、浮空转入仍未开放。不把底层装配回归计为正式技能覆盖。
+- 联合 **346 文件 / 4125 项通过**（本轮 +11），四套类型检查通过。
+  覆盖仍 **171/309 / 5 名完整 / 余烬 7/9**；未重生成正式定义、未提交/推送。
+  combat-spec 仅补时钟和来源边界文档，未更改 C# 逻辑/重跑其测试。
+- 后续工具修整：全缓存 Buff 预解析会被无关 `GodEntityFinder` 阻断；本次按 missing ID 逐层调用
+  同一个严格解析器完成余烬核对。应把按根懒加载纳入来源盘点，不为无关缓存放宽解析。
+  详细证据与本地复查过程见[控制状态边界](../research/control-state-observability.md)。
+
+### 2026-08-28：普通根倒地执行切片（前序检查点，后续以上文为准）
+
+- 唯一契约增加 `applyKnockDown`，运行编译直接传递；与旧 `outputKnockDown` 成功标记分离。
+  普通根执行器已复用真实 `BuffDefinitionOperationTarget`、标签配置和 `PeriodicTimer`，
+  不另建 Buff/标签存储，不引入敌人动作或完整起身系统。
+- 定向覆盖首次仅破防、再次/强制倒地、两道免疫、二次安装免疫、专属/通用事件顺序、
+  时长延迟求值、float32 加成、重复倒地、零/负时长、组件缺失与序列返回值。
+  控制时长不覆盖状态 Buff 时长；事件期间的黑板/免疫改写可以影响后续执行。
+- **这不是余烬整名验收**：当前只在定向装配中执行；正式转换入口和标准能力预检仍拒绝根动作。
+  `isExtra=true` 的 BuffAddContext 未贯通，明确拒绝；无绑定来源/属性不能猜默认值。
+  本轮未重跑主动矩阵、未重生成正式干员，覆盖沿用 **171/309 / 5 名完整 / 余烬 7/9**。
+- 下一步只做装配闭环：①核实实体 delta 调度并绑定同一敌人控制实例；②核对余烬实际闭包
+  （不是仅沿用五名完整定义的审计）与开局属性；③把 Before/After KnockDown 接到同步 Ability
+  事件与天赋响应，避免和旧语义事件重复发送；④公共投影放行并重跑余烬真实战技/连携和整名审计。
+  没有起身读者则显式到期退出，不加载动画配置；新读者严格阻断或补足。
+- 验证：联合 **345 文件 / 4114 项通过**（新增 21 项根倒地回归），四套类型检查通过。
+  首跑发现新步骤缺三语说明及测试 mock 返回类型不符，已补齐并重跑；没有放宽能力门禁。
+  本轮不改 combat-spec 原生逻辑，仅同步产品接入边界说明，未重跑 C#。
+  未提交/推送，已有其他未提交工作保留。
+
+### 2026-08-28：控制行为按实际消费者收束（前序检查点）
+
+- 用户再次强调敌人无主动行为；普通 KnockDown 不是防反，但不能据此恢复整套敌人控制器。
+  **撤销“先接完整起身动画配置才能推进根击倒”的路线**。只保留影响伤害、破防、Buff、
+  免疫、干员事件与条件的状态；是否需要起身计时必须核对具体闭包的读者。
+- 新增可复用 `audit:game-data:tag-references`，对倒地/起身/弱点中断及祖先标签盘点
+  2459 SkillData + 2678 BuffData：36 引用、21 实体查询、3 处未知引用（敌人来源，未丢弃）。
+  这是候选盘点，不是全程序可达性证明。未知项、范围及逐项证据见
+  [控制状态边界](../research/control-state-observability.md)。
+- 倒地标签确有增伤/暴击/穿透来源读者；余烬与黎风天赋分别监听击倒后/前事件，不能随敌人
+  动画一起删除。套装候选尚未证明当前表挂接，不能写成“正式装备已支持”。
+- 已检查五份完整定义：仅伊冯的 buffOwner 条件匹配起身父标签，该 Buff 所有安装点均为
+  caster，不要求敌人起身。新增测试固定这一事实；其他未完成定义不能由此自动放行。
+- 上一轮新建但未接入的 `getUpRuntime.ts` 和测试已撤下，仅撤销这两个原型文件。
+  combat-spec 的 `GetUpTimeState` 原生缓存/覆盖规则与回归保留，不将产品简化改成原生事实。
+- 下一步直接推进余烬的最小根倒地：破防门→状态 Buff/免疫→干员事件/结果→必要倒地标签计时。
+  闭包无敌方起身读者时不加载动画起身配置；若新增读者则明确补齐或阻断，不猜固定秒数。
+  根动作仍严格阻断，覆盖沿用 **171/309 / 5 名完整 / 余烬 7/9**，本轮不增加完整数。
+  验证：联合 **344 文件 / 4093 项通过**，四套类型检查与标签来源盘点 CLI 通过；
+  combat-spec 标签/击倒/起身定向 **97 项通过**（上轮补证测试结果），未重跑 C# 全量。
+  未提交/推送，旧版与其他未提交工作均保留。
+
+### 2026-08-28：完整标签配置集已恢复（前序检查点）
+
+- 已确认此前 652 条仅是 GameplayTagConfigSet 引用的 26 份配置之一。通过台式机 VFS 既有
+  TypeTree/CABMap 导出恢复完整引用闭包：6842 条原始记录，明确排除 1 条原生无效空串，
+  跨配置去重 35 条，得到 **6806 条唯一可读路径**。没有猜测路径或静默忽略未知 ID。
+- 全局预定义配置已恢复正式生成：**175 标签 / 61 查询 / 36 免疫规则**全部解析，未知引用 0。
+  例如 Interactive 的实际路径是 Category/Interactive。契约/运行时仍直接使用字符串，
+  原生数字和 CRC 留在来源层；本次不引入运行时索引或标签转换。
+- Endaxis 自己维护固定哈希的配置集来源清单；按 PPtr.fileId→CAB 外部表→(sourceFile,pathId)
+  连接对象，Int64 pathId 用字符串。校验来源哈希、完整性、引用数量及对象身份后才写产物。
+  Operator 来源审计增加 --gameplay-tag-catalog，与旧单份 --gameplay-tag-dump 互斥。
+- 本次仅使用 VFS 通用导出能力，没有修改远端产品代码；27 个 Unity 对象及 CABMap 的下载器
+  自动编排尚未接入，不宣称 HTTP 配置集接口已可用。原始缓存位于 tmp，不提交；跨机重导
+  依据及命令见 [完整来源记录](../research/gameplay-tag-config-set.md)。
+- 严格主动矩阵已重跑，仍 **171/309 / 5 名完整 / 余烬 7/9**。解决的是标签配置生成阻塞，
+  不是根 KnockDown；下一步依据 combat-spec 落实起身时长配置/覆盖、实体时钟，再接普通
+  根击倒生成→运行与余烬战技/连携。敌人仍无主动行为，不为此增加敌人 AI 或红圈。
+- 联合回归 **342 文件 / 4081 项全部通过**；四套类型检查、完整路径/全局预定义 --check、
+  五名完整定义重建检查通过。
+  combat-spec 补空名无效和重复路径回归，标签/击倒相关 **62 项通过**；未重跑 C# 全量。
+  本次未提交/推送。前序武器 stale 差异仍待独立对证，不因目录补齐而宣称已经修复。
+
+### 2026-08-28：标签全链路改为可读路径（前序检查点；目录缺口现已解决）
+
+- 用户明确要求数据契约与运行时不出现数字标签，也不允许 GameplayTag/string 来回转换。
+  已统一为契约 `GameplayTag = string`；原生数字身份、CRC、反查只留在转换器来源层。
+  编译出口严格解析一次；运行编译、Buff、条件、治疗/资源事件、时间膨胀及编辑器直接使用路径。
+  标签数组原样传递，只在数据输入边界验证，不在执行热路径包装或转换。
+- 同版本 652 路径目录与 60 份能力实体模板已生成；能力实体运行模块不再直接导入数字标签证据 JSON。
+  数字字段重命名为 tags/buffTags/applyTags 等；优先级是比较数值，槽位是路径，原生空槽位为 unassigned。
+  旧数字定义不再合法；未添加数字兼容转换。已有项目若包含自定义旧数字定义，需要在数据边界迁移，不能静默忽略。
+- 五名完整干员已用正式生成入口重建，旧 Next oracle 与武器修订快照同步迁移标签表示，未修改旧版 src/data。
+  历史快照哈希因表示改变重固定，行为差异集合仍由原迁移测试约束。
+- **纠正前一检查点**：全局原始预定义表确已取得（175/61/36），但现有 GameplayTagConfig 目录无法
+  解析所有条目（如 Interactive=888050036）。旧数字候选已移至 tmp，未保留在产品目录；严格全局生成
+  目前失败关闭。不能把“原表已取得/测试切片通过”写成“全局可读配置已验收”，也不能猜路径或丢条目。
+- 下一步先补齐同版本全局标签路径来源，恢复预定义配置生成；随后再接普通击倒的起身配置/实体时钟与根操作。
+  本轮不增加主动覆盖，沿用 **171/309 / 5 名完整 / 余烬 7/9**。combat-spec 原生数字结构不因产品表示变化而改写。
+- 验证：联合 **341 文件 / 4066 项通过**，四套类型检查、652 路径/60 实体模板、五名完整定义重建检查通过。
+  77 武器能严格生成候选，但正式 --check 仍 stale：10 文件是常量黑板数组折叠（如 lv、cd），
+  另有 wpn_funnel_0016 四处 applyBuff 不再显式输出 source:eventSource，需独立对证核实，不能称纯格式变化。
+  这些都不是数字标签漏转；候选留 tmp，未借本轮表示迁移覆盖武器发布数据。
+  本次未提交/推送。具体规则、命令和阻塞见转换器 README 与契约 README。
+
+### 2026-08-28：Endaxis 预定义标签与免疫配置链（前序检查点；数字产物已撤出）
+
+- 根击倒仍严格阻断，本轮先消除真实标签配置缺口，未把 `outputKnockDown` 当根操作。
+  主动矩阵已重跑：**171/309 / 5 名完整 / 余烬 7/9**。没有新增完整干员，不能以配置条目计进度。
+- AKEDB 精确资源 `GameplayConfig/GameplayTagPredefineTable.json` 返回 404；通过台式机 VFS
+  既有 `tools/extract_indexed_file.py` 导出记录 694613，输出逻辑路径已核对，再经 Endaxis 自己的
+  下载器与本地同构 fallback 落盘。40,260 字节，SHA-256
+  `c87176401ac351c74cd75b92bb9a2f48c70ba5f4062bb004f5f07d848328e3d5`，与规格证据一致。
+  未从 combat-spec 读取生产输入，未修改远端/VFS 代码。无窗口服务启动尝试没有留下存活的服务，
+  本轮实际使用离线精确导出，不宣称 HTTP fallback 已验收（当前兼容接口也未开放 GameplayConfig）。
+- 下载器新增清单 `jsonFiles` 与 `--json-file`，资源需求由 Endaxis 维护；单文件补取不刷新整批资产，
+  不覆盖原有批次 provenance，仍优先 CDN，缺失才使用 VFS 同构目录/接口。正式生成命令见编译器 README。
+- 唯一契约新增 `gameplayTags.ts`，来源层严格读三个原生字典和 Int32 查询/标签，公共编译层计算
+  CRC32/检测冲突。生成 `src/next/data/combat/gameplayTagPredefine.generated.ts`：
+  **175 个预定义标签、61 个查询、36 条免疫规则**，保留来源 SHA，不手贴配置或猜默认值。
+- 运行时 `GameplayTagPredefine` 复用现有 Buff 容器实体标签及层级查询；提供查询准入、实际安装时
+  再次准入、已有标签不叠加及退出移除一次计数。没有新增第二份控制标签状态，也没有全局模拟状态。
+  KnockDown=835406155、Getup=1488746569、SkillWeaknessInterrupted=485607690；
+  物理异常状态标签 528446605 与组件击倒标签的免疫列表不同，真实配置回归已覆盖两道门。
+- 验证：联合 **340 文件 / 4063 项通过**（净增 28）；四套类型检查、标签产物及五名完整定义
+  `--check` 通过；最后聚焦标签/下载回归 31 项通过。两仓库 diff 检查通过。
+  combat-spec 本轮只同步证据/接入边界文档，未重跑 C#。
+- 下一步直接接普通控制生命周期，先落实起身时长配置/覆盖与实体 deltaTime 的来源，然后接
+  根契约、公共投影、事件/返回值与余烬战技/连携生成→实际模拟。**当前标签类与生成配置已验收，
+  但尚未装配进根控制器/标准场景；不能写成余烬已完整。** 不必等待敌人主动 AI/红圈或完整浮空动画。
+  未提交/推送；旧版未改，tmp 仍忽略。
+
+### 2026-08-28：普通击倒成功与起身生命周期（前序检查点）
+
+- combat-spec 的普通击倒链已从准入推进到实际成功：`ControlledStateComponent` 串联
+  Before→旧状态退出→标签安装/计时→专属 After→物理状态回调，时间到后进入独立起身计时，
+  最后退出清理。重复击倒重新计时，起身中再击倒先清起身标签；没有跨状态消费过量 deltaTime。
+- `KnockDownComponent` 复用现有属性集、PeriodicTimer、真实 Skill.Interrupt 和公共弱点事件。
+  来源击倒时长加成先转 float，再与 duration 相加，发生在弱点/中断回调之前。不会给木桩创建
+  主动技能或红圈；主动目标的技能中断只在 C# 通用规格回归中测试。
+- 补证发现实际安装标签再次检查免疫：准入后回调新增免疫可使安装失败，但仍计时/发 After/
+  返回 Success，已按原生顺序实现。起身准入严格 >1e-5；击倒时长为 0 时 timer 无效，并非立即
+  退出，不能用起身 epsilon 判定击倒。GetUp 的 GetRemainTime 继承基类返回 0，不等于内部计时。
+- 明确未完边界：位移/朝向/动画、物理回调及死亡回收以必需接口绑定；起身时长 getter 也必须
+  显式绑定原生配置/覆盖结果。控制器只提供普通击倒/起身状态；浮空追加字段和事件 26 已取证，
+  落地链、完整覆盖句柄管理、生产实体时钟接线和 IFix 仍未闭环。细节/RVA 见规格击倒文档。
+- 新增 **18 项**回归，根成功使用实际控制器，不再用固定 Success 替身。击倒/碎甲/重击、
+  复合异常及标签表相关 **84 项通过**；C# 全量 **1506 通过 / 14 失败**，失败仍为上轮同一批
+  本地资产/扫描计数/敌人 Channeling 解析问题，无新增失败。
+- Endaxis 本轮只同步文档，正式根 KnockDown 仍阻断；覆盖沿用 **171/309 / 5 名完整 / 余烬 7/9**，
+  没有重生成正式数据或重跑 TS。下一步用本轮普通成功切片接 Endaxis 生产标签/起身/时钟，
+  再贯通根契约、编译、执行与余烬战技/连携生成→模拟。不需要先实现敌人主动行为或完整浮空动画。
+  未提交/推送，旧版未改，tmp 仍忽略。
+
+### 2026-08-28：击倒组件准入可执行化（前序检查点）
+
+- combat-spec 新增 `Runtime/KnockDownComponent.cs`，实际执行 BeforeKnockDown：
+  目标 17→51、来源 40，之后消费中断标签，再查询击倒标签准入；成功优先。
+  保留 fromAirborne、事件对端、普通浮空跳过事件与无 AbilitySystem 的不同分支。
+  不默认安装标签，不把准入 Success 当作完整 Apply 成功。
+- 新增 20 项回归，其中根动作实际绑定拒绝准入，验证状态 Buff 已添加、通用 After 仍执行、
+  返回策略正确；成功路径不由测试替身假装完成。相关击倒/碎甲/重击 **53 项全部通过**。
+- 原生证据进一步确认普通重复击倒先 ExitState 再重入；标签只在 Apply 安装，退出移除，
+  计时重置为 duration + 来源击倒时长加成，不取剩余时长最大值。FixedTick 到时通过起身状态
+  切换清理。OnForceTriggerWeakness 本身仅发布 144，应复用现有事件语义，不能凭名添加数值效果。
+  重放 RVA/命令见 combat-spec `docs/knockdown-action.md`，这些成功/计时流程尚未实现。
+- 本轮另跑 C# 全量：**1488 通过 / 14 失败**。9 项缺本地装备 Buff 研究资产；4 项全资产扫描
+  计数与当前缓存不符（41→57、3→7、59→87、27→32）；1 项敌人 Channeling 的 ActionSource
+  非空上下文键被现有严格解析器拒绝。未修改这些测试或放宽规则，不能写全量通过。
+- Endaxis 本轮只更新文档，没有放开根击倒或重生成正式数据。覆盖沿用上轮 **171/309**、
+  完整定义 **5 名**、余烬 **7/9**；TS 338 文件/4035 项与四套类型检查为上轮结果，本轮未重跑。
+  未提交/推送，旧版未改，tmp 仍忽略。
+- 下一步实现已取证的组件成功路径，补齐控制器尾部/浮空追加/起身所需证据，复用既有
+  PeriodicTimer 和弱点事件；随后才接根契约、生成与余烬战技/连携模拟回归。
+  不建立敌人主动动作或红圈状态，也不省略控制事件、免疫、Buff 和返回值。
+
+### 2026-08-28：即时暴击修正闭环与击倒组件准入取证（前序检查点）
+
+- 上轮遗留已实际复现：CriticalRate 和 CriticalDamageIncrease 的 FinalMultiplier=0 仍让
+  伤害带 1.6 倍暴击。原因是属性集只存动态增量，静态面板在八槽求值之后重新加回。
+  现将完整暴击率/暴伤初始化到运行时属性集，普通伤害、法术爆发和 Buff 伤害都直接读取结果，
+  不再重复叠加静态面板。
+- 技能专属 criticalRate 快捷加成在 BaseAddition 槽以只读局部值求值；
+  `CombatAttributeSet.getWithAdditionalModifiers` 复用唯一八槽公式与边界，不安装实体修正、
+  不改来源过滤、不回写面板，不会泄漏到其他技能、Buff 或法术爆发。它是 Endaxis 局部投影接口，
+  不是原生新增字段或新的 IR。没有写“遇到零倍率就禁暴击”的特判。
+- 原生 DamageAction 形状→公共投影→正式编译→实际伤害回归覆盖暴击率/暴伤零倍率、动态恢复、
+  下一击恢复和禁暴击不消费随机样本；旁路回归覆盖完整面板不重复加算、动态暴伤乘法及不继承
+  触发技能加成。combat-spec 增加四个完整属性/包快照/清理隔离测试，原生伤害规则未改。
+- 根击倒继续保持阻断，但组件取证已推进：`BeforeKnockDown` 在准入判定前按监听情况发出
+  目标 17→51、来源 40；消费 SkillWeaknessInterrupted(26) 后查询能否添加 KnockDown(10)，
+  可添加返回 Success，否则仅在消费过 26 时返回 Interruption，否则 Failure。
+  Airborne 路径及 IFix 边界见 combat-spec `docs/knockdown-action.md` 新节；这是原生证据，
+  尚未实现控制组件。不要把“可添加标签”误作“已安装标签”，或把无敌人主动行为当作必定击倒。
+- 验证：联合 **338 文件 / 4035 项**通过，四套类型检查及五名整名重建检查通过；规格相关
+  **100 项**通过。本轮没有更新正式生成物，没有新增可编译主动入口；覆盖沿用 **171/309**、
+  完整定义 **5 名**、余烬 **7/9**。未提交/推送，旧版未改，tmp 仍忽略。
+- 下一步回到根击倒：以新增证据补组件准入/事件的可执行规格，核对实际标签安装/清理、持续与
+  重复击倒/空中路径，再接 Endaxis 根操作和余烬战技/连携生成→模拟。不能提前把五 Buff
+  编译闭包或组件的某个查询当成整链验收；不为敌人创建主动技能或红圈打断状态。
+
+### 2026-08-28：Shatter 五 Buff 编译闭包与伤害参数传递（前序检查点）
+
+- 公共伤害投影已接入 Shatter（134217728）。依据 combat-spec `DamageEnums.g.cs`、
+  `DamageScaleAttributeInjector.cs` 与 `PlayerActiveDamageCalculator`：保留物理伤害类型，
+  使用结晶异常增伤，属于 IgniteDamageSet、不属于 PhysicalInfliction；不强制暴击或禁暴击。
+  复用既有 `cryoAbnormal` / `shatter` 契约，未另造结晶破坏执行器；两者并存时异常属性只注入一次。
+- 真实 `tmp/probe-knockdown-closure.ts` 重跑：knockdown、no_guard、handle_cryst_break、
+  no_guard_fake、cryst_triggered_physical_break **5/5 可编译，blocked=[]**。这只是 Buff 引用闭包，
+  不是根 KnockDown 的运行验收；根动作仍严格阻断，余烬仍 **7/9**。
+- 新增原始 DamageAction → 公共投影 → 正式技能编译 → 序列执行 → 生命伤害的回归，验证动态
+  atk_scale、物理抗性/增幅/脆弱、结晶异常、Ignite 乘数、普通暴击及不误用 PhysicalInfliction。
+  combat-spec 同步增加 Shatter 属性注入与最终公式回归，未修改其既有伤害规则。
+- 此回归暴露正式技能编译漏传 `features` 和 `instantAttributeModifiers`，已补齐；进一步修正
+  DamageAction 私有映射将 Atk 错写为 attack、执行器把最终乘法槽单位元写成 0 的错误。
+  现复用公共属性键/公式槽编译及 `attributeModifierValues`，不放宽原有处理器白名单。
+  正式伊冯由生成器重建，仅本轮的两处 attack→Atk 是新数据变化；先前目标条件修正继续保留。
+  新增动态即时攻击修正只影响当前命中、不残留到下一击的实际环境回归。
+- 验证：联合 **338 文件 / 4028 项**、contract/production/compiler/Next 四套类型检查、五名
+  完整定义重建检查通过；combat-spec 伤害/击倒/碎甲/重击相关 **96 项**通过。重跑主动审计仍
+  **171/309**、完整定义 **5 名**。本轮未提交或推送，旧版未改，探针与审计仍只在忽略的 tmp。
+- 后续先补一项此次代码检查发现的数值边界：标准伤害快照把静态暴击面板与动态属性增量相加，
+  即时 `CriticalRate/FinalMultiplier=0` 是否真正屏蔽完整暴击面板尚未做端到端回归；不能仅据
+  “处理器参数已传递”宣称所有即时暴击修正正确。随后按 `knockdown-action.md` 证明控制组件中
+  会影响干员侧事件/返回值的木桩切片，接根契约与执行器，再验证余烬战技/连携整链。
+  敌人无主动行为不能成为删除状态 Buff、破防门、免疫、输出事件或返回策略的理由。
+
+### 2026-08-28：KnockDown 原生纠错与真实引用闭包（前序检查点）
+
+- 继续余烬时发现 combat-spec 原 KnockDown 实现有实质错误，已依据本地 1.4.4 原生快照
+  修正，而不是按旧实现继续投影：补回无破防层时只添加 `buff_physical_no_guard` 的门；
+  保留 `returnTrueWhen` 四种策略；动作 duration 只在控制组件存在时求值，不写入 Buff 黑板；
+  移除动作入口代发击倒专属事件的错误顺序。原生入口事件是 181，专属事件由控制组件负责。
+- 原生 AllValid / OnlyAlive 均要求 get_alive，OnlyDead 直接跳过。虚槽 0x4E 经 metadata
+  证明是 get_alive；部位实现读取 m_isEnabled，不能用实体血量或主身体存活代替。
+  C# 对未具备启用/转移信息的部位明确拒绝，并用必需宿主接口隔离未复刻控制组件；
+  不能由“AddBuff 成功”推出“控制成功”，也不能默认模拟出敌人主动行为。
+- 证据、RVA、枚举、复现命令及 IFix 边界已写入 combat-spec `docs/knockdown-action.md`，
+  旧 `physical-infliction-actions.md` 已纠错。源码位于 `vfs-index-browser/combat-spec`；
+  不要再拿旧 KnockDown 测试中的 40→17→401 顺序或 duration 覆盖作为证据。
+- 转换器新增公共 `source/physicalInflictionActions.ts`，原生字段全部保留，复用目标、标量和
+  朝向来源模型；不是木桩表现动作，也没有造干员专用协议。公共引用图识别隐式状态与破防 Buff，
+  强制击倒仅略去根破防门，OnlyDead/禁用动作保留非活动引用；正式编译仍明确阻断根击倒。
+- 真实余烬战技、连携的 KnockDown 均已解析通过（Always、AllValid、非强制、1.5 秒）。
+  `tmp/probe-knockdown-closure.ts` 实际展开 **5 个 Buff**，其中 4 个可编译；剩余阻塞为
+  `buff_common_cryst_triggered_physical_break` 的 event damage decorate mask **134217728**
+  （combat-spec `DamageEnums.g.cs` 中为 Shatter）。此前只测了四个单 Buff，不能据此宣称闭包已通。
+- 新主动审计仍 **171/309**，完整定义仍 **5 名**，余烬仍 **7/9**。没有更新正式生成物。
+  验证：Endaxis 联合 **337 文件 / 4016 项**，contract/production/compiler/Next 四套类型检查、五名完整定义
+  `--complete --check` 通过；combat-spec KnockDown/Fracture/Crush 定向 **33 项**通过，
+  包括真实 SequenceAction 中 Always 不截断后续伤害、独立结果汇总、免疫及空组件边界。
+  本轮未提交或推送；tmp 仍忽略，旧版未修改。
+- 下一步先按 combat-spec 证明并接入结晶破坏 Shatter 修饰位，重跑这五个 Buff 的闭包；
+  再补控制组件中会影响干员侧事件/返回值的木桩切片、根 KnockDown 契约/执行器和余烬战技/连携
+  生成→模拟回归。igniteEventAction 映射整体仍未恢复，但不是当前五 Buff 闭包的首阻塞。
+  不能用现有 outputKnockDown 标记、无条件 AddBuff 或省略整个击倒行为来填数。
+
+### 2026-08-28：公共 Switch 与结晶破坏时间膨胀（前序检查点）
+
+- 公共 Switch 已贯通独立契约、来源投影、正式编译、运行器、校验、命中点、兼容性检查和编辑器。
+  每次执行只读一次 choice，逐项以 float32 值及减法匹配首个标签；保留顺序、重复标签、空分支、
+  动态操作数和 alwaysNext。分支继承入口目标组事实，写入不污染其他分支或外层，尾条件不能因无
+  后继动作而删除。没有降成重复求值的 IfElse 链，也没有新造领域专用协议。
+- 全部分支实例提前建立；Reset 按配置顺序重置全部分支，Tick/End 只递交当前选中分支，下一次
+  Execute 重新选择。顺带依据 combat-spec `IfElseAction.cs` 修正原 conditional 只重置选中分支
+  的遗漏；真实伤害执行器回归证明未选的嵌套 IfElse 也在 Reset 时冻结攻击，而非命中时读取实时攻击。
+- `TimeDilationAction` 使用命名曲线时忽略未启用的内嵌曲线；仅在 Buff Owner 已证明为敌人、
+  ActionSource 已证明为施术者时接入 `[Owner, Source]` 实体目标。证据为 combat-spec
+  `docs/switch-action.md`、`Actions/SwitchAction.cs`、`Actions/TimeDilationAction.cs`，未猜规则。
+  真实 `buff_physical_handle_cryst_break` 已可独立编译；击倒、破防、假破防三个前置 Buff 也继续通过。
+- 主动审计提升到 **171/309**，新增 **弭弗普攻一**（原生 `hitstop_times` Switch，标签顺序
+  `3,4,0,1,2` 决定命名曲线冻屏时长）。这只是新主动入口可编译，不是弭弗整名交付。
+  完整定义仍 **5 名**，余烬仍 **7/9**；没有改正式干员生成物或放开 KnockDown 根动作。
+- 编辑器可编辑 choice/候选的常量和黑板引用、候选顺序及 alwaysNext，分支内容可折叠并复用公共
+  序列编辑器；导图使用独立 option 路径。真实 Vue 控件的隔离浏览器探针已检查 430/320px、草稿
+  写回、重排和嵌套 Switch 添加，无横向溢出；不是完整干员工作区的端到端验收。
+- 验证：联合 **336 文件 / 4001 项**、contract/production/compiler/Next 四套类型检查、五名
+  完整定义 `--complete --check` 全通过。中间探针与审计只在忽略目录 tmp；旧版未改，本轮未提交。
+- 下一步仍是余烬：按 combat-spec `physical-infliction-actions.md` 把 KnockDownAction 的准入、
+  免疫、输出事件、击倒/破防/结晶破坏载体及引用装配接成一条链，再跑战技和连携的生成→模拟回归。
+  单个 Buff 编译成功不证明整条引用闭包可运行；点燃响应映射整体仍未恢复，不能仅发布击倒标记。
+
+### 2026-08-28：当前 Buff 层数、标签黑板读取与击倒伤害（前序检查点）
+
+- 补齐上轮未验证的三项公共能力：`CheckBuffStackNumAdvanced(Environment)` 只读正在执行的
+  Buff 的增强层数；`GetTargetBuffBBAdvanced(Tag)` 复用既有 `readBuffBlackboard`，按容器顺序取
+  首个未结束实例，无匹配返回 false 并截断后续动作，实例存在但缺键才回填零；击倒载体的
+  `DamageAction(Owner)` 只在 Owner 已证明为敌人时投影，保留 KnockDown 与 PhysicalInfliction 分类。
+- Hp 与纯 Poise 共用伤害来源证明：敌人持有的 Buff 不能把 `ActionOwner` 投影成施术干员，
+  必须由已证明的 `ActionSource` 归属。未证明的 Owner、未知伤害位仍阻断；没有放开一般敌人伤害。
+  Environment 仍限定 Advanced / BuffCount / 无施法 ID 限制 / 空 ID 与 Tag 查询，阈值保留运行时引用。
+- 新增条件的正式契约、运行器、校验器、兼容性白名单和编辑器同步接入；比较值可编辑，
+  不误用“敌人霸体”标签。击倒伤害分类补齐中英俄显示名。证据沿用 combat-spec
+  `buff-and-damage.md`、`GetTargetBuffBlackboardAction.cs`、`DamageEnums.g.cs`，未猜测新规则。
+- 真实文件独立探针：`buff_physical_knockdown`、`buff_physical_no_guard` 和
+  `buff_physical_no_guard_fake` 均可编译；`buff_physical_handle_cryst_break` 首阻塞已推进到
+  第五个动作 `SwitchAction`。这些结果只证明单个 Buff 的投影，不代表其引用闭包或余烬整名完成。
+- 下一步先做公共 Switch，再贯通 KnockDownAction 的准入、免疫、事件及载体链。Switch 的选择
+  会影响时间膨胀，不能省略；不得用现有 conditional 简单串联：原生 choice 只读一次，逐项
+  float32 匹配首个标签，Reset 重置全部分支，Tick/End 仅作用于选中分支。具体接入约束已写入
+  转换器 README 的“Switch 后续接入边界”；本轮没有提前放开根动作。
+- 验证：联合回归 **334 文件 / 3978 项**，contract、production、compiler、Next 四套类型检查
+  全通过；五名完整定义的 `--complete --check` 全通过。重跑主动审计仍为 **170/309**、
+  完整定义 **5 名**，余烬 **7/9**。旧版代码未修改，tmp 未入库，本轮未提交或推送。
+
+### 2026-08-28：击倒链的公共 Buff 前置能力（前序检查点）
+
+- 本轮仍优先余烬，不横跳武器装备。公共来源增加 `IgniteAction` 和 `OnPhysicalNoGuardStart`，
+  前者投影到已有 `igniteBuffs` 契约；后者只发 GameLevelEvent/BattleRecorder 通知，在木桩场景省略，
+  不能据此省略破防层、后续点燃或伤害。点燃的成功目标组回写尚未实现，非空 key 仍严格阻断。
+- `OnBuffAfterTryEnhanced` 映射到已有 `afterEnhance` 生命周期，不混同层数变化事件；
+  满层仍执行、首次分配不执行。叠层回调把本次叠层者交给操作链，保留 Buff 的永久来源、
+  原始施法和实例 once 状态。combat-spec `buff-lifecycle.md` 已补记相应 C# 环境绑定。
+- 点燃端口向下传递本次 SkillCastInfo，响应使用点燃者的操作链；结束原因由 `other` 修为
+  `ignite`，某映射结束 Buff 后不再执行后续映射。管理员冻结/终结技的生产模拟断言同步修正。
+  兼容现有定义，点燃响应中的 `buffSourceId` 仍指点燃者；这不是 Buff 实例永久 Source 的变更。
+  新转换器仍拒绝 Buff 的 `igniteEventAction` 映射整体投影；不要把调用点接通误报为全映射恢复。
+- 真实数据探针：`buff_physical_knockdown`、`buff_physical_no_guard` 均已通过来源解析。
+  向击倒 Buff 注入现有 SkillSetting 目录后，首阻塞是 Start 中 DamageAction 的来源/目标投影，
+  不是缺少“倒地伤害”数据。破防 Buff 首阻塞是 `CheckBuffStackNumAdvanced(Environment)`；
+  `buff_physical_handle_cryst_break` 首阻塞是 Buff 黑板读取。下一轮按这些公共缺口推进，再接
+  KnockDownAction 的准入/事件/Buff 整链；不要单独放开根动作或只输出 `outputKnockDown`。
+- 重跑严格主动审计仍为 **170/309**、完整统一定义 **5 名**，余烬仍 **7/9**。五名完整定义
+  的 `--complete --check` 全通过。本轮没有新干员整名交付，也没有提交或推送。
+- 验证：联合回归 **333 文件 / 3969 项**，contract、production、compiler、Next 四套类型检查
+  全通过。架构测试的整图 TypeScript 语义分析在本机独跑约 22 秒，固定 20 秒限额会误报超时；
+  已仅将该项限额提高至 60 秒，未删除检查或改变断言。两仓库 `git diff --check` 通过。
+
+### 2026-08-28：本机资源基线恢复与 DoOnce 技力回复（前序检查点）
+
+- 本机从 `bcd71558` / combat-spec `6a6c591` 继续。初次主动审计仅 126/309，其中
+  59 个技能首个阻塞为缺文件；不是已确认的编译器退步。AKEDB 当前共享索引没有这些投射物，
+  台式机 SSH 正常、8765 HTTP 不可达，因此同步 `D:/Projects/Endaxis/tmp/game-data-sources/ProjectileData`
+  的 120 个既有导出及 `operator-source-closure-download.json` 到本机忽略目录。来源记录保存为
+  `tmp/game-data-sources/desktop-operator-source-closure-download.json`；本轮没有启动或修改远端服务。
+  118 份字节哈希匹配旧下载记录；艾维文娜两份 lance_out 与旧记录不同，但已逐项确认与台式机当前
+  文件哈希及仓库 `avywenna-operator-inputs.json` 中的版本化数据一致。不能将旧 provenance 冒充更新后的记录。
+- 修正 `FinishGlobalBuffAction.globalBuffIds` 来源：原生 TypeToken `0x2003373` 是
+  `List<GlobalBuffId>`，JSON 为 `{ id }[]`，不能按字符串列表读取。按 ID 结束的运行投影仍拒绝。
+  全量来源下载计划目前仍会在无关 Buff 的 `GodEntityFinder` 来源解析处中断；这是全索引预解析
+  与闭包按需读取的边界问题，不能靠忽略未知目标解决，本轮未扩张下载工具。
+- combat-spec 新增 `docs/do-once-action.md`，记录原生 ExecuteInternal、_TryExecute、OnCreate、
+  OnEnd、OnReset 的 RVA 与语义。DoOnce 即时执行子序列后标记已执行，固定返回 true；reason=1
+  的 Reset 不清除标记。C# 通用 Reset 尚不携带 reason，故没有添加近似生命周期实现。
+- TS 公共控制流新增 `once` 来源节点并保留子引用，投影复用已有正式 once 契约和运行时。
+  仅接受技能时间轴内无角色守卫的同步资源回复子序列；Buff 宿主、其他子行为继续阻断。
+  scopeKey 使用完整来源动作路径，状态由技能实例持有，不按目标或每个命中帧重置。
+  余烬普攻四、卡契尔普攻四、昼雪普攻三进入 compiled，最新严格主动矩阵 **170/309**，
+  首个阻塞中缺文件项为零，主动全可编译与完整统一 TS 定义均仍为 **5 名**。
+- 余烬现为 **7/9**，战技和连携均阻塞于 `KnockDownAction`。下一步先按
+  combat-spec `physical-infliction-actions.md` 贯通击倒准入、事件和公共 Buff：真实
+  `buff_physical_knockdown` 会创建破防层，并读取倒地伤害/失衡；不能只输出 `outputKnockDown`
+  或因敌人没有主动行为就省略。闭合后再检查余烬天赋、潜能和实体，尚未宣称整名完成。
+- 五名完整定义的 `--complete --check` 已在本机全部通过。伊冯一处 smart_target 数量条件因
+  前序公共目标归约改动而陈旧，已通过生成器重建为等价的已证明单目标比较；没有手改生成数据。
+  联合回归 **332 文件 / 3964 项**（4 workers，testTimeout 60000），contract、production、
+  compiler、Next 四套类型检查通过。旧版代码未修改，tmp 不入库。
+
+### 2026-08-28：Wulfgard 整名定义、攻击快照与燃烧闭环（前序检查点）
 
 - 严格主动迁移审计提升为 **167/309**，主动全可编译干员增至 **5 名**：Xaihi、Yvonne、
   Avywenna、Akekuri、Wulfgard。Wulfgard 从 7/9 到 9/9：`MarkCanInterrupt` 依据

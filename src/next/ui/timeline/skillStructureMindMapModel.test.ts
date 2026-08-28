@@ -10,6 +10,44 @@ import {
 } from './skillStructureMindMapModel';
 
 describe('skillStructureMindMapModel', () => {
+  it('Switch 候选是可添加步骤的序列端口，重复标签仍有独立路径', () => {
+    const skill: SkillDefinition = {
+      key: 'test',
+      timelineBlockFrames: 1,
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'switch',
+                parameters: { choice: { kind: 'blackboard', key: 'count' }, alwaysNext: true },
+                options: [0, 0].map(value => ({
+                  value: { kind: 'constant', value },
+                  sequence: { steps: [] },
+                })),
+              },
+            ],
+          },
+        },
+      ],
+    };
+    const nodes = [
+      ...indexSkillStructureNodes(
+        buildSkillStructureMindMap(skill, {
+          blackboard: 'Blackboard',
+          availability: 'Availability',
+          sequence: 'Sequence',
+        }),
+      ).values(),
+    ];
+    const branches = nodes.filter(node => node.sourcePath.includes('.options['));
+    expect(branches.map(node => node.sourcePath)).toEqual(
+      [0, 1].map(index => `scheduledSequences[0].sequence.steps[0].options[${index}].sequence`),
+    );
+    expect(branches.every(node => node.canAddChild === 'step')).toBe(true);
+  });
+
   it('projects settings, sequences, nested branches, and definition references', () => {
     const skill = {
       key: 'testSkill',

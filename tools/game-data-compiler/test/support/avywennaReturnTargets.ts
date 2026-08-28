@@ -1,5 +1,5 @@
 import fixture from '../fixtures/avywenna-return-targets.json';
-import { GameplayTagRegistry } from '../../../../src/shared/gameplayTags.ts';
+import { GameplayTagRegistry } from '../../src/source/nativeGameplayTags.ts';
 import { compileAbilityEntityTemplateCatalogSource } from '../../src/compiler/abilityEntityCatalog.ts';
 import { compileCombatActionSequenceSource } from '../../src/compiler/buffRuntimeProjection.ts';
 import { parseReturnSequence } from './avywennaReturnProjection.ts';

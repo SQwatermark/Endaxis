@@ -43,8 +43,8 @@ const definition = {
           "triggerIntervalSeconds": 0,
           "waitFirstTriggerInterval": true,
           "maxTriggerCount": 1,
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "poise_up": 0
           },
@@ -108,8 +108,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "atk_up": 0,
             "duration": 0

@@ -1,3 +1,4 @@
+import { validateSkillDefinition } from '../game-data/validateSkillDefinition';
 import { describe, expect, it } from 'vitest';
 import type { SkillDefinition } from '../game-data/operatorDefinition';
 import { perlica } from '../../data/operators/perlica';
@@ -5,6 +6,7 @@ import {
   compileOperatorBuffDefinitions,
   compileOperatorBuffResources,
   compileSkill,
+  compileActionSequence,
 } from './compileSkill';
 
 function findPerlicaSkill(key: string): SkillDefinition {
@@ -17,6 +19,82 @@ function findPerlicaSkill(key: string): SkillDefinition {
 }
 
 describe('compileSkill', () => {
+  it('标签原数组直接穿过运行编译，不包装或再次解析路径', () => {
+    const tags = Object.freeze(['Custom/Buff/Child']);
+    const compiled = compileActionSequence(
+      {
+        steps: [
+          {
+            kind: 'readBuffBlackboard',
+            parameters: {
+              target: 'enemy',
+              query: { kind: 'tag', tagQueryType: 'hasAny', buffTags: tags },
+              desiredKey: 'count',
+              outputKey: 'result',
+            },
+          },
+        ],
+      },
+      1,
+    );
+    const operation = compiled.steps[0]!;
+    expect(operation.kind).toBe('readBuffBlackboard');
+    if (operation.kind !== 'readBuffBlackboard' || operation.parameters.query.kind !== 'tag')
+      throw new Error('unexpected operation');
+    expect(operation.parameters.query.buffTags).toBe(tags);
+  });
+  it('保留两类伤害的特征及倍率伤害的即时属性修正，不丢失运行时黑板引用', () => {
+    const instantAttributeModifiers = [
+      {
+        targetSide: 'attacker',
+        attribute: 'criticalRate',
+        slot: 'baseAddition',
+        value: { kind: 'blackboard', key: 'crit_delta' },
+        attributeTiming: 'runtime',
+      },
+    ] as const;
+    const compiled = compileActionSequence(
+      {
+        steps: [
+          {
+            kind: 'dealDamage',
+            parameters: {
+              damageType: 'physical',
+              attackScale: [1, 2],
+              tags: [],
+              features: ['shatter', 'dot'],
+              instantAttributeModifiers,
+            },
+          },
+          {
+            kind: 'dealFixedDamage',
+            parameters: {
+              damageType: 'physical',
+              value: [50, 100],
+              tags: [],
+              features: ['knockDown', 'physicalInfliction'],
+            },
+          },
+        ],
+      },
+      2,
+    );
+    expect(compiled.steps.map(step => step.parameters)).toEqual([
+      {
+        damageType: 'physical',
+        attackScale: 2,
+        tags: [],
+        features: ['shatter', 'dot'],
+        instantAttributeModifiers,
+      },
+      {
+        damageType: 'physical',
+        value: 100,
+        tags: [],
+        features: ['knockDown', 'physicalInfliction'],
+      },
+    ]);
+  });
   it('compiles both inline physical-infliction Buff trees at the skill level', () => {
     const skill = {
       key: 'fracture',
@@ -216,7 +294,7 @@ describe('compileSkill', () => {
                   attribute: 'will',
                   multiplier: [1, 2],
                   addition: [10, 20],
-                  tagIds: [-1],
+                  tags: ['Test/TagNegative1'],
                 },
               },
             ],
@@ -253,7 +331,7 @@ describe('compileSkill', () => {
                 parameters: {
                   target: 'controlledOperator',
                   amount: [100, 240],
-                  tagIds: [],
+                  tags: [],
                 },
               },
             ],
@@ -953,7 +1031,7 @@ describe('compileSkill', () => {
                   coefficient: 0.5,
                   recipient: 'caster',
                   isPercentValue: true,
-                  ultimateRecoveryTagId: 264623624,
+                  ultimateRecoveryTag: 'Skill/Character/chr_0026_lastrite',
                   ignoreUltimateEnergyGainMultiplier: true,
                 },
               },
@@ -979,7 +1057,7 @@ describe('compileSkill', () => {
         coefficient: 0.5,
         recipient: 'caster',
         isPercentValue: true,
-        ultimateRecoveryTagId: 264623624,
+        ultimateRecoveryTag: 'Skill/Character/chr_0026_lastrite',
         ignoreUltimateEnergyGainMultiplier: true,
       },
     });
@@ -1041,7 +1119,7 @@ describe('compileSkill', () => {
     ).toThrow("skill 'multiple-costs' has multiple costs, but native CastData has one cost");
   });
 
-  it('rejects invalid native buff tag ids while compiling the index', () => {
+  it('在数据边界拒绝数字标签，不依赖运行时类型转换', () => {
     const skill = {
       key: 'invalid-tag',
       timelineBlockFrames: 1,
@@ -1057,7 +1135,7 @@ describe('compileSkill', () => {
                   query: {
                     kind: 'tag',
                     tagQueryType: 'hasAny',
-                    buffTagIds: [0x80000000],
+                    buffTags: ['2147483648'],
                   },
                   desiredKey: 'count',
                   outputKey: 'result',
@@ -1069,14 +1147,10 @@ describe('compileSkill', () => {
       ],
     } satisfies SkillDefinition;
 
-    expect(() =>
-      compileSkill({
-        operatorId: 'fixture',
-        skillGroupKey: 'battleSkill',
-        skillType: 'battleSkill',
-        skillLevel: 1,
-        skill,
-      }),
-    ).toThrow('gameplay tag id must be a signed 32-bit integer');
+    expect(validateSkillDefinition(skill)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ message: 'expected readable GameplayTag path' }),
+      ]),
+    );
   });
 });

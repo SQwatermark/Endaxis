@@ -103,7 +103,7 @@ describe('TimedMarkerOperationExecutor', () => {
         requestedHealing: 100,
         actualHealing: 0,
         overhealing: 100,
-        tagIds: [-320297214],
+        tags: ['Skill/Character/Common/Heal/NormalSkillHeal'],
       },
     };
     const step: ResolvedCombatOperationStep = {

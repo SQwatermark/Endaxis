@@ -13,7 +13,7 @@ describe('TimeDilationRuntime', () => {
     const runtime = createRuntime();
     runtime.startGlobal({
       durationSeconds: 1,
-      slot: 1,
+      slot: 'Test/TimeSlot1',
       priority: LOW,
       curve: progress => 0.01 + progress * 0.99,
       ignoredOperatorIds: ['caster'],
@@ -34,13 +34,13 @@ describe('TimeDilationRuntime', () => {
     const runtime = createRuntime();
     const first = runtime.startGlobal({
       durationSeconds: 1,
-      slot: 1,
+      slot: 'Test/TimeSlot1',
       priority: HIGH,
       constantScale: 0.2,
     });
     runtime.startGlobal({
       durationSeconds: 1,
-      slot: 1,
+      slot: 'Test/TimeSlot1',
       priority: LOW,
       constantScale: 0.1,
     });
@@ -48,7 +48,7 @@ describe('TimeDilationRuntime', () => {
 
     const replacement = runtime.startGlobal({
       durationSeconds: 1,
-      slot: 1,
+      slot: 'Test/TimeSlot1',
       priority: HIGH,
       constantScale: 0.4,
     });
@@ -69,21 +69,21 @@ describe('TimeDilationRuntime', () => {
     );
     runtime.startGlobal({
       durationSeconds: 1,
-      slot: 1,
+      slot: 'Test/TimeSlot1',
       priority: LOW,
       constantScale: 0.5,
       source: { sourceId: 'operator', sourceActionId: 'first' },
     });
     runtime.startGlobal({
       durationSeconds: 1,
-      slot: 1,
+      slot: 'Test/TimeSlot1',
       priority: HIGH,
       constantScale: 0.4,
       source: { sourceId: 'operator', sourceActionId: 'second' },
     });
     runtime.startGlobal({
       durationSeconds: 1,
-      slot: 1,
+      slot: 'Test/TimeSlot1',
       priority: LOW,
       constantScale: 0.3,
       source: { sourceId: 'operator', sourceActionId: 'third' },
@@ -101,14 +101,14 @@ describe('TimeDilationRuntime', () => {
     const runtime = createRuntime();
     const first = runtime.startGlobal({
       durationSeconds: 1,
-      slot: 1,
+      slot: 'Test/TimeSlot1',
       priority: LOW,
       constantScale: 0.3,
       influenceSkillCooldownSeconds: 0.5,
     });
     runtime.startGlobal({
       durationSeconds: 1,
-      slot: 2,
+      slot: 'Test/TimeSlot2',
       priority: LOW,
       constantScale: 0.3,
     });
@@ -120,7 +120,7 @@ describe('TimeDilationRuntime', () => {
     const runtime = createRuntime();
     runtime.startGlobal({
       durationSeconds: 1,
-      slot: 1,
+      slot: 'Test/TimeSlot1',
       priority: LOW,
       constantScale: 0.5,
       ignoredOperatorIds: ['ignored'],
@@ -128,14 +128,14 @@ describe('TimeDilationRuntime', () => {
     runtime.startEntity({
       entityId: 'ignored',
       durationSeconds: 1,
-      slot: 2,
+      slot: 'Test/TimeSlot2',
       priority: LOW,
       curve: () => 0.4,
     });
     runtime.startEntity({
       entityId: 'other',
       durationSeconds: 1,
-      slot: 2,
+      slot: 'Test/TimeSlot2',
       priority: LOW,
       curve: () => 0.4,
     });
@@ -148,7 +148,7 @@ describe('TimeDilationRuntime', () => {
     const runtime = createRuntime();
     runtime.startGlobal({
       durationSeconds: 1 / 30,
-      slot: 1,
+      slot: 'Test/TimeSlot1',
       priority: LOW,
       constantScale: 0.1,
     });
@@ -166,7 +166,7 @@ describe('TimeDilationRuntime', () => {
     runtime.startEntity({
       entityId: 'target',
       durationSeconds: 0,
-      slot: 1,
+      slot: 'Test/TimeSlot1',
       priority: LOW,
       curve: () => 0,
     });
@@ -193,7 +193,7 @@ describe('TimeDilationRuntime', () => {
     const runtime = createRuntime();
     runtime.startGlobal({
       durationSeconds: 1,
-      slot: 1,
+      slot: 'Test/TimeSlot1',
       priority: LOW,
       constantScale: 0.5,
       influenceSkillCooldownSeconds: 0.25,
@@ -202,7 +202,7 @@ describe('TimeDilationRuntime', () => {
     runtime.startEntity({
       entityId: 'ignored',
       durationSeconds: 1,
-      slot: 2,
+      slot: 'Test/TimeSlot2',
       priority: LOW,
       curve: () => 0.4,
     });
@@ -218,25 +218,25 @@ describe('TimeDilationRuntime', () => {
 
   it('uses global-scaled lifetime only for configured entity slots', () => {
     const runtime = new TimeDilationRuntime({
-      entityLifetimeUsesGlobalScaleBySlot: new Map([[2, true]]),
+      entityLifetimeUsesGlobalScaleBySlot: new Map([['Test/TimeSlot2', true]]),
     });
     runtime.startGlobal({
       durationSeconds: 1,
-      slot: 1,
+      slot: 'Test/TimeSlot1',
       priority: LOW,
       constantScale: 0.5,
     });
     runtime.startEntity({
       entityId: 'scaled',
       durationSeconds: 1,
-      slot: 2,
+      slot: 'Test/TimeSlot2',
       priority: LOW,
       curve: () => 1,
     });
     runtime.startEntity({
       entityId: 'raw',
       durationSeconds: 1,
-      slot: 3,
+      slot: 'Test/TimeSlot3',
       priority: LOW,
       curve: () => 1,
     });

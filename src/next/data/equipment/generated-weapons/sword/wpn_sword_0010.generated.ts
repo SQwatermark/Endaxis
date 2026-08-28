@@ -43,8 +43,8 @@ const definition = {
           "triggerIntervalSeconds": 0,
           "waitFirstTriggerInterval": true,
           "maxTriggerCount": 1,
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "dmg_up": 0,
             "duration": 0,
@@ -89,8 +89,8 @@ const definition = {
           "triggerIntervalSeconds": 0,
           "waitFirstTriggerInterval": true,
           "maxTriggerCount": 1,
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "dmg_up": 0,
             "duration": 10,
@@ -109,9 +109,9 @@ const definition = {
                       "condition": {
                         "kind": "eventBuffTagsMatch",
                         "match": "hasAny",
-                        "buffTagIds": [
-                          -1110095722,
-                          -421286163
+                        "buffTags": [
+                          "Skill/Character/Common/SpellStatus/Burning",
+                          "Skill/Character/Common/SpellStatus/Corrupt"
                         ]
                       }
                     },
@@ -205,8 +205,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "dmg_up": 0,
             "duration": 0,

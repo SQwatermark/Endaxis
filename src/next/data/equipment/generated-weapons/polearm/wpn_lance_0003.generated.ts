@@ -43,8 +43,8 @@ const definition = {
           "triggerIntervalSeconds": 0,
           "waitFirstTriggerInterval": true,
           "maxTriggerCount": 1,
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "atk_up": 0,
             "hp_ratio_c": 0

@@ -28,8 +28,8 @@ const definition = {
       triggerIntervalSeconds: 0,
       waitFirstTriggerInterval: true,
       maxTriggerCount: 1,
-      applyTagIds: [],
-      extendTagIds: [],
+      applyTags: [],
+      extendTags: [],
       blackboard: {
         buffid: '#',
         duration: 10,
@@ -50,7 +50,7 @@ const definition = {
                   condition: {
                     kind: 'eventBuffTagsMatch',
                     match: 'hasAny',
-                    buffTagIds: [-1558844517],
+                    buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"],
                   },
                 },
                 whenTrue: {
@@ -61,7 +61,7 @@ const definition = {
                         condition: {
                           kind: 'eventTargetBuffCountCompare',
                           tagQueryType: 'hasAny',
-                          buffTagIds: [-1558844517],
+                          buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"],
                           operator: 'greaterOrEqual',
                           value: {
                             kind: 'blackboard',
@@ -101,7 +101,7 @@ const definition = {
                   condition: {
                     kind: 'eventBuffTagsMatch',
                     match: 'hasAny',
-                    buffTagIds: [-1411846745],
+                    buffTags: ["Skill/Character/Common/SpellInflict/NaturalInflict"],
                   },
                 },
                 whenTrue: {
@@ -112,7 +112,7 @@ const definition = {
                         condition: {
                           kind: 'eventTargetBuffCountCompare',
                           tagQueryType: 'hasAny',
-                          buffTagIds: [-1411846745],
+                          buffTags: ["Skill/Character/Common/SpellInflict/NaturalInflict"],
                           operator: 'greaterOrEqual',
                           value: {
                             kind: 'blackboard',
@@ -152,7 +152,7 @@ const definition = {
                   condition: {
                     kind: 'eventBuffTagsMatch',
                     match: 'hasAny',
-                    buffTagIds: [1570888476],
+                    buffTags: ["Skill/Character/Common/SpellInflict/CrystInflict"],
                   },
                 },
                 whenTrue: {
@@ -163,7 +163,7 @@ const definition = {
                         condition: {
                           kind: 'eventTargetBuffCountCompare',
                           tagQueryType: 'hasAny',
-                          buffTagIds: [1570888476],
+                          buffTags: ["Skill/Character/Common/SpellInflict/CrystInflict"],
                           operator: 'greaterOrEqual',
                           value: {
                             kind: 'blackboard',
@@ -203,7 +203,7 @@ const definition = {
                   condition: {
                     kind: 'eventBuffTagsMatch',
                     match: 'hasAny',
-                    buffTagIds: [2123008650],
+                    buffTags: ["Skill/Character/Common/SpellInflict/PulseInflict"],
                   },
                 },
                 whenTrue: {
@@ -214,7 +214,7 @@ const definition = {
                         condition: {
                           kind: 'eventTargetBuffCountCompare',
                           tagQueryType: 'hasAny',
-                          buffTagIds: [2123008650],
+                          buffTags: ["Skill/Character/Common/SpellInflict/PulseInflict"],
                           operator: 'greaterOrEqual',
                           value: {
                             kind: 'blackboard',
@@ -279,8 +279,8 @@ const definition = {
           category: 'CommonCharBuff',
         },
       },
-      applyTagIds: [],
-      extendTagIds: [],
+      applyTags: [],
+      extendTags: [],
       blackboard: {
         duration: 10,
         skill_dmg_up: 0.2,
@@ -325,8 +325,8 @@ const definition = {
       triggerIntervalSeconds: 0,
       waitFirstTriggerInterval: true,
       maxTriggerCount: 1,
-      applyTagIds: [],
-      extendTagIds: [],
+      applyTags: [],
+      extendTags: [],
       blackboard: {
         will: 200,
       },

@@ -163,7 +163,7 @@ export default {
                 "kind": "constant",
                 "value": 0.5
               },
-              "slot": 0,
+              "slot": "unassigned",
               "priority": 30,
               "curve": {
                 "kind": "named",

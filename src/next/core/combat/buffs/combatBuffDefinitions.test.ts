@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer } from './combatBuffs';
-import { GameplayTagRegistry, gameplayTagIdFromPath } from '../tags/gameplayTags';
+import { GameplayTagRegistry } from '../tags/gameplayTags';
 import {
   COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
   compileCombatBuffDefinitions,
@@ -260,11 +260,11 @@ describe('compileCombatBuffDefinitions', () => {
 
   it('preserves raw applyTags and compiles them into queryable identities', () => {
     const path = 'Combat/Buff/Pulse/Triggered';
-    const tagId = gameplayTagIdFromPath(path);
+    const tagId = path;
     const document = parseCombatBuffDefinitionsDocument({
       schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
       revision: 'test-tags',
-      buffs: [{ id: 'pulse-triggered', stackingType: 'unique', applyTagIds: [tagId] }],
+      buffs: [{ id: 'pulse-triggered', stackingType: 'unique', applyTags: [tagId] }],
     });
     const index = compileCombatBuffDefinitions<Attribute>(document, {
       emitElementalInflictionStarted: vi.fn(),
@@ -278,7 +278,7 @@ describe('compileCombatBuffDefinitions', () => {
     );
     requireAddedBuff(container.add(definition, 'operator'));
 
-    expect(container.getCountByTags([gameplayTagIdFromPath('Combat/Buff/Pulse')])).toBe(1);
+    expect(container.getCountByTags(['Combat/Buff/Pulse'])).toBe(1);
   });
 
   it('parses and registers fixed and blackboard-backed attribute modifiers', () => {
@@ -316,7 +316,7 @@ describe('compileCombatBuffDefinitions', () => {
   });
 
   it('parses and compiles conditional blackboard-backed damage modifiers', () => {
-    const slowTagId = 1925762097;
+    const slowTagId = 'Skill/Character/Common/Affixes/Slow';
     const document = parseCombatBuffDefinitionsDocument({
       schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
       revision: 'test-damage-modifier',
@@ -332,7 +332,7 @@ describe('compileCombatBuffDefinitions', () => {
                 kind: 'entityTagMatch',
                 target: 'enemy',
                 tagQueryType: 'hasAny',
-                tagIds: [slowTagId],
+                tags: [slowTagId],
               },
               processors: [
                 {
@@ -360,7 +360,7 @@ describe('compileCombatBuffDefinitions', () => {
           kind: 'entityTagMatch',
           target: 'enemy',
           tagQueryType: 'hasAny',
-          tagIds: [slowTagId],
+          tags: [slowTagId],
         },
         processors: [
           {

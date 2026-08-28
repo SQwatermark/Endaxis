@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { GameplayTag } from '../../../../../packages/game-data-contract/src/gameplayTags';
+
 /**
  * Buff 施加步骤的参数编辑器。
  *
@@ -24,7 +26,7 @@ import type { EditableCombatStepKind } from '../skillDefinitionEditorViewModel';
 import ActionSequenceEditor from './ActionSequenceEditor.vue';
 import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
 import EditorFieldLabel from './EditorFieldLabel.vue';
-import GameplayTagIdsEditor from './GameplayTagIdsEditor.vue';
+import GameplayTagsEditor from './GameplayTagsEditor.vue';
 
 type BuffStep = Extract<CombatStepDefinition, { kind: 'applyBuff' }>;
 type OptionalField =
@@ -183,12 +185,12 @@ function setDefinitionNumber(
   setDefinition(next);
 }
 
-function setDefinitionTagIds(field: 'applyTagIds' | 'extendTagIds', ids: readonly number[]): void {
+function setDefinitionTags(field: 'applyTags' | 'extendTags', tags: readonly GameplayTag[]): void {
   const definition = props.step.parameters.definition;
   if (definition === undefined) return;
   const next = { ...definition };
-  if (ids.length === 0) delete next[field];
-  else next[field] = ids;
+  if (tags.length === 0) delete next[field];
+  else next[field] = tags;
   setDefinition(next);
 }
 
@@ -489,10 +491,10 @@ function removeAssignment(key: string): void {
           :label="t('nextTimeline.skillEditing.buffApplyTags')"
           :help="t('nextTimeline.skillEditing.fieldHelp.buffApplyTags')"
         />
-        <GameplayTagIdsEditor
-          :ids="step.parameters.definition.applyTagIds ?? []"
+        <GameplayTagsEditor
+          :tags="step.parameters.definition.applyTags ?? []"
           :minimum="0"
-          @update="setDefinitionTagIds('applyTagIds', $event)"
+          @update="setDefinitionTags('applyTags', $event)"
         />
       </label>
       <label>
@@ -500,10 +502,10 @@ function removeAssignment(key: string): void {
           :label="t('nextTimeline.skillEditing.buffExtendTags')"
           :help="t('nextTimeline.skillEditing.fieldHelp.buffExtendTags')"
         />
-        <GameplayTagIdsEditor
-          :ids="step.parameters.definition.extendTagIds ?? []"
+        <GameplayTagsEditor
+          :tags="step.parameters.definition.extendTags ?? []"
           :minimum="0"
-          @update="setDefinitionTagIds('extendTagIds', $event)"
+          @update="setDefinitionTags('extendTags', $event)"
         />
       </label>
       <label class="buff-presentation-editor">

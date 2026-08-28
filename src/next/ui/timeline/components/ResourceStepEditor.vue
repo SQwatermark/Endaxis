@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { GameplayTag } from '../../../../../packages/game-data-contract/src/gameplayTags';
+
 /**
  * 资源变化步骤的专用参数编辑器。
  *
@@ -25,7 +27,7 @@ import {
 } from '../skillDefinitionEditorViewModel';
 import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
 import EditorFieldLabel from './EditorFieldLabel.vue';
-import GameplayTagIdsEditor from './GameplayTagIdsEditor.vue';
+import GameplayTagsEditor from './GameplayTagsEditor.vue';
 
 type ResourceStep = Extract<
   CombatStepDefinition,
@@ -35,8 +37,8 @@ type ResourceStep = Extract<
 const props = defineProps<{ step: ResourceStep; skillLevel: number }>();
 const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();
 const { t } = useI18n({ useScope: 'global' });
-const recoveryTagIds = computed(() => {
-  const id = props.step.parameters.ultimateRecoveryTagId;
+const recoveryTags = computed(() => {
+  const id = props.step.parameters.ultimateRecoveryTag;
   return id === undefined ? [] : [id];
 });
 
@@ -69,7 +71,7 @@ function setResource(event: Event): void {
   }
   if (resource !== 'ultimateEnergy') {
     delete parameters.isPercentValue;
-    delete parameters.ultimateRecoveryTagId;
+    delete parameters.ultimateRecoveryTag;
     delete parameters.ignoreUltimateEnergyGainMultiplier;
   }
   update({ ...props.step, parameters } as ResourceStep);
@@ -153,11 +155,11 @@ function setBooleanMetadata(
   update({ ...props.step, parameters } as ResourceStep);
 }
 
-function setRecoveryTags(ids: readonly number[]): void {
+function setRecoveryTags(tags: readonly GameplayTag[]): void {
   const parameters = { ...props.step.parameters };
-  const id = ids[0];
-  if (id === undefined) delete parameters.ultimateRecoveryTagId;
-  else parameters.ultimateRecoveryTagId = id;
+  const id = tags[0];
+  if (id === undefined) delete parameters.ultimateRecoveryTag;
+  else parameters.ultimateRecoveryTag = id;
   update({ ...props.step, parameters } as ResourceStep);
 }
 </script>
@@ -278,11 +280,11 @@ function setRecoveryTags(ids: readonly number[]): void {
       </label>
       <label>
         <EditorFieldLabel
-          :label="t('nextTimeline.skillEditing.recoveryTagId')"
-          :help="t('nextTimeline.skillEditing.fieldHelp.recoveryTagId')"
+          :label="t('nextTimeline.skillEditing.recoveryTag')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.recoveryTag')"
         />
-        <GameplayTagIdsEditor
-          :ids="recoveryTagIds"
+        <GameplayTagsEditor
+          :tags="recoveryTags"
           :minimum="0"
           :maximum="1"
           @update="setRecoveryTags"

@@ -66,8 +66,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "atk_up": 0,
             "duration": 0,
@@ -197,8 +197,8 @@ const definition = {
                   "condition": {
                     "kind": "eventBuffTagsMatch",
                     "match": "hasAny",
-                    "buffTagIds": [
-                      458037917
+                    "buffTags": [
+                      "Skill/Character/Common/Affixes/Vulnerable/VulnerableFire"
                     ]
                   }
                 },
@@ -342,8 +342,8 @@ const definition = {
                   "condition": {
                     "kind": "eventBuffTagsMatch",
                     "match": "hasAny",
-                    "buffTagIds": [
-                      1425735059
+                    "buffTags": [
+                      "Skill/Character/Common/Affixes/Vulnerable/VulnerableCryst"
                     ]
                   }
                 },
@@ -487,8 +487,8 @@ const definition = {
                   "condition": {
                     "kind": "eventBuffTagsMatch",
                     "match": "hasAny",
-                    "buffTagIds": [
-                      -1640994543
+                    "buffTags": [
+                      "Skill/Character/Common/Affixes/Vulnerable/VulnerablePulse"
                     ]
                   }
                 },
@@ -632,8 +632,8 @@ const definition = {
                   "condition": {
                     "kind": "eventBuffTagsMatch",
                     "match": "hasAny",
-                    "buffTagIds": [
-                      -575106878
+                    "buffTags": [
+                      "Skill/Character/Common/Affixes/Vulnerable/VulnerableNatural"
                     ]
                   }
                 },

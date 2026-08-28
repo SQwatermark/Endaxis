@@ -61,8 +61,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "def_up": 0,
             "duration": 0
@@ -180,8 +180,8 @@ const definition = {
                   "condition": {
                     "kind": "eventBuffTagsMatch",
                     "match": "hasAny",
-                    "buffTagIds": [
-                      2029588776
+                    "buffTags": [
+                      "Skill/Character/Common/Affixes/Weak"
                     ]
                   }
                 },

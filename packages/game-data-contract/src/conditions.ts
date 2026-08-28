@@ -1,3 +1,4 @@
+import type { GameplayTag, GameplayTagQueryType } from './gameplayTags.ts';
 import {
   type BuffSingleTarget,
   type CombatTarget,
@@ -92,8 +93,8 @@ export type CombatCondition =
       /** CheckBuffStackNumByTag 的首目标增强层数；空组直接 false，不读取阈值。 */
       kind: 'contextTargetBuffStackCompare';
       contextKey: string;
-      tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
-      buffTagIds: readonly number[];
+      tagQueryType: GameplayTagQueryType;
+      buffTags: readonly GameplayTag[];
       operator: ComparisonOperator;
       value: ActionValueOperand;
     }
@@ -105,11 +106,17 @@ export type CombatCondition =
     }
   | { kind: 'statusActive'; statusKey: string; target: CombatTarget; minimumStacks?: number }
   | {
+      /** Environment 查询只读取执行中 Buff 的增强层数，不查询任何目标容器。 */
+      kind: 'currentBuffStackCompare';
+      operator: ComparisonOperator;
+      value: ActionValueOperand;
+    }
+  | {
       /** 按原生 Buff 标签查询累计强化层数，并使用原生容差比较。 */
       kind: 'buffStackCompare';
       target: BuffSingleTarget;
-      tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
-      buffTagIds: readonly number[];
+      tagQueryType: GameplayTagQueryType;
+      buffTags: readonly GameplayTag[];
       sameSourceSkillCast?: boolean;
       operator: ComparisonOperator;
       value: ActionValueOperand;
@@ -118,8 +125,8 @@ export type CombatCondition =
       /** 查询目标实体当前持有的 GameplayTag；它与 Buff 身份、数量和层数无关。 */
       kind: 'entityTagMatch';
       target: BuffSingleTarget;
-      tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
-      tagIds: readonly number[];
+      tagQueryType: GameplayTagQueryType;
+      tags: readonly GameplayTag[];
     }
   | {
       /** 按Buff 定义 身份查询累计强化层数；ID 列表按“任一匹配”处理。 */
@@ -207,15 +214,15 @@ export type CombatCondition =
       /** 匹配触发当前响应的新施加 Buff 原生标签。 */
       kind: 'eventBuffTagsMatch';
       match: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
-      buffTagIds: readonly number[];
+      buffTags: readonly GameplayTag[];
       /** Advanced 条件命中后把事件 Buff ID 写入当前动作黑板。 */
       buffIdOutputKey?: string;
     }
   | {
       /** 按当前事件真实目标统计匹配标签的 Buff 实例数；不累计 Buff 增强层数。 */
       kind: 'eventTargetBuffCountCompare';
-      tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
-      buffTagIds: readonly number[];
+      tagQueryType: GameplayTagQueryType;
+      buffTags: readonly GameplayTag[];
       operator: ComparisonOperator;
       value: ActionValueOperand;
     }
@@ -223,7 +230,7 @@ export type CombatCondition =
       /** 匹配当前治疗事件携带的原生治疗标签。 */
       kind: 'eventHealTagsMatch';
       match: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
-      tagIds: readonly number[];
+      tags: readonly GameplayTag[];
     }
   | {
       /** 匹配 OnObtainAtb 事件携带的来源与获得方式。 */
@@ -303,6 +310,7 @@ export const COMBAT_CONDITION_KINDS = [
   'abilityEntityRemainingDurationCompare',
   'statusActive',
   'buffStackCompare',
+  'currentBuffStackCompare',
   'entityTagMatch',
   'buffIdStackCompare',
   'timedMarkerPresent',

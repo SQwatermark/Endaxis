@@ -59,7 +59,7 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
             step('startTimeDilation', {
               scope: 'global',
               durationSeconds: { kind: 'constant', value: 0.5 },
-              slot: 0,
+              slot: "unassigned",
               priority: 30,
               curve: { kind: 'named', key: 'ComboSkill' },
               finishByAction: false,
@@ -130,7 +130,7 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
               attribute: 'will',
               multiplier: { kind: 'blackboard', key: 'will_additive' },
               addition: { kind: 'blackboard', key: 'heal_base' },
-              tagIds: [-1517158118],
+              tags: ["Skill/Character/Common/Heal/ComboSkillHeal"],
             }),
             branch(
               {
@@ -156,7 +156,7 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
                   attribute: 'will',
                   multiplier: { kind: 'blackboard', key: 'will_additive' },
                   addition: { kind: 'blackboard', key: 'heal_base' },
-                  tagIds: [-1517158118],
+                  tags: ["Skill/Character/Common/Heal/ComboSkillHeal"],
                 }),
               ),
               undefined,
@@ -612,7 +612,7 @@ export const emberUltimate: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 1 },
-            slot: 1464849466,
+            slot: "TimeDilation/Layer/Entity/HitStop",
             priority: 10,
             curve: { kind: 'named', key: 'RESETto1' },
             finishByAction: false,
@@ -839,7 +839,7 @@ export const emberGeneratedOperator: OperatorDefinition = {
       priority: 0,
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration' },
-      applyTagIds: [-1757502026],
+      applyTags: ["Skill/Character/Common/HpShield"],
       blackboard: {
         'FinalShield': 0,
         'duration': 8,

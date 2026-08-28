@@ -1,3 +1,4 @@
+import { fixtureGameplayTagRegistry } from '../gameplayTagFixtures.ts';
 import scopeFixtures from '../fixtures/avywenna-return-blackboard.json';
 import damageFixtures from '../fixtures/avywenna-return-damage.json';
 import runtimeFixtures from '../fixtures/avywenna-return-projectile-runtime.json';
@@ -11,6 +12,7 @@ import { parseProjectileLaunchActionSource } from '../../src/source/referenceAct
 import { parseProjectileRuntimeSource } from '../../src/source/projectileRuntime.ts';
 
 export const returnProjectionContext = {
+  gameplayTagRegistry: fixtureGameplayTagRegistry,
   actionOwnerTarget: 'unavailable',
   actionSourceTarget: 'caster',
   actionTargetTarget: 'enemy',

@@ -1,3 +1,4 @@
+import type { GameplayTag, GameplayTagQueryType } from './gameplayTags.ts';
 import {
   type BuffApplicationSource,
   type BuffApplicationTarget,
@@ -208,6 +209,16 @@ export interface CombatStepParameters {
   };
   /** Buff 触发周期中的原生 TriggerSpellBurstEventAction。 */
   triggerSpellBurst: { burstType: 'Fire' | 'Pulse' | 'Cryst' | 'Natural' };
+  /** 普通根倒地动作；破防与状态 Buff 由公共目录解析，不等同于输出一次成功事件。 */
+  applyKnockDown: {
+    target: 'enemy';
+    duration: ActionValueOperand;
+    force: boolean;
+    isExtra: boolean;
+    /** 原生 AllValid/OnlyAlive 都只选存活目标；OnlyDead 实际跳过全部目标。 */
+    targetFilter: 'aliveOnly' | 'skipAll';
+    returnWhen: 'always' | 'successAndInterrupted' | 'success' | 'interrupted';
+  };
   /**
    * 对固定敌人执行物理异常入口。公共 Buff 蓝图随使用点内联，运行时按目标当前层数
    * 选择首次破防或后续异常链，不把公共 Buff 变成可编辑的项目级钻石依赖。
@@ -255,7 +266,7 @@ export interface CombatStepParameters {
     /** 原生 AbilityAction.alwaysNext；false 时保留治疗应用失败的序列短路。 */
     alwaysNext?: boolean;
     /** 原生 useHealTags 开启时的 GameplayTag 整数身份。 */
-    tagIds: readonly number[];
+    tags: readonly GameplayTag[];
   } & (
     | {
         /** 按施法者属性乘区与固定加区计算。 */
@@ -338,8 +349,8 @@ export interface CombatStepParameters {
       | { kind: 'id'; buffIds: readonly string[] }
       | {
           kind: 'tag';
-          tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
-          buffTagIds: readonly number[];
+          tagQueryType: GameplayTagQueryType;
+          buffTags: readonly GameplayTag[];
         };
     desiredKey: string;
     outputKey: string;
@@ -367,8 +378,8 @@ export interface CombatStepParameters {
       | { kind: 'environment' }
       | {
           kind: 'tag';
-          tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
-          buffTagIds: readonly number[];
+          tagQueryType: GameplayTagQueryType;
+          buffTags: readonly GameplayTag[];
         };
     sameSourceSkillCast?: boolean;
     /** 缺省保持历史的累计强化层数；原生 BuffCount 必须显式使用 instance。 */
@@ -385,8 +396,8 @@ export interface CombatStepParameters {
       | 'casterAndControlledOperator'
       | 'casterAndLowestHealthRatioOperatorExceptCaster'
     >;
-    tagQueryType: 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
-    buffTagIds: readonly number[];
+    tagQueryType: GameplayTagQueryType;
+    buffTags: readonly GameplayTag[];
     reason: 'early' | 'absorbed' | 'other';
     count?: ActionValueOperand;
   };
@@ -408,7 +419,7 @@ export interface CombatStepParameters {
   /** 以原生点燃类型同步触发目标身上所有匹配响应；来源与接收目标保持独立。 */
   igniteBuffs: {
     target: BuffSingleTarget;
-    source: CombatTarget | 'currentBuffSource';
+    source: BuffSingleTarget | 'currentBuffSource';
     igniteType: string;
   };
   /** 按原生技能筛选立即修改当前冷却；比例基数是配置的基础冷却时长，绝对值单位为秒。 */
@@ -429,7 +440,7 @@ export interface CombatStepParameters {
   /** 在动作存续期间只允许带指定标签的正向终结技能量回复；多个实例按原生语义取并集。 */
   restrictUltimateEnergyRecovery: {
     target: 'caster';
-    allowedRecoveryTagIds: readonly number[];
+    allowedRecoveryTags: readonly GameplayTag[];
     clearUltimateEnergyOnEnd: boolean;
   };
   /** 在目标能力系统上创建定时标记；同 ID 标记不会互相覆盖。 */
@@ -451,7 +462,7 @@ export interface CombatStepParameters {
     | {
         scope: 'global';
         durationSeconds: ActionValueOperand;
-        slot: number;
+        slot: GameplayTag;
         priority: number;
         curve: TimeScaleCurveDefinition;
         finishByAction: boolean;
@@ -462,7 +473,7 @@ export interface CombatStepParameters {
     | {
         scope: 'entity';
         durationSeconds: ActionValueOperand;
-        slot: number;
+        slot: GameplayTag;
         priority: number;
         curve: TimeScaleCurveDefinition;
         finishByAction: boolean;
@@ -518,7 +529,7 @@ export interface CombatStepParameters {
     /** 终结技能量专用：按最大能量的比例解释倍率链结果。 */
     isPercentValue?: boolean;
     /** 终结技能量专用：正向回复携带的许可标签。 */
-    ultimateRecoveryTagId?: number;
+    ultimateRecoveryTag?: GameplayTag;
     /** 终结技能量专用：跳过目标自身的回能效率。 */
     ignoreUltimateEnergyGainMultiplier?: boolean;
   };
@@ -532,7 +543,7 @@ export interface CombatStepParameters {
     spGainKind?: SpGainKind;
     spGainSource?: SpGainSource;
     isPercentValue?: boolean;
-    ultimateRecoveryTagId?: number;
+    ultimateRecoveryTag?: GameplayTag;
     ignoreUltimateEnergyGainMultiplier?: boolean;
   };
   gainSquadUltimateEnergyFromSkillCost: { coefficient: LevelValues };
@@ -561,6 +572,12 @@ export interface CombatStepParameters {
     condition: CombatCondition;
     /** 原生条件动作通过时无论分支结果如何都允许外层序列继续。 */
     alwaysNext?: boolean;
+  };
+  /** 原生 Switch：choice 求值一次，与各候选按 float32 差值容差 1e-5f 顺序匹配。 */
+  switch: {
+    choice: ActionValueOperand;
+    /** 只覆盖本步骤的返回值，不取消选中序列内部的短路；无匹配时直接返回此值。 */
+    alwaysNext: boolean;
   };
   /** 同一个技能释放实例内共享的只执行一次作用域。 */
   once: { scopeKey: string };
@@ -625,6 +642,7 @@ export const COMBAT_STEP_KINDS = [
   'applyElementalInfliction',
   'triggerSpellBurst',
   'applyPhysicalInfliction',
+  'applyKnockDown',
   'applyElementalReaction',
   'consumeElementalReaction',
   'outputAirborne',
@@ -669,6 +687,7 @@ export const COMBAT_STEP_KINDS = [
   'jumpTimeline',
   'finishTimeline',
   'conditional',
+  'switch',
   'once',
   'withActionBlackboardScope',
   'repeatEachTick',
@@ -688,15 +707,17 @@ type CombatStepForKind<K extends CombatStepKind> = {
   parameters: Readonly<CombatStepParameters[K]>;
 } & (K extends 'conditional'
   ? { whenTrue: ActionSequenceDefinition; whenFalse?: ActionSequenceDefinition }
-  : K extends 'once'
-    ? { body: ActionSequenceDefinition }
-    : K extends 'withActionBlackboardScope'
+  : K extends 'switch'
+    ? { options: readonly ActionSwitchOptionDefinition[] }
+    : K extends 'once'
       ? { body: ActionSequenceDefinition }
-      : K extends 'repeatEachTick'
+      : K extends 'withActionBlackboardScope'
         ? { body: ActionSequenceDefinition }
-        : K extends 'forEachContextTarget'
+        : K extends 'repeatEachTick'
           ? { body: ActionSequenceDefinition }
-          : {});
+          : K extends 'forEachContextTarget'
+            ? { body: ActionSequenceDefinition }
+            : {});
 
 /** 干员定义中可执行、按 `kind` 精确区分的一项步骤。 */
 export type CombatStepDefinition = {
@@ -706,6 +727,12 @@ export type CombatStepDefinition = {
 /** 同一时点严格按数组顺序同步执行的步骤集合。 */
 export interface ActionSequenceDefinition {
   steps: readonly CombatStepDefinition[];
+}
+
+/** 候选值是标签而非索引；允许重复，首个匹配获胜。空分支也是有效候选，不得删除。 */
+export interface ActionSwitchOptionDefinition {
+  readonly value: ActionValueOperand;
+  readonly sequence: ActionSequenceDefinition;
 }
 
 /** 相对技能释放帧调度的点事件或持续序列。 */

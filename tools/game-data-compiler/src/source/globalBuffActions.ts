@@ -101,8 +101,15 @@ export function parseFinishGlobalBuffActionSource(
   return {
     kind: 'finishGlobalBuff',
     finishParent: requireBoolean(action.finishParent, `${path}.finishParent`),
-    globalBuffIds: requireArray(action.globalBuffIds, `${path}.globalBuffIds`).map((value, index) =>
-      requireNonEmptyString(value, `${path}.globalBuffIds[${index}]`),
+    // 原生字段是 List<GlobalBuffId>，与 CreateGlobalBuff 的 ID 包装使用同一结构。
+    // 读取引用不代表允许执行按 ID 结束；该行为仍由公共投影显式阻断。
+    globalBuffIds: requireArray(action.globalBuffIds, `${path}.globalBuffIds`).map(
+      (value, index) => {
+        const entryPath = `${path}.globalBuffIds[${index}]`;
+        const id = requireRecord(value, entryPath);
+        requireExactFields(id, new Set(['id']), entryPath);
+        return requireNonEmptyString(id.id, `${entryPath}.id`);
+      },
     ),
     finishAll: requireBoolean(action.finishAll, `${path}.finishAll`),
     finishCount: parseScalarSource(action.finishCount, `${path}.finishCount`, inheritedBlackboard),

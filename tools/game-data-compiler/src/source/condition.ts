@@ -18,7 +18,7 @@ import {
   type ScalarSource,
   type StringScalarSource,
 } from './scalar.ts';
-import { parseCharacterTeamSelectionRole } from './selectorFacts.ts';
+import { parseCharacterTeamSelection, type CharacterTeamSelectionSource } from './selectorFacts.ts';
 import { parseTagQuerySource, type TagQueryType } from './tagQuery.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 
@@ -99,7 +99,7 @@ export type NativeConditionSource =
       readonly comparison: string;
       readonly isRatio: boolean;
       readonly value: ScalarSource;
-      readonly characterTeamSelectionRole: string | null;
+      readonly characterTeamSelection: CharacterTeamSelectionSource | null;
     })
   | (ConditionIdentity & { readonly kind: 'probability'; readonly value: ScalarSource })
   | (ConditionIdentity & { readonly kind: 'skillType'; readonly skillTypes: readonly string[] })
@@ -894,9 +894,9 @@ function parseHealth(
     comparison: requireNonEmptyString(condition.compare, `${path}.compare`),
     isRatio: requireBoolean(condition.isRatio, `${path}.isRatio`),
     value: parseScalarSource(condition.value, `${path}.value`, inheritedBlackboard),
-    characterTeamSelectionRole:
+    characterTeamSelection:
       targetSource === 'InstantSearch'
-        ? parseCharacterTeamSelectionRole(target.selectorData, `${path}.hpOwner.selectorData`)
+        ? parseCharacterTeamSelection(target.selectorData, `${path}.hpOwner.selectorData`)
         : null,
   };
 }

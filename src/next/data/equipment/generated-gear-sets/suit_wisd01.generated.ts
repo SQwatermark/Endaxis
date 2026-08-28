@@ -19,8 +19,8 @@ const definition = {
       triggerIntervalSeconds: 0,
       waitFirstTriggerInterval: true,
       maxTriggerCount: 1,
-      applyTagIds: [],
-      extendTagIds: [],
+      applyTags: [],
+      extendTags: [],
       blackboard: {
         wisd: 200,
       },
@@ -33,8 +33,8 @@ const definition = {
       triggerIntervalSeconds: 0,
       waitFirstTriggerInterval: true,
       maxTriggerCount: 1,
-      applyTagIds: [],
-      extendTagIds: [],
+      applyTags: [],
+      extendTags: [],
       blackboard: {
         spell_dmg_up: 0.05,
       },

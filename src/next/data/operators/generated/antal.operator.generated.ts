@@ -16,7 +16,7 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.667 },
-            slot: 0,
+            slot: "unassigned",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -70,7 +70,7 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
                       priority: 100,
                       maxStackCount: 4,
                       durationSeconds: { blackboardKey: 'duration' },
-                      applyTagIds: [1075718177],
+                      applyTags: ["Skill/Character/Common/NoGuard"],
                       blackboard: {
                         'atk_scale': 0,
                         'count': 0,
@@ -219,7 +219,7 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
                                   priority: 100,
                                   maxStackCount: 4,
                                   durationSeconds: { blackboardKey: 'duration' },
-                                  applyTagIds: [1075718177],
+                                  applyTags: ["Skill/Character/Common/NoGuard"],
                                   blackboard: {
                                     'atk_scale': 0,
                                     'count': 0,
@@ -300,7 +300,7 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
                                   triggerIntervalSeconds: 0,
                                   waitFirstTriggerInterval: true,
                                   maxTriggerCount: 1,
-                                  applyTagIds: [-168668661],
+                                  applyTags: ["Skill/Character/Common/PhysicalStatus/CrushStatus"],
                                   blackboard: {
                                     'atk_scale': 1,
                                     'count': 0,
@@ -355,7 +355,7 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
                                               step('startTimeDilation', {
                                                 scope: 'entity',
                                                 durationSeconds: { kind: 'constant', value: 0.1 },
-                                                slot: 1464849466,
+                                                slot: "TimeDilation/Layer/Entity/HitStop",
                                                 priority: 15,
                                                 curve: { kind: 'named', key: 'interrupt_weakness' },
                                                 finishByAction: false,
@@ -374,7 +374,7 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
                                                   step('startTimeDilation', {
                                                     scope: 'entity',
                                                     durationSeconds: { kind: 'constant', value: 0.1 },
-                                                    slot: 1464849466,
+                                                    slot: "TimeDilation/Layer/Entity/HitStop",
                                                     priority: 10,
                                                     curve: { kind: 'named', key: 'interrupt_weakness' },
                                                     finishByAction: false,
@@ -393,7 +393,7 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
                                                       step('startTimeDilation', {
                                                         scope: 'entity',
                                                         durationSeconds: { kind: 'constant', value: 0.25 },
-                                                        slot: 1464849466,
+                                                        slot: "TimeDilation/Layer/Entity/HitStop",
                                                         priority: 20,
                                                         curve: { kind: 'named', key: 'interrupt_weakness' },
                                                         finishByAction: false,
@@ -412,7 +412,7 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
                                                           step('startTimeDilation', {
                                                             scope: 'entity',
                                                             durationSeconds: { kind: 'constant', value: 0.5 },
-                                                            slot: 1464849466,
+                                                            slot: "TimeDilation/Layer/Entity/HitStop",
                                                             priority: 20,
                                                             curve: { kind: 'named', key: 'interrupt_weakness' },
                                                             finishByAction: false,
@@ -431,7 +431,7 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
                                                               step('startTimeDilation', {
                                                                 scope: 'entity',
                                                                 durationSeconds: { kind: 'constant', value: 0.65 },
-                                                                slot: 1464849466,
+                                                                slot: "TimeDilation/Layer/Entity/HitStop",
                                                                 priority: 20,
                                                                 curve: { kind: 'named', key: 'interrupt_weakness' },
                                                                 finishByAction: false,
@@ -1249,7 +1249,7 @@ export const antalUltimate: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 1 },
-            slot: 1464849466,
+            slot: "TimeDilation/Layer/Entity/HitStop",
             priority: 10,
             curve: { kind: 'named', key: 'RESETto1' },
             finishByAction: false,
@@ -1561,7 +1561,7 @@ export const antalGeneratedOperator: OperatorDefinition = {
                   kind: 'entityTagMatch',
                   target: 'caster',
                   tagQueryType: 'hasAny',
-                  tagIds: [-1748167886],
+                  tags: ["Skill/Character/Common/Affixes/Enhance"],
                 },
                 sequence(
                   branch(
@@ -1577,7 +1577,7 @@ export const antalGeneratedOperator: OperatorDefinition = {
                         attribute: 'strength',
                         multiplier: { kind: 'blackboard', key: 'multiplier' },
                         addition: { kind: 'blackboard', key: 'healvalue' },
-                        tagIds: [],
+                        tags: [],
                       }),
                       step('createTimedMarker', {
                         target: 'caster',
@@ -1656,7 +1656,7 @@ export const antalGeneratedOperator: OperatorDefinition = {
                         attribute: 'strength',
                         multiplier: { kind: 'blackboard', key: 'heal_scale' },
                         addition: { kind: 'blackboard', key: 'healvalue' },
-                        tagIds: [],
+                        tags: [],
                       }),
                     ),
                   ),

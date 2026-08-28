@@ -1,3 +1,4 @@
+import { assertGameplayTag } from '../../../../packages/game-data-contract/src/gameplayTags';
 /**
  * SkillDefinition 的严格结构验证。
  *
@@ -306,23 +307,6 @@ function validateLevelValuesOrActionValueOperand(
   }
 }
 
-/** 非空整数数组（buff 标签、tag id 等）。 */
-function validateNonEmptyIntegerArray(
-  value: unknown,
-  path: string,
-  out: SkillDefinitionValidationIssue[],
-): void {
-  if (!Array.isArray(value) || value.length === 0) {
-    push(out, path, 'expected a non-empty array');
-    return;
-  }
-  value.forEach((entry, index) => {
-    if (typeof entry !== 'number' || !Number.isInteger(entry)) {
-      push(out, `${path}[${index}]`, 'expected an integer');
-    }
-  });
-}
-
 function validateAbilityEntityTargetQueries(
   value: unknown,
   path: string,
@@ -527,7 +511,7 @@ function validateCombatCondition(
     case 'contextTargetBuffStackCompare':
       requireString(record, 'contextKey', path, out);
       requireEnum(record, 'tagQueryType', TAG_QUERY_TYPES_SET, path, out);
-      validateNonEmptyIntegerArray(record.buffTagIds, `${path}.buffTagIds`, out);
+      validateGameplayTags(record.buffTags, `${path}.buffTags`, out);
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
       validateActionValueOperand(record.value, `${path}.value`, out);
       break;
@@ -548,17 +532,21 @@ function validateCombatCondition(
     case 'buffStackCompare':
       requireEnum(record, 'target', BUFF_SINGLE_TARGETS_SET, path, out);
       requireEnum(record, 'tagQueryType', TAG_QUERY_TYPES_SET, path, out);
-      validateNonEmptyIntegerArray(record.buffTagIds, `${path}.buffTagIds`, out);
+      validateGameplayTags(record.buffTags, `${path}.buffTags`, out);
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
       validateActionValueOperand(record.value, `${path}.value`, out);
       if (record.sameSourceSkillCast !== undefined) {
         requireBoolean(record, 'sameSourceSkillCast', path, out);
       }
       break;
+    case 'currentBuffStackCompare':
+      requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
+      validateActionValueOperand(record.value, `${path}.value`, out);
+      break;
     case 'entityTagMatch':
       requireEnum(record, 'target', BUFF_SINGLE_TARGETS_SET, path, out);
       requireEnum(record, 'tagQueryType', TAG_QUERY_TYPES_SET, path, out);
-      validateNonEmptyIntegerArray(record.tagIds, `${path}.tagIds`, out);
+      validateGameplayTags(record.tags, `${path}.tags`, out);
       break;
     case 'buffIdStackCompare':
       requireEnum(record, 'target', BUFF_SINGLE_TARGETS_SET, path, out);
@@ -645,18 +633,18 @@ function validateCombatCondition(
       break;
     case 'eventBuffTagsMatch':
       requireEnum(record, 'match', TAG_QUERY_TYPES_SET, path, out);
-      validateNonEmptyIntegerArray(record.buffTagIds, `${path}.buffTagIds`, out);
+      validateGameplayTags(record.buffTags, `${path}.buffTags`, out);
       if (record.buffIdOutputKey !== undefined) requireString(record, 'buffIdOutputKey', path, out);
       break;
     case 'eventTargetBuffCountCompare':
       requireEnum(record, 'tagQueryType', TAG_QUERY_TYPES_SET, path, out);
-      validateNonEmptyIntegerArray(record.buffTagIds, `${path}.buffTagIds`, out);
+      validateGameplayTags(record.buffTags, `${path}.buffTags`, out);
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
       validateActionValueOperand(record.value, `${path}.value`, out);
       break;
     case 'eventHealTagsMatch':
       requireEnum(record, 'match', TAG_QUERY_TYPES_SET, path, out);
-      validateNonEmptyIntegerArray(record.tagIds, `${path}.tagIds`, out);
+      validateGameplayTags(record.tags, `${path}.tags`, out);
       break;
     case 'eventOverheal':
       for (const key of ['overHealKey', 'finalHealKey', 'realHealKey'] as const) {
@@ -798,10 +786,10 @@ function validateResourceChangeMetadata(
       }
     }
   }
-  if (record.ultimateRecoveryTagId !== undefined) {
-    requireFiniteNumber(record, 'ultimateRecoveryTagId', path, out);
+  if (record.ultimateRecoveryTag !== undefined) {
+    validateGameplayTag(record.ultimateRecoveryTag, `${path}.ultimateRecoveryTag`, out);
     if (resource !== 'ultimateEnergy') {
-      push(out, `${path}.ultimateRecoveryTagId`, "is only valid when resource is 'ultimateEnergy'");
+      push(out, `${path}.ultimateRecoveryTag`, "is only valid when resource is 'ultimateEnergy'");
     }
   }
 }
@@ -1067,6 +1055,26 @@ function validateCombatStep(
         push(out, `${path}.parameters.target`, "expected 'enemy' or 'buffOwner'");
       }
       break;
+    case 'applyKnockDown':
+      if (parameters.target !== 'enemy') push(out, `${path}.parameters.target`, "expected 'enemy'");
+      validateActionValueOperand(parameters.duration, `${path}.parameters.duration`, out);
+      requireBoolean(parameters, 'force', `${path}.parameters`, out);
+      requireBoolean(parameters, 'isExtra', `${path}.parameters`, out);
+      requireEnum(
+        parameters,
+        'targetFilter',
+        new Set(['aliveOnly', 'skipAll']),
+        `${path}.parameters`,
+        out,
+      );
+      requireEnum(
+        parameters,
+        'returnWhen',
+        new Set(['always', 'successAndInterrupted', 'success', 'interrupted']),
+        `${path}.parameters`,
+        out,
+      );
+      break;
     case 'triggerSpellBurst':
       requireEnum(
         parameters,
@@ -1261,15 +1269,7 @@ function validateCombatStep(
           }
         }
       }
-      if (!Array.isArray(parameters.tagIds)) {
-        push(out, `${path}.parameters.tagIds`, 'expected an array');
-      } else {
-        parameters.tagIds.forEach((value, index) => {
-          if (typeof value !== 'number' || !Number.isInteger(value)) {
-            push(out, `${path}.parameters.tagIds[${index}]`, 'expected an integer');
-          }
-        });
-      }
+      validateGameplayTags(parameters.tags, `${path}.parameters.tags`, out, true);
       break;
     case 'applyBuff': {
       const dynamicId = typeof parameters.buffId === 'object' && parameters.buffId !== null;
@@ -1391,6 +1391,8 @@ function validateCombatStep(
                     response.event !== 'beforeTakePhysicalInfliction' &&
                     response.event !== 'beforeOutputPhysicalInfliction' &&
                     response.event !== 'afterOutputPhysicalInfliction' &&
+                    response.event !== 'beforeOutputKnockDown' &&
+                    response.event !== 'afterOutputKnockDown' &&
                     response.event !== 'beforeOutputInfliction' &&
                     response.event !== 'beforeOutputSpellBurst' &&
                     response.event !== 'beforeTakeSpellInfliction' &&
@@ -1919,7 +1921,7 @@ function validateCombatStep(
         validateNonEmptyStringArray(query.buffIds, `${path}.parameters.query.buffIds`, out);
       } else if (queryKind === 'tag') {
         requireEnum(query, 'tagQueryType', TAG_QUERY_TYPES_SET, `${path}.parameters.query`, out);
-        validateNonEmptyIntegerArray(query.buffTagIds, `${path}.parameters.query.buffTagIds`, out);
+        validateGameplayTags(query.buffTags, `${path}.parameters.query.buffTags`, out);
       } else if (queryKind === 'environment' && kind !== 'readBuffStackCount') {
         push(out, `${path}.parameters.query.kind`, 'environment is only valid for stack count');
       } else if (queryKind !== 'environment' && queryKind !== null) {
@@ -1947,7 +1949,7 @@ function validateCombatStep(
         out,
       );
       requireEnum(parameters, 'tagQueryType', TAG_QUERY_TYPES_SET, `${path}.parameters`, out);
-      validateNonEmptyIntegerArray(parameters.buffTagIds, `${path}.parameters.buffTagIds`, out);
+      validateGameplayTags(parameters.buffTags, `${path}.parameters.buffTags`, out);
       requireEnum(parameters, 'reason', BUFF_FINISH_REASONS_SET, `${path}.parameters`, out);
       if (parameters.count !== undefined) {
         validateActionValueOperand(parameters.count, `${path}.parameters.count`, out);
@@ -1978,7 +1980,7 @@ function validateCombatStep(
       requireEnum(
         parameters,
         'source',
-        new Set([...COMBAT_TARGETS, 'currentBuffSource']),
+        new Set([...BUFF_SINGLE_TARGETS, 'currentBuffSource']),
         `${path}.parameters`,
         out,
       );
@@ -2025,15 +2027,12 @@ function validateCombatStep(
       if (parameters.target !== 'caster') {
         push(out, `${path}.parameters.target`, "expected 'caster'");
       }
-      if (!Array.isArray(parameters.allowedRecoveryTagIds)) {
-        push(out, `${path}.parameters.allowedRecoveryTagIds`, 'expected an array');
-      } else {
-        parameters.allowedRecoveryTagIds.forEach((entry, index) => {
-          if (typeof entry !== 'number' || !Number.isInteger(entry)) {
-            push(out, `${path}.parameters.allowedRecoveryTagIds[${index}]`, 'expected an integer');
-          }
-        });
-      }
+      validateGameplayTags(
+        parameters.allowedRecoveryTags,
+        `${path}.parameters.allowedRecoveryTags`,
+        out,
+        true,
+      );
       requireBoolean(parameters, 'clearUltimateEnergyOnEnd', `${path}.parameters`, out);
       break;
     case 'createTimedMarker':
@@ -2070,7 +2069,7 @@ function validateCombatStep(
         `${parameterPath}.durationSeconds`,
         out,
       );
-      requireInteger(parameters, 'slot', parameterPath, out);
+      validateGameplayTag(parameters.slot, `${parameterPath}.slot`, out);
       requireInteger(parameters, 'priority', parameterPath, out);
       validateTimeScaleCurve(parameters.curve, `${parameterPath}.curve`, out);
       requireBoolean(parameters, 'finishByAction', parameterPath, out);
@@ -2251,6 +2250,10 @@ function validateCombatStep(
       }
       break;
     case 'finishTimeline':
+      break;
+    case 'switch':
+      validateActionValueOperand(parameters.choice, `${path}.parameters.choice`, out);
+      requireBoolean(parameters, 'alwaysNext', `${path}.parameters`, out);
       break;
     case 'conditional':
       validateCombatCondition(
@@ -2450,6 +2453,24 @@ function validateActionSequence(
           currentTargetAvailable,
         );
       }
+    } else if (stepKind === 'switch') {
+      const optionsPath = `${path}.steps[${index}].options`;
+      if (!Array.isArray(recordStep.options)) {
+        push(out, optionsPath, 'expected an array');
+        return;
+      }
+      recordStep.options.forEach((option, optionIndex) => {
+        const optionPath = `${optionsPath}[${optionIndex}]`;
+        const entry = asRecord(option, optionPath, out);
+        if (entry === null) return;
+        validateActionValueOperand(entry.value, `${optionPath}.value`, out);
+        validateActionSequence(
+          entry.sequence,
+          `${optionPath}.sequence`,
+          out,
+          currentTargetAvailable,
+        );
+      });
     } else if (
       stepKind === 'once' ||
       stepKind === 'withActionBlackboardScope' ||
@@ -2471,6 +2492,14 @@ function containsCombatEventListener(value: unknown): boolean {
   if (typeof value !== 'object' || value === null) return false;
   const record = value as Record<string, unknown>;
   if (record.kind === 'listenForCombatEvents') return true;
+  if (record.kind === 'switch' && Array.isArray(record.options)) {
+    return record.options.some(
+      option =>
+        typeof option === 'object' &&
+        option !== null &&
+        containsCombatEventListener((option as Record<string, unknown>).sequence),
+    );
+  }
   if (record.kind === 'conditional') {
     return (
       containsCombatEventListener(record.whenTrue) || containsCombatEventListener(record.whenFalse)
@@ -2715,4 +2744,28 @@ export function validateSkillDefinition(
   }
 
   return out;
+}
+function validateGameplayTag(
+  value: unknown,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): void {
+  try {
+    assertGameplayTag(value);
+  } catch {
+    push(out, path, 'expected readable GameplayTag path');
+  }
+}
+
+function validateGameplayTags(
+  value: unknown,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+  allowEmpty = false,
+): void {
+  if (!Array.isArray(value) || (!allowEmpty && value.length === 0)) {
+    push(out, path, allowEmpty ? 'expected an array' : 'expected a non-empty array');
+    return;
+  }
+  value.forEach((tag, index) => validateGameplayTag(tag, path + '[' + index + ']', out));
 }

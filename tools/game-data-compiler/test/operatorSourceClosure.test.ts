@@ -6,7 +6,7 @@ import {
   compileOperatorSourceClosure,
   parseOperatorProductIdentitySource,
 } from '../src/index.ts';
-import { GameplayTagRegistry } from '../../../src/shared/gameplayTags.ts';
+import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
 import {
   abilityEntityFixture,
   activeSkillWithOwnerSpawnedAbilityEntityQueryFixture,

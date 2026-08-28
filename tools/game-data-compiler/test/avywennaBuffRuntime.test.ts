@@ -1,3 +1,4 @@
+import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { describe, expect, it } from 'vitest';
 import fixture from './fixtures/avywenna-pulse-check-buff.json';
 import vulnerableCarriers from './fixtures/avywenna-vulnerable-buffs.json';
@@ -19,7 +20,17 @@ const id = 'buff_chr_0012_avywen_lance_pulse_check';
 
 describe('艾维文娜原始 Buff → 公共编译 → 生产模拟', () => {
   it('保留自身层数守卫和 Owner，首次附着、Unique 防重与到期后重施均执行', async () => {
-    const closure = compileStandardStumpBuffClosure([id], fixture);
+    const closure = compileStandardStumpBuffClosure(
+      [id],
+      fixture,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      fixtureGameplayTagRegistry,
+    );
     expect(closure.diagnostics).toEqual([]);
     const definition = closure.definitions[id]!;
     expect(definition.lifecycleSequences?.start?.steps).toEqual([
@@ -101,10 +112,20 @@ describe('艾维文娜原始 Buff → 公共编译 → 生产模拟', () => {
     const carrier = 'buff_common_affixes_vulnerable_pulse';
     const child = 'buff_common_affixes_vulnerable_pulse_default_child';
     const expiryFrame = 10 + 10 * COMBAT_FRAMES_PER_SECOND;
-    const closure = compileStandardStumpBuffClosure([root], {
-      ...vulnerableCarriers,
-      ...vulnerableChildren,
-    });
+    const closure = compileStandardStumpBuffClosure(
+      [root],
+      {
+        ...vulnerableCarriers,
+        ...vulnerableChildren,
+      },
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      fixtureGameplayTagRegistry,
+    );
     expect(closure.sources.size).toBe(4);
     expect(closure.diagnostics.every(item => item.status === 'scenario-omitted')).toBe(true);
     expect(Object.keys(closure.definitions).sort()).toEqual([root, carrier, child].sort());
@@ -184,7 +205,17 @@ describe('艾维文娜原始 Buff → 公共编译 → 生产模拟', () => {
     const changed = structuredClone(fixture);
     const action = changed[id].buffEventAction[0]!.actions[0]!.actionData[1]!;
     action.target!.targetSource = targetSource;
-    const closure = compileStandardStumpBuffClosure([id], changed);
+    const closure = compileStandardStumpBuffClosure(
+      [id],
+      changed,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      fixtureGameplayTagRegistry,
+    );
     expect(closure.definitions[id]).toBeUndefined();
     expect(closure.diagnostics).toEqual([
       expect.objectContaining({

@@ -1,4 +1,6 @@
-# GameplayTag 与数字引用编辑面审计
+# GameplayTag 与引用编辑面审计
+
+> 2026-08-28 更新：本页按最新可读路径契约修订，旧“项目保存整数、只改显示”的方案已废止。
 
 ## 范围与结论
 
@@ -6,26 +8,26 @@
 整数”，而是字段的原生类型或解包配置能否证明它是 `GameplayTag.tagId`，或证明它由
 GameplayTag 配置映射而来。
 
-当前 `GameplayTagConfig` 的 `_keyData` 包含 652 条唯一完整路径。Next 现在从固定哈希的
-TypeTree dump 生成全量路径目录，并用已有的 CRC-32/ISO-HDLC 实现计算有符号 int32 身份。
-编辑器显示和搜索路径，项目与运行时继续保存原生整数，因此没有项目格式迁移。
-同一目录还构造版本化 `GameplayTagRegistry`，由标准模拟环境注入敌人、干员和能力实体
-Buff 容器；非精确查询现在能按配置中的真实父路径匹配，而不是因空目录退化成仅精确 ID。
+完整 `GameplayTagConfigSet` 引用 26 份配置，生成 6806 条唯一非空完整路径。
+原生 int32/CRC 和 ID 反查只留在转换器来源层；契约、生成数据、项目和运行时统一使用
+`GameplayTag = string`，编辑器直接查看、搜索和保存路径，不做数字往返转换。
+非精确匹配直接比较路径本身或祖先路径加斜杠的前缀；实体标签仍由原有 Buff 容器计数管理。
+来源、空标签和跨配置重复处理见[完整配置集恢复](./gameplay-tag-config-set.md)。
 
 ## 已统一的编辑入口
 
 | 编辑语义                  | DSL 字段                        | 处理方式                                     |
 | ------------------------- | ------------------------------- | -------------------------------------------- |
-| Buff 标签查询、读取和结束 | `buffTagIds`                    | 可搜索路径列表；显示并保留原生 ID            |
-| 实体标签条件              | `tagIds`                        | 可搜索路径列表                               |
-| Buff 事件标签条件         | `eventBuffTagsMatch.buffTagIds` | 补齐此前缺失的 Inspector，并复用统一选择器   |
-| 治疗标签                  | `heal.tagIds`                   | 可为空的路径列表                             |
-| 终结技能量恢复分类        | `ultimateRecoveryTagId`         | 最多一项的路径选择器                         |
-| Buff 持有、延长标签       | `applyTagIds`、`extendTagIds`   | 在内联 Buff 蓝图 Inspector 中显式编辑        |
+| Buff 标签查询、读取和结束 | `buffTags`                    | 可搜索路径列表；直接保存可读路径            |
+| 实体标签条件              | `tags`                        | 可搜索路径列表                               |
+| Buff 事件标签条件         | `eventBuffTagsMatch.buffTags` | 补齐此前缺失的 Inspector，并复用统一选择器   |
+| 治疗标签                  | `heal.tags`                   | 可为空的路径列表                             |
+| 终结技能量恢复分类        | `ultimateRecoveryTag`         | 最多一项的路径选择器                         |
+| Buff 持有、延长标签       | `applyTags`、`extendTags`   | 在内联 Buff 蓝图 Inspector 中显式编辑        |
 | 时间膨胀槽位              | `startTimeDilation.slot`        | 限定为 `TimeDilation/Layer/*` 的证据槽位下拉 |
 
-`tagId = 0` 仍按原生无效标签显示。配置中不存在但项目已经携带的有符号 int32 也不会
-被删除或改写，而是显示为“当前版本未登记”，允许用户随后选成已登记路径。
+旧数字定义不再合法，不加运行时兼容转换，也不静默删除未知引用；自定义旧项目需要在数据
+输入边界迁移。转换器遇到未知来源 ID 必须失败；原生空槽位明确投影为 `unassigned`。
 
 ## 时间膨胀优先级不是 ID 字段
 
@@ -43,14 +45,13 @@ Buff 容器；非精确查询现在能按配置中的真实父路径匹配，而
   GameplayTag；
 - `skillCastId`、能力实体 `instanceId` 是一次模拟内部分配的运行时句柄，没有公共名称表；
 - 帧、秒、倍率、层数、计数、优先级比较值与枚举序号是数值本身，不是哈希引用；
-- 生成产物和项目文档仍携带原生 int32 tagId。把持久格式改成路径会偏离游戏数据形状，
-  因此只在版本目录和编辑投影层建立名称关联。
+- 原生 int32 tagId 仅属于转换器来源模型和 combat-spec；正式契约有意使用可读路径，
+  不是原生内存布局的逐字段复制。
 
 ## 证据与复现
 
-- GameplayTag TypeTree dump SHA-256：
-  `3758BB1F10764CE9D1BDA9EF5200D77B3FE93EA59DBD0E09F196C18221019CF8`；
-- 生成器：`scripts/generate_next_gameplay_tags/generate_gameplay_tag_catalog.py`；
+- 完整配置集清单、各文件 SHA-256 和复现命令见[来源记录](./gameplay-tag-config-set.md)；
+- 正式生成器：`tools/game-data-compiler/scripts/generateGameplayTagCatalog.ts`；
 - 生成目录：`src/next/data/combat/gameplayTagCatalog.generated.ts`；
 - 时间膨胀配置与 Bundle 哈希见
   [`time-dilation-slot-and-curve-config.md`](./time-dilation-slot-and-curve-config.md)。

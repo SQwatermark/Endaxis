@@ -1,3 +1,4 @@
+import type { GameplayTagRegistry } from '../../source/nativeGameplayTags.ts';
 import { requireRecord } from '../../source/primitives.ts';
 import { parseBuffRuntimeSource } from '../../source/buffRuntime.ts';
 import type { CompiledBuffDefinitionSource } from '../../compiler/buffProjectionTypes.ts';
@@ -43,6 +44,7 @@ export function compileEquipmentSuitRuntimeBatchSource(
   > &
     Partial<Pick<CompiledGearSetRuntimeDependencySource, 'startupBuffs'>>)[],
   buffDataValue: unknown,
+  gameplayTagRegistry?: GameplayTagRegistry,
 ): CompiledEquipmentSuitRuntimeBatchSource {
   const buffData = requireRecord(buffDataValue, 'BuffData');
   const dependenciesBySuit = new Map(dependencies.map(item => [item.suitId, item]));
@@ -154,6 +156,9 @@ export function compileEquipmentSuitRuntimeBatchSource(
           source,
           visualOnlyIds,
           omittedAbilityEvents,
+          {},
+          undefined,
+          { gameplayTagRegistry },
         );
       } catch (error) {
         blocked = true;

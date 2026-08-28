@@ -301,6 +301,19 @@ function stepNode(
         editorSection,
       ),
     );
+  } else if (step.kind === 'switch') {
+    children.push(
+      ...step.options.map((option, optionIndex) =>
+        sequenceNode(
+          option.sequence,
+          `${id}:option:${optionIndex}`,
+          `${optionIndex + 1}. CASE ${option.value.kind === 'constant' ? option.value.value : option.value.key}`,
+          `${sourcePath}.options[${optionIndex}].sequence`,
+          `${option.sequence.steps.length} 个直属步骤`,
+          editorSection,
+        ),
+      ),
+    );
   } else if (
     step.kind === 'once' ||
     step.kind === 'withActionBlackboardScope' ||

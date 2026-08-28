@@ -10,7 +10,7 @@ import type {
   OperatorResourceSnapshot,
 } from '../combat/runtime/combatResources';
 import type { SharedSpGainSettings } from '../combat/resources/sharedSpGainModifiers';
-import type { GameplayTagId } from '../combat/tags/gameplayTags';
+import type { GameplayTag } from '../combat/tags/gameplayTags';
 import type { ScenarioDocument, TrackDocument } from '../project/schema';
 
 /** 存档没有保存、必须由定义与构筑解析层显式提供的单个干员资源规则。 */
@@ -19,7 +19,7 @@ export interface ResolvedOperatorResourceRules {
   readonly maxUltimateEnergy?: number;
   readonly ultimateEnergyGainMultiplier: number;
   /** `null` 表示没有回能限制；空集合表示所有正向回能均被拦截。 */
-  readonly allowedUltimateEnergyRecoveryTagIds: ReadonlySet<GameplayTagId> | null;
+  readonly allowedUltimateEnergyRecoveryTags: ReadonlySet<GameplayTag> | null;
 }
 
 /** 场景文档之外、组装完整资源快照所需的已解析规则。 */
@@ -97,10 +97,10 @@ function compileOperatorResource(
     ultimateEnergy: track.initialState.ultimateEnergy,
     maxUltimateEnergy,
     ultimateEnergyGainMultiplier: resolved.ultimateEnergyGainMultiplier,
-    allowedUltimateEnergyRecoveryTagIds:
-      resolved.allowedUltimateEnergyRecoveryTagIds === null
+    allowedUltimateEnergyRecoveryTags:
+      resolved.allowedUltimateEnergyRecoveryTags === null
         ? null
-        : new Set(resolved.allowedUltimateEnergyRecoveryTagIds),
+        : new Set(resolved.allowedUltimateEnergyRecoveryTags),
   };
 }
 

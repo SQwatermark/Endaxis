@@ -43,8 +43,8 @@ const definition = {
           "triggerIntervalSeconds": 0,
           "waitFirstTriggerInterval": true,
           "maxTriggerCount": 1,
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "crit_up2": 0,
             "dmg_up": 0,
@@ -88,8 +88,8 @@ const definition = {
           "triggerIntervalSeconds": 0,
           "waitFirstTriggerInterval": true,
           "maxTriggerCount": 1,
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "crit_up2": 0.1,
             "crit_up2_dynamic": 0,
@@ -111,9 +111,9 @@ const definition = {
                       "condition": {
                         "kind": "eventBuffTagsMatch",
                         "match": "hasAny",
-                        "buffTagIds": [
-                          1535684437,
-                          -421286163
+                        "buffTags": [
+                          "Skill/Character/Common/SpellStatus/Frozen",
+                          "Skill/Character/Common/SpellStatus/Corrupt"
                         ]
                       }
                     },
@@ -201,9 +201,9 @@ const definition = {
                       "condition": {
                         "kind": "eventBuffTagsMatch",
                         "match": "hasAny",
-                        "buffTagIds": [
-                          1535684437,
-                          -421286163
+                        "buffTags": [
+                          "Skill/Character/Common/SpellStatus/Frozen",
+                          "Skill/Character/Common/SpellStatus/Corrupt"
                         ]
                       }
                     },
@@ -285,8 +285,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "crit_up2": 0.1,
             "dmg_up": 0,

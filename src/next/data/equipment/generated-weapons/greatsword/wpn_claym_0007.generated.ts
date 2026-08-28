@@ -64,10 +64,10 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [
-            -1757502026
+          "applyTags": [
+            "Skill/Character/Common/HpShield"
           ],
-          "extendTagIds": [],
+          "extendTags": [],
           "blackboard": {
             "duration": 0,
             "shield_valid": 0
@@ -174,8 +174,8 @@ const definition = {
                   "condition": {
                     "kind": "eventHealTagsMatch",
                     "match": "hasAny",
-                    "tagIds": [
-                      -1517158118
+                    "tags": [
+                      "Skill/Character/Common/Heal/ComboSkillHeal"
                     ]
                   }
                 },

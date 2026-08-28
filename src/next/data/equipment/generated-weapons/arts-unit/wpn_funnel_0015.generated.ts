@@ -64,8 +64,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "duration": 0,
             "max_stack": 0,
@@ -134,8 +134,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "duration": 0,
             "pulse_dmg_up": 0
@@ -339,8 +339,8 @@ const definition = {
                               "condition": {
                                 "kind": "eventBuffTagsMatch",
                                 "match": "hasAny",
-                                "buffTagIds": [
-                                  1474064594
+                                "buffTags": [
+                                  "Skill/Character/Common/SpellStatus"
                                 ]
                               }
                             },

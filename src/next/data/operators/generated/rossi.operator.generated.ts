@@ -2245,7 +2245,7 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.633 },
-            slot: 0,
+            slot: "unassigned",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -2543,7 +2543,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
               step('startTimeDilation', {
                 scope: 'global',
                 durationSeconds: { kind: 'constant', value: 0.4 },
-                slot: 0,
+                slot: "unassigned",
                 priority: 50,
                 curve: { kind: 'inline', keys: [{ time: 0, value: 0.01, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0 }, { time: 0.1, value: 0.01, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0 }, { time: 0.8, value: 0.01, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0 }, { time: 1, value: 0.01, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0 }] },
                 finishByAction: false,
@@ -2604,7 +2604,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
               step('startTimeDilation', {
                 scope: 'global',
                 durationSeconds: { kind: 'constant', value: 0.4 },
-                slot: 0,
+                slot: "unassigned",
                 priority: 50,
                 curve: { kind: 'inline', keys: [{ time: 0, value: 0.01, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0 }, { time: 0.1, value: 0.01, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0 }, { time: 0.8, value: 0.01, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0 }, { time: 1, value: 0.01, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0 }] },
                 finishByAction: false,
@@ -2678,7 +2678,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.633 },
-            slot: 0,
+            slot: "unassigned",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -2708,7 +2708,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
               kind: 'buffStackCompare',
               target: 'enemy',
               tagQueryType: 'hasAny',
-              buffTagIds: [-1558844517],
+              buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"],
               operator: 'greaterOrEqual',
               value: { kind: 'constant', value: 1 },
             },
@@ -2716,12 +2716,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
               step('readBuffStackCount', {
                 target: 'enemy',
                 outputKey: 'buff_stack',
-                query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [-1558844517] },
+                query: { kind: 'tag', tagQueryType: 'hasAny', buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"] },
               }),
               step('finishBuffsByTag', {
                 target: 'enemy',
                 tagQueryType: 'hasAny',
-                buffTagIds: [-1558844517],
+                buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"],
                 reason: 'early',
               }),
               step('applyBuff', {
@@ -2747,7 +2747,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                   kind: 'buffStackCompare',
                   target: 'enemy',
                   tagQueryType: 'hasAny',
-                  buffTagIds: [-1411846745],
+                  buffTags: ["Skill/Character/Common/SpellInflict/NaturalInflict"],
                   operator: 'greaterOrEqual',
                   value: { kind: 'constant', value: 1 },
                 },
@@ -2755,12 +2755,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                   step('readBuffStackCount', {
                     target: 'enemy',
                     outputKey: 'buff_stack',
-                    query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [-1411846745] },
+                    query: { kind: 'tag', tagQueryType: 'hasAny', buffTags: ["Skill/Character/Common/SpellInflict/NaturalInflict"] },
                   }),
                   step('finishBuffsByTag', {
                     target: 'enemy',
                     tagQueryType: 'hasAny',
-                    buffTagIds: [-1411846745],
+                    buffTags: ["Skill/Character/Common/SpellInflict/NaturalInflict"],
                     reason: 'early',
                   }),
                   step('applyBuff', {
@@ -2786,7 +2786,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                       kind: 'buffStackCompare',
                       target: 'enemy',
                       tagQueryType: 'hasAny',
-                      buffTagIds: [2123008650],
+                      buffTags: ["Skill/Character/Common/SpellInflict/PulseInflict"],
                       operator: 'greaterOrEqual',
                       value: { kind: 'constant', value: 1 },
                     },
@@ -2794,12 +2794,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                       step('readBuffStackCount', {
                         target: 'enemy',
                         outputKey: 'buff_stack',
-                        query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [2123008650] },
+                        query: { kind: 'tag', tagQueryType: 'hasAny', buffTags: ["Skill/Character/Common/SpellInflict/PulseInflict"] },
                       }),
                       step('finishBuffsByTag', {
                         target: 'enemy',
                         tagQueryType: 'hasAny',
-                        buffTagIds: [2123008650],
+                        buffTags: ["Skill/Character/Common/SpellInflict/PulseInflict"],
                         reason: 'early',
                       }),
                       step('applyBuff', {
@@ -2825,7 +2825,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                           kind: 'buffStackCompare',
                           target: 'enemy',
                           tagQueryType: 'hasAny',
-                          buffTagIds: [1570888476],
+                          buffTags: ["Skill/Character/Common/SpellInflict/CrystInflict"],
                           operator: 'greaterOrEqual',
                           value: { kind: 'constant', value: 1 },
                         },
@@ -2833,12 +2833,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                           step('readBuffStackCount', {
                             target: 'enemy',
                             outputKey: 'buff_stack',
-                            query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [1570888476] },
+                            query: { kind: 'tag', tagQueryType: 'hasAny', buffTags: ["Skill/Character/Common/SpellInflict/CrystInflict"] },
                           }),
                           step('finishBuffsByTag', {
                             target: 'enemy',
                             tagQueryType: 'hasAny',
-                            buffTagIds: [1570888476],
+                            buffTags: ["Skill/Character/Common/SpellInflict/CrystInflict"],
                             reason: 'early',
                           }),
                           step('applyBuff', {
@@ -3092,7 +3092,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.633 },
-            slot: 0,
+            slot: "unassigned",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -3122,7 +3122,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
               kind: 'buffStackCompare',
               target: 'enemy',
               tagQueryType: 'hasAny',
-              buffTagIds: [-1558844517],
+              buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"],
               operator: 'greaterOrEqual',
               value: { kind: 'constant', value: 1 },
             },
@@ -3130,12 +3130,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
               step('readBuffStackCount', {
                 target: 'enemy',
                 outputKey: 'buff_stack',
-                query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [-1558844517] },
+                query: { kind: 'tag', tagQueryType: 'hasAny', buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"] },
               }),
               step('finishBuffsByTag', {
                 target: 'enemy',
                 tagQueryType: 'hasAny',
-                buffTagIds: [-1558844517],
+                buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"],
                 reason: 'early',
               }),
               step('applyBuff', {
@@ -3161,7 +3161,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                   kind: 'buffStackCompare',
                   target: 'enemy',
                   tagQueryType: 'hasAny',
-                  buffTagIds: [-1411846745],
+                  buffTags: ["Skill/Character/Common/SpellInflict/NaturalInflict"],
                   operator: 'greaterOrEqual',
                   value: { kind: 'constant', value: 1 },
                 },
@@ -3169,12 +3169,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                   step('readBuffStackCount', {
                     target: 'enemy',
                     outputKey: 'buff_stack',
-                    query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [-1411846745] },
+                    query: { kind: 'tag', tagQueryType: 'hasAny', buffTags: ["Skill/Character/Common/SpellInflict/NaturalInflict"] },
                   }),
                   step('finishBuffsByTag', {
                     target: 'enemy',
                     tagQueryType: 'hasAny',
-                    buffTagIds: [-1411846745],
+                    buffTags: ["Skill/Character/Common/SpellInflict/NaturalInflict"],
                     reason: 'early',
                   }),
                   step('applyBuff', {
@@ -3200,7 +3200,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                       kind: 'buffStackCompare',
                       target: 'enemy',
                       tagQueryType: 'hasAny',
-                      buffTagIds: [2123008650],
+                      buffTags: ["Skill/Character/Common/SpellInflict/PulseInflict"],
                       operator: 'greaterOrEqual',
                       value: { kind: 'constant', value: 1 },
                     },
@@ -3208,12 +3208,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                       step('readBuffStackCount', {
                         target: 'enemy',
                         outputKey: 'buff_stack',
-                        query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [2123008650] },
+                        query: { kind: 'tag', tagQueryType: 'hasAny', buffTags: ["Skill/Character/Common/SpellInflict/PulseInflict"] },
                       }),
                       step('finishBuffsByTag', {
                         target: 'enemy',
                         tagQueryType: 'hasAny',
-                        buffTagIds: [2123008650],
+                        buffTags: ["Skill/Character/Common/SpellInflict/PulseInflict"],
                         reason: 'early',
                       }),
                       step('applyBuff', {
@@ -3239,7 +3239,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                           kind: 'buffStackCompare',
                           target: 'enemy',
                           tagQueryType: 'hasAny',
-                          buffTagIds: [1570888476],
+                          buffTags: ["Skill/Character/Common/SpellInflict/CrystInflict"],
                           operator: 'greaterOrEqual',
                           value: { kind: 'constant', value: 1 },
                         },
@@ -3247,12 +3247,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                           step('readBuffStackCount', {
                             target: 'enemy',
                             outputKey: 'buff_stack',
-                            query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [1570888476] },
+                            query: { kind: 'tag', tagQueryType: 'hasAny', buffTags: ["Skill/Character/Common/SpellInflict/CrystInflict"] },
                           }),
                           step('finishBuffsByTag', {
                             target: 'enemy',
                             tagQueryType: 'hasAny',
-                            buffTagIds: [1570888476],
+                            buffTags: ["Skill/Character/Common/SpellInflict/CrystInflict"],
                             reason: 'early',
                           }),
                           step('applyBuff', {
@@ -3458,7 +3458,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 1 },
-            slot: 1464849466,
+            slot: "TimeDilation/Layer/Entity/HitStop",
             priority: 10,
             curve: { kind: 'named', key: 'RESETto1' },
             finishByAction: false,
@@ -3595,7 +3595,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
               kind: 'entityTagMatch',
               target: 'enemy',
               tagQueryType: 'hasAny',
-              tagIds: [-1706530655, 1717826765],
+              tags: ["Immune/Damage", "SelectCategory/Unmarkable"],
             },
             sequence(),
             sequence(
@@ -4780,7 +4780,7 @@ export const rossiGeneratedOperator: OperatorDefinition = {
                 kind: 'buffStackCompare',
                 target: 'buffOwner',
                 tagQueryType: 'hasAny',
-                buffTagIds: [-1110095722],
+                buffTags: ["Skill/Character/Common/SpellStatus/Burning"],
                 operator: 'greater',
                 value: { kind: 'constant', value: 0.5 },
               },
@@ -4809,7 +4809,7 @@ export const rossiGeneratedOperator: OperatorDefinition = {
                   attribute: 'intellect',
                   multiplier: { kind: 'blackboard', key: 'heal_scale' },
                   addition: { kind: 'constant', value: 0 },
-                  tagIds: [],
+                  tags: [],
                 }),
                 branch(
                   {
@@ -4855,7 +4855,7 @@ export const rossiGeneratedOperator: OperatorDefinition = {
                   attribute: 'intellect',
                   multiplier: { kind: 'blackboard', key: 'heal_scale' },
                   addition: { kind: 'constant', value: 0 },
-                  tagIds: [],
+                  tags: [],
                 }),
                 branch(
                   {
@@ -5732,7 +5732,7 @@ export const rossiGeneratedOperator: OperatorDefinition = {
       priority: 0,
       maxStackCount: 4,
       durationSeconds: { blackboardKey: 'duration' },
-      applyTagIds: [430405417],
+      applyTags: ["Status/Immobilized"],
       blackboard: {
         'duration': 1.5,
         'usp_stage_1': 0.35,

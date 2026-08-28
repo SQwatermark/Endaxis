@@ -18,8 +18,8 @@ const definition = {
       triggerIntervalSeconds: 0,
       waitFirstTriggerInterval: true,
       maxTriggerCount: 1,
-      applyTagIds: [],
-      extendTagIds: [],
+      applyTags: [],
+      extendTags: [],
       blackboard: {
         duration: 10,
         phy_dmg_up_final: 0,
@@ -50,7 +50,7 @@ const definition = {
                         condition: {
                           kind: 'eventTargetBuffCountCompare',
                           tagQueryType: 'hasAny',
-                          buffTagIds: [1075718177],
+                          buffTags: ["Skill/Character/Common/NoGuard"],
                           operator: 'greaterOrEqual',
                           value: {
                             kind: 'constant',
@@ -91,7 +91,7 @@ const definition = {
                               query: {
                                 kind: 'tag',
                                 tagQueryType: 'hasAny',
-                                buffTagIds: [1075718177],
+                                buffTags: ["Skill/Character/Common/NoGuard"],
                               },
                             },
                           },
@@ -104,7 +104,7 @@ const definition = {
                                   {
                                     kind: 'eventTargetBuffCountCompare',
                                     tagQueryType: 'hasAny',
-                                    buffTagIds: [1066759270],
+                                    buffTags: ["Skill/Character/Common/Affixes/Vulnerable/VulnerablePhysic"],
                                     operator: 'greaterOrEqual',
                                     value: {
                                       kind: 'constant',
@@ -223,8 +223,8 @@ const definition = {
           category: 'CommonCharBuff',
         },
       },
-      applyTagIds: [],
-      extendTagIds: [],
+      applyTags: [],
+      extendTags: [],
       blackboard: {
         duration: 10,
         phy_dmg_up: 0.1,

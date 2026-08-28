@@ -274,7 +274,7 @@ describe('SkillDefinitionEditor structure', () => {
     expect(healStepEditorSource).toContain('HEAL_TARGETS');
     expect(healStepEditorSource).toContain('OPERATOR_ATTRIBUTES');
     expect(healStepEditorSource).toContain('ActionValueOperandEditor');
-    expect(healStepEditorSource).toContain('tagIds');
+    expect(healStepEditorSource).toContain('tags');
   });
 
   it('Next 属性面板只使用自身完整的翻译命名空间', () => {

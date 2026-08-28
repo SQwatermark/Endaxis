@@ -9,6 +9,171 @@
 
 ## 当前纵向迁移（2026-08-28）
 
+本轮最新：标签已单向迁为可读路径，五名完整干员可以严格重建；没有增加完整干员数量。
+同版本 GameplayTagConfigSet 的 26 份配置已恢复为 6806 条唯一非空路径；全局预定义表
+175 标签 / 61 查询 / 36 条免疫规则现已全部严格生成。详见[完整配置集证据与复现](../../docs/research/gameplay-tag-config-set.md)。
+普通根 KnockDown 已有公共投影和标准入口消费者门禁；最新矩阵为 **172/309 / 5 名完整 / 余烬 8/9**。
+余烬战技主体、庇护四件 Buff 闭包及连续两次施放切片已通过；连携仍为潜能最低血量目标组。
+庇护复用公共 KeywordAction 管线，保留 Buff 分类标签/优先级/子对象，不因干员不受伤删除身份。
+原生无 subtype 来源与 Owner 身份边界见 combat-spec `docs/keyword-actions.md`。
+尚未发布完整定义；战技探针显式注入天赋开关，不等于原始天赋/潜能装配已验收。
+
+连携目标选择的原生链现已在 combat-spec 闭合：保存主控组 → 排除该快照 → 生命比例优先级筛选。
+来源层用 `CharacterTeamSelectionSource` 保留实际排除引用，不从 `Main` 组名或 Owner 名称猜身份。
+Next 查询快照操作与 Context 治疗接线仍待实现，不复用治疗时重选人的快捷枚举。
+数据流、并列选择边界与接入顺序见[队友目标快照](../../docs/research/character-team-target-snapshots.md)。
+
+### 无效分支必须自下而上删除
+
+先转换末端实际行为，再向根回收分支；两支为空且条件无副作用，就不要求该条件先有运行模型，
+并直接从产物删除整个分支，不输出空 `conditional`。已经建模的纯条件同样适用。
+条件写黑板、推进随机流或其真假仍被外层消费时不能删除；`resultIsConsumed` 统一约束后者。
+这不等于反向执行动作：黑板/目标组写入顺序仍沿原生顺序，分支局部状态不向外泄漏。
+
+Next 的前提是所有攻击命中木桩，不是“角度只影响原生表现”。角度可以影响原生扇形范围；
+只有其末端已按固定命中/零空间边界省略时，相关条件才可回收。余下程序若仍读取该角度来改变
+倍率、Buff 或有效守卫，则明确阻断。角度/曲线引用检查覆盖整份 SkillData，不局限单个调度。
+Assign 的目的键不算读取，但赋值保留；本轮没有启动通用黑板活性删除或跨作用域常量传播。
+
+### 控制行为按实际读者裁剪（2026-08-28）
+
+敌人没有主动行为，不建模防反所需的攻击、红圈、移动或倒地／起身动画；但普通 KnockDown
+有伤害、破防、Buff 和干员天赋事件，不能整个省略。撤销“完整起身配置是根动作前置”的路线。
+先核对保留闭包对倒地／起身标签（含父级）的读者及目标归属，仅恢复可观察数值和状态。
+当前五份完整定义没有敌方起身标签消费者；其他干员、装备和自定义闭包仍需独立审计。
+新增 `audit:game-data:tag-references` 是来源候选盘点，不替代可达性证明，不据零命中自动放行。
+命令、逐项证据与下一步见[控制状态边界](../../docs/research/control-state-observability.md)。
+根 KnockDown 使用独立公共叶子投影；不能用旧 outputKnockDown 标记或无条件 AddBuff 假装完成。
+
+本体已有唯一契约 `applyKnockDown` 与普通根执行切片，验证首次破防、Buff/控制两层免疫、
+延迟时长求值、专属/通用事件、返回值和重复倒地。正式入口已经扫描全场静态编译程序：
+根控制存在时，非 caster 的 Getup 及祖先标签查询阻断；BuffOwner 归属不明也阻断。
+这是保守检查，包括未摆放技能，不是精确可达性/目标传播。没有相关读者才执行显式到期退出。
+实体 delta、来源属性和公共专属事件已完成标准环境装配回归；额外异常 `isExtra=true` 尚需
+通用 BuffAddContext 支持。仍需余烬真实伤害及整名验收，不将切片回归计为完整干员数。
+
+下一步目标选择必须保留“查询时选人并保存上下文 → 后续动作消费”的时机；现有 HealTarget
+最低血量枚举并不能直接替代 FindTargetAction。空候选、主控排除及并列顺序须按 combat-spec
+证据处理，不得用敌人无主动行为推导治疗无事件。
+
+当前余烬实际来源闭包（manifest + 养成表）为 10 SkillData / 15 BuffData，缺失及动态引用均为 0。
+此前候选 `buff_chr_0009_azrila_talent_0_1` 不在其中，**不得作为余烬当前天赋或缺资源阻塞**。
+引用图从根逐层解析，不能把整个 Buff 缓存的未挂接资源当成某个干员的依赖。
+`AttributeMetaTable` 已纳入自有下载清单，倒地时长加成默认/范围从该表核实。
+
+### GameplayTag 单向边界（2026-08-28）
+
+- 唯一公开类型是 `GameplayTag = string`，内容为可读完整路径。它不是数字品牌、包装对象或需要工厂转换的值。
+- `source/nativeGameplayTags.ts` 独占原生 Int32/CRC 和 ID→路径解析；公共编译出口解析一次。未知 ID 或缺少目录必须阻断，不能输出数字串、占位符或静默丢掉条件。
+- 契约、产物、项目、事件和运行时全程使用同一字符串；运行编译直接传递标签/数组，不再逐次 map、CRC、反查或包装。仅在导入/自定义编辑等数据边界校验路径。
+- `tags / buffTags / applyTags / extendTags / allowedRecoveryTags / ultimateRecoveryTag` 取代数字 ID 字段。旧数字定义不再是合法输入，不在运行时加兼容哈希转换。
+- 非 exact 查询由“相同路径或以祖先路径加斜杠为前缀”执行，四种空查询语义不变。伤害标签/伤害特征仍是另一套语义，不混并。
+- 时间膨胀槽位使用路径，优先级使用已解析的比较数值；原生空槽位 0 明确表示为 `unassigned`，保留同槽互斥语义，它不是未知 ID 的兜底。
+- 能力实体来源 JSON 的数字出生标签只供转换器读取；`generate:game-data:ability-entity-templates` 输出 60 份只含可读标签的模板。此字段仍是证据元数据，不表示新增运行时出生标签安装行为。
+
+### 全局标签预定义配置的下载与生成
+
+`akedb-sources.json.jsonFiles` 维护 Endaxis 需要的精确全局 JSON，不依赖 combat-spec 选择资源，
+也不要求 AKEDB 当前集合索引已经列出它。`--json-file` 只能选择清单内资源，不刷新其他表/集合；
+单文件来源保存为相邻 `.provenance.json`，不覆盖整批下载账本。全量下载包含这些配置，
+`--tables-only` 不包含；两种选择开关不能同时使用。
+
+```powershell
+npm run download:game-data:sources -- --json-file GameplayConfig/GameplayTagPredefineTable.json --vfs-fallback tmp/vfs-tag-predefine-fallback
+npm run generate:game-data:tag-predefine -- tmp/game-data-sources/GameplayConfig/GameplayTagPredefineTable.json src/next/data/combat/gameplayTagPredefine.generated.ts combat-1.4.4 src/next/data/combat/gameplayTagCatalog.generated.ts
+npm run generate:game-data:tag-predefine -- tmp/game-data-sources/GameplayConfig/GameplayTagPredefineTable.json src/next/data/combat/gameplayTagPredefine.generated.ts combat-1.4.4 src/next/data/combat/gameplayTagCatalog.generated.ts --check
+```
+
+完整目录不再只读单份 652 条配置，而是严格连接 ConfigSet 的全部 26 个引用：
+
+```powershell
+npm run generate:game-data:gameplay-tags -- tools/game-data-compiler/gameplay-tag-config-set-1.4.4.sources.json src/next/data/combat/gameplayTagCatalog.generated.ts --source-set --source-root tmp/game-data-sources/GameplayTagConfigSet --check
+```
+
+原始 6842 条记录中有 1 条原生无效空串、35 条跨配置重复路径，明确统计后生成 6806 条。
+所有预定义引用均已解析，包括 `Category/Interactive`。清单、子文件哈希和 CAB/Int64 对象身份
+在输出前验证；漏件、半截导出或未知 ID 仍严格失败。下载器尚未自动编排这 27 个 Unity 对象
+及 CABMap，本次使用既有 VFS 通用能力的离线精确导出，不宣称新增了 HTTP 配置集接口。
+
+本轮 CDN 返回 404。fallback 目录的相对路径必须为 `GameplayConfig/GameplayTagPredefineTable.json`。
+实际文件来自台式机 VFS 既有 `tools/extract_indexed_file.py` 的精确记录 694613，逻辑路径
+`JsonData/Data/Json/GameplayConfig/GameplayTagPredefineTable.json`；40,260 字节，SHA-256
+`c87176401ac351c74cd75b92bb9a2f48c70ba5f4062bb004f5f07d848328e3d5`。
+记录 ID 属于本次索引，不是跨版本稳定身份；换数据源先核对逻辑路径与哈希。
+当前 VFS HTTP 兼容路由未开放 GameplayConfig，本轮使用离线同构导出；不要写成 HTTP 已可用。
+
+`source/gameplayTagPredefineTable.ts` 保留原生三个字典；缓存查询的数字枚举和动作 JSON 的名称
+分开严格读取，标签都检查 Int32。`compiler/gameplayTagPredefine.ts` 通过同版本来源目录解析为路径，
+保留空查询并拒绝哈希冲突、未知路径，不按名称补免疫。公共契约 `gameplayTags.ts` 不持有索引/运行状态，
+本体 `GameplayTagPredefine` 复用原有实体标签计数及非精确层级查询，不另造标签容器。
+物理状态 Buff 准入与组件 KnockDown 标签准入独立；实际安装还须重查免疫。起身配置、实体时钟、
+根事件/返回值和整技能运行仍须继续落实，未因标签可生成就放开根动作。
+
+### 前序击倒链检查点
+
+最新检查点：公共 KnockDown 来源与隐式 Buff 引用已接入，但根操作尚未正式编译。
+combat-spec `docs/knockdown-action.md` 已纠正旧规格：首层只加破防、Always 与控制成功分离、
+duration 不写入状态 Buff、专属击倒事件不在动作入口代发。来源结构在公共
+`source/physicalInflictionActions.ts`，不归 `stumpControlActions`，不新增同形正式协议。
+真实五 Buff 闭包现已 **5/5 可编译**：Shatter（134217728）已接入公共伤害投影与执行回归，
+保留物理类型、结晶异常增伤和 Ignite 分类，不把 Shatter 单独归为 PhysicalInfliction。
+主动 **171/309**、完整 **5 名**、余烬 **7/9** 不变；联合 **338 文件 / 4028 项**、四套类型
+检查及五名完整定义重建检查通过。闭包编译通过不等于根击倒和余烬已能完整模拟。
+正式技能编译现在保留伤害 features 和即时属性修正；即时修正的属性键、公式槽和单位元分别
+复用公共 `attributeModifier` 与本体 `attributeModifierValues`，禁止另写一份同形映射。
+伊冯的 Atk 错误身份已通过重新生成修正，不手工维护产物。即时禁暴击与完整面板的合成边界
+已修复：完整暴击率/暴伤进入同一属性公式，技能快捷加成仅在当前命中只读求值；公共生成到
+实际执行及旁路回归通过。最新联合 **338 文件 / 4035 项**、四套类型检查和五名重建检查通过。
+组件准入/事件及普通击倒成功→起身→退出已在 combat-spec 实现。最新新增 18 项生命周期回归，
+相关 84 项通过；保留二次标签免疫、独立起身计时与重复击倒重入。不能把 BeforeKnockDown 的
+Success 当作完整控制成功。外围、起身时长 getter 和实体时钟仍需显式生产绑定；浮空落地未实现。
+下一步按普通成功切片接 Endaxis 标签/起身/时钟及根击倒执行，不补造敌人主动行为。原生证据见 combat-spec
+`docs/knockdown-action.md`，其 SkillWeaknessInterrupted 标签不能在无敌人主动行为场景中伪造。
+下方为前序迁移记录，不代表 KnockDown 已完成；完整证据与待办以当前交接文档为准。
+
+本机已恢复台式机的 120 份投射物缓存，并复现五名完整定义的 `--complete --check`。
+最新严格主动矩阵为 **171/309**：公共 DoOnce 资源回复投影新增余烬普攻四、卡契尔普攻四、
+昼雪普攻三；完整干员仍为 **5 名**。投影只接受技能时间轴内同步资源子序列，复用正式 once
+及实例级去重，不开放 Buff reset/任意持续子行为。原生证据见 combat-spec `docs/do-once-action.md`。
+余烬 **7/9** 的下一阻塞是击倒公共 Buff/事件链，不能仅输出标记或删除倒地伤害、失衡和破防层。
+续作已接入公共 Ignite 调用和 `OnBuffAfterTryEnhanced` 投影，并修正叠层者身份、点燃施法传递、
+结束原因及结束后停遍历；余烬整链仍未闭合，矩阵仍为 **170/309 / 5 名完整定义**。
+续作已补齐 DamageAction 的已证明敌人 Owner、Environment 当前 Buff 层数和 Tag 黑板读取，
+Hp/Poise 共同拒绝把敌人 Owner 当施术者；击倒/破防载体可以独立编译。公共 Switch 与命名曲线
+实体时间膨胀已让结晶破坏载体也能独立编译；弭弗普攻一新增 compiled，但余烬仍 **7/9**。
+根 KnockDownAction 的准入/免疫/事件/引用装配和点燃响应映射整体仍严格阻断。
+最新联合回归 **336 文件 / 4001 项**、四套类型检查、五名整名重建检查通过；重跑审计为
+**171/309 / 5 名完整定义**。全索引下载计划仍有无关 Buff 的
+GodEntityFinder 解析阻塞；资源恢复细节和 provenance 边界见 `docs/handoff/current-context.md`。
+
+### Switch 公共控制流（已接入，2026-08-28）
+
+依据 combat-spec `docs/switch-action.md` 与 `Actions/SwitchAction.cs`。原始来源层保留
+choice/options/alwaysNext 及子引用；公共投影生成独立契约中的 `switch`，不按干员或 Buff ID 写特例。
+
+| 层次 | 接入要求 |
+| --- | --- |
+| 独立契约 | 多分支选择属于 `actions.ts`，复用 `ActionValueOperand` 与 `ActionSequence`；不能在转换器、本体各造一份近似定义 |
+| 公共投影 | 分支继承入口目标组事实、相互隔离；保留 option 顺序、重复标签和空分支，不能按值排序、按索引选择或提前去重 |
+| 执行器 | choice 每次 Execute 只读取一次；各 option 按配置顺序读取，双方和减法均按 float32，绝对差不大于 `1e-5f` 时命中第一个；缺黑板键报错，NaN 不匹配 |
+| 生命周期 | 全部子序列在实例阶段建立，Reset 依序重置全部选项，Tick/End 只传给选中的分支；下一次 Execute 重新选择 |
+| 返回值 | `selectedSequenceResult || alwaysNext`；无匹配的内部结果为 false；alwaysNext 不取消子序列内部短路，不能删除被消费的尾条件 |
+| 共同消费者 | 校验、正式编译、格式输出、递归遍历、兼容性检查和编辑器同步支持；不能只让生成器类型检查通过 |
+
+conditional 也已依据 `IfElseAction.cs` 改为持久分支实例、Reset 两支；普通 actionValueCompare
+仍使用 double 比较，不能据此将 Switch 简单拼成 IfElse 链。若未来选择有边界的降级方案，必须证明
+choice 求值次数和所有子动作生命周期等价，不能因为当前标签为整数就假定等价。
+`switchProjection.test.ts`、`switchActionRuntime.test.ts` 和真实伤害执行器回归覆盖重复标签、
+单精度边界、动态选项、无匹配、两种 alwaysNext、内部短路、未选分支快照及跨次执行重新选择。
+共同消费者回归覆盖 options 中的伤害 key/hit ID、兼容性与结构校验、导图和命中点投影。
+
+结晶破坏的真实 options 含 TimeDilationAction。命名曲线开启时内嵌曲线不参与执行；敌方 Buff 的
+`[Owner, Source]` 仅在 Owner 与施术者身份均已证明时映射为 enemy/caster，未知来源不放宽。
+该 Buff 独立探针通过不代表 KnockDown 整链完成：仍须接准入、免疫、事件、载体与传递引用装配，
+再验证余烬战技/连携实际数值，不能跳过它们去直接发布 outputKnockDown。
+
+以下为前序整名交付检查点：
+
 Xaihi 与 Wulfgard 均已从固定 1.4.4 来源完整生成并切入产品稳定导出；统一 TS 整名定义现为 5 名。最新严格主动
 审计为 **167/309**，Xaihi、Yvonne、Avywenna、Akekuri、Wulfgard 共 5 名主动全可编译。
 Wulfgard 的中断门禁、冷却清零、Tag Buff 结束、智能目标组和能力实体子技能已进入公共投影；两级
@@ -1003,7 +1168,7 @@ Operator 主动技能库可用以下命令批量审计；任何干员失败都�
 npm run audit:game-data:operators -- --manifest scripts/generate_next_operators/operators.json `
   --skill-data <skill-data-cdn目录> --buff-data <BuffData目录> `
   --projectile-data <ProjectileData目录> --ability-entity-data <AbilityEntityData目录> `
-  --gameplay-tag-dump <GameplayTagConfig TypeTree dump> `
+  --gameplay-tag-catalog src/next/data/combat/gameplayTagCatalog.generated.ts `
   --tables <TableCfg目录>
 ```
 
@@ -1018,7 +1183,8 @@ ProjectileData 目前提供已解码 `ProjectileComponentData`；AbilityEntityDa
 反编译和样本共同证实的 `AbilityEntityTemplateData` 逻辑前缀。引用闭包能据此证明模板身份存在，
 但不代表未知组件行为已经完成投影；后续领域编译器必须继续显式处理或失败关闭。
 AbilityEntity 公共目录会严格保存动态寿命/叠层黑板和 born tags，并只建立精确 tag 倒排索引；
-父子匹配直接复用 `src/shared/gameplayTags.ts`，但没有同版本 GameplayTag 路径时不得自行展开关系。
+来源父子匹配使用 `source/nativeGameplayTags.ts`，编译出口统一解析为可读路径；本体运行时不依赖此原生索引。
+来源审计也兼容 `--gameplay-tag-dump`，但它与 `--gameplay-tag-catalog` 互斥，单份旧 dump 不能代替完整配置集。
 `GameplayTagConfig` TypeTree dump 的路径读取、CRC 目录编译、确定性模块渲染和 `--check` 也已进入
 本工具；旧 Python 脚本不再参与生成。下载 provenance 同时保存实际内容的字节数与
 SHA-256；provider 名称或同一个 URL 不能代替内容版本身份。

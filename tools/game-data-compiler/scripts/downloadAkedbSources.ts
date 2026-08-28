@@ -10,8 +10,13 @@ export interface AkedbSourceCatalog {
   readonly sharedJsonIndex: string;
   readonly tableCfg: readonly string[];
   readonly jsonCollections: Readonly<Record<string, string>>;
+  /** 精确全局配置清单，不要求它们出现在 AKEDB 当前集合索引中。 */
+  readonly jsonFiles: readonly string[];
   readonly operatorClosureCollections: Readonly<
-    Record<string, { readonly output: string; readonly definitionKind: 'projectile' | 'abilityEntity' }>
+    Record<
+      string,
+      { readonly output: string; readonly definitionKind: 'projectile' | 'abilityEntity' }
+    >
   >;
 }
 
@@ -23,6 +28,8 @@ export interface DownloadArguments {
   readonly workers: number;
   readonly tablesOnly: boolean;
   readonly vfsFallback: string | null;
+  /** 只下载清单内的一份全局 JSON；不顺带更新表或干员资产。 */
+  readonly jsonFile?: string;
 }
 
 export interface SourceProvenanceEntry {
@@ -49,6 +56,16 @@ export async function loadAkedbSourceCatalog(filePath: string): Promise<AkedbSou
   requireUnique(tableCfg, `${filePath}.tableCfg`);
   tableCfg.forEach((name, index) => requireSafeName(name, `${filePath}.tableCfg[${index}]`));
   const rawCollections = requireRecord(value.jsonCollections, `${filePath}.jsonCollections`);
+  const jsonFiles = requireStringArray(
+    value.jsonFiles === undefined ? [] : value.jsonFiles,
+    `${filePath}.jsonFiles`,
+  ).map((name, index) => requireSafeRelativePath(name, `${filePath}.jsonFiles[${index}]`));
+  requireUnique(jsonFiles, `${filePath}.jsonFiles`);
+  for (const name of jsonFiles) {
+    if (!/^[A-Za-z0-9_]+\/[A-Za-z0-9_.-]+\.json$/.test(name)) {
+      throw new Error(`${filePath}.jsonFiles: expected collection/file.json, got ${name}`);
+    }
+  }
   const jsonCollections = Object.fromEntries(
     Object.entries(rawCollections).map(([name, directory]) => {
       requireSafeName(name, `${filePath}.jsonCollections.${name}`);
@@ -62,9 +79,10 @@ export async function loadAkedbSourceCatalog(filePath: string): Promise<AkedbSou
       return [name, parsedDirectory];
     }),
   );
-  const rawClosureCollections = value.operatorClosureCollections === undefined
-    ? {}
-    : requireRecord(value.operatorClosureCollections, `${filePath}.operatorClosureCollections`);
+  const rawClosureCollections =
+    value.operatorClosureCollections === undefined
+      ? {}
+      : requireRecord(value.operatorClosureCollections, `${filePath}.operatorClosureCollections`);
   const operatorClosureCollections = Object.fromEntries(
     Object.entries(rawClosureCollections).map(([name, rawConfiguration]) => {
       requireSafeName(name, `${filePath}.operatorClosureCollections.${name}`);
@@ -77,19 +95,20 @@ export async function loadAkedbSourceCatalog(filePath: string): Promise<AkedbSou
         `${filePath}.operatorClosureCollections.${name}.output`,
       );
       if (path.basename(output) !== output) {
-        throw new Error(`${filePath}.operatorClosureCollections.${name}.output: expected directory name`);
+        throw new Error(
+          `${filePath}.operatorClosureCollections.${name}.output: expected directory name`,
+        );
       }
       const definitionKind = requireNonEmptyString(
         configuration.definitionKind,
         `${filePath}.operatorClosureCollections.${name}.definitionKind`,
       );
       if (definitionKind !== 'projectile' && definitionKind !== 'abilityEntity') {
-        throw new Error(`${filePath}.operatorClosureCollections.${name}.definitionKind: unsupported kind`);
+        throw new Error(
+          `${filePath}.operatorClosureCollections.${name}.definitionKind: unsupported kind`,
+        );
       }
-      return [
-        name,
-        { output, definitionKind: definitionKind as 'projectile' | 'abilityEntity' },
-      ];
+      return [name, { output, definitionKind: definitionKind as 'projectile' | 'abilityEntity' }];
     }),
   );
   return {
@@ -97,6 +116,7 @@ export async function loadAkedbSourceCatalog(filePath: string): Promise<AkedbSou
     sharedJsonIndex,
     tableCfg,
     jsonCollections,
+    jsonFiles,
     operatorClosureCollections,
   };
 }
@@ -129,6 +149,18 @@ export async function downloadAkedbSources(args: DownloadArguments): Promise<voi
   const cdn = args.cdn.replace(/\/+$/, '');
   const provenance: SourceProvenanceEntry[] = [];
   const versionId = args.version ?? catalog.defaultVersion;
+  if (args.jsonFile !== undefined) {
+    if (args.tablesOnly) throw new Error('--json-file cannot be combined with --tables-only');
+    if (!catalog.jsonFiles.includes(args.jsonFile))
+      throw new Error(`JSON resource is not declared in Endaxis source catalog: ${args.jsonFile}`);
+    const resource = await downloadExactJson(args.jsonFile);
+    // 单文件补取不能覆盖整批下载的来源账本。
+    await writeAtomicBytes(
+      path.join(args.output, `${args.jsonFile}.provenance.json`),
+      new TextEncoder().encode(`${JSON.stringify(resource.provenance, null, 2)}\n`),
+    );
+    return;
+  }
   let version: AkedbVersionSource | null = null;
   try {
     const manifestResource = await loadJsonResource(`${cdn}/manifest.json`, null, 'manifest.json');
@@ -170,6 +202,9 @@ export async function downloadAkedbSources(args: DownloadArguments): Promise<voi
   }
 
   const counts: string[] = [];
+  for (const logicalPath of catalog.jsonFiles) {
+    provenance.push((await downloadExactJson(logicalPath)).provenance);
+  }
   let sharedJsonFiles: readonly string[] = [];
   try {
     const indexResource = await loadJsonResource(
@@ -201,8 +236,18 @@ export async function downloadAkedbSources(args: DownloadArguments): Promise<voi
     `downloaded ${versionId}: ${catalog.tableCfg.length} tables, ${counts.join(', ')}\n`,
   );
   await writeProvenance(args.output, versionId, provenance);
-}
 
+  async function downloadExactJson(logicalPath: string) {
+    const resource = await loadJsonResource(
+      new URL(`public/Json/${logicalPath}`, `${cdn}/`).href,
+      args.vfsFallback,
+      logicalPath,
+    );
+    await writeAtomicBytes(path.join(args.output, logicalPath), resource.content);
+    process.stdout.write(`JSON: ${logicalPath}\n`);
+    return resource;
+  }
+}
 
 async function downloadJsonCollection(
   cdn: string,
@@ -322,12 +367,7 @@ export async function loadJsonResource(
       return {
         value,
         content,
-        provenance: createSourceProvenance(
-          logicalPath,
-          'vfs-index-browser',
-          source,
-          content,
-        ),
+        provenance: createSourceProvenance(logicalPath, 'vfs-index-browser', source, content),
       };
     } catch (error) {
       if (!isUnavailableFallbackError(error)) throw error;
@@ -444,6 +484,7 @@ export function parseArguments(values: readonly string[]): DownloadArguments {
     workers,
     tablesOnly,
     vfsFallback: normalizeFallbackArgument(result.get('--vfs-fallback')),
+    ...(result.has('--json-file') ? { jsonFile: result.get('--json-file')! } : {}),
   };
 }
 

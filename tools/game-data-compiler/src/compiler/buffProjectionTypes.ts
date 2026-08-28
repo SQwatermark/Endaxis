@@ -104,7 +104,7 @@ export type CompiledBuffDefinitionSource = Pick<
   | 'waitFirstTriggerInterval'
   | 'maxTriggerCount'
 > &
-  Required<Pick<SkillBuffDefinition, 'maxStackCount' | 'applyTagIds' | 'extendTagIds'>> & {
+  Required<Pick<SkillBuffDefinition, 'maxStackCount' | 'applyTags' | 'extendTags'>> & {
     readonly priority:
       | CompiledBuffNumberSource
       | (Extract<BuffPriority, { readonly blackboardKey: string }> & { readonly negate: true });
@@ -123,7 +123,7 @@ export type CompiledBuffDefinitionSource = Pick<
         Record<
           Extract<
             keyof SkillBuffLifecycleSequences,
-            'start' | 'enable' | 'trigger' | 'enhanceChanged' | 'finish'
+            'start' | 'enable' | 'trigger' | 'enhanceChanged' | 'afterEnhance' | 'finish'
           >,
           CompiledBuffSequenceSource
         >
@@ -138,6 +138,8 @@ export type CompiledBuffDefinitionSource = Pick<
         | 'beforeOutputBuff'
         | 'beforeAddedBuff'
         | 'beforeOutputPhysicalInfliction'
+        | 'beforeOutputKnockDown'
+        | 'afterOutputKnockDown'
         | 'afterOutputPhysicalInfliction'
         | 'outputDamage'
         | 'beforeOutputInfliction'

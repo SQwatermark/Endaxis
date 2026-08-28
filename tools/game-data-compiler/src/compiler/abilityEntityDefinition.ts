@@ -1,3 +1,4 @@
+import type { GameplayTagRegistry } from '../source/nativeGameplayTags.ts';
 import type { AbilityEntityDefinition } from '../../../../packages/game-data-contract/src/index.ts';
 import type { NativeAbilityEntityTemplateSource } from '../source/abilityEntity.ts';
 import { compileAbilityEntityChildSkillSource } from './abilityEntityChildSkill.ts';
@@ -8,6 +9,7 @@ export function compileAbilityEntityDefinitionSource(
   skillId: string,
   loadSkill: (id: string) => unknown,
   visualOnlyIds: ReadonlySet<string> = new Set(),
+  gameplayTagRegistry?: GameplayTagRegistry,
 ): AbilityEntityDefinition {
   if (
     template.durationBlackboard.blackboardKey !== null ||
@@ -26,6 +28,7 @@ export function compileAbilityEntityDefinitionSource(
         loadSkill(skillId),
         `SkillData.${skillId}`,
         visualOnlyIds,
+        gameplayTagRegistry,
       )
     : undefined;
   if (childSkill && childSkill.skillId !== skillId)

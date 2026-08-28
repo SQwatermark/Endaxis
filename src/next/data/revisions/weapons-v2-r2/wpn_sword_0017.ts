@@ -47,8 +47,8 @@ const definition = {
               category: 'CommonCharBuff',
             },
           },
-          applyTagIds: [],
-          extendTagIds: [],
+          applyTags: [],
+          extendTags: [],
           blackboard: {
             duration: 0,
             max_stack: 0,
@@ -62,8 +62,8 @@ const definition = {
           triggerIntervalSeconds: 0,
           waitFirstTriggerInterval: true,
           maxTriggerCount: 1,
-          applyTagIds: [],
-          extendTagIds: [],
+          applyTags: [],
+          extendTags: [],
           blackboard: {
             dmg_up: 0,
           },
@@ -162,7 +162,7 @@ const definition = {
                   condition: {
                     kind: 'eventBuffTagsMatch',
                     match: 'hasAny',
-                    buffTagIds: [1075718177],
+                    buffTags: ["Skill/Character/Common/NoGuard"],
                   },
                 },
                 whenTrue: {

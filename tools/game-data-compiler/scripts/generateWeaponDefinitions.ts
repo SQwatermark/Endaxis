@@ -1,3 +1,5 @@
+import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
+import { readGameplayTagPaths } from './readGameplayTagPaths.ts';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,6 +19,8 @@ interface Arguments {
   readonly tables: string;
   readonly skillData: string;
   readonly buffData: string;
+  /** 同版本路径目录；缺省不猜标签，遇到带标签行为时阻断。 */
+  readonly gameplayTagCatalog?: string;
   readonly output: string;
   readonly auditOutput?: string;
   readonly check: boolean;
@@ -42,6 +46,10 @@ interface Arguments {
  * 只扫描目录直属的 .json，每份必须有唯一 id；缺失或未支持的依赖会阻断正式生成。
  * 示例：`--buff-data tmp/game-data-sources/BuffData`。
  *
+ * @param args.gameplayTagCatalog 对应可选 `--gameplay-tag-catalog <TS文件>`，读取同版本可读标签路径目录。
+ * 原生数字身份仅在转换期间解析；非空标签缺少目录或路径时阻断，不输出数字/占位标签。
+ * 示例：`--gameplay-tag-catalog src/next/data/combat/gameplayTagCatalog.generated.ts`。
+ *
  * @param args.output 对应可选 `--output <目录>`；CLI 默认 src/next/data/equipment/generated-weapons。
  * 按武器类型子目录输出 .generated.ts，并生成 index.generated.ts。写入时替换整个目标目录，
  * 不要指向含手工文件的目录或仓库根目录。直接调用本函数时必须传入 output。
@@ -60,12 +68,12 @@ interface Arguments {
  * @returns definitionCount 是武器数量；fileCount 是正式 TS 文件数量，包含索引、不含审计。
  *
  * @example 终端只读检查（删除末尾 --check 即实际生成）
- * npm run generate:game-data:weapons -- --tables tmp/game-data-sources/TableCfg-1.4.4-9433094-12 --skill-data tmp/game-data-sources/skill-data-cdn --buff-data tmp/game-data-sources/BuffData --output src/next/data/equipment/generated-weapons --audit-output tmp/generated-next-weapons --check
+ * npm run generate:game-data:weapons -- --tables tmp/game-data-sources/TableCfg-1.4.4-9433094-12 --skill-data tmp/game-data-sources/skill-data-cdn --buff-data tmp/game-data-sources/BuffData --gameplay-tag-catalog src/next/data/combat/gameplayTagCatalog.generated.ts --output src/next/data/equipment/generated-weapons --audit-output tmp/generated-next-weapons --check
  *
  * @example IDE 的 npm 调试配置
  * package.json 选择当前工作树，命令选 run，脚本选 generate:game-data:weapons。
  * “实参”填写以下一行（保留开头的 --，用于 npm 参数转发）：
- * -- --tables tmp/game-data-sources/TableCfg-1.4.4-9433094-12 --skill-data tmp/game-data-sources/skill-data-cdn --buff-data tmp/game-data-sources/BuffData --output src/next/data/equipment/generated-weapons --audit-output tmp/generated-next-weapons --check
+ * -- --tables tmp/game-data-sources/TableCfg-1.4.4-9433094-12 --skill-data tmp/game-data-sources/skill-data-cdn --buff-data tmp/game-data-sources/BuffData --gameplay-tag-catalog src/next/data/combat/gameplayTagCatalog.generated.ts --output src/next/data/equipment/generated-weapons --audit-output tmp/generated-next-weapons --check
  */
 export async function generateWeaponDefinitions(args: Arguments): Promise<{
   readonly definitionCount: number;
@@ -88,6 +96,9 @@ export async function generateWeaponDefinitions(args: Arguments): Promise<{
     identified,
     staticBatch.runtimeDependencies,
     buffData,
+    args.gameplayTagCatalog === undefined
+      ? undefined
+      : new GameplayTagRegistry(readGameplayTagPaths(args.gameplayTagCatalog)),
   );
   const batch = {
     definitions: runtimeBatch.definitions,
@@ -178,6 +189,7 @@ export function parseArguments(values: readonly string[]): Arguments {
     tables: requiredPath(paths, '--tables'),
     skillData: requiredPath(paths, '--skill-data'),
     buffData: requiredPath(paths, '--buff-data'),
+    gameplayTagCatalog: paths.get('--gameplay-tag-catalog'),
     output: path.resolve(paths.get('--output') ?? 'src/next/data/equipment/generated-weapons'),
     auditOutput: path.resolve(paths.get('--audit-output') ?? 'tmp/generated-next-weapons'),
     check,
@@ -215,7 +227,10 @@ export function checkGeneratedFiles(
   files: readonly RenderedWeaponDefinitionFileSource[],
 ): void {
   const expected = new Map(
-    files.map(file => [file.relativePath.replaceAll('\\', '/'), file.content.replaceAll('\r\n', '\n')]),
+    files.map(file => [
+      file.relativePath.replaceAll('\\', '/'),
+      file.content.replaceAll('\r\n', '\n'),
+    ]),
   );
   const actualPaths = listFiles(outputDirectory).map(file =>
     path.relative(outputDirectory, file).replaceAll('\\', '/'),

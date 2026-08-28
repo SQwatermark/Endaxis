@@ -1,9 +1,11 @@
+import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { describe, expect, it } from 'vitest';
 import { unityComboConditionFixture } from './unityComboConditionFixture.ts';
 import { parseUnityComboSkillConditionsSource } from '../src/source/unityComboSkillConditions.ts';
 import { compilePendingComboConditionSource } from '../src/compiler/comboSkillConditions.ts';
 import { parseObjectTypeMask } from '../src/source/objectType.ts';
 const projection = {
+  gameplayTagRegistry: fixtureGameplayTagRegistry,
   actionOwnerTarget: 'caster',
   actionSourceTarget: 'caster',
   actionTargetTarget: 'eventTarget',

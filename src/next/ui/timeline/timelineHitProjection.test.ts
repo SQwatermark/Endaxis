@@ -49,6 +49,27 @@ function damageStep(stepKey: string | undefined, hitKey: string): CombatStepDefi
 }
 
 describe('projectCastHitMarkers', () => {
+  it('Switch 所有候选的命中都标记为条件命中，由模拟回执决定是否展示', () => {
+    const cast = createCast([
+      {
+        kind: 'switch',
+        parameters: { choice: { kind: 'constant', value: 0 }, alwaysNext: true },
+        options: [0, 1].map(value => ({
+          value: { kind: 'constant', value },
+          sequence: { steps: [damageStep(`case${value}`, '')] },
+        })),
+      },
+    ]);
+    expect(projectCastHitMarkers(cast, fixtureDef(cast))).toEqual(
+      [0, 1].map(value => ({
+        hitId: deriveHitId(cast.id, `case${value}`),
+        frameOffset: 10,
+        stepKey: `case${value}`,
+        conditional: true,
+      })),
+    );
+  });
+
   it('keeps delayed hits beyond the skill block at their actual horizontal position', () => {
     expect(projectTimelineHitMarkerLeftPx(-3)).toBe(0);
     expect(projectTimelineHitMarkerLeftPx(120)).toBe(120);

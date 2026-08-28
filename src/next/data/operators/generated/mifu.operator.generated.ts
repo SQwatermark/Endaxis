@@ -89,7 +89,7 @@ export const mifuComboSkill: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.36666 },
-            slot: 0,
+            slot: "unassigned",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -1133,7 +1133,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 99999 },
-            slot: 257664179,
+            slot: "TimeDilation/Layer/Entity/VisualAdjust",
             priority: 50,
             curve: { kind: 'inline', keys: [{ time: 0, value: 1.25, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0.333333343 }, { time: 1, value: 1.25, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0.333333343, outWeight: 0 }] },
             finishByAction: true,
@@ -1219,7 +1219,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
               priority: 100,
               maxStackCount: 4,
               durationSeconds: { blackboardKey: 'duration' },
-              applyTagIds: [1075718177],
+              applyTags: ["Skill/Character/Common/NoGuard"],
               blackboard: {
                 'atk_scale': 0,
                 'count': 0,
@@ -1300,7 +1300,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
               triggerIntervalSeconds: 0,
               waitFirstTriggerInterval: true,
               maxTriggerCount: 1,
-              applyTagIds: [-168668661],
+              applyTags: ["Skill/Character/Common/PhysicalStatus/CrushStatus"],
               blackboard: {
                 'atk_scale': 1,
                 'count': 0,
@@ -1355,7 +1355,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                           step('startTimeDilation', {
                             scope: 'entity',
                             durationSeconds: { kind: 'constant', value: 0.1 },
-                            slot: 1464849466,
+                            slot: "TimeDilation/Layer/Entity/HitStop",
                             priority: 15,
                             curve: { kind: 'named', key: 'interrupt_weakness' },
                             finishByAction: false,
@@ -1374,7 +1374,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                               step('startTimeDilation', {
                                 scope: 'entity',
                                 durationSeconds: { kind: 'constant', value: 0.1 },
-                                slot: 1464849466,
+                                slot: "TimeDilation/Layer/Entity/HitStop",
                                 priority: 10,
                                 curve: { kind: 'named', key: 'interrupt_weakness' },
                                 finishByAction: false,
@@ -1393,7 +1393,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                                   step('startTimeDilation', {
                                     scope: 'entity',
                                     durationSeconds: { kind: 'constant', value: 0.25 },
-                                    slot: 1464849466,
+                                    slot: "TimeDilation/Layer/Entity/HitStop",
                                     priority: 20,
                                     curve: { kind: 'named', key: 'interrupt_weakness' },
                                     finishByAction: false,
@@ -1412,7 +1412,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                                       step('startTimeDilation', {
                                         scope: 'entity',
                                         durationSeconds: { kind: 'constant', value: 0.5 },
-                                        slot: 1464849466,
+                                        slot: "TimeDilation/Layer/Entity/HitStop",
                                         priority: 20,
                                         curve: { kind: 'named', key: 'interrupt_weakness' },
                                         finishByAction: false,
@@ -1431,7 +1431,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                                           step('startTimeDilation', {
                                             scope: 'entity',
                                             durationSeconds: { kind: 'constant', value: 0.65 },
-                                            slot: 1464849466,
+                                            slot: "TimeDilation/Layer/Entity/HitStop",
                                             priority: 20,
                                             curve: { kind: 'named', key: 'interrupt_weakness' },
                                             finishByAction: false,
@@ -1664,7 +1664,7 @@ export const mifuBattleSkill3: SkillDefinition = withSkillBlackboard(
                       kind: 'buffStackCompare',
                       target: 'enemy',
                       tagQueryType: 'hasAny',
-                      buffTagIds: [1066759270],
+                      buffTags: ["Skill/Character/Common/Affixes/Vulnerable/VulnerablePhysic"],
                       operator: 'greaterOrEqual',
                       value: { kind: 'constant', value: 1 },
                     },
@@ -1896,7 +1896,7 @@ export const mifuGeneratedOperator: OperatorDefinition = {
       priority: 0,
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration' },
-      applyTagIds: [-1757502026],
+      applyTags: ["Skill/Character/Common/HpShield"],
       blackboard: {
         'FinalShield': 1000,
         'duration': 8,
@@ -1944,7 +1944,7 @@ export const mifuGeneratedOperator: OperatorDefinition = {
       priority: 0,
       maxStackCount: 1,
       durationSeconds: 15,
-      applyTagIds: [282004889],
+      applyTags: ["Skill/Character/chr_0031_mifu/normalskill_2"],
       blackboard: {
         'def': 0,
         'dur': 0,
@@ -2079,7 +2079,7 @@ export const mifuGeneratedOperator: OperatorDefinition = {
       priority: 0,
       maxStackCount: 1,
       durationSeconds: 15,
-      applyTagIds: [1741176079],
+      applyTags: ["Skill/Character/chr_0031_mifu/normalskill_3"],
       blackboard: {
         'def': 0,
         'dur': 0,

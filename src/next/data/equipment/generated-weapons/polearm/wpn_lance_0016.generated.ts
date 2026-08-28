@@ -64,8 +64,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "duration2": 15,
             "spell_dmg_up": 0.04
@@ -127,8 +127,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "duration": 15,
             "heal_up": 0.04
@@ -358,8 +358,8 @@ const definition = {
                   "condition": {
                     "kind": "eventHealTagsMatch",
                     "match": "hasAny",
-                    "tagIds": [
-                      -1517158118
+                    "tags": [
+                      "Skill/Character/Common/Heal/ComboSkillHeal"
                     ]
                   }
                 },

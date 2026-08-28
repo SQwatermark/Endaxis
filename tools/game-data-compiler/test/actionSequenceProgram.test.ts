@@ -80,12 +80,93 @@ function options(): CompileActionSequenceProgramOptions<
 }
 
 describe('公共 Action 序列控制流投影', () => {
+  const branch = (
+    children: readonly NativeActionNodeSource<string>[],
+    alwaysNext = true,
+  ): NativeActionNodeSource<string> => ({
+    metadata,
+    sourcePath: 'unmodeled-branch',
+    body: {
+      kind: 'ifElse',
+      condition: sequence([leaf('?unmodeled')]),
+      whenTrue: sequence(children),
+      whenFalse: sequence([leaf('visual')]),
+      alwaysNext,
+    },
+  });
+  function bottomUpOptions() {
+    const base = options();
+    return {
+      ...base,
+      canOmitUnusedCondition: (node: NativeActionNodeSource<string>) =>
+        node.body.kind === 'leaf' && node.body.value === '?unmodeled',
+      compileCondition: (node: NativeActionNodeSource<string>, state: readonly string[]) => {
+        if (node.body.kind === 'leaf' && node.body.value === '?unmodeled')
+          throw new Error('条件未建模');
+        return base.compileCondition(node, state);
+      },
+      compileLeaf: (node: NativeActionNodeSource<string>, state: readonly string[]) =>
+        node.body.kind === 'leaf' && node.body.value === 'visual'
+          ? { steps: [], state }
+          : base.compileLeaf(node, state),
+    };
+  }
+  it('嵌套分支自叶子向根清空后，不编译未建模的纯条件，保留后续伤害', () => {
+    expect(
+      compileActionSequenceProgram(
+        sequence([branch([branch([leaf('visual')])]), leaf('damage')]),
+        bottomUpOptions(),
+      ),
+    ).toEqual({ steps: [{ kind: 'leaf', value: 'damage[]' }] });
+  });
+  it('守卫末端已空时不编译纯条件；有末端行为时仍要求模型', () => {
+    expect(
+      compileActionSequenceProgram(
+        sequence([leaf('?unmodeled'), leaf('visual')]),
+        bottomUpOptions(),
+      ),
+    ).toEqual({ steps: [] });
+    expect(() =>
+      compileActionSequenceProgram(
+        sequence([leaf('?unmodeled'), leaf('damage')]),
+        bottomUpOptions(),
+      ),
+    ).toThrow('条件未建模');
+    expect(() =>
+      compileActionSequenceProgram(sequence([branch([leaf('damage')])]), bottomUpOptions()),
+    ).toThrow('条件未建模');
+  });
+  it('未知副作用和影响外部返回值的分支不因末端空而省略', () => {
+    expect(() =>
+      compileActionSequenceProgram(sequence([branch([leaf('visual')])]), {
+        ...bottomUpOptions(),
+        canOmitUnusedCondition: () => false,
+      }),
+    ).toThrow('条件未建模');
+    expect(() =>
+      compileActionSequenceProgram(sequence([branch([leaf('visual')], false)]), bottomUpOptions()),
+    ).toThrow('stopping IfElse');
+  });
   it('没有纯条件证明时保留尾部求值；显式允许才可省略', () => {
     const configured = options();
     const source = sequence([leaf('?last')]);
     expect(compileActionSequenceProgram(source, configured).steps).toEqual([]);
     const { canOmitTerminalCondition: _, ...unproven } = configured;
     expect(compileActionSequenceProgram(source, unproven).steps).toHaveLength(1);
+  });
+  it('已经建模的纯条件也不留下空壳分支；副作用条件仍保留', () => {
+    const value = branch([leaf('visual')]);
+    if (value.body.kind !== 'ifElse') throw new Error('invalid fixture');
+    const source = sequence([
+      { ...value, body: { ...value.body, condition: sequence([leaf('?modeled')]) } },
+    ]);
+    expect(compileActionSequenceProgram(source, bottomUpOptions())).toEqual({ steps: [] });
+    expect(
+      compileActionSequenceProgram(source, {
+        ...bottomUpOptions(),
+        canOmitTerminalCondition: () => false,
+      }).steps[0]?.kind,
+    ).toBe('conditional');
   });
 
   it('条件叶子守卫全部剩余兄弟步骤', () => {

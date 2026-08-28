@@ -123,25 +123,42 @@ export class CombatAttributeSet<Key extends string> {
     return this.#getAtStage(attribute, 'final', filter);
   }
 
+  /**
+   * 只读求值叠加当前命中的局部修正，复用同一八槽公式，不安装或修改实体属性。
+   * 用于 Endaxis 技能专属面板加成；不是新的原生修正来源，也不会进入后续命中。
+   */
+  getWithAdditionalModifiers(attribute: Key, values: readonly AttributeModifierValues[]): number {
+    for (const modifier of values) {
+      for (const [name, value] of Object.entries(modifier)) {
+        assertFinite(value, `attribute modifier ${name}`);
+      }
+    }
+    return this.#getAtStage(attribute, 'final', ATTRIBUTE_MODIFIER_SOURCES.all, values);
+  }
+
   #getAtStage(
     attribute: Key,
     stage: CombatAttributeValueStage,
     filter: AttributeModifierSource,
+    additionalValues: readonly AttributeModifierValues[] = [],
   ): number {
     const rawValue = this.#rawValues.get(attribute);
-    if (rawValue === undefined) return 0;
+    if (rawValue === undefined) {
+      if (additionalValues.length > 0) throw new Error(`attribute '${attribute}' is not defined`);
+      return 0;
+    }
     const definition = this.#definitions.get(attribute);
     const modifiers = this.#modifiers.filter(
       modifier => modifier.attribute === attribute && (modifier.source & filter) !== 0,
     );
     if (definition === undefined) {
-      if (modifiers.length > 0) {
+      if (modifiers.length > 0 || additionalValues.length > 0) {
         throw new Error(`attribute '${attribute}' requires explicit native bounds`);
       }
       return rawValue;
     }
 
-    const values = modifiers.map(modifier => modifier.values);
+    const values = [...modifiers.map(modifier => modifier.values), ...additionalValues];
     const baseValue = clamp(
       rawValue + sum(values, 'baseAddition') + (definition.otherAttributeBaseAddition ?? 0),
       definition,

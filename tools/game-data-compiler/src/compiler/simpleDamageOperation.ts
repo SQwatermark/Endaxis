@@ -2,6 +2,10 @@ import type { DamageActionSource } from '../source/damageActions.ts';
 import type { ScalarSource } from '../source/scalar.ts';
 import type { TargetReferenceSource } from '../source/target.ts';
 import { projectNativeDamageElement } from '../source/damageElement.ts';
+import {
+  compileResolvedAttributeModifierSource,
+  projectCombatRuntimeAttributeKey,
+} from './attributeModifier.ts';
 
 import type {
   CompiledActionValueOperandSource,
@@ -30,9 +34,7 @@ export function compileEventTargetSimpleDamageOperationSource(
     readonly staticEnemyTargetGroupKeys?: ReadonlySet<string>;
   } = { actionOwnerTarget: 'caster', actionSourceTarget: 'caster' },
 ): CompiledSimpleDamageOperationSource {
-  if (context.actionOwnerTarget === 'unavailable' && action.attacker === 'ActionOwner') {
-    throw new Error(`${sourcePath}: damage action Owner projection is unavailable`);
-  }
+  requireDamageCasterOwner(action, context, sourcePath);
   const attackerTarget =
     action.attacker === 'ActionOwner'
       ? ('caster' as const)
@@ -116,17 +118,8 @@ export function compileEventTargetSimpleDamageOperationSource(
   if (attackScale === null) {
     throw new Error(`${sourcePath}: unsupported event attack calculation`);
   }
-  const attributeNames: Readonly<Record<string, string>> = {
-    Atk: 'attack',
-    CriticalRate: 'criticalRate',
-    CriticalDamageIncrease: 'criticalDamageIncrease',
-  };
-  const slots = {
-    BaseAddition: 'baseAddition',
-    BaseMultiplier: 'baseMultiplier',
-    FinalMultiplier: 'finalMultiplier',
-  } as const;
   const instantAttributeModifiers = unit.processors.map((processor, index) => {
+    const processorPath = `${sourcePath}.units[0].processors[${index}]`;
     if (
       processor.kind !== 'instantAttributeModifier' ||
       processor.targetSide !== 'Attacker' ||
@@ -134,17 +127,24 @@ export function compileEventTargetSimpleDamageOperationSource(
     ) {
       throw new Error(`${sourcePath}.units[0].processors[${index}]: unsupported processor`);
     }
-    const attribute = attributeNames[processor.attributeType];
-    const slot = slots[processor.formulaItem as keyof typeof slots];
-    if (attribute === undefined || slot === undefined) {
-      throw new Error(
-        `${sourcePath}.units[0].processors[${index}]: unsupported instant attribute mapping`,
-      );
+    // 保持已验证的能力边界；属性身份和公式槽解释复用 Buff 的公共编译入口。
+    if (
+      !['Atk', 'CriticalRate', 'CriticalDamageIncrease'].includes(processor.attributeType) ||
+      !['BaseAddition', 'BaseMultiplier', 'FinalMultiplier'].includes(processor.formulaItem)
+    ) {
+      throw new Error(`${processorPath}: unsupported instant attribute mapping`);
     }
+    const compiled = compileResolvedAttributeModifierSource({
+      sourcePath: processorPath,
+      modifyAttributeType: processor.modifyAttributeType,
+      attributeType: processor.attributeType,
+      formulaItem: processor.formulaItem,
+      value: 0,
+    });
     return {
       targetSide: 'attacker' as const,
-      attribute,
-      slot,
+      attribute: projectCombatRuntimeAttributeKey(processor.attributeType),
+      slot: compiled.slot,
       value: scalarOperand(processor.parameter),
       attributeTiming: 'runtime' as const,
     };
@@ -160,9 +160,12 @@ export function compileEventTargetSimpleDamageOperationSource(
   const plungingAttack = Math.floor(mask / 1024) % 2 === 1;
   const canBreakWeakness = Math.floor(mask / 4096) % 2 === 1;
   const comboSkill = Math.floor(mask / 8192) % 2 === 1;
+  // DamageEnums.g.cs：KnockDown=65536 同时属于 PhysicalInfliction 组合掩码。
+  const knockDown = Math.floor(mask / 65536) % 2 === 1;
   const dashAttack = Math.floor(mask / 131072) % 2 === 1;
   const normalAttackLastCombo = Math.floor(mask / 2097152) % 2 === 1;
   const burning = Math.floor(mask / 67108864) % 2 === 1;
+  const shatter = Math.floor(mask / 134217728) % 2 === 1;
   const dot = Math.floor(mask / 268435456) % 2 === 1;
   if (
     !Number.isSafeInteger(mask) ||
@@ -175,9 +178,10 @@ export function compileEventTargetSimpleDamageOperationSource(
       (plungingAttack ? 1024 : 0) -
       (canBreakWeakness ? 4096 : 0) -
       (comboSkill ? 8192 : 0) -
+      (knockDown ? 65536 : 0) -
       (dashAttack ? 131072 : 0) -
       (normalAttackLastCombo ? 2097152 : 0) !==
-      (burning ? 67108864 : 0) + (dot ? 268435456 : 0)
+      (burning ? 67108864 : 0) + (shatter ? 134217728 : 0) + (dot ? 268435456 : 0)
   ) {
     throw new Error(`${sourcePath}: unsupported event damage decorate mask ${mask}`);
   }
@@ -205,12 +209,15 @@ export function compileEventTargetSimpleDamageOperationSource(
         ...(ultimateSkill ? (['ultimateSkill'] as const) : []),
         ...(comboSkill ? (['comboSkill'] as const) : []),
         ...(burning ? (['fireAbnormal'] as const) : []),
+        ...(shatter ? (['cryoAbnormal'] as const) : []),
       ],
-      ...(canBreakWeakness || dot
+      ...(canBreakWeakness || dot || knockDown || shatter
         ? {
             features: [
               ...(canBreakWeakness ? (['canBreakWeakness'] as const) : []),
               ...(dot ? (['dot'] as const) : []),
+              ...(knockDown ? (['knockDown', 'physicalInfliction'] as const) : []),
+              ...(shatter ? (['shatter'] as const) : []),
             ],
           }
         : {}),
@@ -234,10 +241,10 @@ export function compileEventTargetSimplePoiseOperationSource(
 ): CompiledSimplePoiseOperationSource {
   if (action.units.length !== 1 || action.units[0]!.attributeType !== 'Poise')
     throw new Error(`${sourcePath}: expected one Poise DamageUnit`);
+  requireDamageCasterOwner(action, context, sourcePath);
   if (
     !action.alwaysNext ||
-    (action.attacker !== 'ActionSource' && action.attacker !== 'ActionOwner') ||
-    (action.attacker === 'ActionOwner' && context.actionOwnerTarget === 'unavailable')
+    (action.attacker !== 'ActionSource' && action.attacker !== 'ActionOwner')
   )
     throw new Error(`${sourcePath}: unsupported poise damage action control flags`);
   if (action.target.targetSource === 'Context') {
@@ -262,6 +269,24 @@ export function compileEventTargetSimplePoiseOperationSource(
     kind: 'dealStagger',
     parameters: { value: compileSimplePoiseOperand(action.units[0]!, sourcePath, 0) },
   };
+}
+
+/** Hp 与 Poise 共用来源证明，敌人持有的载体不能把 Owner 冒充施术干员。 */
+function requireDamageCasterOwner(
+  action: DamageActionSource,
+  context: {
+    readonly actionOwnerTarget: 'buffOwner' | 'caster' | 'unavailable';
+    readonly fixedBuffOwnerTarget?: 'caster' | 'enemy' | 'currentAbilityEntity';
+  },
+  sourcePath: string,
+): void {
+  if (action.attacker !== 'ActionOwner') return;
+  if (context.actionOwnerTarget === 'unavailable') {
+    throw new Error(`${sourcePath}: damage action Owner projection is unavailable`);
+  }
+  if (context.fixedBuffOwnerTarget === 'enemy') {
+    throw new Error(`${sourcePath}: enemy Buff Owner cannot be projected as the damage caster`);
+  }
 }
 
 function compileSimplePoiseOperand(

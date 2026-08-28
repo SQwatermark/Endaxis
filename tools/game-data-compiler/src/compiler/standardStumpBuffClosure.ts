@@ -1,3 +1,4 @@
+import type { GameplayTagRegistry } from '../source/nativeGameplayTags.ts';
 import { requireRecord } from '../source/primitives.ts';
 import type { BuffRuntimeSource } from '../source/buffRuntime.ts';
 import {
@@ -51,6 +52,7 @@ export function compileStandardStumpBuffClosure(
     'caster' | 'enemy' | 'currentAbilityEntity'
   > = new Map(),
   preserveBuffIds: ReadonlySet<string> = new Set(),
+  gameplayTagRegistry?: GameplayTagRegistry,
 ): CompiledStandardStumpBuffClosure {
   const buffData =
     typeof buffDataValue === 'function'
@@ -152,7 +154,12 @@ export function compileStandardStumpBuffClosure(
         omittedEvents,
         extensions,
         abilityEntityQueries,
-        buffOwnerTargets.has(buffId) ? { fixedBuffOwnerTarget: buffOwnerTargets.get(buffId)! } : {},
+        {
+          gameplayTagRegistry: gameplayTagRegistry ?? abilityEntityQueries?.gameplayTagRegistry,
+          ...(buffOwnerTargets.has(buffId)
+            ? { fixedBuffOwnerTarget: buffOwnerTargets.get(buffId)! }
+            : {}),
+        },
       );
     } catch (error) {
       diagnostics.push({

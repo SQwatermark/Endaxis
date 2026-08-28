@@ -69,7 +69,7 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
         kind,
         contextKey: 'custom-targets',
         tagQueryType: 'hasAny',
-        buffTagIds: [0],
+        buffTags: ['Custom/Tag'],
         operator: 'greaterOrEqual',
         value: { kind: 'constant', value: 1 },
       };
@@ -81,17 +81,19 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
       };
     case 'statusActive':
       return { kind, statusKey: 'custom-status', target: 'caster' };
+    case 'currentBuffStackCompare':
+      return { kind, operator: 'greaterOrEqual', value: { kind: 'constant', value: 1 } };
     case 'buffStackCompare':
       return {
         kind,
         target: 'caster',
         tagQueryType: 'hasAny',
-        buffTagIds: [0],
+        buffTags: ['Custom/Tag'],
         operator: 'greaterOrEqual',
         value: { kind: 'constant', value: 1 },
       };
     case 'entityTagMatch':
-      return { kind, target: 'caster', tagQueryType: 'hasAny', tagIds: [0] };
+      return { kind, target: 'caster', tagQueryType: 'hasAny', tags: ['Custom/Tag'] };
     case 'buffIdStackCompare':
       return {
         kind,
@@ -127,17 +129,17 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
     case 'eventBuffEndedEarly':
       return { kind };
     case 'eventBuffTagsMatch':
-      return { kind, match: 'hasAny', buffTagIds: [0] };
+      return { kind, match: 'hasAny', buffTags: ['Custom/Tag'] };
     case 'eventTargetBuffCountCompare':
       return {
         kind,
         tagQueryType: 'hasAny',
-        buffTagIds: [0],
+        buffTags: ['Custom/Tag'],
         operator: 'greaterOrEqual',
         value: { kind: 'constant', value: 1 },
       };
     case 'eventHealTagsMatch':
-      return { kind, match: 'hasAny', tagIds: [0] };
+      return { kind, match: 'hasAny', tags: ['Custom/Tag'] };
     case 'eventSpGainMatch':
       return { kind, sources: ['skill'], gainKinds: ['gain'] };
     case 'eventSourceTargetMatch':

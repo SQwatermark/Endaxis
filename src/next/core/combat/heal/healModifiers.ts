@@ -1,3 +1,4 @@
+import type { GameplayTag } from '../../../../../packages/game-data-contract/src/gameplayTags';
 // 纯数据契约由独立包唯一声明；此路径保留兼容导出。
 export {
   type HealModifierSide,
@@ -24,7 +25,7 @@ export class HealCalculationContext {
     readonly receiverId: string,
     readonly receiverVitals: CombatVitals,
     public value: number,
-    readonly tagIds: readonly number[] = [],
+    readonly tags: readonly GameplayTag[] = [],
     public healerOutputIncrease = 0,
     public receiverTakenIncrease = 0,
   ) {}
@@ -66,10 +67,10 @@ export class HealModifier {
 
   #evaluate(condition: HealModifierCondition, context: HealCalculationContext): boolean {
     if (condition.kind === 'healTagsMatch') {
-      const actual = new Set(context.tagIds);
+      const actual = new Set(context.tags);
       return condition.match === 'hasAny'
-        ? condition.tagIds.some(tagId => actual.has(tagId))
-        : condition.tagIds.every(tagId => actual.has(tagId));
+        ? condition.tags.some(tagId => actual.has(tagId))
+        : condition.tags.every(tagId => actual.has(tagId));
     }
     if (condition.kind === 'buffBlackboardCompare') {
       return compareCombatNumbers(

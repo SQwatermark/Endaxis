@@ -24,6 +24,51 @@ const ACTION_META_FIELDS = [
 
 export type BuffBlackboardAssignmentSource = BlackboardAssignmentSource;
 
+/** 点燃是调用目标 Buff 的响应，不等同于火元素附着或伤害。 */
+export interface BuffIgniteActionSource {
+  readonly kind: 'buffIgnite';
+  readonly source: TargetReferenceSource;
+  readonly target: TargetReferenceSource;
+  readonly igniteType: string;
+  readonly successTargetContextKey: string;
+}
+
+export function parseBuffIgniteActionSource(value: unknown, path: string): BuffIgniteActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      ...ACTION_META_FIELDS,
+      'igniteSource',
+      'targetSettings',
+      'igniteType',
+      'successTargetContextKey',
+    ]),
+    path,
+  );
+  return {
+    kind: 'buffIgnite',
+    source: parseTargetReferenceSource(action.igniteSource, `${path}.igniteSource`),
+    target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
+    igniteType: requireNonEmptyString(action.igniteType, `${path}.igniteType`),
+    successTargetContextKey: requireString(
+      action.successTargetContextKey,
+      `${path}.successTargetContextKey`,
+    ),
+  };
+}
+
+/** combat-spec OnPhysicalNoGuardStartAction：只发布关卡统计事件，不施加破防。 */
+export function parsePhysicalNoGuardStartedEventSource(
+  value: unknown,
+  path: string,
+): {
+  readonly kind: 'physicalNoGuardStartedEvent';
+} {
+  requireExactFields(requireRecord(value, path), new Set(ACTION_META_FIELDS), path);
+  return { kind: 'physicalNoGuardStartedEvent' };
+}
+
 export interface BuffApplicationEntrySource {
   /** 直接 Buff ID；动态读取时可能为空，因此来源层不擅自要求非空。 */
   readonly buffId: string;

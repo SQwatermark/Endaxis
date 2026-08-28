@@ -13,12 +13,12 @@ import {
 
 describe('time-dilation version catalog', () => {
   it('maps recovered slot ids to exact GameplayTag paths', () => {
-    expect(timeDilationSlotName(1464849466)).toBe('TimeDilation/Layer/Entity/HitStop');
-    expect(timeDilationSlotName(-1855252810)).toBe('TimeDilation/Layer/Entity/Frozen');
-    expect(timeDilationSlotName(197328068)).toBe('TimeDilation/Layer/Entity/Seal');
-    expect(timeDilationSlotName(-1660475044)).toBe('TimeDilation/Layer/Global/UltiSkill');
+    expect(timeDilationSlotName("TimeDilation/Layer/Entity/HitStop")).toBe('TimeDilation/Layer/Entity/HitStop');
+    expect(timeDilationSlotName("TimeDilation/Layer/Entity/Frozen")).toBe('TimeDilation/Layer/Entity/Frozen');
+    expect(timeDilationSlotName("TimeDilation/Layer/Entity/Seal")).toBe('TimeDilation/Layer/Entity/Seal');
+    expect(timeDilationSlotName("TimeDilation/Layer/Global/UltiSkill")).toBe('TimeDilation/Layer/Global/UltiSkill');
     expect(TIME_DILATION_SLOT_DEFINITIONS).toHaveLength(8);
-    expect(timeDilationSlotName(0)).toBeUndefined();
+    expect(timeDilationSlotName('unassigned')).toBeUndefined();
   });
 
   it('projects native priority tags into their runtime comparison values', () => {
@@ -27,7 +27,7 @@ describe('time-dilation version catalog', () => {
       TIME_DILATION_PRIORITY_DEFINITIONS.find(
         definition => definition.tagPath === 'TimeDilation/Priority/UltiSkill',
       ),
-    ).toMatchObject({ tagId: -1742631616, value: 100 });
+    ).toMatchObject({ tagPath: 'TimeDilation/Priority/UltiSkill', value: 100 });
     expect(TIME_DILATION_PRIORITY_OPTIONS.map(option => option.value)).toEqual([
       10, 15, 20, 21, 30, 50, 100,
     ]);

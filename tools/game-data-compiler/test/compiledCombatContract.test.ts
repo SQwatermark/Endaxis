@@ -1,5 +1,6 @@
 import { expectTypeOf, it } from 'vitest';
 import type {
+  GameplayTag,
   ActionSequenceDefinition,
   CombatCondition,
   CombatStepDefinition,
@@ -82,6 +83,13 @@ type IncompatibleParameters = {
     ? never
     : K;
 }[CompiledBuffStepSource['kind']];
+
+it('GameplayTag 是 string 的语义别名，不要求运行时转换', () => {
+  expectTypeOf<GameplayTag>().toEqualTypeOf<string>();
+  expectTypeOf<NonNullable<SkillBuffDefinition['applyTags']>>().toEqualTypeOf<
+    readonly GameplayTag[]
+  >();
+});
 
 it('技能身份、等级来源与元素复用契约，但链接计划和养成 IR 保留自身信息', () => {
   expectTypeOf<OperatorSkillIdentitySource['skillType']>().toEqualTypeOf<SkillType>();
@@ -265,7 +273,9 @@ it('Buff 根定义保留必需字段与生命周期范围，不自动接入整�
   expectTypeOf<{}>().not.toExtend<Pick<CompiledBuffDefinitionSource, 'maxStackCount'>>();
   expectTypeOf<
     keyof NonNullable<CompiledBuffDefinitionSource['lifecycleSequences']>
-  >().toEqualTypeOf<'start' | 'enable' | 'trigger' | 'enhanceChanged' | 'finish'>();
+  >().toEqualTypeOf<
+    'start' | 'enable' | 'trigger' | 'enhanceChanged' | 'afterEnhance' | 'finish'
+  >();
   expectTypeOf<
     Extract<keyof CompiledBuffDefinitionSource, 'scheduledSequences' | 'igniteEventResponses'>
   >().toBeNever();

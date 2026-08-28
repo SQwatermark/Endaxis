@@ -1,0 +1,881 @@
+{
+  "templates": [
+    {
+      "id": "abilityentity_chr_0004_pelica_ultimate_skill",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 50
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0006_wolfgd_combo_skill",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Category/EnergyShard/Pulse"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 1.5
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0007_ikut_ultimate_skill",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "SelectCategory/ProjectilePassThru"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 5
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0011_seraph_normal_skill",
+      "bornTags": [
+        "Immune",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Skill/Character/chr_0011_seraph/UltimateAbilityEntity"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 30
+      },
+      "maxStackingCount": 1
+    },
+    {
+      "id": "abilityentity_chr_0011_seraph_normal_skill_buff",
+      "bornTags": [
+        "Immune",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Skill/Character/chr_0011_seraph/UltimateAbilityEntity"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 30
+      },
+      "maxStackingCount": 3
+    },
+    {
+      "id": "abilityentity_chr_0012_avywen_combo_skill_lance",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "SelectCategory/ProjectilePassThru",
+        "Skill/Character/chr_0012_avywen/Lance/ComboLance"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 62
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0012_avywen_ultimate_skill",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Category/EnergyShard/Pulse",
+        "Immune/Stunned",
+        "Immune/Frozen",
+        "Immune/Airborne",
+        "Immune/KnockDown",
+        "Immune/KnockBack",
+        "Immune/Pull",
+        "Immune/PowerSmash",
+        "Immune/Poise",
+        "Skill/Character/chr_0012_avywen/Lance/UltiLance"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 62
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0013_aglina_normal_skill",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Category/EnergyShard/Pulse"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 6
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0013_aglina_ultimate_skill",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Category/EnergyShard/Pulse"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 6
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0014_aurora_combo_skill",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "SelectCategory/ProjectilePassThru"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 3
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0014_aurora_ultimate_skill",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "SelectCategory/ProjectilePassThru"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 8
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0015_lifeng_ultimate_skill",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "SelectCategory/ProjectilePassThru"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 5
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0016_laevat_dung_inflict",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Status/UnLockable"
+      ],
+      "lifetime": {
+        "kind": "infinite"
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0016_laevat_normal_skill",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 5
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0017_yvonne_combo_skill",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 50
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0017_yvonne_ultimate_skill",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Skill/Character/chr_0017_yvonne/UltimateAbilityEntity"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 50
+      },
+      "maxStackingCount": 1
+    },
+    {
+      "id": "abilityentity_chr_0017_yvonne_ultimate_skill2",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Skill/Character/chr_0017_yvonne/UltimateAbilityEntity"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 50
+      },
+      "maxStackingCount": 1
+    },
+    {
+      "id": "abilityentity_chr_0017_yvonne_ultimate_skill3",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Skill/Character/chr_0017_yvonne/UltimateAbilityEntity"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 50
+      },
+      "maxStackingCount": 1
+    },
+    {
+      "id": "abilityentity_chr_0020_meurs_talent_shockwave",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "SelectCategory/ProjectilePassThru"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 2
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0022_bounda_normal_skill",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 5
+      },
+      "maxStackingCount": 1
+    },
+    {
+      "id": "abilityentity_chr_0025_ardelia_air_attack",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Skill/Character/chr_0025_ardelia/AirAttackSheep"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 100
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0025_ardelia_attack4",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Skill/Character/chr_0025_ardelia/Attack4Sheep"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 5
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0025_ardelia_attack4_end",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Skill/Character/chr_0025_ardelia/Attack4Sheep"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 5
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0025_ardelia_attack4_low",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Skill/Character/chr_0025_ardelia/Attack4Sheep"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 5
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0025_ardelia_combo_skill",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Skill/Character/chr_0025_ardelia/ComboSkillSheep"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 5
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0025_ardelia_combo_skill_bomb",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 3
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0025_ardelia_normal_skill",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Skill/Character/chr_0025_ardelia/NormalSkillSheep"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 5
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0025_ardelia_remain_loop",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 10
+      },
+      "maxStackingCount": 10
+    },
+    {
+      "id": "abilityentity_chr_0027_tangtang_comboskill_water",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Immune/Stunned",
+        "Immune/Frozen",
+        "Immune/Airborne",
+        "Immune/KnockDown",
+        "Immune/KnockBack",
+        "Immune/Pull",
+        "Immune/PowerSmash",
+        "Immune/Poise",
+        "Skill/Character/chr_0027_tangtang/ComboSkillWater"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 62
+      },
+      "maxStackingCount": 2
+    },
+    {
+      "id": "abilityentity_chr_0027_tangtang_normal_skill",
+      "bornTags": [
+        "Immune",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Skill/Character/chr_0027_tangtang/NormalSkillWater"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 30
+      },
+      "maxStackingCount": 1
+    },
+    {
+      "id": "abilityentity_chr_0027_tangtang_normal_skill_02",
+      "bornTags": [
+        "Immune",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Skill/Character/chr_0027_tangtang/NormalSkillWater"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 30
+      },
+      "maxStackingCount": 1
+    },
+    {
+      "id": "abilityentity_chr_0027_tangtang_normal_skill_02_02",
+      "bornTags": [
+        "Immune",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Skill/Character/chr_0011_seraph/UltimateAbilityEntity",
+        "Skill/Character/chr_0027_tangtang/NormalSkillWater"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 30
+      },
+      "maxStackingCount": 1
+    },
+    {
+      "id": "abilityentity_chr_0027_tangtang_normal_skill_03",
+      "bornTags": [
+        "Immune",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Skill/Character/chr_0027_tangtang/NormalSkillWater"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 30
+      },
+      "maxStackingCount": 1
+    },
+    {
+      "id": "abilityentity_chr_0027_tangtang_normal_skill_03_02",
+      "bornTags": [
+        "Immune",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Skill/Character/chr_0027_tangtang/NormalSkillWater"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 30
+      },
+      "maxStackingCount": 1
+    },
+    {
+      "id": "abilityentity_chr_0027_tangtang_normal_skill_03_03",
+      "bornTags": [
+        "Immune",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Skill/Character/chr_0027_tangtang/NormalSkillWater"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 30
+      },
+      "maxStackingCount": 1
+    },
+    {
+      "id": "abilityentity_chr_0027_tangtang_normal_skill_move",
+      "bornTags": [
+        "Immune",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Skill/Character/chr_0027_tangtang/NormalSkillWaterMove"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 30
+      },
+      "maxStackingCount": 1
+    },
+    {
+      "id": "abilityentity_chr_0027_tangtang_ultskill",
+      "bornTags": [
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Category/EnergyShard/Pulse",
+        "Skill/Character/chr_0027_tangtang/UltSkillWater"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 10
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0028_wulfa_combo_qte_timing",
+      "bornTags": [
+        "Status/UnLockable",
+        "Status/NonAITarget"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 10
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0029_pograni_ultimate_skill",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Skill/Character/chr_0029_pgrani/Soldier"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 50
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0030_zhuangfy_air_attack",
+      "bornTags": [
+        "SelectCategory/Unmarkable",
+        "Immune/Damage",
+        "Skill/Character/chr_0030_zhuangfy/AirAttackSword"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 2
+      },
+      "maxStackingCount": 1
+    },
+    {
+      "id": "abilityentity_chr_0030_zhuangfy_attack_ult",
+      "bornTags": [
+        "SelectCategory/Unmarkable",
+        "Immune/Damage"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 1.5
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0030_zhuangfy_attack2",
+      "bornTags": [
+        "SelectCategory/Unmarkable",
+        "Immune/Damage"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 1
+      },
+      "maxStackingCount": 1
+    },
+    {
+      "id": "abilityentity_chr_0030_zhuangfy_attack3_ult",
+      "bornTags": [
+        "SelectCategory/Unmarkable",
+        "Immune/Damage"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 1
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0030_zhuangfy_attack5",
+      "bornTags": [
+        "SelectCategory/Unmarkable",
+        "Immune/Damage"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 1
+      },
+      "maxStackingCount": 1
+    },
+    {
+      "id": "abilityentity_chr_0030_zhuangfy_normal_skill_fake_target",
+      "bornTags": [
+        "SelectCategory/Unmarkable",
+        "Immune/Damage",
+        "Skill/Character/chr_0030_zhuangfy/ThunderAura"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 1
+      },
+      "maxStackingCount": 10
+    },
+    {
+      "id": "abilityentity_chr_0030_zhuangfy_normal_skill_sword",
+      "bornTags": [
+        "SelectCategory/Unmarkable",
+        "Immune/Damage",
+        "Skill/Character/chr_0030_zhuangfy/ActivedSword"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 45
+      },
+      "maxStackingCount": 5
+    },
+    {
+      "id": "abilityentity_chr_0030_zhuangfy_normal_skill_ult",
+      "bornTags": [
+        "SelectCategory/Unmarkable",
+        "Immune/Damage"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 1
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0030_zhuangfy_ult",
+      "bornTags": [
+        "SelectCategory/Unmarkable",
+        "Immune/Damage"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 3
+      },
+      "maxStackingCount": 1
+    },
+    {
+      "id": "abilityentity_chr_0030_zhuangfy_ult_mirror",
+      "bornTags": [
+        "SelectCategory/Unmarkable",
+        "Immune/Damage"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 3
+      },
+      "maxStackingCount": 1
+    },
+    {
+      "id": "abilityentity_chr_0032_lizhiyan_combo_skill",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Skill/Character/chr_0032_lizhiyan/combo_bunshin"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 50
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0032_lizhiyan_combo_skill_death",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 6
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0032_lizhiyan_combo_skill_place",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 6
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0032_lizhiyan_normal_skill",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 6
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0032_lizhiyan_ultimate_skill",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Skill/Character/chr_0032_lizhiyan/ultimate_aura"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 6
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0032_lizhiyan_ultimate_skill_death",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 6
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0032_lizhiyan_ultimate_skill_laser",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Skill/Character/chr_0032_lizhiyan/ultimate_tower"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 6
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0032_lizhiyan_ultimate_skill_laser_target",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 6
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0032_lizhiyan_ultimate_skill_place",
+      "bornTags": [
+        "Immune/Damage",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Skill/Character/chr_0032_lizhiyan/ultimate_place"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 6
+      },
+      "maxStackingCount": -1
+    },
+    {
+      "id": "abilityentity_chr_0033_camille_normal_skill",
+      "bornTags": [
+        "Immune",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable",
+        "Skill/Character/chr_0033_camille/NormalSkillBat"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 30
+      },
+      "maxStackingCount": 1
+    },
+    {
+      "id": "abilityentity_chr_0035_liino_ult_skill_projhit",
+      "bornTags": [
+        "Immune",
+        "SelectCategory/Unmarkable",
+        "SelectCategory/UnSkillManualSelectable",
+        "SelectCategory/UnSkillAutoSelectable"
+      ],
+      "lifetime": {
+        "kind": "limited",
+        "durationSeconds": 30
+      },
+      "maxStackingCount": 1
+    }
+  ],
+  "unresolvedReferences": {}
+}

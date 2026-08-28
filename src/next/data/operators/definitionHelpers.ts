@@ -19,7 +19,12 @@ import type {
 
 type ImmediateStepKind = Exclude<
   CombatStepKind,
-  'conditional' | 'once' | 'repeatEachTick' | 'forEachContextTarget' | 'withActionBlackboardScope'
+  | 'conditional'
+  | 'switch'
+  | 'once'
+  | 'repeatEachTick'
+  | 'forEachContextTarget'
+  | 'withActionBlackboardScope'
 >;
 
 /** 创建一个立即执行的操作，同时保留其可辨识联合类型。 */

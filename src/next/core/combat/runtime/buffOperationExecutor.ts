@@ -6,7 +6,7 @@ import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { ResolvedSkillBuffDefinition } from '../../compiler/combatProgram';
 import type { BuffApplicationTarget, CombatTarget } from '../../game-data/operatorDefinition';
 import type { BuffFinishReason } from '../buffs/combatBuffs';
-import { gameplayTagId, type GameplayTagId, type GameplayTagQueryType } from '../tags/gameplayTags';
+import type { GameplayTag, GameplayTagQueryType } from '../tags/gameplayTags';
 import { resolveActionValueOperand, type ActionBlackboard } from './actionBlackboard';
 import type { CombatOperationExecutor } from './skillRuntime';
 import { compareCombatNumbers } from './numericComparison';
@@ -21,13 +21,14 @@ export interface BuffQueryResult {
   readonly blackboard: Pick<ActionBlackboard, 'getNumber'>;
 }
 
-/** Buff 生命周期解析操作链时可使用的稳定实例来源。 */
+/** Buff 生命周期解析操作链时的宿主、动作来源与施法身份。 */
 export interface BuffLifecycleOperationSource {
   /** Buff 当前实际宿主；队伍 Buff 的生命周期必须相对此实体执行。 */
   readonly ownerId: string;
-  /** 创建 Buff 的来源实体；用于回溯原始施法或常驻动作绑定。 */
+  /** 普通生命周期为创建者；叠层和点燃回调显式传入本次动作来源，不改变实例归属。 */
   readonly sourceId: string;
   readonly sourceActionId: string;
+  /** 普通/叠层回调沿用 Buff 来源施法，点燃使用本次 IgniteAction 的施法身份。 */
   readonly skillCastInfo: CombatSkillCastInfo | null;
 }
 
@@ -53,44 +54,44 @@ export interface BuffOperationTarget {
   findFirstByIds(ids: readonly string[]): BuffQueryResult | undefined;
   finishByIds(ids: readonly string[], reason: BuffFinishReason): number;
   finishCountByIds?(ids: readonly string[], count: number, reason: BuffFinishReason): number;
-  ignite?(igniteType: string, sourceId: string): number;
+  ignite?(igniteType: string, sourceId: string, skillCastInfo?: CombatSkillCastInfo): number;
   holdByIds(ids: readonly string[]): { release(): void };
   getCountByTags(
-    tags: readonly GameplayTagId[],
+    tags: readonly GameplayTag[],
     type: GameplayTagQueryType,
     exact?: boolean,
     skillCastId?: number,
   ): number;
   getInstanceCountByTags?(
-    tags: readonly GameplayTagId[],
+    tags: readonly GameplayTag[],
     type: GameplayTagQueryType,
     exact?: boolean,
     skillCastId?: number,
   ): number;
   matchesEntityTags(
-    tags: readonly GameplayTagId[],
+    tags: readonly GameplayTag[],
     type: GameplayTagQueryType,
     exact?: boolean,
   ): boolean;
-  matchesTagIds?(
-    ownedTags: readonly GameplayTagId[],
-    requiredTags: readonly GameplayTagId[],
+  matchesTags?(
+    ownedTags: readonly GameplayTag[],
+    requiredTags: readonly GameplayTag[],
     type: GameplayTagQueryType,
     exact?: boolean,
   ): boolean;
   findFirstByTags(
-    tags: readonly GameplayTagId[],
+    tags: readonly GameplayTag[],
     type: GameplayTagQueryType,
     exact?: boolean,
   ): BuffQueryResult | undefined;
   finishByTags(
-    tags: readonly GameplayTagId[],
+    tags: readonly GameplayTag[],
     type: GameplayTagQueryType,
     reason: BuffFinishReason,
     exact?: boolean,
   ): number;
   finishCountByTags?(
-    tags: readonly GameplayTagId[],
+    tags: readonly GameplayTag[],
     type: GameplayTagQueryType,
     count: number,
     reason: BuffFinishReason,
@@ -102,7 +103,7 @@ export interface BuffAppliedEvent {
   readonly targetId: string;
   readonly buffId: string;
   readonly sourceId: string;
-  readonly buffTagIds: readonly number[];
+  readonly buffTags: readonly GameplayTag[];
   /** AddBuffContext 使用本次施加请求的来源，不能从接收者/监听器反推。 */
   readonly skillCastInfo?: CombatSkillCastInfo | null;
 }
@@ -112,7 +113,7 @@ export interface BuffConsumedEvent {
   readonly targetId: string;
   readonly buffId: string;
   readonly layers: number;
-  readonly buffTagIds: readonly number[];
+  readonly buffTags: readonly GameplayTag[];
   readonly blackboardValues: Readonly<Record<string, string | number | null>>;
 }
 
@@ -153,7 +154,7 @@ export interface BuffOperationDependencies {
     readonly targetId: string;
     readonly buffId: string;
     readonly layers: number;
-    readonly buffTagIds: readonly number[];
+    readonly buffTags: readonly GameplayTag[];
     readonly blackboardValues: Readonly<Record<string, string | number | null>>;
   }) => void;
   readonly onPhysicalInflictionApplied?: (event: {
@@ -263,7 +264,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
             targetId: target.ownerId,
             buffId: step.parameters.noGuardBuffId,
             layers: consumedLayers,
-            buffTagIds: [],
+            buffTags: [],
             blackboardValues: {},
           });
         }
@@ -418,7 +419,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       const buff =
         step.parameters.query.kind === 'tag'
           ? target.findFirstByTags(
-              step.parameters.query.buffTagIds.map(gameplayTagId),
+              step.parameters.query.buffTags,
               step.parameters.query.tagQueryType,
             )
           : target.findFirstByIds(step.parameters.query.buffIds);
@@ -525,13 +526,13 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
                 );
               }
               return target.getInstanceCountByTags(
-                step.parameters.query.buffTagIds.map(gameplayTagId),
+                step.parameters.query.buffTags,
                 step.parameters.query.tagQueryType,
               );
             })()
           : step.parameters.query.kind === 'tag'
             ? target.getCountByTags(
-                step.parameters.query.buffTagIds.map(gameplayTagId),
+                step.parameters.query.buffTags,
                 step.parameters.query.tagQueryType,
                 false,
                 skillCastId,
@@ -547,7 +548,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
 
     if (step.kind === 'finishBuffsByTag') {
       const target = this.#resolveSingleTarget(step.parameters.target, context);
-      const tags = step.parameters.buffTagIds.map(gameplayTagId);
+      const tags = step.parameters.buffTags;
       if (step.parameters.count === undefined) {
         target.finishByTags(tags, step.parameters.tagQueryType, step.parameters.reason);
       } else {
@@ -606,11 +607,11 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       const sourceId =
         step.parameters.source === 'currentBuffSource'
           ? context?.buffSourceId
-          : this.dependencies.resolveTarget(step.parameters.source).ownerId;
+          : this.#resolveSingleTarget(step.parameters.source, context).ownerId;
       if (sourceId === undefined) {
         throw new Error('igniteBuffs current Buff source requires a Buff operation context');
       }
-      target.ignite(step.parameters.igniteType, sourceId);
+      target.ignite(step.parameters.igniteType, sourceId, context?.skillCastInfo);
       return true;
     }
 
@@ -771,10 +772,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
               first.kind === 'enemy' ? 'enemy' : first.operatorId,
             );
       if (target === undefined) throw new Error('context Buff count requires a target resolver');
-      const count = target.getCountByTags(
-        condition.buffTagIds.map(gameplayTagId),
-        condition.tagQueryType,
-      );
+      const count = target.getCountByTags(condition.buffTags, condition.tagQueryType);
       return compareCombatNumbers(
         count,
         resolveActionValueOperand(condition.value, context.blackboard),
@@ -793,10 +791,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       if (target.getInstanceCountByTags === undefined) {
         throw new Error('eventTargetBuffCountCompare requires Buff instance counting');
       }
-      const count = target.getInstanceCountByTags(
-        condition.buffTagIds.map(gameplayTagId),
-        condition.tagQueryType,
-      );
+      const count = target.getInstanceCountByTags(condition.buffTags, condition.tagQueryType);
       return compareCombatNumbers(
         count,
         resolveActionValueOperand(condition.value, context.blackboard),
@@ -808,7 +803,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         throw new Error('buffStackCompare requires a combat operation context');
       }
       const count = this.#resolveSingleTarget(condition.target, context).getCountByTags(
-        condition.buffTagIds.map(gameplayTagId),
+        condition.buffTags,
         condition.tagQueryType,
         false,
         condition.sameSourceSkillCast
@@ -821,9 +816,19 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         condition.operator,
       );
     }
+    if (condition.kind === 'currentBuffStackCompare') {
+      if (context?.getCurrentBuffEnhanceCount === undefined) {
+        throw new Error('currentBuffStackCompare requires a Buff operation context');
+      }
+      return compareCombatNumbers(
+        context.getCurrentBuffEnhanceCount(),
+        resolveActionValueOperand(condition.value, context.blackboard),
+        condition.operator,
+      );
+    }
     if (condition.kind === 'entityTagMatch') {
       return this.#resolveSingleTarget(condition.target, context).matchesEntityTags(
-        condition.tagIds.map(gameplayTagId),
+        condition.tags,
         condition.tagQueryType,
       );
     }

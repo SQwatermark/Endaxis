@@ -46,8 +46,8 @@ const definition = {
           "triggerIntervalSeconds": 0,
           "waitFirstTriggerInterval": true,
           "maxTriggerCount": 1,
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "cd": 0
           },
@@ -81,8 +81,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "damage_taken_up_cryst": 0,
             "duration": 0,
@@ -139,8 +139,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "damage_taken_up_fire": 0,
             "duration": 0,
@@ -197,8 +197,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "damage_taken_up_natural": 0,
             "duration": 0,
@@ -255,8 +255,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "damage_taken_up_pulse": 0,
             "duration": 0,
@@ -514,8 +514,8 @@ const definition = {
                   "condition": {
                     "kind": "eventBuffTagsMatch",
                     "match": "hasAny",
-                    "buffTagIds": [
-                      -1110095722
+                    "buffTags": [
+                      "Skill/Character/Common/SpellStatus/Burning"
                     ]
                   }
                 },
@@ -665,8 +665,8 @@ const definition = {
                   "condition": {
                     "kind": "eventBuffTagsMatch",
                     "match": "hasAny",
-                    "buffTagIds": [
-                      1466867135
+                    "buffTags": [
+                      "Skill/Character/Common/SpellStatus/Conduct"
                     ]
                   }
                 },
@@ -816,8 +816,8 @@ const definition = {
                   "condition": {
                     "kind": "eventBuffTagsMatch",
                     "match": "hasAny",
-                    "buffTagIds": [
-                      1535684437
+                    "buffTags": [
+                      "Skill/Character/Common/SpellStatus/Frozen"
                     ]
                   }
                 },
@@ -967,8 +967,8 @@ const definition = {
                   "condition": {
                     "kind": "eventBuffTagsMatch",
                     "match": "hasAny",
-                    "buffTagIds": [
-                      -421286163
+                    "buffTags": [
+                      "Skill/Character/Common/SpellStatus/Corrupt"
                     ]
                   }
                 },

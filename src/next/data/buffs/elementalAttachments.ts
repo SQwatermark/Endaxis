@@ -48,7 +48,7 @@ function conductStatus(
     triggerIntervalSeconds: 1,
     waitFirstTriggerInterval: true,
     maxTriggerCount: 1,
-    applyTagIds: [1466867135],
+    applyTags: ["Skill/Character/Common/SpellStatus/Conduct"],
     blackboard: {
       atk_scale: 0,
       consumed_layer: 0,
@@ -129,7 +129,7 @@ function frozenStatus(
     priority: 0,
     maxStackCount: 1,
     durationSeconds: { blackboardKey: 'duration' },
-    applyTagIds: [1535684437],
+    applyTags: ["Skill/Character/Common/SpellStatus/Frozen"],
     blackboard: {
       atk_scale: 0,
       consumed_layer: 0,
@@ -168,7 +168,7 @@ function burningStatus(
     triggerIntervalSeconds: 1,
     waitFirstTriggerInterval: true,
     maxTriggerCount: 9999,
-    applyTagIds: [-1110095722],
+    applyTags: ["Skill/Character/Common/SpellStatus/Burning"],
     blackboard: {
       atk_scale: 0,
       burning_atk_scale: 0,
@@ -210,7 +210,7 @@ function corrosionStatus(
     triggerIntervalSeconds: 1,
     waitFirstTriggerInterval: true,
     maxTriggerCount: -1,
-    applyTagIds: [-421286163],
+    applyTags: ["Skill/Character/Common/SpellStatus/Corrupt"],
     blackboard: {
       additional_def_decrease: 0,
       atk_scale: 0,

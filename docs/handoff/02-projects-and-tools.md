@@ -4,7 +4,8 @@
 
 ## 1. Endaxis
 
-- 路径：`C:\Users\sqwat\Projects\zmd\Endaxis`
+- 主仓库：`C:\Users\sqwat\Projects\zmd\Endaxis`
+- 当前编译器工作树：`C:\Users\sqwat\Projects\zmd\Endaxis-game-data-refactor`，分支 `refactor/common-game-data`
 - 主要远端：`https://github.com/SQwatermark/Endaxis.git`
 - 上游远端：`https://github.com/Lieyuan621/Endaxis.git`
 - 当前任务：开发 `src/next` 中的新项目模型、编译器、战斗运行时、投影和并行 UI。
@@ -17,8 +18,8 @@ Endaxis 是最终面向用户的应用。它不负责直接解密游戏文件，
 - `src/next/data`：新 DSL、目录和旧数据适配；
 - `src/next/application`：打开项目、运行场景等用例；
 - `src/next/ui`：Vue 页面、组件、ViewModel、快捷键和主题；
-- `scripts/generate_next_operators`：从原始数据生成干员 DSL 和审计文件；
-- `tools/game-data-compiler`：正在替代领域专用 Python 生成器的统一 TypeScript 编译器；公共来源 IR、
+- `scripts/generate_next_operators`：保留为迁移 oracle 与历史配置，不再添加新转换行为；
+- `tools/game-data-compiler`：统一 TypeScript 编译器的唯一新实现入口；公共来源 IR、
   Action/Condition/Buff/引用图和被动编译只实现一次，领域目录只负责入口、等级与安装来源；
 - `docs/next`：长期架构文档；
 - `docs/research`：具体机制和生成覆盖率证据；
@@ -51,7 +52,7 @@ AKEDatabase 是一个浏览和解释终末地数据的前端项目；真正用�
 
 - 路径：`C:\Users\sqwat\Projects\zmd\vfs-index-browser`
 - 当前分支：`master`
-- 当前提交：`e5a59c4 Research : 添加Buff标签生命周期探针`
+- 2026-08-28 核对提交：`21b88d1 fix(projectile): decode native block layer values`
 - 远程服务历史端口：`8765`
 
 这是独立的本地游戏文件浏览与研究平台，不属于 Endaxis 页面。它的核心目标是：只要机器安装了游戏，就能按逻辑路径浏览、按需提取、预览和下载资源，而不依赖远程 CDN。
@@ -135,6 +136,7 @@ AnimeStudio 是 C# 编写的 Unity 资源解析和导出工具。在本项目中
 ## 7. Endfield Combat Spec
 
 - 路径：`C:\Users\sqwat\Projects\zmd\vfs-index-browser\combat-spec`
+- 独立仓库：`https://github.com/SQwatermark/combat-spec.git`，分支 `main`；必须单独提交和同步
 - 解决方案：`EndfieldCombatSpec.sln`
 
 这是独立的 C# 可执行战斗规格，目标是根据反编译、运行时探针和原始配置，尽可能 1:1 复刻客户端后端战斗行为。它不是“把旧 Endaxis 翻译成 C#”，也不是为 UI 定制的简化模拟器。

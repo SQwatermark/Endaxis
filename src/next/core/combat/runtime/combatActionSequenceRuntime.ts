@@ -15,7 +15,7 @@ import type {
   CombatSemanticEventContext,
   CombatSemanticEventRuntime,
 } from './combatSemanticEventRuntime';
-import { ActionBlackboard } from './actionBlackboard';
+import { ActionBlackboard, resolveActionValueOperand } from './actionBlackboard';
 
 export interface CombatActionSequenceRuntimeHooks {
   readonly stepReached?: (step: ResolvedCombatStep) => void;
@@ -244,7 +244,58 @@ class ForEachContextTargetStep extends CombatStep {
   }
 }
 
+/** 原生 Switch 的持久分支实例；选择、生命周期和浮点匹配不能复用普通 conditional。 */
+class SwitchStep extends CombatStep {
+  readonly #branches: readonly ActionSequence[];
+  #activeBranch?: ActionSequence;
+
+  constructor(
+    readonly step: Extract<ResolvedCombatStep, { kind: 'switch' }>,
+    readonly runtime: CombatActionSequenceRuntime,
+    readonly operationContext: CombatOperationContext,
+  ) {
+    super();
+    this.#branches = step.options.map(option =>
+      runtime.createSequence(option.sequence, operationContext),
+    );
+  }
+
+  execute(context: CombatExecutionContext): void {
+    this.tryExecute(context);
+  }
+
+  override tryExecute(context: CombatExecutionContext): boolean {
+    this.#activeBranch = undefined;
+    const choice = Math.fround(
+      resolveActionValueOperand(this.step.parameters.choice, this.operationContext.blackboard),
+    );
+    for (const [index, option] of this.step.options.entries()) {
+      const value = Math.fround(
+        resolveActionValueOperand(option.value, this.operationContext.blackboard),
+      );
+      // 减法本身也收窄；NaN 的比较为 false，不得写成“大于容差则跳过”。
+      if (!(Math.abs(Math.fround(value - choice)) <= Math.fround(1e-5))) continue;
+      this.#activeBranch = this.#branches[index]!;
+      const result = this.#activeBranch.tryExecute(context);
+      return this.step.parameters.alwaysNext || result;
+    }
+    return this.step.parameters.alwaysNext;
+  }
+
+  override tick(deltaTime: number, context: CombatExecutionContext): void {
+    this.#activeBranch?.tick(deltaTime, context);
+  }
+  override end(context: CombatExecutionContext): void {
+    this.#activeBranch?.end(context);
+  }
+  override reset(context: CombatExecutionContext): void {
+    for (const branch of this.#branches) branch.reset(context);
+  }
+}
+
 class ConditionalStep extends CombatStep {
+  readonly #whenTrue: ActionSequence;
+  readonly #whenFalse?: ActionSequence;
   #activeBranch?: ActionSequence;
   constructor(
     readonly step: Extract<ResolvedCombatStep, { kind: 'conditional' }>,
@@ -252,6 +303,11 @@ class ConditionalStep extends CombatStep {
     readonly operationContext: CombatOperationContext,
   ) {
     super();
+    this.#whenTrue = runtime.createSequence(step.whenTrue, operationContext);
+    this.#whenFalse =
+      step.whenFalse === undefined
+        ? undefined
+        : runtime.createSequence(step.whenFalse, operationContext);
   }
 
   execute(context: CombatExecutionContext): void {
@@ -262,9 +318,7 @@ class ConditionalStep extends CombatStep {
     const condition = this.step.parameters.condition;
     const passed = this.runtime.operations.evaluate(condition, this.operationContext);
     this.runtime.hooks.conditionEvaluated?.(condition, passed);
-    const branch = passed ? this.step.whenTrue : this.step.whenFalse;
-    this.#activeBranch =
-      branch === undefined ? undefined : this.runtime.createSequence(branch, this.operationContext);
+    this.#activeBranch = passed ? this.#whenTrue : this.#whenFalse;
     const result =
       this.#activeBranch === undefined ? passed : this.#activeBranch.tryExecute(context);
     return this.step.parameters.alwaysNext === true || result;
@@ -279,7 +333,9 @@ class ConditionalStep extends CombatStep {
   }
 
   override reset(context: CombatExecutionContext): void {
-    this.#activeBranch?.reset(context);
+    // combat-spec IfElseAction.Reset：两支都重置，保证未选分支的攻击快照也在准备阶段建立。
+    this.#whenTrue.reset(context);
+    this.#whenFalse?.reset(context);
     this.#activeBranch = undefined;
   }
 }
@@ -429,6 +485,7 @@ export class CombatActionSequenceRuntime {
     return new ActionSequence(
       sequence.steps.map(step => {
         if (step.kind === 'conditional') return new ConditionalStep(step, this, operationContext);
+        if (step.kind === 'switch') return new SwitchStep(step, this, operationContext);
         if (step.kind === 'jumpTimeline') {
           return new TimelineJumpStep(step, this, operationContext);
         }

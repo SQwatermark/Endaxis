@@ -17,7 +17,7 @@ import {
 } from '../damage/damageScaleAttributes';
 import type { PlayerDamageAttributeSnapshots } from '../damage/playerDamageContext';
 import type { CombatDamageExecutorContext } from './combatRuntimeAssembly';
-import { CombatAttributeSet } from '../attributes/combatAttributes';
+import { CombatAttributeSet, attributeModifierValues } from '../attributes/combatAttributes';
 import { resolveOperatorAttack } from '../attributes/operatorAttackAttributes';
 
 type DamageStep = Extract<ResolvedCombatStep, { kind: 'dealDamage' | 'dealFixedDamage' }>;
@@ -46,6 +46,8 @@ export function initializeEnemyCombatAttributes(
   }
   // 与干员共用既有区间属性键及零基数；不额外猜造易伤属性的上下限。
   for (const attribute of DAMAGE_SCALE_ATTRIBUTE_KEYS) attributes.define(attribute, 0, {});
+  // 1.4.4 AttributeMetaTable[63] 无上下限；敌方庇护进入既有公式的独立区间。
+  attributes.define('shelterDamageMultiplier', defender.shelterDamageMultiplier, {});
 }
 
 const DAMAGE_INCREASE_ATTRIBUTE: Partial<Record<DamageType, DamageScaleAttributeKey>> = {
@@ -148,12 +150,14 @@ export function resolveStaticPlayerDamageSnapshots(
             return { calculationAttributeValue: operatorAttributes.get(attribute) };
           })()
         : {}),
-      criticalRate:
-        panel.criticalRate +
-        (('program' in context ? context.program.statModifiers?.criticalRate : undefined) ?? 0) +
-        operatorAttributes.get('criticalRate'),
-      criticalDamageIncrease:
-        panel.criticalDamage + operatorAttributes.get('criticalDamageIncrease'),
+      // 技能专属加成也在最终乘法之前求值；只读叠加，不污染其他技能或 Buff 命中。
+      criticalRate: operatorAttributes.getWithAdditionalModifiers(
+        'criticalRate',
+        'program' in context && context.program.statModifiers?.criticalRate !== undefined
+          ? [attributeModifierValues('baseAddition', context.program.statModifiers.criticalRate)]
+          : [],
+      ),
+      criticalDamageIncrease: operatorAttributes.get('criticalDamageIncrease'),
       weaknessDamageMultiplier: 1,
       igniteDamageMultiplier: 1,
       physicalInflictionDamageMultiplier: 1,
@@ -167,6 +171,7 @@ export function resolveStaticPlayerDamageSnapshots(
             ...Object.fromEntries(
               DAMAGE_SCALE_ATTRIBUTE_KEYS.map(key => [key, enemyAttributes.get(key)]),
             ),
+            shelterDamageMultiplier: enemyAttributes.get('shelterDamageMultiplier'),
             resistances: Object.fromEntries(
               Object.entries(ENEMY_RESISTANCE_ATTRIBUTES).map(([damageType, attribute]) => [
                 damageType,

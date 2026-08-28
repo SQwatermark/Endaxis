@@ -11,7 +11,7 @@ const GLOBAL_SCALE_SELECTION_EPSILON = 0.00001;
 export type TimeScaleCurve = (progress: number) => number;
 
 /** 普通动作使用原生数值槽位；终结技使用独立语义槽位，避免伪造尚未恢复的原生标签。 */
-export type TimeDilationSlot = number | 'ultimate';
+export type TimeDilationSlot = string;
 
 export interface TimeDilationSource {
   readonly sourceId: string;
@@ -38,7 +38,7 @@ export function uniformAbilityTickDeltas(deltaSeconds: number): AbilityTickDelta
 
 export interface TimeDilationRuntimeConfig {
   /** 仅列出寿命使用全局时间的实体槽位；未列出的槽位使用原始帧时间。 */
-  readonly entityLifetimeUsesGlobalScaleBySlot?: ReadonlyMap<number, boolean>;
+  readonly entityLifetimeUsesGlobalScaleBySlot?: ReadonlyMap<string, boolean>;
   readonly curves?: ReadonlyMap<string, TimeScaleCurve>;
 }
 
@@ -56,7 +56,7 @@ export interface StartGlobalTimeDilationOptions {
 export interface StartEntityTimeDilationOptions {
   readonly entityId: string;
   readonly durationSeconds: number;
-  readonly slot: number;
+  readonly slot: string;
   readonly priority: number;
   readonly curve: TimeScaleCurve;
   readonly ignoreSlotCheck?: boolean;
@@ -116,7 +116,7 @@ interface EntityTimeDilationInstance extends MutableTimeDilationInstance {
 
 /** 原生时间膨胀管理器的行为等价边界；生成定义已保存可直接比较的优先级数值。 */
 export class TimeDilationRuntime implements FrameRuntime {
-  readonly #entityLifetimeUsesGlobalScaleBySlot: ReadonlyMap<number, boolean>;
+  readonly #entityLifetimeUsesGlobalScaleBySlot: ReadonlyMap<string, boolean>;
   readonly #curves: ReadonlyMap<string, TimeScaleCurve>;
   readonly #globalInstances: GlobalTimeDilationInstance[] = [];
   readonly #entityInstances: EntityTimeDilationInstance[] = [];

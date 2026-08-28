@@ -1,3 +1,4 @@
+import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { describe, expect, it } from 'vitest';
 
 import { compileBuffLeafNode } from '../src/compiler/combatEntityAndTimeProjection.ts';
@@ -14,6 +15,7 @@ const META = {
 } as const;
 
 const ACTIVE_SKILL_CONTEXT: CombatActionProjectionContextSource = {
+  gameplayTagRegistry: fixtureGameplayTagRegistry,
   actionOwnerTarget: 'caster',
   actionSourceTarget: 'caster',
   actionTargetTarget: 'enemy',
@@ -138,7 +140,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
         selectorOwnerContextKey: '',
         directionTarget: 'ActionSource',
         directionContextKey: '',
-        characterTeamSelectionRole: null,
+        characterTeamSelection: null,
         excludesCurrentTarget: false,
         excludesOwner: false,
         smartTargetFallsBackToMainTarget: false,
@@ -170,7 +172,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
         ...META,
         $type: 'Beyond.Gameplay.Core.Conditions.CheckTagMatch+Data, Gameplay.Beyond',
         checkTarget: targetFixture('Context', undefined, 'smart_target'),
-        query: { queryType: 'HasAny', tags: [{ tagId: 123 }] },
+        query: { queryType: 'HasAny', tags: [{ tagId: -1369794537 }] },
       },
       'fixture.action',
       {},
@@ -186,7 +188,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
       kind: 'entityTagMatch',
       target: 'enemy',
       tagQueryType: 'hasAny',
-      tagIds: [123],
+      tags: ['Test/Tag123'],
     });
   });
 
@@ -200,6 +202,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
       },
     } as ReturnType<typeof parseKnownNativeActionLeafSource>;
     const context = {
+      gameplayTagRegistry: fixtureGameplayTagRegistry,
       ...ACTIVE_SKILL_CONTEXT,
       actionOwnerTarget: 'currentAbilityEntity' as const,
     };

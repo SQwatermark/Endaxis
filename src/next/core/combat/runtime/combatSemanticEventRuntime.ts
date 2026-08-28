@@ -1,3 +1,4 @@
+import type { GameplayTag } from '../../../../../packages/game-data-contract/src/gameplayTags';
 /**
  * 战斗语义事件的同步分发中心。
  *
@@ -36,14 +37,14 @@ export type CombatSemanticEvent =
       readonly requestedHealing: number;
       readonly actualHealing: number;
       readonly overhealing: number;
-      readonly tagIds: readonly number[];
+      readonly tags: readonly GameplayTag[];
     }
   | {
       readonly kind: 'buffApplied';
       readonly targetId: string;
       readonly buffId: string;
       readonly sourceId: string;
-      readonly buffTagIds: readonly number[];
+      readonly buffTags: readonly GameplayTag[];
     }
   | {
       readonly kind: 'buffFinished';
@@ -93,7 +94,7 @@ export type CombatSemanticEvent =
       readonly targetId: string;
       readonly buffId: string;
       readonly layers: number;
-      readonly buffTagIds?: readonly number[];
+      readonly buffTags?: readonly GameplayTag[];
       readonly blackboardValues?: Readonly<Record<string, string | number | null>>;
     }
   | {

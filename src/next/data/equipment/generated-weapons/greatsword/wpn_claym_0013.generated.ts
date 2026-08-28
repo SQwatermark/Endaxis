@@ -64,8 +64,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "cryst_dmg_up2": 0,
             "duration2": 0
@@ -108,8 +108,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "cryst_dmg_up": 0,
             "duration": 0
@@ -428,8 +428,8 @@ const definition = {
                           "kind": "buffStackCompare",
                           "target": "eventTarget",
                           "tagQueryType": "hasAny",
-                          "buffTagIds": [
-                            1570888476
+                          "buffTags": [
+                            "Skill/Character/Common/SpellInflict/CrystInflict"
                           ],
                           "operator": "greaterOrEqual",
                           "value": {

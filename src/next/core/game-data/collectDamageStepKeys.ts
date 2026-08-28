@@ -47,6 +47,18 @@ function collectSequenceKeys(
       entries.push({ path: stepPath, key: typeof step.key === 'string' ? step.key : '' });
       continue;
     }
+    if (step.kind === 'switch' && Array.isArray(step.options)) {
+      step.options.forEach((option, index) => {
+        if (isRecord(option) && isRecord(option.sequence) && Array.isArray(option.sequence.steps)) {
+          collectSequenceKeys(
+            option.sequence.steps,
+            `${stepPath}.options[${index}].sequence`,
+            entries,
+          );
+        }
+      });
+      continue;
+    }
     if (step.kind === 'conditional') {
       if (isRecord(step.whenTrue) && Array.isArray(step.whenTrue.steps)) {
         collectSequenceKeys(step.whenTrue.steps, `${stepPath}.whenTrue`, entries);

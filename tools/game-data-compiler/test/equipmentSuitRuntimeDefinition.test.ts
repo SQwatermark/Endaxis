@@ -1,3 +1,4 @@
+import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { describe, expect, it } from 'vitest';
 import buffs from './fixtures/avywenna-vulnerable-buffs.json';
 import { compileEquipmentSuitRuntimeBatchSource } from '../src/domains/equipment/suitRuntimeDefinition.ts';
@@ -22,6 +23,7 @@ describe('套装安装的契约边界', () => {
         },
       ],
       buffData,
+      fixtureGameplayTagRegistry,
     );
     if (typeof value === 'string') {
       expect(result.definitions).toEqual([]);

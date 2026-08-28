@@ -38,10 +38,8 @@ const ENHANCED_CARRIERS = {
 
 type KeywordSubType = keyof typeof VULNERABLE_CARRIERS;
 
-export interface KeywordBuffActionSource {
+interface KeywordBuffActionFields {
   readonly kind: 'keywordBuff';
-  readonly keyword: 'Vulnerable' | 'Enhanced';
-  readonly subType: KeywordSubType;
   readonly carrierBuffId: string;
   readonly source: TargetReferenceSource;
   readonly target: TargetReferenceSource;
@@ -56,6 +54,21 @@ export interface KeywordBuffActionSource {
     readonly operation: 'Assign' | 'Add' | 'Multiply';
     readonly value: ScalarSource;
   }[];
+}
+
+/** KeywordActionData 没有 subType；仅其派生 WithSubTypeData 承载该字段。 */
+export type KeywordBuffActionSource = KeywordBuffActionFields &
+  (
+    | { readonly keyword: 'Shelter'; readonly subType: null }
+    | { readonly keyword: 'Vulnerable' | 'Enhanced'; readonly subType: KeywordSubType }
+  );
+
+export function parseShelterActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): KeywordBuffActionSource {
+  return parseKeywordBuffActionSource(value, path, inheritedBlackboard, 'Shelter');
 }
 
 /** 公共关键词来源切片：保留动态覆盖与增强触发条件，不提前简化成一个属性修正。 */
@@ -92,7 +105,7 @@ function parseKeywordBuffActionSource(
   path: string,
   inheritedBlackboard: BlackboardLevelValues,
   keyword: KeywordBuffActionSource['keyword'],
-  carriers: Readonly<Record<KeywordSubType, string>>,
+  carriers?: Readonly<Record<KeywordSubType, string>>,
 ): KeywordBuffActionSource {
   const action = requireRecord(value, path);
   requireExactFields(
@@ -112,19 +125,26 @@ function parseKeywordBuffActionSource(
       'asChildBuff',
       'enhancingList',
       'autoFinishByAction',
-      'subType',
+      ...(keyword === 'Shelter' ? [] : ['subType']),
     ]),
     path,
   );
-  const subType = requireNonEmptyString(action.subType, `${path}.subType`);
-  if (!Object.hasOwn(VULNERABLE_CARRIERS, subType))
+  const subType =
+    keyword === 'Shelter' ? null : requireNonEmptyString(action.subType, `${path}.subType`);
+  if (subType !== null && !Object.hasOwn(VULNERABLE_CARRIERS, subType))
     throw new Error(`${path}.subType: unsupported keyword subtype ${JSON.stringify(subType)}`);
-  const typedSubType = subType as KeywordSubType;
+  const identity =
+    keyword === 'Shelter'
+      ? // 1.4.4 KeywordActionType=4 → slot 0x0F0AB3C8；见 combat-spec/keyword-actions.md。
+        ({ keyword, subType: null, carrierBuffId: 'buff_common_affixes_shelter' } as const)
+      : {
+          keyword,
+          subType: subType as KeywordSubType,
+          carrierBuffId: carriers![subType as KeywordSubType],
+        };
   return {
     kind: 'keywordBuff',
-    keyword,
-    subType: typedSubType,
-    carrierBuffId: carriers[typedSubType],
+    ...identity,
     source: parseTargetReferenceSource(action.source, `${path}.source`),
     target: parseTargetReferenceSource(action.target, `${path}.target`),
     duration: parseScalarSource(action.duration, `${path}.duration`, inheritedBlackboard),

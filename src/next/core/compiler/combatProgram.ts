@@ -30,7 +30,8 @@ import type {
   StatusModifierDefinition,
   UpgradeEvent,
 } from '../game-data/operatorDefinition';
-import type { GameplayTagId } from '../combat/tags/gameplayTags';
+import type { ActionSwitchOptionDefinition } from '../../../../packages/game-data-contract/src/actions.ts';
+import type { GameplayTag } from '../combat/tags/gameplayTags';
 
 /** 等级数值已经展开、可供运行时直接应用的状态修正。 */
 export type ResolvedStatusModifier =
@@ -107,6 +108,7 @@ export interface ResolvedCombatStepParameters {
     readonly definition?: ResolvedAbilityEntityDefinition;
   };
   applyElementalInfliction: CombatStepParameters['applyElementalInfliction'];
+  applyKnockDown: CombatStepParameters['applyKnockDown'];
   triggerSpellBurst: CombatStepParameters['triggerSpellBurst'];
   applyPhysicalInfliction:
     | (Omit<
@@ -158,7 +160,7 @@ export interface ResolvedCombatStepParameters {
   heal: {
     target: CombatStepParameters['heal']['target'];
     alwaysNext?: boolean;
-    tagIds: readonly number[];
+    tags: readonly GameplayTag[];
   } & (
     | {
         attribute: HealCalculationAttribute;
@@ -212,22 +214,22 @@ export interface ResolvedCombatStepParameters {
     spGainKind?: SpGainKind;
     spGainSource?: SpGainSource;
     isPercentValue?: boolean;
-    ultimateRecoveryTagId?: GameplayTagId;
+    ultimateRecoveryTag?: GameplayTag;
     ignoreUltimateEnergyGainMultiplier?: boolean;
   };
   changeResourceByActionValue: Omit<
     CombatStepParameters['changeResourceByActionValue'],
-    'coefficient' | 'ultimateRecoveryTagId'
+    'coefficient' | 'ultimateRecoveryTag'
   > & {
     coefficient?: number | ActionValueOperand;
-    ultimateRecoveryTagId?: GameplayTagId;
+    ultimateRecoveryTag?: GameplayTag;
   };
   gainSquadUltimateEnergyFromSkillCost: { coefficient: number };
   gainFinisherSp: CombatStepParameters['gainFinisherSp'];
   restrictUltimateEnergyRecovery: Omit<
     CombatStepParameters['restrictUltimateEnergyRecovery'],
-    'allowedRecoveryTagIds'
-  > & { readonly allowedRecoveryTagIds: readonly GameplayTagId[] };
+    'allowedRecoveryTags'
+  > & { readonly allowedRecoveryTags: readonly GameplayTag[] };
   applyStatus: {
     statusKey: string;
     target: 'caster' | 'enemy';
@@ -240,6 +242,7 @@ export interface ResolvedCombatStepParameters {
   jumpTimeline: CombatStepParameters['jumpTimeline'];
   finishTimeline: CombatStepParameters['finishTimeline'];
   conditional: CombatStepParameters['conditional'];
+  switch: CombatStepParameters['switch'];
   once: CombatStepParameters['once'];
   repeatEachTick: CombatStepParameters['repeatEachTick'];
   setContextFlag: CombatStepParameters['setContextFlag'];
@@ -278,13 +281,19 @@ type ResolvedCombatStepForKind<K extends CombatStepKind> = {
     }
   : K extends 'once'
     ? { readonly body: ResolvedActionSequence }
-    : K extends 'withActionBlackboardScope'
-      ? { readonly body: ResolvedActionSequence }
-      : K extends 'repeatEachTick'
+    : K extends 'switch'
+      ? {
+          readonly options: readonly (Omit<ActionSwitchOptionDefinition, 'sequence'> & {
+            readonly sequence: ResolvedActionSequence;
+          })[];
+        }
+      : K extends 'withActionBlackboardScope'
         ? { readonly body: ResolvedActionSequence }
-        : K extends 'forEachContextTarget'
+        : K extends 'repeatEachTick'
           ? { readonly body: ResolvedActionSequence }
-          : {});
+          : K extends 'forEachContextTarget'
+            ? { readonly body: ResolvedActionSequence }
+            : {});
 
 /** 运行时可直接执行、按 kind 区分类型的单个步骤。 */
 export type ResolvedCombatStep = {
@@ -297,6 +306,7 @@ export type ResolvedCombatOperationStep = Exclude<
   {
     kind:
       | 'conditional'
+      | 'switch'
       | 'once'
       | 'withActionBlackboardScope'
       | 'repeatEachTick'

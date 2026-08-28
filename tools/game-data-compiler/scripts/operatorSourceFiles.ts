@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseGameplayTagConfigDumpSource } from '../src/source/gameplayTagConfigDump.ts';
+import { readGameplayTagPaths } from './readGameplayTagPaths.ts';
 
 export interface OperatorSourceFileArguments {
   readonly manifest: string;
@@ -10,6 +11,7 @@ export interface OperatorSourceFileArguments {
   readonly projectileData?: string;
   readonly abilityEntityData?: string;
   readonly gameplayTagDump?: string;
+  readonly gameplayTagCatalog?: string;
 }
 
 /** 两个 Operator 审计命令共用同一套文件身份与目录读取规则。 */
@@ -32,17 +34,24 @@ export function parseOperatorSourceFileArguments(
     buffData: requiredArgument(result, '--buff-data'),
     tables: requiredArgument(result, '--tables'),
   };
+  if (result.has('--gameplay-tag-catalog') && result.has('--gameplay-tag-dump')) {
+    throw new Error('choose --gameplay-tag-catalog or --gameplay-tag-dump, not both');
+  }
   return includeUnityTemplates
     ? {
         ...base,
         projectileData: requiredArgument(result, '--projectile-data'),
         abilityEntityData: requiredArgument(result, '--ability-entity-data'),
-        gameplayTagDump: requiredArgument(result, '--gameplay-tag-dump'),
+        ...(result.has('--gameplay-tag-catalog')
+          ? { gameplayTagCatalog: requiredArgument(result, '--gameplay-tag-catalog') }
+          : { gameplayTagDump: requiredArgument(result, '--gameplay-tag-dump') }),
       }
     : base;
 }
 
 export function readOperatorSourceFiles(args: OperatorSourceFileArguments) {
+  if (args.gameplayTagCatalog && args.gameplayTagDump)
+    throw new Error('multiple GameplayTag sources');
   const skills = readSkillDataDirectory(args.skillData);
   return {
     manifest: readJson(args.manifest),
@@ -61,14 +70,16 @@ export function readOperatorSourceFiles(args: OperatorSourceFileArguments) {
           ),
         }
       : {}),
-    ...(args.gameplayTagDump
-      ? {
-          gameplayTagPaths: parseGameplayTagConfigDumpSource(
-            new Uint8Array(fs.readFileSync(args.gameplayTagDump)),
-            args.gameplayTagDump,
-          ).paths,
-        }
-      : {}),
+    ...(args.gameplayTagCatalog
+      ? { gameplayTagPaths: readGameplayTagPaths(args.gameplayTagCatalog) }
+      : args.gameplayTagDump
+        ? {
+            gameplayTagPaths: parseGameplayTagConfigDumpSource(
+              new Uint8Array(fs.readFileSync(args.gameplayTagDump)),
+              args.gameplayTagDump,
+            ).paths,
+          }
+        : {}),
     skillPatchTable: readTable(args.tables, 'SkillPatchTable'),
     characterTable: readTable(args.tables, 'CharacterTable'),
     charGrowthTable: readTable(args.tables, 'CharGrowthTable'),
@@ -86,7 +97,9 @@ function readSkillDataDirectory(directory: string) {
     const row = requireObject(value, sourceFile);
     const skillId = requireString(row.skillId, `${sourceFile}.skillId`);
     if (skillId in bySkillId) {
-      throw new Error(`${sourceFile}.skillId: duplicate SkillData identity ${JSON.stringify(skillId)}`);
+      throw new Error(
+        `${sourceFile}.skillId: duplicate SkillData identity ${JSON.stringify(skillId)}`,
+      );
     }
     bySourceFile[sourceFile] = value;
     bySkillId[skillId] = value;
@@ -101,7 +114,9 @@ function readDefinitionDirectory(directory: string, identityField: string, sourc
     const row = requireObject(value, sourceFile);
     const id = requireString(row[identityField], `${sourceFile}.${identityField}`);
     if (id in byId) {
-      throw new Error(`${sourceFile}.${identityField}: duplicate ${sourceName} identity ${JSON.stringify(id)}`);
+      throw new Error(
+        `${sourceFile}.${identityField}: duplicate ${sourceName} identity ${JSON.stringify(id)}`,
+      );
     }
     byId[id] = value;
   }
@@ -109,12 +124,16 @@ function readDefinitionDirectory(directory: string, identityField: string, sourc
 }
 
 function safeJsonFiles(directory: string, sourceName: string): string[] {
-  return fs.readdirSync(directory).filter(name => name.endsWith('.json')).sort().map(name => {
-    if (!/^[A-Za-z0-9._-]+\.json$/.test(name)) {
-      throw new Error(`${directory}: unsafe ${sourceName} filename ${JSON.stringify(name)}`);
-    }
-    return name;
-  });
+  return fs
+    .readdirSync(directory)
+    .filter(name => name.endsWith('.json'))
+    .sort()
+    .map(name => {
+      if (!/^[A-Za-z0-9._-]+\.json$/.test(name)) {
+        throw new Error(`${directory}: unsafe ${sourceName} filename ${JSON.stringify(name)}`);
+      }
+      return name;
+    });
 }
 
 function readTable(directory: string, name: string): unknown {

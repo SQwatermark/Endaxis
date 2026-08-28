@@ -512,7 +512,7 @@ describe('ActionBlackboardOperationExecutor', () => {
               kind: 'buffStackCompare',
               target: 'enemy',
               tagQueryType: 'hasAny',
-              buffTagIds: [1],
+              buffTags: ['Test/Tag1'],
               operator: 'greaterOrEqual',
               value: { kind: 'constant', value: 1 },
             },

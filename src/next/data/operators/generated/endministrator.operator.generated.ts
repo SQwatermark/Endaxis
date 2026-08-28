@@ -16,7 +16,7 @@ export const endministratorComboSkill: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.867000043 },
-            slot: 0,
+            slot: "unassigned",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -36,7 +36,7 @@ export const endministratorComboSkill: SkillDefinition = withSkillBlackboard(
               step('startTimeDilation', {
                 scope: 'entity',
                 durationSeconds: { kind: 'constant', value: 0.15 },
-                slot: 1464849466,
+                slot: "TimeDilation/Layer/Entity/HitStop",
                 priority: 30,
                 curve: { kind: 'inline', keys: [{ time: 0, value: 0.05, inTangent: 0.000489342, outTangent: 0.000489342, weightedMode: 0, inWeight: 0, outWeight: 0 }, { time: 0.6112276, value: 0.03604198, inTangent: 0.3674083, outTangent: 0.3674083, weightedMode: 0, inWeight: 0, outWeight: 0 }, { time: 1, value: 1, inTangent: 4.44, outTangent: 4.44, weightedMode: 0, inWeight: 0, outWeight: 0 }] },
                 finishByAction: false,
@@ -601,7 +601,7 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                   priority: 100,
                   maxStackCount: 4,
                   durationSeconds: { blackboardKey: 'duration' },
-                  applyTagIds: [1075718177],
+                  applyTags: ["Skill/Character/Common/NoGuard"],
                   blackboard: {
                     'atk_scale': 0,
                     'count': 0,
@@ -682,7 +682,7 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                   triggerIntervalSeconds: 0,
                   waitFirstTriggerInterval: true,
                   maxTriggerCount: 1,
-                  applyTagIds: [-168668661],
+                  applyTags: ["Skill/Character/Common/PhysicalStatus/CrushStatus"],
                   blackboard: {
                     'atk_scale': 1,
                     'count': 0,
@@ -737,7 +737,7 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                               step('startTimeDilation', {
                                 scope: 'entity',
                                 durationSeconds: { kind: 'constant', value: 0.1 },
-                                slot: 1464849466,
+                                slot: "TimeDilation/Layer/Entity/HitStop",
                                 priority: 15,
                                 curve: { kind: 'named', key: 'interrupt_weakness' },
                                 finishByAction: false,
@@ -756,7 +756,7 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                                   step('startTimeDilation', {
                                     scope: 'entity',
                                     durationSeconds: { kind: 'constant', value: 0.1 },
-                                    slot: 1464849466,
+                                    slot: "TimeDilation/Layer/Entity/HitStop",
                                     priority: 10,
                                     curve: { kind: 'named', key: 'interrupt_weakness' },
                                     finishByAction: false,
@@ -775,7 +775,7 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                                       step('startTimeDilation', {
                                         scope: 'entity',
                                         durationSeconds: { kind: 'constant', value: 0.25 },
-                                        slot: 1464849466,
+                                        slot: "TimeDilation/Layer/Entity/HitStop",
                                         priority: 20,
                                         curve: { kind: 'named', key: 'interrupt_weakness' },
                                         finishByAction: false,
@@ -794,7 +794,7 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                                           step('startTimeDilation', {
                                             scope: 'entity',
                                             durationSeconds: { kind: 'constant', value: 0.5 },
-                                            slot: 1464849466,
+                                            slot: "TimeDilation/Layer/Entity/HitStop",
                                             priority: 20,
                                             curve: { kind: 'named', key: 'interrupt_weakness' },
                                             finishByAction: false,
@@ -813,7 +813,7 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                                               step('startTimeDilation', {
                                                 scope: 'entity',
                                                 durationSeconds: { kind: 'constant', value: 0.65 },
-                                                slot: 1464849466,
+                                                slot: "TimeDilation/Layer/Entity/HitStop",
                                                 priority: 20,
                                                 curve: { kind: 'named', key: 'interrupt_weakness' },
                                                 finishByAction: false,
@@ -901,7 +901,7 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                   priority: 100,
                   maxStackCount: 4,
                   durationSeconds: { blackboardKey: 'duration' },
-                  applyTagIds: [1075718177],
+                  applyTags: ["Skill/Character/Common/NoGuard"],
                   blackboard: {
                     'atk_scale': 0,
                     'count': 0,
@@ -982,7 +982,7 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                   triggerIntervalSeconds: 0,
                   waitFirstTriggerInterval: true,
                   maxTriggerCount: 1,
-                  applyTagIds: [-168668661],
+                  applyTags: ["Skill/Character/Common/PhysicalStatus/CrushStatus"],
                   blackboard: {
                     'atk_scale': 1,
                     'count': 0,
@@ -1037,7 +1037,7 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                               step('startTimeDilation', {
                                 scope: 'entity',
                                 durationSeconds: { kind: 'constant', value: 0.1 },
-                                slot: 1464849466,
+                                slot: "TimeDilation/Layer/Entity/HitStop",
                                 priority: 15,
                                 curve: { kind: 'named', key: 'interrupt_weakness' },
                                 finishByAction: false,
@@ -1056,7 +1056,7 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                                   step('startTimeDilation', {
                                     scope: 'entity',
                                     durationSeconds: { kind: 'constant', value: 0.1 },
-                                    slot: 1464849466,
+                                    slot: "TimeDilation/Layer/Entity/HitStop",
                                     priority: 10,
                                     curve: { kind: 'named', key: 'interrupt_weakness' },
                                     finishByAction: false,
@@ -1075,7 +1075,7 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                                       step('startTimeDilation', {
                                         scope: 'entity',
                                         durationSeconds: { kind: 'constant', value: 0.25 },
-                                        slot: 1464849466,
+                                        slot: "TimeDilation/Layer/Entity/HitStop",
                                         priority: 20,
                                         curve: { kind: 'named', key: 'interrupt_weakness' },
                                         finishByAction: false,
@@ -1094,7 +1094,7 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                                           step('startTimeDilation', {
                                             scope: 'entity',
                                             durationSeconds: { kind: 'constant', value: 0.5 },
-                                            slot: 1464849466,
+                                            slot: "TimeDilation/Layer/Entity/HitStop",
                                             priority: 20,
                                             curve: { kind: 'named', key: 'interrupt_weakness' },
                                             finishByAction: false,
@@ -1113,7 +1113,7 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                                               step('startTimeDilation', {
                                                 scope: 'entity',
                                                 durationSeconds: { kind: 'constant', value: 0.65 },
-                                                slot: 1464849466,
+                                                slot: "TimeDilation/Layer/Entity/HitStop",
                                                 priority: 20,
                                                 curve: { kind: 'named', key: 'interrupt_weakness' },
                                                 finishByAction: false,
@@ -1234,7 +1234,7 @@ export const endministratorUltimate: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 1 },
-            slot: 1464849466,
+            slot: "TimeDilation/Layer/Entity/HitStop",
             priority: 10,
             curve: { kind: 'named', key: 'RESETto1' },
             finishByAction: false,

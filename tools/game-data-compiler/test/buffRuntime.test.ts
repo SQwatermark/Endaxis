@@ -1,3 +1,4 @@
+import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { describe, expect, it } from 'vitest';
 import { parseBuffRuntimeSource, compileBuffRuntimeDefinitionSource } from '../src/index.ts';
 import { scalarFixture, targetFixture } from './sourceFixtures.ts';
@@ -93,7 +94,14 @@ describe('Buff 运行时公共来源', () => {
       blackboardKey: 'duration',
       levelValues: 5,
     });
-    const compiled = compileBuffRuntimeDefinitionSource(source);
+    const compiled = compileBuffRuntimeDefinitionSource(
+      source,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      { gameplayTagRegistry: fixtureGameplayTagRegistry, ...{} },
+    );
     expect(compiled.blackboard).toEqual({ duration: 5 });
     expect(compiled.durationSeconds).toEqual({ blackboardKey: 'duration' });
   });

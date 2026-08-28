@@ -1,2 +1,2 @@
-// 保留 Next 内部稳定导入路径；原生 GameplayTag 语义由运行时和游戏数据编译器共同复用。
+// Next 的稳定可读标签入口；数字身份与 CRC 实现只属于转换器来源层。
 export * from '../../../../shared/gameplayTags';

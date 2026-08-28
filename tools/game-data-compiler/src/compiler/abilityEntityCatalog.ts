@@ -4,10 +4,7 @@ import {
 } from '../source/abilityEntity.ts';
 import { requireRecord } from '../source/primitives.ts';
 import type { TagQuerySource } from '../source/tagQuery.ts';
-import {
-  gameplayTagId,
-  type GameplayTagRegistry,
-} from '../../../../src/shared/gameplayTags.ts';
+import { gameplayTagId, type GameplayTagRegistry } from '../source/nativeGameplayTags.ts';
 
 export interface CompiledAbilityEntityTemplateCatalogSource {
   readonly templates: readonly NativeAbilityEntityTemplateSource[];
@@ -42,7 +39,9 @@ export function compileAbilityEntityTemplateCatalogSource(
   const mutableIdsByTag = new Map<number, string[]>();
   for (const template of templates) {
     if (byId.has(template.gameId)) {
-      throw new Error(`${sourceName}: duplicate AbilityEntity identity ${JSON.stringify(template.gameId)}`);
+      throw new Error(
+        `${sourceName}: duplicate AbilityEntity identity ${JSON.stringify(template.gameId)}`,
+      );
     }
     byId.set(template.gameId, template);
     for (const tagId of new Set(template.bornTagIds)) {

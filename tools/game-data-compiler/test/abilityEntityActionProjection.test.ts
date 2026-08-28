@@ -1,3 +1,4 @@
+import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { describe, expect, it } from 'vitest';
 import { compileCombatActionSequenceSource } from '../src/compiler/buffRuntimeProjection.ts';
 import { collectNativeActionNodes } from '../src/source/controlFlow.ts';
@@ -63,6 +64,7 @@ describe('原生查询 → Context → 逐能力实体动作的公共投影', ()
   it('当前枪不覆盖 owner/source，未绑定宿主时拒绝 owner 查询', () => {
     expect(() =>
       compileCombatActionSequenceSource(nodes(), {
+        gameplayTagRegistry: fixtureGameplayTagRegistry,
         ...returnTargetContext,
         actionOwnerTarget: 'unavailable',
       }),

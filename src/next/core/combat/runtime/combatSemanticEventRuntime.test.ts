@@ -62,7 +62,7 @@ describe('CombatSemanticEventRuntime', () => {
       targetId: 'operator:b',
       buffId: 'buff:test',
       sourceId: 'operator:a',
-      buffTagIds: [],
+      buffTags: [],
     });
 
     expect(received).toEqual(['operator:b']);
@@ -106,7 +106,7 @@ describe('CombatSemanticEventRuntime', () => {
             requestedHealing: 100,
             actualHealing: 0,
             overhealing: 100,
-            tagIds: [-320297214],
+            tags: ['Skill/Character/Common/Heal/NormalSkillHeal'],
           });
           received.push(ownerOperatorId);
         },
@@ -120,7 +120,7 @@ describe('CombatSemanticEventRuntime', () => {
       requestedHealing: 100,
       actualHealing: 0,
       overhealing: 100,
-      tagIds: [-320297214],
+      tags: ['Skill/Character/Common/Heal/NormalSkillHeal'],
     });
 
     expect(received).toEqual(['operator:receiver']);
@@ -149,7 +149,7 @@ describe('CombatSemanticEventRuntime', () => {
       requestedHealing: 100,
       actualHealing: 0,
       overhealing: 100,
-      tagIds: [-320297214],
+      tags: ['Skill/Character/Common/Heal/NormalSkillHeal'],
     });
 
     expect(received).toEqual(['source', 'target']);

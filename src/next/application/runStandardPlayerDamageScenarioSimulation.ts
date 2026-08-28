@@ -29,6 +29,8 @@ import {
   timeDilationRuntimeConfig,
 } from '../data/combat/timeDilationConfig';
 import { gameplayTagRegistry } from '../data/combat/gameplayTagCatalog';
+import { GAMEPLAY_TAG_PREDEFINE } from '../data/combat/gameplayTagPredefine.generated';
+import { GameplayTagPredefine } from '../core/combat/tags/gameplayTagPredefine';
 import { resolveControlTimeline } from '../core/project/resolveControlTimeline';
 import { isOperatorControlledAt } from '../core/combat/runtime/operatorControlTimeline';
 
@@ -101,6 +103,11 @@ export function runStandardPlayerDamageScenarioSimulation(
     resolveNonRandomRuntimeSnapshot: input.resolveNonRandomRuntimeSnapshot,
     enemyVitals,
     tagRegistry: gameplayTagRegistry,
+    knockDown: {
+      predefine: new GameplayTagPredefine(GAMEPLAY_TAG_PREDEFINE),
+      // 下方整场消费者预检通过后才会执行；没有可观察起身阶段时只结束倒地，不模拟动画。
+      onDurationElapsed: runtime => runtime.exit(),
+    },
     isOperatorControlled: (operatorId, frame) =>
       isOperatorControlledAt(controlTimeline, operatorId, frame),
     ...(input.elementalInflictionDocument === undefined
@@ -129,6 +136,7 @@ export function runStandardPlayerDamageScenarioSimulation(
     inputs: compiled.inputs,
     endFrame: input.endFrame,
     supportsElementalInfliction: input.elementalInflictionDocument !== undefined,
+    supportsKnockDown: true,
   });
   const result = executeCompiledScenarioSimulation({ compiled, endFrame: input.endFrame });
   return Object.freeze({

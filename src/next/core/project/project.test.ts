@@ -541,7 +541,7 @@ describe('V2 project document', () => {
           resource: 'sp',
           amount: 10,
           recipient: 'team',
-          ultimateRecoveryTagId: 264623624,
+          ultimateRecoveryTag: 'Skill/Character/chr_0026_lastrite',
         },
       },
     );
@@ -550,7 +550,7 @@ describe('V2 project document', () => {
     if (!invalidUltimateOptionResult.ok) {
       expect(invalidUltimateOptionResult.issues).toContainEqual(
         expect.objectContaining({
-          path: expect.stringContaining('.parameters.ultimateRecoveryTagId'),
+          path: expect.stringContaining('.parameters.ultimateRecoveryTag'),
         }),
       );
     }

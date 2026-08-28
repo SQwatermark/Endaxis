@@ -5,10 +5,7 @@ import {
   resolveAbilityEntityTemplateIdsByTagQuery,
 } from '../src/index.ts';
 import { abilityEntityFixture } from './sourceFixtures.ts';
-import {
-  GameplayTagRegistry,
-  gameplayTagIdFromPath,
-} from '../../../src/shared/gameplayTags.ts';
+import { GameplayTagRegistry, gameplayTagIdFromPath } from '../src/source/nativeGameplayTags.ts';
 
 describe('AbilityEntity 公共模板目录', () => {
   it('按稳定身份排序，并建立不猜测父子语义的精确 born tag 索引', () => {

@@ -15,8 +15,8 @@ const definition = {
       stackingType: 'unlimited',
       priority: 0,
       maxStackCount: 1,
-      applyTagIds: [],
-      extendTagIds: [],
+      applyTags: [],
+      extendTags: [],
       blackboard: {
         atk_up: 0.1,
         duration: 6,
@@ -39,7 +39,7 @@ const definition = {
                   condition: {
                     kind: 'eventBuffTagsMatch',
                     match: 'hasAny',
-                    buffTagIds: [1075718177],
+                    buffTags: ["Skill/Character/Common/NoGuard"],
                   },
                 },
                 whenTrue: {
@@ -68,7 +68,7 @@ const definition = {
                         condition: {
                           kind: 'eventTargetBuffCountCompare',
                           tagQueryType: 'hasAny',
-                          buffTagIds: [1075718177],
+                          buffTags: ["Skill/Character/Common/NoGuard"],
                           operator: 'greaterOrEqual',
                           value: {
                             kind: 'blackboard',
@@ -130,8 +130,8 @@ const definition = {
           category: 'CommonCharBuff',
         },
       },
-      applyTagIds: [],
-      extendTagIds: [],
+      applyTags: [],
+      extendTags: [],
       blackboard: {
         duration: 6,
         phy_dmg_up2: 0.2,
@@ -171,8 +171,8 @@ const definition = {
           category: 'CommonCharBuff',
         },
       },
-      applyTagIds: [],
-      extendTagIds: [],
+      applyTags: [],
+      extendTags: [],
       blackboard: {
         duration: 6,
         max_stack: 4,

@@ -20,8 +20,8 @@ const definition = {
       triggerIntervalSeconds: 0,
       waitFirstTriggerInterval: true,
       maxTriggerCount: 1,
-      applyTagIds: [],
-      extendTagIds: [],
+      applyTags: [],
+      extendTags: [],
       blackboard: {
         addstack: 1,
         buffid: 0,
@@ -42,7 +42,7 @@ const definition = {
                   condition: {
                     kind: 'eventBuffTagsMatch',
                     match: 'hasAny',
-                    buffTagIds: [1466867135, -421286163],
+                    buffTags: ["Skill/Character/Common/SpellStatus/Conduct", "Skill/Character/Common/SpellStatus/Corrupt"],
                     buffIdOutputKey: 'buffid',
                   },
                 },
@@ -117,8 +117,8 @@ const definition = {
           category: 'CommonCharBuff',
         },
       },
-      applyTagIds: [],
-      extendTagIds: [],
+      applyTags: [],
+      extendTags: [],
       blackboard: {
         duration: 10,
         max_stack: 4,

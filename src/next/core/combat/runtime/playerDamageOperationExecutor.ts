@@ -3,6 +3,7 @@
  * 调用方必须提供同一命中的属性快照和事件端口；此处顺序具有战斗语义，不能随意拆分或并行。
  */
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
+import { attributeModifierValues } from '../attributes/combatAttributes';
 import type {
   ActionValueOperand,
   OperatorAttribute,
@@ -189,21 +190,15 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       for (const modifier of instantAttributeModifiers) {
         context.addInstantAttributeModifier(modifier.targetSide, {
           attribute: modifier.attribute,
-          values: {
-            addition: 0,
-            multiplier: 0,
-            finalAddition: 0,
-            finalMultiplier: 0,
-            baseAddition: 0,
-            baseMultiplier: 0,
-            baseFinalAddition: 0,
-            baseFinalMultiplier: 0,
-            [modifier.slot]: this.#resolveActionValue(
+          // 两个最终乘法槽的单位元是 1，不能用全零对象初始化单槽修正。
+          values: attributeModifierValues(
+            modifier.slot,
+            this.#resolveActionValue(
               modifier.value,
               operationContext,
               `instant attribute ${modifier.attribute}`,
             ),
-          },
+          ),
           timing: modifier.attributeTiming,
         });
       }
@@ -211,7 +206,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       context.setCalculationResult(this.#resolveCalculationResult(step, context, operationContext));
       injectDamageScaleAttributes(context.damageScales, {
         damageType: step.parameters.damageType,
-        classifications: classifyDamageTags(step.parameters.tags),
+        classifications: classifyDamageTags(step.parameters.tags, step.parameters.features),
         attacker: context.attackerAttributes,
         defender: context.defenderAttributes,
         defenderStaggered: this.dependencies.targetVitals.hasPoiseBrokenTag,
@@ -226,6 +221,10 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
         defender: context.defenderAttributes,
         runtime: {
           ...runtimeSnapshot,
+          // DamageEnums：Shatter 属于 IgniteDamageSet，不属于 PhysicalInfliction。
+          appliesIgniteDamageMultiplier:
+            runtimeSnapshot.appliesIgniteDamageMultiplier ||
+            (step.parameters.features ?? []).includes('shatter'),
           appliesPhysicalInflictionDamageMultiplier:
             runtimeSnapshot.appliesPhysicalInflictionDamageMultiplier ||
             (step.parameters.features ?? []).includes('physicalInfliction'),

@@ -44,7 +44,7 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
     if (step.kind === 'restrictUltimateEnergyRecovery') {
       const handle = this.dependencies.resources.requestUltimateEnergyRecoveryRestriction(
         this.dependencies.sourceOperatorId,
-        new Set(step.parameters.allowedRecoveryTagIds),
+        new Set(step.parameters.allowedRecoveryTags),
       );
       this.#ultimateRecoveryRestrictionHandles.set(step, handle);
       return true;
@@ -100,7 +100,7 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
         {
           coefficient: step.parameters.coefficient,
           isPercentValue: step.parameters.isPercentValue,
-          recoveryTagId: step.parameters.ultimateRecoveryTagId,
+          recoveryTag: step.parameters.ultimateRecoveryTag,
           ignoreGainMultiplier: step.parameters.ignoreUltimateEnergyGainMultiplier,
         },
       );

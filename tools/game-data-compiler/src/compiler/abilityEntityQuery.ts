@@ -1,4 +1,4 @@
-import type { GameplayTagRegistry } from '../../../../src/shared/gameplayTags.ts';
+import type { GameplayTagRegistry } from '../source/nativeGameplayTags.ts';
 import type { TargetGroupActionSource } from '../source/targetGroup.ts';
 import type { TargetReferenceSource } from '../source/target.ts';
 import type { TagQuerySource, TagQueryType } from '../source/tagQuery.ts';

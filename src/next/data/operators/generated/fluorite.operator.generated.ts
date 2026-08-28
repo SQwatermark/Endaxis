@@ -398,7 +398,7 @@ export const fluoriteComboSkill: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.533 },
-            slot: 0,
+            slot: "unassigned",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -486,7 +486,7 @@ export const fluoriteUltimate: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 1 },
-            slot: 1464849466,
+            slot: "TimeDilation/Layer/Entity/HitStop",
             priority: 10,
             curve: { kind: 'named', key: 'RESETto1' },
             finishByAction: false,
@@ -563,7 +563,7 @@ export const fluoriteUltimate: SkillDefinition = withSkillBlackboard(
               kind: 'buffStackCompare',
               target: 'enemy',
               tagQueryType: 'hasAny',
-              buffTagIds: [-1411846745],
+              buffTags: ["Skill/Character/Common/SpellInflict/NaturalInflict"],
               operator: 'greaterOrEqual',
               value: { kind: 'constant', value: 2 },
             },
@@ -576,7 +576,7 @@ export const fluoriteUltimate: SkillDefinition = withSkillBlackboard(
                   kind: 'buffStackCompare',
                   target: 'enemy',
                   tagQueryType: 'hasAny',
-                  buffTagIds: [1570888476],
+                  buffTags: ["Skill/Character/Common/SpellInflict/CrystInflict"],
                   operator: 'greaterOrEqual',
                   value: { kind: 'constant', value: 2 },
                 },
@@ -648,7 +648,7 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
       triggerIntervalSeconds: 0,
       waitFirstTriggerInterval: true,
       maxTriggerCount: 1,
-      applyTagIds: [-1486085048],
+      applyTags: ["Status/DisableNormalSkill"],
     },
     'buff_chr_0022_bounda_potential_4': {
       stackingType: 'refresh',
@@ -706,7 +706,7 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
             kind: 'entityTagMatch',
             target: 'enemy',
             tagQueryType: 'hasAny',
-            tagIds: [1925762097],
+            tags: ["Skill/Character/Common/Affixes/Slow"],
           },
           processors: [
             {
@@ -772,7 +772,7 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
                   kind: 'entityTagMatch',
                   target: 'caster',
                   tagQueryType: 'exceptAny',
-                  tagIds: [1622340854, 1357114970],
+                  tags: ["Status/DashImmune", "Status/DashSucceedImmune"],
                 },
                 sequence(
                   branch(
@@ -821,7 +821,7 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
                   kind: 'entityTagMatch',
                   target: 'caster',
                   tagQueryType: 'exceptAny',
-                  tagIds: [1622340854, 1357114970],
+                  tags: ["Status/DashImmune", "Status/DashSucceedImmune"],
                 },
                 sequence(
                   branch(
@@ -870,7 +870,7 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
                   kind: 'entityTagMatch',
                   target: 'caster',
                   tagQueryType: 'exceptAny',
-                  tagIds: [1622340854, 1357114970],
+                  tags: ["Status/DashImmune", "Status/DashSucceedImmune"],
                 },
                 sequence(
                   branch(
@@ -919,7 +919,7 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
                   kind: 'entityTagMatch',
                   target: 'caster',
                   tagQueryType: 'exceptAny',
-                  tagIds: [1622340854, 1357114970],
+                  tags: ["Status/DashImmune", "Status/DashSucceedImmune"],
                 },
                 sequence(
                   branch(
@@ -1104,7 +1104,7 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
                       priority: { blackboardKey: 'rate' },
                       maxStackCount: 1,
                       durationSeconds: { blackboardKey: 'duration' },
-                      applyTagIds: [1925762097],
+                      applyTags: ["Skill/Character/Common/Affixes/Slow"],
                       blackboard: { rate: 0, duration: 0 },
                     },
                     target: 'enemy',
@@ -1158,7 +1158,7 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
                       priority: { blackboardKey: 'rate' },
                       maxStackCount: 1,
                       durationSeconds: { blackboardKey: 'duration' },
-                      applyTagIds: [1925762097],
+                      applyTags: ["Skill/Character/Common/Affixes/Slow"],
                       blackboard: { rate: 0, duration: 0 },
                     },
                     target: 'enemy',
@@ -1184,7 +1184,7 @@ export const fluoriteGeneratedOperator: OperatorDefinition = {
         ],
     } },
   },
-  comboSkillRegistrations: [{ skillKey: 'comboSkill', priority: 'default', invalidCastBlackboard: { EntityBB_combo_index: -1 }, rules: [{ trigger: { kind: 'elementalInflictionApplied', elements: 'cryo', scope: 'team' }, condition: { kind: 'buffStackCompare', target: 'enemy', tagQueryType: 'hasAny', buffTagIds: [1570888476], operator: 'greaterOrEqual', value: { kind: 'constant', value: 1 } }, blackboard: { EntityBB_combo_index: 2 } }, { trigger: { kind: 'elementalInflictionApplied', elements: 'nature', scope: 'team' }, condition: { kind: 'buffStackCompare', target: 'enemy', tagQueryType: 'hasAny', buffTagIds: [-1411846745], operator: 'greaterOrEqual', value: { kind: 'constant', value: 1 } }, blackboard: { EntityBB_combo_index: 3 } }] }],
+  comboSkillRegistrations: [{ skillKey: 'comboSkill', priority: 'default', invalidCastBlackboard: { EntityBB_combo_index: -1 }, rules: [{ trigger: { kind: 'elementalInflictionApplied', elements: 'cryo', scope: 'team' }, condition: { kind: 'buffStackCompare', target: 'enemy', tagQueryType: 'hasAny', buffTags: ["Skill/Character/Common/SpellInflict/CrystInflict"], operator: 'greaterOrEqual', value: { kind: 'constant', value: 1 } }, blackboard: { EntityBB_combo_index: 2 } }, { trigger: { kind: 'elementalInflictionApplied', elements: 'nature', scope: 'team' }, condition: { kind: 'buffStackCompare', target: 'enemy', tagQueryType: 'hasAny', buffTags: ["Skill/Character/Common/SpellInflict/NaturalInflict"], operator: 'greaterOrEqual', value: { kind: 'constant', value: 1 } }, blackboard: { EntityBB_combo_index: 3 } }] }],
   talents: [
     {
       key: 'talent1',

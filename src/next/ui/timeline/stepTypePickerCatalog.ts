@@ -64,6 +64,7 @@ export const STEP_TYPE_GROUPS: readonly StepTypeGroup[] = [
       'openComboWindow',
       'listenForCombatEvents',
       'conditional',
+      'switch',
       'once',
     ],
   },

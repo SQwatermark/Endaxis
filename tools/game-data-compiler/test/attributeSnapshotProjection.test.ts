@@ -1,3 +1,4 @@
+import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { describe, expect, it } from 'vitest';
 import { compileActiveSkillRuntimeProjectionSource } from '../src/compiler/activeSkillRuntimeProjection.ts';
 import {
@@ -7,6 +8,7 @@ import {
 import { activeSkillFixture, scalarFixture, targetFixture } from './sourceFixtures.ts';
 
 const ACTIVE_CONTEXT: CombatActionProjectionContextSource = {
+  gameplayTagRegistry: fixtureGameplayTagRegistry,
   actionOwnerTarget: 'caster',
   actionSourceTarget: 'caster',
   actionTargetTarget: 'enemy',
@@ -124,9 +126,16 @@ describe('公共属性快照投影', () => {
   });
 
   it('Owner 身份不可用时不能借用 Source', () => {
-    expect(() => project({}, { ...ACTIVE_CONTEXT, actionOwnerTarget: 'unavailable' })).toThrow(
-      'action Owner projection is unavailable',
-    );
+    expect(() =>
+      project(
+        {},
+        {
+          gameplayTagRegistry: fixtureGameplayTagRegistry,
+          ...ACTIVE_CONTEXT,
+          actionOwnerTarget: 'unavailable',
+        },
+      ),
+    ).toThrow('action Owner projection is unavailable');
   });
 
   it('接收侧 Buff 的 buffSource 尚未投影时仍阻断', () => {

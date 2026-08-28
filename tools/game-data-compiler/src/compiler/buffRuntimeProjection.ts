@@ -1,3 +1,4 @@
+import { projectGameplayTags } from './combatProjectionCommon.ts';
 import {
   compileResolvedAttributeModifierSource,
   projectCombatRuntimeAttributeKey,
@@ -40,11 +41,18 @@ import {
   isStaticSingleEnemyTargetGroup,
   isPartyExceptOwnerInstantSearch,
   scalarOperand,
+  actionValueOperand,
   DAMAGE_TYPES,
   COMPARISON_OPERATORS,
 } from './combatProjectionCommon.ts';
 import { compileBuffLeafNode } from './combatEntityAndTimeProjection.ts';
-import { compileEventCondition, conditionWritesBlackboard } from './combatConditionProjection.ts';
+import {
+  compileEventCondition,
+  conditionWritesBlackboard,
+  canOmitUnusedNativeCondition,
+  canOmitUnusedCompiledCondition,
+} from './combatConditionProjection.ts';
+import { assertPresentationCalculationIsolation } from './presentationCalculationIsolation.ts';
 
 export { collectBuffRuntimeClosure } from './buffReferenceClosure.ts';
 // 兼容已有公共入口；类型的唯一声明不再夹在投影实现中。
@@ -95,6 +103,9 @@ const BUFF_ABILITY_EVENTS: Readonly<Record<string, CompiledBuffAbilityEvent>> = 
   OnBeforeAddedBuff: 'beforeAddedBuff',
   OnBeforeOutputPhysicalInfliction: 'beforeOutputPhysicalInfliction',
   OnAfterOutputPhysicalInfliction: 'afterOutputPhysicalInfliction',
+  // 组件专属同步事件，不替换成成功后补发的通用物理异常/旧语义标记。
+  OnBeforeOutputKnockDown: 'beforeOutputKnockDown',
+  OnAfterOutputKnockDown: 'afterOutputKnockDown',
   OnOutputDamage: 'outputDamage',
   OnCharBeforeOutputSpellInfliction: 'beforeOutputInfliction',
   OnCharBeforeOutputSpellBurst: 'beforeOutputSpellBurst',
@@ -134,7 +145,10 @@ export function compileBuffRuntimeDefinitionSource(
   omittedAbilityEvents: ReadonlySet<string | number> = new Set(),
   extensions: CombatActionProjectionExtensionsSource = {},
   abilityEntityQueries?: CombatActionProjectionContextSource['abilityEntityQueries'],
-  contextOverrides: Pick<CombatActionProjectionContextSource, 'fixedBuffOwnerTarget'> = {},
+  contextOverrides: Pick<
+    CombatActionProjectionContextSource,
+    'fixedBuffOwnerTarget' | 'gameplayTagRegistry'
+  > = {},
 ): CompiledBuffDefinitionSource {
   if (source.unsupportedPayloads.length > 0) {
     throw new Error(
@@ -150,6 +164,7 @@ export function compileBuffRuntimeDefinitionSource(
   const enableSequences: CompiledBuffSequenceSource[] = [];
   const triggerSequences: CompiledBuffSequenceSource[] = [];
   const enhanceChangedSequences: CompiledBuffSequenceSource[] = [];
+  const afterEnhanceSequences: CompiledBuffSequenceSource[] = [];
   const finishSequences: CompiledBuffSequenceSource[] = [];
   const allSequences = [
     ...source.graph.timelineActions.map(item => item.sequence),
@@ -172,6 +187,7 @@ export function compileBuffRuntimeDefinitionSource(
       ),
   );
   const projectionContextOverrides = {
+    gameplayTagRegistry: abilityEntityQueries?.gameplayTagRegistry,
     ...contextOverrides,
     ...(staticEnemyTargetGroupKeys.size === 0 ? {} : { staticEnemyTargetGroupKeys }),
   };
@@ -186,9 +202,11 @@ export function compileBuffRuntimeDefinitionSource(
             ? triggerSequences
             : event.event === 'OnBuffEnhanceChanged'
               ? enhanceChangedSequences
-              : event.event === 'OnBuffFinish'
-                ? finishSequences
-                : null;
+              : event.event === 'OnBuffAfterTryEnhanced'
+                ? afterEnhanceSequences
+                : event.event === 'OnBuffFinish'
+                  ? finishSequences
+                  : null;
     if (target === null) throw new Error(`unsupported Buff event ${JSON.stringify(event.event)}`);
     for (const sequence of event.actions) {
       const skillAffixBody =
@@ -196,11 +214,14 @@ export function compileBuffRuntimeDefinitionSource(
       if (skillAffixBody !== null) {
         finishesWithSourceSkill = true;
       }
-      // Finish/EnhanceChanged 可由其它实体触发，来源绑定需另行恢复，不能沿用启动身份。
+      // AfterTryEnhanced 的默认 Target 仍是持有者，Source 由运行时绑定本次叠层者。
+      // Finish/EnhanceChanged 保留现有事件投影，不能据此一并放宽未核实的来源映射。
       const compiled = compileLinearSequence(
         skillAffixBody ?? sequence,
         visualOnlyIds,
-        event.event === 'OnBuffStart' || event.event === 'DuringBuffEnable'
+        event.event === 'OnBuffStart' ||
+          event.event === 'DuringBuffEnable' ||
+          event.event === 'OnBuffAfterTryEnhanced'
           ? { ...BUFF_LIFECYCLE_CONTEXT, abilityEntityQueries, ...projectionContextOverrides }
           : { ...BUFF_ACTION_CONTEXT, abilityEntityQueries, ...projectionContextOverrides },
         extensions,
@@ -296,8 +317,16 @@ export function compileBuffRuntimeDefinitionSource(
     ...(source.presentation.hasIcon || source.presentation.spritePath !== ''
       ? { presentation: compilePresentation(source.presentation) }
       : {}),
-    applyTagIds: source.applyTagIds,
-    extendTagIds: source.extendTagIds,
+    applyTags: projectGameplayTags(
+      source.applyTagIds,
+      projectionContextOverrides,
+      `BuffData.${source.graph.buffId}.applyTags`,
+    ),
+    extendTags: projectGameplayTags(
+      source.extendTagIds,
+      projectionContextOverrides,
+      `BuffData.${source.graph.buffId}.extendTags`,
+    ),
     blackboard,
     attributeModifiers: source.attributeModifiers.modifiers.map((modifier, index) => {
       if (modifier.modifyAttributeType !== 'Specific') {
@@ -318,14 +347,15 @@ export function compileBuffRuntimeDefinitionSource(
         value: scalarOperand(modifier.parameter),
       };
     }),
-    ...compileBuffDamageModifiers(source),
-    ...compileBuffHealModifiers(source),
+    ...compileBuffDamageModifiers(source, projectionContextOverrides),
+    ...compileBuffHealModifiers(source, projectionContextOverrides),
     ...compileBuffPoiseModifiers(source),
     ...compileBuffShields(source),
     ...(startSequences.length === 0 &&
     enableSequences.length === 0 &&
     triggerSequences.length === 0 &&
     enhanceChangedSequences.length === 0 &&
+    afterEnhanceSequences.length === 0 &&
     finishSequences.length === 0
       ? {}
       : {
@@ -337,6 +367,9 @@ export function compileBuffRuntimeDefinitionSource(
               ? {}
               : { enhanceChanged: mergeSequences(enhanceChangedSequences) }),
             ...(finishSequences.length === 0 ? {} : { finish: mergeSequences(finishSequences) }),
+            ...(afterEnhanceSequences.length === 0
+              ? {}
+              : { afterEnhance: mergeSequences(afterEnhanceSequences) }),
           },
         }),
     ...(abilityEventResponses.length === 0 ? {} : { abilityEventResponses }),
@@ -357,11 +390,14 @@ function splitDirectSkillAffixSequence(
   return { ...source, actions: source.actions.filter(node => node !== affixes[0]) };
 }
 
-function compileBuffDamageModifiers(source: BuffRuntimeSource): {
+function compileBuffDamageModifiers(
+  source: BuffRuntimeSource,
+  context: Pick<CombatActionProjectionContextSource, 'gameplayTagRegistry'>,
+): {
   readonly damageModifiers?: readonly CompiledBuffDamageModifierSource[];
 } {
   const modifiers = source.damageModifiers.map((modifier, index) => {
-    const condition = compileDamageModifierCondition(modifier.condition, index);
+    const condition = compileDamageModifierCondition(modifier.condition, index, context);
     const enabledSide = DAMAGE_MODIFIER_SIDES[modifier.enabledSide];
     if (enabledSide === undefined) {
       throw new Error(
@@ -410,7 +446,10 @@ function compileBuffDamageModifiers(source: BuffRuntimeSource): {
   return modifiers.length === 0 ? {} : { damageModifiers: modifiers };
 }
 
-function compileBuffHealModifiers(source: BuffRuntimeSource): {
+function compileBuffHealModifiers(
+  source: BuffRuntimeSource,
+  context: Pick<CombatActionProjectionContextSource, 'gameplayTagRegistry'>,
+): {
   readonly healModifiers?: readonly CompiledBuffHealModifierSource[];
 } {
   const modifiers = source.healModifiers.map((modifier, modifierIndex) => {
@@ -433,7 +472,8 @@ function compileBuffHealModifiers(source: BuffRuntimeSource): {
     ) {
       throw new Error(`healModifier[${modifierIndex}]: unsupported condition sequence`);
     }
-    const condition = nodes.length === 0 ? undefined : compileHealModifierCondition(nodes[0]!);
+    const condition =
+      nodes.length === 0 ? undefined : compileHealModifierCondition(nodes[0]!, context);
     const processors = modifier.processors.map((processor, processorIndex) => {
       const targetSide =
         processor.modifyTargetSide === 'Attacker'
@@ -470,6 +510,7 @@ function compileBuffHealModifiers(source: BuffRuntimeSource): {
 
 function compileHealModifierCondition(
   node: NativeActionNodeSource<KnownNativeActionLeafSource>,
+  context: Pick<CombatActionProjectionContextSource, 'gameplayTagRegistry'>,
 ): NonNullable<CompiledBuffHealModifierSource['condition']> {
   if (node.body.kind !== 'leaf' || node.body.value.family !== 'condition') {
     throw new Error(`${node.sourcePath}: expected a heal modifier condition`);
@@ -487,7 +528,11 @@ function compileHealModifierCondition(
   if (match === null) {
     throw new Error(`${node.sourcePath}: unsupported heal tag query ${condition.queryType}`);
   }
-  return { kind: 'healTagsMatch', match, tagIds: condition.tagIds };
+  return {
+    kind: 'healTagsMatch',
+    match,
+    tags: projectGameplayTags(condition.tagIds, context, node.sourcePath),
+  };
 }
 
 function compileBuffPoiseModifiers(source: BuffRuntimeSource): {
@@ -631,6 +676,7 @@ function compileBuffShields(source: BuffRuntimeSource): {
 function compileDamageModifierCondition(
   source: NativeSequenceSource<KnownNativeActionLeafSource>,
   modifierIndex: number,
+  context: Pick<CombatActionProjectionContextSource, 'gameplayTagRegistry'>,
 ): CompiledBuffDamageModifierSource['condition'] | undefined {
   if (source.onlyExecuteWhenSourceIsMainCharacter || source.onlyExecuteWhenSourceIsGuard) {
     throw new Error(`damageModifier[${modifierIndex}]: root condition filters are unsupported`);
@@ -673,7 +719,7 @@ function compileDamageModifierCondition(
           kind: 'entityTagMatch' as const,
           target: 'enemy' as const,
           tagQueryType: condition.tagQueryType,
-          tagIds: condition.tagIds,
+          tags: projectGameplayTags(condition.tagIds, context, node.sourcePath),
         };
       }
       if (condition.kind === 'buffStack') {
@@ -791,7 +837,7 @@ export function compileCombatConditionSequenceSource(
 ): CompiledBuffSequenceSource {
   return compileActionSequenceProgram(source, {
     ...createBuffSequenceProjection(visualOnlyIds, context),
-    canOmitTerminalCondition: () => false,
+    resultIsConsumed: true,
   });
 }
 
@@ -810,7 +856,6 @@ function compileLinearSequence(
   context: CombatActionProjectionContextSource = BUFF_ACTION_CONTEXT,
   extensions: CombatActionProjectionExtensionsSource = {},
 ): CompiledBuffSequenceSource {
-  assertPresentationCalculationIsolation(source);
   assertSpatialContextWriteIsolation(source);
   if (
     (source.onlyExecuteWhenSourceIsMainCharacter || source.onlyExecuteWhenSourceIsGuard) &&
@@ -826,10 +871,14 @@ function compileLinearSequence(
   ) {
     return { steps: [] };
   }
-  return compileActionSequenceProgram(
+  const result = compileActionSequenceProgram(
     source,
     createBuffSequenceProjection(visualOnlyIds, context, extensions),
   );
+  // 先按既有固定命中/零空间边界投影，再检查仍被消费的值。
+  // 角度可改变原生范围，但被整体省略的选点分支不再是 Next 数值消费者。
+  assertPresentationCalculationIsolation([source], [result]);
+  return result;
 }
 
 /** 选点动作写出的 Context 只能进入空间动作；一旦被战斗动作读取就必须恢复真实几何。 */
@@ -865,31 +914,6 @@ function assertSpatialContextWriteIsolation(
   }
 }
 
-/** 只有全部消费者仍属于无渲染支链时，角度/曲线中间值才可连同相机动作一起省略。 */
-function assertPresentationCalculationIsolation(
-  source: NativeSequenceSource<KnownNativeActionLeafSource>,
-): void {
-  const leaves = collectNativeActionNodes(source).filter(
-    node => node.body.kind === 'leaf',
-  ) as NativeActionNodeSource<KnownNativeActionLeafSource>[];
-  for (const node of leaves) {
-    if (node.body.kind !== 'leaf' || node.body.value.family !== 'presentationCalculation') continue;
-    const key = node.body.value.action.outputKey;
-    for (const consumer of leaves) {
-      if (consumer === node || consumer.body.kind !== 'leaf') continue;
-      if (!JSON.stringify(consumer.body.value.action).includes(JSON.stringify(key))) continue;
-      if (
-        consumer.body.value.family !== 'presentationCalculation' &&
-        consumer.body.value.family !== 'presentation'
-      ) {
-        throw new Error(
-          `${node.sourcePath}: presentation output ${key} reaches combat action ${consumer.sourcePath}`,
-        );
-      }
-    }
-  }
-}
-
 function createBuffSequenceProjection(
   visualOnlyIds: ReadonlySet<string>,
   context: CombatActionProjectionContextSource,
@@ -903,7 +927,8 @@ function createBuffSequenceProjection(
   return {
     initialState: () => new Map<string, ProjectedTargetGroup>(),
     compileCondition: (node, targetGroups) => compileEventCondition(node, context, targetGroups),
-    canOmitTerminalCondition: condition => !conditionWritesBlackboard(condition),
+    canOmitTerminalCondition: canOmitUnusedCompiledCondition,
+    canOmitUnusedCondition: canOmitUnusedNativeCondition,
     combineConditions: conditions =>
       conditions.length === 1 ? conditions[0]! : { kind: 'all', conditions },
     negateCondition: condition => ({ kind: 'not', condition }),
@@ -1009,6 +1034,49 @@ function createBuffSequenceProjection(
         state: partyTargetGroups,
       };
     },
+    compileSwitch: (node, targetGroups) => ({
+      steps: [
+        {
+          kind: 'switch',
+          parameters: {
+            choice: actionValueOperand(node.body.choice),
+            alwaysNext: node.body.alwaysNext,
+          },
+          options: node.body.options.map(option => ({
+            value: actionValueOperand(option.value),
+            sequence: compileActionSequenceProgram(option.action, {
+              ...createBuffSequenceProjection(visualOnlyIds, context, extensions),
+              initialState: () => targetGroups,
+              // Switch 消费分支返回值，尾条件即使没有副作用也不能删除。
+              resultIsConsumed: true,
+            }),
+          })),
+        },
+      ],
+      // 任一分支建立的事实都不能泄露到其他分支或外层后继。
+      state: targetGroups,
+    }),
+    compileOnce: (node, partyTargetGroups) => {
+      // combat-spec/do-once-action：子序列即时执行，返回 false 也消耗此次机会。
+      // 先接入技能实例内的同步资源回复，不把 Buff reset 或持续子动作偷换成同一生命周期。
+      if (
+        context.timelineRange === undefined ||
+        node.body.action.actions.some(
+          child =>
+            child.metadata.enabled &&
+            (child.body.kind !== 'leaf' || child.body.value.family !== 'resource'),
+        )
+      )
+        return null;
+      const body = compileActionSequenceProgram(node.body.action, {
+        ...createBuffSequenceProjection(visualOnlyIds, context, extensions),
+        initialState: () => partyTargetGroups,
+      });
+      return {
+        steps: [{ kind: 'once', parameters: { scopeKey: node.sourcePath }, body }],
+        state: partyTargetGroups,
+      };
+    },
     compileChanneling: (node, partyTargetGroups) => {
       const target = node.body.target;
       const isSingleEnemy =
@@ -1094,6 +1162,8 @@ function isCombatInvisibleIfElse(
     >;
   },
 ): boolean {
+  // 省略后必须仍继续兄弟动作；循环、跳转等控制节点不能只凭叶子无伤害而消失。
+  if (!node.body.alwaysNext) return false;
   const nodes = [
     ...collectNativeActionNodes(node.body.condition),
     ...collectNativeActionNodes(node.body.whenTrue),
@@ -1107,16 +1177,8 @@ function isCombatInvisibleIfElse(
     'inputControl',
     'targetGroup',
   ]);
-  const safeConditions = new Set([
-    'mainOperator',
-    'twoDirectionAngle',
-    'distance',
-    'entityCount',
-    'floatCompare',
-    'comboCameraAlphaSetting',
-  ]);
   return nodes.every(child => {
-    if (child.body.kind !== 'leaf') return true;
+    if (child.body.kind !== 'leaf') return child.body.kind === 'ifElse' && child.body.alwaysNext;
     const leaf = child.body.value;
     if (invisibleFamilies.has(leaf.family)) return true;
     if (leaf.family === 'spatialMeasurement') {
@@ -1127,9 +1189,7 @@ function isCombatInvisibleIfElse(
         return ['presentation', 'presentationCalculation'].includes(consumer.body.value.family);
       });
     }
-    if (leaf.family !== 'condition' || !safeConditions.has(leaf.action.kind)) return false;
-    if (leaf.action.kind === 'entityCount') return leaf.action.storeKey === '';
-    return true;
+    return canOmitUnusedNativeCondition(child);
   });
 }
 

@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest';
 
 import { parseHealActionSource } from '../src/index.ts';
 import { scalarFixture, targetFixture } from './sourceFixtures.ts';
+import { parseNativeSequenceSource } from '../src/source/controlFlow.ts';
+import { parseKnownNativeActionLeafSource } from '../src/source/actionLeaf.ts';
+import { compileCombatActionSequenceSource } from '../src/compiler/buffRuntimeProjection.ts';
 
 const BASE = {
   $type: 'Example.HealAction+Data, Example',
@@ -23,6 +26,63 @@ const BASE = {
 } as const;
 
 describe('治疗动作公共载荷', () => {
+  it('主动技能复用公共主控治疗投影，不因当前攻击目标为敌人而拒绝', () => {
+    const target = targetFixture('InstantSearch');
+    const action = {
+      ...BASE,
+      healer: 'ActionSource',
+      useHealTags: false,
+      target: {
+        ...target,
+        selectorData: {
+          finderData: {
+            $type: 'Beyond.Gameplay.Core.Selector+CharacterTeamFinder+Data, Gameplay.Beyond',
+          },
+          validatorData: [
+            { $type: 'Beyond.Gameplay.Core.Selector+MainCharacterValidator+Data, Gameplay.Beyond' },
+          ],
+          postProcessorData: [],
+        },
+      },
+      healCalculation: {
+        $type: 'Example.MultiplyAttributeCalculation, Example',
+        valueSource: 'AttackerOrHealer',
+        attributeType: 'Will',
+        multiplier: scalarFixture(0, 'will_additive'),
+        addition: scalarFixture(0, 'heal_base'),
+      },
+    };
+    const source = parseNativeSequenceSource(
+      {
+        actionData: [action],
+        onlyExecuteWhenSourceIsMainChar: false,
+        onlyExecuteWhenSourceIsGuard: false,
+      },
+      'fixture',
+      {},
+      (value, path) => parseKnownNativeActionLeafSource(value, path, {}),
+    );
+    expect(
+      compileCombatActionSequenceSource(
+        source,
+        { actionOwnerTarget: 'caster', actionSourceTarget: 'caster', actionTargetTarget: 'enemy' },
+        new Set(),
+      ),
+    ).toMatchObject({
+      steps: [
+        {
+          kind: 'heal',
+          parameters: {
+            target: 'controlledOperator',
+            alwaysNext: true,
+            attribute: 'will',
+            multiplier: { kind: 'blackboard', key: 'will_additive' },
+            addition: { kind: 'blackboard', key: 'heal_base' },
+          },
+        },
+      ],
+    });
+  });
   it('属性计算不限制原生 valueSource 和 healer 枚举', () => {
     const source = parseHealActionSource(
       {

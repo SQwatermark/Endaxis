@@ -27,6 +27,7 @@ import type { AbilityEventRegistration } from '../events/abilityEventDispatcher'
 import type {
   CombatAbilityDamageEvent,
   CombatAbilityPhysicalInflictionEvent,
+  CombatAbilityKnockDownEvent,
   CombatAbilitySpellInflictionEvent,
   CombatAbilityHealEvent,
   CombatAbilityPoiseEvent,
@@ -233,7 +234,11 @@ class CompositeBuffDuringEnableAction<Key extends string> implements BuffDuringE
 export function attachBuffLifecycleSequences<Key extends string>(
   definition: CombatBuffDefinition<Key>,
   sequences: ResolvedSkillBuffLifecycleSequences,
-  resolveOperations: (buff: CombatBuff<Key>) => CombatOperationExecutor,
+  resolveOperations: (
+    buff: CombatBuff<Key>,
+    actionSourceId?: string,
+    skillCastInfo?: CombatSkillCastInfo | null,
+  ) => CombatOperationExecutor,
   currentTarget?: RuntimeTargetRef,
   abilityEventResponses: readonly ResolvedSkillBuffAbilityEventResponse[] = [],
   registerAbilityEventAction?: RegisterBuffAbilityEventAction,
@@ -279,13 +284,51 @@ export function attachBuffLifecycleSequences<Key extends string>(
       },
       setCurrentBuffTimePaused: paused => buff.setTimePaused(paused),
     };
-    runtime = new CombatActionSequenceRuntime(resolveOperations(buff), context);
+    const defaultOperations = resolveOperations(buff);
+    const callbackOperations = new WeakMap<CombatOperationContext, CombatOperationExecutor>();
+    const operationsFor = (callback?: CombatOperationContext): CombatOperationExecutor => {
+      if (callback?.actionSourceId === undefined) return defaultOperations;
+      let operations = callbackOperations.get(callback);
+      if (operations === undefined) {
+        operations = resolveOperations(
+          buff,
+          callback.actionSourceId,
+          callback.skillCastInfo ?? null,
+        );
+        callbackOperations.set(callback, operations);
+      }
+      return operations;
+    };
+    // 回调更换操作来源，但仍使用同一个实例运行时，不能重置 once 和动作黑板作用域。
+    runtime = new CombatActionSequenceRuntime(
+      {
+        execute: (step, callback) => operationsFor(callback).execute(step, callback),
+        evaluate: (condition, callback) => operationsFor(callback).evaluate(condition, callback),
+        prepare: (step, callback) => operationsFor(callback).prepare?.(step, callback),
+        end: (step, callback) => operationsFor(callback).end?.(step, callback),
+      },
+      context,
+    );
     runtimes.set(buff, runtime);
     return runtime;
   };
   const execute = (sequence: ResolvedActionSequence | undefined, buff: CombatBuff<Key>): void => {
     if (sequence === undefined) return;
     runtimeFor(buff).createSequence(sequence).executeInstant({});
+  };
+  // 叠层者可能不是最初创建者；每次回调只替换本次执行环境，不修改 Buff 的归属和来源施法。
+  const executeEnhance = (
+    sequence: ResolvedActionSequence | undefined,
+    buff: CombatBuff<Key>,
+    sourceId: string,
+  ): void => {
+    if (sequence === undefined) return;
+    runtimeFor(buff)
+      .createSequence(sequence, {
+        ...runtimeFor(buff).context,
+        actionSourceId: sourceId,
+      })
+      .executeInstant({});
   };
   const startEnableSequence = (buff: CombatBuff<Key>): void => {
     if (sequences.enable === undefined) return;
@@ -495,13 +538,21 @@ export function attachBuffLifecycleSequences<Key extends string>(
         }),
     ...(sequences.beforeEnhance === undefined
       ? {}
-      : { beforeEnhance: buff => execute(sequences.beforeEnhance, buff) }),
+      : {
+          beforeEnhance: (buff, sourceId) =>
+            executeEnhance(sequences.beforeEnhance, buff, sourceId),
+        }),
     ...(sequences.enhanceChanged === undefined
       ? {}
-      : { enhanceChanged: buff => execute(sequences.enhanceChanged, buff) }),
+      : {
+          enhanceChanged: (buff, sourceId) =>
+            executeEnhance(sequences.enhanceChanged, buff, sourceId),
+        }),
     ...(sequences.afterEnhance === undefined
       ? {}
-      : { afterEnhance: buff => execute(sequences.afterEnhance, buff) }),
+      : {
+          afterEnhance: (buff, sourceId) => executeEnhance(sequences.afterEnhance, buff, sourceId),
+        }),
     ...(sequences.trigger === undefined
       ? {}
       : {
@@ -515,21 +566,24 @@ export function attachBuffLifecycleSequences<Key extends string>(
     ...(igniteEventResponses.length === 0
       ? {}
       : {
-          ignite: (buff, igniteType, sourceId) => {
+          ignite: (buff, igniteType, sourceId, skillCastInfo) => {
             const responses = igniteEventResponses.filter(
               response => response.igniteType === igniteType,
             );
             if (responses.length === 0) return false;
             const runtime = runtimeFor(buff);
             for (const response of responses) {
+              if (buff.isFinished) break;
               runtime
                 .createSequence(response.sequence, {
                   ...runtime.context,
+                  actionSourceId: sourceId,
+                  skillCastInfo,
                   buffSourceId: sourceId,
                 })
                 .executeInstant({});
+              if (response.finishAfterIgnited) buff.finish('ignite');
             }
-            if (responses.some(response => response.finishAfterIgnited)) buff.finish('other');
             return true;
           },
         }),
@@ -637,6 +691,7 @@ export function normalizeAbilityEventPayload(
   | CombatSemanticEvent
   | CombatAbilityDamageEvent
   | CombatAbilityPhysicalInflictionEvent
+  | CombatAbilityKnockDownEvent
   | CombatAbilitySpellInflictionEvent
   | CombatAbilitySpellBurstEvent
   | CombatAbilityPoiseEvent
@@ -665,6 +720,18 @@ export function normalizeAbilityEventPayload(
       event,
       sourceId: source.sourceId,
       targetId: source.targetId,
+    };
+  }
+  if (event === 'beforeOutputKnockDown' || event === 'afterOutputKnockDown') {
+    if (typeof source.fromAirborne !== 'boolean') {
+      throw new TypeError(`Buff ability event '${event}' payload has invalid fromAirborne`);
+    }
+    return {
+      kind: 'abilityKnockDown',
+      event,
+      sourceId: source.sourceId,
+      targetId: source.targetId,
+      fromAirborne: source.fromAirborne,
     };
   }
   if (event === 'beforeTakePhysicalInfliction' || event === 'beforeOutputPhysicalInfliction') {
@@ -741,8 +808,8 @@ export function normalizeAbilityEventPayload(
   ) {
     if (
       typeof source.buffId !== 'string' ||
-      !Array.isArray(source.buffTagIds) ||
-      !source.buffTagIds.every(value => typeof value === 'number')
+      !Array.isArray(source.buffTags) ||
+      !source.buffTags.every(value => typeof value === 'string')
     ) {
       throw new TypeError(`Buff ability event '${event}' payload has invalid Buff identity`);
     }
@@ -751,7 +818,7 @@ export function normalizeAbilityEventPayload(
       sourceId: source.sourceId,
       targetId: source.targetId,
       buffId: source.buffId,
-      buffTagIds: source.buffTagIds as number[],
+      buffTags: source.buffTags as string[],
     };
   }
   if (event === 'finishedBuff') {
@@ -825,8 +892,8 @@ export function normalizeAbilityEventPayload(
       typeof source.requestedHealing !== 'number' ||
       typeof source.actualHealing !== 'number' ||
       typeof source.overhealing !== 'number' ||
-      !Array.isArray(source.tagIds) ||
-      !source.tagIds.every(value => typeof value === 'number' && Number.isInteger(value))
+      !Array.isArray(source.tags) ||
+      !source.tags.every(value => typeof value === 'string')
     ) {
       throw new TypeError(`Buff ability event '${event}' payload has invalid healing values`);
     }
@@ -838,7 +905,7 @@ export function normalizeAbilityEventPayload(
       requestedHealing: source.requestedHealing,
       actualHealing: source.actualHealing,
       overhealing: source.overhealing,
-      tagIds: source.tagIds,
+      tags: source.tags,
     };
   }
   if (

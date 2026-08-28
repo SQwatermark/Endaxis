@@ -43,8 +43,8 @@ const definition = {
           "triggerIntervalSeconds": 0,
           "waitFirstTriggerInterval": true,
           "maxTriggerCount": 1,
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "atk_up2": 0,
             "duration": 0,
@@ -166,8 +166,8 @@ const definition = {
           "triggerIntervalSeconds": 0,
           "waitFirstTriggerInterval": true,
           "maxTriggerCount": 1,
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "duration3": 0,
             "duration4": 0,
@@ -232,8 +232,8 @@ const definition = {
                       "condition": {
                         "kind": "eventBuffTagsMatch",
                         "match": "hasAny",
-                        "buffTagIds": [
-                          1427729990
+                        "buffTags": [
+                          "Skill/Character/Common/Affixes/Vulnerable/VulnerableSpell"
                         ]
                       }
                     },
@@ -312,8 +312,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "duration_dynamic": 0,
             "duration3": 0,
@@ -406,8 +406,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "duration_dynamic": 0,
             "duration4": 0,
@@ -498,8 +498,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "duration": 0,
             "duration_dynamic": 0
@@ -529,8 +529,8 @@ const definition = {
           "triggerIntervalSeconds": 0,
           "waitFirstTriggerInterval": true,
           "maxTriggerCount": 1,
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "atk_up2": 0,
             "duration": 0,
@@ -595,8 +595,8 @@ const definition = {
                       "condition": {
                         "kind": "eventBuffTagsMatch",
                         "match": "hasAny",
-                        "buffTagIds": [
-                          1427729990
+                        "buffTags": [
+                          "Skill/Character/Common/Affixes/Vulnerable/VulnerableSpell"
                         ]
                       }
                     },
@@ -673,8 +673,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "atk_up2": 0,
             "duration2": 0
@@ -715,8 +715,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "duration": 0,
             "spell_dmg_up": 0

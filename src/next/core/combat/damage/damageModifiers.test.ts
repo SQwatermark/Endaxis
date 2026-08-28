@@ -159,7 +159,7 @@ describe('DamageModifier', () => {
       kind: 'entityTagMatch',
       target: 'enemy',
       tagQueryType: 'hasAny',
-      tagIds: [1925762097],
+      tags: ['Skill/Character/Common/Affixes/Slow'],
     } as const;
     const evaluateCondition = vi.fn(() => true);
     const context = createContext();

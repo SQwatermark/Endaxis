@@ -475,21 +475,21 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
                   kind: 'buffStackCompare',
                   target: 'enemy',
                   tagQueryType: 'hasAny',
-                  buffTagIds: [1466867135],
+                  buffTags: ["Skill/Character/Common/SpellStatus/Conduct"],
                   operator: 'greaterOrEqual',
                   value: { kind: 'constant', value: 1 },
                 },
                 sequence(
                   step('readBuffBlackboard', {
                     target: 'enemy',
-                    query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [1466867135] },
+                    query: { kind: 'tag', tagQueryType: 'hasAny', buffTags: ["Skill/Character/Common/SpellStatus/Conduct"] },
                     desiredKey: 'count',
                     outputKey: 'conductCnt',
                   }),
                   step('finishBuffsByTag', {
                     target: 'enemy',
                     tagQueryType: 'hasAny',
-                    buffTagIds: [1466867135],
+                    buffTags: ["Skill/Character/Common/SpellStatus/Conduct"],
                     reason: 'early',
                   }),
                   step('modifyActionValue', {
@@ -851,21 +851,21 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
                       kind: 'buffStackCompare',
                       target: 'enemy',
                       tagQueryType: 'hasAny',
-                      buffTagIds: [1466867135],
+                      buffTags: ["Skill/Character/Common/SpellStatus/Conduct"],
                       operator: 'greaterOrEqual',
                       value: { kind: 'constant', value: 1 },
                     },
                     sequence(
                       step('readBuffBlackboard', {
                         target: 'enemy',
-                        query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [1466867135] },
+                        query: { kind: 'tag', tagQueryType: 'hasAny', buffTags: ["Skill/Character/Common/SpellStatus/Conduct"] },
                         desiredKey: 'count',
                         outputKey: 'conductCnt',
                       }),
                       step('finishBuffsByTag', {
                         target: 'enemy',
                         tagQueryType: 'hasAny',
-                        buffTagIds: [1466867135],
+                        buffTags: ["Skill/Character/Common/SpellStatus/Conduct"],
                         reason: 'early',
                       }),
                       step('modifyActionValue', {
@@ -1122,7 +1122,7 @@ export const zhuangFangyiComboSkill: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.6 },
-            slot: 0,
+            slot: "unassigned",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -1140,7 +1140,7 @@ export const zhuangFangyiComboSkill: SkillDefinition = withSkillBlackboard(
               kind: 'buffStackCompare',
               target: 'enemy',
               tagQueryType: 'hasAny',
-              buffTagIds: [2123008650],
+              buffTags: ["Skill/Character/Common/SpellInflict/PulseInflict"],
               operator: 'greaterOrEqual',
               value: { kind: 'constant', value: 1 },
             },
@@ -1148,7 +1148,7 @@ export const zhuangFangyiComboSkill: SkillDefinition = withSkillBlackboard(
               step('readBuffStackCount', {
                 target: 'enemy',
                 outputKey: 'inflictCnt',
-                query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [2123008650] },
+                query: { kind: 'tag', tagQueryType: 'hasAny', buffTags: ["Skill/Character/Common/SpellInflict/PulseInflict"] },
               }),
               step('modifyActionValue', {
                 key: 'conductCnt',
@@ -1160,7 +1160,7 @@ export const zhuangFangyiComboSkill: SkillDefinition = withSkillBlackboard(
                   kind: 'buffStackCompare',
                   target: 'enemy',
                   tagQueryType: 'hasAny',
-                  buffTagIds: [1466867135],
+                  buffTags: ["Skill/Character/Common/SpellStatus/Conduct"],
                   operator: 'greaterOrEqual',
                   value: { kind: 'constant', value: 1 },
                 },
@@ -1218,7 +1218,7 @@ export const zhuangFangyiComboSkill: SkillDefinition = withSkillBlackboard(
           step('finishBuffsByTag', {
             target: 'enemy',
             tagQueryType: 'hasAny',
-            buffTagIds: [2123008650],
+            buffTags: ["Skill/Character/Common/SpellInflict/PulseInflict"],
             reason: 'early',
           }),
           branch(
@@ -1271,7 +1271,7 @@ export const zhuangFangyiEnhancedComboSkill: SkillDefinition = withSkillBlackboa
           step('startTimeDilation', {
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.6 },
-            slot: 0,
+            slot: "unassigned",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -1299,7 +1299,7 @@ export const zhuangFangyiEnhancedComboSkill: SkillDefinition = withSkillBlackboa
               kind: 'buffStackCompare',
               target: 'enemy',
               tagQueryType: 'hasAny',
-              buffTagIds: [2123008650],
+              buffTags: ["Skill/Character/Common/SpellInflict/PulseInflict"],
               operator: 'greaterOrEqual',
               value: { kind: 'constant', value: 1 },
             },
@@ -1307,7 +1307,7 @@ export const zhuangFangyiEnhancedComboSkill: SkillDefinition = withSkillBlackboa
               step('readBuffStackCount', {
                 target: 'enemy',
                 outputKey: 'inflictCnt',
-                query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [2123008650] },
+                query: { kind: 'tag', tagQueryType: 'hasAny', buffTags: ["Skill/Character/Common/SpellInflict/PulseInflict"] },
               }),
               step('modifyActionValue', {
                 key: 'conductCnt',
@@ -1319,7 +1319,7 @@ export const zhuangFangyiEnhancedComboSkill: SkillDefinition = withSkillBlackboa
                   kind: 'buffStackCompare',
                   target: 'enemy',
                   tagQueryType: 'hasAny',
-                  buffTagIds: [1466867135],
+                  buffTags: ["Skill/Character/Common/SpellStatus/Conduct"],
                   operator: 'greaterOrEqual',
                   value: { kind: 'constant', value: 1 },
                 },
@@ -1377,7 +1377,7 @@ export const zhuangFangyiEnhancedComboSkill: SkillDefinition = withSkillBlackboa
           step('finishBuffsByTag', {
             target: 'enemy',
             tagQueryType: 'hasAny',
-            buffTagIds: [2123008650],
+            buffTags: ["Skill/Character/Common/SpellInflict/PulseInflict"],
             reason: 'early',
           }),
         ),
@@ -1407,7 +1407,7 @@ export const zhuangFangyiUltimate: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 1 },
-            slot: 1464849466,
+            slot: "TimeDilation/Layer/Entity/HitStop",
             priority: 10,
             curve: { kind: 'named', key: 'RESETto1' },
             finishByAction: false,
@@ -1483,7 +1483,7 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
       priority: 0,
       maxStackCount: 1,
       durationSeconds: 3,
-      applyTagIds: [1670936726],
+      applyTags: ["Skill/Character/chr_0030_zhuangfy/SwordTar"],
       lifecycleSequences: {
         start: sequence(
           step('spawnAbilityEntity', { abilityEntityId: 'abilityentity_chr_0030_zhuangfy_normal_skill_fake_target',  dieWhenSourceDies: false, inheritActionBlackboard: true }),
@@ -1682,7 +1682,7 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
       triggerIntervalSeconds: { blackboardKey: 'interval' },
       waitFirstTriggerInterval: true,
       maxTriggerCount: 50,
-      applyTagIds: [-1486085048],
+      applyTags: ["Status/DisableNormalSkill"],
       blackboard: {
         'atb_return': 0,
         'atk_scale': 0,
@@ -1719,7 +1719,7 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
           step('finishBuffsByTag', {
             target: 'enemy',
             tagQueryType: 'hasAny',
-            buffTagIds: [1670936726],
+            buffTags: ["Skill/Character/chr_0030_zhuangfy/SwordTar"],
             reason: 'other',
           }),
         ),
@@ -1870,8 +1870,8 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
       priority: 1,
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration' },
-      applyTagIds: [-388303696, 189882742],
-      extendTagIds: [-1486085048, -496376350],
+      applyTags: ["Status/DisableBreakingAttack", "3C/PostmodelChanged"],
+      extendTags: ["Status/DisableNormalSkill", "Status/DisableCastComboSkill"],
       blackboard: {
         'combo_cd_rate': 3,
         'duration': 10,
@@ -2000,7 +2000,7 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
             attribute: 'maxHealth',
             multiplier: { kind: 'blackboard', key: 'heal' },
             addition: { kind: 'constant', value: 0 },
-            tagIds: [],
+            tags: [],
           }),
         ),
       },
@@ -3131,7 +3131,7 @@ export const zhuangFangyiGeneratedOperator: OperatorDefinition = {
                           kind: 'entityTagMatch',
                           target: 'caster',
                           tagQueryType: 'exceptAny',
-                          tagIds: [-727577212, 1622340854, 1357114970],
+                          tags: ["3C/Dash", "Status/DashImmune", "Status/DashSucceedImmune"],
                         },
                         sequence(
                           step('calculateActionValue', {

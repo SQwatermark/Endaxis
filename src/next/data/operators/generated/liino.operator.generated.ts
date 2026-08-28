@@ -26,7 +26,7 @@ export const liinoComboSkill: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 0.15 },
-            slot: 1464849466,
+            slot: "TimeDilation/Layer/Entity/HitStop",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -42,7 +42,7 @@ export const liinoComboSkill: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.933 },
-            slot: 0,
+            slot: "unassigned",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -123,7 +123,7 @@ export const liinoComboSkill: SkillDefinition = withSkillBlackboard(
             target: 'controlledOperator',
             alwaysNext: true,
             amount: { kind: 'blackboard', key: 'final_heal_value' },
-            tagIds: [-1517158118],
+            tags: ["Skill/Character/Common/Heal/ComboSkillHeal"],
           }),
           step('changeResourceByActionValue', {
             resource: 'ultimateEnergy',
@@ -1507,7 +1507,7 @@ export const liinoUltimate: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 1 },
-            slot: 1464849466,
+            slot: "TimeDilation/Layer/Entity/HitStop",
             priority: 10,
             curve: { kind: 'named', key: 'RESETto1' },
             finishByAction: false,
@@ -1709,7 +1709,7 @@ export const liinoUltimate: SkillDefinition = withSkillBlackboard(
               kind: 'entityTagMatch',
               target: 'caster',
               tagQueryType: 'hasAny',
-              tagIds: [828446949],
+              tags: ["Skill/Character/chr_0035_liino/ComboSkill"],
             },
             sequence(
               step('applyBuff', {
@@ -2280,7 +2280,7 @@ export const liinoGeneratedOperator: OperatorDefinition = {
       priority: { blackboardKey: 'rate', negate: true },
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration' },
-      applyTagIds: [-438154626],
+      applyTags: ["Skill/Character/chr_0035_liino/NormalSkillMusic"],
       blackboard: {
         'atk_up': 0,
         'duration': 15,
@@ -2399,7 +2399,7 @@ export const liinoGeneratedOperator: OperatorDefinition = {
                 target: 'caster',
                 alwaysNext: true,
                 amount: { kind: 'blackboard', key: 'final_heal_value' },
-                tagIds: [-320297214],
+                tags: ["Skill/Character/Common/Heal/NormalSkillHeal"],
               }),
             ),
           ),
@@ -2418,7 +2418,7 @@ export const liinoGeneratedOperator: OperatorDefinition = {
                 target: 'caster',
                 alwaysNext: true,
                 amount: { kind: 'blackboard', key: 'final_heal_value' },
-                tagIds: [-320297214],
+                tags: ["Skill/Character/Common/Heal/NormalSkillHeal"],
               }),
             ),
           ),
@@ -2772,7 +2772,7 @@ export const liinoGeneratedOperator: OperatorDefinition = {
       priority: { blackboardKey: 'rate', negate: true },
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration' },
-      applyTagIds: [-499637408],
+      applyTags: ["Skill/Character/chr_0035_liino/UltSkillMusic"],
       blackboard: {
         'atk_up': 0,
         'duration': 15,
@@ -2898,7 +2898,7 @@ export const liinoGeneratedOperator: OperatorDefinition = {
                 target: 'caster',
                 alwaysNext: true,
                 amount: { kind: 'blackboard', key: 'final_heal_value' },
-                tagIds: [-1499119779],
+                tags: ["Skill/Character/Common/Heal/UltimateSkillHeal"],
               }),
             ),
             step('applyBuff', {
@@ -2975,7 +2975,7 @@ export const liinoGeneratedOperator: OperatorDefinition = {
             target: 'buffOwner',
             alwaysNext: true,
             amount: { kind: 'blackboard', key: 'final_heal_value' },
-            tagIds: [-1499119779],
+            tags: ["Skill/Character/Common/Heal/UltimateSkillHeal"],
           }),
         ),
       },
@@ -3010,7 +3010,7 @@ export const liinoGeneratedOperator: OperatorDefinition = {
             target: 'buffOwner',
             alwaysNext: true,
             amount: { kind: 'blackboard', key: 'final_heal_value' },
-            tagIds: [-1499119779],
+            tags: ["Skill/Character/Common/Heal/UltimateSkillHeal"],
           }),
         ),
       },

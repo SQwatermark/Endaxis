@@ -25,6 +25,49 @@ function addModifier(
 }
 
 describe('CombatAttributeSet', () => {
+  it('当前命中附加修正复用八槽与边界，不改变属性集或来源过滤结果', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
+    addModifier(attributes, 'baseMultiplier', 0.5, ATTRIBUTE_MODIFIER_SOURCES.buff);
+    addModifier(attributes, 'finalMultiplier', 2, ATTRIBUTE_MODIFIER_SOURCES.instant);
+    expect(
+      attributes.getWithAdditionalModifiers('attack', [
+        attributeModifierValues('baseAddition', 10),
+        attributeModifierValues('addition', 7),
+      ]),
+    ).toBe(344);
+    expect(
+      attributes.getWithAdditionalModifiers('attack', [
+        attributeModifierValues('finalMultiplier', 0),
+      ]),
+    ).toBe(0);
+    expect(
+      attributes.getWithAdditionalModifiers('attack', [
+        attributeModifierValues('baseAddition', 1000),
+      ]),
+    ).toBe(1000);
+    expect(attributes.get('attack')).toBe(300);
+    expect(attributes.get('attack', ATTRIBUTE_MODIFIER_SOURCES.buff)).toBe(150);
+    expect(attributes.modifierCount).toBe(2);
+  });
+
+  it('当前命中附加修正不默默放行未知属性或非有限值', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    expect(() =>
+      attributes.getWithAdditionalModifiers('attack', [attributeModifierValues('baseAddition', 1)]),
+    ).toThrow('not defined');
+    attributes.define('attack', 100, {});
+    expect(() =>
+      attributes.getWithAdditionalModifiers('attack', [
+        {
+          ...attributeModifierValues('baseAddition', 1),
+          finalMultiplier: NaN,
+        },
+      ]),
+    ).toThrow('finite');
+    expect(attributes.get('attack')).toBe(100);
+  });
+
   it('aggregates all eight slots across the recovered three stages', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     attributes.define('attack', 100, {

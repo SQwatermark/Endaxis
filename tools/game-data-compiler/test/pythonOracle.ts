@@ -222,6 +222,12 @@ else:
 
 def add_target_shape(value):
     if isinstance(value, dict):
+        # 仅适配仍然等价的旧字段。旧 role 丢失最低血量排除引用，不能拿它伪造新来源结构。
+        if "characterTeamSelectionRole" in value:
+            role = value.pop("characterTeamSelectionRole")
+            if role not in (None, "controlledOperator"):
+                raise ValueError("lowest HP selection requires raw fixture evidence, not the legacy role oracle")
+            value["characterTeamSelection"] = None if role is None else {"kind": role}
         if "finderType" in value and "finderSpawnedObjectType" in value:
             value.setdefault("finderShape", None)
             value.setdefault("finderOwnerPartsQuery", None)

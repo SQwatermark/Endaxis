@@ -72,6 +72,14 @@ function bindStepHitIds(step: ResolvedCombatStep, castId: string): ResolvedComba
     case 'dealDamage':
     case 'dealFixedDamage':
       return step.key === undefined ? step : { ...step, hitId: deriveHitId(castId, step.key) };
+    case 'switch':
+      return {
+        ...step,
+        options: step.options.map(option => ({
+          ...option,
+          sequence: bindSequenceHitIds(option.sequence, castId),
+        })),
+      };
     case 'conditional':
       return {
         ...step,

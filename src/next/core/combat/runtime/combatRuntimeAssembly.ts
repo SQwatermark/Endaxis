@@ -26,7 +26,6 @@ import type {
 } from '../../game-data/operatorDefinition';
 import type { EnemyRank } from '../../game-data/enemyRank';
 import { CombatReceiptCollector, type CombatReceiptSink } from '../receipt/combatReceipt';
-import { gameplayTagId } from '../tags/gameplayTags';
 import { AbilitySystemRuntime, type PostSkillCastRequest } from './abilitySystemRuntime';
 import { ActionBlackboardOperationExecutor } from './actionBlackboardOperationExecutor';
 import { EventContextConditionExecutor } from './eventContextConditionExecutor';
@@ -183,6 +182,8 @@ export interface CombatEnemyProgram {
 /** 非资源操作执行器工厂能够读取的稳定运行时依赖。 */
 export interface CombatOperationExecutorContext {
   readonly program: CompiledSkillProgram;
+  /** 当前定义宿主的已解析 Buff 闭包，供具有隐式 Buff 依赖的原生根动作复用。 */
+  readonly buffDefinitions?: CombatOperatorProgram['buffDefinitions'];
   readonly enemy: CombatEnemyProgram;
   readonly equipmentContributions: readonly CompiledEquipmentContribution[];
   readonly panel?: ResolvedOperatorPanel;
@@ -204,6 +205,8 @@ export interface CombatBattleRuntimeContext {
 /** 外部环境完成绑定后才可创建、需要由装配根逐帧推进的运行时。 */
 export interface BoundCombatBattleRuntimes {
   readonly enemyVitalsRuntime?: (FrameRuntime & { advance?(deltaSeconds: number): void }) | null;
+  /** 原生 ControlledStateComponent.FixedTick 消费实体最终时间倍率，不用 Ability/Buff 默认时钟。 */
+  readonly enemyControlRuntime?: { advance(entityDeltaSeconds: number): void } | null;
 }
 
 /** 配装事件中未被通用执行器消费的操作，由环境按明确来源决定是否支持。 */
@@ -897,6 +900,16 @@ export class CombatRuntimeAssembly {
       }
 
       if (this.timeDilation !== null) this.simulation.add(this.timeDilation);
+      const enemyControlRuntime = boundBattleRuntimes.enemyControlRuntime;
+      if (enemyControlRuntime !== undefined && enemyControlRuntime !== null) {
+        this.simulation.add({
+          // 控制组件在 FixedTick 推进，早于 AbilitySystem 的 Buff PreLateTick。
+          advanceFrame: () =>
+            enemyControlRuntime.advance(
+              COMBAT_FRAME_INTERVAL * (this.timeDilation?.getEntityScale('enemy') ?? 1),
+            ),
+        });
+      }
       this.simulation.add(new CombatResourceRuntime(this.resources, this.clock, this.receipt));
       // GlobalBuff 父寿命先推进；父层到期会在本帧普通 Buff 推进前同步结束全部镜像。
       this.simulation.add(this.globalBuffs);
@@ -1537,6 +1550,7 @@ export class CombatRuntimeAssembly {
     const operatorId = operator.operatorId;
     const terminalDelegate = createDelegate({
       program,
+      buffDefinitions: definitionOperator.buffDefinitions,
       enemy,
       equipmentContributions: operator.equipmentContributions ?? [],
       ...(operator.panel === undefined ? {} : { panel: operator.panel }),
@@ -1692,12 +1706,8 @@ export class CombatRuntimeAssembly {
         ? undefined
         : sourceId => isOperatorControlled(sourceId, this.clock.frame),
       sourceId => this.#resolveAbilitySystemSourceId(sourceId),
-      (targetId, ownedTagIds, requiredTagIds, match) =>
-        this.#resolveBuffTargetById(targetId).matchesTagIds!(
-          ownedTagIds.map(gameplayTagId),
-          requiredTagIds.map(gameplayTagId),
-          match,
-        ),
+      (targetId, ownedTags, requiredTags, match) =>
+        this.#resolveBuffTargetById(targetId).matchesTags!(ownedTags, requiredTags, match),
     );
     const delegate = new ActionBlackboardOperationExecutor(
       eventConditions,
@@ -1892,12 +1902,8 @@ export class CombatRuntimeAssembly {
         ? undefined
         : sourceId => options.isOperatorControlled!(sourceId, this.clock.frame),
       sourceId => this.#resolveAbilitySystemSourceId(sourceId),
-      (targetId, ownedTagIds, requiredTagIds, match) =>
-        this.#resolveBuffTargetById(targetId).matchesTagIds!(
-          ownedTagIds.map(gameplayTagId),
-          requiredTagIds.map(gameplayTagId),
-          match,
-        ),
+      (targetId, ownedTags, requiredTags, match) =>
+        this.#resolveBuffTargetById(targetId).matchesTags!(ownedTags, requiredTags, match),
     );
     const blackboardOperations = new ActionBlackboardOperationExecutor(
       eventConditions,
@@ -1938,6 +1944,7 @@ export class CombatRuntimeAssembly {
     const template = operator.skills[0];
     if (template === undefined) return unsupportedReactiveTerminal;
     return options.createOperationExecutor({
+      buffDefinitions: operator.buffDefinitions,
       program: {
         ...template,
         castId: sourceActionId,

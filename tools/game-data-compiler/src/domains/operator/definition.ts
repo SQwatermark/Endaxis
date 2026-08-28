@@ -18,7 +18,7 @@ import type { CompiledBuffDefinitionSource } from '../../compiler/buffProjection
 import { assignGeneratedDamageStepKeys } from '../../compiler/definitionStepKeys.ts';
 import type { PassiveSkillCompilationBatchSource } from '../../compiler/passiveSkillBatch.ts';
 import { compileOperatorUpgradePassiveSkills } from './passiveSkillDefinition.ts';
-import type { GameplayTagRegistry } from '../../../../../src/shared/gameplayTags.ts';
+import type { GameplayTagRegistry } from '../../source/nativeGameplayTags.ts';
 import type { BuffRuntimeSource } from '../../source/buffRuntime.ts';
 import type { CombatActionProjectionExtensionsSource } from '../../compiler/combatProjectionCommon.ts';
 import {
@@ -222,7 +222,16 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
       [...bindings].map(([id, skillId]) => {
         const template = entityCatalog.byId.get(id);
         if (!template) throw new Error(`missing AbilityEntity ${id}`);
-        return [id, compileAbilityEntityDefinitionSource(template, skillId, input.loadSkill)];
+        return [
+          id,
+          compileAbilityEntityDefinitionSource(
+            template,
+            skillId,
+            input.loadSkill,
+            new Set(),
+            input.gameplayTagRegistry,
+          ),
+        ];
       }),
     );
     roots = [
@@ -274,6 +283,7 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
           skillId,
           input.loadSkill,
           entityVisualOnlyBuffIds,
+          input.gameplayTagRegistry,
         ),
       ];
     }),

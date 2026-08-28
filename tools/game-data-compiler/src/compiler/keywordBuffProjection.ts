@@ -21,7 +21,10 @@ export function projectKeywordBuffAction(
     context.actionOwnerTarget !== 'buffOwner' ||
     context.actionTargetTarget !== 'buffOwner' ||
     context.actionSourceTarget !== 'caster' ||
-    action.source.targetSource !== 'Source' ||
+    !(
+      action.source.targetSource === 'Source' ||
+      (action.source.targetSource === 'Owner' && context.fixedBuffOwnerTarget === 'caster')
+    ) ||
     !['Owner', 'Target'].includes(action.target.targetSource)
   )
     throw new Error(`${path}: unsupported keyword Buff source/target environment`);

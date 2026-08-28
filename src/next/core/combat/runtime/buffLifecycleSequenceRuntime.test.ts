@@ -786,18 +786,72 @@ describe('attachBuffLifecycleSequences', () => {
       sourceId: 'source',
       targetId: 'operator',
       buffId: 'added',
-      buffTagIds: [],
+      buffTags: [],
     });
 
     expect(registered).toBe(1);
     expect(reached).toBe(1);
   });
 
+  it('叠层回调使用本次来源，满层仍回调，且不重置实例 once 状态', () => {
+    const reached: unknown[] = [];
+    const callback = {
+      steps: [
+        {
+          kind: 'setContextFlag' as const,
+          parameters: { flag: 'callback', value: true, target: 'caster' as const },
+        },
+      ],
+    };
+    const definition = attachBuffLifecycleSequences<never>(
+      { id: 'layer', stackingType: 'enhanceAndRefresh', maxStackCount: 2 },
+      {
+        afterEnhance: {
+          steps: [
+            ...callback.steps,
+            { kind: 'once', parameters: { scopeKey: 'per-buff' }, body: callback },
+          ],
+        },
+      },
+      (buff, sourceId = buff.sourceId) => ({
+        execute: (_step, context) => {
+          reached.push([
+            sourceId,
+            context?.actionSourceId,
+            buff.enhanceCount,
+            context?.buffSourceId,
+          ]);
+          return true;
+        },
+        evaluate: () => true,
+      }),
+    );
+    const container = new CombatBuffContainer<never>('enemy', new CombatAttributeSet<never>());
+    const buff = container.add(definition, 'creator')!;
+    expect(reached).toEqual([]);
+    container.add(definition, 'teammate-a');
+    container.add(definition, 'teammate-b');
+    expect(reached).toEqual([
+      ['teammate-a', 'teammate-a', 2, 'creator'],
+      ['teammate-a', 'teammate-a', 2, 'creator'],
+      ['teammate-b', 'teammate-b', 2, 'creator'],
+    ]);
+    expect(buff.sourceId).toBe('creator');
+  });
+
   it('executes a matching ignite response with the ignite source and then finishes the Buff', () => {
     const reached: string[] = [];
+    const cast = {
+      skillCastId: 52,
+      originSkillId: 'ignite-skill',
+      originSkillType: 'battleSkill' as const,
+      nonReturnedSpCost: 0,
+    };
     const terminal: CombatOperationExecutor = {
       execute: (_step, context) => {
         reached.push(context?.buffSourceId ?? '<missing>');
+        expect(context?.skillCastInfo).toEqual(cast);
+        expect(context?.actionSourceId).toBe('operator');
         return true;
       },
       evaluate: condition => {
@@ -825,14 +879,29 @@ describe('attachBuffLifecycleSequences', () => {
             ],
           },
         },
+        {
+          igniteType: 'EndminUlt',
+          finishAfterIgnited: false,
+          sequence: {
+            steps: [
+              {
+                kind: 'setContextFlag',
+                parameters: { flag: 'must-not-run', value: true, target: 'caster' },
+              },
+            ],
+          },
+        },
       ],
     );
     const container = new CombatBuffContainer<never>('enemy', new CombatAttributeSet<never>());
-    const buff = container.add(definition, 'original-source')!;
+    const originalCast = { ...cast, skillCastId: 12, originSkillId: 'original-skill' };
+    const buff = container.add(definition, 'original-source', { skillCastInfo: originalCast })!;
 
     expect(container.ignite('PhysicalStatus', 'operator')).toBe(0);
-    expect(container.ignite('EndminUlt', 'operator')).toBe(1);
+    expect(container.ignite('EndminUlt', 'operator', cast)).toBe(1);
     expect(reached).toEqual(['operator']);
-    expect(buff.finishReason).toBe('other');
+    expect(buff.finishReason).toBe('ignite');
+    expect(buff.skillCastInfo).toEqual(originalCast);
+    expect(buff.sourceId).toBe('original-source');
   });
 });

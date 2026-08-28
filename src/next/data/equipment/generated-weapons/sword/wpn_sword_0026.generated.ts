@@ -61,8 +61,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "def_up": 0,
             "dmg_up": 0,
@@ -143,7 +143,7 @@ const definition = {
                         "parameters": {
                           "target": "caster",
                           "alwaysNext": true,
-                          "tagIds": [],
+                          "tags": [],
                           "amount": {
                             "kind": "blackboard",
                             "key": "hp_up"

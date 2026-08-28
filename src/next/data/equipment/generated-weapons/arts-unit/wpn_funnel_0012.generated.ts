@@ -137,8 +137,8 @@ const definition = {
                   "condition": {
                     "kind": "eventHealTagsMatch",
                     "match": "hasAny",
-                    "tagIds": [
-                      -320297214
+                    "tags": [
+                      "Skill/Character/Common/Heal/NormalSkillHeal"
                     ]
                   }
                 },
@@ -179,8 +179,8 @@ const definition = {
                                   "parameters": {
                                     "target": "controlledOperator",
                                     "alwaysNext": true,
-                                    "tagIds": [
-                                      -2105386805
+                                    "tags": [
+                                      "Skill/Character/Common/Heal/WeaponHeal"
                                     ],
                                     "attribute": "will",
                                     "multiplier": {

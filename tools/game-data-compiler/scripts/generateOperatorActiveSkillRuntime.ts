@@ -1,8 +1,11 @@
+import { selectNativeAbilityEntityTemplateFields } from '../src/source/abilityEntity.ts';
+import { readGameplayTagPaths } from './readGameplayTagPaths.ts';
+export { readGameplayTagPaths } from './readGameplayTagPaths.ts';
 import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { GameplayTagRegistry, gameplayTagIdFromPath } from '../../../src/shared/gameplayTags.ts';
+import { GameplayTagRegistry, gameplayTagIdFromPath } from '../src/source/nativeGameplayTags.ts';
 import { compileAbilityEntityTemplateCatalogSource } from '../src/compiler/abilityEntityCatalog.ts';
 import { collectNativeActionNodes } from '../src/source/controlFlow.ts';
 import { collectBuffRuntimeClosure } from '../src/compiler/buffReferenceClosure.ts';
@@ -256,30 +259,11 @@ export function planOperatorActiveSkillRuntime(
   const abilityEvidence = readJson(args.abilityEntityCatalog) as {
     templates: Record<string, Record<string, unknown>>;
   };
-  const abilityFields = [
-    'gameId',
-    'factionNativeValue',
-    'bornTagIds',
-    'lifeTypeNativeValue',
-    'durationSeconds',
-    'durationBlackboard',
-    'maxDurationForServerSeconds',
-    'maxStackingCount',
-    'maxStackingCountBlackboard',
-    'delayToRecycleSeconds',
-    'delayRecyclePerformSeconds',
-    'sendDieEvent',
-    'enableBornFadeIn',
-    'fadeInSeconds',
-    'componentCount',
-    'managedReferenceCount',
-    'rootRid',
-  ] as const;
   const abilityCatalog = compileAbilityEntityTemplateCatalogSource(
     Object.fromEntries(
       Object.entries(abilityEvidence.templates).map(([id, raw]) => [
         id,
-        Object.fromEntries(abilityFields.map(field => [field, raw[field]])),
+        selectNativeAbilityEntityTemplateFields(raw),
       ]),
     ),
   );
@@ -371,6 +355,7 @@ export function planOperatorActiveSkillRuntime(
   const projectile = createZeroDistanceProjectileProjectionExtensionSource({
     catalog: { runtimes: runtimeCatalog, templates: templateCatalog, callbackGraphs },
     callbackContext: {
+      gameplayTagRegistry: registry,
       actionOwnerTarget: 'unavailable',
       actionSourceTarget: 'caster',
       actionTargetTarget: 'enemy',
@@ -386,6 +371,7 @@ export function planOperatorActiveSkillRuntime(
     sourcePath: sourceIdentity,
     patch,
     context: {
+      gameplayTagRegistry: registry,
       actionOwnerTarget: 'caster',
       actionSourceTarget: 'caster',
       actionTargetTarget: 'enemy',
@@ -400,7 +386,17 @@ export function planOperatorActiveSkillRuntime(
     if (!runtimeBuffIds.has(id))
       throw new Error(`supplemental Buff '${id}' is not applied by the compiled runtime`);
   const buffData = loadBuffClosureSources(args.supplementalBuffIds, args.buffDataRoot);
-  const buffClosure = compileStandardStumpBuffClosure(args.supplementalBuffIds, buffData);
+  const buffClosure = compileStandardStumpBuffClosure(
+    args.supplementalBuffIds,
+    buffData,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    registry,
+  );
   const blockedBuffs = buffClosure.diagnostics.filter(item => item.status === 'blocked');
   if (blockedBuffs.length > 0)
     throw new Error(`active skill Buff closure is blocked: ${JSON.stringify(blockedBuffs)}`);
@@ -522,17 +518,6 @@ function loadBuffClosureSources(
     return value;
   });
   return result;
-}
-
-export function readGameplayTagPaths(file: string): string[] {
-  const text = fs.readFileSync(file, 'utf8');
-  const block = /GAMEPLAY_TAG_PATHS = Object\.freeze\(\[([\s\S]*?)\]\s+as const\)/.exec(text)?.[1];
-  if (!block) throw new Error(`${file}: GAMEPLAY_TAG_PATHS not found`);
-  const paths = [...block.matchAll(/^\s*'((?:\\'|[^'])*)',?\s*$/gm)].map(match =>
-    match[1]!.replaceAll("\\'", "'").replaceAll('\\\\', '\\'),
-  );
-  if (paths.length === 0) throw new Error(`${file}: empty GameplayTag path catalog`);
-  return paths;
 }
 
 export function readTimeDilationPriorities(file: string): Map<number, number> {

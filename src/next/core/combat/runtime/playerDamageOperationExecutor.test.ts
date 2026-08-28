@@ -9,6 +9,7 @@ import { CombatClock } from './combatClock';
 import { CombatVitals } from './combatVitals';
 import { ActionBlackboard } from './actionBlackboard';
 import { PlayerDamageOperationExecutor } from './playerDamageOperationExecutor';
+import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import { deriveHitId } from '../timeline/deriveHitId';
 
 const DAMAGE_STEP: Extract<ResolvedCombatStep, { kind: 'dealDamage' }> = {
@@ -215,6 +216,53 @@ describe('PlayerDamageOperationExecutor', () => {
     executor.prepare(snapshotStep, snapshotContext);
     executor.execute(snapshotStep, snapshotContext);
     expect(targetVitals.health).toBe(250);
+
+    // 未选 Switch 分支内的 IfElse 也必须在 Reset 时建立快照，不能等命中后读实时攻击。
+    const branchContext = {
+      blackboard: new ActionBlackboard({ choice: 0 }),
+      damageCalculationSnapshots: new Map(),
+    };
+    const branchRuntime = new CombatActionSequenceRuntime(
+      {
+        execute: (step, context) => executor.execute(step, context),
+        prepare: (step, context) => executor.prepare(step, context),
+        evaluate: () => false,
+      },
+      branchContext,
+    );
+    const branchSequence = branchRuntime.createSequence({
+      steps: [
+        {
+          kind: 'switch',
+          parameters: { choice: { kind: 'blackboard', key: 'choice' }, alwaysNext: false },
+          options: [
+            { value: { kind: 'constant', value: 0 }, sequence: { steps: [] } },
+            {
+              value: { kind: 'constant', value: 1 },
+              sequence: {
+                steps: [
+                  {
+                    kind: 'conditional',
+                    parameters: { condition: { kind: 'combatActive' } },
+                    whenTrue: { steps: [] },
+                    whenFalse: { steps: [snapshotStep] },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      ],
+    });
+    runtimeAttack = 200;
+    branchSequence.reset({});
+    expect(branchContext.damageCalculationSnapshots.size).toBe(1);
+    branchSequence.executeInstant({});
+    expect(targetVitals.health).toBe(250);
+    runtimeAttack = 999;
+    branchContext.blackboard.assignDynamic('choice', 1);
+    branchSequence.executeInstant({});
+    expect(targetVitals.health).toBe(50);
   });
 
   it('does not publish a stale panel attack tree after runtime attack changes', () => {

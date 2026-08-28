@@ -39,7 +39,7 @@ describe('生成套装正式定义', () => {
                   condition: {
                     kind: 'eventBuffTagsMatch',
                     match: 'hasAny',
-                    buffTagIds: [2029588776, -1748167886, -1957150384, -881002460],
+                    buffTags: ["Skill/Character/Common/Affixes/Weak", "Skill/Character/Common/Affixes/Enhance", "Skill/Character/Common/Affixes/Shelter", "Skill/Character/Common/Affixes/Vulnerable"],
                   },
                 },
                 whenTrue: {
@@ -189,7 +189,7 @@ describe('生成套装正式定义', () => {
                 parameters: {
                   condition: {
                     kind: 'eventBuffTagsMatch',
-                    buffTagIds: [1466867135, -421286163],
+                    buffTags: ["Skill/Character/Common/SpellStatus/Conduct", "Skill/Character/Common/SpellStatus/Corrupt"],
                     buffIdOutputKey: 'buffid',
                   },
                 },
@@ -627,13 +627,13 @@ describe('生成套装正式定义', () => {
       {
         slug: 'suit_fire_natr01',
         rootBuffId: 'buff_equipsuit_fninflict_01',
-        tagId: -1110095722,
+        tagId: "Skill/Character/Common/SpellStatus/Burning",
         childBuffId: 'buff_equipsuit_fninflict_01_firedamageadd',
       },
       {
         slug: 'suit_pulse_cryst01',
         rootBuffId: 'buff_equipsuit_cpinflict_01',
-        tagId: 1466867135,
+        tagId: "Skill/Character/Common/SpellStatus/Conduct",
         childBuffId: 'buff_equipsuit_cpinflict_01_elecdamageadd',
       },
     ] as const;
@@ -654,7 +654,7 @@ describe('生成套装正式定义', () => {
           condition: {
             kind: 'eventBuffTagsMatch',
             match: 'hasAny',
-            buffTagIds: [fixture.tagId],
+            buffTags: [fixture.tagId],
           },
         },
         whenTrue: {
@@ -685,7 +685,7 @@ describe('生成套装正式定义', () => {
         condition: {
           kind: 'eventBuffTagsMatch',
           match: 'hasAny',
-          buffTagIds: [1075718177],
+          buffTags: ["Skill/Character/Common/NoGuard"],
         },
       },
       whenTrue: {
@@ -696,7 +696,7 @@ describe('生成套装正式定义', () => {
               condition: {
                 kind: 'eventTargetBuffCountCompare',
                 tagQueryType: 'hasAny',
-                buffTagIds: [1075718177],
+                buffTags: ["Skill/Character/Common/NoGuard"],
                 operator: 'greaterOrEqual',
                 value: { kind: 'blackboard', key: 'stack_cond' },
               },
@@ -728,7 +728,7 @@ describe('生成套装正式定义', () => {
         condition: {
           kind: 'eventBuffTagsMatch',
           match: 'hasAny',
-          buffTagIds: [-6380412],
+          buffTags: ["Skill/Character/Common/PhysicalStatus"],
         },
       },
       whenTrue: {
@@ -800,7 +800,7 @@ describe('生成套装正式定义', () => {
                   parameters: {
                     condition: {
                       kind: 'eventTargetBuffCountCompare',
-                      buffTagIds: [1075718177],
+                      buffTags: ["Skill/Character/Common/NoGuard"],
                     },
                   },
                   whenTrue: {
@@ -992,7 +992,7 @@ describe('生成套装正式定义', () => {
         condition: {
           kind: 'eventBuffTagsMatch',
           match: 'hasAny',
-          buffTagIds: [-1558844517],
+          buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"],
         },
       },
       whenTrue: {
@@ -1002,7 +1002,7 @@ describe('生成套装正式定义', () => {
               condition: {
                 kind: 'eventTargetBuffCountCompare',
                 tagQueryType: 'hasAny',
-                buffTagIds: [-1558844517],
+                buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"],
                 operator: 'greaterOrEqual',
                 value: { kind: 'blackboard', key: 'stack_cond' },
               },

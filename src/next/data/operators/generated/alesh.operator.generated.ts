@@ -796,7 +796,7 @@ export const aleshBattleSkill: SkillDefinition = withSkillBlackboard(
               kind: 'buffStackCompare',
               target: 'enemy',
               tagQueryType: 'hasAny',
-              buffTagIds: [1570888476],
+              buffTags: ["Skill/Character/Common/SpellInflict/CrystInflict"],
               operator: 'greaterOrEqual',
               value: { kind: 'constant', value: 1 },
             },
@@ -804,7 +804,7 @@ export const aleshBattleSkill: SkillDefinition = withSkillBlackboard(
               step('readBuffStackCount', {
                 target: 'enemy',
                 outputKey: 'count',
-                query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [1570888476] },
+                query: { kind: 'tag', tagQueryType: 'hasAny', buffTags: ["Skill/Character/Common/SpellInflict/CrystInflict"] },
               }),
             ),
             undefined,
@@ -843,7 +843,7 @@ export const aleshUltimate: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 1 },
-            slot: 1464849466,
+            slot: "TimeDilation/Layer/Entity/HitStop",
             priority: 10,
             curve: { kind: 'named', key: 'RESETto1' },
             finishByAction: false,
@@ -1081,7 +1081,7 @@ export const aleshGeneratedOperator: OperatorDefinition = {
                     {
                       kind: 'eventBuffTagsMatch',
                       match: 'hasAny',
-                      buffTagIds: [1535684437],
+                      buffTags: ["Skill/Character/Common/SpellStatus/Frozen"],
                     },
                     sequence(
                       step('changeResourceByActionValue', {
@@ -1141,7 +1141,7 @@ export const aleshGeneratedOperator: OperatorDefinition = {
                     {
                       kind: 'eventBuffTagsMatch',
                       match: 'hasAny',
-                      buffTagIds: [1535684437],
+                      buffTags: ["Skill/Character/Common/SpellStatus/Frozen"],
                     },
                     sequence(
                       step('calculateActionValue', {

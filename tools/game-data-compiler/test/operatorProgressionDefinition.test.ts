@@ -1,3 +1,4 @@
+import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { describe, expect, it } from 'vitest';
 import fixture from './fixtures/avywenna-progression.json';
 import buffFixture from './fixtures/avywenna-talent-buff.json';
@@ -268,13 +269,23 @@ describe('干员养成正式定义组装', () => {
     '原始天赋和 Buff 经生产模拟：等级 %s 只在初始化时安装自身 Buff',
     async level => {
       const id = 'buff_chr_0012_avywen_talent_0';
-      const closure = compileStandardStumpBuffClosure([id], buffFixture);
+      const closure = compileStandardStumpBuffClosure(
+        [id],
+        buffFixture,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        fixtureGameplayTagRegistry,
+      );
       expect(closure.diagnostics.filter(item => item.status === 'blocked')).toEqual([]);
       // 公共 Buff 编译结果与当前正式本体相同，只多出显式空集合；不用旧 Python 生成天赋行为。
       expect(closure.definitions[id]).toEqual({
         ...avywennaGeneratedOperator.buffDefinitions![id],
-        applyTagIds: [],
-        extendTagIds: [],
+        applyTags: [],
+        extendTags: [],
         blackboard: {},
         attributeModifiers: [],
       });

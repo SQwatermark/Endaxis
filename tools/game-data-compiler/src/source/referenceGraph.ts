@@ -174,6 +174,7 @@ function collectNodeReferences(
     case 'switch':
       for (const option of body.options) collectSequenceReferences(option.action, enabled, output);
       return;
+    case 'once':
     case 'forEach':
       collectSequenceReferences(body.action, enabled, output);
       return;
@@ -198,6 +199,34 @@ function collectLeafReferences(
 ): void {
   if (leaf.family === 'untracked') return;
   switch (leaf.family) {
+    case 'physicalInfliction': {
+      // 原生 OnlyDead 分支直接跳过目标；保留无效引用用于审计，不伪装成活动闭包。
+      const active = enabled && leaf.action.deadOption !== 'OnlyDead';
+      output.push(
+        referenceFromIdentity(
+          'buff',
+          'physicalStatus',
+          active,
+          'buff_physical_knockdown',
+          null,
+          sourcePath,
+        ),
+      );
+      // force 只绕过根动作的破防门；载体自身的依赖仍由 Buff 图继续展开。
+      if (!leaf.action.forceKnockDown) {
+        output.push(
+          referenceFromIdentity(
+            'buff',
+            'physicalNoGuardGate',
+            active,
+            'buff_physical_no_guard',
+            null,
+            sourcePath,
+          ),
+        );
+      }
+      return;
+    }
     case 'keywordBuff': {
       const action = leaf.action;
       output.push(

@@ -9,7 +9,6 @@ import { CombatResources } from './combatResources';
 import { CombatSimulation } from './combatSimulation';
 import { SkillResourceOperationExecutor } from './skillResourceOperationExecutor';
 import { SkillRuntime, type CombatOperationExecutor } from './skillRuntime';
-import { gameplayTagId } from '../tags/gameplayTags';
 import { SharedSpGainModifier } from '../resources/sharedSpGainModifiers';
 
 function findSkill(key: string): SkillDefinition {
@@ -39,7 +38,7 @@ describe('SkillResourceOperationExecutor', () => {
           ultimateEnergy: 0,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 1,
-          allowedUltimateEnergyRecoveryTagIds: null,
+          allowedUltimateEnergyRecoveryTags: null,
         },
       ],
     });
@@ -109,7 +108,7 @@ describe('SkillResourceOperationExecutor', () => {
           ultimateEnergy: 90,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 1.5,
-          allowedUltimateEnergyRecoveryTagIds: null,
+          allowedUltimateEnergyRecoveryTags: null,
         },
       ],
     });
@@ -160,7 +159,7 @@ describe('SkillResourceOperationExecutor', () => {
   });
 
   it('records blocked caster ultimate-energy gain without changing the ledger', () => {
-    const allowedTag = gameplayTagId(264623624);
+    const allowedTag = 'Skill/Character/chr_0026_lastrite';
     const clock = new CombatClock();
     const receipt = new CombatReceiptCollector();
     const resources = new CombatResources({
@@ -177,7 +176,7 @@ describe('SkillResourceOperationExecutor', () => {
           ultimateEnergy: 40,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 2,
-          allowedUltimateEnergyRecoveryTagIds: new Set([allowedTag]),
+          allowedUltimateEnergyRecoveryTags: new Set([allowedTag]),
         },
       ],
     });
@@ -221,7 +220,7 @@ describe('SkillResourceOperationExecutor', () => {
         resource: 'ultimateEnergy',
         amount: 10,
         recipient: 'caster',
-        ultimateRecoveryTagId: allowedTag,
+        ultimateRecoveryTag: allowedTag,
       },
     });
 
@@ -249,7 +248,7 @@ describe('SkillResourceOperationExecutor', () => {
           ultimateEnergy: 0,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 1,
-          allowedUltimateEnergyRecoveryTagIds: null,
+          allowedUltimateEnergyRecoveryTags: null,
         },
       ],
     });
@@ -317,7 +316,7 @@ describe('SkillResourceOperationExecutor', () => {
           ultimateEnergy: 0,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 1,
-          allowedUltimateEnergyRecoveryTagIds: null,
+          allowedUltimateEnergyRecoveryTags: null,
         },
       ],
     });
@@ -374,14 +373,14 @@ describe('SkillResourceOperationExecutor', () => {
           ultimateEnergy: 0,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 1.5,
-          allowedUltimateEnergyRecoveryTagIds: null,
+          allowedUltimateEnergyRecoveryTags: null,
         },
         {
           operatorId: 'ally',
           ultimateEnergy: 0,
           maxUltimateEnergy: 100,
           ultimateEnergyGainMultiplier: 0.5,
-          allowedUltimateEnergyRecoveryTagIds: null,
+          allowedUltimateEnergyRecoveryTags: null,
         },
       ],
     });

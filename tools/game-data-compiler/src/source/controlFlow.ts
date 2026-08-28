@@ -45,6 +45,7 @@ export type NativeTickIntervalModeSource = 'EachFrame' | 'Interval' | 'FixedCoun
 
 export type NativeActionBodySource<TLeaf> =
   | { readonly kind: 'leaf'; readonly value: TLeaf }
+  | { readonly kind: 'once'; readonly action: NativeSequenceSource<TLeaf> }
   | {
       readonly kind: 'ifElse';
       readonly condition: NativeSequenceSource<TLeaf>;
@@ -130,6 +131,7 @@ export function collectNativeActionNodes<TLeaf>(
         case 'switch':
           body.options.forEach(option => visitSequence(option.action));
           break;
+        case 'once':
         case 'forEach':
           visitSequence(body.action);
           break;
@@ -210,7 +212,18 @@ function parseNativeActionNodeSource<TLeaf>(
   };
 
   let body: NativeActionBodySource<TLeaf>;
-  if (nativeName === 'IfElseAction') {
+  if (nativeName === 'DoOnceAction') {
+    requireExactFields(action, new Set([...ACTION_META_FIELDS, 'sequenceActionData']), path);
+    body = {
+      kind: 'once',
+      action: parseNativeSequenceSource(
+        action.sequenceActionData,
+        `${path}.sequenceActionData`,
+        inheritedBlackboard,
+        parseLeaf,
+      ),
+    };
+  } else if (nativeName === 'IfElseAction') {
     body = parseIfElseBody(action, path, inheritedBlackboard, parseLeaf);
   } else if (nativeName === 'SwitchAction') {
     body = parseSwitchBody(action, path, inheritedBlackboard, parseLeaf);

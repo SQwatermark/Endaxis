@@ -37,7 +37,7 @@ export const laevatainComboSkill: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.6 },
-            slot: 0,
+            slot: "unassigned",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -88,7 +88,7 @@ export const laevatainComboSkill: SkillDefinition = withSkillBlackboard(
               kind: 'entityTagMatch',
               target: 'enemy',
               tagQueryType: 'hasAny',
-              tagIds: [-1110095722, -421286163],
+              tags: ["Skill/Character/Common/SpellStatus/Burning", "Skill/Character/Common/SpellStatus/Corrupt"],
             },
             sequence(
               step('modifyActionValue', {
@@ -1370,7 +1370,7 @@ export const laevatainUltimate: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 1 },
-            slot: 1464849466,
+            slot: "TimeDilation/Layer/Entity/HitStop",
             priority: 10,
             curve: { kind: 'named', key: 'RESETto1' },
             finishByAction: false,
@@ -1892,7 +1892,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
       triggerIntervalSeconds: 15,
       waitFirstTriggerInterval: true,
       maxTriggerCount: 1,
-      applyTagIds: [-388303696],
+      applyTags: ["Status/DisableBreakingAttack"],
       blackboard: {
         'duration': 16,
       },
@@ -2219,7 +2219,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
             step('finishBuffsByTag', {
               target: 'buffOwner',
               tagQueryType: 'hasAny',
-              buffTagIds: [-1110095722],
+              buffTags: ["Skill/Character/Common/SpellStatus/Burning"],
               reason: 'early',
             }),
             step('applyBuff', {
@@ -2285,7 +2285,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
           step('finishBuffsByTag', {
             target: 'buffOwner',
             tagQueryType: 'hasAny',
-            buffTagIds: [-1558844517],
+            buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"],
             reason: 'early',
             count: { kind: 'constant', value: 1 },
           }),
@@ -2308,7 +2308,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
               step('readBuffStackCount', {
                 target: 'buffOwner',
                 outputKey: 'count',
-                query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [-1558844517] },
+                query: { kind: 'tag', tagQueryType: 'hasAny', buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"] },
               }),
               step('applyBuff', {
                 buffId: 'buff_chr_0016_laevat_absorb_fire_inflict',
@@ -2366,7 +2366,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                       step('readBuffStackCount', {
                         target: 'eventTarget',
                         outputKey: 'count',
-                        query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [-1558844517] },
+                        query: { kind: 'tag', tagQueryType: 'hasAny', buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"] },
                       }),
                       branch(
                         {
@@ -2379,7 +2379,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                           step('finishBuffsByTag', {
                             target: 'eventTarget',
                             tagQueryType: 'hasAny',
-                            buffTagIds: [-1558844517],
+                            buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"],
                             reason: 'absorbed',
                           }),
                           step('applyBuff', {
@@ -2400,7 +2400,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                               step('finishBuffsByTag', {
                                 target: 'eventTarget',
                                 tagQueryType: 'hasAny',
-                                buffTagIds: [-1558844517],
+                                buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"],
                                 reason: 'absorbed',
                                 count: { kind: 'constant', value: 1 },
                               }),
@@ -2412,7 +2412,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                               step('finishBuffsByTag', {
                                 target: 'eventTarget',
                                 tagQueryType: 'hasAny',
-                                buffTagIds: [-1558844517],
+                                buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"],
                                 reason: 'absorbed',
                                 count: { kind: 'constant', value: 1 },
                               }),
@@ -2434,7 +2434,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                   step('finishBuffsByTag', {
                                     target: 'eventTarget',
                                     tagQueryType: 'hasAny',
-                                    buffTagIds: [-1558844517],
+                                    buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"],
                                     reason: 'absorbed',
                                     count: { kind: 'constant', value: 1 },
                                   }),
@@ -2446,7 +2446,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                   step('finishBuffsByTag', {
                                     target: 'eventTarget',
                                     tagQueryType: 'hasAny',
-                                    buffTagIds: [-1558844517],
+                                    buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"],
                                     reason: 'absorbed',
                                     count: { kind: 'constant', value: 1 },
                                   }),
@@ -2458,7 +2458,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                   step('finishBuffsByTag', {
                                     target: 'eventTarget',
                                     tagQueryType: 'hasAny',
-                                    buffTagIds: [-1558844517],
+                                    buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"],
                                     reason: 'absorbed',
                                     count: { kind: 'constant', value: 1 },
                                   }),
@@ -2480,7 +2480,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                       step('finishBuffsByTag', {
                                         target: 'eventTarget',
                                         tagQueryType: 'hasAny',
-                                        buffTagIds: [-1558844517],
+                                        buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"],
                                         reason: 'absorbed',
                                         count: { kind: 'constant', value: 1 },
                                       }),
@@ -2492,7 +2492,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                       step('finishBuffsByTag', {
                                         target: 'eventTarget',
                                         tagQueryType: 'hasAny',
-                                        buffTagIds: [-1558844517],
+                                        buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"],
                                         reason: 'absorbed',
                                         count: { kind: 'constant', value: 1 },
                                       }),
@@ -2504,7 +2504,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                       step('finishBuffsByTag', {
                                         target: 'eventTarget',
                                         tagQueryType: 'hasAny',
-                                        buffTagIds: [-1558844517],
+                                        buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"],
                                         reason: 'absorbed',
                                         count: { kind: 'constant', value: 1 },
                                       }),
@@ -2516,7 +2516,7 @@ export const laevatainGeneratedOperator: OperatorDefinition = {
                                       step('finishBuffsByTag', {
                                         target: 'eventTarget',
                                         tagQueryType: 'hasAny',
-                                        buffTagIds: [-1558844517],
+                                        buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"],
                                         reason: 'absorbed',
                                         count: { kind: 'constant', value: 1 },
                                       }),

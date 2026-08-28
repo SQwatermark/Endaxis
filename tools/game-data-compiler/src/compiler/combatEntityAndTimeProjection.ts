@@ -1,3 +1,4 @@
+import { projectGameplayTags } from './combatProjectionCommon.ts';
 import type { NativeActionNodeSource } from '../source/controlFlow.ts';
 import type { KnownNativeActionLeafSource } from '../source/actionLeaf.ts';
 import type { TimeScaleCurveKeyDefinition } from '../../../../packages/game-data-contract/src/conditions.ts';
@@ -5,7 +6,6 @@ import type { CompiledBuffStepSource } from './combatActionProjectionTypes.ts';
 import type { TimeDilationCurveKeySource } from '../source/timeDilationActions.ts';
 import { projectFinishOwner } from './timelineControlProjection.ts';
 import { compileTargetGroupAbilityEntityQuerySource } from './abilityEntityQuery.ts';
-import { gameplayTagIdFromPath } from '../../../../src/shared/gameplayTags.ts';
 import {
   type ProjectedTargetGroup,
   type CombatActionProjectionContextSource,
@@ -208,7 +208,7 @@ export function compileBuffLeafNode(
             parameters: {
               scope: 'entity',
               durationSeconds: { kind: 'constant', value: action.durationSeconds },
-              slot: gameplayTagIdFromPath('TimeDilation/Layer/Entity/HitStop'),
+              slot: 'TimeDilation/Layer/Entity/HitStop',
               priority,
               curve:
                 action.directCurveKeys.length > 0
@@ -311,16 +311,18 @@ export function compileBuffLeafNode(
               ? (['caster'] as const)
               : null
           : action.effectTargets.length === 2 &&
-              target?.targetSource === 'Target' &&
+              (target?.targetSource === 'Target' ||
+                (target?.targetSource === 'Owner' && context.fixedBuffOwnerTarget === 'enemy')) &&
               target.targetGroupKey === '' &&
               source?.targetSource === 'Source' &&
+              context.actionSourceTarget === 'caster' &&
               source.targetGroupKey === ''
             ? (['enemy', 'caster'] as const)
             : ownerSpawnedAbilityEntities
               ? ([] as const)
               : null;
-      const usesNamedCurve =
-        action.useCurveKey && action.curveKey.length > 0 && action.inlineCurveKeys.length === 0;
+      // combat-spec TimeDilationAction：开关选择命名曲线时，内嵌曲线只是序列化残留。
+      const usesNamedCurve = action.useCurveKey && action.curveKey.length > 0;
       const usesInlineCurve =
         !action.useCurveKey && action.curveKey.length === 0 && action.inlineCurveKeys.length > 0;
       if (
@@ -336,7 +338,10 @@ export function compileBuffLeafNode(
             parameters: {
               scope: 'entity',
               durationSeconds: actionValueOperand(action.duration),
-              slot: action.slotTagId,
+              slot:
+                action.slotTagId === 0
+                  ? 'unassigned'
+                  : projectGameplayTags([action.slotTagId], context, node.sourcePath)[0]!,
               priority,
               curve: usesNamedCurve
                 ? { kind: 'named', key: action.curveKey }
@@ -375,7 +380,10 @@ export function compileBuffLeafNode(
             parameters: {
               scope: 'global',
               durationSeconds: actionValueOperand(action.duration),
-              slot: action.slotTagId,
+              slot:
+                action.slotTagId === 0
+                  ? 'unassigned'
+                  : projectGameplayTags([action.slotTagId], context, node.sourcePath)[0]!,
               priority,
               curve: { kind: 'named', key: action.curveKey },
               finishByAction: action.finishByAction,
@@ -414,7 +422,10 @@ export function compileBuffLeafNode(
           parameters: {
             scope: 'global',
             durationSeconds: actionValueOperand(action.duration),
-            slot: action.slotTagId,
+            slot:
+              action.slotTagId === 0
+                ? 'unassigned'
+                : projectGameplayTags([action.slotTagId], context, node.sourcePath)[0]!,
             priority,
             curve: {
               kind: 'inline',
@@ -529,7 +540,7 @@ export function compileBuffLeafNode(
       context.actionTargetTarget === 'enemy' &&
       write.producerType === 'FindTargetAction' &&
       write.finderType === 'CharacterTeamFinder' &&
-      write.characterTeamSelectionRole === 'controlledOperator' &&
+      write.characterTeamSelection?.kind === 'controlledOperator' &&
       write.postProcessorTypes.length === 0
     ) {
       const nextGroups = new Map(partyTargetGroups);

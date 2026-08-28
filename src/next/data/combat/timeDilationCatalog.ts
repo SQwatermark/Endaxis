@@ -1,20 +1,19 @@
 /**
  * 1.4.4 `TimeDilationConfig` 与 `GameplayTagConfig` 的版本化投影。
  *
- * 槽位 ID 是完整 GameplayTag 路径的 CRC-32 位模式，不是可排序的序号。
+ * 槽位直接使用完整 GameplayTag 路径；优先级是原生配置解析后的可排序数值。
  * 公共曲线保持原生关键帧；运行时与编辑器必须消费同一份定义。
  */
 import type { TimeScaleCurveKeyDefinition } from '../../core/game-data/operatorDefinition';
-import { requireGameplayTagId } from './gameplayTagCatalog';
+import { requireGameplayTag } from './gameplayTagCatalog';
 
 export interface TimeDilationSlotDefinition {
-  readonly id: number;
+  readonly id: string;
   readonly name: string;
   readonly scope: 'global' | 'entity';
 }
 
 export interface TimeDilationPriorityDefinition {
-  readonly tagId: number;
   readonly tagPath: string;
   readonly value: number;
 }
@@ -23,11 +22,11 @@ function slot(
   name: string,
   scope: TimeDilationSlotDefinition['scope'],
 ): TimeDilationSlotDefinition {
-  return Object.freeze({ id: requireGameplayTagId(name), name, scope });
+  return Object.freeze({ id: requireGameplayTag(name), name, scope });
 }
 
 function priority(tagPath: string, value: number): TimeDilationPriorityDefinition {
-  return Object.freeze({ tagId: requireGameplayTagId(tagPath), tagPath, value });
+  return Object.freeze({ tagPath, value });
 }
 
 export const TIME_DILATION_SLOT_DEFINITIONS = Object.freeze([
@@ -131,6 +130,6 @@ export function timeDilationNamedCurveKeys(
   )[keyName];
 }
 
-export function timeDilationSlotName(slotId: number): string | undefined {
+export function timeDilationSlotName(slotId: string): string | undefined {
   return TIME_DILATION_SLOT_DEFINITIONS.find(slot => slot.id === slotId)?.name;
 }

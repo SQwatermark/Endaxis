@@ -1,3 +1,4 @@
+import type { GameplayTag } from '../../../../../packages/game-data-contract/src/gameplayTags';
 /**
  * 元素附着纯决策结果与目标 Buff 容器之间的执行适配层。
  * 调用前必须使用同一时刻的附着快照完成解析，避免决策与写入之间状态漂移。
@@ -39,7 +40,7 @@ export interface ElementalBuffAppliedPayload {
   readonly targetId: string;
   readonly buffId: string;
   readonly sourceId: string;
-  readonly buffTagIds: readonly number[];
+  readonly buffTags: readonly GameplayTag[];
 }
 
 export type ResolveCompoundStatusBlackboard = (
@@ -137,7 +138,7 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
       targetId: this.target.ownerId,
       buffId: definition.id,
       sourceId: this.sourceId,
-      buffTagIds: definition.applyTags?.map(Number) ?? [],
+      buffTags: definition.applyTags ?? [],
       skillCastInfo: options?.skillCastInfo ?? null,
     };
     this.onBeforeOutputBuff?.(event);

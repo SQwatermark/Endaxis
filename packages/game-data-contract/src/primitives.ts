@@ -96,6 +96,7 @@ export const DAMAGE_FEATURES = [
   'canBreakWeakness',
   'crush',
   'airborne',
+  'knockDown',
   'shatter',
   'dot',
   'remainArea',

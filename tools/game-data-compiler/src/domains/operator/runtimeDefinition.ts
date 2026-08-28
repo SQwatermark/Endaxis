@@ -1,3 +1,4 @@
+import type { GameplayTagRegistry } from '../../source/nativeGameplayTags.ts';
 import { parseOperatorRuntimeTemplateSource } from '../../source/operatorRuntimeTemplate.ts';
 import { parseSkillCastMetadataSource } from '../../source/activeSkill.ts';
 import { compileAbilitySystemBlackboardsSource } from '../../compiler/abilitySystemBlackboards.ts';
@@ -10,6 +11,7 @@ export function compileOperatorRuntimeDefinitionSource(
   template: unknown,
   comboSkill: unknown,
   binding: { readonly operatorSlug: string; readonly skillGroupKey: string },
+  gameplayTagRegistry?: GameplayTagRegistry,
 ) {
   const source = parseOperatorRuntimeTemplateSource(template, 'characterTemplate');
   const cast = parseSkillCastMetadataSource(comboSkill, 'comboSkill');
@@ -24,6 +26,7 @@ export function compileOperatorRuntimeDefinitionSource(
       blackboards,
       { key: `native-combo:${index}`, skillGroupKey },
       {
+        gameplayTagRegistry,
         actionOwnerTarget: 'caster',
         actionSourceTarget: 'caster',
         actionTargetTarget: 'eventTarget',

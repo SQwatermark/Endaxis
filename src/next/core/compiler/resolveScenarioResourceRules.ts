@@ -40,7 +40,7 @@ export function resolveScenarioOperatorResourceRules(
     rules.set(operator.operatorId, {
       ...(maxUltimateEnergy === undefined ? {} : { maxUltimateEnergy }),
       ultimateEnergyGainMultiplier: panel.ultimateEnergyGainEfficiency,
-      allowedUltimateEnergyRecoveryTagIds: null,
+      allowedUltimateEnergyRecoveryTags: null,
     });
   }
   return rules;

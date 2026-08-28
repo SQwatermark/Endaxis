@@ -1,6 +1,8 @@
 /**
  * 固定木桩场景允许省略的 Buff 事件。
  * 这里只描述场景中可证明不会发生的事实；公共 Buff 解析和投影仍保持严格，不全局吞掉事件。
+ * 击倒前后事件会触发干员天赋，不属于敌人主动动作，不能在这里省略。
+ * 起身动画/恢复行动不是根击倒的前置条件；标签计时是否保留须按具体读者及目标归属审计。
  */
 const OMITTED_BUFF_ABILITY_EVENT_REASONS: Readonly<Record<string, string>> = {
   OnTakeDamage: 'player damage taken cannot occur without enemy active behavior',

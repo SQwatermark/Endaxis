@@ -4,7 +4,7 @@
  */
 import { compileTimeScaleCurve } from '../../core/combat/runtime/timeScaleCurve';
 import type { TimeDilationRuntimeConfig } from '../../core/combat/runtime/timeDilationRuntime';
-import { requireGameplayTagId } from './gameplayTagCatalog';
+import { requireGameplayTag } from './gameplayTagCatalog';
 import { HIT_STOP_NAMED_CURVE_DEFINITIONS } from './hitStopCurveCatalog.generated';
 import { TIME_DILATION_NAMED_CURVE_DEFINITIONS } from './timeDilationCatalog';
 
@@ -25,8 +25,8 @@ const namedCurves = new Map(
 
 export const timeDilationRuntimeConfig: TimeDilationRuntimeConfig = Object.freeze({
   entityLifetimeUsesGlobalScaleBySlot: new Map([
-    [requireGameplayTagId('TimeDilation/Layer/Entity/Frozen'), true],
-    [requireGameplayTagId('TimeDilation/Layer/Entity/Seal'), true],
+    [requireGameplayTag('TimeDilation/Layer/Entity/Frozen'), true],
+    [requireGameplayTag('TimeDilation/Layer/Entity/Seal'), true],
   ]),
   curves: namedCurves,
 });

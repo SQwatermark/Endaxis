@@ -62,8 +62,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "cryst_dmg_up2": 0,
             "duration": 0
@@ -106,8 +106,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "duration2": 10,
             "spell_damage_taken_up": 0.1
@@ -413,8 +413,8 @@ const definition = {
                   "condition": {
                     "kind": "eventBuffTagsMatch",
                     "match": "hasAny",
-                    "buffTagIds": [
-                      1427729990
+                    "buffTags": [
+                      "Skill/Character/Common/Affixes/Vulnerable/VulnerableSpell"
                     ]
                   }
                 },

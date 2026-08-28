@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { GameplayTag } from '../../../../../packages/game-data-contract/src/gameplayTags';
+
 /**
  * 战斗条件树的递归参数编辑器。
  *
@@ -35,7 +37,7 @@ import { ENEMY_RANKS, type EnemyRank } from '../../../core/game-data/enemyRank';
 import { createCombatCondition, parseConditionStringList } from '../combatConditionEditorViewModel';
 import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
 import EditorFieldLabel from './EditorFieldLabel.vue';
-import GameplayTagIdsEditor from './GameplayTagIdsEditor.vue';
+import GameplayTagsEditor from './GameplayTagsEditor.vue';
 
 const RecursiveConditionEditor = defineAsyncComponent(() => import('./CombatConditionEditor.vue'));
 const TAG_QUERY_TYPES = ['hasAny', 'hasAll', 'exceptAny', 'exceptAll'] as const;
@@ -120,6 +122,7 @@ function setComparison(event: Event): void {
       emit('update', { ...condition, operator });
       break;
     case 'enemySuperArmorCompare':
+    case 'currentBuffStackCompare':
       emit('update', { ...condition, operator });
       break;
     case 'cameraToTargetAngleCompare':
@@ -157,6 +160,8 @@ function setOperand(
   else if (condition.kind === 'poiseCompare' && field === 'value')
     emit('update', { ...condition, value });
   else if (condition.kind === 'enemySuperArmorCompare' && field === 'value')
+    emit('update', { ...condition, value });
+  else if (condition.kind === 'currentBuffStackCompare' && field === 'value')
     emit('update', { ...condition, value });
   else if (condition.kind === 'cameraToTargetAngleCompare' && field === 'value')
     emit('update', { ...condition, value });
@@ -199,18 +204,18 @@ function setContextValueKind(event: Event): void {
   });
 }
 
-function setGameplayTagIds(values: readonly number[]): void {
+function setGameplayTags(values: readonly GameplayTag[]): void {
   if (
     props.condition.kind === 'buffStackCompare' ||
     props.condition.kind === 'contextTargetBuffStackCompare'
   )
-    emit('update', { ...props.condition, buffTagIds: values });
+    emit('update', { ...props.condition, buffTags: values });
   else if (props.condition.kind === 'entityTagMatch')
-    emit('update', { ...props.condition, tagIds: values });
+    emit('update', { ...props.condition, tags: values });
   else if (props.condition.kind === 'eventBuffTagsMatch')
-    emit('update', { ...props.condition, buffTagIds: values });
+    emit('update', { ...props.condition, buffTags: values });
   else if (props.condition.kind === 'eventTargetBuffCountCompare')
-    emit('update', { ...props.condition, buffTagIds: values });
+    emit('update', { ...props.condition, buffTags: values });
 }
 
 function setBuffIds(event: Event): void {
@@ -585,7 +590,11 @@ function removeChild(index: number): void {
       >
     </fieldset>
 
-    <template v-if="condition.kind === 'enemySuperArmorCompare'">
+    <template
+      v-if="
+        condition.kind === 'enemySuperArmorCompare' || condition.kind === 'currentBuffStackCompare'
+      "
+    >
       <label class="condition-editor__field"
         ><EditorFieldLabel
           :label="t('nextTimeline.skillEditing.comparisonOperator')"
@@ -598,7 +607,11 @@ function removeChild(index: number): void {
       >
       <label class="condition-editor__operand"
         ><EditorFieldLabel
-          :label="t('nextTimeline.skillEditing.superArmor')"
+          :label="
+            t(
+              `nextTimeline.skillEditing.${condition.kind === 'currentBuffStackCompare' ? 'compareValue' : 'superArmor'}`,
+            )
+          "
           :help="
             t('nextTimeline.skillEditing.fieldHelp.conditionOperand')
           " /><ActionValueOperandEditor
@@ -781,11 +794,11 @@ function removeChild(index: number): void {
       >
       <label class="condition-editor__field"
         ><EditorFieldLabel
-          :label="t('nextTimeline.skillEditing.buffTagIds')"
-          :help="t('nextTimeline.skillEditing.fieldHelp.buffTagIds')"
-        /><GameplayTagIdsEditor
-          :ids="condition.kind === 'entityTagMatch' ? condition.tagIds : condition.buffTagIds"
-          @update="setGameplayTagIds"
+          :label="t('nextTimeline.skillEditing.buffTags')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.buffTags')"
+        /><GameplayTagsEditor
+          :tags="condition.kind === 'entityTagMatch' ? condition.tags : condition.buffTags"
+          @update="setGameplayTags"
         />
       </label>
       <template
@@ -908,7 +921,7 @@ function removeChild(index: number): void {
       <label class="condition-editor__field">
         <EditorFieldLabel
           :label="t('nextTimeline.skillEditing.tagQueryType')"
-          :help="t('nextTimeline.skillEditing.fieldHelp.buffTagIds')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.buffTags')"
         />
         <select :value="condition.match" @change="setEventBuffTagMatch">
           <option v-for="type in TAG_QUERY_TYPES" :key="type" :value="type">
@@ -918,10 +931,10 @@ function removeChild(index: number): void {
       </label>
       <label class="condition-editor__field">
         <EditorFieldLabel
-          :label="t('nextTimeline.skillEditing.buffTagIds')"
-          :help="t('nextTimeline.skillEditing.fieldHelp.buffTagIds')"
+          :label="t('nextTimeline.skillEditing.buffTags')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.buffTags')"
         />
-        <GameplayTagIdsEditor :ids="condition.buffTagIds" @update="setGameplayTagIds" />
+        <GameplayTagsEditor :tags="condition.buffTags" @update="setGameplayTags" />
       </label>
     </template>
 

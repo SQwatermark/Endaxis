@@ -5,7 +5,7 @@ import { TargetContextOperationExecutor } from './targetContextOperationExecutor
 import { BuffOperationExecutor } from './buffOperationExecutor';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer } from '../buffs/combatBuffs';
-import { GameplayTagRegistry, gameplayTagIdFromPath } from '../tags/gameplayTags';
+import { GameplayTagRegistry } from '../tags/gameplayTags';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import { validateSkillDefinition } from '../../game-data/validateSkillDefinition';
 
@@ -58,7 +58,7 @@ describe('Context 条件查询', () => {
   });
   it('ByTag 只读取首目标增强层数；空组不求值缺失阈值，非空组严格读取黑板', () => {
     const path = 'test/tag';
-    const tag = gameplayTagIdFromPath(path);
+    const tag = path;
     const buffs = new CombatBuffContainer(
       'ally',
       new CombatAttributeSet(),
@@ -84,7 +84,7 @@ describe('Context 条件查询', () => {
       kind: 'contextTargetBuffStackCompare' as const,
       contextKey: 'trigger',
       tagQueryType: 'hasAny' as const,
-      buffTagIds: [tag],
+      buffTags: [tag],
       operator: 'equal' as const,
       value: { kind: 'blackboard' as const, key: 'threshold' },
     };

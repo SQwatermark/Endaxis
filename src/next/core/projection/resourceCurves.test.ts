@@ -17,7 +17,7 @@ function snapshot(): CombatResourceSnapshot {
         ultimateEnergy: 20,
         maxUltimateEnergy: 100,
         ultimateEnergyGainMultiplier: 1,
-        allowedUltimateEnergyRecoveryTagIds: null,
+        allowedUltimateEnergyRecoveryTags: null,
       },
     ],
     normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },

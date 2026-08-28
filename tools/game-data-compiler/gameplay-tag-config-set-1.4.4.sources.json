@@ -1,0 +1,280 @@
+{
+  "schemaVersion": 1,
+  "revision": "combat-1.4.4",
+  "configSet": {
+    "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfigset.asset",
+    "sourceFile": "CAB-240598bb3b3ca3b28a7a266f40d0d986",
+    "pathId": "7180852545050936290",
+    "complete": true,
+    "dump": {
+      "file": "gameplaytagconfigset.txt",
+      "sha256": "09fe0f2f9a46add5749b839e1d0519731c471ca8a7b7b8f9616f961d8a58edf9"
+    }
+  },
+  "configs": [
+    {
+      "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfig/data_tag_ai_character.asset",
+      "sourceFile": "CAB-0f357e0caf5355f04909763c7788118b",
+      "pathId": "4998536573134957295",
+      "complete": true,
+      "dump": {
+        "file": "data_tag_ai_character.txt",
+        "sha256": "b8d4666060b063317f625266b422f6dd4ec75117c451f51ef20b964d0c5df287"
+      }
+    },
+    {
+      "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfig/data_tag_ai_enemy.asset",
+      "sourceFile": "CAB-3219d4e94f70fa59842a326e358081fb",
+      "pathId": "-2314423090499678744",
+      "complete": true,
+      "dump": {
+        "file": "data_tag_ai_enemy.txt",
+        "sha256": "3ab0c3f67f7bf9a8a1cdc990185c980c36c7a6afff9a3cc05674fbe206d5f169"
+      }
+    },
+    {
+      "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfig/data_tag_ai_npc.asset",
+      "sourceFile": "CAB-9b697e45711d422c2b884735ce7657db",
+      "pathId": "928601777968889398",
+      "complete": true,
+      "dump": {
+        "file": "data_tag_ai_npc.txt",
+        "sha256": "f3698a15e9483b710109f35c274c2547370b14da478cec8f18327b68975f5357"
+      }
+    },
+    {
+      "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfig/data_tag_audio_csurface.asset",
+      "sourceFile": "CAB-26c96fb7f18045c566ac9eac9a49c5ad",
+      "pathId": "-8889070829202807606",
+      "complete": true,
+      "dump": {
+        "file": "data_tag_audio_csurface.txt",
+        "sha256": "0acca9cc5996fe1793a24c003b736ff2f46bc0363c04b016d4b266447c17d6a2"
+      }
+    },
+    {
+      "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfig/data_tag_earmorph_avatar.asset",
+      "sourceFile": "CAB-08407daad6647ef4fc1ca0914688a2c4",
+      "pathId": "-8577277769932313070",
+      "complete": true,
+      "dump": {
+        "file": "data_tag_earmorph_avatar.txt",
+        "sha256": "768d2873038c93d5e319a9dd1c1c6fe35c6c9d8330a7bd53e9572a6cb43d36c1"
+      }
+    },
+    {
+      "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfig/data_tag_earmorph_emotion.asset",
+      "sourceFile": "CAB-c9d29a7928b749e814373e964d49eeca",
+      "pathId": "210639039920178163",
+      "complete": true,
+      "dump": {
+        "file": "data_tag_earmorph_emotion.txt",
+        "sha256": "c8c2b16634a4db2ad32c3ece0d351551e450aa155e509b811f8e438a2d0c6fd9"
+      }
+    },
+    {
+      "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfig/data_tag_earmorph_morphanim.asset",
+      "sourceFile": "CAB-8aa419d00da2efe602b4dfaf0a9ddea9",
+      "pathId": "-622335166302835825",
+      "complete": true,
+      "dump": {
+        "file": "data_tag_earmorph_morphanim.txt",
+        "sha256": "e1eaf7fdaac93c4cd84e79603bbf0cb14bcc931bc99ced0165c3c57f10b93fc9"
+      }
+    },
+    {
+      "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfig/data_tag_editortag.asset",
+      "sourceFile": "CAB-21004e15df341228be1c0b1ab1a3f11e",
+      "pathId": "-3556823175022888925",
+      "complete": true,
+      "dump": {
+        "file": "data_tag_editortag.txt",
+        "sha256": "48aacc020ce97c9675f97a277d82d1aeb30186c6ec3269a6c979f069b484567f"
+      }
+    },
+    {
+      "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfig/data_tag_facialmorph_avatar.asset",
+      "sourceFile": "CAB-ac50a5d010df6cd17f339d71c9d94847",
+      "pathId": "1184620408417501143",
+      "complete": true,
+      "dump": {
+        "file": "data_tag_facialmorph_avatar.txt",
+        "sha256": "acaa218877a5edfca8e254b790b545921616f9b578e77a7f83555005c2f0a12e"
+      }
+    },
+    {
+      "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfig/data_tag_facialmorph_emotion.asset",
+      "sourceFile": "CAB-244734b39c691347a4b0b77a83b3b2ab",
+      "pathId": "2328328672117495993",
+      "complete": true,
+      "dump": {
+        "file": "data_tag_facialmorph_emotion.txt",
+        "sha256": "4c34971fd0cd44769239454a6504027121d57bd1f7c6bd6d384e9bec63e6f296"
+      }
+    },
+    {
+      "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfig/data_tag_facialmorph_morphanim.asset",
+      "sourceFile": "CAB-3fa9d37a715addcf38e899e1ed222172",
+      "pathId": "7676615014170928936",
+      "complete": true,
+      "dump": {
+        "file": "data_tag_facialmorph_morphanim.txt",
+        "sha256": "14cda213915e1699692b21b70b39f2a9b8304d35f4277cd5375624b08e9deb13"
+      }
+    },
+    {
+      "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfig/data_tag_facialmorph_pose.asset",
+      "sourceFile": "CAB-787fcfd76750c0682ea4de13025dadfc",
+      "pathId": "6066963169347117334",
+      "complete": true,
+      "dump": {
+        "file": "data_tag_facialmorph_pose.txt",
+        "sha256": "49c121119e46267198403dcecde9b0bd9de1fc5563b3b57c85624cad73e9c127"
+      }
+    },
+    {
+      "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfig/data_tag_gameplay_state_extra.asset",
+      "sourceFile": "CAB-11713fb3f54981dc4b084442b103eb48",
+      "pathId": "-3054977401558060265",
+      "complete": true,
+      "dump": {
+        "file": "data_tag_gameplay_state_extra.txt",
+        "sha256": "979610a24b2e29063177e8f54788b92cc937f981200995b326246d197c8b601f"
+      }
+    },
+    {
+      "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfig/data_tag_global_state.asset",
+      "sourceFile": "CAB-229d5e48f51d7a63959a3aab789b7981",
+      "pathId": "-1024868188274116901",
+      "complete": true,
+      "dump": {
+        "file": "data_tag_global_state.txt",
+        "sha256": "0c69de64ff73cd1e50667a40261137f81fc5ae5281b956e5a94376d0e93e3eca"
+      }
+    },
+    {
+      "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfig/data_tag_int_category.asset",
+      "sourceFile": "CAB-c968f0b292624307b1337dd1dc566688",
+      "pathId": "4915331501288182113",
+      "complete": true,
+      "dump": {
+        "file": "data_tag_int_category.txt",
+        "sha256": "c348de29072e813bef331e40e37ef97e0479c822a809232ed9b82cd0d2d676f9"
+      }
+    },
+    {
+      "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfig/data_tag_npc_ability_all.asset",
+      "sourceFile": "CAB-e8c8b67f12cb7afe14e3cd757fe323fb",
+      "pathId": "781883152648368957",
+      "complete": true,
+      "dump": {
+        "file": "data_tag_npc_ability_all.txt",
+        "sha256": "d6d1bd940f90452a2c9199777b7330feec7b6882f7203c6612e036982b3bb355"
+      }
+    },
+    {
+      "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfig/data_tag_npc_animationconfig_generic.asset",
+      "sourceFile": "CAB-d52aff50daf18ad8eabab614985b6af6",
+      "pathId": "8892006676123786942",
+      "complete": true,
+      "dump": {
+        "file": "data_tag_npc_animationconfig_generic.txt",
+        "sha256": "bd03e3af66a4900d77ed60af3eaaae98c32eaa0d7ebe868cb21ef92611f81af7"
+      }
+    },
+    {
+      "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfig/data_tag_npc_animationconfig_humanoid.asset",
+      "sourceFile": "CAB-2fdb3e5cda13d5d0cac6e11cc5e0e914",
+      "pathId": "3148550346055174860",
+      "complete": true,
+      "dump": {
+        "file": "data_tag_npc_animationconfig_humanoid.txt",
+        "sha256": "10223b20aedf8faaaa41a719a55d522b0b94024729f1580c068001d11fa7befe"
+      }
+    },
+    {
+      "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfig/data_tag_npc_avatarmesh.asset",
+      "sourceFile": "CAB-24ec308f4176fefcd8cee193f0f925b5",
+      "pathId": "-6518040243829459979",
+      "complete": true,
+      "dump": {
+        "file": "data_tag_npc_avatarmesh.txt",
+        "sha256": "7633828e4b56f07bf4328c8578188dfeb7adcf2cc3c91207de5f5e0982ccb828"
+      }
+    },
+    {
+      "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfig/data_tag_npc_avatartemplet.asset",
+      "sourceFile": "CAB-89bf04ba2cf6855e2c7f1924537de27e",
+      "pathId": "6776219653213346227",
+      "complete": true,
+      "dump": {
+        "file": "data_tag_npc_avatartemplet.txt",
+        "sha256": "534ea9958f5a9f1faf9869c130ba8acd692f94496b24f06c81b50d705226fb15"
+      }
+    },
+    {
+      "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfig/data_tag_npcanimator.asset",
+      "sourceFile": "CAB-d10e76ab988a74d68d616060de52d1b8",
+      "pathId": "6964700076366687319",
+      "complete": true,
+      "dump": {
+        "file": "data_tag_npcanimator.txt",
+        "sha256": "f4946c42316f96dd179733a6b0d9792da84def71a6176beb561f3f35f8163118"
+      }
+    },
+    {
+      "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfig/data_tag_npcmontage_generic.asset",
+      "sourceFile": "CAB-c9b4ffeab243ce891bf5d7d9fed44319",
+      "pathId": "3764835022845166485",
+      "complete": true,
+      "dump": {
+        "file": "data_tag_npcmontage_generic.txt",
+        "sha256": "37ebff6d29cb34931b4d271e386b7be412656c2d8f46be8450635ca08e179aaa"
+      }
+    },
+    {
+      "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfig/data_tag_npcmontage_humanoid.asset",
+      "sourceFile": "CAB-57110abf7ecc3d8eb5976594c6ff8b06",
+      "pathId": "-8622458781992550706",
+      "complete": true,
+      "dump": {
+        "file": "data_tag_npcmontage_humanoid.txt",
+        "sha256": "0651d48e565c033f301ab58b7a5f9b3faf51bb8f95f2201ad752d17d595ea630"
+      }
+    },
+    {
+      "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfig/data_tag_npcmontage_key.asset",
+      "sourceFile": "CAB-92be3c256b3e91fe671d3621a1de156b",
+      "pathId": "1615879079150372044",
+      "complete": true,
+      "dump": {
+        "file": "data_tag_npcmontage_key.txt",
+        "sha256": "2566aa233e93b2d391a1206c50a6b4acc7e07f346c899974c904c3c39917a420"
+      }
+    },
+    {
+      "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfig/data_tag_npcmontage_virtual.asset",
+      "sourceFile": "CAB-b1a2e9d29c8eba349bb6fe2acdec94c8",
+      "pathId": "-8954637627261017145",
+      "complete": true,
+      "dump": {
+        "file": "data_tag_npcmontage_virtual.txt",
+        "sha256": "8262e11c7729702ea4812a0b94fe0b7d50a2208e9f4bce98f3dac75bc392364a"
+      }
+    },
+    {
+      "container": "assets/beyond/dynamicassets/gamedata/gameplayconfig/gameplaytagconfig/gameplaytagconfig.asset",
+      "sourceFile": "CAB-d88863e37518e7e3803ad0dd37e0f06b",
+      "pathId": "2542509944398252660",
+      "complete": true,
+      "dump": {
+        "file": "gameplaytagconfig.txt",
+        "sha256": "c38ebcc9d274bc9ea9f1346e9e2ca339ebf35fa2cc33b2fd846cd37c00166d3d"
+      }
+    }
+  ],
+  "cabMap": {
+    "file": "cab/cab-map.json",
+    "sha256": "2802d7d2150c089c729abf749c51f37176617f6a4a91a795cf50ee35e6a5f4c3"
+  }
+}

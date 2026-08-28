@@ -1,3 +1,4 @@
+import type { GameplayTagRegistry } from '../../source/nativeGameplayTags.ts';
 import type { LevelValues } from '../../../../../packages/game-data-contract/src/index.ts';
 import type { CombatEventTrigger } from '../../../../../packages/game-data-contract/src/actions.ts';
 import type {
@@ -70,6 +71,7 @@ export function compileWeaponRuntimeDefinitionBatchSource(
   definitions: readonly CompiledWeaponStaticDefinitionSource[],
   dependencies: readonly CompiledWeaponTraitRuntimeDependencySource[],
   buffDataValue: unknown,
+  gameplayTagRegistry?: GameplayTagRegistry,
 ): CompiledWeaponRuntimeDefinitionBatchSource {
   const diagnostics: BuildDefinitionDiagnosticSource[] = [];
   const dependencyByTrait = new Map(
@@ -101,7 +103,7 @@ export function compileWeaponRuntimeDefinitionBatchSource(
         return [];
       }
       try {
-        return compileWeaponEventHandlers(dependency, diagnostics);
+        return compileWeaponEventHandlers(dependency, diagnostics, gameplayTagRegistry);
       } catch (error) {
         diagnostics.push({
           status: 'blocked',
@@ -113,7 +115,7 @@ export function compileWeaponRuntimeDefinitionBatchSource(
     });
     const deckInitializations = typedDependencies.map(dependency => {
       try {
-        return compileWeaponDeckInitialization(dependency);
+        return compileWeaponDeckInitialization(dependency, gameplayTagRegistry);
       } catch (error) {
         diagnostics.push({
           status: 'blocked',
@@ -136,7 +138,17 @@ export function compileWeaponRuntimeDefinitionBatchSource(
       ...typedDependencies.flatMap(dependency => dependency.referencedBuffIds),
       ...plans.flatMap(levels => levels.flatMap(level => level.map(item => item.buffId))),
     ];
-    const closure = compileStandardStumpBuffClosure([...new Set(rootIds)], buffDataValue);
+    const closure = compileStandardStumpBuffClosure(
+      [...new Set(rootIds)],
+      buffDataValue,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      new Map(),
+      new Set(),
+      gameplayTagRegistry,
+    );
     diagnostics.push(...closure.diagnostics);
     if (closure.diagnostics.some(item => item.status === 'blocked')) continue;
 
@@ -225,6 +237,7 @@ export function compileWeaponRuntimeDefinitionBatchSource(
 function compileWeaponEventHandlers(
   dependency: CompiledWeaponTraitRuntimeDependencySource,
   diagnostics: BuildDefinitionDiagnosticSource[],
+  gameplayTagRegistry?: GameplayTagRegistry,
 ): CompiledWeaponEventHandlerSource[] {
   const blackboard = compileWeaponEventBlackboard(dependency);
   const events = dependency.actionGraph.actionGroup.passiveEvents;
@@ -248,11 +261,13 @@ function compileWeaponEventHandlers(
     compileSequence: (sequence, _sourcePath, event) =>
       event === 'OnObtainAtb'
         ? compileSkillSpGainActionSequenceSource(sequence, {
+            gameplayTagRegistry,
             actionOwnerTarget: 'caster',
             actionSourceTarget: 'caster',
             actionTargetTarget: 'eventTarget',
           })
         : compileCombatActionSequenceSource(sequence, {
+            gameplayTagRegistry,
             actionOwnerTarget: 'caster',
             actionSourceTarget: 'caster',
             actionTargetTarget: 'eventTarget',
@@ -272,7 +287,10 @@ function compileWeaponEventHandlers(
  * 原生 OnCharDeckAttrChanged 发生在非战斗构筑刷新链末尾。Next 的配装在模拟开始后不再变化，
  * 因此保持其动作顺序与 Deck 条件，只把触发边界折叠为面板完成后的单次初始化。
  */
-function compileWeaponDeckInitialization(dependency: CompiledWeaponTraitRuntimeDependencySource): {
+function compileWeaponDeckInitialization(
+  dependency: CompiledWeaponTraitRuntimeDependencySource,
+  gameplayTagRegistry?: GameplayTagRegistry,
+): {
   readonly blackboard: Readonly<Record<string, LevelValues>>;
   readonly steps: CompiledBuffStepSource[];
 } {
@@ -283,6 +301,7 @@ function compileWeaponDeckInitialization(dependency: CompiledWeaponTraitRuntimeD
     mapEvent: (_event, _sourcePath) => 'deckAttributesChanged' as const,
     compileSequence: sequence =>
       compileCombatActionSequenceSource(sequence, {
+        gameplayTagRegistry,
         actionOwnerTarget: 'caster',
         actionSourceTarget: 'caster',
         actionTargetTarget: 'eventTarget',

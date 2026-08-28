@@ -45,7 +45,7 @@ describe('HealOperationExecutor', () => {
             attribute: 'will',
             multiplier: { kind: 'blackboard', key: 'scale' },
             addition: 10,
-            tagIds: [-1],
+            tags: ['Test/TagNegative1'],
           },
         },
         { blackboard: new ActionBlackboard({ scale: 1.5 }) },
@@ -89,7 +89,7 @@ describe('HealOperationExecutor', () => {
         attribute: 'will',
         multiplier: 1,
         addition: 0,
-        tagIds: [],
+        tags: [],
       },
     });
 
@@ -124,7 +124,7 @@ describe('HealOperationExecutor', () => {
           attribute: 'maxHealth',
           multiplier: { kind: 'blackboard', key: 'heal' },
           addition: 0,
-          tagIds: [],
+          tags: [],
         },
       },
       { blackboard: new ActionBlackboard({ heal: 0.12 }) },
@@ -162,7 +162,7 @@ describe('HealOperationExecutor', () => {
           multiplier: 1,
           addition: 0,
           alwaysNext: false,
-          tagIds: [],
+          tags: [],
         },
       },
       {
@@ -200,7 +200,7 @@ describe('HealOperationExecutor', () => {
           multiplier: 1,
           addition: 0,
           alwaysNext: false,
-          tagIds: [],
+          tags: [],
         },
       },
       {
@@ -243,7 +243,7 @@ describe('HealOperationExecutor', () => {
         multiplier: 1,
         addition: 0,
         alwaysNext: true,
-        tagIds: [],
+        tags: [],
       },
     });
 
@@ -276,7 +276,7 @@ describe('HealOperationExecutor', () => {
         parameters: {
           target: 'controlledOperator',
           amount: { kind: 'blackboard', key: 'final_heal_value' },
-          tagIds: [-1517158118],
+          tags: ['Skill/Character/Common/Heal/ComboSkillHeal'],
         },
       },
       { blackboard: new ActionBlackboard({ final_heal_value: 240 }) },

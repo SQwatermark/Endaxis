@@ -1,4 +1,4 @@
-import type { GameplayTagRegistry } from '../../../../src/shared/gameplayTags.ts';
+import type { GameplayTagRegistry } from '../source/nativeGameplayTags.ts';
 import type { CompiledActiveSkillSource } from './activeSkillDefinition.ts';
 import {
   compileTargetGroupAbilityEntityQuerySource,
@@ -34,7 +34,9 @@ export function compileActiveSkillAbilityEntityQueriesSource(
     .filter(write => write.finderType === 'OwnerSpawnedEntityFinder')
     .map(write => {
       if (!actionSourcePaths.has(write.sourcePath)) {
-        throw new Error(`${write.sourcePath}: target-group write is not present in the compiled action graph`);
+        throw new Error(
+          `${write.sourcePath}: target-group write is not present in the compiled action graph`,
+        );
       }
       return {
         targetGroupKey: write.targetGroupKey,

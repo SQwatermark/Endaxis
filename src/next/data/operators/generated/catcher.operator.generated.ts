@@ -351,7 +351,7 @@ export const catcherBattleSkill: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 0.7 },
-            slot: 1464849466,
+            slot: "TimeDilation/Layer/Entity/HitStop",
             priority: 10,
             curve: { kind: 'inline', keys: [{ time: 0, value: 0.3, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0.333333343 }, { time: 0.5, value: 0.3, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0.333333343, outWeight: 0.333333343 }, { time: 1, value: 1, inTangent: 4.596606, outTangent: 4.596606, weightedMode: 0, inWeight: 0.0243593454, outWeight: 0 }] },
             finishByAction: false,
@@ -431,7 +431,7 @@ export const catcherComboSkill: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.567000031 },
-            slot: 0,
+            slot: "unassigned",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -537,7 +537,7 @@ export const catcherUltimate: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 1 },
-            slot: 1464849466,
+            slot: "TimeDilation/Layer/Entity/HitStop",
             priority: 10,
             curve: { kind: 'named', key: 'RESETto1' },
             finishByAction: false,
@@ -702,7 +702,7 @@ export const catcherGeneratedOperator: OperatorDefinition = {
       priority: 0,
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration' },
-      applyTagIds: [-1757502026],
+      applyTags: ["Skill/Character/Common/HpShield"],
       blackboard: {
         'duration': 10,
         'shield_base': 100,

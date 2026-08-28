@@ -26,6 +26,9 @@ export function collectSteps(sequence: ActionSequenceDefinition): CombatStepDefi
   return sequence.steps.flatMap(step => [
     step,
     ...(step.kind === 'conditional' ? collectSteps(step.whenTrue) : []),
+    ...(step.kind === 'switch'
+      ? step.options.flatMap(option => collectSteps(option.sequence))
+      : []),
     ...(step.kind === 'conditional' && step.whenFalse ? collectSteps(step.whenFalse) : []),
   ]);
 }

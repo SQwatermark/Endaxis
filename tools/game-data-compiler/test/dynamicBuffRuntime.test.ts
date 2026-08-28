@@ -1,3 +1,4 @@
+import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { describe, expect, it } from 'vitest';
 import carriers from './fixtures/avywenna-vulnerable-buffs.json';
 import children from './fixtures/avywenna-vulnerable-children.json';
@@ -19,10 +20,25 @@ describe('原始易伤载体的动态子 Buff → 正式编译和运行端口', 
     '原始载体按黑板查表，保留来源/施放身份和 %s 清理',
     ending => {
       // 本回归显式装入待验证目录，不冒充已实现动态依赖的自动闭包推导。
-      const childClosure = compileStandardStumpBuffClosure([childId], children);
+      const childClosure = compileStandardStumpBuffClosure(
+        [childId],
+        children,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        fixtureGameplayTagRegistry,
+      );
       expect(childClosure.diagnostics.every(item => item.status === 'scenario-omitted')).toBe(true);
       const carrier = compileBuffRuntimeDefinitionSource(
         parseBuffRuntimeSource(carriers[carrierId], carrierId),
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        { gameplayTagRegistry: fixtureGameplayTagRegistry, ...{} },
       );
       expect(carrier.lifecycleSequences?.enable?.steps[0]).toMatchObject({
         kind: 'applyBuff',
@@ -105,6 +121,10 @@ describe('原始易伤载体的动态子 Buff → 正式编译和运行端口', 
     const definition = compileBuffRuntimeDefinitionSource(
       parseBuffRuntimeSource(source, carrierId),
       new Set(['stale-visual']),
+      undefined,
+      undefined,
+      undefined,
+      { gameplayTagRegistry: fixtureGameplayTagRegistry, ...{} },
     );
     expect(definition.lifecycleSequences?.enable?.steps[0]).toMatchObject({
       kind: 'applyBuff',

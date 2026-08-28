@@ -19,6 +19,7 @@ import MechanicStepEditor from './MechanicStepEditor.vue';
 import ResourceStepEditor from './ResourceStepEditor.vue';
 import StatusStepEditor from './StatusStepEditor.vue';
 import BranchStepEditor from './BranchStepEditor.vue';
+import SwitchStepEditor from './SwitchStepEditor.vue';
 import EditorHelpHint from './EditorHelpHint.vue';
 import EventListenerStepEditor from './EventListenerStepEditor.vue';
 import TimeDilationStepEditor from './TimeDilationStepEditor.vue';
@@ -82,6 +83,17 @@ function forward(step: CombatStepDefinition): void {
         v-if="step.kind === 'startTimeDilation' || step.kind === 'startUltimateTimeDilation'"
       >
         <TimeDilationStepEditor :step="step" @update="forward" />
+      </template>
+      <template v-else-if="step.kind === 'switch'">
+        <SwitchStepEditor
+          :step="step"
+          :skill-level="skillLevel"
+          :create-step="createStep"
+          :duplicate-step="duplicateStep"
+          :selected-path="selectedPath"
+          :inspector-only="inspectorOnly"
+          @update="forward"
+        />
       </template>
       <template v-else-if="step.kind === 'adjustSkillCooldown'">
         <SkillCooldownStepEditor :step="step" @update="forward" />

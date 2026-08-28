@@ -80,7 +80,7 @@ export class HealOperationExecutor implements CombatOperationExecutor {
       target.operatorId,
       target.vitals,
       Math.fround(Math.fround(attributeValue * multiplier) + addition),
-      step.parameters.tagIds,
+      step.parameters.tags,
       this.dependencies.resolveHealingIncrease?.('healer', sourceOperatorId) ?? 0,
       this.dependencies.resolveHealingIncrease?.('receiver', target.operatorId) ?? 0,
     );
@@ -104,7 +104,7 @@ export class HealOperationExecutor implements CombatOperationExecutor {
         attributeValue,
         multiplier,
         addition,
-        tagIds: JSON.stringify(step.parameters.tagIds),
+        tags: JSON.stringify(step.parameters.tags),
         requestedHealing: result.requestedHealing,
         actualHealing: result.actualHealing,
         overhealing: result.overhealing,
@@ -119,7 +119,7 @@ export class HealOperationExecutor implements CombatOperationExecutor {
       requestedHealing: result.requestedHealing,
       actualHealing: result.actualHealing,
       overhealing: result.overhealing,
-      tagIds: step.parameters.tagIds,
+      tags: step.parameters.tags,
     };
     this.dependencies.emitSuccessfulHeal?.({ ...eventBase, event: 'outputHeal' });
     this.dependencies.emitSuccessfulHeal?.({ ...eventBase, event: 'receiveHeal' });

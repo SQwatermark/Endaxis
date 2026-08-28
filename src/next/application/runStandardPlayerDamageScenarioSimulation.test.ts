@@ -20,10 +20,11 @@ import { akekuri } from '../data/operators/akekuri';
 import { generatedCommonBuffDefinitions } from '../data/operators/generated/commonBuffDefinitions.generated';
 import { commonBuffDefinitions } from '../data/buffs/commonDefinitions';
 import { elementalAttachments } from '../data/buffs/elementalAttachments';
-import { scheduled, sequence, step } from '../data/operators/definitionHelpers';
+import { scheduled, sequence, step, branch } from '../data/operators/definitionHelpers';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { StandardPlayerDamageCompatibilityError } from '../core/combat/runtime/standardPlayerDamageCompatibility';
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
+import type { OperatorDefinition } from '../core/game-data/operatorDefinition';
 
 function createPerlicaScenario() {
   const scenario = createEmptyScenario('scenario:standard-damage', '标准伤害样本');
@@ -63,6 +64,98 @@ function standardOptions() {
     },
   };
 }
+
+describe('标准入口普通倒地装配', () => {
+  function fixture(observeGetUp = false) {
+    const definition: OperatorDefinition = {
+      ...perlica,
+      comboSkillRegistrations: [],
+      talents: [],
+      potentials: [],
+      buffDefinitions: {
+        buff_physical_no_guard: { stackingType: 'refresh', durationSeconds: 2 },
+        buff_physical_knockdown: { stackingType: 'refresh', durationSeconds: 2 },
+      },
+      skillGroups: [
+        ...perlica.skillGroups.filter(group => group.key !== 'battleSkill'),
+        {
+          key: 'battleSkill',
+          skillType: 'battleSkill',
+          levelSource: 'battleSkill',
+          skills: {
+            key: 'battleSkill',
+            timelineBlockFrames: 1,
+            scheduledSequences: [
+              scheduled(
+                0,
+                sequence(
+                  ...Array.from({ length: 2 }, () =>
+                    step('applyKnockDown', {
+                      target: 'enemy',
+                      duration: { kind: 'constant', value: 0.1 },
+                      force: false,
+                      isExtra: false,
+                      targetFilter: 'aliveOnly',
+                      returnWhen: 'always',
+                    }),
+                  ),
+                  ...(observeGetUp
+                    ? [
+                        branch(
+                          {
+                            kind: 'entityTagMatch',
+                            target: 'enemy',
+                            tagQueryType: 'hasAny',
+                            tags: ['Status/Immobilized/Getup'],
+                          },
+                          sequence(),
+                        ),
+                      ]
+                    : []),
+                ),
+              ),
+            ],
+          },
+        },
+      ],
+    };
+    const scenario = placeSkillGroup({
+      scenario: createPerlicaScenario(),
+      trackIndex: 0,
+      operator: definition,
+      skillGroupKey: 'battleSkill',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:down` },
+    }).scenario;
+    const options = standardOptions();
+    return () =>
+      runStandardPlayerDamageScenarioSimulation({
+        scenario,
+        endFrame: 15,
+        criticalSamples: {
+          nextCriticalSample: () => {
+            throw new Error('控制夹具不应抽伤害样本');
+          },
+        },
+        resolveNonRandomRuntimeSnapshot: () => {
+          throw new Error('控制夹具不应结算伤害');
+        },
+        options: { ...options, index: { ...options.index, getOperator: () => definition } },
+      });
+  }
+  it('经项目编译、标准预检与正式入口执行首次破防和再次倒地', () => {
+    const result = fixture()();
+    expect(
+      result.receiptEntries.filter(entry => entry.event === 'PhysicalNoGuardApplied'),
+    ).toHaveLength(1);
+    expect(
+      result.receiptEntries.filter(entry => entry.event === 'PhysicalInflictionApplied'),
+    ).toHaveLength(1);
+  });
+  it('正式入口拒绝需要敌方起身状态的场景，不先执行控制', () => {
+    expect(fixture(true)).toThrow('cannot omit get-up');
+  });
+});
 
 function placeGeneratedPerlicaFlow() {
   const scenario = createPerlicaScenario();
@@ -1695,7 +1788,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         targetId: 'enemy',
         data: expect.objectContaining({
           buffId: 'buff_common_originum_frozen',
-          reason: 'other',
+          reason: 'ignite',
         }),
       }),
     );

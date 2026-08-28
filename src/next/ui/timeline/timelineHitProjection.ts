@@ -81,6 +81,21 @@ function collectDamageSteps(
     });
     return;
   }
+  if (step.kind === 'switch') {
+    for (const option of step.options)
+      for (const nested of option.sequence.steps) {
+        collectDamageSteps(
+          nested,
+          true,
+          markers,
+          cast,
+          frameOffset,
+          abilityEntityDefinitions,
+          buffDefinitions,
+        );
+      }
+    return;
+  }
   if (step.kind === 'conditional') {
     // 条件分支里的步骤跑不跑取决于当时条件，一律标记为 conditional。
     for (const nested of step.whenTrue.steps)

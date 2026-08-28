@@ -18,8 +18,8 @@ const definition = {
       triggerIntervalSeconds: 0,
       waitFirstTriggerInterval: true,
       maxTriggerCount: 1,
-      applyTagIds: [],
-      extendTagIds: [],
+      applyTags: [],
+      extendTags: [],
       blackboard: {
         atk_scale: 1,
         duration: 0,
@@ -39,7 +39,7 @@ const definition = {
                   condition: {
                     kind: 'eventBuffTagsMatch',
                     match: 'hasAny',
-                    buffTagIds: [-6380412],
+                    buffTags: ["Skill/Character/Common/PhysicalStatus"],
                   },
                 },
                 whenTrue: {

@@ -3,6 +3,7 @@
   "sharedJsonIndex": "asset-sync-index.json",
   "tableCfg": [
     "CharacterTable",
+    "AttributeMetaTable",
     "CharGrowthTable",
     "CharacterPotentialTable",
     "PotentialTalentEffectTable",
@@ -21,6 +22,7 @@
     "SkillData": "skill-data-cdn",
     "BuffData": "BuffData"
   },
+  "jsonFiles": ["GameplayConfig/GameplayTagPredefineTable.json"],
   "operatorClosureCollections": {
     "ProjectileData": {
       "output": "ProjectileData",

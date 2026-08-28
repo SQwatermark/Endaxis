@@ -62,8 +62,8 @@ const definition = {
               "category": "CommonCharBuff"
             }
           },
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "atk_up": 0,
             "duration": 0
@@ -85,8 +85,8 @@ const definition = {
           "triggerIntervalSeconds": 0,
           "waitFirstTriggerInterval": true,
           "maxTriggerCount": 1,
-          "applyTagIds": [],
-          "extendTagIds": [],
+          "applyTags": [],
+          "extendTags": [],
           "blackboard": {
             "dmg_up": 0
           },
@@ -98,9 +98,9 @@ const definition = {
                 "kind": "entityTagMatch",
                 "target": "enemy",
                 "tagQueryType": "hasAny",
-                "tagIds": [
-                  1570888476,
-                  1535684437
+                "tags": [
+                  "Skill/Character/Common/SpellInflict/CrystInflict",
+                  "Skill/Character/Common/SpellStatus/Frozen"
                 ]
               },
               "processors": [
@@ -194,8 +194,8 @@ const definition = {
                   "condition": {
                     "kind": "eventBuffTagsMatch",
                     "match": "hasAny",
-                    "buffTagIds": [
-                      1535684437
+                    "buffTags": [
+                      "Skill/Character/Common/SpellStatus/Frozen"
                     ]
                   }
                 },

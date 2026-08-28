@@ -18,8 +18,8 @@ const definition = {
       triggerIntervalSeconds: 0,
       waitFirstTriggerInterval: true,
       maxTriggerCount: 1,
-      applyTagIds: [],
-      extendTagIds: [],
+      applyTags: [],
+      extendTags: [],
       blackboard: {
         cryst_dmg_up: 0.5,
         duration: 8,
@@ -40,7 +40,7 @@ const definition = {
                   condition: {
                     kind: 'eventBuffTagsMatch',
                     match: 'hasAny',
-                    buffTagIds: [1466867135],
+                    buffTags: ["Skill/Character/Common/SpellStatus/Conduct"],
                   },
                 },
                 whenTrue: {
@@ -72,7 +72,7 @@ const definition = {
                   condition: {
                     kind: 'eventBuffTagsMatch',
                     match: 'hasAny',
-                    buffTagIds: [1535684437],
+                    buffTags: ["Skill/Character/Common/SpellStatus/Frozen"],
                   },
                 },
                 whenTrue: {
@@ -129,8 +129,8 @@ const definition = {
           category: 'CommonCharBuff',
         },
       },
-      applyTagIds: [],
-      extendTagIds: [],
+      applyTags: [],
+      extendTags: [],
       blackboard: {
         cryst_dmg_up: 0.2,
         duration: 8,
@@ -171,8 +171,8 @@ const definition = {
           category: 'CommonCharBuff',
         },
       },
-      applyTagIds: [],
-      extendTagIds: [],
+      applyTags: [],
+      extendTags: [],
       blackboard: {
         duration: 8,
         pulse_dmg_up: 0.2,

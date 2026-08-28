@@ -1,3 +1,4 @@
+import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { describe, expect, it } from 'vitest';
 import fixture from './fixtures/avywenna-vulnerable-buffs.json';
 import { parseKnownNativeActionLeafSource } from '../src/source/actionLeaf.ts';
@@ -82,7 +83,14 @@ describe('原生关键词 Buff 来源与引用边界', () => {
     const changed = structuredClone(fixture[rootId]);
     changed.buffEventAction[0]!.actions[0]!.actionData[0] = action;
     expect(
-      compileBuffRuntimeDefinitionSource(parseBuffRuntimeSource(changed, 'buff')),
+      compileBuffRuntimeDefinitionSource(
+        parseBuffRuntimeSource(changed, 'buff'),
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        { gameplayTagRegistry: fixtureGameplayTagRegistry, ...{} },
+      ),
     ).toMatchObject({
       lifecycleSequences: {
         enable: {
@@ -165,7 +173,14 @@ describe('原生关键词 Buff 来源与引用边界', () => {
       /missing Buff definition.*default_child/,
     );
     expect(
-      compileBuffRuntimeDefinitionSource(parseBuffRuntimeSource(fixture[rootId], 'buff')),
+      compileBuffRuntimeDefinitionSource(
+        parseBuffRuntimeSource(fixture[rootId], 'buff'),
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        { gameplayTagRegistry: fixtureGameplayTagRegistry, ...{} },
+      ),
     ).toMatchObject({
       lifecycleSequences: {
         enable: {
@@ -190,7 +205,14 @@ describe('原生关键词 Buff 来源与引用边界', () => {
     const changed = structuredClone(fixture[rootId]);
     Object.assign(changed.buffEventAction[0]!.actions[0]!.actionData[0]!, change);
     expect(() =>
-      compileBuffRuntimeDefinitionSource(parseBuffRuntimeSource(changed, 'buff')),
+      compileBuffRuntimeDefinitionSource(
+        parseBuffRuntimeSource(changed, 'buff'),
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        { gameplayTagRegistry: fixtureGameplayTagRegistry, ...{} },
+      ),
     ).toThrow(/keyword enhancements|dynamic or empty keyword child override/);
   });
 });

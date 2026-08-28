@@ -3,7 +3,7 @@ import type { ProjectileLaunchActionSource } from '../source/referenceActions.ts
 import type { ScalarSource } from '../source/scalar.ts';
 import type { CompiledBuffNumberSource } from './buffProjectionTypes.ts';
 import type { CompiledBuffStepSource } from './combatActionProjectionTypes.ts';
-import type { GameplayTagRegistry } from '../../../../src/shared/gameplayTags.ts';
+import type { GameplayTagRegistry } from '../source/nativeGameplayTags.ts';
 import type { CompiledAbilityEntityTemplateCatalogSource } from './abilityEntityCatalog.ts';
 import type { GlobalBuffActionSource } from '../source/globalBuffActions.ts';
 import type { SkillSettingReadActionSource } from '../source/skillSettingActions.ts';
@@ -25,6 +25,8 @@ export type ProjectedTargetGroup =
 /** 原生动作身份由宿主及事件方向共同投影，不能把物理事件来源一律当作 ActionSource。 */
 export interface CombatActionProjectionContextSource {
   /** 回调宿主未投影时显式 unavailable；读取 Owner 必须失败，不能借用发射者。 */
+  /** 来源侧标签解析；动作、条件、Buff 和时间槽共用，不依赖某个领域宿主。 */
+  readonly gameplayTagRegistry?: GameplayTagRegistry;
   readonly actionOwnerTarget: 'buffOwner' | 'caster' | 'currentAbilityEntity' | 'unavailable';
   /** 接收侧 Buff 事件保留监听器创建者；其他路径沿用已审计的宿主投影。 */
   readonly actionSourceTarget: 'caster' | 'buffSource';
@@ -280,3 +282,19 @@ export const COMPARISON_OPERATORS: Readonly<
   LessThan: 'less',
   LessThanOrEqual: 'lessOrEqual',
 };
+/** 公开定义只允许可读标签；空查询不要求目录，非空查询缺目录时必须失败。 */
+export function projectGameplayTags(
+  ids: readonly number[],
+  context: Pick<
+    CombatActionProjectionContextSource,
+    'gameplayTagRegistry' | 'abilityEntityQueries'
+  >,
+  sourcePath: string,
+): readonly string[] {
+  const registry = context.gameplayTagRegistry ?? context.abilityEntityQueries?.gameplayTagRegistry;
+  return ids.map((id, index) => {
+    if (!registry)
+      throw new Error(sourcePath + '[' + index + ']: 转换 GameplayTag 缺少来源标签目录');
+    return registry.resolve(id, sourcePath + '[' + index + ']');
+  });
+}

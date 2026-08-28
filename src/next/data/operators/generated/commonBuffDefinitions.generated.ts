@@ -9,7 +9,7 @@ export const generatedCommonBuffDefinitions = {
     priority: 0,
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
-    applyTagIds: [782082172, -104052028, -886962248],
+    applyTags: ["Status/DodgeDamageImmune", "Status/SkillDamageImmune", "Immune/SpellInflictOnChar/All"],
     blackboard: {
       'duration': 9999,
     },
@@ -18,14 +18,14 @@ export const generatedCommonBuffDefinitions = {
     stackingType: 'unlimited',
     priority: 0,
     maxStackCount: 0,
-    applyTagIds: [-1601691447, 817018340, -1486085048, -496376350, 2002680355],
+    applyTags: ["Status/DisableDash", "Status/CantSwitchOutCenter", "Status/DisableNormalSkill", "Status/DisableCastComboSkill", "Status/Unjumpable"],
   },
   'buff_common_damage_immune_ult_skill': {
     stackingType: 'unlimited',
     priority: 0,
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
-    applyTagIds: [782082172, -104052028, -886962248],
+    applyTags: ["Status/DodgeDamageImmune", "Status/SkillDamageImmune", "Immune/SpellInflictOnChar/All"],
     blackboard: {
       'duration': 9999,
     },
@@ -99,7 +99,7 @@ export const generatedCommonBuffDefinitions = {
     triggerIntervalSeconds: 1,
     waitFirstTriggerInterval: true,
     maxTriggerCount: 1,
-    applyTagIds: [-1110095722],
+    applyTags: ["Skill/Character/Common/SpellStatus/Burning"],
     blackboard: {
       'burning_atk_scale': 0,
       'count': 1,
@@ -141,7 +141,7 @@ export const generatedCommonBuffDefinitions = {
     priority: 0,
     maxStackCount: 0,
     durationSeconds: 5,
-    applyTagIds: [-615023885],
+    applyTags: ["Skill/Character/Common/SpellStatusSpecial/Shatter"],
     blackboard: {
       'atk_scale': 0,
     },
@@ -172,14 +172,14 @@ export const generatedCommonBuffDefinitions = {
       start: sequence(
         step('readBuffBlackboard', {
           target: 'buffOwner',
-          query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [1535684437] },
+          query: { kind: 'tag', tagQueryType: 'hasAny', buffTags: ["Skill/Character/Common/SpellStatus/Frozen"] },
           desiredKey: 'count',
           outputKey: 'count',
         }),
         step('finishBuffsByTag', {
           target: 'buffOwner',
           tagQueryType: 'hasAny',
-          buffTagIds: [1535684437],
+          buffTags: ["Skill/Character/Common/SpellStatus/Frozen"],
           reason: 'early',
         }),
         step('applyBuff', {
@@ -201,7 +201,7 @@ export const generatedCommonBuffDefinitions = {
             step('startTimeDilation', {
               scope: 'entity',
               durationSeconds: { kind: 'constant', value: 0.1 },
-              slot: 1464849466,
+              slot: "TimeDilation/Layer/Entity/HitStop",
               priority: 15,
               curve: { kind: 'named', key: 'interrupt_weakness' },
               finishByAction: false,
@@ -220,7 +220,7 @@ export const generatedCommonBuffDefinitions = {
                 step('startTimeDilation', {
                   scope: 'entity',
                   durationSeconds: { kind: 'constant', value: 0.1 },
-                  slot: 1464849466,
+                  slot: "TimeDilation/Layer/Entity/HitStop",
                   priority: 10,
                   curve: { kind: 'named', key: 'interrupt_weakness' },
                   finishByAction: false,
@@ -239,7 +239,7 @@ export const generatedCommonBuffDefinitions = {
                     step('startTimeDilation', {
                       scope: 'entity',
                       durationSeconds: { kind: 'constant', value: 0.25 },
-                      slot: 1464849466,
+                      slot: "TimeDilation/Layer/Entity/HitStop",
                       priority: 20,
                       curve: { kind: 'named', key: 'interrupt_weakness' },
                       finishByAction: false,
@@ -258,7 +258,7 @@ export const generatedCommonBuffDefinitions = {
                         step('startTimeDilation', {
                           scope: 'entity',
                           durationSeconds: { kind: 'constant', value: 0.5 },
-                          slot: 1464849466,
+                          slot: "TimeDilation/Layer/Entity/HitStop",
                           priority: 20,
                           curve: { kind: 'named', key: 'interrupt_weakness' },
                           finishByAction: false,
@@ -277,7 +277,7 @@ export const generatedCommonBuffDefinitions = {
                             step('startTimeDilation', {
                               scope: 'entity',
                               durationSeconds: { kind: 'constant', value: 0.65 },
-                              slot: 1464849466,
+                              slot: "TimeDilation/Layer/Entity/HitStop",
                               priority: 20,
                               curve: { kind: 'named', key: 'interrupt_weakness' },
                               finishByAction: false,
@@ -302,7 +302,7 @@ export const generatedCommonBuffDefinitions = {
     priority: 100,
     maxStackCount: 1,
     durationSeconds: { blackboardKey: 'duration' },
-    applyTagIds: [-508362979],
+    applyTags: ["Skill/Character/Common/NoGuardFake"],
     blackboard: {
       'duration': 1,
     },
@@ -331,7 +331,7 @@ export const generatedCommonBuffDefinitions = {
     triggerIntervalSeconds: 0,
     waitFirstTriggerInterval: false,
     maxTriggerCount: 0,
-    applyTagIds: [-430063731],
+    applyTags: ["Skill/Character/Common/PhysicalStatus/FractureStatus"],
     blackboard: {
       'atk_scale': 0,
       'count': 0,
@@ -395,7 +395,7 @@ export const generatedCommonBuffDefinitions = {
             step('startTimeDilation', {
               scope: 'entity',
               durationSeconds: { kind: 'constant', value: 0.1 },
-              slot: 1464849466,
+              slot: "TimeDilation/Layer/Entity/HitStop",
               priority: 15,
               curve: { kind: 'named', key: 'interrupt_weakness' },
               finishByAction: false,
@@ -414,7 +414,7 @@ export const generatedCommonBuffDefinitions = {
                 step('startTimeDilation', {
                   scope: 'entity',
                   durationSeconds: { kind: 'constant', value: 0.1 },
-                  slot: 1464849466,
+                  slot: "TimeDilation/Layer/Entity/HitStop",
                   priority: 10,
                   curve: { kind: 'named', key: 'interrupt_weakness' },
                   finishByAction: false,
@@ -433,7 +433,7 @@ export const generatedCommonBuffDefinitions = {
                     step('startTimeDilation', {
                       scope: 'entity',
                       durationSeconds: { kind: 'constant', value: 0.25 },
-                      slot: 1464849466,
+                      slot: "TimeDilation/Layer/Entity/HitStop",
                       priority: 20,
                       curve: { kind: 'named', key: 'interrupt_weakness' },
                       finishByAction: false,
@@ -452,7 +452,7 @@ export const generatedCommonBuffDefinitions = {
                         step('startTimeDilation', {
                           scope: 'entity',
                           durationSeconds: { kind: 'constant', value: 0.5 },
-                          slot: 1464849466,
+                          slot: "TimeDilation/Layer/Entity/HitStop",
                           priority: 20,
                           curve: { kind: 'named', key: 'interrupt_weakness' },
                           finishByAction: false,
@@ -471,7 +471,7 @@ export const generatedCommonBuffDefinitions = {
                             step('startTimeDilation', {
                               scope: 'entity',
                               durationSeconds: { kind: 'constant', value: 0.65 },
-                              slot: 1464849466,
+                              slot: "TimeDilation/Layer/Entity/HitStop",
                               priority: 20,
                               curve: { kind: 'named', key: 'interrupt_weakness' },
                               finishByAction: false,
@@ -496,7 +496,7 @@ export const generatedCommonBuffDefinitions = {
     priority: 0,
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
-    applyTagIds: [782082172, -104052028, -1128398902],
+    applyTags: ["Status/DodgeDamageImmune", "Status/SkillDamageImmune", "Status/NoBehitVFX"],
     blackboard: {
       'duration': 9999,
     },
@@ -511,7 +511,7 @@ export const generatedCommonBuffDefinitions = {
     priority: 0,
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
-    applyTagIds: [-808036568, -279045144, 1643653132, 2056757668, 195489960, 2136825092, 486381712, 782082172, -104052028, -886962248],
+    applyTags: ["Immune/Stunned", "Immune/Frozen", "Immune/Airborne", "Immune/KnockDown", "Immune/KnockBack", "Immune/Pull", "Immune/Poise", "Status/DodgeDamageImmune", "Status/SkillDamageImmune", "Immune/SpellInflictOnChar/All"],
     blackboard: {
       'duration': 9999,
     },
@@ -541,7 +541,7 @@ export const generatedCommonBuffDefinitions = {
     priority: 100,
     maxStackCount: 4,
     durationSeconds: { blackboardKey: 'duration' },
-    applyTagIds: [1075718177],
+    applyTags: ["Skill/Character/Common/NoGuard"],
     blackboard: {
       'atk_scale': 0,
       'count': 0,
@@ -639,7 +639,7 @@ export const generatedCommonBuffDefinitions = {
     triggerIntervalSeconds: 1,
     waitFirstTriggerInterval: true,
     maxTriggerCount: 1,
-    applyTagIds: [1466867135],
+    applyTags: ["Skill/Character/Common/SpellStatus/Conduct"],
     blackboard: {
       'count': 1,
       'duration': 5,
@@ -809,7 +809,7 @@ export const generatedCommonBuffDefinitions = {
     triggerIntervalSeconds: 1,
     waitFirstTriggerInterval: true,
     maxTriggerCount: -1,
-    applyTagIds: [-421286163],
+    applyTags: ["Skill/Character/Common/SpellStatus/Corrupt"],
     blackboard: {
       'additional_def_decrease': 0,
       'count': 1,
@@ -974,14 +974,14 @@ export const generatedCommonBuffDefinitions = {
             kind: 'buffStackCompare',
             target: 'enemy',
             tagQueryType: 'hasAny',
-            buffTagIds: [-421286163],
+            buffTags: ["Skill/Character/Common/SpellStatus/Corrupt"],
             operator: 'greaterOrEqual',
             value: { kind: 'constant', value: 1 },
           },
           sequence(
             step('readBuffBlackboard', {
               target: 'buffOwner',
-              query: { kind: 'tag', tagQueryType: 'hasAny', buffTagIds: [-421286163] },
+              query: { kind: 'tag', tagQueryType: 'hasAny', buffTags: ["Skill/Character/Common/SpellStatus/Corrupt"] },
               desiredKey: 'def_decrease',
               outputKey: 'def_decrease',
             }),
@@ -1244,7 +1244,7 @@ export const generatedCommonBuffDefinitions = {
     priority: { blackboardKey: 'rate' },
     maxStackCount: 1,
     durationSeconds: { blackboardKey: 'duration' },
-    applyTagIds: [1925762097],
+    applyTags: ["Skill/Character/Common/Affixes/Slow"],
     blackboard: { rate: 0, duration: 0 },
   },
   'buff_common_originum_frozen': {
@@ -1268,7 +1268,7 @@ export const generatedCommonBuffDefinitions = {
     priority: 0,
     maxStackCount: 1,
     durationSeconds: { blackboardKey: 'duration' },
-    applyTagIds: [889346577],
+    applyTags: ["Status/DisableFaceToAttacker"],
     blackboard: {
       'atk_scale_trigger': 0,
       'atk_up_dynamic': 0,
@@ -1520,7 +1520,7 @@ export const generatedCommonBuffDefinitions = {
     priority: 0,
     maxStackCount: 1,
     durationSeconds: { blackboardKey: 'duration' },
-    applyTagIds: [-717418722, 889346577],
+    applyTags: ["Status/Immobilized/Frozen", "Status/DisableFaceToAttacker"],
     blackboard: {
       'duration': 9999,
     },
@@ -1529,7 +1529,7 @@ export const generatedCommonBuffDefinitions = {
         step('startTimeDilation', {
           scope: 'entity',
           durationSeconds: { kind: 'blackboard', key: 'duration' },
-          slot: -1855252810,
+          slot: "TimeDilation/Layer/Entity/Frozen",
           priority: 50,
           curve: { kind: 'inline', keys: [{ time: 0, value: 0, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0.333333343 }, { time: 1, value: 0, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0.333333343, outWeight: 0 }] },
           finishByAction: true,
@@ -1601,7 +1601,7 @@ export const generatedCommonBuffDefinitions = {
     triggerIntervalSeconds: 1,
     waitFirstTriggerInterval: true,
     maxTriggerCount: 1,
-    applyTagIds: [1535684437],
+    applyTags: ["Skill/Character/Common/SpellStatus/Frozen"],
     blackboard: {
       'count': 1,
       'duration': 5,

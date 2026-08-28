@@ -16,7 +16,7 @@ export const avywennaComboSkill: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.5 },
-            slot: 0,
+            slot: "unassigned",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -468,7 +468,7 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
                             kind: 'buffStackCompare',
                             target: 'enemy',
                             tagQueryType: 'hasAny',
-                            buffTagIds: [-1640994543],
+                            buffTags: ["Skill/Character/Common/Affixes/Vulnerable/VulnerablePulse"],
                             operator: 'greaterOrEqual',
                             value: { kind: 'constant', value: 1 },
                           },
@@ -505,7 +505,7 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
                         step('startTimeDilation', {
                           scope: 'global',
                           durationSeconds: { kind: 'constant', value: 0.2 },
-                          slot: 1464849466,
+                          slot: "TimeDilation/Layer/Entity/HitStop",
                           priority: 10,
                           curve: { kind: 'inline', keys: [{ time: 0, value: 0.2, inTangent: 0.04379496, outTangent: 0.04379496, weightedMode: 0, inWeight: 0, outWeight: 0 }, { time: 0.8847446, value: 0.2387474, inTangent: 0.04379496, outTangent: 6.604918, weightedMode: 0, inWeight: 0, outWeight: 0 }, { time: 1, value: 1, inTangent: 6.604918, outTangent: 6.604918, weightedMode: 0, inWeight: 0, outWeight: 0 }] },
                           finishByAction: false,
@@ -567,7 +567,7 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
                             kind: 'buffStackCompare',
                             target: 'enemy',
                             tagQueryType: 'hasAny',
-                            buffTagIds: [-1640994543],
+                            buffTags: ["Skill/Character/Common/Affixes/Vulnerable/VulnerablePulse"],
                             operator: 'greaterOrEqual',
                             value: { kind: 'constant', value: 1 },
                           },
@@ -589,7 +589,7 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
                         step('startTimeDilation', {
                           scope: 'entity',
                           durationSeconds: { kind: 'constant', value: 0.4 },
-                          slot: 1464849466,
+                          slot: "TimeDilation/Layer/Entity/HitStop",
                           priority: 10,
                           curve: { kind: 'named', key: 'interrupt_weakness' },
                           finishByAction: false,
@@ -607,7 +607,7 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
                         step('startTimeDilation', {
                           scope: 'entity',
                           durationSeconds: { kind: 'constant', value: 0.4 },
-                          slot: 1464849466,
+                          slot: "TimeDilation/Layer/Entity/HitStop",
                           priority: 10,
                           curve: { kind: 'named', key: 'interrupt_weakness' },
                           finishByAction: false,
@@ -622,7 +622,7 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
                         step('startTimeDilation', {
                           scope: 'global',
                           durationSeconds: { kind: 'constant', value: 0.2 },
-                          slot: 1464849466,
+                          slot: "TimeDilation/Layer/Entity/HitStop",
                           priority: 10,
                           curve: { kind: 'inline', keys: [{ time: 0, value: 0.2, inTangent: 0.04379496, outTangent: 0.04379496, weightedMode: 0, inWeight: 0, outWeight: 0 }, { time: 0.8847446, value: 0.2387474, inTangent: 0.04379496, outTangent: 6.604918, weightedMode: 0, inWeight: 0, outWeight: 0 }, { time: 1, value: 1, inTangent: 6.604918, outTangent: 6.604918, weightedMode: 0, inWeight: 0, outWeight: 0 }] },
                           finishByAction: false,
@@ -690,7 +690,7 @@ export const avywennaUltimate: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 1 },
-            slot: 1464849466,
+            slot: "TimeDilation/Layer/Entity/HitStop",
             priority: 10,
             curve: { kind: 'named', key: 'RESETto1' },
             finishByAction: false,

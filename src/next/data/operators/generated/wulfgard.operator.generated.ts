@@ -16,7 +16,7 @@ export const wulfgardComboSkill: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.6 },
-            slot: 0,
+            slot: "unassigned",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -460,7 +460,7 @@ export const wulfgardBattleSkill: SkillDefinition = withSkillBlackboard(
               kind: 'entityTagMatch',
               target: 'enemy',
               tagQueryType: 'hasAny',
-              tagIds: [-1110095722, 1466867135],
+              tags: ["Skill/Character/Common/SpellStatus/Burning", "Skill/Character/Common/SpellStatus/Conduct"],
             },
             sequence(
               step('modifyActionValue', {
@@ -640,7 +640,7 @@ export const wulfgardBattleSkill: SkillDefinition = withSkillBlackboard(
                   kind: 'entityTagMatch',
                   target: 'enemy',
                   tagQueryType: 'hasAny',
-                  tagIds: [-1110095722, 1466867135],
+                  tags: ["Skill/Character/Common/SpellStatus/Burning", "Skill/Character/Common/SpellStatus/Conduct"],
                 },
                 sequence(
                   branch(
@@ -765,7 +765,7 @@ export const wulfgardUltimate: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'entity',
             durationSeconds: { kind: 'constant', value: 1 },
-            slot: 1464849466,
+            slot: "TimeDilation/Layer/Entity/HitStop",
             priority: 10,
             curve: { kind: 'named', key: 'RESETto1' },
             finishByAction: false,
@@ -966,7 +966,7 @@ export const wulfgardGeneratedOperator: OperatorDefinition = {
                 {
                   kind: 'eventBuffTagsMatch',
                   match: 'hasAny',
-                  buffTagIds: [-1110095722],
+                  buffTags: ["Skill/Character/Common/SpellStatus/Burning"],
                 },
                 sequence(
                   step('applyBuff', {

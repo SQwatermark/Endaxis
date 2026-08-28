@@ -43,18 +43,22 @@ const { t } = useI18n({ useScope: 'global' });
 const ordinary = computed(() => (props.step.kind === 'startTimeDilation' ? props.step : undefined));
 const slotOptions = computed(() => {
   const current = ordinary.value?.parameters.slot;
-  const definitions: { id: number; label: string }[] = TIME_DILATION_SLOT_DEFINITIONS.map(slot => ({
+  const definitions: { id: string; label: string }[] = TIME_DILATION_SLOT_DEFINITIONS.map(slot => ({
     id: slot.id,
-    label: `${slot.name} (${slot.id})`,
+    label: slot.name,
   }));
-  if (current !== undefined && current !== 0 && !definitions.some(slot => slot.id === current)) {
+  if (
+    current !== undefined &&
+    current !== 'unassigned' &&
+    !definitions.some(slot => slot.id === current)
+  ) {
     definitions.unshift({
       id: current,
       label: `${current} — ${t('nextTimeline.skillEditing.unknownTimeDilationSlot')}`,
     });
   }
   return [
-    { id: 0, label: `0 — ${t('nextTimeline.skillEditing.invalidTimeDilationSlot')}` },
+    { id: 'unassigned', label: t('nextTimeline.skillEditing.invalidTimeDilationSlot') },
     ...definitions,
   ];
 });
@@ -144,7 +148,7 @@ function setScope(event: Event): void {
   );
 }
 
-function setOrdinaryNumber(field: 'slot' | 'priority', event: Event): void {
+function setOrdinaryNumber(field: 'priority', event: Event): void {
   const step = ordinary.value;
   const value = numberFrom(event);
   if (step === undefined || value === undefined || !Number.isInteger(value)) return;
@@ -152,7 +156,9 @@ function setOrdinaryNumber(field: 'slot' | 'priority', event: Event): void {
 }
 
 function setSlot(event: Event): void {
-  setOrdinaryNumber('slot', event);
+  const step = ordinary.value;
+  if (step !== undefined)
+    updateOrdinary({ ...step.parameters, slot: (event.target as HTMLSelectElement).value });
 }
 
 function setDuration(durationSeconds: ActionValueOperand): void {

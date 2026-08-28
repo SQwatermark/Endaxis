@@ -24,7 +24,8 @@ import type {
 } from './selectorComponents.ts';
 import {
   distanceValidatorsPassAtZero,
-  parseCharacterTeamSelectionRole,
+  parseCharacterTeamSelection,
+  type CharacterTeamSelectionSource,
   parseCircularOrderSource,
   priorityFilterMaxTargets,
   selectorExcludesPlainCurrentTarget,
@@ -83,7 +84,7 @@ export interface TargetGroupWriteSource {
   /** 方向计算的目标引用也属于读取依赖，不能因零空间投影而在来源层丢失。 */
   readonly directionTarget: string | null;
   readonly directionContextKey: string;
-  readonly characterTeamSelectionRole: string | null;
+  readonly characterTeamSelection: CharacterTeamSelectionSource | null;
   readonly excludesCurrentTarget: boolean;
   readonly excludesOwner: boolean;
   readonly smartTargetFallsBackToMainTarget: boolean;
@@ -427,7 +428,7 @@ function parseFindTargetAction(
     ),
     directionTarget: requireString(action.target, `${path}.target`),
     directionContextKey: requireString(action.contextKey, `${path}.contextKey`),
-    characterTeamSelectionRole: parseCharacterTeamSelectionRole(selector, selectorPath),
+    characterTeamSelection: parseCharacterTeamSelection(selector, selectorPath),
     excludesCurrentTarget: selectorExcludesPlainCurrentTarget(selector, selectorPath),
     excludesOwner: selectorExcludesPlainOwner(selector, selectorPath),
     smartTargetFallsBackToMainTarget: smartTargetFallsBackToMainTarget(selector, selectorPath),
@@ -549,7 +550,7 @@ function createBaseAction(
     centerContextKey: '',
     selectorOwner: null,
     selectorOwnerContextKey: '',
-    characterTeamSelectionRole: null,
+    characterTeamSelection: null,
     excludesCurrentTarget: false,
     excludesOwner: false,
     smartTargetFallsBackToMainTarget: false,

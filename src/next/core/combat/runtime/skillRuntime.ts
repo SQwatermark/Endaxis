@@ -1,3 +1,4 @@
+import type { GameplayTag } from '../../../../../packages/game-data-contract/src/gameplayTags';
 /**
  * 编译后技能程序在一次战斗中的有状态执行实例。
  * 每个放置块独立持有调度游标和黑板；同一技能的冷却由装配层显式共享。
@@ -60,6 +61,15 @@ export interface CombatAbilityPhysicalInflictionEvent {
   readonly type?: 'airborne' | 'knockDown' | 'fracture' | 'crush';
 }
 
+/** 控制组件在来源 AbilitySystem 上发布的专属事件；保留浮空转入标识，不与通用物理异常混用。 */
+export interface CombatAbilityKnockDownEvent {
+  readonly kind: 'abilityKnockDown';
+  readonly event: 'beforeOutputKnockDown' | 'afterOutputKnockDown';
+  readonly sourceId: string;
+  readonly targetId: string;
+  readonly fromAirborne: boolean;
+}
+
 /** AbilitySystem 元素附着前后同步事件；当前木桩模型不会自行产生角色承术事件。 */
 export interface CombatAbilitySpellInflictionEvent {
   readonly kind: 'abilitySpellInfliction';
@@ -98,7 +108,7 @@ export interface CombatAbilityHealEvent {
   readonly requestedHealing: number;
   readonly actualHealing: number;
   readonly overhealing: number;
-  readonly tagIds: readonly number[];
+  readonly tags: readonly GameplayTag[];
 }
 
 /** AbilitySystem 在技能正式启动前发出的施放事件。 */
@@ -154,6 +164,7 @@ export interface CombatOperationContext {
     | CombatSemanticEvent
     | CombatAbilityDamageEvent
     | CombatAbilityPhysicalInflictionEvent
+    | CombatAbilityKnockDownEvent
     | CombatAbilitySpellInflictionEvent
     | CombatAbilitySpellBurstEvent
     | CombatAbilityPoiseEvent

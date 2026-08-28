@@ -18,7 +18,7 @@ import {
   type BuffDuringEnableAction,
   type CombatBuffDefinition,
 } from './combatBuffs';
-import { GameplayTagRegistry, gameplayTagIdFromPath } from '../tags/gameplayTags';
+import { GameplayTagRegistry } from '../tags/gameplayTags';
 import { SharedSpGainModifierSet } from '../resources/sharedSpGainModifiers';
 import { ActionBlackboard } from '../runtime/actionBlackboard';
 
@@ -281,21 +281,17 @@ describe('CombatBuffContainer', () => {
     const container = new CombatBuffContainer('operator', attributes, registry);
     const definition: CombatBuffDefinition<Attribute> = {
       id: 'pulse-triggered',
-      applyTags: [gameplayTagIdFromPath('Combat/Buff/Pulse/Triggered')],
+      applyTags: ['Combat/Buff/Pulse/Triggered'],
       stackingType: 'enhance',
     };
 
     requireAddedBuff(container.add(definition, 'skill'));
     requireAddedBuff(container.add(definition, 'skill'));
 
-    expect(container.getCountByTags([gameplayTagIdFromPath('Combat/Buff/Pulse')])).toBe(2);
-    expect(container.getInstanceCountByTags([gameplayTagIdFromPath('Combat/Buff/Pulse')])).toBe(1);
-    expect(
-      container.findFirstByTags([gameplayTagIdFromPath('Combat/Buff/Pulse')])?.definition.id,
-    ).toBe('pulse-triggered');
-    expect(
-      container.getCountByTags([gameplayTagIdFromPath('Combat/Buff/Pulse')], 'hasAny', true),
-    ).toBe(0);
+    expect(container.getCountByTags(['Combat/Buff/Pulse'])).toBe(2);
+    expect(container.getInstanceCountByTags(['Combat/Buff/Pulse'])).toBe(1);
+    expect(container.findFirstByTags(['Combat/Buff/Pulse'])?.definition.id).toBe('pulse-triggered');
+    expect(container.getCountByTags(['Combat/Buff/Pulse'], 'hasAny', true)).toBe(0);
   });
 
   it('separates matching Buff instance count from accumulated enhance layers', () => {
@@ -305,7 +301,7 @@ describe('CombatBuffContainer', () => {
       new CombatAttributeSet(),
       new GameplayTagRegistry([path]),
     );
-    const tag = gameplayTagIdFromPath(path);
+    const tag = path;
     const enhanced = { id: 'enhanced', applyTags: [tag], stackingType: 'enhance' as const };
     const unlimited = { id: 'unlimited', applyTags: [tag], stackingType: 'unlimited' as const };
 
@@ -525,7 +521,9 @@ describe('CombatBuffContainer', () => {
     const observations: number[] = [];
     const child: CombatBuffDefinition<Attribute> = { id: 'child', stackingType: 'unique' };
     const parent: CombatBuffDefinition<Attribute> = {
-      id: 'parent', stackingType: 'refresh', durationSeconds: 2,
+      id: 'parent',
+      stackingType: 'refresh',
+      durationSeconds: 2,
       actions: {
         start: () => {
           observations.push(container.getCountById('parent'));
@@ -1942,7 +1940,7 @@ describe('CombatBuffContainer', () => {
 
   it('holds only the Buff instances matched at start and follows native delayed-finish semantics', () => {
     const extendTagPath = 'buff/operator/ultimate/extended';
-    const extendTag = gameplayTagIdFromPath(extendTagPath);
+    const extendTag = extendTagPath;
     const container = new CombatBuffContainer(
       'operator',
       new CombatAttributeSet<Attribute>(),
@@ -2028,7 +2026,7 @@ describe('CombatBuffContainer', () => {
 
   it('decreases one enhance layer through a limited tag finish', () => {
     const tagPath = 'buff/status/fire';
-    const tag = gameplayTagIdFromPath(tagPath);
+    const tag = tagPath;
     const container = new CombatBuffContainer(
       'enemy',
       new CombatAttributeSet<Attribute>(),

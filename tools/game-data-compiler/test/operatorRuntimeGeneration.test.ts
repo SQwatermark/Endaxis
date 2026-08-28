@@ -1,3 +1,4 @@
+import { fixtureGameplayTagCatalog } from './gameplayTagFixtures.ts';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,6 +14,7 @@ function setup() {
   owned.push(root);
   const fixture = operatorRuntimeFixture();
   const args = {
+    gameplayTagCatalog: fixtureGameplayTagCatalog,
     template: path.join(root, 'template.json'),
     comboSkill: path.join(root, 'combo.json'),
     slug: 'arcane',

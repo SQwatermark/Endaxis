@@ -1,3 +1,4 @@
+import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { describe, expect, it } from 'vitest';
 import scopeFixtures from './fixtures/avywenna-return-blackboard.json';
 import { compileActiveSkillRuntimeProjectionSource } from '../src/compiler/activeSkillRuntimeProjection.ts';
@@ -5,6 +6,7 @@ import { activeSkillFixture, scalarFixture, targetFixture } from './sourceFixtur
 import { makeReturnProjection } from './support/avywennaReturnProjection.ts';
 
 const ACTIVE_CONTEXT = {
+  gameplayTagRegistry: fixtureGameplayTagRegistry,
   actionOwnerTarget: 'caster',
   actionSourceTarget: 'caster',
   actionTargetTarget: 'enemy',
@@ -71,6 +73,93 @@ const meta = (type: string, rest: Record<string, unknown>): Record<string, unkno
 });
 
 describe('主动技能正式时间轴投影', () => {
+  const angle = () =>
+    meta('SaveTwoDirectionAngle', {
+      dir1Source: targetFixture('Owner'),
+      dir1Target: targetFixture('Target'),
+      dir2Source: targetFixture('Owner'),
+      dir2Target: targetFixture('Target'),
+      dir1DirectionType: 'CameraForward',
+      dir2DirectionType: 'SourceForward',
+      key: 'input_angle',
+    });
+  const assign = (key: string, value = scalarFixture(100)) =>
+    meta('ModifyDynamicBlackboard', {
+      key,
+      operation: 'Assign',
+      directValue: true,
+      value,
+      calculationTarget: targetFixture('Owner'),
+      calculateType: 'HpRatio',
+    });
+  const seq = (actionData: unknown[]) => ({
+    actionData,
+    onlyExecuteWhenSourceIsMainChar: false,
+    onlyExecuteWhenSourceIsGuard: false,
+  });
+  const emptyAngleBranch = () =>
+    meta('IfElseAction', {
+      conditionAction: seq([
+        meta('CompareFloat', {
+          valueA: scalarFixture(0, 'input_angle'),
+          compare: 'GT',
+          valueB: scalarFixture(0),
+        }),
+      ]),
+      succeedActions: seq([]),
+      failActions: seq([]),
+      alwaysNext: true,
+    });
+  it('末端为空的角度分支从产物彻底删除，不删除其他黑板写入', () => {
+    const result = compileActiveSkillRuntimeProjectionSource({
+      value: activeWithActions([angle(), emptyAngleBranch(), assign('input_angle')]),
+      sourcePath: 'fixture',
+      patch: null,
+      context: ACTIVE_CONTEXT,
+    });
+    expect(result.scheduledSequences[0]?.sequence.steps).toEqual([
+      {
+        kind: 'modifyActionValue',
+        parameters: {
+          key: 'input_angle',
+          operation: 'assign',
+          value: { kind: 'constant', value: 100 },
+        },
+      },
+    ]);
+  });
+  it('角度仍流向有效数值时拒绝，跨调度读取也不能绕过', () => {
+    const value = activeWithActions([angle()]);
+    const group = value.actionGroupData as { timelineActions: Record<string, unknown>[] };
+    group.timelineActions.push({
+      ...group.timelineActions[0],
+      _startFrame: 8,
+      _sequenceActionData: seq([assign('attack_scale', scalarFixture(0, 'input_angle'))]),
+    });
+    expect(() =>
+      compileActiveSkillRuntimeProjectionSource({
+        value,
+        sourcePath: 'fixture',
+        patch: null,
+        context: ACTIVE_CONTEXT,
+      }),
+    ).toThrow('presentation output input_angle reaches retained combat program');
+  });
+  it('只省略干员受伤前监听，不吞掉干员输出伤害监听', () => {
+    const listener = (abilityEvent: string) =>
+      meta('EventListenerAction', {
+        abilityActionMap: [{ abilityEvent, actions: [seq([])] }],
+      });
+    const compile = (event: string) =>
+      compileActiveSkillRuntimeProjectionSource({
+        value: activeWithActions([listener(event)]),
+        sourcePath: 'fixture',
+        patch: null,
+        context: ACTIVE_CONTEXT,
+      });
+    expect(compile('OnBeforeTakeDamage').scheduledSequences).toEqual([]);
+    expect(() => compile('OnBeforeOutputDamage')).toThrow('combat-visible EventListenerAction');
+  });
   it.each([
     ['Fire', 'heat'],
     ['Pulse', 'electric'],
@@ -222,7 +311,7 @@ describe('主动技能正式时间轴投影', () => {
         parameters: {
           scope: 'entity',
           durationSeconds: { kind: 'constant', value: 0.15 },
-          slot: 1464849466,
+          slot: 'TimeDilation/Layer/Entity/HitStop',
           priority: 10,
           curve: { kind: 'named', key: 'char_hard_stop' },
           finishByAction: false,
@@ -273,7 +362,7 @@ describe('主动技能正式时间轴投影', () => {
         parameters: {
           scope: 'global',
           durationSeconds: { kind: 'constant', value: 0.9 },
-          slot: 0,
+          slot: 'unassigned',
           priority: 20,
           curve: { kind: 'named', key: 'ComboSkill' },
           finishByAction: false,

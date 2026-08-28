@@ -10,6 +10,7 @@ import type {
 import type { CombatCondition } from '../../game-data/operatorDefinition';
 import type { CombatOperatorProgram } from './combatRuntimeAssembly';
 import type { ScheduledSkillInput } from './combatInputRuntime';
+import { inspectKnockDownControlConsumers } from './knockDownControlCompatibility';
 
 export const STANDARD_PLAYER_DAMAGE_COMPATIBILITY_CODES = [
   'unsupported-step',
@@ -37,6 +38,8 @@ export interface StandardPlayerDamageCompatibilityInput {
   readonly endFrame: number;
   /** 未提供元素附着定义时，`applyElementalInfliction` 仍视为不支持步骤。 */
   readonly supportsElementalInfliction?: boolean;
+  /** 仅由已装配实体控制时钟、预定义标签与显式到期策略的环境开启。 */
+  readonly supportsKnockDown?: boolean;
 }
 
 /** 预检失败时一次携带全部问题，避免逐个修复后才发现下一项。 */
@@ -57,6 +60,9 @@ type IssueCollector = (issue: StandardPlayerDamageCompatibilityIssue) => void;
 interface CompatibilityFlags {
   readonly elementalInfliction: boolean;
   readonly operatorVitals: boolean;
+  readonly knockDown: boolean;
+  readonly buffDefinitions?: CombatOperatorProgram['buffDefinitions'];
+  readonly inspectedBuffs: Set<ResolvedSkillBuffDefinition>;
 }
 
 function report(
@@ -118,6 +124,7 @@ function inspectCondition(
     case 'eventOverheal':
     case 'eventBuffEndedEarly':
     case 'buffStackCompare':
+    case 'currentBuffStackCompare':
     case 'buffIdStackCompare':
     case 'entityTagMatch':
       return;
@@ -267,6 +274,57 @@ function inspectSequence(
           );
         }
         return;
+      case 'applyKnockDown':
+        if (!flags.knockDown || source === 'equipment') {
+          report(
+            collect,
+            'unsupported-step',
+            stepPath,
+            'root knock-down requires audited standard-scene control-consumer bindings',
+          );
+          return;
+        }
+        if (step.parameters.isExtra) {
+          report(
+            collect,
+            'unsupported-step',
+            stepPath,
+            'extra knock-down requires BuffAddContext support',
+          );
+        }
+        if (!flags.operatorVitals) {
+          report(
+            collect,
+            'unsupported-step',
+            stepPath,
+            'knock-down source requires a resolved operator attribute panel',
+          );
+        }
+        if (step.parameters.targetFilter === 'skipAll') return;
+        for (const id of [
+          'buff_physical_knockdown',
+          ...(step.parameters.force ? [] : ['buff_physical_no_guard']),
+        ]) {
+          if (flags.buffDefinitions?.[id] === undefined) {
+            report(
+              collect,
+              'unsupported-step',
+              stepPath,
+              `knock-down requires Buff definition '${id}'`,
+            );
+          }
+        }
+        // 隐式状态 Buff 及其后代/事件同样是执行程序，不能只检查根步骤。
+        Object.entries(flags.buffDefinitions ?? {}).forEach(([id, definition]) =>
+          inspectBuffDefinition(
+            definition,
+            `${stepPath}.buffDefinitions['${id}']`,
+            collect,
+            flags,
+            source,
+          ),
+        );
+        return;
       case 'applyElementalReaction':
       case 'consumeElementalReaction':
       case 'outputAirborne':
@@ -340,6 +398,20 @@ function inspectSequence(
           );
         }
         return;
+      case 'readSkillSettingData':
+        // 数值表已在生成阶段内嵌；仅强化计算需要运行面板，不再次依赖原始配置文件。
+        if (
+          step.parameters.items.some(item => item.enhance !== undefined) &&
+          !flags.operatorVitals
+        ) {
+          report(
+            collect,
+            'unsupported-step',
+            stepPath,
+            'enhanced readSkillSettingData requires a resolved operator panel',
+          );
+        }
+        return;
       case 'jumpTimeline':
         if (step.parameters.condition !== undefined) {
           inspectCondition(
@@ -368,6 +440,17 @@ function inspectSequence(
         }
         return;
       }
+      case 'switch':
+        step.options.forEach((option, index) =>
+          inspectSequence(
+            option.sequence,
+            `${stepPath}.options[${index}].sequence`,
+            collect,
+            flags,
+            source,
+          ),
+        );
+        return;
       case 'conditional':
         inspectCondition(
           step.parameters.condition,
@@ -402,6 +485,8 @@ function inspectBuffDefinition(
   flags: CompatibilityFlags,
   source: 'skill' | 'equipment',
 ): void {
+  if (flags.inspectedBuffs.has(definition)) return;
+  flags.inspectedBuffs.add(definition);
   definition.scheduledSequences?.forEach((scheduled, index) =>
     inspectSequence(
       scheduled.sequence,
@@ -420,6 +505,15 @@ function inspectBuffDefinition(
     inspectSequence(
       response.sequence,
       `${path}.abilityEventResponses[${index}].sequence`,
+      collect,
+      flags,
+      source,
+    ),
+  );
+  definition.igniteEventResponses?.forEach((response, index) =>
+    inspectSequence(
+      response.sequence,
+      `${path}.igniteEventResponses[${index}].sequence`,
       collect,
       flags,
       source,
@@ -481,7 +575,13 @@ export function inspectStandardPlayerDamageCompatibility(
   const flags: CompatibilityFlags = {
     elementalInfliction: input.supportsElementalInfliction ?? false,
     operatorVitals: false,
+    knockDown: input.supportsKnockDown ?? false,
+    inspectedBuffs: new Set(),
   };
+  if (flags.knockDown) {
+    for (const issue of inspectKnockDownControlConsumers(input.operators))
+      report(collect, 'unsupported-condition', issue.path, issue.detail);
+  }
   const scheduledFrames = indexScheduledFrames(input.inputs ?? [], input.endFrame);
 
   input.operators.forEach((operator, operatorIndex) => {
@@ -490,6 +590,8 @@ export function inspectStandardPlayerDamageCompatibility(
     const operatorFlags: CompatibilityFlags = {
       ...flags,
       operatorVitals: operator.panel !== undefined,
+      buffDefinitions: operator.buffDefinitions,
+      inspectedBuffs: new Set(),
     };
     operator.skills.forEach(program => {
       const skillScheduledFrames = operatorScheduledFrames?.get(program.skillId);

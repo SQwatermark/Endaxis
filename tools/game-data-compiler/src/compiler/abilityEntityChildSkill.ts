@@ -1,3 +1,4 @@
+import type { GameplayTagRegistry } from '../source/nativeGameplayTags.ts';
 import type { AbilityEntityChildSkillDefinition } from '../../../../packages/game-data-contract/src/index.ts';
 import { requireArray, requireRecord } from '../source/primitives.ts';
 import { compileActiveSkillRuntimeProjectionSource } from './activeSkillRuntimeProjection.ts';
@@ -10,6 +11,7 @@ export function compileAbilityEntityChildSkillSource(
   value: unknown,
   sourcePath: string,
   visualOnlyIds: ReadonlySet<string> = new Set(),
+  gameplayTagRegistry?: GameplayTagRegistry,
 ): AbilityEntityChildSkillDefinition {
   const root = requireRecord(value, sourcePath);
   const cast = requireRecord(root.castData, `${sourcePath}.castData`);
@@ -33,6 +35,7 @@ export function compileAbilityEntityChildSkillSource(
     sourcePath,
     patch: null,
     context: {
+      gameplayTagRegistry,
       actionOwnerTarget: 'currentAbilityEntity',
       actionSourceTarget: 'caster',
       actionTargetTarget: 'enemy',

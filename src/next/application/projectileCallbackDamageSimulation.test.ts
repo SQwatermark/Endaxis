@@ -106,7 +106,7 @@ async function simulate(input: Case) {
         stackingType: 'unique',
         priority: 0,
         maxStackCount: 1,
-        applyTagIds: [-1640994543],
+        applyTags: ['Skill/Character/Common/Affixes/Vulnerable/VulnerablePulse'],
       },
       'test:normal-skill-bonus': {
         stackingType: 'unique',

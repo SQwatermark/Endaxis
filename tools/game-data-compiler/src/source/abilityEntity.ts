@@ -15,7 +15,7 @@ import {
   type ScalarSource,
 } from './scalar.ts';
 export type { IntegerScalarSource } from './scalar.ts';
-import { gameplayTagId } from '../../../../src/shared/gameplayTags.ts';
+import { gameplayTagId } from './nativeGameplayTags.ts';
 
 const ABILITY_ENTITY_TEMPLATE_FIELDS = new Set([
   'gameId',
@@ -60,6 +60,13 @@ export interface NativeAbilityEntityTemplateSource {
   readonly managedReferenceCount: number;
   readonly rootRid: number;
 }
+/** 旧模板证据容器还带资产索引和引用审计；在进入严格原生模板解析前剥离这些容器字段。 */
+export function selectNativeAbilityEntityTemplateFields(value: unknown): Record<string, unknown> {
+  const record = requireRecord(value, 'AbilityEntityTemplateEvidence');
+  return Object.fromEntries(
+    [...ABILITY_ENTITY_TEMPLATE_FIELDS].map(field => [field, record[field]]),
+  );
+}
 
 export function parseNativeAbilityEntityTemplateSource(
   value: unknown,
@@ -83,7 +90,10 @@ export function parseNativeAbilityEntityTemplateSource(
       root.lifeTypeNativeValue,
       `${sourcePath}.lifeTypeNativeValue`,
     ),
-    durationSeconds: requireNonNegativeNumber(root.durationSeconds, `${sourcePath}.durationSeconds`),
+    durationSeconds: requireNonNegativeNumber(
+      root.durationSeconds,
+      `${sourcePath}.durationSeconds`,
+    ),
     durationBlackboard: parseScalarSource(
       root.durationBlackboard,
       `${sourcePath}.durationBlackboard`,

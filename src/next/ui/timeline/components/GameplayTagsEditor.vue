@@ -2,85 +2,76 @@
 import { useId } from 'vue';
 import { useI18n } from 'vue-i18n';
 import {
-  GAMEPLAY_TAG_DEFINITIONS,
-  gameplayTagPath,
+  GAMEPLAY_TAG_PATHS,
   parseGameplayTagReference,
 } from '../../../data/combat/gameplayTagCatalog';
 
 const props = withDefaults(
   defineProps<{
-    ids: readonly number[];
+    tags: readonly string[];
     minimum?: number;
     maximum?: number;
   }>(),
   { minimum: 1, maximum: Number.POSITIVE_INFINITY },
 );
-const emit = defineEmits<{ update: [ids: readonly number[]] }>();
+const emit = defineEmits<{ update: [tags: readonly string[]] }>();
 const { t } = useI18n({ useScope: 'global' });
 const datalistId = `gameplay-tags-${useId().replaceAll(':', '-')}`;
 
-function displayedValue(id: number): string {
-  return gameplayTagPath(id) ?? String(id);
+function displayedValue(tag: string): string {
+  return tag;
 }
 
 function replace(index: number, event: Event): void {
   const input = event.target as HTMLInputElement;
-  const id = parseGameplayTagReference(input.value);
-  if (id === undefined) {
-    input.value = displayedValue(props.ids[index]!);
+  const tag = parseGameplayTagReference(input.value);
+  if (tag === undefined) {
+    input.value = displayedValue(props.tags[index]!);
     return;
   }
-  const ids = [...props.ids];
-  ids[index] = id;
-  emit('update', ids);
+  const tags = [...props.tags];
+  tags[index] = tag;
+  emit('update', tags);
 }
 
 function append(event: Event): void {
   const input = event.target as HTMLInputElement;
-  const id = parseGameplayTagReference(input.value);
-  if (id === undefined || props.ids.length >= props.maximum) return;
-  emit('update', [...props.ids, id]);
+  const tag = parseGameplayTagReference(input.value);
+  if (tag === undefined || props.tags.length >= props.maximum) return;
+  emit('update', [...props.tags, tag]);
   input.value = '';
 }
 
 function remove(index: number): void {
-  if (props.ids.length <= props.minimum) return;
+  if (props.tags.length <= props.minimum) return;
   emit(
     'update',
-    props.ids.filter((_, itemIndex) => itemIndex !== index),
+    props.tags.filter((_, itemIndex) => itemIndex !== index),
   );
 }
 </script>
 
 <template>
   <div class="gameplay-tag-editor">
-    <div v-for="(id, index) in ids" :key="index" class="gameplay-tag-editor__row">
+    <div v-for="(tag, index) in tags" :key="index" class="gameplay-tag-editor__row">
       <input
         type="text"
         :list="datalistId"
-        :value="displayedValue(id)"
+        :value="displayedValue(tag)"
         :aria-label="t('nextTimeline.skillEditing.gameplayTagPath')"
         @change="replace(index, $event)"
       />
-      <code>{{ id }}</code>
       <button
         type="button"
-        :disabled="ids.length <= minimum"
+        :disabled="tags.length <= minimum"
         :title="t('nextTimeline.skillEditing.deleteGameplayTag')"
         @click="remove(index)"
       >
         ×
       </button>
-      <small v-if="gameplayTagPath(id) === undefined">
-        {{
-          id === 0
-            ? t('nextTimeline.skillEditing.invalidGameplayTag')
-            : t('nextTimeline.skillEditing.unknownGameplayTag')
-        }}
-      </small>
     </div>
     <input
-      v-if="ids.length < maximum"
+      v-if="tags.length < maximum"
       class="gameplay-tag-editor__add"
       type="text"
       :list="datalistId"
@@ -89,13 +80,7 @@ function remove(index: number): void {
       @change="append"
     />
     <datalist :id="datalistId">
-      <option
-        v-for="definition in GAMEPLAY_TAG_DEFINITIONS"
-        :key="definition.id"
-        :value="definition.path"
-      >
-        {{ definition.id }}
-      </option>
+      <option v-for="path in GAMEPLAY_TAG_PATHS" :key="path" :value="path" />
     </datalist>
   </div>
 </template>
@@ -110,7 +95,7 @@ function remove(index: number): void {
 .gameplay-tag-editor__row {
   min-width: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto 28px;
+  grid-template-columns: minmax(0, 1fr) 28px;
   gap: 6px;
   align-items: center;
 }
@@ -119,14 +104,6 @@ function remove(index: number): void {
   min-width: 0;
   width: 100%;
   box-sizing: border-box;
-}
-
-.gameplay-tag-editor code {
-  max-width: 100px;
-  overflow: hidden;
-  color: var(--ea-text-muted);
-  font-size: 10px;
-  text-overflow: ellipsis;
 }
 
 .gameplay-tag-editor button {

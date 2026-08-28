@@ -1,3 +1,4 @@
+import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { readFileSync } from 'node:fs';
 
 import { describe, expect, it } from 'vitest';
@@ -68,6 +69,7 @@ describe('weapon runtime definitions', () => {
           },
         ],
         {},
+        fixtureGameplayTagRegistry,
       ),
     ).toThrow('BuffData: missing Buff definition "buff_only_created_by_event"');
   });
@@ -104,14 +106,24 @@ describe('weapon runtime definitions', () => {
   });
 
   it('preserves a complete trait batch without inventing runtime behavior', () => {
-    const result = compileWeaponRuntimeDefinitionBatchSource([definition], [dependency], {});
+    const result = compileWeaponRuntimeDefinitionBatchSource(
+      [definition],
+      [dependency],
+      {},
+      fixtureGameplayTagRegistry,
+    );
 
     expect(result.diagnostics).toEqual([]);
     expect(result.definitions).toEqual([definition]);
   });
 
   it('fails closed when a trait runtime dependency is missing', () => {
-    const result = compileWeaponRuntimeDefinitionBatchSource([definition], [], {});
+    const result = compileWeaponRuntimeDefinitionBatchSource(
+      [definition],
+      [],
+      {},
+      fixtureGameplayTagRegistry,
+    );
 
     expect(result.definitions).toEqual([]);
     expect(result.diagnostics).toContainEqual({
@@ -133,7 +145,12 @@ describe('weapon runtime definitions', () => {
       },
     };
 
-    const result = compileWeaponRuntimeDefinitionBatchSource([definition], [withPassiveEvent], {});
+    const result = compileWeaponRuntimeDefinitionBatchSource(
+      [definition],
+      [withPassiveEvent],
+      {},
+      fixtureGameplayTagRegistry,
+    );
 
     expect(result.definitions).toEqual([]);
     expect(result.diagnostics).toContainEqual({
@@ -197,7 +214,12 @@ describe('weapon runtime definitions', () => {
       },
     };
 
-    const result = compileWeaponRuntimeDefinitionBatchSource([definition], [withPassiveEvent], {});
+    const result = compileWeaponRuntimeDefinitionBatchSource(
+      [definition],
+      [withPassiveEvent],
+      {},
+      fixtureGameplayTagRegistry,
+    );
 
     expect(result.definitions[0]?.traits[0]?.eventHandlers?.[0]?.blackboard.amount).toBe(amount);
     expect(result.definitions[0]?.traits[0]?.eventHandlers?.[0]?.blackboard.constant).toBe(7);
@@ -264,7 +286,12 @@ describe('weapon runtime definitions', () => {
       },
     };
 
-    const result = compileWeaponRuntimeDefinitionBatchSource([definition], [withDeckEvent], {});
+    const result = compileWeaponRuntimeDefinitionBatchSource(
+      [definition],
+      [withDeckEvent],
+      {},
+      fixtureGameplayTagRegistry,
+    );
 
     expect(result.diagnostics).toEqual([]);
     expect(result.definitions[0]?.traits[0]).toMatchObject({
@@ -348,7 +375,12 @@ describe('weapon runtime definitions', () => {
       },
     };
 
-    const result = compileWeaponRuntimeDefinitionBatchSource([definition], [guarded], {});
+    const result = compileWeaponRuntimeDefinitionBatchSource(
+      [definition],
+      [guarded],
+      {},
+      fixtureGameplayTagRegistry,
+    );
 
     expect(result.diagnostics).toEqual([]);
     expect(result.definitions[0]?.traits[0]?.eventHandlers?.[0]).toMatchObject({
@@ -371,7 +403,12 @@ describe('weapon runtime definitions', () => {
   });
 
   it('renders one file per weapon type and a stable index', () => {
-    const batch = compileWeaponRuntimeDefinitionBatchSource([definition], [dependency], {});
+    const batch = compileWeaponRuntimeDefinitionBatchSource(
+      [definition],
+      [dependency],
+      {},
+      fixtureGameplayTagRegistry,
+    );
     const files = renderWeaponDefinitionFiles(batch);
 
     expect(files.map(item => item.relativePath)).toEqual([

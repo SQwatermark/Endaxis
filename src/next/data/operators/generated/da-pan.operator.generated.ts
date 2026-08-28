@@ -373,7 +373,7 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
           step('startTimeDilation', {
             scope: 'global',
             durationSeconds: { kind: 'constant', value: 0.6 },
-            slot: 0,
+            slot: "unassigned",
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
@@ -416,7 +416,7 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
               priority: 100,
               maxStackCount: 4,
               durationSeconds: { blackboardKey: 'duration' },
-              applyTagIds: [1075718177],
+              applyTags: ["Skill/Character/Common/NoGuard"],
               blackboard: {
                 'atk_scale': 0,
                 'count': 0,
@@ -497,7 +497,7 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
               triggerIntervalSeconds: 0,
               waitFirstTriggerInterval: true,
               maxTriggerCount: 1,
-              applyTagIds: [-168668661],
+              applyTags: ["Skill/Character/Common/PhysicalStatus/CrushStatus"],
               blackboard: {
                 'atk_scale': 1,
                 'count': 0,
@@ -552,7 +552,7 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
                           step('startTimeDilation', {
                             scope: 'entity',
                             durationSeconds: { kind: 'constant', value: 0.1 },
-                            slot: 1464849466,
+                            slot: "TimeDilation/Layer/Entity/HitStop",
                             priority: 15,
                             curve: { kind: 'named', key: 'interrupt_weakness' },
                             finishByAction: false,
@@ -571,7 +571,7 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
                               step('startTimeDilation', {
                                 scope: 'entity',
                                 durationSeconds: { kind: 'constant', value: 0.1 },
-                                slot: 1464849466,
+                                slot: "TimeDilation/Layer/Entity/HitStop",
                                 priority: 10,
                                 curve: { kind: 'named', key: 'interrupt_weakness' },
                                 finishByAction: false,
@@ -590,7 +590,7 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
                                   step('startTimeDilation', {
                                     scope: 'entity',
                                     durationSeconds: { kind: 'constant', value: 0.25 },
-                                    slot: 1464849466,
+                                    slot: "TimeDilation/Layer/Entity/HitStop",
                                     priority: 20,
                                     curve: { kind: 'named', key: 'interrupt_weakness' },
                                     finishByAction: false,
@@ -609,7 +609,7 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
                                       step('startTimeDilation', {
                                         scope: 'entity',
                                         durationSeconds: { kind: 'constant', value: 0.5 },
-                                        slot: 1464849466,
+                                        slot: "TimeDilation/Layer/Entity/HitStop",
                                         priority: 20,
                                         curve: { kind: 'named', key: 'interrupt_weakness' },
                                         finishByAction: false,
@@ -628,7 +628,7 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
                                           step('startTimeDilation', {
                                             scope: 'entity',
                                             durationSeconds: { kind: 'constant', value: 0.65 },
-                                            slot: 1464849466,
+                                            slot: "TimeDilation/Layer/Entity/HitStop",
                                             priority: 20,
                                             curve: { kind: 'named', key: 'interrupt_weakness' },
                                             finishByAction: false,
@@ -692,7 +692,7 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
             step('startTimeDilation', {
               scope: 'entity',
               durationSeconds: { kind: 'constant', value: 1 },
-              slot: 1464849466,
+              slot: "TimeDilation/Layer/Entity/HitStop",
               priority: 10,
               curve: { kind: 'named', key: 'RESETto1' },
               finishByAction: false,
@@ -761,7 +761,7 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
             step('startTimeDilation', {
               scope: 'global',
               durationSeconds: { kind: 'constant', value: 1.2 },
-              slot: 0,
+              slot: "unassigned",
               priority: 100,
               curve: { kind: 'inline', keys: [{ time: 0, value: 0, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0, outWeight: 0.333333343 }, { time: 1, value: 0, inTangent: 0, outTangent: 0, weightedMode: 0, inWeight: 0.333333343, outWeight: 0 }] },
               finishByAction: true,
@@ -782,7 +782,7 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
             step('startTimeDilation', {
               scope: 'entity',
               durationSeconds: { kind: 'constant', value: 0.034 },
-              slot: 1464849466,
+              slot: "TimeDilation/Layer/Entity/HitStop",
               priority: 15,
               curve: { kind: 'named', key: 'RESETto1' },
               finishByAction: true,
@@ -803,7 +803,7 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
             step('startTimeDilation', {
               scope: 'entity',
               durationSeconds: { kind: 'constant', value: 0.034 },
-              slot: 1464849466,
+              slot: "TimeDilation/Layer/Entity/HitStop",
               priority: 15,
               curve: { kind: 'named', key: 'RESETto1' },
               finishByAction: true,
@@ -824,7 +824,7 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
             step('startTimeDilation', {
               scope: 'entity',
               durationSeconds: { kind: 'constant', value: 0.034 },
-              slot: 1464849466,
+              slot: "TimeDilation/Layer/Entity/HitStop",
               priority: 15,
               curve: { kind: 'named', key: 'RESETto1' },
               finishByAction: true,
@@ -845,7 +845,7 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
             step('startTimeDilation', {
               scope: 'entity',
               durationSeconds: { kind: 'constant', value: 0.034 },
-              slot: 1464849466,
+              slot: "TimeDilation/Layer/Entity/HitStop",
               priority: 15,
               curve: { kind: 'named', key: 'RESETto1' },
               finishByAction: true,
@@ -866,7 +866,7 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
             step('startTimeDilation', {
               scope: 'entity',
               durationSeconds: { kind: 'constant', value: 0.034 },
-              slot: 1464849466,
+              slot: "TimeDilation/Layer/Entity/HitStop",
               priority: 15,
               curve: { kind: 'named', key: 'RESETto1' },
               finishByAction: true,
@@ -887,7 +887,7 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
             step('startTimeDilation', {
               scope: 'entity',
               durationSeconds: { kind: 'constant', value: 0.034 },
-              slot: 1464849466,
+              slot: "TimeDilation/Layer/Entity/HitStop",
               priority: 15,
               curve: { kind: 'named', key: 'RESETto1' },
               finishByAction: true,

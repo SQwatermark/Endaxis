@@ -47,8 +47,8 @@ const definition = {
               category: 'CommonCharBuff',
             },
           },
-          applyTagIds: [],
-          extendTagIds: [],
+          applyTags: [],
+          extendTags: [],
           blackboard: {
             duration: 0,
             max_stack: 0,
@@ -62,8 +62,8 @@ const definition = {
           triggerIntervalSeconds: 0,
           waitFirstTriggerInterval: true,
           maxTriggerCount: 1,
-          applyTagIds: [],
-          extendTagIds: [],
+          applyTags: [],
+          extendTags: [],
           blackboard: {
             phy_dmg_up: 0,
           },

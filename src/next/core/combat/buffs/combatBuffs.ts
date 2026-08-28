@@ -80,7 +80,7 @@ import {
 } from '../resources/sharedSpGainModifiers';
 import {
   GameplayTagRegistry,
-  type GameplayTagId,
+  type GameplayTag,
   type GameplayTagQueryType,
 } from '../tags/gameplayTags';
 
@@ -155,7 +155,12 @@ export interface BuffLifecycleActions<Key extends string> {
   readonly enhanceChanged?: (buff: CombatBuff<Key>, sourceId: string) => void;
   readonly afterEnhance?: (buff: CombatBuff<Key>, sourceId: string) => void;
   readonly trigger?: (buff: CombatBuff<Key>) => void;
-  readonly ignite?: (buff: CombatBuff<Key>, igniteType: string, sourceId: string) => boolean;
+  readonly ignite?: (
+    buff: CombatBuff<Key>,
+    igniteType: string,
+    sourceId: string,
+    skillCastInfo?: CombatSkillCastInfo,
+  ) => boolean;
   readonly duringEnable?: BuffDuringEnableAction<Key>;
 }
 
@@ -167,9 +172,9 @@ export interface CombatBuffDefinition<Key extends string> {
   readonly childPresentations?: readonly CombatBuffChildPresentation[];
   readonly timeClock?: BuffTimeClock;
   /** Buff 实例自身的原生分类标签；不等同于启用期间可能挂到所属实体的标签。 */
-  readonly applyTags?: readonly GameplayTagId[];
+  readonly applyTags?: readonly GameplayTag[];
   /** Buff 到期但被 ExtendBuffAction 阻止结束后，临时注册到所属实体的标签。 */
-  readonly extendTags?: readonly GameplayTagId[];
+  readonly extendTags?: readonly GameplayTag[];
   readonly stackingType: BuffStackingType;
   readonly stackingKey?: string;
   readonly priority?: BuffPriority;
@@ -421,7 +426,7 @@ export class CombatBuff<Key extends string> {
   }
 
   /** 按原生 Buff.ContainsTag 语义查询定义携带的 applyTags。 */
-  containsTag(tag: GameplayTagId, exact = false): boolean {
+  containsTag(tag: GameplayTag, exact = false): boolean {
     return (this.definition.applyTags ?? []).some(candidate =>
       this.owner.tagRegistry.matches(candidate, tag, exact),
     );
@@ -788,7 +793,7 @@ export class CombatBuffContainer<Key extends string> {
   readonly #healModifiers: HealModifier[] = [];
   readonly #poiseModifiers: PoiseModifier[] = [];
   readonly #stackingGroups = new Map<string, BuffStackingGroup<Key>>();
-  readonly #entityTagCounts = new Map<GameplayTagId, number>();
+  readonly #entityTagCounts = new Map<GameplayTag, number>();
   readonly #shields: CombatShield<Key>[] = [];
   readonly #sustainedProtections = new Map<CombatBuff<Key>, readonly [number, number]>();
   #nextInstanceId = 1;
@@ -954,7 +959,7 @@ export class CombatBuffContainer<Key extends string> {
   }
 
   /** 同步点燃所有在调用开始时仍活动的 Buff；响应可在处理过程中结束自身。 */
-  ignite(igniteType: string, sourceId: string): number {
+  ignite(igniteType: string, sourceId: string, skillCastInfo?: CombatSkillCastInfo): number {
     if (igniteType.length === 0) throw new Error('Buff ignite type must not be empty');
     if (sourceId.length === 0) throw new Error('Buff ignite source id must not be empty');
     const active = this.#buffs.filter(buff => !buff.isFinished);
@@ -962,7 +967,7 @@ export class CombatBuffContainer<Key extends string> {
     for (const buff of active) {
       if (buff.isFinished) continue;
       const layers = buff.enhanceCount;
-      if (buff.definition.actions?.ignite?.(buff, igniteType, sourceId)) {
+      if (buff.definition.actions?.ignite?.(buff, igniteType, sourceId, skillCastInfo)) {
         count += 1;
         if (buff.isFinished) this.#onBuffConsumed?.(buff, sourceId, layers);
       }
@@ -996,16 +1001,16 @@ export class CombatBuffContainer<Key extends string> {
     };
   }
 
-  hasEntityTag(tag: GameplayTagId): boolean {
+  hasEntityTag(tag: GameplayTag): boolean {
     return (this.#entityTagCounts.get(tag) ?? 0) > 0;
   }
 
-  addEntityTags(tags: readonly GameplayTagId[]): void {
+  addEntityTags(tags: readonly GameplayTag[]): void {
     for (const tag of tags)
       this.#entityTagCounts.set(tag, (this.#entityTagCounts.get(tag) ?? 0) + 1);
   }
 
-  removeEntityTags(tags: readonly GameplayTagId[]): void {
+  removeEntityTags(tags: readonly GameplayTag[]): void {
     for (const tag of tags) {
       const next = (this.#entityTagCounts.get(tag) ?? 0) - 1;
       if (next > 0) this.#entityTagCounts.set(tag, next);
@@ -1015,7 +1020,7 @@ export class CombatBuffContainer<Key extends string> {
 
   /** 按原生父级展开规则查询当前实体标签，不把 Buff 分类标签另行计数。 */
   matchesEntityTags(
-    tags: readonly GameplayTagId[],
+    tags: readonly GameplayTag[],
     type: GameplayTagQueryType,
     exact = false,
   ): boolean {
@@ -1023,9 +1028,9 @@ export class CombatBuffContainer<Key extends string> {
   }
 
   /** 对任意一组原生标签执行同一目录的父级展开查询，供事件载荷匹配使用。 */
-  matchesTagIds(
-    ownedTags: readonly GameplayTagId[],
-    requiredTags: readonly GameplayTagId[],
+  matchesTags(
+    ownedTags: readonly GameplayTag[],
+    requiredTags: readonly GameplayTag[],
     type: GameplayTagQueryType,
     exact = false,
   ): boolean {
@@ -1034,7 +1039,7 @@ export class CombatBuffContainer<Key extends string> {
 
   /** 统计所有未结束且分类标签满足查询的 Buff 层数。 */
   getCountByTags(
-    tags: readonly GameplayTagId[],
+    tags: readonly GameplayTag[],
     type: GameplayTagQueryType = 'hasAny',
     exact = false,
     skillCastId?: number,
@@ -1051,7 +1056,7 @@ export class CombatBuffContainer<Key extends string> {
 
   /** 统计所有未结束且分类标签满足查询的 Buff 实例数，不把 Enhance 层数计入结果。 */
   getInstanceCountByTags(
-    tags: readonly GameplayTagId[],
+    tags: readonly GameplayTag[],
     type: GameplayTagQueryType = 'hasAny',
     exact = false,
     skillCastId?: number,
@@ -1066,7 +1071,7 @@ export class CombatBuffContainer<Key extends string> {
 
   /** 按容器插入顺序返回首个未结束且分类标签满足查询的 Buff。 */
   findFirstByTags(
-    tags: readonly GameplayTagId[],
+    tags: readonly GameplayTag[],
     type: GameplayTagQueryType = 'hasAny',
     exact = false,
   ): CombatBuff<Key> | undefined {
@@ -1079,7 +1084,7 @@ export class CombatBuffContainer<Key extends string> {
 
   /** 按容器插入顺序结束所有匹配标签查询的 Buff，并返回实际结束数量。 */
   finishByTags(
-    tags: readonly GameplayTagId[],
+    tags: readonly GameplayTag[],
     type: GameplayTagQueryType,
     reason: BuffFinishReason,
     exact = false,
@@ -1099,7 +1104,7 @@ export class CombatBuffContainer<Key extends string> {
 
   /** 原生 FinishBuffByTag 限层路径：先快照匹配实例 ID，再逐项复用 ID 扣层入口。 */
   finishCountByTags(
-    tags: readonly GameplayTagId[],
+    tags: readonly GameplayTag[],
     type: GameplayTagQueryType,
     count: number,
     reason: BuffFinishReason,

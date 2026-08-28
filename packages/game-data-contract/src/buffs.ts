@@ -57,6 +57,8 @@ export interface SkillBuffAbilityEventResponse {
     | 'beforeTakePhysicalInfliction'
     | 'beforeOutputPhysicalInfliction'
     | 'afterOutputPhysicalInfliction'
+    | 'beforeOutputKnockDown'
+    | 'afterOutputKnockDown'
     | 'beforeOutputInfliction'
     | 'beforeOutputSpellBurst'
     | 'beforeTakeSpellInfliction'
@@ -410,9 +412,9 @@ export type BuffDefinitionProperties = {
   /** 缺省为 default；仅在解包配置明确使用全局或实体时间时填写。 */
   readonly timeClock?: BuffTimeClock;
   /** 解包数据中的原始有符号 int32 applyTags。 */
-  readonly applyTagIds?: readonly number[];
+  readonly applyTags?: readonly GameplayTag[];
   /** Buff 被延长动作阻止结束后，临时注册到所属实体的原始标签。 */
-  readonly extendTagIds?: readonly number[];
+  readonly extendTags?: readonly GameplayTag[];
   readonly stackingType: BuffStackingType;
   readonly stackingKey?: string;
   readonly priority?: BuffPriority;
@@ -432,3 +434,4 @@ export type BuffDefinitionProperties = {
   /** 元素爆发 Buff 的伤害参数；非爆发条目省略。 */
   readonly spellBurst?: CombatBuffSpellBurstDefinition;
 };
+import type { GameplayTag } from './gameplayTags.ts';
