@@ -576,6 +576,10 @@ export class StandardPlayerDamageEnvironment {
           buffSourceId,
           buffOwnerId,
         ),
+      resolveContextTarget: operatorId => ({
+        operatorId,
+        vitals: this.#requireOperatorVitals(operatorId),
+      }),
       applyHealModifiers: (timing, side, healContext) =>
         this.#healBuffContainer(
           side,

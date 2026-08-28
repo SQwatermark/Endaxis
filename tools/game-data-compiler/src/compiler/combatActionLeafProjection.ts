@@ -529,7 +529,11 @@ export function compileActionNode(
         ? ('caster' as const)
         : isControlledOperatorInstantSearch(action.target)
           ? ('controlledOperator' as const)
-          : null;
+          : action.target.targetSource === 'Context' &&
+              action.target.targetGroupKey !== '' &&
+              partyTargetGroups.get(action.target.targetGroupKey) === 'contextOperator'
+            ? ('contextTarget' as const)
+            : null;
     const attributeNames = {
       Str: 'strength',
       Agi: 'agility',
@@ -568,11 +572,15 @@ export function compileActionNode(
             multiplier: actionValueOperand(action.calculation.multiplier),
             addition: actionValueOperand(action.calculation.addition),
           };
+    const targetParameters =
+      target === 'contextTarget'
+        ? { target, contextKey: action.target.targetGroupKey! }
+        : { target };
     return [
       {
         kind: 'heal',
         parameters: {
-          target,
+          ...targetParameters,
           ...(action.alwaysNext ? { alwaysNext: true } : {}),
           tags: projectGameplayTags(
             action.useHealTags ? action.healTagIds : [],
@@ -1155,12 +1163,18 @@ function compileBuffApplication(
           : action.target.targetSource === 'Context' &&
               partyTargetGroups.has(action.target.targetGroupKey ?? '') &&
               partyTargetGroups.get(action.target.targetGroupKey ?? '') !== 'spatialPoint' &&
+              partyTargetGroups.get(action.target.targetGroupKey ?? '') !== 'contextOperator' &&
               partyTargetGroups.get(action.target.targetGroupKey ?? '') !== 'empty'
             ? targetsAbilityEntityGroup
               ? ('currentAbilityEntity' as const)
               : (partyTargetGroups.get(action.target.targetGroupKey ?? '')! as Exclude<
                   ProjectedTargetGroup,
-                  'spatialPoint' | 'abilityEntity' | 'empty'
+                  | 'spatialPoint'
+                  | 'abilityEntity'
+                  | 'contextOperator'
+                  | 'empty'
+                  | 'casterAndControlledOperator'
+                  | 'casterAndLowestHealthRatioOperatorExceptCaster'
                 >)
             : action.target.targetSource === 'Context' &&
                 context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey ?? '') === true

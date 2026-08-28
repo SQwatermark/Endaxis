@@ -653,6 +653,16 @@ export const akekuriUltimate: SkillDefinition = withSkillBlackboard(
         159,
       ),
       scheduled(
+        0,
+        sequence(
+          step('findCharacterTeamTargets', {
+            saveToContextKey: 'main_char',
+            selection: { kind: 'controlledOperator' },
+          }),
+        ),
+        1,
+      ),
+      scheduled(
         1,
         sequence(
           branch(
@@ -738,6 +748,16 @@ export const akekuriComboSkill: SkillDefinition = withSkillBlackboard(
     costFrame: 0,
     scheduledSequences: [
       scheduled(
+        0,
+        sequence(
+          step('findCharacterTeamTargets', {
+            saveToContextKey: 'mainchar',
+            selection: { kind: 'controlledOperator' },
+          }),
+        ),
+        1,
+      ),
+      scheduled(
         22,
         sequence(
           branch(
@@ -811,7 +831,7 @@ export const akekuriComboSkill: SkillDefinition = withSkillBlackboard(
               features: ['canBreakWeakness'],
               stagger: { kind: 'blackboard', key: 'poise' },
             },
-            'chr_0019_karin_combo_skill:/scheduledSequences/0/sequence/steps/1',
+            'chr_0019_karin_combo_skill:/scheduledSequences/1/sequence/steps/1',
           ),
           branch(
             {
@@ -885,7 +905,7 @@ export const akekuriComboSkill: SkillDefinition = withSkillBlackboard(
               features: ['canBreakWeakness'],
               stagger: { kind: 'blackboard', key: 'poise' },
             },
-            'chr_0019_karin_combo_skill:/scheduledSequences/1/sequence/steps/2',
+            'chr_0019_karin_combo_skill:/scheduledSequences/2/sequence/steps/2',
           ),
           branch(
             {

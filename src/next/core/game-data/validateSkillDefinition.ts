@@ -915,6 +915,32 @@ function validateCombatStep(
         });
       }
       break;
+    case 'findCharacterTeamTargets': {
+      requireString(parameters, 'saveToContextKey', `${path}.parameters`, out);
+      const selectionPath = `${path}.parameters.selection`;
+      const selection = asRecord(parameters.selection, selectionPath, out);
+      if (selection !== null) {
+        const selectionKind = requireString(selection, 'kind', selectionPath, out);
+        if (
+          selectionKind !== null &&
+          selectionKind !== 'controlledOperator' &&
+          selectionKind !== 'lowestHealthRatioOperator'
+        ) {
+          push(out, `${selectionPath}.kind`, 'unknown character-team selection');
+        }
+        if (selection.excludedContextKey !== undefined) {
+          requireString(selection, 'excludedContextKey', selectionPath, out);
+          if (selectionKind !== 'lowestHealthRatioOperator') {
+            push(
+              out,
+              `${selectionPath}.excludedContextKey`,
+              'only lowestHealthRatioOperator can exclude a context group',
+            );
+          }
+        }
+      }
+      break;
+    }
     case 'findOwnerSpawnedAbilityEntities': {
       requireString(parameters, 'saveToContextKey', `${path}.parameters`, out);
       if (parameters.ownerContextKey !== undefined) {
@@ -1236,6 +1262,11 @@ function validateCombatStep(
       break;
     case 'heal':
       requireEnum(parameters, 'target', HEAL_TARGETS_SET, `${path}.parameters`, out);
+      if (parameters.target === 'contextTarget') {
+        requireString(parameters, 'contextKey', `${path}.parameters`, out);
+      } else if (parameters.contextKey !== undefined) {
+        push(out, `${path}.parameters.contextKey`, 'requires target=contextTarget');
+      }
       if (parameters.alwaysNext !== undefined) {
         requireBoolean(parameters, 'alwaysNext', `${path}.parameters`, out);
       }

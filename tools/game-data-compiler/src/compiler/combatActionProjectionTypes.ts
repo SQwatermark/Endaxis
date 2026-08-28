@@ -175,16 +175,36 @@ type DamageParameters = Pick<
 export type CompiledSimpleDamageOperationSource = Step<'dealDamage', DamageParameters>;
 export type CompiledSimplePoiseOperationSource = Step<'dealStagger'>;
 
-type HealParameters = Parameters<'heal'> & {
-  readonly target: 'caster' | 'controlledOperator';
-  readonly amount?: CompiledActionValueOperandSource;
-  readonly attribute?: 'strength' | 'agility' | 'intellect' | 'will' | 'maxHealth';
-  readonly multiplier?: CompiledActionValueOperandSource;
-  readonly addition?: CompiledActionValueOperandSource;
-};
+type HealParameters = (
+  | {
+      readonly target: 'contextTarget';
+      readonly contextKey: string;
+    }
+  | {
+      readonly target: 'caster' | 'controlledOperator';
+      readonly contextKey?: never;
+    }
+) & {
+  readonly alwaysNext?: boolean;
+  readonly tags: Parameters<'heal'>['tags'];
+} & (
+    | {
+        readonly amount: CompiledActionValueOperandSource;
+        readonly attribute?: never;
+        readonly multiplier?: never;
+        readonly addition?: never;
+      }
+    | {
+        readonly amount?: never;
+        readonly attribute: 'strength' | 'agility' | 'intellect' | 'will' | 'maxHealth';
+        readonly multiplier: CompiledActionValueOperandSource;
+        readonly addition: CompiledActionValueOperandSource;
+      }
+  );
 
 export type CompiledBuffStepSource =
   | Step<'applyKnockDown'>
+  | Step<'findCharacterTeamTargets'>
   | Step<'igniteBuffs'>
   | Step<'triggerSpellBurst'>
   | Step<'startTimeDilation', GlobalTimeDilation | EntityTimeDilation>

@@ -4,6 +4,9 @@ import { describe, expect, it } from 'vitest';
 import { parseCharacterTeamSelection } from '../src/source/selectorFacts.ts';
 import { parseTargetGroupActionSource } from '../src/source/targetGroup.ts';
 import { requireRecord } from '../src/source/primitives.ts';
+import { parseNativeSequenceSource } from '../src/source/controlFlow.ts';
+import { parseKnownNativeActionLeafSource } from '../src/source/actionLeaf.ts';
+import { compileCombatActionSequenceSource } from '../src/compiler/buffRuntimeProjection.ts';
 import { targetFixture } from './sourceFixtures.ts';
 
 function queries(): { selectorData: { postProcessorData: Record<string, unknown>[] } }[] {
@@ -12,7 +15,59 @@ function queries(): { selectorData: { postProcessorData: Record<string, unknown>
   );
 }
 
+function compileQueries(raw = queries()) {
+  const source = parseNativeSequenceSource(
+    {
+      actionData: raw,
+      onlyExecuteWhenSourceIsMainChar: false,
+      onlyExecuteWhenSourceIsGuard: false,
+    },
+    'ember.combo',
+    {},
+    (value, path) => parseKnownNativeActionLeafSource(value, path, {}),
+  );
+  return compileCombatActionSequenceSource(source, {
+    actionOwnerTarget: 'caster',
+    actionSourceTarget: 'caster',
+    actionTargetTarget: 'enemy',
+  });
+}
+
 describe('CharacterTeamFinder 来源事实', () => {
+  it('把真实余烬双查询投影为有序的队伍身份快照步骤', () => {
+    expect(compileQueries()).toEqual({
+      steps: [
+        {
+          kind: 'findCharacterTeamTargets',
+          parameters: {
+            saveToContextKey: 'Main',
+            selection: { kind: 'controlledOperator' },
+          },
+        },
+        {
+          kind: 'findCharacterTeamTargets',
+          parameters: {
+            saveToContextKey: 'CureTarget',
+            selection: {
+              kind: 'lowestHealthRatioOperator',
+              excludedContextKey: 'Main',
+            },
+          },
+        },
+      ],
+    });
+  });
+
+  it('排除引用携带未经审计的空间设置时拒绝投影', () => {
+    const raw = queries();
+    const excluded = requireRecord(
+      raw[1]!.selectorData.postProcessorData[0]!.excludedTargetSettings,
+      'excludedTargetSettings',
+    );
+    excluded.centerToGround = true;
+    expect(() => compileQueries(raw)).toThrow('unaudited single-enemy action target group');
+  });
+
   it('从真实余烬查询读取主控验证器和最低血量筛选，保留排除引用', () => {
     const [main, cure] = queries();
     expect(parseTargetGroupActionSource(main, 'Main')?.characterTeamSelection).toEqual({

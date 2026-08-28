@@ -33,6 +33,8 @@ export interface HealOperationDependencies {
     buffSourceId?: string,
     buffOwnerId?: string,
   ) => ResolvedHealTarget;
+  /** Context 查询保存的是实例身份；治疗只按该身份取账本，不在此处重新选择。 */
+  readonly resolveContextTarget?: (operatorId: string) => ResolvedHealTarget;
   readonly applyHealModifiers?: (
     timing: HealProcessTiming,
     side: HealModifierSide,
@@ -53,11 +55,15 @@ export class HealOperationExecutor implements CombatOperationExecutor {
 
   execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean {
     if (step.kind !== 'heal') return this.dependencies.delegate.execute(step, context);
-    const target = this.dependencies.resolveTarget(
-      step.parameters.target,
-      context?.buffSourceId,
-      context?.buffOwnerId,
-    );
+    const target =
+      step.parameters.target === 'contextTarget'
+        ? this.#resolveContextTarget(step, context)
+        : this.dependencies.resolveTarget(
+            step.parameters.target,
+            context?.buffSourceId,
+            context?.buffOwnerId,
+          );
+    if (target === null) return step.parameters.alwaysNext === true;
     // Buff 生命周期运行在宿主的执行器上，但治疗者仍是创建该 Buff 的来源。
     // 直接技能没有 Buff 上下文，继续使用当前技能所属干员。
     const sourceOperatorId = context?.buffSourceId ?? this.dependencies.sourceOperatorId;
@@ -147,5 +153,23 @@ export class HealOperationExecutor implements CombatOperationExecutor {
       throw new Error(`heal '${step.parameters.target}' requires an action blackboard`);
     }
     return resolveActionValueOperand(value, context.blackboard);
+  }
+
+  #resolveContextTarget(
+    step: HealStep,
+    context: CombatOperationContext | undefined,
+  ): ResolvedHealTarget | null {
+    if (context?.targetContext === undefined || step.parameters.contextKey === undefined) {
+      throw new Error("heal target 'contextTarget' requires a combat target context key");
+    }
+    const targets = context.targetContext.get(step.parameters.contextKey);
+    if (targets.length === 0) return null;
+    const target = targets[0];
+    if (targets.length !== 1 || target?.kind !== 'operator') {
+      throw new Error(`heal context target '${step.parameters.contextKey}' must be one operator`);
+    }
+    const resolve = this.dependencies.resolveContextTarget;
+    if (resolve === undefined) throw new Error('context heal target resolver is not configured');
+    return resolve(target.operatorId);
   }
 }

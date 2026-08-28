@@ -1435,13 +1435,16 @@
       "healMultiplier": "Attribute multiplier",
       "healAddition": "Flat addition",
       "healAmount": "Direct healing",
+      "healContextKey": "Target context key",
       "healTags": "Healing tags",
       "healTargets": {
         "caster": "Caster",
         "buffSource": "Current Buff source",
+        "buffOwner": "Current Buff owner",
         "controlledOperator": "Controlled operator",
         "lowestHealthRatioOperator": "Lowest health-ratio operator",
-        "lowestHealthRatioOperatorExceptControlled": "Lowest health-ratio non-controlled operator"
+        "lowestHealthRatioOperatorExceptControlled": "Lowest health-ratio non-controlled operator",
+        "contextTarget": "Operator saved in Context"
       },
       "scalingCoefficient": "Scaling coefficient",
       "enableCap": "Set susceptibility cap",
@@ -1788,6 +1791,7 @@
         "conditionElement": "Elemental infliction to inspect on the enemy. Physical normally does not form an infliction.",
         "operatorAttribute": "Final build value of one of the operator's four primary attributes.",
         "healTarget": "The controlled operator is resolved from the control timeline at the execution frame; equal health ratios use stable scenario order.",
+        "healContextKey": "Reads the operator identity saved by an earlier target query; healing does not select again.",
         "healAttribute": "Primary caster attribute read from the current resolved panel for the healing formula.",
         "healMultiplier": "Multiplies the selected attribute; it may vary by skill level or read this cast's action blackboard.",
         "healAddition": "Flat healing added after the attribute multiplication; it may vary by level or read the action blackboard.",
@@ -1797,6 +1801,7 @@
       "stepHelp": {
         "switch": "Evaluate the choice once and match options in order using float32 tolerance. Reset all branches; tick and end only the selected branch.",
         "mergeContextTargets": "Merges stable target identities into a named action context group without spatial queries.",
+        "findCharacterTeamTargets": "Queries the team at the execution frame and saves operator identities in Context; later reads do not select again.",
         "findOwnerSpawnedAbilityEntities": "Finds logical ability entities by the current operator and native GameplayTags, saving the full group and optional count in this cast context.",
         "pickContextTarget": "Picks one instance from an existing Context target group by stable index and saves it as a new Context target group.",
         "forEachContextTarget": "Synchronously executes one step sequence for each stable target handle already stored in the cast context.",

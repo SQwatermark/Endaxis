@@ -1588,6 +1588,23 @@ export class CombatRuntimeAssembly {
       operatorId,
       baseDelegate,
       id => this.#resolveAbilitySystemSourceId(id),
+      {
+        listOperatorIds: () => this.#operatorOrder,
+        isOperatorControlled: candidate => {
+          if (isOperatorControlled === undefined) {
+            throw new Error(
+              `character-team query '${program.skillId}' requires the current controlled operator`,
+            );
+          }
+          return isOperatorControlled(candidate, this.clock.frame);
+        },
+        resolveVitals: candidate => {
+          if (resolveOperatorVitals === undefined) {
+            throw new Error(`character-team query '${program.skillId}' requires operator vitals`);
+          }
+          return resolveOperatorVitals(candidate);
+        },
+      },
     );
     const abilityEntityOperations = new AbilityEntityOperationExecutor(
       operatorId,
@@ -1795,6 +1812,23 @@ export class CombatRuntimeAssembly {
       operatorId,
       slotOperations,
       id => this.#resolveAbilitySystemSourceId(id),
+      {
+        listOperatorIds: () => this.#operatorOrder,
+        isOperatorControlled: candidate => {
+          if (options.isOperatorControlled === undefined) {
+            throw new Error(
+              `character-team query '${sourceActionId}' requires the current controlled operator`,
+            );
+          }
+          return options.isOperatorControlled(candidate, this.clock.frame);
+        },
+        resolveVitals: candidate => {
+          if (options.resolveOperatorVitals === undefined) {
+            throw new Error(`character-team query '${sourceActionId}' requires operator vitals`);
+          }
+          return options.resolveOperatorVitals(candidate);
+        },
+      },
     );
     const abilityEntityOperations = new AbilityEntityOperationExecutor(
       operatorId,

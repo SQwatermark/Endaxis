@@ -945,6 +945,16 @@ export const wulfgardBattleSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         0,
         sequence(
+          step('findCharacterTeamTargets', {
+            saveToContextKey: 'mainchar',
+            selection: { kind: 'controlledOperator' },
+          }),
+        ),
+        2,
+      ),
+      scheduled(
+        0,
+        sequence(
           branch(
             {
               kind: 'entityTagMatch',
@@ -967,6 +977,23 @@ export const wulfgardBattleSkill: SkillDefinition = withSkillBlackboard(
           ),
         ),
         2,
+      ),
+      scheduled(
+        31,
+        sequence(
+          branch(
+            {
+              kind: 'actionValueCompare',
+              left: { kind: 'blackboard', key: 'SpellInflict' },
+              operator: 'greaterOrEqual',
+              right: { kind: 'constant', value: 1 },
+            },
+            sequence(step('jumpTimeline', { destinationFrame: 118 })),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        32,
       ),
       scheduled(117, sequence(step('jumpTimeline', { destinationFrame: 247 })), 117),
     ],

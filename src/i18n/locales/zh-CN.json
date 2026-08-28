@@ -1429,13 +1429,16 @@
       "healMultiplier": "属性倍率",
       "healAddition": "固定加值",
       "healAmount": "直接治疗量",
+      "healContextKey": "目标上下文键",
       "healTags": "治疗标签",
       "healTargets": {
         "caster": "施法者",
         "buffSource": "当前 Buff 来源",
+        "buffOwner": "当前 Buff 宿主",
         "controlledOperator": "当前主控干员",
         "lowestHealthRatioOperator": "生命比例最低的干员",
-        "lowestHealthRatioOperatorExceptControlled": "除主控外生命比例最低的干员"
+        "lowestHealthRatioOperatorExceptControlled": "除主控外生命比例最低的干员",
+        "contextTarget": "上下文中已固定的干员"
       },
       "scalingCoefficient": "属性换算系数",
       "enableCap": "设置易伤上限",
@@ -1777,6 +1780,7 @@
         "conditionElement": "检查敌人当前是否持有该元素附着；物理通常不会形成元素附着。",
         "operatorAttribute": "比较干员构筑中两项四维属性的最终面板值。",
         "healTarget": "主控身份按步骤执行帧的控制时间线解析；生命比例相同时按场景干员顺序稳定选择。",
+        "healContextKey": "读取前序目标查询保存的干员实例身份；治疗时不会重新选择。",
         "healAttribute": "治疗公式读取施法者当前面板中的这一项四维属性。",
         "healMultiplier": "治疗量先以四维属性乘此值；可按技能等级配置或从本次释放的动作黑板读取。",
         "healAddition": "属性乘算后追加的固定治疗量；可按技能等级配置或从动作黑板读取。",
@@ -1786,6 +1790,7 @@
       "stepHelp": {
         "switch": "选择值只求值一次，候选按单精度容差顺序匹配。重置全部分支，仅推进和结束选中的分支。",
         "mergeContextTargets": "合并本次动作中的稳定目标身份并写入命名目标组；不执行距离或范围计算。",
+        "findCharacterTeamTargets": "在执行帧查询队伍并把干员实例身份保存到 Context；后续读取不会重新选人。",
         "findOwnerSpawnedAbilityEntities": "按当前干员与原生 GameplayTag 查询场景中的逻辑能力实体，把完整结果组和可选数量保存到本次释放上下文。",
         "pickContextTarget": "按稳定索引从已有 Context 目标组中选取一个实例，并保存为新的 Context 目标组。",
         "forEachContextTarget": "对施法上下文中已经固定的目标句柄逐一同步执行同一个步骤序列。",

@@ -1,6 +1,13 @@
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
+import type { CombatVitals } from './combatVitals';
+
+export interface CharacterTeamTargetQueryDependencies {
+  readonly listOperatorIds: () => readonly string[];
+  readonly isOperatorControlled: (operatorId: string) => boolean;
+  readonly resolveVitals: (operatorId: string) => CombatVitals;
+}
 
 /** 执行不依赖空间的通用 Context 目标组集合操作。 */
 export class TargetContextOperationExecutor implements CombatOperationExecutor {
@@ -8,9 +15,14 @@ export class TargetContextOperationExecutor implements CombatOperationExecutor {
     readonly operatorId: string,
     readonly delegate: CombatOperationExecutor,
     readonly resolveAbilitySystemSourceId: (id: string) => string = id => id,
+    readonly characterTeam?: CharacterTeamTargetQueryDependencies,
   ) {}
 
   execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean {
+    if (step.kind === 'findCharacterTeamTargets') {
+      this.#findCharacterTeamTargets(step, context);
+      return true;
+    }
     if (step.kind !== 'mergeContextTargets') {
       return context === undefined
         ? this.delegate.execute(step)
@@ -31,6 +43,62 @@ export class TargetContextOperationExecutor implements CombatOperationExecutor {
     }
     context.targetContext.set(step.parameters.saveToContextKey, targets);
     return true;
+  }
+
+  #findCharacterTeamTargets(
+    step: Extract<ResolvedCombatOperationStep, { kind: 'findCharacterTeamTargets' }>,
+    context: CombatOperationContext | undefined,
+  ): void {
+    if (context?.targetContext === undefined) {
+      throw new Error('findCharacterTeamTargets requires a combat target context');
+    }
+    const query = this.characterTeam;
+    if (query === undefined) {
+      throw new Error('findCharacterTeamTargets requires a character-team query runtime');
+    }
+    const selection = step.parameters.selection;
+    let operatorIds = [...new Set(query.listOperatorIds())];
+    if (selection.kind === 'controlledOperator') {
+      operatorIds = operatorIds.filter(query.isOperatorControlled);
+    } else {
+      if (selection.excludedContextKey !== undefined) {
+        const excludedIds = new Set(
+          context.targetContext
+            .get(selection.excludedContextKey)
+            .filter(
+              (target): target is Extract<RuntimeTargetRef, { kind: 'operator' }> =>
+                target.kind === 'operator',
+            )
+            .map(target => target.operatorId),
+        );
+        operatorIds = operatorIds.filter(operatorId => !excludedIds.has(operatorId));
+      }
+      operatorIds = this.#selectLowestHealthRatio(operatorIds, query);
+    }
+    context.targetContext.set(
+      step.parameters.saveToContextKey,
+      operatorIds.map(operatorId => ({ kind: 'operator', operatorId })),
+    );
+  }
+
+  #selectLowestHealthRatio(
+    operatorIds: readonly string[],
+    query: CharacterTeamTargetQueryDependencies,
+  ): string[] {
+    const candidates = operatorIds.map(operatorId => {
+      const vitals = query.resolveVitals(operatorId);
+      return { operatorId, ratio: vitals.health / vitals.maxHealth };
+    });
+    if (candidates.length === 0) return [];
+    const minimumRatio = Math.min(...candidates.map(candidate => candidate.ratio));
+    // 原生把 0.001 内视为同优先级，再用运行时对象哈希打破平局。对象哈希无法跨
+    // 数据导出稳定复现；产品模型明确投影为稳定实例 ID 顺序，同时保留原生容差边界。
+    const selected = candidates
+      .filter(candidate => candidate.ratio - minimumRatio < 0.001)
+      .sort((left, right) =>
+        left.operatorId < right.operatorId ? -1 : left.operatorId > right.operatorId ? 1 : 0,
+      )[0]!;
+    return [selected.operatorId];
   }
 
   end(step: ResolvedCombatOperationStep, context?: CombatOperationContext): void {

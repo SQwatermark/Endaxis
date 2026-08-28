@@ -163,6 +163,7 @@ function inspectSequence(
     const stepPath = `${path}.steps[${index}]`;
     switch (step.kind) {
       case 'mergeContextTargets':
+      case 'findCharacterTeamTargets':
       case 'findOwnerSpawnedAbilityEntities':
       case 'readAbilityEntityRemainingDuration':
       case 'setAbilityEntityRemainingDuration':
@@ -305,25 +306,26 @@ function inspectSequence(
           'buff_physical_knockdown',
           ...(step.parameters.force ? [] : ['buff_physical_no_guard']),
         ]) {
-          if (flags.buffDefinitions?.[id] === undefined) {
+          const definition = flags.buffDefinitions?.[id];
+          if (definition === undefined) {
             report(
               collect,
               'unsupported-step',
               stepPath,
               `knock-down requires Buff definition '${id}'`,
             );
+          } else {
+            // 隐式创建的物理状态 Buff 及其后代/事件也是执行程序；只沿实际根闭包预检，
+            // 不能因为目录共享而把完全无关的公共 Buff 当作本次击倒会执行。
+            inspectBuffDefinition(
+              definition,
+              `${stepPath}.buffDefinitions['${id}']`,
+              collect,
+              flags,
+              source,
+            );
           }
         }
-        // 隐式状态 Buff 及其后代/事件同样是执行程序，不能只检查根步骤。
-        Object.entries(flags.buffDefinitions ?? {}).forEach(([id, definition]) =>
-          inspectBuffDefinition(
-            definition,
-            `${stepPath}.buffDefinitions['${id}']`,
-            collect,
-            flags,
-            source,
-          ),
-        );
         return;
       case 'applyElementalReaction':
       case 'consumeElementalReaction':

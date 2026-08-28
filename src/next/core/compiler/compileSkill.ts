@@ -112,6 +112,8 @@ function resolveStep(
   switch (step.kind) {
     case 'mergeContextTargets':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'findCharacterTeamTargets':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'findOwnerSpawnedAbilityEntities':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'pickContextTarget':
@@ -290,14 +292,21 @@ function resolveStep(
           ),
         },
       };
-    case 'heal':
+    case 'heal': {
+      const targetParameters =
+        step.parameters.target === 'contextTarget'
+          ? {
+              target: step.parameters.target,
+              contextKey: step.parameters.contextKey,
+            }
+          : { target: step.parameters.target };
       return {
         ...keyed,
         kind: step.kind,
         parameters:
           step.parameters.amount === undefined
             ? {
-                target: step.parameters.target,
+                ...targetParameters,
                 ...(step.parameters.alwaysNext === undefined
                   ? {}
                   : { alwaysNext: step.parameters.alwaysNext }),
@@ -315,7 +324,7 @@ function resolveStep(
                 tags: step.parameters.tags,
               }
             : {
-                target: step.parameters.target,
+                ...targetParameters,
                 ...(step.parameters.alwaysNext === undefined
                   ? {}
                   : { alwaysNext: step.parameters.alwaysNext }),
@@ -327,6 +336,7 @@ function resolveStep(
                 tags: step.parameters.tags,
               },
       };
+    }
     case 'changeResource':
       return {
         ...keyed,

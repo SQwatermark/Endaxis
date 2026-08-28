@@ -4,6 +4,8 @@ import type { KnownNativeActionLeafSource } from '../source/actionLeaf.ts';
 import type { TimeScaleCurveKeyDefinition } from '../../../../packages/game-data-contract/src/conditions.ts';
 import type { CompiledBuffStepSource } from './combatActionProjectionTypes.ts';
 import type { TimeDilationCurveKeySource } from '../source/timeDilationActions.ts';
+import type { TargetGroupActionSource } from '../source/targetGroup.ts';
+import type { TargetReferenceSource } from '../source/target.ts';
 import { projectFinishOwner } from './timelineControlProjection.ts';
 import { compileTargetGroupAbilityEntityQuerySource } from './abilityEntityQuery.ts';
 import {
@@ -536,16 +538,27 @@ export function compileBuffLeafNode(
         state: nextGroups,
       };
     }
-    if (
-      context.actionTargetTarget === 'enemy' &&
-      write.producerType === 'FindTargetAction' &&
-      write.finderType === 'CharacterTeamFinder' &&
-      write.characterTeamSelection?.kind === 'controlledOperator' &&
-      write.postProcessorTypes.length === 0
-    ) {
+    const characterTeamQuery = projectCharacterTeamQuery(write, context);
+    if (characterTeamQuery !== null) {
       const nextGroups = new Map(partyTargetGroups);
-      nextGroups.set(write.targetGroupKey, 'controlledOperator');
-      return { steps: [], state: nextGroups };
+      nextGroups.set(
+        write.targetGroupKey,
+        characterTeamQuery.selection.kind === 'controlledOperator'
+          ? 'controlledOperator'
+          : 'contextOperator',
+      );
+      return {
+        steps: [
+          {
+            kind: 'findCharacterTeamTargets',
+            parameters: {
+              saveToContextKey: write.targetGroupKey,
+              selection: characterTeamQuery.selection,
+            },
+          },
+        ],
+        state: nextGroups,
+      };
     }
     if (
       write.producerType === 'FindTargetAction' &&
@@ -669,4 +682,85 @@ export function compileBuffLeafNode(
     steps: compileActionNode(node, visualOnlyIds, partyTargetGroups, context),
     state: partyTargetGroups,
   };
+}
+
+function projectCharacterTeamQuery(
+  write: TargetGroupActionSource,
+  context: CombatActionProjectionContextSource,
+): {
+  readonly selection:
+    | { readonly kind: 'controlledOperator' }
+    | { readonly kind: 'lowestHealthRatioOperator'; readonly excludedContextKey?: string };
+} | null {
+  const centerMatchesCaster =
+    write.center === 'ActionOwner' ||
+    (write.center === 'ActionSource' &&
+      context.actionSourceTarget === 'caster' &&
+      context.actionOwnerTarget === 'caster');
+  const selectorOwnerMatchesCaster =
+    write.selectorOwner === 'ActionOwner' ||
+    (write.selectorOwner === 'ActionSource' && context.actionSourceTarget === 'caster');
+  if (
+    write.producerType !== 'FindTargetAction' ||
+    write.finderType !== 'CharacterTeamFinder' ||
+    write.characterTeamSelection === null ||
+    write.characterTeamSelection === undefined ||
+    !centerMatchesCaster ||
+    write.centerContextKey !== '' ||
+    !selectorOwnerMatchesCaster ||
+    write.selectorOwnerContextKey !== ''
+  ) {
+    return null;
+  }
+  if (write.characterTeamSelection.kind === 'controlledOperator') {
+    if (
+      write.validatorTypes.length !== 1 ||
+      write.validatorTypes[0] !== 'MainCharacterValidator' ||
+      write.postProcessorTypes.length !== 0
+    ) {
+      return null;
+    }
+    return { selection: { kind: 'controlledOperator' } };
+  }
+  if (write.validatorTypes.length !== 0) return null;
+  const excluded = write.characterTeamSelection.excludedTarget;
+  if (excluded === null) {
+    if (write.postProcessorTypes.length !== 1) return null;
+    return { selection: { kind: 'lowestHealthRatioOperator' } };
+  }
+  if (write.postProcessorTypes.length !== 2 || !isPlainContextTarget(excluded)) {
+    return null;
+  }
+  return {
+    selection: {
+      kind: 'lowestHealthRatioOperator',
+      excludedContextKey: excluded.targetGroupKey,
+    },
+  };
+}
+
+function isPlainContextTarget(target: TargetReferenceSource): boolean {
+  return (
+    target.targetSource === 'Context' &&
+    target.targetGroupKey !== '' &&
+    target.selectorOwner === 'ActionOwner' &&
+    target.ownerContextKey === '' &&
+    target.centerType === 'ActionSource' &&
+    target.centerContextKey === '' &&
+    !target.centerToGround &&
+    target.target === 'ActionSource' &&
+    target.targetContextKey === '' &&
+    !target.enableAdvancedDirection &&
+    target.selectorDirection === 'SourceForward' &&
+    target.finderType === null &&
+    target.finderShape === null &&
+    target.finderOwnerPartsQuery === null &&
+    target.validatorTypes.length === 0 &&
+    target.postProcessorTypes.length === 0 &&
+    target.priorityFilters.length === 0 &&
+    target.shuffleTargets.length === 0 &&
+    target.distanceValidators.length === 0 &&
+    target.finderSpawnedObjectType === null &&
+    target.validatorTagQueries.length === 0
+  );
 }

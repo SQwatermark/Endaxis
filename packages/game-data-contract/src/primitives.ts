@@ -245,6 +245,7 @@ export const HEAL_TARGETS = [
   'controlledOperator',
   'lowestHealthRatioOperator',
   'lowestHealthRatioOperatorExceptControlled',
+  'contextTarget',
 ] as const;
 
 /** 当前原生治疗样本能够严格归约的队伍目标身份。 */

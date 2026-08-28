@@ -587,6 +587,16 @@ export const xaihiBattleSkill: SkillDefinition = withSkillBlackboard(
     costFrame: 0,
     scheduledSequences: [
       scheduled(
+        0,
+        sequence(
+          step('findCharacterTeamTargets', {
+            saveToContextKey: 'mainchar',
+            selection: { kind: 'controlledOperator' },
+          }),
+        ),
+        2,
+      ),
+      scheduled(
         6,
         sequence(
           branch(
@@ -664,6 +674,16 @@ export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 25,
     costFrame: 0,
     scheduledSequences: [
+      scheduled(
+        0,
+        sequence(
+          step('findCharacterTeamTargets', {
+            saveToContextKey: 'mainchr',
+            selection: { kind: 'controlledOperator' },
+          }),
+        ),
+        24,
+      ),
       scheduled(
         24,
         sequence(
@@ -779,7 +799,7 @@ export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
                           features: ['canBreakWeakness'],
                           stagger: { kind: 'blackboard', key: 'poise' },
                         },
-                        'chr_0011_seraph_combo_skill:/scheduledSequences/0/sequence/steps/1/whenTrue/steps/0/body/steps/0/body/steps/3',
+                        'chr_0011_seraph_combo_skill:/scheduledSequences/1/sequence/steps/1/whenTrue/steps/0/body/steps/0/body/steps/3',
                       ),
                       branch(
                         {
@@ -929,7 +949,7 @@ export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
                           features: ['canBreakWeakness'],
                           stagger: { kind: 'blackboard', key: 'poise' },
                         },
-                        'chr_0011_seraph_combo_skill:/scheduledSequences/0/sequence/steps/1/whenFalse/steps/0/body/steps/0/body/steps/3',
+                        'chr_0011_seraph_combo_skill:/scheduledSequences/1/sequence/steps/1/whenFalse/steps/0/body/steps/0/body/steps/3',
                       ),
                       branch(
                         {
@@ -1064,6 +1084,16 @@ export const xaihiUltimate: SkillDefinition = withSkillBlackboard(
       scheduled(
         0,
         sequence(
+          step('findCharacterTeamTargets', {
+            saveToContextKey: 'mainchar',
+            selection: { kind: 'controlledOperator' },
+          }),
+        ),
+        1,
+      ),
+      scheduled(
+        0,
+        sequence(
           step('startUltimateTimeDilation', {
             priority: 100,
             targetScale: { kind: 'constant', value: 0 },
@@ -1103,17 +1133,6 @@ export const xaihiUltimate: SkillDefinition = withSkillBlackboard(
             target: 'party',
             inheritSourceSkillCastInfo: true,
           }),
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'blackboard', key: 'exist_talent_2' },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
         ),
         61,
       ),

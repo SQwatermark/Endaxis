@@ -529,18 +529,6 @@ export const yvonneBasicAttack5: SkillDefinition = withSkillBlackboard(
       scheduled(
         21,
         sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_talent_1_valid'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
           repeatEachTick(
             sequence(
               step(
@@ -550,7 +538,7 @@ export const yvonneBasicAttack5: SkillDefinition = withSkillBlackboard(
                   attackScale: { kind: 'blackboard', key: 'atk_scale' },
                   tags: ['normalAttack', 'normalAttackLastCombo'],
                 },
-                'chr_0017_yvonne_attack5:/scheduledSequences/0/sequence/steps/1/body/steps/0',
+                'chr_0017_yvonne_attack5:/scheduledSequences/0/sequence/steps/0/body/steps/0',
               ),
               branch(
                 { kind: 'casterControlled' },
@@ -607,86 +595,6 @@ export const yvonneBasicAttack5: SkillDefinition = withSkillBlackboard(
         ),
         24,
       ),
-      scheduled(
-        0,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        60,
-      ),
-      scheduled(
-        34,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            sequence(
-              branch(
-                {
-                  kind: 'buffIdStackCompare',
-                  target: 'caster',
-                  buffIds: ['buff_chr_0017_yvonne_ultimate_skill_end'],
-                  operator: 'greaterOrEqual',
-                  value: { kind: 'constant', value: 1 },
-                },
-                sequence(),
-                undefined,
-                { alwaysNext: true },
-              ),
-            ),
-            { alwaysNext: true },
-          ),
-        ),
-        60,
-      ),
-      scheduled(
-        37,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            sequence(
-              branch(
-                {
-                  kind: 'buffIdStackCompare',
-                  target: 'caster',
-                  buffIds: ['buff_chr_0017_yvonne_ultimate_skill_end'],
-                  operator: 'greaterOrEqual',
-                  value: { kind: 'constant', value: 1 },
-                },
-                sequence(),
-                undefined,
-                { alwaysNext: true },
-              ),
-            ),
-            { alwaysNext: true },
-          ),
-        ),
-        60,
-      ),
     ],
   },
   {
@@ -706,24 +614,6 @@ export const yvonneUltimateAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 0,
     costFrame: 9,
     scheduledSequences: [
-      scheduled(
-        0,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_camera'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        37,
-      ),
       scheduled(
         37,
         sequence(
@@ -800,7 +690,7 @@ export const yvonneUltimateAttack1: SkillDefinition = withSkillBlackboard(
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       tags: ['normalAttack'],
                     },
-                    'chr_0017_yvonne_ult_attack1_1:/scheduledSequences/5/sequence/steps/0/body/steps/0/body/steps/0',
+                    'chr_0017_yvonne_ult_attack1_1:/scheduledSequences/4/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
                     { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -844,7 +734,7 @@ export const yvonneUltimateAttack1: SkillDefinition = withSkillBlackboard(
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       tags: ['normalAttack'],
                     },
-                    'chr_0017_yvonne_ult_attack1_1:/scheduledSequences/6/sequence/steps/0/body/steps/0/body/steps/0',
+                    'chr_0017_yvonne_ult_attack1_1:/scheduledSequences/5/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
                     { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -888,7 +778,7 @@ export const yvonneUltimateAttack1: SkillDefinition = withSkillBlackboard(
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       tags: ['normalAttack'],
                     },
-                    'chr_0017_yvonne_ult_attack1_1:/scheduledSequences/7/sequence/steps/0/body/steps/0/body/steps/0',
+                    'chr_0017_yvonne_ult_attack1_1:/scheduledSequences/6/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
                     { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -929,24 +819,6 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 0,
     costFrame: 9,
     scheduledSequences: [
-      scheduled(
-        0,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_camera'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        32,
-      ),
       scheduled(
         32,
         sequence(
@@ -992,114 +864,6 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
         20,
       ),
       scheduled(
-        5,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        8,
-      ),
-      scheduled(
-        8,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        11,
-      ),
-      scheduled(
-        11,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        14,
-      ),
-      scheduled(
-        14,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        17,
-      ),
-      scheduled(
-        17,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        20,
-      ),
-      scheduled(
-        21,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        24,
-      ),
-      scheduled(
         11,
         sequence(
           branch(
@@ -1136,7 +900,7 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
                               attackScale: { kind: 'blackboard', key: 'atk_scale' },
                               tags: ['normalAttack'],
                             },
-                            'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/11/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
+                            'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/4/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
                           ),
                           branch(
                             {
@@ -1179,7 +943,7 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
                               attackScale: { kind: 'blackboard', key: 'atk_scale' },
                               tags: ['normalAttack'],
                             },
-                            'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/11/sequence/steps/0/whenTrue/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                            'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/4/sequence/steps/0/whenTrue/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
                           ),
                           branch(
                             {
@@ -1225,7 +989,7 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
                           attackScale: { kind: 'blackboard', key: 'atk_scale' },
                           tags: ['normalAttack'],
                         },
-                        'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/11/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                        'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/4/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
                       ),
                       branch(
                         { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -1289,7 +1053,7 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
                               attackScale: { kind: 'blackboard', key: 'atk_scale' },
                               tags: ['normalAttack'],
                             },
-                            'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/12/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
+                            'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/5/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
                           ),
                           branch(
                             {
@@ -1332,7 +1096,7 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
                               attackScale: { kind: 'blackboard', key: 'atk_scale' },
                               tags: ['normalAttack'],
                             },
-                            'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/12/sequence/steps/0/whenTrue/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                            'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/5/sequence/steps/0/whenTrue/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
                           ),
                           branch(
                             {
@@ -1378,7 +1142,7 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
                           attackScale: { kind: 'blackboard', key: 'atk_scale' },
                           tags: ['normalAttack'],
                         },
-                        'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/12/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                        'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/5/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
                       ),
                       branch(
                         { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -1442,7 +1206,7 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
                               attackScale: { kind: 'blackboard', key: 'atk_scale' },
                               tags: ['normalAttack'],
                             },
-                            'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/13/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
+                            'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/6/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
                           ),
                           branch(
                             {
@@ -1485,7 +1249,7 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
                               attackScale: { kind: 'blackboard', key: 'atk_scale' },
                               tags: ['normalAttack'],
                             },
-                            'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/13/sequence/steps/0/whenTrue/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                            'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/6/sequence/steps/0/whenTrue/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
                           ),
                           branch(
                             {
@@ -1531,7 +1295,7 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
                           attackScale: { kind: 'blackboard', key: 'atk_scale' },
                           tags: ['normalAttack'],
                         },
-                        'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/13/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                        'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/6/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
                       ),
                       branch(
                         { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -1595,7 +1359,7 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
                               attackScale: { kind: 'blackboard', key: 'atk_scale' },
                               tags: ['normalAttack'],
                             },
-                            'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/14/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
+                            'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/7/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
                           ),
                           branch(
                             {
@@ -1638,7 +1402,7 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
                               attackScale: { kind: 'blackboard', key: 'atk_scale' },
                               tags: ['normalAttack'],
                             },
-                            'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/14/sequence/steps/0/whenTrue/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                            'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/7/sequence/steps/0/whenTrue/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
                           ),
                           branch(
                             {
@@ -1684,7 +1448,7 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
                           attackScale: { kind: 'blackboard', key: 'atk_scale' },
                           tags: ['normalAttack'],
                         },
-                        'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/14/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                        'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/7/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
                       ),
                       branch(
                         { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -1710,24 +1474,6 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
           ),
         ),
         21,
-      ),
-      scheduled(
-        0,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_voice_start'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        24,
       ),
     ],
   },
@@ -1779,78 +1525,6 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
         sequence(
           branch(
             {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        4,
-      ),
-      scheduled(
-        4,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        7,
-      ),
-      scheduled(
-        7,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        10,
-      ),
-      scheduled(
-        11,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        14,
-      ),
-      scheduled(
-        1,
-        sequence(
-          branch(
-            {
               kind: 'actionValueCompare',
               left: { kind: 'constant', value: 1 },
               operator: 'greaterOrEqual',
@@ -1883,7 +1557,7 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
                               attackScale: { kind: 'blackboard', key: 'atk_scale' },
                               tags: ['normalAttack'],
                             },
-                            'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/7/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
+                            'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/3/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
                           ),
                           branch(
                             {
@@ -1926,7 +1600,7 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
                               attackScale: { kind: 'blackboard', key: 'atk_scale' },
                               tags: ['normalAttack'],
                             },
-                            'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/7/sequence/steps/0/whenTrue/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                            'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/3/sequence/steps/0/whenTrue/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
                           ),
                           branch(
                             {
@@ -1972,7 +1646,7 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
                           attackScale: { kind: 'blackboard', key: 'atk_scale' },
                           tags: ['normalAttack'],
                         },
-                        'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/7/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                        'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/3/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
                       ),
                       branch(
                         { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -2036,7 +1710,7 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
                               attackScale: { kind: 'blackboard', key: 'atk_scale' },
                               tags: ['normalAttack'],
                             },
-                            'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/8/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
+                            'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/4/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
                           ),
                           branch(
                             {
@@ -2079,7 +1753,7 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
                               attackScale: { kind: 'blackboard', key: 'atk_scale' },
                               tags: ['normalAttack'],
                             },
-                            'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/8/sequence/steps/0/whenTrue/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                            'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/4/sequence/steps/0/whenTrue/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
                           ),
                           branch(
                             {
@@ -2125,7 +1799,7 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
                           attackScale: { kind: 'blackboard', key: 'atk_scale' },
                           tags: ['normalAttack'],
                         },
-                        'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/8/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                        'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/4/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
                       ),
                       branch(
                         { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -2189,7 +1863,7 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
                               attackScale: { kind: 'blackboard', key: 'atk_scale' },
                               tags: ['normalAttack'],
                             },
-                            'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/9/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
+                            'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/5/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
                           ),
                           branch(
                             {
@@ -2232,7 +1906,7 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
                               attackScale: { kind: 'blackboard', key: 'atk_scale' },
                               tags: ['normalAttack'],
                             },
-                            'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/9/sequence/steps/0/whenTrue/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                            'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/5/sequence/steps/0/whenTrue/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
                           ),
                           branch(
                             {
@@ -2278,7 +1952,7 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
                           attackScale: { kind: 'blackboard', key: 'atk_scale' },
                           tags: ['normalAttack'],
                         },
-                        'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/9/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                        'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/5/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
                       ),
                       branch(
                         { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -2342,7 +2016,7 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
                               attackScale: { kind: 'blackboard', key: 'atk_scale' },
                               tags: ['normalAttack'],
                             },
-                            'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/10/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
+                            'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/6/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
                           ),
                           branch(
                             {
@@ -2385,7 +2059,7 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
                               attackScale: { kind: 'blackboard', key: 'atk_scale' },
                               tags: ['normalAttack'],
                             },
-                            'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/10/sequence/steps/0/whenTrue/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                            'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/6/sequence/steps/0/whenTrue/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
                           ),
                           branch(
                             {
@@ -2431,7 +2105,7 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
                           attackScale: { kind: 'blackboard', key: 'atk_scale' },
                           tags: ['normalAttack'],
                         },
-                        'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/10/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                        'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/6/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
                       ),
                       branch(
                         { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -2459,24 +2133,6 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
         11,
       ),
       scheduled(
-        0,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_camera'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        21,
-      ),
-      scheduled(
         21,
         sequence(
           step('finishBuffsById', {
@@ -2486,24 +2142,6 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
           }),
         ),
         24,
-      ),
-      scheduled(
-        0,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_voice_start'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        13,
       ),
     ],
   },
@@ -2608,150 +2246,6 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
       scheduled(
         13,
         sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        15,
-      ),
-      scheduled(
-        15,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        17,
-      ),
-      scheduled(
-        17,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        19,
-      ),
-      scheduled(
-        19,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        21,
-      ),
-      scheduled(
-        21,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        23,
-      ),
-      scheduled(
-        23,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        25,
-      ),
-      scheduled(
-        25,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        27,
-      ),
-      scheduled(
-        27,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        29,
-      ),
-      scheduled(
-        13,
-        sequence(
           withActionBlackboardScope(
             'SkillData.chr_0017_yvonne_ult_attack3_1.actionGroupData.timelineActions[39]._sequenceActionData.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
             {},
@@ -2769,7 +2263,7 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       tags: ['normalAttack'],
                     },
-                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/16/sequence/steps/0/body/steps/0/body/steps/0',
+                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/8/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
                     { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -2813,7 +2307,7 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       tags: ['normalAttack'],
                     },
-                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/17/sequence/steps/0/body/steps/0/body/steps/0',
+                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/9/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
                     { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -2857,7 +2351,7 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       tags: ['normalAttack'],
                     },
-                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/18/sequence/steps/0/body/steps/0/body/steps/0',
+                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/10/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
                     { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -2901,7 +2395,7 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       tags: ['normalAttack'],
                     },
-                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/19/sequence/steps/0/body/steps/0/body/steps/0',
+                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/11/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
                     { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -2945,7 +2439,7 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       tags: ['normalAttack'],
                     },
-                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/20/sequence/steps/0/body/steps/0/body/steps/0',
+                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/12/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
                     { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -2989,7 +2483,7 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       tags: ['normalAttack'],
                     },
-                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/21/sequence/steps/0/body/steps/0/body/steps/0',
+                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/13/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
                     { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -3033,7 +2527,7 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       tags: ['normalAttack'],
                     },
-                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/22/sequence/steps/0/body/steps/0/body/steps/0',
+                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/14/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
                     { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -3077,7 +2571,7 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       tags: ['normalAttack'],
                     },
-                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/23/sequence/steps/0/body/steps/0/body/steps/0',
+                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/15/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
                     { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -3102,24 +2596,6 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
         27,
       ),
       scheduled(
-        0,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_camera'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        50,
-      ),
-      scheduled(
         50,
         sequence(
           step('finishBuffsById', {
@@ -3129,24 +2605,6 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
           }),
         ),
         53,
-      ),
-      scheduled(
-        0,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_voice_start'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        12,
       ),
       scheduled(
         12,
@@ -3187,33 +2645,7 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
                 autoFinishByAction: false,
               }),
             ),
-            sequence(
-              branch(
-                {
-                  kind: 'buffIdStackCompare',
-                  target: 'caster',
-                  buffIds: ['buff_chr_0017_yvonne_ultimate_skill_voice'],
-                  operator: 'greaterOrEqual',
-                  value: { kind: 'constant', value: 1 },
-                },
-                sequence(),
-                sequence(
-                  branch(
-                    {
-                      kind: 'buffIdStackCompare',
-                      target: 'caster',
-                      buffIds: ['buff_chr_0017_yvonne_ultimate_skill_voice_short'],
-                      operator: 'equal',
-                      value: { kind: 'constant', value: 0 },
-                    },
-                    sequence(),
-                    undefined,
-                    { alwaysNext: true },
-                  ),
-                ),
-                { alwaysNext: true },
-              ),
-            ),
+            undefined,
             { alwaysNext: true },
           ),
         ),
@@ -3672,168 +3104,6 @@ export const yvonneUltimateAttack3B: SkillDefinition = withSkillBlackboard(
         15,
       ),
       scheduled(
-        1,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        3,
-      ),
-      scheduled(
-        3,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        5,
-      ),
-      scheduled(
-        5,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        7,
-      ),
-      scheduled(
-        7,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        9,
-      ),
-      scheduled(
-        9,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        11,
-      ),
-      scheduled(
-        11,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        13,
-      ),
-      scheduled(
-        13,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        15,
-      ),
-      scheduled(
-        15,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        17,
-      ),
-      scheduled(
-        0,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_camera'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        37,
-      ),
-      scheduled(
         37,
         sequence(
           step('finishBuffsById', {
@@ -3883,33 +3153,7 @@ export const yvonneUltimateAttack3B: SkillDefinition = withSkillBlackboard(
                 autoFinishByAction: false,
               }),
             ),
-            sequence(
-              branch(
-                {
-                  kind: 'buffIdStackCompare',
-                  target: 'caster',
-                  buffIds: ['buff_chr_0017_yvonne_ultimate_skill_voice'],
-                  operator: 'greaterOrEqual',
-                  value: { kind: 'constant', value: 1 },
-                },
-                sequence(),
-                sequence(
-                  branch(
-                    {
-                      kind: 'buffIdStackCompare',
-                      target: 'caster',
-                      buffIds: ['buff_chr_0017_yvonne_ultimate_skill_voice_short'],
-                      operator: 'equal',
-                      value: { kind: 'constant', value: 0 },
-                    },
-                    sequence(),
-                    undefined,
-                    { alwaysNext: true },
-                  ),
-                ),
-                { alwaysNext: true },
-              ),
-            ),
+            undefined,
             { alwaysNext: true },
           ),
         ),
@@ -4274,36 +3518,6 @@ export const yvonneUltimateAttackEnd: SkillDefinition = withSkillBlackboard(
         18,
       ),
       scheduled(
-        0,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
-              target: 'caster',
-              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_camera'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-            sequence(),
-            sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 0 },
-                  operator: 'lessOrEqual',
-                  right: { kind: 'constant', value: 12 },
-                },
-                sequence(),
-                undefined,
-                { alwaysNext: true },
-              ),
-            ),
-            { alwaysNext: true },
-          ),
-        ),
-        67,
-      ),
-      scheduled(
         67,
         sequence(
           step('finishBuffsById', {
@@ -4392,7 +3606,6 @@ export const yvonneFinisher: SkillDefinition = withSkillBlackboard(
             'chr_0017_yvonne_power_attack:/scheduledSequences/1/sequence/steps/0',
           ),
           step('gainFinisherSp', { factor: 1, recipient: 'team' }),
-          branch({ kind: 'casterControlled' }, sequence(), undefined, { alwaysNext: true }),
           branch(
             {
               kind: 'buffIdStackCompare',
@@ -4766,6 +3979,16 @@ export const yvonneBattleSkill: SkillDefinition = withSkillBlackboard(
     costFrame: 0,
     scheduledSequences: [
       scheduled(
+        0,
+        sequence(
+          step('findCharacterTeamTargets', {
+            saveToContextKey: 'mainchar',
+            selection: { kind: 'controlledOperator' },
+          }),
+        ),
+        2,
+      ),
+      scheduled(
         5,
         sequence(
           branch(
@@ -4943,6 +4166,26 @@ export const yvonneUltimate: SkillDefinition = withSkillBlackboard(
         3,
       ),
       scheduled(
+        0,
+        sequence(
+          branch(
+            {
+              kind: 'actionValueCompare',
+              left: { kind: 'constant', value: 1 },
+              operator: 'greaterOrEqual',
+              right: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('findCharacterTeamTargets', {
+                saveToContextKey: 'mainchar',
+                selection: { kind: 'controlledOperator' },
+              }),
+            ),
+          ),
+        ),
+        1,
+      ),
+      scheduled(
         61,
         sequence(
           branch(
@@ -5057,6 +4300,16 @@ export const yvonneComboSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 19,
     costFrame: 0,
     scheduledSequences: [
+      scheduled(
+        0,
+        sequence(
+          step('findCharacterTeamTargets', {
+            saveToContextKey: 'mainchar',
+            selection: { kind: 'controlledOperator' },
+          }),
+        ),
+        1,
+      ),
       scheduled(
         0,
         sequence(
@@ -5249,16 +4502,6 @@ export const commonBuffDefinitions = {
               blackboardAssignments: { duration: { kind: 'blackboard', key: 'duration' } },
             }),
           ),
-        ),
-        branch(
-          {
-            kind: 'enemySuperArmorCompare',
-            operator: 'lessOrEqual',
-            value: { kind: 'constant', value: 20 },
-          },
-          sequence(),
-          undefined,
-          { alwaysNext: true },
         ),
       ),
     },
@@ -5890,9 +5133,6 @@ export default {
       },
       attributeModifiers: [],
       lifecycleSequences: {
-        start: sequence(
-          branch({ kind: 'buffSourceMatchesOwner' }, sequence(), undefined, { alwaysNext: true }),
-        ),
         finish: sequence(
           branch(
             {
@@ -7074,16 +6314,6 @@ export default {
       blackboard: {},
       attributeModifiers: [],
       lifecycleSequences: { start: sequence(step('finishCurrentAbilityEntity', {})) },
-    },
-    buff_chr_0017_yvonne_ultimate_skill_shield: {
-      stackingType: 'refresh',
-      priority: 0,
-      maxStackCount: 1,
-      durationSeconds: { blackboardKey: 'effect_duration' },
-      applyTags: [],
-      extendTags: [],
-      blackboard: { effect_duration: 0 },
-      attributeModifiers: [],
     },
     buff_chr_0017_yvonne_ultimate_skill_wepl: {
       stackingType: 'refresh',

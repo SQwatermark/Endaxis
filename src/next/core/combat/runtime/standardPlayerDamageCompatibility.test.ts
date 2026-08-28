@@ -162,7 +162,7 @@ describe('standardPlayerDamageCompatibility', () => {
     });
     expect(missing).toHaveLength(3);
     expect(missing.map(issue => issue.detail).join('\n')).toContain('attribute panel');
-    const unsupported = compileOperatorBuffDefinitions({
+    const unrelated = compileOperatorBuffDefinitions({
       bad: {
         stackingType: 'unique',
         scheduledSequences: [
@@ -183,7 +183,33 @@ describe('standardPlayerDamageCompatibility', () => {
     expect(
       inspectStandardPlayerDamageCompatibility({
         ...input,
-        operators: [{ ...entry, buffDefinitions: { ...entry.buffDefinitions, ...unsupported } }],
+        operators: [{ ...entry, buffDefinitions: { ...entry.buffDefinitions, ...unrelated } }],
+      }),
+    ).toEqual([]);
+    const unsupportedRoot = compileOperatorBuffDefinitions({
+      buff_physical_knockdown: {
+        stackingType: 'unique',
+        scheduledSequences: [
+          {
+            startFrame: 0,
+            sequence: {
+              steps: [
+                {
+                  kind: 'dealDamage',
+                  parameters: { damageType: 'lifeDrain', attackScale: 1, tags: [] },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    });
+    expect(
+      inspectStandardPlayerDamageCompatibility({
+        ...input,
+        operators: [
+          { ...entry, buffDefinitions: { ...entry.buffDefinitions, ...unsupportedRoot } },
+        ],
       }),
     ).toEqual([expect.objectContaining({ code: 'unsupported-damage-calculation' })]);
   });

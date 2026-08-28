@@ -1401,6 +1401,26 @@ export const avywennaUltimate: SkillDefinition = withSkillBlackboard(
       scheduled(
         0,
         sequence(
+          branch(
+            {
+              kind: 'actionValueCompare',
+              left: { kind: 'constant', value: 1 },
+              operator: 'equal',
+              right: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('findCharacterTeamTargets', {
+                saveToContextKey: 'MainChar',
+                selection: { kind: 'controlledOperator' },
+              }),
+            ),
+          ),
+        ),
+        3,
+      ),
+      scheduled(
+        0,
+        sequence(
           step('startUltimateTimeDilation', {
             priority: 100,
             targetScale: { kind: 'constant', value: 0 },
@@ -1476,7 +1496,7 @@ export const avywennaUltimate: SkillDefinition = withSkillBlackboard(
               features: ['canBreakWeakness'],
               stagger: { kind: 'blackboard', key: 'poise' },
             },
-            'chr_0012_avywen_ultimate_skill:/scheduledSequences/3/sequence/steps/1',
+            'chr_0012_avywen_ultimate_skill:/scheduledSequences/4/sequence/steps/1',
           ),
           branch(
             {

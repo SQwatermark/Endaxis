@@ -18,6 +18,7 @@ export type ProjectedTargetGroup =
   | 'abilityEntity'
   | 'buffSource'
   | 'controlledOperator'
+  | 'contextOperator'
   | 'enemy'
   | 'empty'
   | 'spatialPoint';

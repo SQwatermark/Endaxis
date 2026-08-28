@@ -43,7 +43,21 @@ function update(parameters: HealStep['parameters']): void {
 
 function setTarget(event: Event): void {
   const target = (event.target as HTMLSelectElement).value as HealTarget;
-  if (HEAL_TARGETS.includes(target)) update({ ...props.step.parameters, target });
+  if (!HEAL_TARGETS.includes(target)) return;
+  const { contextKey: previousContextKey, ...parameters } = props.step.parameters;
+  if (target === 'contextTarget') {
+    update({ ...parameters, target, contextKey: previousContextKey ?? '' });
+    return;
+  }
+  update({ ...parameters, target });
+}
+
+function setContextKey(event: Event): void {
+  if (props.step.parameters.target !== 'contextTarget') return;
+  update({
+    ...props.step.parameters,
+    contextKey: (event.target as HTMLInputElement).value,
+  });
 }
 
 function setAttribute(event: Event): void {
@@ -165,6 +179,13 @@ const operandLabels = () => ({
           {{ t(`nextTimeline.skillEditing.healTargets.${target}`) }}
         </option>
       </select>
+    </label>
+    <label v-if="step.parameters.target === 'contextTarget'">
+      <EditorFieldLabel
+        :label="t('nextTimeline.skillEditing.healContextKey')"
+        :help="t('nextTimeline.skillEditing.fieldHelp.healContextKey')"
+      />
+      <input :value="step.parameters.contextKey" @input="setContextKey" />
     </label>
     <label v-if="!isDefinite(step.parameters)">
       <EditorFieldLabel

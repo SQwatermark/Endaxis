@@ -94,6 +94,7 @@ export interface ResolvedAbilityEntityDefinition {
 
 export interface ResolvedCombatStepParameters {
   mergeContextTargets: CombatStepParameters['mergeContextTargets'];
+  findCharacterTeamTargets: CombatStepParameters['findCharacterTeamTargets'];
   findOwnerSpawnedAbilityEntities: CombatStepParameters['findOwnerSpawnedAbilityEntities'];
   pickContextTarget: CombatStepParameters['pickContextTarget'];
   forEachContextTarget: CombatStepParameters['forEachContextTarget'];
@@ -157,24 +158,32 @@ export interface ResolvedCombatStepParameters {
     staggerOnlyWhenCasterControlled?: boolean;
   };
   dealStagger: { value: number | ActionValueOperand };
-  heal: {
-    target: CombatStepParameters['heal']['target'];
+  heal: (
+    | {
+        target: 'contextTarget';
+        contextKey: string;
+      }
+    | {
+        target: Exclude<CombatStepParameters['heal']['target'], 'contextTarget'>;
+        contextKey?: never;
+      }
+  ) & {
     alwaysNext?: boolean;
     tags: readonly GameplayTag[];
   } & (
-    | {
-        attribute: HealCalculationAttribute;
-        multiplier: number | ActionValueOperand;
-        addition: number | ActionValueOperand;
-        amount?: never;
-      }
-    | {
-        amount: number | ActionValueOperand;
-        attribute?: never;
-        multiplier?: never;
-        addition?: never;
-      }
-  );
+      | {
+          attribute: HealCalculationAttribute;
+          multiplier: number | ActionValueOperand;
+          addition: number | ActionValueOperand;
+          amount?: never;
+        }
+      | {
+          amount: number | ActionValueOperand;
+          attribute?: never;
+          multiplier?: never;
+          addition?: never;
+        }
+    );
   applyBuff: Omit<CombatStepParameters['applyBuff'], 'definition' | 'blackboardAssignments'> & {
     readonly definition?: ResolvedSkillBuffDefinition;
     readonly blackboardAssignments?: Readonly<Record<string, ActionValueOperand>>;

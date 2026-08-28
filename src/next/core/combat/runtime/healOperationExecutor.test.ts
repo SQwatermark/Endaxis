@@ -4,6 +4,7 @@ import { ActionBlackboard } from './actionBlackboard';
 import { CombatClock } from './combatClock';
 import { CombatVitals } from './combatVitals';
 import { HealOperationExecutor } from './healOperationExecutor';
+import { RuntimeTargetContext } from './runtimeTargetContext';
 
 const terminal = {
   execute: () => false,
@@ -24,6 +25,84 @@ function vitals(health: number) {
 }
 
 describe('HealOperationExecutor', () => {
+  it('heals the operator identity saved in Context without reselecting', () => {
+    const savedTarget = vitals(600);
+    const otherTarget = vitals(100);
+    const targetContext = new RuntimeTargetContext();
+    targetContext.set('CureTarget', [{ kind: 'operator', operatorId: 'operator:saved' }]);
+    const resolved: string[] = [];
+    const executor = new HealOperationExecutor({
+      sourceOperatorId: 'operator:ember',
+      clock: new CombatClock(),
+      receipt: new CombatReceiptCollector(),
+      resolveSourceAttribute: () => 100,
+      resolveTarget: () => {
+        throw new Error('context healing must not run a role selector');
+      },
+      resolveContextTarget: operatorId => {
+        resolved.push(operatorId);
+        return {
+          operatorId,
+          vitals: operatorId === 'operator:saved' ? savedTarget : otherTarget,
+        };
+      },
+      delegate: terminal,
+    });
+
+    expect(
+      executor.execute(
+        {
+          kind: 'heal',
+          parameters: {
+            target: 'contextTarget',
+            contextKey: 'CureTarget',
+            amount: 200,
+            tags: [],
+          },
+        },
+        { blackboard: new ActionBlackboard(), targetContext },
+      ),
+    ).toBe(true);
+    expect(resolved).toEqual(['operator:saved']);
+    expect(savedTarget.health).toBe(800);
+    expect(otherTarget.health).toBe(100);
+  });
+
+  it('preserves alwaysNext when a context query saved no target', () => {
+    const executor = new HealOperationExecutor({
+      sourceOperatorId: 'operator:ember',
+      clock: new CombatClock(),
+      receipt: new CombatReceiptCollector(),
+      resolveSourceAttribute: () => 0,
+      resolveTarget: () => {
+        throw new Error('context healing must not run a role selector');
+      },
+      resolveContextTarget: () => {
+        throw new Error('empty context must not resolve an operator');
+      },
+      delegate: terminal,
+    });
+    const targetContext = new RuntimeTargetContext();
+    targetContext.set('CureTarget', []);
+    const context = {
+      blackboard: new ActionBlackboard(),
+      targetContext,
+    };
+    const step = {
+      kind: 'heal' as const,
+      parameters: {
+        target: 'contextTarget' as const,
+        contextKey: 'CureTarget',
+        amount: 200,
+        tags: [],
+      },
+    };
+    expect(executor.execute(step, context)).toBe(false);
+    expect(
+      executor.execute({ ...step, parameters: { ...step.parameters, alwaysNext: true } }, context),
+    ).toBe(true);
+  });
+
   it('resolves attribute formula and records actual plus overhealing', () => {
     const target = vitals(900);
     const receipt = new CombatReceiptCollector();

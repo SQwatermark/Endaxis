@@ -104,7 +104,7 @@ describe('原始整名候选：不依赖旧 Operator 补空', () => {
       Object.keys(operator.buffDefinitions!).every(id => id.startsWith('buff_chr_0012_avywen_')),
     ).toBe(true);
     expect(
-      Object.keys(candidate.commonBuffDefinitions).every(id => id.startsWith('buff_common_')),
+      Object.keys(candidate.commonBuffDefinitions).every(id => !id.startsWith('buff_chr_')),
     ).toBe(true);
     expect(candidate.audit.buffSourceCount).toBe(11);
     for (const skill of operator.skillGroups.flatMap(group => group.skills))

@@ -342,10 +342,14 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
   const privateBuffs: Record<string, CompiledBuffDefinitionSource> = {},
     commonBuffs: Record<string, CompiledBuffDefinitionSource> = {};
   for (const [id, definition] of Object.entries(buffClosure.definitions)) {
-    if (id.startsWith('buff_common_')) commonBuffs[id] = definition;
-    else if (id.startsWith(`buff_${foundation.identity.characterId}_`))
-      privateBuffs[id] = definition;
-    else throw new Error(`Buff ownership is not established: ${id}`);
+    if (id.startsWith(`buff_${foundation.identity.characterId}_`)) privateBuffs[id] = definition;
+    else if (id.startsWith('buff_chr_')) {
+      throw new Error(`foreign operator Buff ownership is not established: ${id}`);
+    } else {
+      // 物理/元素反应等系统 Buff 不使用 buff_common_ 前缀，但与角色私有 Buff 一样
+      // 由稳定身份决定归属；旧统一链接器也把所有非 buff_chr_* 定义放入共享目录。
+      commonBuffs[id] = definition;
+    }
   }
   const { sourceCharacterId: _sourceCharacterId, ...header } =
     compileOperatorDefinitionHeaderSource(foundation);

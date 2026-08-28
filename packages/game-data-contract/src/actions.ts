@@ -141,6 +141,17 @@ export interface CombatStepParameters {
       | { readonly kind: 'context'; readonly contextKey: string }
     )[];
   };
+  /** 查询当前队伍并把当时的实例身份快照覆盖写入 Context；后续消费者不得重新选人。 */
+  findCharacterTeamTargets: {
+    saveToContextKey: string;
+    selection:
+      | { readonly kind: 'controlledOperator' }
+      | {
+          readonly kind: 'lowestHealthRatioOperator';
+          /** 在优先级筛选之前排除既有 Context 中保存的稳定身份。 */
+          readonly excludedContextKey?: string;
+        };
+  };
   /** 按 owner 与生成期已解析的实体身份查询，并保存为本次释放的 Context 目标组。 */
   findOwnerSpawnedAbilityEntities: {
     saveToContextKey: string;
@@ -261,28 +272,37 @@ export interface CombatStepParameters {
   /** 不伴随生命伤害的独立失衡单元；数值仍会经过来源与目标的失衡倍率。 */
   dealStagger: { value: LevelValues | ActionValueOperand };
   /** 按施法者属性计算，并写入干员生命账本的普通治疗。 */
-  heal: {
-    target: HealTarget;
+  heal: (
+    | {
+        target: 'contextTarget';
+        /** 读取查询阶段已经保存的实例；治疗阶段不得重新选人。 */
+        contextKey: string;
+      }
+    | {
+        target: Exclude<HealTarget, 'contextTarget'>;
+        contextKey?: never;
+      }
+  ) & {
     /** 原生 AbilityAction.alwaysNext；false 时保留治疗应用失败的序列短路。 */
     alwaysNext?: boolean;
     /** 原生 useHealTags 开启时的 GameplayTag 整数身份。 */
     tags: readonly GameplayTag[];
   } & (
-    | {
-        /** 按施法者属性乘区与固定加区计算。 */
-        attribute: HealCalculationAttribute;
-        multiplier: LevelValues | ActionValueOperand;
-        addition: LevelValues | ActionValueOperand;
-        amount?: never;
-      }
-    | {
-        /** 原生 DefiniteValueCalculation：直接使用动作值，不读取施法者属性。 */
-        amount: LevelValues | ActionValueOperand;
-        attribute?: never;
-        multiplier?: never;
-        addition?: never;
-      }
-  );
+      | {
+          /** 按施法者属性乘区与固定加区计算。 */
+          attribute: HealCalculationAttribute;
+          multiplier: LevelValues | ActionValueOperand;
+          addition: LevelValues | ActionValueOperand;
+          amount?: never;
+        }
+      | {
+          /** 原生 DefiniteValueCalculation：直接使用动作值，不读取施法者属性。 */
+          amount: LevelValues | ActionValueOperand;
+          attribute?: never;
+          multiplier?: never;
+          addition?: never;
+        }
+    );
   applyBuff: {
     /** 动态身份在执行时从字符串黑板读取；不携带可被误用的字面回退 ID。 */
     buffId: string | { readonly blackboardKey: string };
@@ -630,6 +650,7 @@ export interface CombatStepParameters {
 
 export const COMBAT_STEP_KINDS = [
   'mergeContextTargets',
+  'findCharacterTeamTargets',
   'findOwnerSpawnedAbilityEntities',
   'pickContextTarget',
   'forEachContextTarget',
