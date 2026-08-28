@@ -110,22 +110,44 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
     staticEnemyTargetGroupKeys,
     presentationOnlyTargetGroupKeys: collectPresentationOnlyTargetGroups(graph),
   };
-  const scheduledSequences = graph.actionGroup.timelineActions
-    .filter(timeline => !isPresentationOnlyActionSequence(timeline.sequence))
-    .map(timeline => ({
-      startFrame: timeline.startFrame,
-      endFrame: timeline.endFrame,
-      sequence: compileCombatActionSequenceSource(
-        timeline.sequence,
-        {
-          ...context,
-          timelineRange: { startFrame: timeline.startFrame, endFrame: timeline.endFrame },
-        },
-        visualOnlyIds,
-        extensions,
-      ),
-    }))
-    .filter(timeline => timeline.sequence.steps.length > 0);
+  const scheduledSequences: CompiledActiveSkillTimelineSequenceSource[] = [];
+  for (const timeline of graph.actionGroup.timelineActions) {
+    if (isPresentationOnlyActionSequence(timeline.sequence)) continue;
+    const enabledTopLevel = timeline.sequence.actions.filter(action => action.metadata.enabled);
+    const standaloneProjectile =
+      enabledTopLevel.length === 1 &&
+      enabledTopLevel[0]!.body.kind === 'leaf' &&
+      enabledTopLevel[0]!.body.value.family === 'projectile';
+    const relativeProjectileCallbacks: CompiledActiveSkillTimelineSequenceSource[] = [];
+    const sequence = compileCombatActionSequenceSource(
+      timeline.sequence,
+      {
+        ...context,
+        timelineRange: { startFrame: timeline.startFrame, endFrame: timeline.endFrame },
+        ...(standaloneProjectile
+          ? {
+              scheduleRelativeProjectileCallback: scheduled => {
+                relativeProjectileCallbacks.push({
+                  startFrame: timeline.startFrame + scheduled.startFrame,
+                  endFrame: timeline.startFrame + scheduled.endFrame,
+                  sequence: scheduled.sequence,
+                });
+              },
+            }
+          : {}),
+      },
+      visualOnlyIds,
+      extensions,
+    );
+    if (sequence.steps.length > 0) {
+      scheduledSequences.push({
+        startFrame: timeline.startFrame,
+        endFrame: timeline.endFrame,
+        sequence,
+      });
+    }
+    scheduledSequences.push(...relativeProjectileCallbacks);
+  }
   assertPresentationCalculationIsolation(
     graph.actionGroup.timelineActions.map(item => item.sequence),
     scheduledSequences.map(item => item.sequence),

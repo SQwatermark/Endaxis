@@ -3,15 +3,13 @@ import type { CompiledBuffStepSource } from './combatActionProjectionTypes.ts';
 import type { CombatActionProjectionContextSource } from './combatProjectionCommon.ts';
 import type { ScalarSource } from '../source/scalar.ts';
 
-/** 空增强名单没有监听/后续 rate 写入；复用普通载体施加，属性仍由原始 BuffData 决定。 */
+/** 关键词载体复用普通 Buff；增强规则只安装到本次动作创建的载体实例。 */
 export function projectKeywordBuffAction(
   action: KeywordBuffActionSource,
   path: string,
   context: CombatActionProjectionContextSource,
 ): CompiledBuffStepSource {
-  // combat-spec keyword-actions.md：这里只开放已有 Buff 环境的原始默认载体路径。
-  if (action.enhancements.length)
-    throw new Error(`${path}: keyword enhancements require additional projection`);
+  // combat-spec keyword-actions.md：增强在普通 Buff 成功加入边沿按列表顺序持久改写 rate。
   if (
     action.overrideChildBuffId &&
     (action.childBuffId.blackboardKey !== null || action.childBuffId.value.trim().length === 0)
@@ -41,6 +39,15 @@ export function projectKeywordBuffAction(
       ...(action.asChildBuff ? { asChildBuff: true } : {}),
       ...(action.autoFinishByAction ? { finishByAction: true } : {}),
       blackboardAssignments: { duration: operand(action.duration), rate: operand(action.rate) },
+      ...(action.enhancements.length === 0
+        ? {}
+        : {
+            keywordEnhancements: action.enhancements.map(enhancement => ({
+              triggerBuffIds: enhancement.buffIds,
+              operation: enhancement.operation.toLowerCase() as 'assign' | 'add' | 'multiply',
+              value: operand(enhancement.value),
+            })),
+          }),
       ...(action.overrideChildBuffId
         ? { stringBlackboardAssignments: { child_buff_id: action.childBuffId.value } }
         : {}),

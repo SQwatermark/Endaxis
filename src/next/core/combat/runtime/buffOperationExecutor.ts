@@ -374,10 +374,26 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           throw new Error(
             `Buff ID '${typeof identity === 'string' ? identity : identity.blackboardKey}' 缺失、为空或不是字符串`,
           );
-        const definition =
+        let definition =
           step.parameters.definition ?? this.dependencies.resolveBuffDefinition?.(buffId);
         if (dynamicId && definition === undefined)
           throw new Error(`动态 Buff ID '${buffId}' 在定义目录中不存在`);
+        if (step.parameters.keywordEnhancements?.length) {
+          if (definition === undefined)
+            throw new Error(`关键词 Buff '${buffId}' 在定义目录中不存在`);
+          if (definition.keywordEnhancements?.length)
+            throw new Error(`关键词 Buff '${buffId}' 的共享定义已含实例增强规则`);
+          definition = {
+            ...definition,
+            keywordEnhancements: step.parameters.keywordEnhancements.map(enhancement => ({
+              triggerBuffIds: enhancement.triggerBuffIds,
+              operation: enhancement.operation,
+              targetKey: 'rate',
+              initialValue: { blackboardKey: 'rate' },
+              value: resolveActionValueOperand(enhancement.value, context!.blackboard),
+            })),
+          };
+        }
         return {
           buffId,
           ...(definition === undefined ? {} : { definition }),

@@ -198,7 +198,7 @@ describe('公共回调伤害投影', () => {
     ).toThrow('unsupported finder');
   });
 
-  it('完整回调动作图保留 startFrame=0 的区间时间膨胀，并拒绝延迟启动', () => {
+  it('完整回调动作图保留区间时间膨胀，延迟项仅允许静态动作', () => {
     const launch = parseProjectileLaunchActionSource(scopeFixtures[0]!.launch, 'launch');
     const controlled = {
       ...launch.projectileSource,
@@ -316,13 +316,29 @@ describe('公共回调伤害投影', () => {
     }
     key.weightedMode = 0;
     graph.actionGroup.timelineActions[0]!.startFrame = 1;
+    const delayed = compileImmediateProjectileCallbackSkillSource({
+      graph,
+      context: returnProjectionContext,
+      extensions: { resolveTimeDilationPriority: () => 10 },
+    });
+    expect(delayed.sequence.steps).toEqual([]);
+    expect(delayed.delayedSequences).toMatchObject([
+      {
+        startFrame: 1,
+        endFrame: 15,
+        sequence: { steps: [{ kind: 'startTimeDilation' }] },
+      },
+    ]);
+    const duration =
+      graph.actionGroup.timelineActions[0]!.sequence.actions[0]!.body.value.action.duration;
+    (duration as { blackboardKey: string | null }).blackboardKey = 'dynamic_duration';
     expect(() =>
       compileImmediateProjectileCallbackSkillSource({
         graph,
         context: returnProjectionContext,
         extensions: { resolveTimeDilationPriority: () => 10 },
       }),
-    ).toThrow('delayed projectile callback is unsupported');
+    ).toThrow('delayed projectile callback reads action blackboard');
   });
 
   it('公共序列入口只在宿主提供投射物投影扩展时消费 LaunchProjectile', () => {

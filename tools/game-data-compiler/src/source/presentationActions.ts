@@ -67,6 +67,7 @@ export interface CameraPresentationActionSource {
     | 'weaponAnimation'
     | 'animatorParameter'
     | 'igniteBuffText'
+    | 'immuneText'
     | 'weaponMountPoint'
     | 'voiceTrigger'
     | 'overrideCameraFollow'
@@ -106,6 +107,35 @@ export function parseIgniteBuffTextActionSource(
   requireBoolean(action.showOnSquadIcon, `${path}.showOnSquadIcon`);
   requireBoolean(action.forceMainBody, `${path}.forceMainBody`);
   return { kind: 'igniteBuffText' };
+}
+
+/** 伤害免疫提示只携带文字、挂点和屏幕偏移；严格解析后进入无渲染后端的表现叶。 */
+export function parseImmuneTextActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      ...ACTION_META_FIELDS,
+      'targetSettings',
+      'mountPoint',
+      'offset',
+      'textId',
+      'forceMainBody',
+    ]),
+    path,
+  );
+  parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`);
+  requireString(action.mountPoint, `${path}.mountPoint`);
+  const offset = requireRecord(action.offset, `${path}.offset`);
+  requireExactFields(offset, new Set(['x', 'y']), `${path}.offset`);
+  requireNumber(offset.x, `${path}.offset.x`);
+  requireNumber(offset.y, `${path}.offset.y`);
+  requireString(action.textId, `${path}.textId`);
+  requireBoolean(action.forceMainBody, `${path}.forceMainBody`);
+  return { kind: 'immuneText' };
 }
 
 export function parseSetAnimatorParameterActionSource(

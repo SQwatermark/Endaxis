@@ -12,6 +12,7 @@ import {
   collectBuffRuntimeClosure,
 } from '../src/compiler/buffRuntimeProjection.ts';
 import { scalarFixture } from './sourceFixtures.ts';
+import { collectCompiledBuffIdentityReadIds } from '../src/compiler/compiledBuffReferences.ts';
 
 const rootId = 'buff_chr_0012_avywen_ultimate_skill_debuff';
 const carrierId = 'buff_common_affixes_vulnerable_pulse';
@@ -195,15 +196,12 @@ describe('原生关键词 Buff 来源与引用边界', () => {
     });
   });
 
-  it.each([
-    {
+  it('动态 child 覆盖不会退化成普通施加', () => {
+    const changed = structuredClone(fixture[rootId]);
+    Object.assign(changed.buffEventAction[0]!.actions[0]!.actionData[0]!, {
       overrideChildBuffId: true,
       childBuffId: { useBlackboardKey: true, value: '', blackboardKey: 'child' },
-    },
-    { enhancingList: [{ buffIds: ['trigger'], operationType: 'Add', value: scalarFixture(1) }] },
-  ])('尚未闭合的动态覆盖或增强不会退化成普通施加', change => {
-    const changed = structuredClone(fixture[rootId]);
-    Object.assign(changed.buffEventAction[0]!.actions[0]!.actionData[0]!, change);
+    });
     expect(() =>
       compileBuffRuntimeDefinitionSource(
         parseBuffRuntimeSource(changed, 'buff'),
@@ -213,6 +211,44 @@ describe('原生关键词 Buff 来源与引用边界', () => {
         undefined,
         { gameplayTagRegistry: fixtureGameplayTagRegistry, ...{} },
       ),
-    ).toThrow(/keyword enhancements|dynamic or empty keyword child override/);
+    ).toThrow(/dynamic or empty keyword child override/);
+  });
+
+  it('增强名单保留为本次关键词载体实例的加入边沿规则', () => {
+    const changed = structuredClone(fixture[rootId]);
+    Object.assign(changed.buffEventAction[0]!.actions[0]!.actionData[0]!, {
+      enhancingList: [
+        { buffIds: ['trigger'], operationType: 'Add', value: scalarFixture(0, 'extra') },
+      ],
+    });
+    const definition = compileBuffRuntimeDefinitionSource(
+      parseBuffRuntimeSource(changed, 'buff'),
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      { gameplayTagRegistry: fixtureGameplayTagRegistry, ...{} },
+    );
+    expect(definition).toMatchObject({
+      lifecycleSequences: {
+        enable: {
+          steps: [
+            {
+              kind: 'applyBuff',
+              parameters: {
+                keywordEnhancements: [
+                  {
+                    triggerBuffIds: ['trigger'],
+                    operation: 'add',
+                    value: { kind: 'blackboard', key: 'extra' },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    });
+    expect(collectCompiledBuffIdentityReadIds(definition)).toContain('trigger');
   });
 });

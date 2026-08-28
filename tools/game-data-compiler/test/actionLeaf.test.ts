@@ -816,6 +816,24 @@ describe('公共 Action 叶子分派', () => {
       action: { kind: 'lockCameraAim', readBlackboardKeys: ['camera_min'] },
     });
   });
+
+  it('ImmuneTextAction 严格解析文字挂点后只进入表现 IR', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.ImmuneTextAction+Data, Gameplay.Beyond',
+          targetSettings: targetFixture('Owner'),
+          mountPoint: 'VBHit',
+          offset: { x: 0, y: 0 },
+          textId: 'ui_bat_immune_damage',
+          forceMainBody: false,
+        },
+        'fixture.immuneText',
+        {},
+      ),
+    ).toEqual({ family: 'presentation', action: { kind: 'immuneText' } });
+  });
 });
 
 function sequence(actionData: unknown[]): Record<string, unknown> {

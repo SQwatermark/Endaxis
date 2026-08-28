@@ -21,6 +21,11 @@ export interface ZeroDistanceProjectileCallbackSource {
   readonly skillId: string;
   readonly declaredBlackboard: readonly DeclaredBlackboardValueSource[];
   readonly sequence: CompiledBuffSequenceSource;
+  readonly delayedSequences: readonly {
+    readonly startFrame: number;
+    readonly endFrame: number;
+    readonly sequence: CompiledBuffSequenceSource;
+  }[];
 }
 
 export interface ZeroDistanceProjectileProjectionCatalogSource {
@@ -45,7 +50,16 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
   readonly visualOnlyIds?: ReadonlySet<string>;
   readonly callbackExtensions?: CombatActionProjectionExtensionsSource;
 }): NonNullable<CombatActionProjectionExtensionsSource['compileProjectileLaunch']> {
-  return (launch, sourcePath) => {
+  return (launch, sourcePath, projectionContext) => {
+    const callbackContext = {
+      ...input.callbackContext,
+      ...(projectionContext.scheduleRelativeProjectileCallback === undefined
+        ? {}
+        : {
+            scheduleRelativeProjectileCallback:
+              projectionContext.scheduleRelativeProjectileCallback,
+          }),
+    };
     const runtime = input.catalog.runtimes.get(launch.projectileId);
     if (!runtime) throw new Error(`${sourcePath}: missing ProjectileData ${launch.projectileId}`);
     const template = input.catalog.templates.get(launch.projectileId) ?? null;
@@ -71,7 +85,7 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
           runtime,
           template,
           blockGraph: callback('block'),
-          callbackContext: input.callbackContext,
+          callbackContext,
           visualOnlyIds: input.visualOnlyIds,
           callbackExtensions: input.callbackExtensions,
         }),
@@ -85,7 +99,7 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
           runtime,
           template,
           hitGraph: callback('hit'),
-          callbackContext: input.callbackContext,
+          callbackContext,
           visualOnlyIds: input.visualOnlyIds,
           callbackExtensions: input.callbackExtensions,
         }),
@@ -106,7 +120,7 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
           runtime,
           template,
           hitGraph: callback('hit'),
-          callbackContext: input.callbackContext,
+          callbackContext,
           visualOnlyIds: input.visualOnlyIds,
           callbackExtensions: input.callbackExtensions,
         }),
@@ -125,7 +139,7 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
         template,
         hitGraph: callback('hit'),
         reachGraph: callback('reach'),
-        callbackContext: input.callbackContext,
+        callbackContext,
         visualOnlyIds: input.visualOnlyIds,
         callbackExtensions: input.callbackExtensions,
       }),
@@ -165,6 +179,7 @@ export function compileZeroDistanceFirstTickHitProjectileSource(input: {
     visualOnlyIds: input.visualOnlyIds,
     extensions: input.callbackExtensions,
   });
+  scheduleDelayedProjectileCallbackSource(hit, input.callbackContext, sourcePath);
   return compileSynchronousProjectileCallbackScopesSource({
     sourcePath,
     launch,
@@ -203,6 +218,7 @@ export function compileZeroDistanceFirstTickBlockProjectileSource(input: {
     visualOnlyIds: input.visualOnlyIds,
     extensions: input.callbackExtensions,
   });
+  scheduleDelayedProjectileCallbackSource(block, input.callbackContext, sourcePath);
   return compileSynchronousProjectileCallbackScopesSource({
     sourcePath,
     launch,
@@ -243,23 +259,60 @@ export function compileImmediateProjectileCallbackSkillSource(input: {
       ...discoveredEnemyGroups,
     ]),
   };
-  const steps = graph.actionGroup.timelineActions.flatMap((timeline, index) => {
-    if (timeline.startFrame !== 0)
-      throw new Error(
-        `${graph.skillId}.timelineActions[${index}]: delayed projectile callback is unsupported`,
-      );
-    return compileCombatActionSequenceSource(
+  const timelines = graph.actionGroup.timelineActions.map((timeline, index) => {
+    const sequence = compileCombatActionSequenceSource(
       timeline.sequence,
       callbackContext,
       visualOnlyIds,
       extensions,
-    ).steps;
+    );
+    if (timeline.startFrame !== 0) {
+      assertDelayedCallbackSequenceDoesNotReadBlackboard(
+        sequence,
+        `${graph.skillId}.timelineActions[${index}]`,
+      );
+    }
+    return { startFrame: timeline.startFrame, endFrame: timeline.endFrame, sequence };
   });
   return {
     skillId: graph.skillId,
     declaredBlackboard: graph.declaredBlackboard,
-    sequence: { steps },
+    sequence: {
+      steps: timelines
+        .filter(timeline => timeline.startFrame === 0)
+        .flatMap(timeline => timeline.sequence.steps),
+    },
+    delayedSequences: timelines.filter(
+      timeline => timeline.startFrame !== 0 && timeline.sequence.steps.length > 0,
+    ),
   };
+}
+
+function assertDelayedCallbackSequenceDoesNotReadBlackboard(
+  sequence: CompiledBuffSequenceSource,
+  sourcePath: string,
+): void {
+  const visit = (value: unknown): boolean => {
+    if (Array.isArray(value)) return value.some(visit);
+    if (value === null || typeof value !== 'object') return false;
+    const record = value as Readonly<Record<string, unknown>>;
+    if (record.kind === 'blackboard') return true;
+    return Object.values(record).some(visit);
+  };
+  if (visit(sequence))
+    throw new Error(`${sourcePath}: delayed projectile callback reads action blackboard`);
+}
+
+function scheduleDelayedProjectileCallbackSource(
+  callback: ZeroDistanceProjectileCallbackSource,
+  context: CombatActionProjectionContextSource,
+  sourcePath: string,
+): void {
+  if (callback.delayedSequences.length === 0) return;
+  const schedule = context.scheduleRelativeProjectileCallback;
+  if (schedule === undefined)
+    throw new Error(`${sourcePath}: delayed projectile callback requires a relative scheduler`);
+  callback.delayedSequences.forEach(schedule);
 }
 
 /** 由完整 hit/reach SkillData 动作图建立首帧投射物回调链。 */
@@ -282,19 +335,23 @@ export function compileZeroDistanceProjectileLaunchFromSources(input: {
     visualOnlyIds: input.visualOnlyIds,
     extensions: input.callbackExtensions,
   };
+  const hit = compileImmediateProjectileCallbackSkillSource({
+    graph: input.hitGraph,
+    ...callbackInput,
+  });
+  const reach = compileImmediateProjectileCallbackSkillSource({
+    graph: input.reachGraph,
+    ...callbackInput,
+  });
+  scheduleDelayedProjectileCallbackSource(hit, input.callbackContext, input.sourcePath);
+  scheduleDelayedProjectileCallbackSource(reach, input.callbackContext, input.sourcePath);
   return compileZeroDistanceFirstTickProjectileSource({
     sourcePath: input.sourcePath,
     launch: input.launch,
     runtime: input.runtime,
     template: input.template,
-    hit: compileImmediateProjectileCallbackSkillSource({
-      graph: input.hitGraph,
-      ...callbackInput,
-    }),
-    reach: compileImmediateProjectileCallbackSkillSource({
-      graph: input.reachGraph,
-      ...callbackInput,
-    }),
+    hit,
+    reach,
   });
 }
 

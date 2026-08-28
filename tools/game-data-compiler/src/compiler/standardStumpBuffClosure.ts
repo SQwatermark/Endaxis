@@ -53,6 +53,10 @@ export function compileStandardStumpBuffClosure(
   > = new Map(),
   preserveBuffIds: ReadonlySet<string> = new Set(),
   gameplayTagRegistry?: GameplayTagRegistry,
+  rootBuffSourceTargets: ReadonlyMap<
+    string,
+    'caster' | 'enemy' | 'currentAbilityEntity'
+  > = new Map(),
 ): CompiledStandardStumpBuffClosure {
   const buffData =
     typeof buffDataValue === 'function'
@@ -64,7 +68,36 @@ export function compileStandardStumpBuffClosure(
       : parseGlobalBuffTemplateCatalogSource(globalBuffCatalogValue);
   const sources = collectBuffRuntimeClosure(rootBuffIds, buffData, globalBuffCatalog);
   const rootBuffIdSet = new Set(rootBuffIds);
-  const buffOwnerTargets = propagateBuffOwnerTargets(sources, rootBuffOwnerTargets);
+  const { owners: buffOwnerTargets, sources: buffSourceTargets } = propagateBuffTargets(
+    sources,
+    rootBuffOwnerTargets,
+    rootBuffSourceTargets,
+  );
+  const keywordOverrideChildIds = new Set(
+    [...sources.values()].flatMap(source =>
+      buffActionNodes(source).flatMap(node =>
+        node.metadata.enabled &&
+        node.body.kind === 'leaf' &&
+        node.body.value.family === 'keywordBuff' &&
+        node.body.value.action.overrideChildBuffId &&
+        node.body.value.action.childBuffId.blackboardKey === null &&
+        node.body.value.action.childBuffId.value.length > 0
+          ? [node.body.value.action.childBuffId.value]
+          : [],
+      ),
+    ),
+  );
+  const keywordEnhancementTriggerIds = new Set(
+    [...sources.values()].flatMap(source =>
+      buffActionNodes(source).flatMap(node =>
+        node.metadata.enabled &&
+        node.body.kind === 'leaf' &&
+        node.body.value.family === 'keywordBuff'
+          ? node.body.value.action.enhancements.flatMap(enhancement => enhancement.buffIds)
+          : [],
+      ),
+    ),
+  );
   const skillSettingCatalog =
     skillSettingCatalogValue === undefined
       ? undefined
@@ -79,6 +112,8 @@ export function compileStandardStumpBuffClosure(
     ].filter(
       id =>
         !preserveBuffIds.has(id) &&
+        !keywordOverrideChildIds.has(id) &&
+        !keywordEnhancementTriggerIds.has(id) &&
         (!rootBuffIdSet.has(id) || isPresentationOnlyBuffStackEffect(sources.get(id)!)),
     ),
   );
@@ -138,7 +173,10 @@ export function compileStandardStumpBuffClosure(
     }
     const omittedEvents = new Set<string | number>();
     for (const event of source.graph.abilityEvents) {
-      const reason = standardStumpBuffAbilityEventOmissionReason(event.event);
+      const reason = standardStumpBuffAbilityEventOmissionReason(
+        event.event,
+        buffOwnerTargets.get(buffId),
+      );
       if (reason === null) continue;
       omittedEvents.add(event.event);
       diagnostics.push({
@@ -158,6 +196,9 @@ export function compileStandardStumpBuffClosure(
           gameplayTagRegistry: gameplayTagRegistry ?? abilityEntityQueries?.gameplayTagRegistry,
           ...(buffOwnerTargets.has(buffId)
             ? { fixedBuffOwnerTarget: buffOwnerTargets.get(buffId)! }
+            : {}),
+          ...(buffSourceTargets.has(buffId)
+            ? { fixedBuffSourceTarget: buffSourceTargets.get(buffId)! }
             : {}),
         },
       );
@@ -181,25 +222,52 @@ export function compileStandardStumpBuffClosure(
   };
 }
 
-function propagateBuffOwnerTargets(
+function buffActionNodes(source: BuffRuntimeSource) {
+  return [
+    ...source.graph.timelineActions.map(item => item.sequence),
+    ...source.graph.buffEvents.flatMap(item => item.actions),
+    ...source.graph.abilityEvents.flatMap(item => item.actions),
+    ...source.graph.igniteEvents.flatMap(item => item.actions),
+  ].flatMap(sequence => collectNativeActionNodes(sequence));
+}
+
+function propagateBuffTargets(
   sources: ReadonlyMap<string, BuffRuntimeSource>,
-  seeds: ReadonlyMap<string, 'caster' | 'enemy' | 'currentAbilityEntity'>,
+  ownerSeeds: ReadonlyMap<string, 'caster' | 'enemy' | 'currentAbilityEntity'>,
+  sourceSeeds: ReadonlyMap<string, 'caster' | 'enemy' | 'currentAbilityEntity'>,
 ) {
-  const targets = new Map(seeds);
-  const conflicts = new Set<string>();
+  type Target = 'caster' | 'enemy' | 'currentAbilityEntity';
+  const owners = new Map(ownerSeeds);
+  const sourceTargets = new Map(sourceSeeds);
+  const ownerConflicts = new Set<string>();
+  const sourceConflicts = new Set<string>();
+  const register = (
+    map: Map<string, Target>,
+    conflicts: Set<string>,
+    id: string,
+    value?: Target,
+  ) => {
+    if (value === undefined) return false;
+    const previous = map.get(id);
+    if (previous !== undefined && previous !== value) {
+      map.delete(id);
+      conflicts.add(id);
+      return false;
+    }
+    if (previous === undefined && !conflicts.has(id)) {
+      map.set(id, value);
+      return true;
+    }
+    return false;
+  };
   let changed = true;
   while (changed) {
     changed = false;
     for (const [id, source] of sources) {
-      const owner = targets.get(id);
-      if (owner === undefined) continue;
-      const sequences = [
-        ...source.graph.timelineActions.map(item => item.sequence),
-        ...source.graph.buffEvents.flatMap(item => item.actions),
-        ...source.graph.abilityEvents.flatMap(item => item.actions),
-        ...source.graph.igniteEvents.flatMap(item => item.actions),
-      ];
-      const nodes = sequences.flatMap(sequence => collectNativeActionNodes(sequence));
+      const owner = owners.get(id);
+      const sourceTarget = sourceTargets.get(id);
+      if (owner === undefined && sourceTarget === undefined) continue;
+      const nodes = buffActionNodes(source);
       const staticEnemyTargetGroupKeys = new Set(
         nodes.flatMap(node =>
           node.metadata.enabled &&
@@ -224,62 +292,72 @@ function propagateBuffOwnerTargets(
         ),
       );
       for (const node of nodes) {
+        if (!node.metadata.enabled || node.body.kind !== 'leaf') continue;
         if (
-          node.metadata.enabled &&
-          node.body.kind === 'leaf' &&
-          node.body.value.family === 'forcedElementalStatus'
+          node.body.value.family === 'aura' &&
+          node.body.value.action.kind === 'globalPartyAura'
         ) {
+          const action = node.body.value.action;
+          const childOwner: Target = action.target === 'party' ? 'caster' : 'enemy';
+          const childSource = action.buffSource === 'ActionOwner' ? owner : sourceTarget;
+          for (const entry of action.buffs) {
+            changed = register(owners, ownerConflicts, entry.buffId, childOwner) || changed;
+            changed =
+              register(sourceTargets, sourceConflicts, entry.buffId, childSource) || changed;
+          }
+          continue;
+        }
+        if (node.body.value.family === 'keywordBuff') {
+          const action = node.body.value.action;
+          const childOwner = action.target.targetSource === 'Owner' ? owner : sourceTarget;
+          const childSource = action.source.targetSource === 'Owner' ? owner : sourceTarget;
+          changed = register(owners, ownerConflicts, action.carrierBuffId, childOwner) || changed;
+          changed =
+            register(sourceTargets, sourceConflicts, action.carrierBuffId, childSource) || changed;
+          continue;
+        }
+        if (node.body.value.family === 'forcedElementalStatus') {
           const childId = {
             Fire: 'buff_common_fire_fire_burning_triggered',
             Pulse: 'buff_common_pulse_pulse_conduct_triggered',
             Cryst: 'buff_common_cryst_cryst_frozen_triggered',
             Natural: 'buff_common_natural_natural_corrupt_triggered',
           }[node.body.value.action.statusElement];
-          if (!conflicts.has(childId) && targets.get(childId) === undefined) {
-            targets.set(childId, 'enemy');
-            changed = true;
-          } else if (targets.get(childId) !== undefined && targets.get(childId) !== 'enemy') {
-            targets.delete(childId);
-            conflicts.add(childId);
-          }
+          changed = register(owners, ownerConflicts, childId, 'enemy') || changed;
+          changed = register(sourceTargets, sourceConflicts, childId, sourceTarget) || changed;
           continue;
         }
-        if (
-          !node.metadata.enabled ||
-          node.body.kind !== 'leaf' ||
-          node.body.value.family !== 'buffApplication'
-        )
-          continue;
+        if (node.body.value.family !== 'buffApplication') continue;
         const action = node.body.value.action;
         const childOwner =
           action.target.targetSource === 'Owner' && action.target.targetGroupKey === ''
             ? owner
             : action.target.targetSource === 'Source' && action.target.targetGroupKey === ''
-              ? 'caster'
+              ? sourceTarget
               : (action.target.targetSource === 'Context' ||
                     action.target.targetSource === 'Target') &&
                   staticEnemyTargetGroupKeys.has(action.target.targetGroupKey)
-                ? 'enemy'
+                ? ('enemy' as const)
                 : action.target.targetSource === 'Context' &&
                     abilityEntityTargetGroupKeys.has(action.target.targetGroupKey)
-                  ? 'currentAbilityEntity'
+                  ? ('currentAbilityEntity' as const)
                   : undefined;
         if (childOwner === undefined) continue;
+        const childSource =
+          action.buffSource === 'ActionOwner'
+            ? owner
+            : action.buffSource === 'ActionSource'
+              ? sourceTarget
+              : action.buffSource === 'InputTarget' || action.buffSource === 'ContextTarget'
+                ? childOwner
+                : undefined;
         for (const entry of action.buffs) {
           if (entry.readIdFromBlackboard || entry.buffId === '') continue;
-          const previous = targets.get(entry.buffId);
-          if (previous !== undefined && previous !== childOwner) {
-            targets.delete(entry.buffId);
-            conflicts.add(entry.buffId);
-            continue;
-          }
-          if (previous === undefined && !conflicts.has(entry.buffId)) {
-            targets.set(entry.buffId, childOwner);
-            changed = true;
-          }
+          changed = register(owners, ownerConflicts, entry.buffId, childOwner) || changed;
+          changed = register(sourceTargets, sourceConflicts, entry.buffId, childSource) || changed;
         }
       }
     }
   }
-  return targets;
+  return { owners, sources: sourceTargets };
 }

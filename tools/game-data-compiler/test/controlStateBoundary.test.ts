@@ -26,6 +26,20 @@ describe('无敌人主动行为的控制状态边界', () => {
     expect(standardStumpBuffAbilityEventOmissionReason(event)).toBeNull();
   });
 
+  it('干员受击和死亡事件在无敌人主动行为的木桩场景省略', () => {
+    for (const event of ['OnBeforeTakeDamage', 'OnTakeDamage', 'OnOwnerHpZero', 'OnOwnerDead']) {
+      expect(standardStumpBuffAbilityEventOmissionReason(event, 'caster')).not.toBeNull();
+      expect(standardStumpBuffAbilityEventOmissionReason(event)).toBeNull();
+    }
+  });
+
+  it('敌方受击事件保留，但唯一木桩死亡后的事件省略', () => {
+    expect(standardStumpBuffAbilityEventOmissionReason('OnBeforeTakeDamage', 'enemy')).toBeNull();
+    expect(standardStumpBuffAbilityEventOmissionReason('OnTakeDamage', 'enemy')).toBeNull();
+    expect(standardStumpBuffAbilityEventOmissionReason('OnOwnerHpZero', 'enemy')).not.toBeNull();
+    expect(standardStumpBuffAbilityEventOmissionReason('OnOwnerDead', 'enemy')).not.toBeNull();
+  });
+
   it('五份完整定义目前只有伊冯的干员自身查询可能读取起身祖先标签；新增消费者必须重新审计', () => {
     const watched = 'Status/Immobilized/Getup';
     const readers: { operator: string; target: unknown }[] = [];

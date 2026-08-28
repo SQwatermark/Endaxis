@@ -1048,6 +1048,41 @@ function validateCombatStep(
           }
         }
       }
+      if (parameters.keywordEnhancements !== undefined) {
+        const enhancementsPath = `${path}.parameters.keywordEnhancements`;
+        if (!Array.isArray(parameters.keywordEnhancements)) {
+          push(out, enhancementsPath, 'expected an array');
+        } else {
+          parameters.keywordEnhancements.forEach((value, index) => {
+            const enhancementPath = `${enhancementsPath}[${index}]`;
+            const enhancement = asRecord(value, enhancementPath, out);
+            if (enhancement === null) return;
+            if (
+              !Array.isArray(enhancement.triggerBuffIds) ||
+              enhancement.triggerBuffIds.length === 0
+            ) {
+              push(out, `${enhancementPath}.triggerBuffIds`, 'expected a non-empty array');
+            } else {
+              enhancement.triggerBuffIds.forEach((id, idIndex) => {
+                if (typeof id !== 'string' || id.length === 0)
+                  push(
+                    out,
+                    `${enhancementPath}.triggerBuffIds[${idIndex}]`,
+                    'expected non-empty string',
+                  );
+              });
+            }
+            requireEnum(
+              enhancement,
+              'operation',
+              new Set(['assign', 'add', 'multiply']),
+              enhancementPath,
+              out,
+            );
+            validateActionValueOperand(enhancement.value, `${enhancementPath}.value`, out);
+          });
+        }
+      }
       if (parameters.stringBlackboardAssignments !== undefined) {
         const assignments = asRecord(
           parameters.stringBlackboardAssignments,

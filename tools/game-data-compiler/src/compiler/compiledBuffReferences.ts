@@ -29,6 +29,7 @@ export function collectCompiledPhysicalInflictionBuffIds(value: unknown): Readon
 export interface CompiledBuffApplicationReference {
   readonly buffId: string;
   readonly target: string;
+  readonly source?: string;
 }
 
 export function collectCompiledBuffApplications(
@@ -76,7 +77,8 @@ export function collectCompiledBuffApplications(
       const target = (parameters as Record<string, unknown>).target;
       if (typeof target !== 'string' || target.length === 0)
         throw new Error('compiled applyBuff step has an invalid target');
-      applications.push({ buffId, target });
+      const source = (parameters as Record<string, unknown>).source;
+      applications.push({ buffId, target, ...(typeof source === 'string' ? { source } : {}) });
     }
     Object.values(record).forEach(visit);
   };
@@ -96,6 +98,27 @@ export function collectCompiledBuffIdentityReadIds(value: unknown): ReadonlySet<
     const record = item as Record<string, unknown>;
     if (record.kind === 'buffIdStackCompare' && Array.isArray(record.buffIds)) {
       for (const id of record.buffIds) if (typeof id === 'string' && id.length > 0) ids.add(id);
+    }
+    if (record.kind === 'applyBuff') {
+      const parameters = record.parameters;
+      if (parameters !== null && typeof parameters === 'object') {
+        const parameterRecord = parameters as Record<string, unknown>;
+        const assignments = parameterRecord.stringBlackboardAssignments;
+        if (assignments !== null && typeof assignments === 'object') {
+          const childId = (assignments as Record<string, unknown>).child_buff_id;
+          if (typeof childId === 'string' && childId.length > 0) ids.add(childId);
+        }
+        const enhancements = parameterRecord.keywordEnhancements;
+        if (Array.isArray(enhancements)) {
+          for (const enhancement of enhancements) {
+            if (enhancement === null || typeof enhancement !== 'object') continue;
+            const triggerBuffIds = (enhancement as Record<string, unknown>).triggerBuffIds;
+            if (!Array.isArray(triggerBuffIds)) continue;
+            for (const id of triggerBuffIds)
+              if (typeof id === 'string' && id.length > 0) ids.add(id);
+          }
+        }
+      }
     }
     Object.values(record).forEach(visit);
   };

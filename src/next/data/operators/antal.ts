@@ -1,2 +1,5 @@
-/** 安塔尔的正式 Next 定义由可审计生成器产出；此文件提供稳定导出路径。 */
-export { antalGeneratedOperator as antal } from './generated/antal.operator.generated';
+/** 统一 TS 编译器整名产物；技能、天赋、潜能与 Buff 闭包来自同一原始数据图。 */
+import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
+import definition from './generated-definitions/antal/antal.operator.generated';
+
+export const antal: OperatorDefinition = definition;

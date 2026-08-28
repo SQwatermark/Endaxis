@@ -13,6 +13,58 @@ const delegate: CombatOperationExecutor = {
 };
 
 describe('BuffOperationExecutor', () => {
+  it('关键词增强只合入本次创建的载体实例并在父动作黑板求值', () => {
+    const apply = vi.fn(() => true);
+    const receiver = Object.assign(new CombatBuffContainer('operator', new CombatAttributeSet()), {
+      apply,
+    });
+    const baseDefinition = { stackingType: 'unlimited' as const };
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => receiver,
+      resolveBuffDefinition: id => (id === 'carrier' ? baseDefinition : undefined),
+      delegate,
+    });
+    executor.execute(
+      {
+        kind: 'applyBuff',
+        parameters: {
+          buffId: 'carrier',
+          target: 'caster',
+          blackboardAssignments: {
+            rate: { kind: 'blackboard', key: 'base_rate' },
+          },
+          keywordEnhancements: [
+            {
+              triggerBuffIds: ['trigger'],
+              operation: 'add',
+              value: { kind: 'blackboard', key: 'bonus' },
+            },
+          ],
+        },
+      },
+      { blackboard: new ActionBlackboard({ base_rate: 0.2, bonus: 0.05 }) },
+    );
+    expect(apply).toHaveBeenCalledWith(
+      expect.objectContaining({
+        blackboardValues: { rate: 0.2 },
+        definition: {
+          stackingType: 'unlimited',
+          keywordEnhancements: [
+            {
+              triggerBuffIds: ['trigger'],
+              operation: 'add',
+              targetKey: 'rate',
+              initialValue: { blackboardKey: 'rate' },
+              value: 0.05,
+            },
+          ],
+        },
+      }),
+    );
+    expect(baseDefinition).toEqual({ stackingType: 'unlimited' });
+  });
+
   it.each(['tag', 'id', 'repeated-id'] as const)(
     '原生默认 %s 读增强层数，排除结束实例并保留重复 ID 求和',
     kind => {

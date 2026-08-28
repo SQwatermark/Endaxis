@@ -335,6 +335,15 @@ export interface CombatStepParameters {
     blackboardAssignments?: Readonly<Record<string, LevelValues | ActionValueOperand>>;
     /** 原生字符串输入的字面覆盖；与数值赋值分开，避免把字符串伪装成计算操作数。 */
     stringBlackboardAssignments?: Readonly<Record<string, string>>;
+    /**
+     * 原生 KeywordAction.enhancingList：只附着到本次创建的关键词载体实例，不能改写共享模板。
+     * value 在创建边沿从当前动作黑板求值，随后由载体自身监听普通 Buff 的加入边沿。
+     */
+    keywordEnhancements?: readonly {
+      triggerBuffIds: readonly string[];
+      operation: 'assign' | 'add' | 'multiply';
+      value: ActionValueOperand;
+    }[];
     /** 原生动作要求把当前施法身份复制到新 Buff 时为 true。 */
     inheritSourceSkillCastInfo?: boolean;
     /** 原生区域/动作生命周期结束时，只结束本步骤实际创建的 Buff 实例。 */

@@ -935,7 +935,9 @@ export function compileActionNode(
     const action = node.body.value.action;
     const target =
       action.target.targetSource === 'Owner'
-        ? requireActionOwnerProjection(context, node.sourcePath)
+        ? context.actionOwnerTarget === 'buffOwner'
+          ? context.fixedBuffOwnerTarget
+          : requireActionOwnerProjection(context, node.sourcePath)
         : action.target.targetSource === 'Source'
           ? context.actionSourceTarget
           : null;
@@ -1156,13 +1158,14 @@ function compileBuffApplication(
     action.target.targetSource === 'Owner'
       ? requireActionOwnerProjection(context, sourcePath)
       : action.target.targetSource === 'Source'
-        ? context.actionSourceTarget === 'buffSource'
-          ? 'buffSource'
-          : context.actionTargetTarget === 'enemy' ||
-              context.actionTargetTarget === 'buffOwner' ||
-              context.actionTargetTarget === 'currentAbilityEntity'
-            ? 'caster'
-            : 'eventSource'
+        ? (context.fixedBuffSourceTarget ??
+          (context.actionSourceTarget === 'buffSource'
+            ? 'buffSource'
+            : context.actionTargetTarget === 'enemy' ||
+                context.actionTargetTarget === 'buffOwner' ||
+                context.actionTargetTarget === 'currentAbilityEntity'
+              ? 'caster'
+              : 'eventSource'))
         : action.target.targetSource === 'Target'
           ? context.actionTargetTarget
           : action.target.targetSource === 'Context' &&

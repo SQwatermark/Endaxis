@@ -24,6 +24,7 @@ import { writeGeneratedDefinitionFiles } from '../src/compiler/writeGeneratedDef
 import { compilePassiveSkillRequestBatch } from '../src/compiler/passiveSkillBatch.ts';
 import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
 import { collectNativeActionNodes } from '../src/source/controlFlow.ts';
+import { parseOperatorComboSkillRegistrationsSource } from '../src/domains/operator/comboSkillRegistrations.ts';
 
 /**
  * 整名候选规划：只读原始资源，不写正式目录、不载入旧生成 Operator。
@@ -154,6 +155,11 @@ export function planOperatorDefinition(
     globalBuffCatalog: read(args.globalBuffCatalog),
     skillSettingCatalog: read(args.skillSettingCatalog),
     passiveSkills,
+    comboSkillRegistrations: parseOperatorComboSkillRegistrationsSource(
+      row.comboSkillRegistrations,
+      `${args.slug}.comboSkillRegistrations`,
+      new Set(entries.map(entry => entry.key)),
+    ),
     createBuffProjectionExtensions: (sources, visualOnlyIds) => {
       const resolveTimeDilationPriority = (tagId: number, sourcePath: string) => {
         const value = timeDilationPriorities.get(tagId);

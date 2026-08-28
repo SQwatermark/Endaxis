@@ -147,7 +147,7 @@ export function compileBuffRuntimeDefinitionSource(
   abilityEntityQueries?: CombatActionProjectionContextSource['abilityEntityQueries'],
   contextOverrides: Pick<
     CombatActionProjectionContextSource,
-    'fixedBuffOwnerTarget' | 'gameplayTagRegistry'
+    'fixedBuffOwnerTarget' | 'fixedBuffSourceTarget' | 'gameplayTagRegistry'
   > = {},
 ): CompiledBuffDefinitionSource {
   if (source.unsupportedPayloads.length > 0) {

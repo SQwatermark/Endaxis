@@ -1,4 +1,5 @@
 import type {
+  ComboSkillRegistrationDefinition,
   OperatorDefinition,
   SkillDefinition,
   SkillGroupDefinition,
@@ -54,6 +55,7 @@ export interface OperatorDefinitionAssemblyInput {
   readonly globalBuffCatalog: unknown;
   readonly skillSettingCatalog: unknown;
   readonly passiveSkills: PassiveSkillCompilationBatchSource;
+  readonly comboSkillRegistrations?: readonly ComboSkillRegistrationDefinition[];
   readonly createBuffProjectionExtensions?: (
     sources: ReadonlyMap<string, BuffRuntimeSource>,
     visualOnlyIds: ReadonlySet<string>,
@@ -267,8 +269,40 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     }),
   );
   roots = [...new Set([...baseRoots, ...collectCompiledBuffIds(compiledAbilityEntityDefinitions)])];
+  type FixedBuffTarget = 'caster' | 'enemy' | 'currentAbilityEntity';
   const rootBuffOwnerTargets = new Map<string, 'caster' | 'enemy' | 'currentAbilityEntity'>();
   const rootBuffOwnerTargetConflicts = new Set<string>();
+  const rootBuffSourceTargets = new Map<string, FixedBuffTarget>();
+  const rootBuffSourceTargetConflicts = new Set<string>();
+  const registerRootBuffTarget = (
+    targets: Map<string, FixedBuffTarget>,
+    conflicts: Set<string>,
+    buffId: string,
+    target: FixedBuffTarget,
+  ) => {
+    const previous = targets.get(buffId);
+    if (previous === undefined && !conflicts.has(buffId)) targets.set(buffId, target);
+    else if (previous !== undefined && previous !== target) {
+      targets.delete(buffId);
+      conflicts.add(buffId);
+    }
+  };
+  const registerRootBuffOwner = (buffId: string, target: FixedBuffTarget) =>
+    registerRootBuffTarget(rootBuffOwnerTargets, rootBuffOwnerTargetConflicts, buffId, target);
+  const registerRootBuffSource = (buffId: string, target: FixedBuffTarget) =>
+    registerRootBuffTarget(rootBuffSourceTargets, rootBuffSourceTargetConflicts, buffId, target);
+  // 养成 AddBuff 与被动 SkillData 的 enableSequence 都明确安装到当前干员；它们不是
+  // 主动技能动作树中的 applyBuff，因此必须在闭包入口单独提供宿主种类证据。
+  for (const buffId of [
+    ...progression.compiledEffectBundles.flatMap(bundle =>
+      bundle.entries.flatMap(entry => (entry.kind === 'buff' ? [entry.buffId] : [])),
+    ),
+    ...talentPassivePlans.flatMap(plan => plan.buffIds),
+    ...potentialPassivePlans.flatMap(plan => plan.buffIds),
+  ]) {
+    registerRootBuffOwner(buffId, 'caster');
+    registerRootBuffSource(buffId, 'caster');
+  }
   for (const application of collectCompiledBuffApplications([
     ...input.activeSkills.map(item => item.definition),
     compiledAbilityEntityDefinitions,
@@ -291,13 +325,16 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
             ? ('caster' as const)
             : null;
     if (target === null) continue;
-    const previous = rootBuffOwnerTargets.get(application.buffId);
-    if (previous === undefined && !rootBuffOwnerTargetConflicts.has(application.buffId))
-      rootBuffOwnerTargets.set(application.buffId, target);
-    else if (previous !== undefined && previous !== target) {
-      rootBuffOwnerTargets.delete(application.buffId);
-      rootBuffOwnerTargetConflicts.add(application.buffId);
-    }
+    registerRootBuffOwner(application.buffId, target);
+    const source =
+      application.source === 'enemy'
+        ? ('enemy' as const)
+        : application.source === 'currentAbilityEntity'
+          ? ('currentAbilityEntity' as const)
+          : application.source === undefined || application.source === 'caster'
+            ? ('caster' as const)
+            : null;
+    if (source !== null) registerRootBuffSource(application.buffId, source);
   }
   const buffClosure = compileStandardStumpBuffClosure(
     roots,
@@ -314,6 +351,8 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
       ...entityBuffIdentityReads,
       ...collectCompiledBuffIdentityReadIds(input.activeSkills.map(item => item.definition)),
     ]),
+    input.gameplayTagRegistry,
+    rootBuffSourceTargets,
   );
   const blocked = buffClosure.diagnostics.filter(item => item.status === 'blocked');
   if (blocked.length) throw new Error(`operator Buff closure blocked: ${JSON.stringify(blocked)}`);
@@ -364,6 +403,9 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
   const operator: OperatorDefinition = {
     ...header,
     skillGroups,
+    ...(input.comboSkillRegistrations === undefined
+      ? {}
+      : { comboSkillRegistrations: input.comboSkillRegistrations }),
     talents,
     potentials,
     buffDefinitions: privateBuffs,

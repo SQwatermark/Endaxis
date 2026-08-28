@@ -100,6 +100,7 @@ import {
   parseWeaponAnimationActionSource,
   parseSetAnimatorParameterActionSource,
   parseIgniteBuffTextActionSource,
+  parseImmuneTextActionSource,
   parseModifyWeaponMountPointActionSource,
   parseVoiceTriggerActionSource,
   parseOverrideCameraFollowActionSource,
@@ -599,6 +600,11 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'presentation',
         action: parseIgniteBuffTextActionSource(value, path),
+      };
+    case 'ImmuneTextAction':
+      return {
+        family: 'presentation',
+        action: parseImmuneTextActionSource(value, path),
       };
     case 'ModifyWeaponMountPoint':
       return {

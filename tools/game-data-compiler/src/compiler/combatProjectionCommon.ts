@@ -3,6 +3,7 @@ import type { ProjectileLaunchActionSource } from '../source/referenceActions.ts
 import type { ScalarSource } from '../source/scalar.ts';
 import type { CompiledBuffNumberSource } from './buffProjectionTypes.ts';
 import type { CompiledBuffStepSource } from './combatActionProjectionTypes.ts';
+import type { CompiledBuffSequenceSource } from './combatActionProjectionTypes.ts';
 import type { GameplayTagRegistry } from '../source/nativeGameplayTags.ts';
 import type { CompiledAbilityEntityTemplateCatalogSource } from './abilityEntityCatalog.ts';
 import type { GlobalBuffActionSource } from '../source/globalBuffActions.ts';
@@ -50,6 +51,8 @@ export interface CombatActionProjectionContextSource {
   };
   /** 由整名 Buff 依赖数据流证明，用于归约相对 buffOwner 的选敌/条件；缺失时仍严格失败。 */
   readonly fixedBuffOwnerTarget?: 'caster' | 'enemy' | 'currentAbilityEntity';
+  /** 由完整施加链证明的 Buff 来源种类；与 owner 独立。 */
+  readonly fixedBuffSourceTarget?: 'caster' | 'enemy' | 'currentAbilityEntity';
   /** 已由同一主动技能动作图证明会命中唯一木桩的命名目标组。 */
   readonly staticEnemyTargetGroupKeys?: ReadonlySet<string>;
   /** 完整技能内所有读取均为表现的查询；不能在单个序列内自行推断。 */
@@ -58,6 +61,15 @@ export interface CombatActionProjectionContextSource {
   readonly timelineRange?: { readonly startFrame: number; readonly endFrame: number };
   /** 当前场景额外提供的 IHittableObject 数量；未声明时不得假定为零。 */
   readonly fixedHittableTargetCount?: number;
+  /**
+   * 主动技能宿主为“单一顶层发射动作”提供的相对调度出口。投射物扩展只能把不依赖
+   * 回调 direct blackboard 的延迟动作提升到这里；Buff/嵌套控制流不得安装该出口。
+   */
+  readonly scheduleRelativeProjectileCallback?: (scheduled: {
+    readonly startFrame: number;
+    readonly endFrame: number;
+    readonly sequence: CompiledBuffSequenceSource;
+  }) => void;
 }
 
 /** 领域宿主可显式补入公共动作叶子的已审计投影；未提供时仍严格失败。 */
