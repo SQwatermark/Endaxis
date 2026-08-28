@@ -120,8 +120,9 @@ export function compileEventTargetSimpleDamageOperationSource(
   if (attackScale === null) {
     throw new Error(`${sourcePath}: unsupported event attack calculation`);
   }
-  const instantAttributeModifiers = unit.processors.map((processor, index) => {
+  const instantAttributeModifiers = unit.processors.flatMap((processor, index) => {
     const processorPath = `${sourcePath}.units[0].processors[${index}]`;
+    if (processor.kind === 'damageScale') return [];
     if (
       processor.kind !== 'instantAttributeModifier' ||
       processor.targetSide !== 'Attacker' ||
@@ -143,13 +144,44 @@ export function compileEventTargetSimpleDamageOperationSource(
       formulaItem: processor.formulaItem,
       value: 0,
     });
-    return {
-      targetSide: 'attacker' as const,
-      attribute: projectCombatRuntimeAttributeKey(processor.attributeType),
-      slot: compiled.slot,
-      value: scalarOperand(processor.parameter),
-      attributeTiming: 'runtime' as const,
+    return [
+      {
+        targetSide: 'attacker' as const,
+        attribute: projectCombatRuntimeAttributeKey(processor.attributeType),
+        slot: compiled.slot,
+        value: scalarOperand(processor.parameter),
+        attributeTiming: 'runtime' as const,
+      },
+    ];
+  });
+  const instantDamageScaleModifiers = unit.processors.flatMap((processor, index) => {
+    if (processor.kind !== 'damageScale') return [];
+    const processorPath = `${sourcePath}.units[0].processors[${index}]`;
+    const sides: Readonly<Record<string, 'attacker' | 'defender'>> = {
+      Attacker: 'attacker',
+      Defender: 'defender',
     };
+    const side = sides[processor.side];
+    const zone = {
+      ProdCalcZone: 'product',
+      NormalCalcZone: 'normal',
+      AbnormalAndBurstCalcZone: 'abnormalAndBurst',
+      EnhanceCalcZone: 'enhanced',
+      ComboCalcZone: 'combo',
+      VulnerableCalcZone: 'vulnerable',
+      RaceCalcZone: 'race',
+    }[processor.zoneName] as
+      | 'product'
+      | 'normal'
+      | 'abnormalAndBurst'
+      | 'enhanced'
+      | 'combo'
+      | 'vulnerable'
+      | 'race'
+      | undefined;
+    if (side === undefined || zone === undefined)
+      throw new Error(`${processorPath}: unsupported damage scale side/zone`);
+    return [{ side, zone, addition: scalarOperand(processor.addition) }];
   });
   // DamageEnums.g.cs：分类位彼此独立。hitEnvironment 只增加环境命中旁路，不改变同一
   // DamageUnit 对目标的结算；Endaxis 没有可破坏环境，只投影目标伤害。
@@ -234,6 +266,7 @@ export function compileEventTargetSimpleDamageOperationSource(
           }
         : {}),
       ...(instantAttributeModifiers.length === 0 ? {} : { instantAttributeModifiers }),
+      ...(instantDamageScaleModifiers.length === 0 ? {} : { instantDamageScaleModifiers }),
       ...(stagger === undefined ? {} : { stagger }),
       ...(poiseUnit?.onlyEnableForMainOperator ? { staggerOnlyWhenCasterControlled: true } : {}),
     },

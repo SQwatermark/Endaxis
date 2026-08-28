@@ -611,6 +611,28 @@ export function compileBuffLeafNode(
       return { steps: [], state: nextGroups };
     }
     if (
+      write.producerType === 'FindTargetAction' &&
+      write.finderType === 'PointFinder' &&
+      write.validatorTypes.length === 0 &&
+      write.postProcessorTypes.length === 0 &&
+      write.priorityFilters.length === 0 &&
+      write.shuffleTargets.length === 0 &&
+      write.distanceValidators.length === 0 &&
+      write.center === 'ActionSource' &&
+      write.centerContextKey === '' &&
+      write.selectorOwner === 'ActionOwner' &&
+      write.selectorOwnerContextKey === '' &&
+      write.directionTarget === 'ContextTarget' &&
+      write.directionContextKey !== '' &&
+      partyTargetGroups.get(write.directionContextKey) === 'enemy'
+    ) {
+      // PointFinder 只把已保存的唯一敌人位置按来源方向和序列化偏移变成空间点；
+      // 零空间模型丢弃坐标，但仍要求方向引用确实是已经证明的敌人 Context。
+      const nextGroups = new Map(partyTargetGroups);
+      nextGroups.set(write.targetGroupKey, 'spatialPoint');
+      return { steps: [], state: nextGroups };
+    }
+    if (
       write.producerType === 'ConvertToTargetContext' &&
       write.conversionOperation === 'ConvertEntityToPosition' &&
       write.inputTargets.length === 1 &&

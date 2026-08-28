@@ -101,6 +101,7 @@ const BUFF_ABILITY_EVENTS: Readonly<Record<string, CompiledBuffAbilityEvent>> = 
   OnOutputBuff: 'outputBuff',
   OnBeforeOutputBuff: 'beforeOutputBuff',
   OnBeforeAddedBuff: 'beforeAddedBuff',
+  OnAddedBuff: 'addedBuff',
   OnBeforeOutputPhysicalInfliction: 'beforeOutputPhysicalInfliction',
   OnAfterOutputPhysicalInfliction: 'afterOutputPhysicalInfliction',
   // 组件专属同步事件，不替换成成功后补发的通用物理异常/旧语义标记。
@@ -950,6 +951,26 @@ function createBuffSequenceProjection(
         : { steps: [jump], state: partyTargetGroups, consumedNodeCount: 1 };
     },
     compileForEach: (node, partyTargetGroups) => {
+      if (
+        context.actionTargetTarget === 'enemy' &&
+        node.body.target.targetSource === 'Target' &&
+        node.body.target.targetGroupKey === '' &&
+        node.body.target.finderType === null &&
+        node.body.target.validatorTypes.length === 0 &&
+        node.body.target.postProcessorTypes.length === 0 &&
+        !node.body.action.onlyExecuteWhenSourceIsMainCharacter &&
+        !node.body.action.onlyExecuteWhenSourceIsGuard
+      ) {
+        // 投射物 hit 回调的直接 Target 已由回调入口绑定为唯一木桩；原生 ForEach
+        // 对这个单体集合精确执行一次，不需要创建额外的 Context 身份。
+        return {
+          steps: compileActionSequenceProgram(node.body.action, {
+            ...createBuffSequenceProjection(visualOnlyIds, context, extensions),
+            initialState: () => partyTargetGroups,
+          }).steps,
+          state: partyTargetGroups,
+        };
+      }
       if (
         node.body.target.targetSource === 'Context' &&
         (context.staticEnemyTargetGroupKeys?.has(node.body.target.targetGroupKey) === true ||

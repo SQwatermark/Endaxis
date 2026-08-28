@@ -211,6 +211,19 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
         defender: context.defenderAttributes,
         defenderStaggered: this.dependencies.targetVitals.hasPoiseBrokenTag,
       });
+      if (step.kind === 'dealDamage') {
+        for (const modifier of step.parameters.instantDamageScaleModifiers ?? []) {
+          context.damageScales.modify(
+            modifier.side,
+            modifier.zone,
+            this.#resolveActionValue(
+              modifier.addition,
+              operationContext,
+              `instant damage scale ${modifier.side}/${modifier.zone}`,
+            ),
+          );
+        }
+      }
       const finalAttackValue = context.resolveFinalAttackValue();
       const runtimeSnapshot = this.dependencies.resolveNonRandomRuntimeSnapshot(step);
       const criticalForced = this.dependencies.isCriticalForced?.(step) === true;

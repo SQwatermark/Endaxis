@@ -39,6 +39,10 @@ import {
 import { ENEMY_RANKS } from './enemyRank';
 import { collectDamageStepKeys } from './collectDamageStepKeys';
 import { parseCombatBuffDefinitionEntry } from '../combat/buffs/combatBuffDefinitions';
+import {
+  DAMAGE_SCALE_SIDES,
+  DAMAGE_SCALE_ZONES,
+} from '../../../../packages/game-data-contract/src/modifiers';
 
 export interface SkillDefinitionValidationIssue {
   path: string;
@@ -76,6 +80,8 @@ const ACTION_VALUE_OPERATIONS_SET = new Set<string>(ACTION_VALUE_OPERATIONS);
 const ACTION_VALUE_CALCULATION_OPERATIONS_SET = new Set<string>(
   ACTION_VALUE_CALCULATION_OPERATIONS,
 );
+const DAMAGE_SCALE_SIDES_SET = new Set<string>(DAMAGE_SCALE_SIDES);
+const DAMAGE_SCALE_ZONES_SET = new Set<string>(DAMAGE_SCALE_ZONES);
 const HEALTH_VALUE_TYPES_SET = new Set<string>(['current', 'ratio']);
 const TAG_QUERY_TYPES_SET = new Set<string>(['hasAny', 'hasAll', 'exceptAny', 'exceptAll']);
 const TAG_QUERY_TYPES_WITH_EXACT_SET = new Set<string>(['exact', ...TAG_QUERY_TYPES_SET]);
@@ -1243,6 +1249,20 @@ function validateCombatStep(
               modifierPath,
               out,
             );
+          });
+        }
+      }
+      if (parameters.instantDamageScaleModifiers !== undefined) {
+        if (!Array.isArray(parameters.instantDamageScaleModifiers)) {
+          push(out, `${path}.parameters.instantDamageScaleModifiers`, 'expected array');
+        } else {
+          parameters.instantDamageScaleModifiers.forEach((rawModifier, index) => {
+            const modifierPath = `${path}.parameters.instantDamageScaleModifiers[${index}]`;
+            const modifier = asRecord(rawModifier, modifierPath, out);
+            if (modifier === null) return;
+            requireEnum(modifier, 'side', DAMAGE_SCALE_SIDES_SET, modifierPath, out);
+            requireEnum(modifier, 'zone', DAMAGE_SCALE_ZONES_SET, modifierPath, out);
+            validateActionValueOperand(modifier.addition, `${modifierPath}.addition`, out);
           });
         }
       }

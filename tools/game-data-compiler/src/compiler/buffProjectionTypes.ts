@@ -137,6 +137,7 @@ export type CompiledBuffDefinitionSource = Pick<
         | 'outputBuff'
         | 'beforeOutputBuff'
         | 'beforeAddedBuff'
+        | 'addedBuff'
         | 'beforeOutputPhysicalInfliction'
         | 'beforeOutputKnockDown'
         | 'afterOutputKnockDown'

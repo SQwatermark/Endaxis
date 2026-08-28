@@ -169,6 +169,7 @@ export function compileZeroDistanceFirstTickHitProjectileSource(input: {
     // 生命周期内最多成功命中一次。因此唯一木桩下，-1 与首击回收的 1
     // 对 hit-only 路由都只产生一次战斗可见回调。
     maxHitCounts: new Set([-1, 1]),
+    allowAnyPositiveMaxHitCount: true,
     requireCollider: !runtime.hitOnReach,
     allowHitOnReach: true,
     allowFinishByFirstHitCount: true,
@@ -394,6 +395,7 @@ function assertSupportedFirstTickShape(
     readonly requireCollider?: boolean;
     readonly allowHitOnReach?: boolean;
     readonly allowFinishByFirstHitCount?: boolean;
+    readonly allowAnyPositiveMaxHitCount?: boolean;
   } = {},
 ): void {
   const segment = runtime.moveSegments[0];
@@ -409,7 +411,8 @@ function assertSupportedFirstTickShape(
     (!runtime.finishOnReach && !finishesOnFirstHit) ||
     (runtime.hitOnReach && options.allowHitOnReach !== true) ||
     runtime.allowHitSameTarget ||
-    !maxHitCounts.has(runtime.maxHitCount) ||
+    (!maxHitCounts.has(runtime.maxHitCount) &&
+      !(options.allowAnyPositiveMaxHitCount === true && runtime.maxHitCount > 0)) ||
     runtime.collisionDetectTiming !== 0 ||
     runtime.hitAndBlockDetectDelayTime !== 0 ||
     runtime.hitAndBlockDetectDelayDistance !== 0 ||
@@ -422,9 +425,7 @@ function assertSupportedFirstTickShape(
     runtime.targetFilter.filterSlot ||
     runtime.targetFilter.filterGameplayTag ||
     (options.requireCollider === true &&
-      (runtime.colliderShape === null ||
-        runtime.colliderShape.shapeType !== 1 ||
-        !(runtime.colliderShape.radius > 0))) ||
+      (runtime.colliderShape === null || !hasPositiveCollisionVolume(runtime.colliderShape))) ||
     runtime.presetPointKeys.length !== 2 ||
     runtime.presetPointKeys[0] !== 'LaunchPoint' ||
     runtime.presetPointKeys[1] !== 'TargetPoint' ||
@@ -440,6 +441,14 @@ function assertSupportedFirstTickShape(
   ) {
     throw new Error(`${path}: ProjectileData is outside the proven zero-distance first-tick shape`);
   }
+}
+
+function hasPositiveCollisionVolume(
+  shape: NonNullable<ProjectileRuntimeSource['colliderShape']>,
+): boolean {
+  if (shape.shapeType === 1) return shape.radius > 0;
+  if (shape.shapeType === 2) return shape.extent.every(value => value > 0);
+  return false;
 }
 
 function assertSupportedFirstTickBlockShape(runtime: ProjectileRuntimeSource, path: string): void {

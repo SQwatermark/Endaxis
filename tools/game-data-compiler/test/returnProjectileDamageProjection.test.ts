@@ -63,6 +63,41 @@ describe('公共回调伤害投影', () => {
     ]);
   });
 
+  it('单次 DamageScaleProcessor 保留来源侧、命名区间和动作黑板值', () => {
+    const source = damageSource();
+    expect(
+      compileEventTargetSimpleDamageOperationSource(
+        {
+          ...source,
+          units: [
+            {
+              ...source.units[0]!,
+              processors: [
+                {
+                  kind: 'damageScale',
+                  side: 'Attacker',
+                  zoneName: 'NormalCalcZone',
+                  addition: { value: 0, blackboardKey: 'dmg_up', levelValues: null },
+                },
+              ],
+            },
+          ],
+        },
+        'damage',
+      ),
+    ).toMatchObject({
+      parameters: {
+        instantDamageScaleModifiers: [
+          {
+            side: 'attacker',
+            zone: 'normal',
+            addition: { kind: 'blackboard', key: 'dmg_up' },
+          },
+        ],
+      },
+    });
+  });
+
   it.each(['Target', 'Context'])(
     '%s 不执行残留选择器，但 Context 必须绑定已证明的敌人组',
     targetSource => {
@@ -390,7 +425,7 @@ describe('公共回调伤害投影', () => {
           ...runtime,
           maxHitCount: -1,
           allowHitSameTarget,
-          colliderShape: { shapeType: 1, radius: 0.45 },
+          colliderShape: { shapeType: 1, radius: 0.45, extent: [0, 0, 0] },
           // 测试的是汤汤式“到达即结束” hit-only 形状，不沿用
           // 艾维文娜回收枪的 keepMoveOnReach=true。
           keepMoveOnReach: false,
@@ -408,6 +443,36 @@ describe('公共回调伤害投影', () => {
 
     expect(compile(false).body.steps).toHaveLength(1);
     expect(() => compile(true)).toThrow('outside the proven zero-distance first-tick shape');
+  });
+
+  it('唯一木桩下 Box 碰撞体和正数命中上限仍只触发一次 hit-only 回调', () => {
+    const raw = scopeFixtures[0]!;
+    const launch = parseProjectileLaunchActionSource(raw.launch, 'launch');
+    const runtime = parseProjectileRuntimeSource(runtimeFixtures[0], 'projectile');
+    const compile = (extent: readonly [number, number, number]) =>
+      compileZeroDistanceFirstTickHitProjectileSource({
+        sourcePath: 'box-hit-only',
+        launch,
+        runtime: {
+          ...runtime,
+          maxHitCount: 99,
+          allowHitSameTarget: false,
+          colliderShape: { shapeType: 2, radius: 0.2, extent },
+          keepMoveOnReach: false,
+        },
+        template: null,
+        hitGraph: {
+          skillId: raw.hit.skillId,
+          level: 1,
+          durationFrame: 0,
+          declaredBlackboard: [],
+          actionGroup: { timelineActions: [], passiveEvents: [] },
+        },
+        callbackContext: returnProjectionContext,
+      });
+
+    expect(compile([1.6, 2.1, 3]).body.steps).toHaveLength(1);
+    expect(() => compile([1.6, 0, 3])).toThrow('outside the proven zero-distance first-tick shape');
   });
 
   it('未投影的投射物 Owner 不能作为伤害攻击者借用施法者身份', () => {

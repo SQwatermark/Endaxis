@@ -22,6 +22,7 @@ export interface ProjectileRuntimeSource {
   readonly colliderShape: {
     readonly shapeType: number;
     readonly radius: number;
+    readonly extent: readonly [number, number, number];
   } | null;
   readonly blockLayerDef: {
     readonly value: number;
@@ -131,6 +132,10 @@ export function parseProjectileRuntimeSource(
               colliderShape.radius,
               `${path}.colliderShapeData.radius`,
             ),
+            extent: parseDirectBlackboardVector3(
+              colliderShape.extent,
+              `${path}.colliderShapeData.extent`,
+            ),
           },
     blockLayerDef:
       blockLayerDef === null
@@ -174,4 +179,16 @@ function parseDirectBlackboardDouble(value: unknown, path: string): number {
   const result = requireNumber(wrapper.value, `${path}.value`);
   if (!Number.isFinite(result)) throw new Error(`${path}.value: expected finite number`);
   return result;
+}
+
+function parseDirectBlackboardVector3(
+  value: unknown,
+  path: string,
+): readonly [number, number, number] {
+  const vector = requireRecord(value, path);
+  return [
+    parseDirectBlackboardDouble(vector.x, `${path}.x`),
+    parseDirectBlackboardDouble(vector.y, `${path}.y`),
+    parseDirectBlackboardDouble(vector.z, `${path}.z`),
+  ];
 }

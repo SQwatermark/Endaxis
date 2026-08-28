@@ -22,6 +22,7 @@ import {
   chenQianyu,
   daPan,
   ember,
+  estella,
   fluorite,
   laevatain,
   liino,
@@ -42,6 +43,67 @@ import {
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
 
 describe('registered generated operators', () => {
+  it('applies Estella potential-3 DamageScaleProcessor only to the first battle-skill hit', () => {
+    const run = (potential: 2 | 3) => {
+      const scenario = createEmptyScenario(`scenario:estella:${potential}`, '艾斯黛拉战技倍率回归');
+      scenario.battle.durationFrames = 60;
+      scenario.tracks[0] = {
+        id: 'track:estella',
+        operator: {
+          operatorSlug: estella.slug,
+          level: 90,
+          promoted: true,
+          potential,
+          trustLevel: 4,
+          skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+          talentStates: { 0: 0, 1: 0 },
+        },
+        weapon: null,
+        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+        initialState: { ultimateEnergy: 0 },
+        skillCasts: [],
+      };
+      const placed = placeSkillGroup({
+        scenario,
+        trackIndex: 0,
+        operator: estella,
+        skillGroupKey: 'battleSkill',
+        startFrame: 1,
+        ids: { allocate: kind => `${kind}:estella:${potential}` },
+      }).scenario;
+      return runStandardPlayerDamageScenarioSimulation({
+        scenario: placed,
+        endFrame: 60,
+        criticalSamples: new ExplicitCriticalSampleSource([1]),
+        elementalInflictionDocument: elementalAttachments,
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        options: {
+          index: nextGameDataRepository,
+          resources: {
+            sharedSpGain: { baseGainEfficiency: 1 },
+            spRecoveryPauseDuration: 1.5,
+            normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+            ultimateEnergySystemUnlocked: false,
+          },
+        },
+      });
+    };
+    const damage = (potential: 2 | 3) => {
+      const result = run(potential);
+      return Number(
+        result.receiptEntries.find(entry => entry.event === 'DamageApplied')?.data?.value,
+      );
+    };
+    const baseDamage = damage(2);
+    const enhancedDamage = damage(3);
+    expect(baseDamage).toBeGreaterThan(0);
+    expect(enhancedDamage / baseDamage).toBeCloseTo(1.4, 5);
+  });
+
   it('routes both Liino battle-skill inputs through the shared runtime end slot', () => {
     const scenario = createEmptyScenario('scenario:liino:battle-skill-slot', '梨诺战技换槽回归');
     scenario.battle.durationFrames = 80;

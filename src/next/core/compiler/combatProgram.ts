@@ -155,6 +155,7 @@ export interface ResolvedCombatStepParameters {
       coefficient: number;
     };
     instantAttributeModifiers?: CombatStepParameters['dealDamage']['instantAttributeModifiers'];
+    instantDamageScaleModifiers?: CombatStepParameters['dealDamage']['instantDamageScaleModifiers'];
   };
   dealFixedDamage: {
     damageType: DamageType;

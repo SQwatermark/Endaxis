@@ -227,6 +227,9 @@ function resolveStep(
           ...(step.parameters.instantAttributeModifiers === undefined
             ? {}
             : { instantAttributeModifiers: step.parameters.instantAttributeModifiers }),
+          ...(step.parameters.instantDamageScaleModifiers === undefined
+            ? {}
+            : { instantDamageScaleModifiers: step.parameters.instantDamageScaleModifiers }),
           ...(step.parameters.stagger === undefined
             ? {}
             : {

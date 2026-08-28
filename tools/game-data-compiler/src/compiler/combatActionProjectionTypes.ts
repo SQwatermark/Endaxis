@@ -146,6 +146,7 @@ type DamageParameters = Pick<
   | 'stagger'
   | 'staggerOnlyWhenCasterControlled'
   | 'instantAttributeModifiers'
+  | 'instantDamageScaleModifiers'
 > & {
   // 这是伤害协议的已支持子集，不是角色元素身份；值集合恰好一致也不能混用概念。
   readonly damageType: Extract<

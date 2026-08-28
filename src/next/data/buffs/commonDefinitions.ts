@@ -8,6 +8,7 @@ import { commonBuffDefinitions as wulfgardCommonBuffDefinitions } from '../opera
 import { commonBuffDefinitions as emberCommonBuffDefinitions } from '../operators/generated-definitions/ember/ember.operator.generated';
 import { commonBuffDefinitions as daPanCommonBuffDefinitions } from '../operators/generated-definitions/da-pan/da-pan.operator.generated';
 import { commonBuffDefinitions as antalCommonBuffDefinitions } from '../operators/generated-definitions/antal/antal.operator.generated';
+import { commonBuffDefinitions as estellaCommonBuffDefinitions } from '../operators/generated-definitions/estella/estella.operator.generated';
 
 /**
  * 已迁移的公共 Buff 使用统一编译器产物；其余定义暂保留旧生成基线。
@@ -23,4 +24,5 @@ export const commonBuffDefinitions: OperatorBuffDefinitions = Object.freeze({
   ...emberCommonBuffDefinitions,
   ...daPanCommonBuffDefinitions,
   ...antalCommonBuffDefinitions,
+  ...estellaCommonBuffDefinitions,
 });

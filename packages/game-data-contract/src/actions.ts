@@ -42,6 +42,8 @@ import type {
   AttributeModifierSlot,
   AttributeModifierTiming,
   DamageModifierSide,
+  DamageScaleSide,
+  DamageScaleZone,
 } from './modifiers.ts';
 
 /** 一次伤害步骤的完整声明；倍率使用小数，失衡与生命伤害同属该命中。 */
@@ -79,6 +81,12 @@ export interface DealDamageParameters {
     slot: AttributeModifierSlot;
     value: ActionValueOperand;
     attributeTiming: AttributeModifierTiming;
+  }[];
+  /** 原生 DamageUnit.damageProcessors 中只对当前伤害包生效的命名伤害倍率区修正。 */
+  instantDamageScaleModifiers?: readonly {
+    side: DamageScaleSide;
+    zone: DamageScaleZone;
+    addition: ActionValueOperand;
   }[];
 }
 

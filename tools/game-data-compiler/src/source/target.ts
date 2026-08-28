@@ -220,6 +220,14 @@ export function parseSelectorSummarySource(
     } else if (finderType === 'OwnerPartsFinder') {
       requireExactFields(finder, new Set(['$type', 'partQuery']), `${path}.finderData`);
       finderOwnerPartsQuery = parseTagQuerySource(finder.partQuery, `${path}.finderData.partQuery`);
+    } else if (finderType === 'PointFinder') {
+      requireExactFields(
+        finder,
+        new Set(['$type', 'positionOffset', 'rotationOffset']),
+        `${path}.finderData`,
+      );
+      parsePointFinderVector(finder.positionOffset, `${path}.finderData.positionOffset`);
+      parsePointFinderVector(finder.rotationOffset, `${path}.finderData.rotationOffset`);
     }
   } else if (finderRequired) {
     throw new Error(`${path}.finderData: expected object`);
@@ -253,6 +261,28 @@ export function parseSelectorSummarySource(
     shuffleTargets,
     distanceValidators,
   };
+}
+
+function parsePointFinderVector(value: unknown, path: string): void {
+  const vector = requireRecord(value, path);
+  requireExactFields(vector, new Set(['x', 'y', 'z']), path);
+  for (const axis of ['x', 'y', 'z'] as const) {
+    const componentPath = `${path}.${axis}`;
+    const component = requireRecord(vector[axis], componentPath);
+    requireExactFields(
+      component,
+      new Set(['useBlackboardKey', 'value', 'blackboardKey']),
+      componentPath,
+    );
+    const useBlackboardKey = requireBoolean(
+      component.useBlackboardKey,
+      `${componentPath}.useBlackboardKey`,
+    );
+    requireNumber(component.value, `${componentPath}.value`);
+    const blackboardKey = requireString(component.blackboardKey, `${componentPath}.blackboardKey`);
+    if (useBlackboardKey && blackboardKey.length === 0)
+      throw new Error(`${componentPath}.blackboardKey: expected non-empty string`);
+  }
 }
 
 function parseShapeFinderSource(finder: Record<string, unknown>, path: string): ShapeFinderSource {
