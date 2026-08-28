@@ -184,7 +184,7 @@ export function compileBuffLeafNode(
   }
   if (node.body.value.family === 'stumpControl') {
     const action = node.body.value.action;
-    if (action.kind === 'targetHitStop' && action.affectType === 'Both') {
+    if (action.kind === 'targetHitStop' && action.affectType !== 'OnlyTarget') {
       const targetIsEnemy =
         action.target.targetSource === 'Target' ||
         (action.target.targetSource === 'Context' &&
@@ -202,7 +202,7 @@ export function compileBuffLeafNode(
         priority === undefined ||
         !Number.isFinite(priority)
       )
-        throw new Error(`${node.sourcePath}: unsupported attacker-and-target hit-stop projection`);
+        throw new Error(`${node.sourcePath}: unsupported attacker hit-stop projection`);
       return {
         steps: [
           {
@@ -220,7 +220,7 @@ export function compileBuffLeafNode(
                     }
                   : { kind: 'named', key: action.curveKey },
               finishByAction: false,
-              targets: ['enemy', 'caster'],
+              targets: action.affectType === 'Both' ? ['enemy', 'caster'] : ['caster'],
             },
           },
         ],

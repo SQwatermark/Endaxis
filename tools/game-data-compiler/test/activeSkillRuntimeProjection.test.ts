@@ -321,6 +321,30 @@ describe('主动技能正式时间轴投影', () => {
     ]);
   });
 
+  it('OnlyAttacker hit-stop 只缩放施法者自身时钟', () => {
+    const result = compileActiveSkillRuntimeProjectionSource({
+      value: activeWithActions([
+        meta('HitStopAction', {
+          affectType: 'OnlyAttacker',
+          curveKey: 'char_hard_stop',
+          useDirectCurve: false,
+          directCurve: [],
+          duration: 0.15,
+          timeDilationPriority: { tagId: -2059842104 },
+          attacker: targetFixture('Source'),
+          target: targetFixture('Target'),
+        }),
+      ]),
+      sourcePath: 'active',
+      patch: null,
+      context: ACTIVE_CONTEXT,
+      extensions: { resolveTimeDilationPriority: () => 10 },
+    });
+    expect(result.scheduledSequences[0]!.sequence.steps).toMatchObject([
+      { kind: 'startTimeDilation', parameters: { targets: ['caster'] } },
+    ]);
+  });
+
   it('全局时间膨胀按启用位保留技能冷却受缩放时长', () => {
     const ownerSpawnedAbilityEntities = {
       ...targetFixture('InstantSearch'),

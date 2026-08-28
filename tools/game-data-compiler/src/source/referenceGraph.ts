@@ -202,18 +202,17 @@ function collectLeafReferences(
     case 'physicalInfliction': {
       // 原生 OnlyDead 分支直接跳过目标；保留无效引用用于审计，不伪装成活动闭包。
       const active = enabled && leaf.action.deadOption !== 'OnlyDead';
+      const statusBuffId =
+        leaf.action.kind === 'knockDown'
+          ? 'buff_physical_knockdown'
+          : leaf.action.kind === 'fracture'
+            ? 'buff_physical_fracture'
+            : 'buff_physical_crushed';
       output.push(
-        referenceFromIdentity(
-          'buff',
-          'physicalStatus',
-          active,
-          'buff_physical_knockdown',
-          null,
-          sourcePath,
-        ),
+        referenceFromIdentity('buff', 'physicalStatus', active, statusBuffId, null, sourcePath),
       );
       // force 只绕过根动作的破防门；载体自身的依赖仍由 Buff 图继续展开。
-      if (!leaf.action.forceKnockDown) {
+      if (leaf.action.kind !== 'knockDown' || !leaf.action.forceKnockDown) {
         output.push(
           referenceFromIdentity(
             'buff',

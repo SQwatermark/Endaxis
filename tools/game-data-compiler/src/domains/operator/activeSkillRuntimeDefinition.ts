@@ -15,6 +15,7 @@ import type {
   CombatActionProjectionExtensionsSource,
 } from '../../compiler/combatProjectionCommon.ts';
 import type { CompiledBuffDefinitionSource } from '../../compiler/buffProjectionTypes.ts';
+import { createPhysicalInflictionDefinitionHydrator } from '../../compiler/physicalInflictionHydration.ts';
 
 /** 已编译的正式技能子集；来源身份、黑板与消耗帧必填，不接受尚未接入的事件字段。 */
 export type CompiledOperatorActiveSkillRuntimeDefinitionSource = Readonly<
@@ -94,9 +95,13 @@ export function renderOperatorActiveSkillRuntimeDefinitionSource(input: {
 }) {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(input.operatorSlug))
     throw new Error('operatorSlug: expected stable kebab-case identity');
+  const supplementalBuffDefinitions = input.supplementalBuffDefinitions ?? {};
+  const hydrate = createPhysicalInflictionDefinitionHydrator(supplementalBuffDefinitions);
+  const definition = hydrate(input.definition);
+  const hydratedSupplementalBuffDefinitions = hydrate(supplementalBuffDefinitions);
   return {
     relativePath: `${input.operatorSlug}.${input.definition.key}.runtime.generated.ts`,
-    content: `/** 由 tools/game-data-compiler 从完整主动 SkillData 动作图生成；不要手工编辑。 */\nimport type {\n  OperatorBuffDefinitions,\n  SkillDefinition,\n} from '../../../../core/game-data/operatorDefinition';\n\n// prettier-ignore\nexport const supplementalBuffDefinitions = ${JSON.stringify(input.supplementalBuffDefinitions ?? {}, null, 2)} as const satisfies OperatorBuffDefinitions;\n\n// prettier-ignore\nexport default ${JSON.stringify(input.definition, null, 2)} as const satisfies SkillDefinition;\n`,
+    content: `/** 由 tools/game-data-compiler 从完整主动 SkillData 动作图生成；不要手工编辑。 */\nimport type {\n  OperatorBuffDefinitions,\n  SkillDefinition,\n} from '../../../../core/game-data/operatorDefinition';\n\n// prettier-ignore\nexport const supplementalBuffDefinitions = ${JSON.stringify(hydratedSupplementalBuffDefinitions, null, 2)} as const satisfies OperatorBuffDefinitions;\n\n// prettier-ignore\nexport default ${JSON.stringify(definition, null, 2)} as const satisfies SkillDefinition;\n`,
   };
 }
 

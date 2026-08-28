@@ -12,6 +12,7 @@ import type { CompiledBuffStepSource } from './combatActionProjectionTypes.ts';
 import type { BlackboardAssignmentSource } from '../source/assignments.ts';
 import { projectElementalInflictionAction } from './elementalInflictionProjection.ts';
 import { projectKnockDownAction } from './knockDownProjection.ts';
+import { projectPhysicalInflictionAction } from './physicalInflictionProjection.ts';
 import { projectBuffIgniteAction } from './buffIgniteProjection.ts';
 import { projectKeywordBuffAction } from './keywordBuffProjection.ts';
 import {
@@ -64,7 +65,11 @@ export function compileActionNode(
     throw new Error(`${node.sourcePath}: unsupported Buff runtime action`);
   }
   if (node.body.value.family === 'physicalInfliction') {
-    return [projectKnockDownAction(node.body.value.action, node.sourcePath, context)];
+    return [
+      node.body.value.action.kind === 'knockDown'
+        ? projectKnockDownAction(node.body.value.action, node.sourcePath, context)
+        : projectPhysicalInflictionAction(node.body.value.action, node.sourcePath, context),
+    ];
   }
   if (
     context.actionTargetTarget === 'currentAbilityEntity' &&

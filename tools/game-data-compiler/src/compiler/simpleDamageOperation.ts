@@ -41,9 +41,11 @@ export function compileEventTargetSimpleDamageOperationSource(
       : action.attacker === 'ActionSource'
         ? context.actionSourceTarget
         : null;
-  if (!action.alwaysNext || attackerTarget !== 'caster') {
+  if (attackerTarget !== 'caster') {
     throw new Error(`${sourcePath}: unsupported simple damage action control flags`);
   }
+  // alwaysNext=false 只在原生伤害应用失败时截断后续序列。这里的目标已经严格证明为唯一、
+  // 存活且可受击的固定木桩，Endaxis 也不建模伤害免疫失败，因此两种取值的可见结果相同。
   // combat-spec target-resolution：GetTargetsView 仅在 InstantSearch 执行 selectorData。
   // Context 读取已保存的组；残留选择器仍由来源层解析，但不能变成这次伤害的过滤条件。
   if (action.target.targetSource === 'Context') {

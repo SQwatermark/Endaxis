@@ -28,6 +28,107 @@ export interface KnockDownActionSource {
   readonly returnTrueWhen: AbilityActionReturnTrueMethodSource;
 }
 
+interface PhysicalInflictionActionBaseSource {
+  readonly attacker: TargetReferenceSource;
+  readonly target: TargetReferenceSource;
+  readonly blowOffDistance: ScalarSource;
+  readonly distanceRandomRange: ScalarSource;
+  readonly overwriteHeight: boolean;
+  readonly blowOffHeight: ScalarSource;
+  readonly direction: AdvancedDirectionSource;
+  readonly totalTime: ScalarSource;
+  readonly isExtra: boolean;
+  readonly deadOption: ControlledStateDeadOptionSource;
+  readonly immobilizedTime: number;
+}
+
+export interface FractureActionSource extends PhysicalInflictionActionBaseSource {
+  readonly kind: 'fracture';
+}
+
+export interface CrushActionSource extends PhysicalInflictionActionBaseSource {
+  readonly kind: 'crush';
+  readonly damageMultiplier: ScalarSource;
+  readonly ignoreHitEffect: boolean;
+}
+
+export type PhysicalInflictionActionSource = FractureActionSource | CrushActionSource;
+
+export function parsePhysicalInflictionActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+  kind: PhysicalInflictionActionSource['kind'],
+): PhysicalInflictionActionSource {
+  const action = requireRecord(value, path);
+  const fields = new Set([
+    '$type',
+    'isEnable',
+    'priorityLevel',
+    'priorityOffset',
+    'serverActionIndex',
+    'attackerTargetSettings',
+    'targetSettings',
+    'blowOffDistance',
+    'distanceRandomRange',
+    'overwriteHeight',
+    'blowOffHeight',
+    'directionSettings',
+    'totalTime',
+    'isExtra',
+    'deadOption',
+    'immobilizedTime',
+  ]);
+  if (kind === 'crush') {
+    fields.add('damageMultiplier');
+    fields.add('ignoreHitEffect');
+  }
+  requireExactFields(action, fields, path);
+  const deadOption = requireString(action.deadOption, `${path}.deadOption`);
+  if (deadOption !== 'AllValid' && deadOption !== 'OnlyAlive' && deadOption !== 'OnlyDead')
+    throw new Error(`${path}.deadOption: unsupported ControlledStateDeadOption ${deadOption}`);
+  const base: PhysicalInflictionActionBaseSource = {
+    attacker: parseTargetReferenceSource(
+      action.attackerTargetSettings,
+      `${path}.attackerTargetSettings`,
+    ),
+    target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
+    blowOffDistance: parseScalarSource(
+      action.blowOffDistance,
+      `${path}.blowOffDistance`,
+      inheritedBlackboard,
+    ),
+    distanceRandomRange: parseScalarSource(
+      action.distanceRandomRange,
+      `${path}.distanceRandomRange`,
+      inheritedBlackboard,
+    ),
+    overwriteHeight: requireBoolean(action.overwriteHeight, `${path}.overwriteHeight`),
+    blowOffHeight: parseScalarSource(
+      action.blowOffHeight,
+      `${path}.blowOffHeight`,
+      inheritedBlackboard,
+    ),
+    direction: parseAdvancedDirectionSource(action.directionSettings, `${path}.directionSettings`),
+    totalTime: parseScalarSource(action.totalTime, `${path}.totalTime`, inheritedBlackboard),
+    isExtra: requireBoolean(action.isExtra, `${path}.isExtra`),
+    deadOption,
+    immobilizedTime: requireNumber(action.immobilizedTime, `${path}.immobilizedTime`),
+  };
+  return kind === 'fracture'
+    ? { kind, ...base }
+    : {
+        kind,
+        ...base,
+        damageMultiplier: parseScalarSource(
+          action.damageMultiplier,
+          `${path}.damageMultiplier`,
+          inheritedBlackboard,
+        ),
+        ignoreHitEffect: requireBoolean(action.ignoreHitEffect, `${path}.ignoreHitEffect`),
+      };
+}
+
 export function parseKnockDownActionSource(
   value: unknown,
   path: string,

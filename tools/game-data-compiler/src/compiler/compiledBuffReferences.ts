@@ -28,6 +28,17 @@ export function collectCompiledBuffApplications(
           applications.push({ buffId: 'buff_physical_no_guard', target: 'enemy' });
       }
     }
+    if (record.kind === 'applyPhysicalInfliction') {
+      const parameters = record.parameters as Record<string, unknown>;
+      const type = parameters.type;
+      const noGuardBuffId = parameters.noGuardBuffId;
+      const abnormalBuffId =
+        type === 'fracture' ? parameters.fractureBuffId : parameters.crushedBuffId;
+      if (typeof noGuardBuffId !== 'string' || typeof abnormalBuffId !== 'string')
+        throw new Error('compiled physical infliction step has invalid Buff identities');
+      applications.push({ buffId: noGuardBuffId, target: 'enemy' });
+      applications.push({ buffId: abnormalBuffId, target: 'enemy' });
+    }
     if (record.kind === 'applyBuff') {
       const parameters = record.parameters;
       if (parameters === null || typeof parameters !== 'object')

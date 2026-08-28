@@ -30,6 +30,7 @@ import { collectCombatInvisibleBuffClosureIds } from '../../compiler/combatInvis
 import { collectBuffRuntimeClosure } from '../../compiler/buffReferenceClosure.ts';
 import { collectNativeActionNodes } from '../../source/controlFlow.ts';
 import { parseGlobalBuffTemplateCatalogSource } from '../../source/globalBuffTemplate.ts';
+import { createPhysicalInflictionDefinitionHydrator } from '../../compiler/physicalInflictionHydration.ts';
 
 export interface OperatorDefinitionAssemblyInput {
   readonly foundation: ReturnType<typeof compileOperatorFoundationSource>;
@@ -83,23 +84,23 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     input.potentialBindings.map(item => item.level),
     'potentials',
   );
-  const definitions = new Map<string, SkillDefinition>();
+  const compiledDefinitions = new Map<string, CompiledOperatorActiveSkillRuntimeDefinitionSource>();
   for (const item of input.activeSkills) {
-    if (definitions.has(item.definition.key))
+    if (compiledDefinitions.has(item.definition.key))
       throw new Error(`duplicate skill ${item.definition.key}`);
     const expected = skillLibrary.activeSkills.entries.find(
       entry => entry.key === item.definition.key,
     );
     if (!expected || expected.skillId !== item.definition.sourceSkillId)
       throw new Error(`skill identity mismatch ${item.definition.key}`);
-    definitions.set(
+    compiledDefinitions.set(
       item.definition.key,
       assignGeneratedDamageStepKeys(item.definition, item.definition.sourceSkillId),
     );
   }
   requireExactIdentities(
     skillLibrary.activeSkills.entries.map(item => item.key),
-    [...definitions.keys()],
+    [...compiledDefinitions.keys()],
     'skills',
   );
   const talentPassivePlans = input.talentBindings.map(binding => {
@@ -153,29 +154,6 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     const definition = compileOperatorPotentialDefinition(progression, binding, context);
     const passiveSkills = potentialPassivePlans[index]!.definitions;
     return passiveSkills.length ? { ...definition, passiveSkills } : definition;
-  });
-  const skillGroups = skillLibrary.skillGroups.map(group => {
-    return {
-      key: group.key,
-      skillType: group.skillType,
-      levelSource: group.levelSource,
-      skills:
-        group.skillKeys.length === 1
-          ? definitions.get(group.skillKeys[0]!)!
-          : group.skillKeys.map(key => definitions.get(key)!),
-      ...(group.variants.length === 0
-        ? {}
-        : {
-            variants: group.variants.map(variant => ({
-              key: variant.key,
-              levelSource: variant.levelSource,
-              skills:
-                variant.skillKeys.length === 1
-                  ? definitions.get(variant.skillKeys[0]!)!
-                  : variant.skillKeys.map(key => definitions.get(key)!),
-            })),
-          }),
-    } satisfies SkillGroupDefinition;
   });
   const bindings = new Map<string, string>();
   const addEntityBinding = (spawn: {
@@ -272,7 +250,7 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
       id => !entityBuffIdentityReads.has(id),
     ),
   );
-  const abilityEntityDefinitions = Object.fromEntries(
+  const compiledAbilityEntityDefinitions = Object.fromEntries(
     [...bindings].map(([id, skillId]) => {
       const template = entityCatalog.byId.get(id);
       if (!template) throw new Error(`missing AbilityEntity ${id}`);
@@ -288,12 +266,12 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
       ];
     }),
   );
-  roots = [...new Set([...baseRoots, ...collectCompiledBuffIds(abilityEntityDefinitions)])];
+  roots = [...new Set([...baseRoots, ...collectCompiledBuffIds(compiledAbilityEntityDefinitions)])];
   const rootBuffOwnerTargets = new Map<string, 'caster' | 'enemy' | 'currentAbilityEntity'>();
   const rootBuffOwnerTargetConflicts = new Set<string>();
   for (const application of collectCompiledBuffApplications([
     ...input.activeSkills.map(item => item.definition),
-    abilityEntityDefinitions,
+    compiledAbilityEntityDefinitions,
   ])) {
     // 编译后的 `caster` 在 Buff 生命周期中绑定实际 Buff 宿主。所有干员集合目标都会
     // 为每个命中的干员各建一份实例，因此其固定宿主种类同样是 operator/caster；
@@ -339,16 +317,46 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
   );
   const blocked = buffClosure.diagnostics.filter(item => item.status === 'blocked');
   if (blocked.length) throw new Error(`operator Buff closure blocked: ${JSON.stringify(blocked)}`);
+  const hydrate = createPhysicalInflictionDefinitionHydrator(buffClosure.definitions);
+  const definitions = new Map<string, SkillDefinition>(
+    [...compiledDefinitions].map(([key, definition]) => [key, hydrate(definition)]),
+  );
+  const abilityEntityDefinitions = hydrate(compiledAbilityEntityDefinitions);
+  const skillGroups = skillLibrary.skillGroups.map(group => {
+    return {
+      key: group.key,
+      skillType: group.skillType,
+      levelSource: group.levelSource,
+      skills:
+        group.skillKeys.length === 1
+          ? definitions.get(group.skillKeys[0]!)!
+          : group.skillKeys.map(key => definitions.get(key)!),
+      ...(group.variants.length === 0
+        ? {}
+        : {
+            variants: group.variants.map(variant => ({
+              key: variant.key,
+              levelSource: variant.levelSource,
+              skills:
+                variant.skillKeys.length === 1
+                  ? definitions.get(variant.skillKeys[0]!)!
+                  : variant.skillKeys.map(key => definitions.get(key)!),
+            })),
+          }),
+    } satisfies SkillGroupDefinition;
+  });
   const privateBuffs: Record<string, CompiledBuffDefinitionSource> = {},
     commonBuffs: Record<string, CompiledBuffDefinitionSource> = {};
   for (const [id, definition] of Object.entries(buffClosure.definitions)) {
-    if (id.startsWith(`buff_${foundation.identity.characterId}_`)) privateBuffs[id] = definition;
+    const hydratedDefinition = hydrate(definition);
+    if (id.startsWith(`buff_${foundation.identity.characterId}_`))
+      privateBuffs[id] = hydratedDefinition;
     else if (id.startsWith('buff_chr_')) {
       throw new Error(`foreign operator Buff ownership is not established: ${id}`);
     } else {
       // 物理/元素反应等系统 Buff 不使用 buff_common_ 前缀，但与角色私有 Buff 一样
       // 由稳定身份决定归属；旧统一链接器也把所有非 buff_chr_* 定义放入共享目录。
-      commonBuffs[id] = definition;
+      commonBuffs[id] = hydratedDefinition;
     }
   }
   const { sourceCharacterId: _sourceCharacterId, ...header } =

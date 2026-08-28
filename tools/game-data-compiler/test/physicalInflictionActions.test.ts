@@ -1,6 +1,9 @@
 import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { describe, expect, it } from 'vitest';
-import { parseKnockDownActionSource } from '../src/source/physicalInflictionActions.ts';
+import {
+  parseKnockDownActionSource,
+  parsePhysicalInflictionActionSource,
+} from '../src/source/physicalInflictionActions.ts';
 import { parseKnownNativeActionLeafSource } from '../src/source/actionLeaf.ts';
 import { parseNativeSequenceSource } from '../src/source/controlFlow.ts';
 import {
@@ -11,6 +14,8 @@ import { compileCombatActionSequenceSource } from '../src/compiler/buffRuntimePr
 import { scalarFixture, targetFixture } from './sourceFixtures.ts';
 import { projectKnockDownAction } from '../src/compiler/knockDownProjection.ts';
 import { collectCompiledBuffApplications } from '../src/compiler/compiledBuffReferences.ts';
+import { projectPhysicalInflictionAction } from '../src/compiler/physicalInflictionProjection.ts';
+import { createPhysicalInflictionDefinitionHydrator } from '../src/compiler/physicalInflictionHydration.ts';
 
 const sequence = (actionData: unknown[]) => ({
   actionData,
@@ -40,6 +45,35 @@ function knockDown(overrides: Record<string, unknown> = {}) {
     isExtra: false,
     deadOption: 'AllValid',
     returnTrueWhen: 'Always',
+    ...overrides,
+  };
+}
+function physical(kind: 'fracture' | 'crush', overrides: Record<string, unknown> = {}) {
+  return {
+    $type: `Beyond.Gameplay.Core.${kind === 'fracture' ? 'Fracture' : 'Crush'}Action+Data, Gameplay.Beyond`,
+    isEnable: true,
+    priorityLevel: 'Default',
+    priorityOffset: 0,
+    serverActionIndex: 12,
+    attackerTargetSettings: targetFixture('Owner'),
+    targetSettings: targetFixture('Context', undefined, 'targets'),
+    blowOffDistance: scalarFixture(3),
+    distanceRandomRange: scalarFixture(0),
+    overwriteHeight: false,
+    blowOffHeight: scalarFixture(0),
+    directionSettings: {
+      directionType: 'SourceToTarget',
+      sourceMountPoint: 'None',
+      targetMountPoint: 'None',
+      customSourceAndTarget: false,
+      clampToXZ: true,
+      invertDirection: false,
+    },
+    totalTime: scalarFixture(3),
+    isExtra: false,
+    deadOption: 'AllValid',
+    ...(kind === 'crush' ? { damageMultiplier: scalarFixture(1), ignoreHitEffect: false } : {}),
+    immobilizedTime: 0,
     ...overrides,
   };
 }
@@ -250,5 +284,98 @@ describe('击倒来源与隐式引用', () => {
     expect(() => projectKnockDownAction({ ...action, isExtra: true }, 'fixture', context)).toThrow(
       'extra knock-down',
     );
+  });
+});
+
+describe('断裂与猛击公共物理异常链', () => {
+  const context = {
+    actionOwnerTarget: 'caster',
+    actionSourceTarget: 'caster',
+    actionTargetTarget: 'enemy',
+    staticEnemyTargetGroupKeys: new Set(['targets']),
+  } as const;
+
+  it.each(['fracture', 'crush'] as const)('严格读取并投影 %s 的公共 Buff 身份', kind => {
+    const source = parsePhysicalInflictionActionSource(physical(kind), 'fixture', {}, kind);
+    expect(source).toMatchObject({
+      kind,
+      attacker: { targetSource: 'Owner' },
+      target: { targetSource: 'Context', targetGroupKey: 'targets' },
+      totalTime: { value: 3 },
+      isExtra: false,
+    });
+    const projected = projectPhysicalInflictionAction(source, 'fixture', context);
+    expect(collectCompiledBuffApplications([projected])).toEqual([
+      { buffId: 'buff_physical_no_guard', target: 'enemy' },
+      {
+        buffId: kind === 'fracture' ? 'buff_physical_fracture' : 'buff_physical_crushed',
+        target: 'enemy',
+      },
+    ]);
+    expect(projected.parameters.noGuardDefinition.blackboard).toHaveProperty(
+      '__compiler_deferred_physical_buff_definition',
+    );
+  });
+
+  it('猛击保留运行时倍率与 hit-effect 控制，最终装配按 ID 内联真实蓝图', () => {
+    const projected = projectPhysicalInflictionAction(
+      parsePhysicalInflictionActionSource(
+        physical('crush', {
+          damageMultiplier: scalarFixture(0, 'crush_multiplier'),
+          ignoreHitEffect: true,
+        }),
+        'fixture',
+        {},
+        'crush',
+      ),
+      'fixture',
+      context,
+    );
+    expect(projected.parameters).toMatchObject({
+      type: 'crush',
+      damageMultiplier: { kind: 'blackboard', key: 'crush_multiplier' },
+      ignoreHitEffect: true,
+    });
+    const definition = (marker: number) => ({
+      stackingType: 'unlimited' as const,
+      priority: marker,
+      maxStackCount: 1,
+      applyTags: [],
+      extendTags: [],
+      blackboard: {},
+      attributeModifiers: [],
+    });
+    const hydrate = createPhysicalInflictionDefinitionHydrator({
+      buff_physical_no_guard: definition(10),
+      buff_physical_crushed: definition(20),
+    });
+    expect(hydrate(projected).parameters).toMatchObject({
+      noGuardDefinition: { priority: 10 },
+      crushedDefinition: { priority: 20 },
+    });
+  });
+
+  it('拒绝死亡目标分支与未证明的敌人目标组', () => {
+    const dead = parsePhysicalInflictionActionSource(
+      physical('fracture', { deadOption: 'OnlyDead' }),
+      'fixture',
+      {},
+      'fracture',
+    );
+    expect(() => projectPhysicalInflictionAction(dead, 'fixture', context)).toThrow(
+      'dead-only physical infliction',
+    );
+    const source = parsePhysicalInflictionActionSource(
+      physical('fracture'),
+      'fixture',
+      {},
+      'fracture',
+    );
+    expect(() =>
+      projectPhysicalInflictionAction(source, 'fixture', {
+        ...context,
+        staticEnemyTargetGroupKeys: new Set(),
+      }),
+    ).toThrow('attacker/target');
   });
 });

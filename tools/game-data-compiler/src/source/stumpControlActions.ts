@@ -241,7 +241,7 @@ export function parseTargetHitStopActionSource(
     path,
   );
   const affectType = requireString(action.affectType, `${path}.affectType`);
-  if (!['OnlyTarget', 'Both'].includes(affectType))
+  if (!['OnlyAttacker', 'OnlyTarget', 'Both'].includes(affectType))
     throw new Error(`${path}.affectType: unsupported hit-stop target set ${affectType}`);
   const useDirectCurve = requireBoolean(action.useDirectCurve, `${path}.useDirectCurve`);
   const directCurve = requireArray(action.directCurve, `${path}.directCurve`);

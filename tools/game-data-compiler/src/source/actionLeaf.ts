@@ -54,7 +54,9 @@ import {
 import { parseDamageActionSource, type DamageActionSource } from './damageActions.ts';
 import {
   parseKnockDownActionSource,
+  parsePhysicalInflictionActionSource,
   type KnockDownActionSource,
+  type PhysicalInflictionActionSource,
 } from './physicalInflictionActions.ts';
 import { parseHealActionSource, type HealActionSource } from './healActions.ts';
 import {
@@ -277,6 +279,8 @@ const REFERENCE_CLOSURE_ACTION_NAMES = new Set([
   'CastSkill',
   'ForceSpellStatusAction',
   'KnockDownAction',
+  'FractureAction',
+  'CrushAction',
 ]);
 
 export type KnownNativeActionParseScope = 'all' | 'referenceClosure';
@@ -348,7 +352,10 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'elementalInfliction'; readonly action: ElementalInflictionActionSource }
   | { readonly family: 'buffIgnite'; readonly action: BuffIgniteActionSource }
   | { readonly family: 'forcedElementalStatus'; readonly action: ForcedElementalStatusActionSource }
-  | { readonly family: 'physicalInfliction'; readonly action: KnockDownActionSource }
+  | {
+      readonly family: 'physicalInfliction';
+      readonly action: KnockDownActionSource | PhysicalInflictionActionSource;
+    }
   | { readonly family: 'spellBurstEvent'; readonly action: TriggerSpellBurstEventSource }
   | {
       readonly family: 'levelEvent';
@@ -875,6 +882,16 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'physicalInfliction',
         action: parseKnockDownActionSource(value, path, inheritedBlackboard),
+      };
+    case 'FractureAction':
+      return {
+        family: 'physicalInfliction',
+        action: parsePhysicalInflictionActionSource(value, path, inheritedBlackboard, 'fracture'),
+      };
+    case 'CrushAction':
+      return {
+        family: 'physicalInfliction',
+        action: parsePhysicalInflictionActionSource(value, path, inheritedBlackboard, 'crush'),
       };
     case 'BlowOffEnemyAction':
       return {

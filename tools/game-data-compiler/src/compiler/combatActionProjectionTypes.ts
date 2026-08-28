@@ -204,6 +204,7 @@ type HealParameters = (
 
 export type CompiledBuffStepSource =
   | Step<'applyKnockDown'>
+  | Step<'applyPhysicalInfliction'>
   | Step<'findCharacterTeamTargets'>
   | Step<'igniteBuffs'>
   | Step<'triggerSpellBurst'>
